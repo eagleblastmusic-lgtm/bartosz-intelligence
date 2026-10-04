@@ -1,0 +1,23 @@
+name: Stage 01 local verification
+on: [push, pull_request, workflow_dispatch]
+permissions:
+  contents: read
+jobs:
+  local:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    env:
+      WRANGLER_SEND_METRICS: 'false'
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24.21.0'
+      - run: npm install --global pnpm@12.9.1
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm lint && pnpm format:check && pnpm typecheck
+      - run: pnpm verify:config && pnpm verify:migrations
+      - run: pnpm build
+      - run: pnpm test:unit && pnpm test:contract && pnpm test:workers
+      - run: pnpm exec playwright install --with-deps chromium
+      - run: pnpm test:e2e

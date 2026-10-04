@@ -5,6 +5,9 @@
   "type": "module",
   "scripts": {
     "typecheck": "tsc -p tsconfig.json",
-    "build": "tsc -p tsconfig.json"
+    "build": "wrangler deploy --dry-run --config wrangler.jsonc --outdir dist"
+  },
+  "dependencies": {
+    "hono": "4.13.13"
   }
 }

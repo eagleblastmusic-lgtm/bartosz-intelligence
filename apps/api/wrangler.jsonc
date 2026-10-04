@@ -1,0 +1,28 @@
+{
+  "$schema": "../../node_modules/wrangler/config-schema.json",
+  "name": "bartosz-intelligence-stage01-local",
+  "main": "src/index.ts",
+  "compatibility_date": "2026-10-01",
+  "workers_dev": false,
+  "assets": {
+    "directory": "../web/dist",
+    "binding": "ASSETS",
+    "not_found_handling": "single-page-application",
+    "run_worker_first": ["/api", "/api/*", "/health"],
+  },
+  "d1_databases": [
+    {
+      "binding": "DB",
+      "database_name": "stage01-local-fixture",
+      "database_id": "00000000-0000-0000-0000-000000000001",
+      "migrations_dir": "../../db/migrations",
+    },
+  ],
+  "queues": {
+    "producers": [
+      { "binding": "BARTOSZ_QUEUE", "queue": "stage01-local-fixture" },
+    ],
+    "consumers": [{ "queue": "stage01-local-fixture", "max_retries": 0 }],
+  },
+  "dev": { "ip": "127.0.0.1", "port": 8787 },
+}
