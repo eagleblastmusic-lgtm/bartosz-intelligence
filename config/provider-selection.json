@@ -37,14 +37,21 @@
   },
   "ai": {
     "enabled": false,
-    "provider": null,
-    "runtime": null,
-    "model": null,
-    "eligibility_ref": null
+    "provider": "gemini",
+    "runtime": "node",
+    "model": "gemini-3.8-flash",
+    "eligibility_ref": "docs/verification/gate-e/owner-use-decision.json",
+    "owner_use_classification": "professional_single_owner",
+    "billing_route": "disabled",
+    "free_eligible": null,
+    "production_enabled": false,
+    "qualification_status": "LIVE_PROBE_UNPARSEABLE_HTTP_200",
+    "probe_ref": "docs/verification/gate-e/gemini-probe.json"
   },
   "limitations": [
     "Gate E not qualified",
     "Gate 0 and CPU not run",
-    "No measured primary route"
+    "No measured primary route",
+    "Owner permits Gemini Free for sole-user professional use; model production availability not qualified"
   ]
 }

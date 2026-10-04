@@ -1,0 +1,24 @@
+{
+  "recorded_at": "2026-10-04",
+  "source": "explicit owner instruction in current conversation",
+  "owner_use_classification": "professional_single_owner",
+  "developer_is_only_user": true,
+  "public_or_other_user_distribution": false,
+  "region": "PL/EEA",
+  "google_project": "bartosz-intelligence",
+  "billing_route": "disabled",
+  "paid_services_enabled": false,
+  "paid_fallback": false,
+  "trial_credits_baseline": false,
+  "qualification_basis": "owner declaration, supported by observed Free tier and disconnected project billing",
+  "terms_caveat": "Terms do not explicitly describe developer=single user. This is neither legal advice nor individual confirmation from Google.",
+  "reverification_triggers": [
+    "Terms change",
+    "eligibility change",
+    "billing or project change",
+    "distribution or audience change"
+  ],
+  "technical_probe_required": true,
+  "production_activation": "conditional on real capabilities, allowance and successful live probe",
+  "recorded_precision": "date only; conversation event timestamp not asserted"
+}

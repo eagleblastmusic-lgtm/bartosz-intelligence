@@ -3,7 +3,7 @@
 Stage: 01 / 01_PHASE_0_GATES_AND_BOOTSTRAP.md
 Status: BLOCKED
 Date: 2026-10-04
-Final checkpoint tag: `stage-01-cp-1.4-account-evidence` (resolve locally with `git rev-parse stage-01-cp-1.4-account-evidence`)
+Current checkpoint: pending canonical Gemini 3.8 probe evidence commit.
 Decision: NO-GO for Stage 02
 
 ## Implemented and checkpoints
@@ -57,8 +57,9 @@ validation. Local CI source export `.local/clean-cp13` passed 22 unit + 4 contra
 After resumed Gate E work, 40 unit tests, tools typecheck, targeted lint and syntax
 passed. Current relevant evidence covers 51 tests; unchanged Worker/contract/E2E
 inputs retain CP-1.3 evidence. Node/lint/format negative controls also passed.
-Failed required local tests: NONE after fixes. Gate E account command exits 2
-intentionally for INCONCLUSIVE; this blocks completion, not a passing live test.
+Failed required local tests: NONE in previous CP-1.1–CP-1.3 suites. Current
+Gemini Gate E probe is FAIL: HTTP 200 without preserved/validated structured output.
+The account gate command exits 2 on this failure.
 Skipped/not run: real runtime qualification probes, Gate 0 corpus/benchmark, platform CPU, 0B,
 hosted GitHub Actions and Stage 01 final DoD/GO. Hosted CI has no remote/push.
 
@@ -76,11 +77,17 @@ plan, 0/100,000 requests today, no Workers billable usage in current period; Goo
 project billing disabled and AI Studio Free tier. YouTube quota 10,000/day usage 1,
 search 100/day usage 0. Gemini Flash 5 RPM/250K TPM/20 RPD; Flash Lite 10/250K/20.
 Purpose: private professional/business, confirmed by owner; single-owner PL/EEA,
-no distribution. EEA API Client Paid Services restriction applicability to this
-exact sole-user application is unresolved; Free tier alone cannot close eligibility.
-No Gemini generation. D1/Queues/Assets budgets/reset/runtime proof incomplete.
+no distribution. Owner explicitly approves professional_single_owner classification;
+Terms do not describe that exact case; this is not legal advice or individual Google
+confirmation. Reverify on Terms/eligibility/project/billing/audience change.
+One minimal synthetic canonical Gemini 3.8 probe: models.list HTTP 200 with
+generateContent advertised; generation HTTP 200 but output parse/validation failed
+and response diagnostics/usage were not saved. No retries or paid fallback.
+Production disabled; technical qualification not promoted to PASS. Prior
+gemini-2.5-flash request and reservation are marked invalid legacy evidence and
+excluded. D1/Queues/Assets budgets/reset/runtime proof incomplete.
 Cloud metadata access and local bootstrap do not establish Gate E PASS.
-Gate E INCONCLUSIVE; Gate 0/CPU NOT_RUN. Gate 0B NOT_RUN and disabled; no alternate
+Gate E FAIL; Gate 0/CPU NOT_RUN. Gate 0B NOT_RUN and disabled; no alternate
 subscription route was selected. Gate C NOT_RUN. Measured sustainable μ UNKNOWN.
 All transcript roles and AI routes disabled; no benchmark-based selections exist.
 No paid services, upgrades, credits, proxy or trial baseline activated in this run.
@@ -88,7 +95,7 @@ This does not prove account-level zero billing without actual billing evidence.
 
 ## Known issues, architecture deviations and deferred items
 
-Blocking exact-use Gemini eligibility and incomplete live qualification: `gate-e/REPORT.md`.
+Blocking Gemini response validation and incomplete service qualification: `gate-e/REPORT.md`.
 Architecture deviations: NONE. No ARCHITECTURE CHANGE REQUIRED established.
 Master SHA-256 verified against index; all Plan inputs remained untouched.
 The start prompt was absent in Plan; the owner-mentioned Downloads copy was used.
@@ -103,9 +110,10 @@ NOT guaranteed: qualified source access, free account eligibility, actual CPU,
 selected AI route, useful capacity or Stage 02 readiness. Never start Stage 02
 from this BLOCKED handoff.
 
-Resume CP-1.4 after official clarification of exact-use EEA eligibility or a permitted
-alternative qualification path. Login, account/project selection and credentials
-no longer require owner action. Then finish budgets and bounded real service probes.
+Resume CP-1.4 response parsing/capability qualification with a new owner-authorized
+bounded reservation if needed, preserving the one completed request and owner
+decision. No owner legal clarification is required. Login, project and credentials
+remain configured. Then finish budgets and bounded real service probes.
 DoD reviewed against Stage 01 plan §18: not satisfied because active-path eligibility,
 Gate 0/CPU, later checkpoints and selected AI/source routes are not qualified.
 CP-1.8 final clean suite is not claimed; no completion or readiness implied.

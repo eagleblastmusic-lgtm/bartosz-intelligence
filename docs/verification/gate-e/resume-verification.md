@@ -19,3 +19,21 @@ Previous 4 contract + 6 workerd + 1 Chromium proofs remain relevant.
 Gate 0, CPU, 0B: NOT_RUN. Gate E: INCONCLUSIVE. Stage 01: BLOCKED.
 DoD review is a failed completion assessment, not CP-1.8 or final clean-suite PASS.
 Checkpoint reference: stage-01-cp-1.4-account-evidence.
+
+## Canonical model correction
+
+The prior gate attempt selected a noncanonical model. It is archived under
+`legacy-invalid-probes/` as an invalid request and reservation; its HTTP 404 is
+excluded from model availability conclusions. Only those two explicit legacy
+JSON records retain that model identifier.
+
+The owner selected `professional_single_owner`; caveats and change triggers are
+recorded in `owner-use-decision.json`. Gemini Rate Limit UI for project
+`bartosz-intelligence` showed Gemini 3.8 Flash 5 RPM / 250K input TPM / 20 RPD,
+0 peak requests over 28 days. `models.list` then returned HTTP 200 and advertised
+`generateContent` for the canonical candidate. Exactly one generation request
+was submitted (max 64 output tokens, no tools/grounding, no retry). It returned
+HTTP 200, but the harness did not establish valid structured output or preserve
+response diagnostics/usage. This is a Gate E probe FAIL, not model unavailability.
+No second generation was sent. `production_enabled=false`, `billing_route=disabled`.
+Gate E account preflight is now FAIL; Gate 0, CPU and 0B remain NOT_RUN.

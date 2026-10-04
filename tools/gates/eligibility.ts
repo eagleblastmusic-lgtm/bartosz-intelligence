@@ -90,20 +90,65 @@ const dashboard = existsSync(dashboardPath)
       blockers?: string[];
     })
   : null;
+const ownerPath = resolve(output, 'owner-use-decision.json');
+const owner = existsSync(ownerPath)
+  ? (JSON.parse(readFileSync(ownerPath, 'utf8')) as {
+      owner_use_classification?: string;
+      developer_is_only_user?: boolean;
+      public_or_other_user_distribution?: boolean;
+      billing_route?: string;
+      paid_services_enabled?: boolean;
+    })
+  : null;
+const ownerClassified =
+  owner?.owner_use_classification === 'professional_single_owner' &&
+  owner.developer_is_only_user === true &&
+  owner.public_or_other_user_distribution === false &&
+  owner.billing_route === 'disabled' &&
+  owner.paid_services_enabled === false;
+const probePath = resolve(output, 'gemini-probe.json');
+const probe = existsSync(probePath)
+  ? (JSON.parse(readFileSync(probePath, 'utf8')) as {
+      result?: string;
+      http_status?: number;
+      reason?: string;
+    })
+  : null;
+const reservationPath = resolve(output, 'gemini-probe-reservation.json');
+const reservation = existsSync(reservationPath)
+  ? (JSON.parse(readFileSync(reservationPath, 'utf8')) as {
+      generation_requests?: number;
+    })
+  : null;
+const probeFailed = probe?.result === 'FAIL';
 const report = {
   mode: values.mode,
   sampled_at: new Date().toISOString(),
-  result: values.mode === 'dry-run' ? 'NOT_RUN' : 'INCONCLUSIVE',
+  result:
+    values.mode === 'dry-run'
+      ? 'NOT_RUN'
+      : probeFailed
+        ? 'FAIL'
+        : 'INCONCLUSIVE',
   paid_services_enabled: false,
   network_submissions: 0,
+  provider_generation_submissions: reservation?.generation_requests ?? 0,
   account_metadata_read: { cloudflare_auth: auth, cli_exit_code: authExit },
   credential_presence_only: credentials,
   snapshots: [],
+  owner_use_classification: ownerClassified
+    ? 'professional_single_owner'
+    : null,
+  gemini_live_probe: probe,
   account_evidence_refs:
     values.mode === 'account'
       ? [
           'account-readonly.json',
           ...(dashboard ? ['dashboard-observations.json'] : []),
+          ...(ownerClassified ? ['owner-use-decision.json'] : []),
+          ...(probe
+            ? ['gemini-probe.json', 'gemini-probe-reservation.json']
+            : []),
         ]
       : [],
   services: [
@@ -117,7 +162,7 @@ const report = {
     service,
     active_baseline_required: true,
     free_eligible: 'UNKNOWN',
-    gate: 'NOT_RUN',
+    gate: service === 'gemini' && probeFailed ? 'FAIL' : 'NOT_RUN',
   })),
   drive: {
     active: false,
@@ -133,10 +178,26 @@ const report = {
             : auth === 'ACCESS_OBSERVED_ACCOUNT_SELECTED'
               ? []
               : ['CLOUDFLARE_ACCOUNT_SELECTION_REQUIRED']),
-          ...(dashboard?.blockers ?? [
-            'ACCOUNT_QUOTA_BILLING_AND_PURPOSE_PROOF_REQUIRED',
-          ]),
-          'LIVE_SERVICE_PROBES_AND_USAGE_EVIDENCE_NOT_RUN',
+          ...(
+            dashboard?.blockers ?? [
+              'ACCOUNT_QUOTA_BILLING_AND_PURPOSE_PROOF_REQUIRED',
+            ]
+          ).filter(
+            (blocker) =>
+              !(
+                ownerClassified &&
+                blocker ===
+                  'GEMINI_EEA_SINGLE_OWNER_API_CLIENT_ELIGIBILITY_UNRESOLVED'
+              ),
+          ),
+          ...(probeFailed
+            ? [
+                probe.http_status === 200
+                  ? 'GEMINI_STRUCTURED_OUTPUT_VALIDATION_FAILED'
+                  : `GEMINI_LIVE_PROBE_FAILED_${probe.http_status ?? 'TRANSPORT'}`,
+              ]
+            : []),
+          'OTHER_REQUIRED_SERVICE_PROBES_NOT_RUN',
         ],
 };
 mkdirSync(output, { recursive: true });
@@ -163,6 +224,7 @@ console.log(
     result: report.result,
     cloudflare_auth: auth,
     network_submissions: 0,
+    provider_generation_submissions: report.provider_generation_submissions,
     blockers: report.blockers,
   }),
 );

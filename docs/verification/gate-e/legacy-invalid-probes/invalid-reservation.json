@@ -1,0 +1,12 @@
+{
+  "sampled_at": "2026-10-04T17:53:01.333Z",
+  "model": "gemini-2.5-flash",
+  "generation_requests": 1,
+  "max_output_tokens": 64,
+  "status": "SETTLED",
+  "http_status": 404,
+  "usage": null,
+  "classification": "LEGACY_INVALID_MODEL_PROBE_SUPERSEDED_BY_OWNER_CANONICAL_MODEL",
+  "valid_gate_evidence": false,
+  "historical_note": "The previous implementation selected the wrong model against canonical Master Architecture. Its HTTP result is excluded from model availability conclusions and Gate E qualification."
+}

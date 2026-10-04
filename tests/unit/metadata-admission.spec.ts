@@ -15,7 +15,7 @@ describe('account metadata boundary', () => {
   it.each([
     `https://api.cloudflare.com/client/v4/accounts/${'b'.repeat(32)}/queues`,
     `https://api.cloudflare.com/client/v4/accounts/${account}/workers/scripts/new`,
-    'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent',
+    'https://generativelanguage.googleapis.com/v1beta/models/gemini-3.8-flash:generateContent',
     'https://www.googleapis.com/youtube/v3/videos?key=secret',
     'https://example.com/',
   ])('rejects other endpoints before transport: %s', (url) => {

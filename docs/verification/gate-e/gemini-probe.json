@@ -1,0 +1,30 @@
+{
+  "sampled_at": "2026-10-04T18:00:42.577Z",
+  "model": "gemini-3.8-flash",
+  "runtime": "node-24.21.0",
+  "harness_version": "rest-v1beta-probe-1",
+  "owner_use_classification": "professional_single_owner",
+  "classification_ref": "docs/verification/gate-e/owner-use-decision.json",
+  "billing_route": "disabled",
+  "paid_services_enabled": false,
+  "probe_budget": {
+    "generation_requests": 1,
+    "max_output_tokens": 64,
+    "retries": 0,
+    "tools": false,
+    "grounding": false
+  },
+  "models_http_status": 200,
+  "capability_observed": true,
+  "generation_submissions": 1,
+  "http_status": 200,
+  "structured_output_valid": false,
+  "usage": null,
+  "latency_ms": 3666,
+  "cpu_platform_ms": null,
+  "request_sha256": "3a82732e15baa5e297fbc04a561f26ae95c76057cc938d369c115405e659f66a",
+  "result": "FAIL",
+  "reason": "HTTP_200_STRUCTURED_RESPONSE_VALIDATION_FAILED_DIAGNOSTIC_NOT_PRESERVED",
+  "response_diagnostic": null,
+  "diagnostic_note": "The single request returned HTTP 200. The original harness catch did not save a response shape summary; no request retry is made to recover it."
+}
