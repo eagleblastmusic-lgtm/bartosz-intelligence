@@ -21,7 +21,8 @@
     "test:contract": "vitest run --project contracts",
     "verify:migrations": "tsx tools/db/verify-migrations.ts",
     "dev:api": "wrangler dev --local --config apps/api/wrangler.jsonc --persist-to .local/worker",
-    "test:e2e": "playwright test"
+    "test:e2e": "playwright test",
+    "gate:e": "tsx --env-file-if-exists=.env tools/gates/eligibility.ts"
   },
   "devDependencies": {
     "@cloudflare/vitest-plugin": "1.3.6",

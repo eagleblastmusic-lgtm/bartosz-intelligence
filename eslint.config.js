@@ -1,7 +1,15 @@
 import tseslint from 'typescript-eslint';
 
 export default tseslint.config(
-  { ignores: ['**/dist/**', '.tools/**', '.local/**', 'Plan/**'] },
+  {
+    ignores: [
+      '**/dist/**',
+      '**/.wrangler/**',
+      '.tools/**',
+      '.local/**',
+      'Plan/**',
+    ],
+  },
   ...tseslint.configs.recommended,
   {
     files: ['apps/api/src/**/*.ts'],

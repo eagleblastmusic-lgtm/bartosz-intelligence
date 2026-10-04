@@ -1,0 +1,50 @@
+{
+  "config_version": "1",
+  "status": "BLOCKED_GATE_E",
+  "transcript_roles": {
+    "PRIMARY": {
+      "enabled": false,
+      "provider": null,
+      "runtime": null,
+      "version": null,
+      "eligibility_ref": null,
+      "benchmark_ref": null
+    },
+    "SECONDARY": {
+      "enabled": false,
+      "provider": null,
+      "runtime": null,
+      "version": null,
+      "eligibility_ref": null,
+      "benchmark_ref": null
+    },
+    "TERTIARY": {
+      "enabled": false,
+      "provider": null,
+      "runtime": null,
+      "version": null,
+      "eligibility_ref": null,
+      "benchmark_ref": null
+    },
+    "LAST_RESORT": {
+      "enabled": false,
+      "provider": null,
+      "runtime": null,
+      "version": null,
+      "eligibility_ref": null,
+      "benchmark_ref": null
+    }
+  },
+  "ai": {
+    "enabled": false,
+    "provider": null,
+    "runtime": null,
+    "model": null,
+    "eligibility_ref": null
+  },
+  "limitations": [
+    "Gate E not qualified",
+    "Gate 0 and CPU not run",
+    "No measured primary route"
+  ]
+}
