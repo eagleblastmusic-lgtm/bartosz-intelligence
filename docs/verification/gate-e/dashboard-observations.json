@@ -1,0 +1,90 @@
+{
+  "sampled_at": "2026-10-04T17:42:50.717Z",
+  "evidence_kind": "redacted contemporaneous authenticated Chrome UI observation",
+  "region": "PL/EEA",
+  "purpose": "private professional/business work explicitly confirmed by owner",
+  "single_owner": true,
+  "public_distribution": false,
+  "paid_services_enabled": false,
+  "cloudflare": {
+    "account_pseudonym": "cf-40d0a5314bb84431",
+    "plan": "Workers Free",
+    "plan_evidence": "Workers plans: Free Current plan; Paid Upgrade",
+    "requests_today": 0,
+    "request_limit_per_day": 100000,
+    "cpu_limit_ms_per_request": 10,
+    "billing_observation": "Workers: No billable usage incurred yet, October 1 - November 1",
+    "billing_scope": "Workers, not unrelated account resources",
+    "subscriptions_api_status": 403,
+    "d1_capacity_usage": "one existing database, 2895872 bytes; account/per-DB budgets and row usage not yet qualified",
+    "queues": "API count 0; delivery NOT_PROBED",
+    "assets": "local CP-1.3 proof only; real service NOT_PROBED",
+    "reset_timezone": null
+  },
+  "google": {
+    "project": "bartosz-intelligence",
+    "billing": "DISABLED",
+    "billing_evidence": "Cloud Manage account toast: project payments disabled; absent from linked project list",
+    "youtube_queries_per_day": { "limit": 10000, "usage": 1 },
+    "youtube_queries_per_minute": { "limit": 1800000, "usage": 1 },
+    "youtube_search_per_day": { "limit": 100, "usage": 0 },
+    "youtube_search_per_minute": { "limit": 100, "usage": 0 },
+    "youtube_video_batch_get_stats_per_day": { "limit": 10000, "usage": 0 },
+    "youtube_video_batch_get_stats_per_minute": { "limit": 600, "usage": 0 },
+    "reset_timezone": "America/Los_Angeles",
+    "reset_timezone_source": "official YouTube documentation, not account UI",
+    "key_project_binding": "owner-selected project; matching YouTube usage corroborates lookup; cryptographic binding not verified"
+  },
+  "gemini": {
+    "project": "bartosz-intelligence",
+    "tier": "Free tier",
+    "tier_evidence": "AI Studio Projects and selected Rate Limit page",
+    "models": [
+      {
+        "dashboard_label": "Gemini 2.5 Flash",
+        "rpm": 5,
+        "input_tpm": 250000,
+        "rpd": 20
+      },
+      {
+        "dashboard_label": "Gemini 2.5 Flash Lite",
+        "rpm": 10,
+        "input_tpm": 250000,
+        "rpd": 20
+      },
+      {
+        "dashboard_label": "Gemini 3 Flash",
+        "rpm": 5,
+        "input_tpm": 250000,
+        "rpd": 20
+      },
+      {
+        "dashboard_label": "Gemini 2.5 Pro",
+        "rpm": 0,
+        "input_tpm": 0,
+        "rpd": 0
+      }
+    ],
+    "peak_usage_last_28_days": 0,
+    "usage_caveat": "UI may lag 15 minutes; peak usage is not exact remaining quota",
+    "reset_timezone": null,
+    "model_api_ids_and_structured_output": "NOT_PROBED",
+    "terms_effective": "2026-03-23",
+    "terms_url": "https://ai.google.dev/gemini-api/terms",
+    "eligibility": "INCONCLUSIVE",
+    "reason": "Professional purpose confirmed. EEA API Client restriction has no explicit sole-owner exception; exact private-use applicability not established.",
+    "generation_submissions": 0,
+    "alternate_primary_route": "NOT_QUALIFIED"
+  },
+  "drive": {
+    "active": false,
+    "gate": "UNAVAILABLE",
+    "future_gate": "authorized storage/API/Pickers evidence before activation"
+  },
+  "external_mutations": 0,
+  "blockers": [
+    "GEMINI_EEA_SINGLE_OWNER_API_CLIENT_ELIGIBILITY_UNRESOLVED",
+    "CLOUDFLARE_D1_QUEUES_ASSETS_USAGE_LIMITS_AND_LIVE_PROBES_NOT_QUALIFIED"
+  ],
+  "result": "INCONCLUSIVE"
+}

@@ -1,0 +1,103 @@
+{
+  "sampled_at": "2026-10-04T17:34:18.569Z",
+  "mode": "read-only",
+  "config_paid_services_enabled": false,
+  "account_pseudonym": "cf-40d0a5314bb84431",
+  "google_project": "bartosz-intelligence",
+  "cloudflare_auth_mode": "oauth",
+  "credential_presence": {
+    "cloudflare_account": true,
+    "cloudflare_api_token": false,
+    "youtube_api_key": true,
+    "gemini_api_key": true
+  },
+  "observations": [
+    {
+      "service": "cloudflare-subscriptions",
+      "sampled_at": "2026-10-04T17:34:18.569Z",
+      "http_status": 403,
+      "latency_ms": 565,
+      "bytes": 223,
+      "outcome": "ACCESS_DENIED",
+      "evidence": null
+    },
+    {
+      "service": "cloudflare-worker-account-settings",
+      "sampled_at": "2026-10-04T17:34:18.569Z",
+      "http_status": 200,
+      "latency_ms": 918,
+      "bytes": 141,
+      "outcome": "ACCESS_OBSERVED",
+      "evidence": {
+        "success": true,
+        "default_usage_model": "standard"
+      }
+    },
+    {
+      "service": "cloudflare-d1-list",
+      "sampled_at": "2026-10-04T17:34:18.569Z",
+      "http_status": 200,
+      "latency_ms": 344,
+      "bytes": 311,
+      "outcome": "ACCESS_OBSERVED",
+      "evidence": {
+        "success": true,
+        "database_count": 1,
+        "databases": [
+          {
+            "pseudonym": "8bdcae02cdf4776a",
+            "size_bytes": 2895872
+          }
+        ]
+      }
+    },
+    {
+      "service": "cloudflare-queues-list",
+      "sampled_at": "2026-10-04T17:34:18.569Z",
+      "http_status": 200,
+      "latency_ms": 975,
+      "bytes": 195,
+      "outcome": "ACCESS_OBSERVED",
+      "evidence": {
+        "success": true,
+        "queue_count": 0
+      }
+    },
+    {
+      "service": "cloudflare-worker-scripts-list",
+      "sampled_at": "2026-10-04T17:34:18.569Z",
+      "http_status": 200,
+      "latency_ms": 971,
+      "bytes": 691,
+      "outcome": "ACCESS_OBSERVED",
+      "evidence": {
+        "success": true,
+        "script_count": 1
+      }
+    },
+    {
+      "service": "youtube-data-api",
+      "sampled_at": "2026-10-04T17:34:18.569Z",
+      "http_status": 200,
+      "latency_ms": 148,
+      "bytes": 283,
+      "outcome": "ACCESS_OBSERVED",
+      "evidence": {
+        "item_count": 1,
+        "actual_quota_limit": null,
+        "actual_quota_remaining": null,
+        "key_project_binding_verified": false
+      }
+    }
+  ],
+  "provider_generation_submissions": 0,
+  "gemini": {
+    "gate": "INCONCLUSIVE",
+    "requests": 0,
+    "region": "PL/EEA",
+    "purpose": "private personal single-owner; professional purpose not established",
+    "billing": "UNKNOWN",
+    "quota": "UNKNOWN"
+  },
+  "result": "INCONCLUSIVE"
+}

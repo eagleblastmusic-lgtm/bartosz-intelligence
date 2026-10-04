@@ -1,21 +1,25 @@
 {
   "mode": "account",
-  "sampled_at": "2026-10-04T16:55:27.156Z",
+  "sampled_at": "2026-10-04T17:47:04.203Z",
   "result": "INCONCLUSIVE",
   "paid_services_enabled": false,
   "network_submissions": 0,
   "account_metadata_read": {
-    "cloudflare_auth": "UNAVAILABLE",
-    "cli_exit_code": 1
+    "cloudflare_auth": "ACCESS_OBSERVED_ACCOUNT_SELECTED",
+    "cli_exit_code": 0
   },
   "credential_presence_only": {
     "CLOUDFLARE_API_TOKEN": false,
-    "CLOUDFLARE_ACCOUNT_ID": false,
-    "GOOGLE_PROJECT_ID": false,
-    "YOUTUBE_API_KEY": false,
-    "GEMINI_API_KEY": false
+    "CLOUDFLARE_ACCOUNT_ID": true,
+    "GOOGLE_PROJECT_ID": true,
+    "YOUTUBE_API_KEY": true,
+    "GEMINI_API_KEY": true
   },
   "snapshots": [],
+  "account_evidence_refs": [
+    "account-readonly.json",
+    "dashboard-observations.json"
+  ],
   "services": [
     {
       "service": "cloudflare-workers",
@@ -60,9 +64,8 @@
     "reason": "NO_AUTHORIZED_ACCOUNT_STORAGE_API_SNAPSHOT"
   },
   "blockers": [
-    "CLOUDFLARE_AUTH_REQUIRED",
-    "GOOGLE_PROJECT_QUOTA_AND_BILLING_PROOF_REQUIRED",
-    "GEMINI_REGION_PURPOSE_MODEL_FREE_ELIGIBILITY_REQUIRED",
+    "GEMINI_EEA_SINGLE_OWNER_API_CLIENT_ELIGIBILITY_UNRESOLVED",
+    "CLOUDFLARE_D1_QUEUES_ASSETS_USAGE_LIMITS_AND_LIVE_PROBES_NOT_QUALIFIED",
     "LIVE_SERVICE_PROBES_AND_USAGE_EVIDENCE_NOT_RUN"
   ]
 }

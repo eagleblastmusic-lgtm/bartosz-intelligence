@@ -3,7 +3,7 @@
 Stage: 01 / 01_PHASE_0_GATES_AND_BOOTSTRAP.md
 Status: BLOCKED
 Date: 2026-10-04
-Final commit/tag: `stage-01-blocked-cp-1.4` (resolve locally with `git rev-parse stage-01-blocked-cp-1.4`)
+Final checkpoint tag: `stage-01-cp-1.4-account-evidence` (resolve locally with `git rev-parse stage-01-cp-1.4-account-evidence`)
 Decision: NO-GO for Stage 02
 
 ## Implemented and checkpoints
@@ -26,7 +26,8 @@ CP-1.5, CP-1.6, CP-1.7, CP-1.8 NOT_STARTED. Stage 02 NOT_STARTED.
 - `tools/db/*`, `db/migration-ledger.json`, `db/fixtures/smoke.sql`: empty production
   ledger plus integrity validator and isolated local fixture.
 - `tools/gates/eligibility*.ts`: strict snapshot parser and fail-closed account
-  preflight. No Gate E PASS path yet; live probes await account selection/proof.
+  preflight; `account-readonly.mjs` and `metadata-admission.ts` provide bounded
+  read-only account discovery. Live runtime qualification remains incomplete.
 - `tests/{unit,contracts,workers,e2e}`, configs and `.github/workflows/ci.yml`.
 - `docs/verification/cp-1.*.md`, `toolchain.json`, `gate-e/*`, `phase0-decision.md`.
 
@@ -42,8 +43,9 @@ gate:0 is not implemented: CP-1.5 has not started.
 
 ## Database migrations
 
-NONE. Next free production number 001; no Core tables, migration applications or
-real D1 resources. Fixture restore passed locally; production restore NOT_RUN.
+NONE. Next free production number 001; no Core tables or migration applications.
+No real D1 resources created; one unrelated existing account DB was listed read-only.
+Fixture restore passed locally; production restore NOT_RUN.
 Wrangler database UUID is a local fixture and must not be deployed as a real ID.
 
 ## Tests and runtime evidence
@@ -52,11 +54,12 @@ Passed: clean frozen install, lint/format/typecheck/build, configuration and led
 validation. Local CI source export `.local/clean-cp13` passed 22 unit + 4 contract +
 6 real workerd + 1 Chromium tests (33). After Gate E preparation, unit suite passed
 31 tests including 9 snapshot tests; lint and all typechecks also passed.
-Current relevant evidence therefore covers 42 tests; unchanged Worker/contract/E2E
+After resumed Gate E work, 40 unit tests, tools typecheck, targeted lint and syntax
+passed. Current relevant evidence covers 51 tests; unchanged Worker/contract/E2E
 inputs retain CP-1.3 evidence. Node/lint/format negative controls also passed.
 Failed required local tests: NONE after fixes. Gate E account command exits 2
 intentionally for INCONCLUSIVE; this blocks completion, not a passing live test.
-Skipped/not run: real service probes, Gate 0 corpus/benchmark, platform CPU, 0B,
+Skipped/not run: real runtime qualification probes, Gate 0 corpus/benchmark, platform CPU, 0B,
 hosted GitHub Actions and Stage 01 final DoD/GO. Hosted CI has no remote/push.
 
 The actual browser startup found an invalid value export; fixed and retested.
@@ -65,11 +68,18 @@ checks. No later Worker/config/dependency changes invalidate its runtime proof.
 
 ## Gate E, measurements and zero cost
 
-`docs/verification/gate-e/account-preflight.json` sampled
-2026-10-04T16:55:27.156Z: official whoami exit 1, access UNAVAILABLE, no selected
-account and absent project credentials. Provider submissions 0. Actual account
-plan/quota/usage/reset/freshness/billing proof UNKNOWN. Region/purpose/model Free
-eligibility UNKNOWN. Account snapshots empty; documentation is not account proof.
+Current account-preflight: OAuth access and selected account confirmed, credentials
+present in ignored .env. Original 16:55 preflight preserved as timestamped history.
+account-readonly.json records HTTP 200 Workers/D1/Queues/scripts and YouTube;
+subscriptions HTTP 403. dashboard-observations.json records Workers Free Current
+plan, 0/100,000 requests today, no Workers billable usage in current period; Google
+project billing disabled and AI Studio Free tier. YouTube quota 10,000/day usage 1,
+search 100/day usage 0. Gemini Flash 5 RPM/250K TPM/20 RPD; Flash Lite 10/250K/20.
+Purpose: private professional/business, confirmed by owner; single-owner PL/EEA,
+no distribution. EEA API Client Paid Services restriction applicability to this
+exact sole-user application is unresolved; Free tier alone cannot close eligibility.
+No Gemini generation. D1/Queues/Assets budgets/reset/runtime proof incomplete.
+Cloud metadata access and local bootstrap do not establish Gate E PASS.
 Gate E INCONCLUSIVE; Gate 0/CPU NOT_RUN. Gate 0B NOT_RUN and disabled; no alternate
 subscription route was selected. Gate C NOT_RUN. Measured sustainable μ UNKNOWN.
 All transcript roles and AI routes disabled; no benchmark-based selections exist.
@@ -78,7 +88,7 @@ This does not prove account-level zero billing without actual billing evidence.
 
 ## Known issues, architecture deviations and deferred items
 
-Blocking owner prerequisites and live qualification: `gate-e/REPORT.md`.
+Blocking exact-use Gemini eligibility and incomplete live qualification: `gate-e/REPORT.md`.
 Architecture deviations: NONE. No ARCHITECTURE CHANGE REQUIRED established.
 Master SHA-256 verified against index; all Plan inputs remained untouched.
 The start prompt was absent in Plan; the owner-mentioned Downloads copy was used.
@@ -93,9 +103,12 @@ NOT guaranteed: qualified source access, free account eligibility, actual CPU,
 selected AI route, useful capacity or Stage 02 readiness. Never start Stage 02
 from this BLOCKED handoff.
 
-Resume CP-1.4 after Cloudflare login/account selection, Google project selection,
-safe local credentials, actual purpose/region and account quota/billing evidence.
-Exact short owner steps are in `docs/verification/gate-e/REPORT.md`.
+Resume CP-1.4 after official clarification of exact-use EEA eligibility or a permitted
+alternative qualification path. Login, account/project selection and credentials
+no longer require owner action. Then finish budgets and bounded real service probes.
+DoD reviewed against Stage 01 plan §18: not satisfied because active-path eligibility,
+Gate 0/CPU, later checkpoints and selected AI/source routes are not qualified.
+CP-1.8 final clean suite is not claimed; no completion or readiness implied.
 
 ## Context to load
 

@@ -1,66 +1,66 @@
-# Gate E — INCONCLUSIVE / Stage 01 BLOCKED
+# Gate E — INCONCLUSIVE / CP-1.4 BLOCKED
 
-Observed: 2026-10-04T16:55:27.156Z. Account preflight run, not a live service qualification.
-Evidence: `account-preflight.json`, `dry-run.json`, `../cp-1.1.md` through `../cp-1.3.md`.
+Resumed 2026-10-04. Initial Git check clean, ignored .env, OAuth authenticated and
+selected account matches CLI identity. Google project and API credentials present;
+Cloudflare API token intentionally empty. Secret values neither displayed nor
+stored. Owner confirms private professional/business work, sole owner, Poland/EEA,
+no public distribution. Prior missing-login/credential blockers are resolved.
 
-The official Wrangler 4.147.0 `whoami --json` returned exit 1; authenticated
-Cloudflare access is UNAVAILABLE. CLI raw output was discarded to avoid retaining
-account names, email addresses or IDs. No account has been selected.
-CLOUDFLARE_API_TOKEN, CLOUDFLARE_ACCOUNT_ID, GOOGLE_PROJECT_ID, YOUTUBE_API_KEY
-and GEMINI_API_KEY are absent from the process environment; local `.env` and
-`.dev.vars` are absent. Presence checks recorded booleans only.
+## Actual evidence
 
-Workers, D1, Queues, Assets, YouTube Data API and Gemini account Free eligibility:
-UNKNOWN. Service probes: NOT_RUN. Actual limits/reset windows/usage/billing:
-UNKNOWN. No snapshots were fabricated. Drive is inactive/UNAVAILABLE pending
-authorized account/storage/API evidence; no export or OAuth flow configured.
+- account-readonly.json: OAuth-authorized Workers settings, D1, Queues and scripts
+  lists HTTP 200; subscriptions HTTP 403. One YouTube videos.list HTTP 200, one item.
+  No generation or mutation; existing resources only read.
+- dashboard-observations.json: contemporaneous redacted authenticated UI notes.
+  Workers Free Current plan; 0/100,000 requests today, 10 ms CPU limit. Workers
+  reports no billable usage October 1–November 1. Not global zero billing proof
+  for unrelated existing resources.
+- Google project billing disabled; AI Studio Free tier. YouTube actual quota
+  10,000 queries/day, usage 1; separate search quota 100/day, usage 0.
+- Gemini actual allowance: 2.5 Flash 5 RPM/250K input TPM/20 RPD; Flash Lite
+  10 RPM/250K/20 RPD; 3 Flash 5 RPM/250K/20 RPD. 2.5 Pro allowance zero.
+  Peak usage over 28 days is zero, subject to UI lag, not exact remaining quota.
+  Dashboard labels are not verified API model IDs or structured-output evidence.
+- Current account-preflight.json and timestamped historical preflight preserve
+  both prerequisite states. Gate command exits 2 for INCONCLUSIVE, never PASS.
 
-Provider submissions: 0. Only an official authentication metadata check was
-attempted. Application paid_services_enabled=false. R2, paid AI, trial credits,
-managed STT, proxy, Deno, Workers AI and archive routes remain disabled.
-Actual account billing proof is absent; zero local submissions is not account PASS.
+## Remaining active-path blocker
 
-## Official terms checked (documentation, not account evidence)
+[Gemini terms](https://ai.google.dev/gemini-api/terms), effective March 23, 2026,
+allow developer professional/business purpose; this requirement is now satisfied.
+They restrict API Clients made available to EEA/CH/UK users to Paid Services.
+They specify no sole-owner exception. The EEA data-processing provision does not
+itself establish eligibility; a Free tier UI is not proof of permitted use.
 
-- [Workers pricing](https://developers.cloudflare.com/workers/platform/pricing/):
-  Free 100,000 requests/day, 10 ms CPU; actual account plan/usage unknown.
-- [D1 limits](https://developers.cloudflare.com/d1/platform/limits/):
-  Free 500 MB/database, 5 GB/account; actual database/account capacity unknown.
-- [Queues pricing](https://developers.cloudflare.com/queues/platform/pricing/):
-  Free 10,000 operations/day, 24 h retention; actual account usage unknown.
-- [YouTube overview](https://developers.google.com/youtube/v3/getting-started):
-  default quota is not a snapshot of the owner's project.
-- [Gemini terms](https://ai.google.dev/gemini-api/terms): purpose and EEA/CH/UK
-  API-client restrictions require resolution for the owner's actual use. A Polish
-  timezone or listed free model does not establish eligibility.
+Applicability to this private developer/sole-user application remains unresolved,
+not categorically proven ineligible. No Gemini generation was submitted.
+No paid upgrade, credits or billing activation can resolve this under the agreed
+baseline. An official applicability clarification for the exact private use,
+or another qualified architecture-permitted primary AI route, is necessary before
+activation. No alternative is qualified; production roles remain disabled.
 
-No conflict requiring architecture change established. These checks preserve
-Master §3/14/23 constraints. Assets/Drive limits and model capabilities still need
-account-specific examination after authorized account selection.
+D1 actual per-DB/account capacity and usage, Queues usage/reset and Assets limits
+and minimal real service probes remain incomplete. API discovery is not runtime
+qualification. Drive is inactive/UNAVAILABLE pending storage/API/Pickers proof,
+without configuring export or OAuth.
 
-## Completed preparation
+## Harness and controls
 
-Snapshot parser preserves null limits; validates units, IANA reset zones,
-timestamps, purpose, plan, billing evidence and freshness. Nine new tests pass.
-Existing 22 guard tests prove denied routes make zero transport calls. Imported
-snapshots can grant only READY_FOR_LIVE_PROBE, never Gate E PASS.
-`gate:e --mode dry-run` produces NOT_RUN without account access;
-`gate:e --mode account` produces INCONCLUSIVE and exit 2 at missing prerequisites.
-This is an incomplete checkpoint: service-specific live probes and account
-snapshots remain to be implemented/executed once the actual accounts are selected.
+account-readonly.mjs captures OAuth in memory and emits selected response summaries.
+metadata-admission.ts admits exact GET discovery endpoints on the selected account
+plus one bounded YouTube lookup. Paid/unknown policy, other accounts, generation,
+arbitrary domains and redirects fail closed before transport. This metadata scope
+never grants production provider admission. Recorded live reads predate this added
+boundary; the exact calls match its allowlist. Negative tests verify the boundary
+without replaying reads. Historical evidence retains its original observations.
 
-## Owner action and resume
+CP-1.1–CP-1.3 proofs remain valid. No R2, paid fallback, trial baseline, proxy,
+Workers AI, Deno, archive or managed STT route activated. No external resource
+changed. CP-1.5–CP-1.8 and Stage 02 NOT_STARTED; Gate 0, CPU and 0B NOT_RUN.
 
-1. With project Node/pnpm on PATH, run `pnpm exec wrangler login` and complete
-   browser approval; identify the intended existing Cloudflare account. Do not
-   upgrade or activate checkout. Its Workers Free plan/billing must be inspected.
-2. Identify the existing Google/AI Studio project and region, describe actual
-   purpose/audience, and make YouTube/Gemini credentials available only in ignored
-   `.env` or a secret store using names from `.env.example`. Do not send key values
-   in chat. Do not activate paid billing, credits or trial-as-baseline.
-3. Inspect actual quotas/reset windows, usage and no-auto-billing evidence; then
-   finish the guarded minimal service probes. Drive consumer evidence can remain
-   explicitly inactive, with its future gate recorded.
+## Resume
 
-Resume CP-1.4 after this interaction. Its Gate E PASS or justified NO-GO must precede
-CP-1.5. Do not use documentation or fixtures to close the account gate.
+Resume exactly CP-1.4 after eligibility resolution or a permitted alternative
+qualification path. Recheck only relevant/expired snapshots; complete bounded
+service probes. The owner's sequence requires PASS before CP-1.5. No architecture
+change established; do not edit Plan or silently substitute a provider.

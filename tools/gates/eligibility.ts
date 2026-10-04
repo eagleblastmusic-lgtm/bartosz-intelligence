@@ -1,5 +1,11 @@
 import { spawnSync } from 'node:child_process';
-import { existsSync, mkdirSync, writeFileSync } from 'node:fs';
+import {
+  existsSync,
+  mkdirSync,
+  writeFileSync,
+  readFileSync,
+  copyFileSync,
+} from 'node:fs';
 import { resolve } from 'node:path';
 import { parseArgs } from 'node:util';
 import {
@@ -35,8 +41,11 @@ const credentials = Object.fromEntries(
   names.map((name) => [name, Boolean(process.env[name])]),
 );
 let auth:
-  'NOT_RUN' | 'UNAVAILABLE' | 'ACCESS_OBSERVED_ACCOUNT_UNSELECTED' | 'UNKNOWN' =
-  'NOT_RUN';
+  | 'NOT_RUN'
+  | 'UNAVAILABLE'
+  | 'ACCESS_OBSERVED_ACCOUNT_UNSELECTED'
+  | 'ACCESS_OBSERVED_ACCOUNT_SELECTED'
+  | 'UNKNOWN' = 'NOT_RUN';
 let authExit: number | null = null;
 if (values.mode === 'account') {
   // Official CLI keeps OAuth credentials in its own store. Never export/cache tokens.
@@ -55,8 +64,32 @@ if (values.mode === 'account') {
         : result.status === null
           ? 'UNKNOWN'
           : 'UNAVAILABLE';
+    if (result.status === 0) {
+      try {
+        const identity = JSON.parse(result.stdout) as {
+          loggedIn?: boolean;
+          accounts?: { id: string }[];
+        };
+        if (
+          identity.loggedIn &&
+          identity.accounts?.some(
+            (account) => account.id === process.env.CLOUDFLARE_ACCOUNT_ID,
+          )
+        )
+          auth = 'ACCESS_OBSERVED_ACCOUNT_SELECTED';
+      } catch {
+        auth = 'UNKNOWN';
+      }
+    }
   } else auth = 'UNAVAILABLE';
 }
+const dashboardPath = resolve(output, 'dashboard-observations.json');
+const dashboard = existsSync(dashboardPath)
+  ? (JSON.parse(readFileSync(dashboardPath, 'utf8')) as {
+      result?: string;
+      blockers?: string[];
+    })
+  : null;
 const report = {
   mode: values.mode,
   sampled_at: new Date().toISOString(),
@@ -66,6 +99,13 @@ const report = {
   account_metadata_read: { cloudflare_auth: auth, cli_exit_code: authExit },
   credential_presence_only: credentials,
   snapshots: [],
+  account_evidence_refs:
+    values.mode === 'account'
+      ? [
+          'account-readonly.json',
+          ...(dashboard ? ['dashboard-observations.json'] : []),
+        ]
+      : [],
   services: [
     'cloudflare-workers',
     'cloudflare-d1',
@@ -90,13 +130,27 @@ const report = {
       : [
           ...(auth === 'UNAVAILABLE'
             ? ['CLOUDFLARE_AUTH_REQUIRED']
-            : ['CLOUDFLARE_ACCOUNT_SELECTION_AND_FREE_BILLING_PROOF_REQUIRED']),
-          'GOOGLE_PROJECT_QUOTA_AND_BILLING_PROOF_REQUIRED',
-          'GEMINI_REGION_PURPOSE_MODEL_FREE_ELIGIBILITY_REQUIRED',
+            : auth === 'ACCESS_OBSERVED_ACCOUNT_SELECTED'
+              ? []
+              : ['CLOUDFLARE_ACCOUNT_SELECTION_REQUIRED']),
+          ...(dashboard?.blockers ?? [
+            'ACCOUNT_QUOTA_BILLING_AND_PURPOSE_PROOF_REQUIRED',
+          ]),
           'LIVE_SERVICE_PROBES_AND_USAGE_EVIDENCE_NOT_RUN',
         ],
 };
 mkdirSync(output, { recursive: true });
+const previous = resolve(output, 'account-preflight.json');
+if (values.mode === 'account' && existsSync(previous)) {
+  const prior = JSON.parse(readFileSync(previous, 'utf8')) as {
+    sampled_at: string;
+  };
+  const historical = resolve(
+    output,
+    `account-preflight-${prior.sampled_at.replaceAll(':', '-')}.json`,
+  );
+  if (!existsSync(historical)) copyFileSync(previous, historical);
+}
 writeFileSync(
   resolve(
     output,
