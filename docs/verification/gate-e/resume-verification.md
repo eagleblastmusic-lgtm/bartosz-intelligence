@@ -35,7 +35,7 @@ recorded in `owner-use-decision.json`. Gemini Rate Limit UI for project
 was submitted (max 64 output tokens, no tools/grounding, no retry). It returned
 HTTP 200, but the harness did not establish valid structured output or preserve
 response diagnostics/usage. This is a Gate E probe FAIL, not model unavailability.
-No second generation was sent. Commit `5423e6adfb133decc0c8605f836c9bc273aecfb7`,
-tag `stage-01-cp-1.4-gemini-3.8-probe`. `production_enabled=false`,
+No second generation was sent. Final checkpoint tag `stage-01-cp-1.4-gemini-3.8-probe`.
+`production_enabled=false`,
 `billing_route=disabled`.
 Gate E account preflight is now FAIL; Gate 0, CPU and 0B remain NOT_RUN.

@@ -2,7 +2,7 @@
 
 Stage: 01
 Status: BLOCKED
-Current commit: `5423e6adfb133decc0c8605f836c9bc273aecfb7` (`stage-01-cp-1.4-gemini-3.8-probe`)
+Current checkpoint tag: `stage-01-cp-1.4-gemini-3.8-probe` (resolves to the final local handoff commit)
 Last completed checkpoint: CP-1.3
 Tests/evidence: `docs/verification/cp-1.1.md`, `docs/verification/cp-1.2.md`, `docs/verification/cp-1.3.md`, `docs/verification/toolchain.json`, `docs/verification/gate-e/REPORT.md`, `docs/verification/gate-e/account-preflight.json`
 Current blocker: Gemini 3.8 Flash generateContent HTTP 200 but structured output validation/diagnostics missing; D1/Queues/Assets budgets/probes incomplete
