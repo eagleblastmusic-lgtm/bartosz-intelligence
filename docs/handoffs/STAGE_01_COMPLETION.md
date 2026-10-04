@@ -3,7 +3,7 @@
 Stage: 01 / 01_PHASE_0_GATES_AND_BOOTSTRAP.md
 Status: BLOCKED
 Date: 2026-10-04
-Current checkpoint: pending canonical Gemini 3.8 probe evidence commit.
+Current checkpoint commit/tag: `5423e6adfb133decc0c8605f836c9bc273aecfb7` / `stage-01-cp-1.4-gemini-3.8-probe`.
 Decision: NO-GO for Stage 02
 
 ## Implemented and checkpoints
