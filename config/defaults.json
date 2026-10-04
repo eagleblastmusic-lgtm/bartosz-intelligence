@@ -1,0 +1,10 @@
+{
+  "config_version": "1",
+  "paid_services_enabled": false,
+  "timezone": "Europe/Warsaw",
+  "active_transcript_provider": null,
+  "ai_provider": null,
+  "deno_enabled": false,
+  "workers_ai_enabled": false,
+  "archive_enabled": false
+}

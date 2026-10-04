@@ -9,11 +9,13 @@
     "pnpm": "12.9.1"
   },
   "scripts": {
-    "lint": "eslint apps packages tools",
+    "lint": "eslint apps packages tools tests",
     "format:check": "prettier --check .",
     "format": "prettier --write .",
     "typecheck": "pnpm -r typecheck && tsc -p tsconfig.tools.json",
-    "build": "pnpm -r build"
+    "build": "pnpm -r build",
+    "verify:config": "tsx tools/verify-config.ts",
+    "test:unit": "vitest run --project unit"
   },
   "devDependencies": {
     "@cloudflare/workers-types": "5.20261004.1",
