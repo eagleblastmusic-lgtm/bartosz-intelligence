@@ -1,0 +1,29 @@
+{
+  "name": "bartosz-intelligence",
+  "version": "0.0.1",
+  "private": true,
+  "type": "module",
+  "packageManager": "pnpm@12.9.1",
+  "engines": {
+    "node": "24.21.0",
+    "pnpm": "12.9.1"
+  },
+  "scripts": {
+    "lint": "eslint apps packages tools",
+    "format:check": "prettier --check .",
+    "format": "prettier --write .",
+    "typecheck": "pnpm -r typecheck && tsc -p tsconfig.tools.json",
+    "build": "pnpm -r build"
+  },
+  "devDependencies": {
+    "@cloudflare/workers-types": "5.20261004.1",
+    "@types/node": "26.6.4",
+    "eslint": "10.12.0",
+    "prettier": "3.9.9",
+    "tsx": "4.23.15",
+    "typescript": "6.0.3",
+    "typescript-eslint": "8.71.0",
+    "vite": "8.3.2",
+    "vitest": "4.1.11"
+  }
+}

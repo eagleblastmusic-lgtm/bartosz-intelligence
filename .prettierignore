@@ -1,0 +1,8 @@
+Plan/
+pnpm-lock.yaml
+.tools/
+.local/
+node_modules/
+dist/
+playwright-report/
+test-results/

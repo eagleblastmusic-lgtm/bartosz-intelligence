@@ -1,0 +1,15 @@
+node_modules/
+dist/
+.tools/
+.local/
+.wrangler/
+.env
+.env.*
+!.env.example
+.dev.vars
+.dev.vars.*
+playwright-report/
+test-results/
+coverage/
+Plan/
+*.tsbuildinfo

@@ -1,0 +1,24 @@
+{
+  "sampled_at": "2026-10-04",
+  "os": "win32",
+  "arch": "x64",
+  "node": "24.21.0",
+  "pnpm": "12.9.1",
+  "typescript": "6.0.3",
+  "react": "19.3.0",
+  "vite": "8.3.2",
+  "vitest": "4.1.11",
+  "compatibility_date": null,
+  "worker_runtime_verified": false,
+  "checks": {
+    "lint": "PASS",
+    "format": "PASS",
+    "typecheck": "PASS",
+    "build": "PASS",
+    "negative_controls": "PASS",
+    "clean_frozen_install": "PASS",
+    "clean_second_build": "PASS",
+    "peer_compatibility": "PASS"
+  },
+  "evidence_ref": "docs/verification/cp-1.1.md"
+}
