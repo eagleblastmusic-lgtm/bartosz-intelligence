@@ -7,6 +7,21 @@ import { ArtifactRepository } from '../artifacts/store.js';
 import { leasePredicate } from '../jobs/lease-guard.js';
 import type { LeaseToken, TaskType } from '../../../contracts/src/jobs.js';
 import type { LanguageSelection } from './language.js';
+function durableFlags(value: unknown): string {
+  if (!value || typeof value !== 'object' || Array.isArray(value))
+    return JSON.stringify(value);
+  const row = structuredClone(value) as {
+    selection?: {
+      source?: Record<string, unknown> | null;
+      helper_track?: Record<string, unknown> | null;
+    };
+  };
+  // The recorded acquisition remains immutable. Transport-ref expiry does not
+  // change source authority or justify creating a conflicting representation.
+  for (const track of [row.selection?.source, row.selection?.helper_track])
+    if (track) delete track.expires_at;
+  return JSON.stringify(row);
+}
 
 export class RepresentationRepository {
   constructor(
@@ -103,7 +118,11 @@ export class RepresentationRepository {
       .bind(this.context.ownerId, artifactId, role, ...guard.bindings)
       .first<{ representation_id: string; flags_json: string }>();
     if (!row) throw new Error('STALE_FENCE');
-    if (row.flags_json !== flags) throw new Error('REPRESENTATION_CONFLICT');
+    if (
+      durableFlags(JSON.parse(row.flags_json)) !==
+      durableFlags(JSON.parse(flags))
+    )
+      throw new Error('REPRESENTATION_CONFLICT');
     return row.representation_id;
   }
 }

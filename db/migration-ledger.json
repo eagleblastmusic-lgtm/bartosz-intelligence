@@ -59,6 +59,11 @@
       "name": "012_candidate_repair.sql",
       "depends_on": ["011_ai_admission.sql"],
       "sha256": "ab50e5c8b60243d4a07959ab2319ba3ffe07ca06cb052ae3d958a38b44934224"
+    },
+    {
+      "name": "013_intelligence_ledger.sql",
+      "depends_on": ["012_candidate_repair.sql"],
+      "sha256": "c98edd7e8d7caec291d8f9ab6da1ab8e41579feb6d6ece38e85b2e48a1f6a786"
     }
   ],
   "version": 1

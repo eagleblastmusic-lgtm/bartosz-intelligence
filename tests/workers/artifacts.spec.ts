@@ -29,7 +29,305 @@ import {
 } from '../../packages/core/src/ai/admission.js';
 import type { TaskType } from '../../packages/contracts/src/jobs.js';
 import { CandidateRepairAttempts } from '../../packages/core/src/ai/repair/attempts.js';
+import { enrichEconomy } from '../../packages/core/src/ai/enrichment/canonical.js';
+import { IntelligenceLedger } from '../../packages/core/src/ai/enrichment/ledger.js';
+import { normalizeTranscript } from '../../packages/core/src/transcript/normalize.js';
+import { RunRepository } from '../../packages/core/src/jobs/acceptance.js';
 beforeEach(resetCore);
+it('canonical Ledger effects share the fenced acceptance batch, rollback on SQL failure and deduplicate redelivery', async () => {
+  const { owner, access, token, item, repository } = await setup('ANALYZE');
+  const text = 'I did not adopt Tool X.';
+  const hash = await sha256(text);
+  const artifact = await repository.begin(
+    {
+      item_id: item.item_id,
+      kind: 'SOURCE_ORIGINAL',
+      content_hash: hash,
+      byte_size: new TextEncoder().encode(text).length,
+      chunk_count: 1,
+      schema_version: 'source-text:1',
+      producer_version: 'fixture',
+      provenance: { fixture: true },
+      original_ref: null,
+    },
+    token,
+    'ANALYZE',
+    fixtureNow,
+  );
+  await repository.writeChunk(
+    artifact.artifact_id,
+    0,
+    0,
+    new TextEncoder().encode(text),
+    token,
+    'ANALYZE',
+    fixtureNow,
+  );
+  await repository.verifyLocal(
+    artifact.artifact_id,
+    token,
+    'ANALYZE',
+    fixtureNow,
+    'local',
+  );
+  const normalized = await normalizeTranscript(
+    hash,
+    [
+      {
+        upstream_index: 0,
+        text,
+        start_ms: 0,
+        end_ms: 2000,
+        speaker_label: null,
+      },
+    ],
+    'CUE',
+  );
+  const mapText = JSON.stringify(normalized.manifest);
+  const mapArtifact = await repository.begin(
+    {
+      item_id: item.item_id,
+      kind: 'SEGMENT_MAP',
+      content_hash: normalized.manifest_hash,
+      byte_size: new TextEncoder().encode(mapText).length,
+      chunk_count: 1,
+      schema_version: 'segment-map:1',
+      producer_version: 'source-normalizer:1',
+      provenance: { fixture: true },
+      original_ref: artifact.artifact_id,
+    },
+    token,
+    'ANALYZE',
+    fixtureNow,
+  );
+  await repository.writeChunk(
+    mapArtifact.artifact_id,
+    0,
+    0,
+    new TextEncoder().encode(mapText),
+    token,
+    'ANALYZE',
+    fixtureNow,
+  );
+  await repository.verifyLocal(
+    mapArtifact.artifact_id,
+    token,
+    'ANALYZE',
+    fixtureNow,
+    'local',
+  );
+  const ledger = new IntelligenceLedger(env.DB, access);
+  const aliases = await ledger.aliases(token, fixtureNow);
+  const claim = {
+    text_pl: 'Autor nie wdrożył narzędzia.',
+    segment_refs: ['s1'],
+    subject_ref: null,
+    entity_refs: [0],
+    attribution: 'SOURCE_SPEAKER',
+    qualifiers: ['negacja'],
+  };
+  const enriched = await enrichEconomy({
+    raw: JSON.stringify({
+      summary_pl: [{ text_pl: 'Próba narzędzia.', segment_refs: ['s1'] }],
+      key_points: [],
+      entity_mentions: [
+        { label: 'Tool X', entity_type: 'TOOL', segment_refs: ['s1'] },
+      ],
+      tools: [],
+      claims: [claim, claim],
+      stance: [],
+      predictions: [],
+      source_issues: [],
+    }),
+    completion: 'OK',
+    run_id: 'ledger-run',
+    item_id: item.item_id,
+    profile_id: 'ECONOMY',
+    profile_revision: 'fixture',
+    source: {
+      owner_id: 'a',
+      source_artifact_id: artifact.artifact_id,
+      ...normalized,
+      video_url: null,
+    },
+    approved_aliases: aliases,
+  });
+  const runs = new RunRepository(env.DB, access);
+  await runs.prepare('ledger-run', token.job_id, fixtureNow.toISOString());
+  const selection = await new RunRepository(env.DB, owner).requestSelection(
+    'ledger-run',
+    item.item_id,
+  );
+  const effects = await ledger.prepare(
+    enriched,
+    'ledger-run',
+    token,
+    fixtureNow,
+  );
+  await expect(
+    runs.complete(
+      { ...token, fencing_token: token.fencing_token + 1 },
+      'ANALYZE',
+      'ledger-run',
+      enriched.canonical_hash,
+      enriched.canonical,
+      selection,
+      fixtureNow,
+      effects,
+    ),
+  ).rejects.toThrow('STALE_FENCE');
+  expect(
+    await env.DB.prepare('SELECT COUNT(*) FROM observations').first('COUNT(*)'),
+  ).toBe(0);
+  await expect(
+    runs.complete(
+      token,
+      'ANALYZE',
+      'ledger-run',
+      enriched.canonical_hash,
+      enriched.canonical,
+      selection,
+      fixtureNow,
+      (guard, bindings) => [
+        ...effects(guard, bindings),
+        env.DB.prepare('INSERT INTO deliberately_missing_table VALUES(1)'),
+      ],
+    ),
+  ).rejects.toThrow();
+  expect(
+    await env.DB.prepare('SELECT COUNT(*) FROM observations').first('COUNT(*)'),
+  ).toBe(0);
+  expect(
+    await env.DB.prepare(
+      "SELECT state FROM analysis_runs WHERE run_id='ledger-run'",
+    ).first('state'),
+  ).toBe('CANDIDATE');
+  expect(
+    await env.DB.prepare(
+      "SELECT COUNT(*) FROM outbox WHERE event_key='accepted:ledger-run'",
+    ).first('COUNT(*)'),
+  ).toBe(0);
+  expect(
+    await runs.complete(
+      token,
+      'ANALYZE',
+      'ledger-run',
+      enriched.canonical_hash,
+      enriched.canonical,
+      selection,
+      fixtureNow,
+      effects,
+    ),
+  ).toMatchObject({ accepted: true, active: true, duplicate: false });
+  expect(
+    await runs.complete(
+      token,
+      'ANALYZE',
+      'ledger-run',
+      enriched.canonical_hash,
+      enriched.canonical,
+      selection,
+      fixtureNow,
+      effects,
+    ),
+  ).toMatchObject({ accepted: true, duplicate: true });
+  const rows = await new IntelligenceLedger(env.DB, owner).read('ledger-run');
+  expect(rows).toHaveLength(1);
+  expect(JSON.parse(String(rows[0]!.row_json))).toEqual(
+    enriched.canonical.claims[0],
+  );
+  expect(rows[0]!.row_hash).toBe(
+    await sha256(JSON.stringify(enriched.canonical.claims[0])),
+  );
+  expect(
+    await new IntelligenceLedger(env.DB, await fixtureOwner('b')).read(
+      'ledger-run',
+    ),
+  ).toEqual([]);
+  expect(
+    await env.DB.prepare('SELECT COUNT(*) FROM observation_evidence').first(
+      'COUNT(*)',
+    ),
+  ).toBe(1);
+  expect(
+    await env.DB.prepare('SELECT COUNT(*) FROM observation_entities').first(
+      'COUNT(*)',
+    ),
+  ).toBe(1);
+  expect(
+    await env.DB.prepare(
+      "SELECT COUNT(*) FROM outbox WHERE event_key='accepted:ledger-run'",
+    ).first('COUNT(*)'),
+  ).toBe(1);
+  await expect(env.DB.prepare('DELETE FROM evidence').run()).rejects.toThrow(
+    'IMMUTABLE_EVIDENCE',
+  );
+  await expect(
+    env.DB.prepare('INSERT INTO observation_entities VALUES(?,?,?,?)')
+      .bind(
+        'b',
+        enriched.observation_rows[0]!.observation_id,
+        enriched.entity_resolutions[0]!.entity_id,
+        'SUBJECT',
+      )
+      .run(),
+  ).rejects.toThrow();
+  const backup = new CoreBackup(env.DB, owner),
+    start = await backup.begin(),
+    chunks: BackupChunk[] = [];
+  for (const table of backupTables) {
+    let cursor: number | null = 0;
+    do {
+      const chunk = await backup.chunk(start.backup_id, table, cursor);
+      chunks.push(chunk);
+      cursor = chunk.next_cursor;
+    } while (cursor !== null);
+  }
+  const portable = { manifest: await backup.complete(start.backup_id), chunks };
+  const tables = (
+    await env.DB.prepare(
+      "SELECT name FROM sqlite_master WHERE type='table' AND name NOT LIKE 'sqlite_%' AND name NOT LIKE '_cf_%'",
+    ).all<{ name: string }>()
+  ).results;
+  await env.DB.batch([
+    env.DB.prepare('PRAGMA defer_foreign_keys=ON'),
+    ...tables.map((row) => env.DB.prepare(`DROP TABLE "${row.name}"`)),
+  ]);
+  await applyMigrations(env.DB, env.CORE_MIGRATIONS, fixtureNow.toISOString());
+  await restoreCanonical(env.DB, portable, 'subject-a');
+  const restoredOwner = await fixtureOwner();
+  expect(
+    await new IntelligenceLedger(env.DB, restoredOwner).read('ledger-run'),
+  ).toEqual(rows);
+  const evidenceRow = await env.DB.prepare(
+    'SELECT source_hash,quote_hash,source_start,source_end FROM evidence WHERE owner_id=? AND evidence_id=?',
+  )
+    .bind('a', enriched.canonical.evidence[0]!.evidence_id)
+    .first<{
+      source_hash: string;
+      quote_hash: string;
+      source_start: number;
+      source_end: number;
+    }>();
+  const restoredSource = await new ArtifactRepository(
+    env.DB,
+    restoredOwner,
+  ).chunk(artifact.artifact_id, 0);
+  const restoredText = new TextDecoder().decode(
+    Uint8Array.from(
+      atob(
+        restoredSource.body_base64.replaceAll('-', '+').replaceAll('_', '/'),
+      ),
+      (char) => char.charCodeAt(0),
+    ),
+  );
+  expect(await sha256(restoredText)).toBe(evidenceRow!.source_hash);
+  expect(
+    await sha256(
+      restoredText.slice(evidenceRow!.source_start, evidenceRow!.source_end),
+    ),
+  ).toBe(evidenceRow!.quote_hash);
+});
 it('repair is admitted once per immutable candidate, never for unknown estimates or stale fences', async () => {
   const { owner, access, token, item, repository } = await setup('ANALYZE');
   const raw = '{"fixture":true,}';
@@ -491,6 +789,22 @@ it('representation binds verified source, immutable selection and current fence'
     await representations.record(
       artifact.artifact_id,
       selection,
+      'SOURCE_AUTHORITY',
+      token,
+      'FETCH_TRANSCRIPT',
+      fixtureNow,
+    ),
+  ).toBe(id);
+  expect(
+    await representations.record(
+      artifact.artifact_id,
+      {
+        ...selection,
+        source: {
+          ...selection.source!,
+          expires_at: new Date(fixtureNow.getTime() + 600000).toISOString(),
+        },
+      },
       'SOURCE_AUTHORITY',
       token,
       'FETCH_TRANSCRIPT',

@@ -1,5 +1,5 @@
 import type { LeaseToken, TaskType } from '../../../contracts/src/jobs.js';
-import type { AccessContext, Database } from '../db/boundary.js';
+import type { AccessContext, Database, Statement } from '../db/boundary.js';
 import { assertContext } from '../db/boundary.js';
 import { jobDedup } from './policy.js';
 import { sha256 } from '../auth/crypto.js';
@@ -43,6 +43,10 @@ export class RunRepository {
     outcome: Record<string, unknown>,
     selectionRevision: number | null,
     now: Date,
+    effects?: (
+      guard: string,
+      bindings: readonly (string | number | null)[],
+    ) => Statement[],
   ) {
     this.context.requireTask(task);
     if (
@@ -126,6 +130,7 @@ export class RunRepository {
           runId,
           ...bindings,
         ),
+      ...(effects?.(guard, bindings) ?? []),
       this.db
         .prepare(
           `UPDATE active_analysis_selections SET accepted_run_id=? WHERE owner_id=? AND requested_run_id=? AND selection_revision=? AND ${guard}`,
@@ -194,7 +199,7 @@ export class RunRepository {
     )
       return {
         accepted: true,
-        active: results[2]?.meta.changes === 1,
+        active: results[results.length - 5]?.meta.changes === 1,
         duplicate: false,
       };
     if (results.some((r) => r.meta.changes !== 0))
