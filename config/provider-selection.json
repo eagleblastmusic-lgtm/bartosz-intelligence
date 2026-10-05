@@ -1,14 +1,16 @@
 {
   "config_version": "1",
-  "status": "GATE_E_PASS_PENDING_CP_1_5_1_8",
+  "status": "CP_1_7_QUALIFIED_BASELINE",
   "transcript_roles": {
     "PRIMARY": {
-      "enabled": false,
-      "provider": null,
-      "runtime": null,
-      "version": null,
-      "eligibility_ref": null,
-      "benchmark_ref": null
+      "enabled": true,
+      "provider": "yt-dlp captions-only",
+      "runtime": "python",
+      "version": "yt-dlp@2026.08.19+yt-dlp-ejs@0.8.0",
+      "eligibility_ref": "docs/verification/gate-0/local-eligibility.json",
+      "benchmark_ref": "docs/verification/gate-0/FINAL_EVALUATION_V2.json",
+      "failure_restrictions": "Concurrency1; internal retries0; four attempts total with full-jitter1/5/20min; AUTH/IP/REGION stop; no same-IP library fallback; no video download",
+      "local_hours_per_day": 8
     },
     "SECONDARY": {
       "enabled": false,
@@ -36,7 +38,7 @@
     }
   },
   "ai": {
-    "enabled": false,
+    "enabled": true,
     "provider": "gemini",
     "runtime": "node",
     "model": "gemini-3.8-flash",
@@ -49,8 +51,11 @@
     "probe_ref": "docs/verification/gate-e/gemini-probe.json"
   },
   "limitations": [
-    "Gate 0 live benchmark and CPU not run",
-    "No measured primary route",
-    "Owner permits Gemini Free for sole-user professional use; Gate E qualification does not activate production routing"
+    "Qualification/allowed route only; production pipeline not implemented in Stage01",
+    "Seven source-duration warnings retained; preserve exact source timestamps",
+    "Local PC declared8h/day; offline means defer, not paid fallback",
+    "All unqualified fallback roles disabled",
+    "Actual quota remaining UNKNOWN; refresh admission snapshot before every production submission",
+    "GateC NOT_RUN; sustainable capacity UNKNOWN"
   ]
 }

@@ -7,3 +7,7 @@ dist/
 **/.wrangler/
 playwright-report/
 test-results/
+# Immutable live evidence/preregistrations: preserve byte hashes and history.
+docs/verification/gate-0/
+docs/verification/gate-e/
+docs/handoffs/history/

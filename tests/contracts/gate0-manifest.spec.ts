@@ -140,7 +140,8 @@ describe('Gate 0 corpus preregistration', () => {
     const perStratumCounts = new Map<string, Map<string, number>>();
     for (const video of plan.videos) {
       const slots =
-        perStratumCounts.get(video.primary_stratum) ?? new Map<string, number>();
+        perStratumCounts.get(video.primary_stratum) ??
+        new Map<string, number>();
       slots.set(
         video.scheduled_window_local_time,
         (slots.get(video.scheduled_window_local_time) ?? 0) + 1,

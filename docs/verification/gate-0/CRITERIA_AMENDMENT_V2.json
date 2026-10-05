@@ -1,0 +1,50 @@
+{
+  "criteria_version": "gate0-criteria-v2",
+  "registered_at": "2026-10-05T17:00:46.348Z",
+  "owner_authorization": "Explicit request 2026-10-05: classify source-exact duration overruns separately, retain original FAIL, version amendment before re-evaluation on unchanged corpus/data",
+  "previous_criteria_version": "gate0-criteria-v1",
+  "schedule_revision": "v3, independent from criteria versions",
+  "historical_result": "FAIL retained unchanged in FINAL_EVALUATION.json and criteria-v1/",
+  "classification": "INVALID_GATE_ASSUMPTION / SOURCE_DURATION_OVERRUN",
+  "root_cause": "Harness elevated duration metadata over immutable source cue timestamps. Seven source-exact ends exceed declared duration; adapter drift=0. Metadata and cue end denote distinct upstream fields; underlying YouTube generation cause not proven.",
+  "canonical_refs": [
+    {
+      "file": "Plan/00_IMPLEMENTATION_MASTER_INDEX.md",
+      "section": "D invariant 4",
+      "rule": "Immutable source transcript and provenance are evidence authority"
+    },
+    {
+      "file": "Plan/BARTOSZ_INTELLIGENCE_MASTER_ARCHITECTURE_2026_v1.1.1.md",
+      "section": "10",
+      "rule": "Integer source times; end>=start; duration+tolerance sanity control; no fabricated times"
+    },
+    {
+      "file": "Plan/BARTOSZ_INTELLIGENCE_MASTER_ARCHITECTURE_2026_v1.1.1.md",
+      "section": "26.1",
+      "rule": "Source reference comparison, cue-count/duration sanity, >=95% eligible; zero fabricated timestamps"
+    },
+    {
+      "file": "Plan/01_PHASE_0_GATES_AND_BOOTSTRAP.md",
+      "section": "CP-1.5/1.6",
+      "rule": "Frozen denominator, preserve failures, actual source comparison"
+    }
+  ],
+  "architecture_change_required": false,
+  "reason": "No Master source authority, runtime, CPU, success-rate or provenance change. Duration sanity remains a separately reported warning; 1000ms unchanged. Stage plan specifies no separate amendment mechanism; owner explicitly authorized this versioned amendment, not retrospective replacement of v1.",
+  "new_criteria": {
+    "source_fidelity": "Every admitted acquisition OK must have matching request ID, original raw hash, cue count/text and full cue-boundary source proof within frozen250ms. Missing/invalid proof non-PASS.",
+    "duration_sanity": "Preserve boolean duration sanity and original absolute excess; >1000ms is SOURCE_DURATION_OVERRUN metadata inconsistency, not adapter failure when exact source fidelity is proven. Never clamp or synthesize timestamps.",
+    "structural_validity": "Existing source parser rejects missing/noninteger/negative duration/start; finite end>=start retained",
+    "success": ">=95% of unchanged36eligible; four natural no-caption cases remain separate; failure remains denominator"
+  },
+  "unchanged_inputs": {
+    "MANIFEST.json": "26c4508b2e148a1c102dd34d7f289f76a0100bdfa5db245d2eb73ce26e0a66df",
+    "results.jsonl": "55089a5e82bdd2c44debfcf92f1203610c71570d453ca0a248c2c9ad7465e02d",
+    "FINAL_EVALUATION.json": "e7f61275cbedd9c1cc9d3db5aeb9d56ed7bd3408b773a53f6885bdf4adce548c",
+    "source-exact-reference.json": "f54a001e6eed80c84cfd53dfcc04c4d8a7026c5923d669cf47e8d051cf8ad642"
+  },
+  "reevaluation_started": false,
+  "no_new_live_measurement": true,
+  "no_source_modification": true,
+  "no_tolerance_increase": true
+}

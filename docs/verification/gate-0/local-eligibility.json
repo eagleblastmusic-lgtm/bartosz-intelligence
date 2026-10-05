@@ -1,0 +1,28 @@
+{
+  "status": "PASS",
+  "as_of": "2026-10-05T17:03:46.665Z",
+  "provider": "yt-dlp captions-only",
+  "version": "yt-dlp@2026.08.19+yt-dlp-ejs@0.8.0",
+  "runtime": "python",
+  "python_version": "3.14.4",
+  "control_plane": "Cloudflare Free",
+  "paid_services_enabled": false,
+  "billing_route": "disabled",
+  "basis": "Existing owner computer and installed runtime; actual captions-only acquisition/source/CPU observations in two windows. No paid host, trial credit, proxy, cookies or video download.",
+  "measurement_ref": "docs/verification/gate-0/FINAL_EVALUATION_V2.json",
+  "local_hours_per_day": 8,
+  "hours_basis": "Explicit owner answer; not uptime or capacity proof",
+  "local_cpu_us": {
+    "n": 71,
+    "min": 1062500,
+    "p95": 4546875,
+    "max": 4593750
+  },
+  "local_wall_ms": {
+    "n": 98,
+    "min": 1867,
+    "p95": 6106,
+    "max": 6629
+  },
+  "scope": "Local workload only; Edge budget unchanged and failed Edge workload disabled"
+}

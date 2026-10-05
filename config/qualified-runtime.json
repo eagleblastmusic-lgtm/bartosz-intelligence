@@ -1,0 +1,54 @@
+{
+  "policy": {
+    "config_version": "1",
+    "paid_services_enabled": false,
+    "timezone": "Europe/Warsaw",
+    "active_transcript_provider": "local-ytdlp",
+    "ai_provider": "gemini",
+    "deno_enabled": false,
+    "workers_ai_enabled": false,
+    "archive_enabled": false
+  },
+  "descriptors": [
+    {
+      "id": "local-ytdlp",
+      "version": "yt-dlp@2026.08.19+yt-dlp-ejs@0.8.0",
+      "runtime": "python",
+      "kind": "transcript",
+      "enabled": true,
+      "health": "AVAILABLE",
+      "eligibility": "VERIFIED_FREE",
+      "eligibility_ref": "docs/verification/gate-0/local-eligibility.json",
+      "evidence_version": "yt-dlp@2026.08.19+yt-dlp-ejs@0.8.0",
+      "evidence_runtime": "python",
+      "expires_at": "2026-10-06T17:03:46.675Z",
+      "measurement_ref": "docs/verification/gate-0/FINAL_EVALUATION_V2.json",
+      "optional": null,
+      "billing": "free",
+      "autopurchase": false,
+      "approved_models": [],
+      "capabilities": ["list_tracks", "fetch_captions", "source_timestamps"],
+      "allowed_origins": ["https://www.youtube.com"]
+    },
+    {
+      "id": "gemini",
+      "version": "gemini-3.8-flash",
+      "runtime": "node",
+      "kind": "ai",
+      "enabled": true,
+      "health": "AVAILABLE",
+      "eligibility": "VERIFIED_FREE",
+      "eligibility_ref": "docs/verification/gate-e/owner-use-decision.json",
+      "evidence_version": "gemini-3.8-flash",
+      "evidence_runtime": "node",
+      "expires_at": "2026-10-06T17:03:46.675Z",
+      "measurement_ref": "docs/verification/gate-e/gemini-probe.json",
+      "optional": null,
+      "billing": "free",
+      "autopurchase": false,
+      "approved_models": ["gemini-3.8-flash"],
+      "capabilities": ["structured_output"],
+      "allowed_origins": ["https://generativelanguage.googleapis.com"]
+    }
+  ]
+}

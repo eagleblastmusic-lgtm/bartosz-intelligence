@@ -31,7 +31,8 @@ export default {
       if (bytes.byteLength > MAX_REQUEST_BYTES)
         return new Response('request too large', { status: 413 });
       const value: unknown = JSON.parse(new TextDecoder().decode(bytes));
-      if (!isProbeInput(value)) return new Response('invalid request', { status: 400 });
+      if (!isProbeInput(value))
+        return new Response('invalid request', { status: 400 });
       input = value;
     } catch {
       return new Response('invalid request', { status: 400 });

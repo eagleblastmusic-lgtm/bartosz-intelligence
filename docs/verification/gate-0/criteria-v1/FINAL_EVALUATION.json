@@ -1,0 +1,265 @@
+{
+  "checkpoint": "CP-1.6",
+  "status": "FAIL",
+  "stage_status": "BLOCKED",
+  "stage02": "NO-GO",
+  "as_of": "2026-10-05T11:53:40.037Z",
+  "manifest_sha256": "d944e2c2f0f4c6164c6c7f32b788b509ba3c915b2350fea47e089a9dfd3a2c81",
+  "results_sha256": "55089a5e82bdd2c44debfcf92f1203610c71570d453ca0a248c2c9ad7465e02d",
+  "acquisition": {
+    "corpus_video_denominator": 40,
+    "eligible_video_denominator": 36,
+    "natural_no_caption_videos": 4,
+    "eligible_successes": 35,
+    "eligible_success_rate": 0.9722222222222222,
+    "eligible_failures": 1,
+    "eligible_unmeasured": 0,
+    "eligible_inconclusive": 0,
+    "eligible_ip_blocked_videos": 0,
+    "measured_unique_videos": 40,
+    "total_recorded_attempts": 98,
+    "statuses": {
+      "OK": 35,
+      "NO_CAPTIONS": 4,
+      "TEMPORARY_FAILURE": 1
+    },
+    "errors": []
+  },
+  "functional": {
+    "eligible_denominator": 36,
+    "acquisition_successes": 35,
+    "functional_successes": 28,
+    "functional_success_rate": 0.7777777777777778,
+    "duration_conflicts": [
+      "VhfS-G6PDLE",
+      "dpAIbWjlO6Y",
+      "MVl_B5MXjw4",
+      "Zbc1-fSZQq0",
+      "eANk3-vRpCM",
+      "msE-ktwSuR4",
+      "cIFlDoY6Wbs"
+    ],
+    "duration_unknown": [],
+    "status": "FAIL"
+  },
+  "uncertainty": {
+    "acquisition": {
+      "method": "Wilson 95%",
+      "lower": 0.8583028134672659,
+      "upper": 0.9950795928601892
+    },
+    "functional": {
+      "method": "Wilson 95%",
+      "lower": 0.6191529705388228,
+      "upper": 0.8828366802420331
+    }
+  },
+  "source": {
+    "status": "PASS",
+    "cases": 35,
+    "boundaries": 38962,
+    "max_delta_ms": 0,
+    "original_payload_hashes_match": true,
+    "ref": "docs/verification/gate-0/source-exact-reference.json",
+    "limitations": "Same extractor only resolves public source URLs; source verification is not independent upstream/runtime availability. Full-cue replay proves same-input parser fidelity only when original raw hash matches; original three stored boundaries are directly compared."
+  },
+  "duration_conflicts": [
+    {
+      "video_id": "VhfS-G6PDLE",
+      "duration_seconds": 45,
+      "last_start_ms": 43399,
+      "last_end_ms": 46680,
+      "excess_ms": 1680,
+      "allowed_excess_ms": 1000,
+      "source_exact_status": "PASS",
+      "original_payload_hash_match": true,
+      "source_boundary_delta_ms": 0,
+      "classification": "SOURCE_DURATION_CONFLICT",
+      "retry_helpful": false
+    },
+    {
+      "video_id": "dpAIbWjlO6Y",
+      "duration_seconds": 586,
+      "last_start_ms": 584800,
+      "last_end_ms": 587800,
+      "excess_ms": 1800,
+      "allowed_excess_ms": 1000,
+      "source_exact_status": "PASS",
+      "original_payload_hash_match": true,
+      "source_boundary_delta_ms": 0,
+      "classification": "SOURCE_DURATION_CONFLICT",
+      "retry_helpful": false
+    },
+    {
+      "video_id": "MVl_B5MXjw4",
+      "duration_seconds": 280,
+      "last_start_ms": 280780,
+      "last_end_ms": 282780,
+      "excess_ms": 2780,
+      "allowed_excess_ms": 1000,
+      "source_exact_status": "PASS",
+      "original_payload_hash_match": true,
+      "source_boundary_delta_ms": 0,
+      "classification": "SOURCE_DURATION_CONFLICT",
+      "retry_helpful": false
+    },
+    {
+      "video_id": "Zbc1-fSZQq0",
+      "duration_seconds": 3934,
+      "last_start_ms": 3932240,
+      "last_end_ms": 3936240,
+      "excess_ms": 2240,
+      "allowed_excess_ms": 1000,
+      "source_exact_status": "PASS",
+      "original_payload_hash_match": true,
+      "source_boundary_delta_ms": 0,
+      "classification": "SOURCE_DURATION_CONFLICT",
+      "retry_helpful": false
+    },
+    {
+      "video_id": "eANk3-vRpCM",
+      "duration_seconds": 1018,
+      "last_start_ms": 1013290,
+      "last_end_ms": 1020270,
+      "excess_ms": 2270,
+      "allowed_excess_ms": 1000,
+      "source_exact_status": "PASS",
+      "original_payload_hash_match": true,
+      "source_boundary_delta_ms": 0,
+      "classification": "SOURCE_DURATION_CONFLICT",
+      "retry_helpful": false
+    },
+    {
+      "video_id": "msE-ktwSuR4",
+      "duration_seconds": 598,
+      "last_start_ms": 596399,
+      "last_end_ms": 600399,
+      "excess_ms": 2399,
+      "allowed_excess_ms": 1000,
+      "source_exact_status": "PASS",
+      "original_payload_hash_match": true,
+      "source_boundary_delta_ms": 0,
+      "classification": "SOURCE_DURATION_CONFLICT",
+      "retry_helpful": false
+    },
+    {
+      "video_id": "cIFlDoY6Wbs",
+      "duration_seconds": 482,
+      "last_start_ms": 479919,
+      "last_end_ms": 483360,
+      "excess_ms": 1360,
+      "allowed_excess_ms": 1000,
+      "source_exact_status": "PASS",
+      "original_payload_hash_match": true,
+      "source_boundary_delta_ms": 0,
+      "classification": "SOURCE_DURATION_CONFLICT",
+      "retry_helpful": false
+    }
+  ],
+  "invariants": {
+    "corpus": 40,
+    "channels": 28,
+    "eligible": 36,
+    "natural_no_captions": 4,
+    "measured": 40,
+    "max_attempt": 4,
+    "duplicate_keys": 0,
+    "unfinished": 0,
+    "lost_cases": 0,
+    "fake_times": 0,
+    "window_history_preserved": true,
+    "second_window_implementation_unchanged": true
+  },
+  "candidates": [
+    {
+      "provider": "DirectCaptionsEdge",
+      "summary": {
+        "corpus_video_denominator": 40,
+        "eligible_video_denominator": 36,
+        "natural_no_caption_videos": 4,
+        "eligible_successes": 0,
+        "eligible_success_rate": 0,
+        "eligible_failures": 18,
+        "eligible_unmeasured": 18,
+        "eligible_inconclusive": 0,
+        "eligible_ip_blocked_videos": 0,
+        "measured_unique_videos": 20,
+        "total_recorded_attempts": 20,
+        "statuses": {
+          "AUTH_REQUIRED": 20
+        },
+        "errors": []
+      },
+      "selected": false
+    },
+    {
+      "provider": "youtube-transcript-api",
+      "summary": {
+        "corpus_video_denominator": 40,
+        "eligible_video_denominator": 36,
+        "natural_no_caption_videos": 4,
+        "eligible_successes": 0,
+        "eligible_success_rate": 0,
+        "eligible_failures": 0,
+        "eligible_unmeasured": 18,
+        "eligible_inconclusive": 18,
+        "eligible_ip_blocked_videos": 0,
+        "measured_unique_videos": 20,
+        "total_recorded_attempts": 20,
+        "statuses": {
+          "INCONCLUSIVE": 20
+        },
+        "errors": []
+      },
+      "selected": false
+    },
+    {
+      "provider": "yt-dlp captions-only",
+      "summary": {
+        "corpus_video_denominator": 40,
+        "eligible_video_denominator": 36,
+        "natural_no_caption_videos": 4,
+        "eligible_successes": 35,
+        "eligible_success_rate": 0.9722222222222222,
+        "eligible_failures": 1,
+        "eligible_unmeasured": 0,
+        "eligible_inconclusive": 0,
+        "eligible_ip_blocked_videos": 0,
+        "measured_unique_videos": 40,
+        "total_recorded_attempts": 98,
+        "statuses": {
+          "OK": 35,
+          "NO_CAPTIONS": 4,
+          "TEMPORARY_FAILURE": 1
+        },
+        "errors": []
+      },
+      "selected": false
+    }
+  ],
+  "local_process_cpu_us": {
+    "n": 71,
+    "min": 1062500,
+    "p95": 4546875,
+    "max": 4593750
+  },
+  "local_wall_ms": {
+    "n": 98,
+    "min": 1867,
+    "p95": 6106,
+    "max": 6629
+  },
+  "cpu_scope": "Local process CPU, separate from wall/network time; Windows accounting coarse. Edge p95 62/max63ms, optimized one retest59ms FAIL; thresholds unchanged.",
+  "remaining_transient": {
+    "video_id": "gdmuCVhzoAs",
+    "status": "TEMPORARY_FAILURE",
+    "reason": "LIBRARY_DOWNLOADERROR",
+    "permanent_provider_failure": false,
+    "automatic_retry": false,
+    "reason_no_retry": "Even recovery yields at most29/36 functional successes; cannot resolve seven source-duration conflicts"
+  },
+  "blocker": "Seven source-exact cue ends violate frozen +1000ms duration bound. No local parser error found: exact source hash and all cue boundaries match. Clamping would fabricate times; runtime change or retry does not resolve same source data. Frozen criterion/corpus cannot be silently changed.",
+  "next": "Owner resolution of source-duration admission conflict required; retain FAIL evidence and do not start CP-1.7/1.8 or Stage02",
+  "owner_local_hours_per_day": 8,
+  "paid_services_enabled": false
+}

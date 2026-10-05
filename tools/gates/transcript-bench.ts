@@ -202,9 +202,7 @@ export interface Gate0DryRunRequestPlan {
     public_access_confirmed_at_freeze: true;
     baseline_track: Gate0Entry['tracks'][number] | null;
     track_inventory_ref: string;
-    expected_baseline_class:
-      | 'CAPTION_ELIGIBLE'
-      | 'NATURAL_NO_CAPTIONS_OR_LATE';
+    expected_baseline_class: 'CAPTION_ELIGIBLE' | 'NATURAL_NO_CAPTIONS_OR_LATE';
     planned_operations: ('LIST_TRACKS' | 'FETCH_SELECTED_TRACK')[];
     failure_boundary:
       | 'provider/network/parser failures remain distinct from NO_CAPTIONS'
@@ -268,8 +266,7 @@ export function validateGate0Manifest(manifest: Gate0Manifest): string[] {
     if (!videoIdPattern.test(entry.video_id))
       errors.push(`VIDEO_ID_INVALID:${entry.video_id}`);
     if (
-      entry.public_url !==
-      `https://www.youtube.com/watch?v=${entry.video_id}`
+      entry.public_url !== `https://www.youtube.com/watch?v=${entry.video_id}`
     )
       errors.push(`PUBLIC_URL_INVALID:${entry.video_id}`);
     if (!entry.public_access)
@@ -289,7 +286,9 @@ export function validateGate0Manifest(manifest: Gate0Manifest): string[] {
     if (!entry.track_inventory_ref || !entry.verified_metadata_ref)
       errors.push(`EVIDENCE_REFERENCE_MISSING:${entry.video_id}`);
     if (entry.short) {
-      if (entry.shorts_url !== `https://www.youtube.com/shorts/${entry.video_id}`)
+      if (
+        entry.shorts_url !== `https://www.youtube.com/shorts/${entry.video_id}`
+      )
         errors.push(`SHORTS_EVIDENCE_MISSING:${entry.video_id}`);
     } else if (entry.shorts_url !== null) {
       errors.push(`SHORTS_EVIDENCE_UNEXPECTED:${entry.video_id}`);
@@ -321,10 +320,14 @@ export function validateGate0Manifest(manifest: Gate0Manifest): string[] {
     over_60_minutes: entries.filter((entry) => entry.duration_seconds > 3600)
       .length,
     new_under_48_hours: entries.filter(
-      (entry) => Number.isFinite(asOf) && asOf - Date.parse(entry.published_at) < 48 * 3600_000,
+      (entry) =>
+        Number.isFinite(asOf) &&
+        asOf - Date.parse(entry.published_at) < 48 * 3600_000,
     ).length,
     old_over_90_days: entries.filter(
-      (entry) => Number.isFinite(asOf) && asOf - Date.parse(entry.published_at) > 90 * 86400_000,
+      (entry) =>
+        Number.isFinite(asOf) &&
+        asOf - Date.parse(entry.published_at) > 90 * 86400_000,
     ).length,
   };
   for (const [key, minimum] of Object.entries(
@@ -345,7 +348,10 @@ export function validateGate0Manifest(manifest: Gate0Manifest): string[] {
       errors.push('FREEZE_METADATA_MISSING');
     else {
       const frozenAt = Date.parse(manifest.frozen_at);
-      if (!Number.isFinite(frozenAt) || (Number.isFinite(asOf) && frozenAt < asOf))
+      if (
+        !Number.isFinite(frozenAt) ||
+        (Number.isFinite(asOf) && frozenAt < asOf)
+      )
         errors.push('FROZEN_AT_INVALID');
       if (manifest.sha256 !== gate0ManifestHash(manifest))
         errors.push('FROZEN_HASH_MISMATCH');
@@ -361,8 +367,7 @@ export function prepareGate0Manifest(
 ): Gate0Manifest {
   const entries = Object.entries(inventory.videos).map(([key, video]) => {
     const primaryStratum = inventory.primary_stratum_by_video[key];
-    if (!primaryStratum)
-      throw new Error(`Missing primary stratum for ${key}`);
+    if (!primaryStratum) throw new Error(`Missing primary stratum for ${key}`);
     const selectedTrack = video.selected_track_evidence;
     const tracks = selectedTrack
       ? [{ language: selectedTrack.language_code, kind: selectedTrack.kind }]
@@ -413,7 +418,9 @@ export function validateGate0PlayerTrackInventory(
   if (videoIds.length !== 40) errors.push('INVENTORY_VIDEO_COUNT_NOT_40');
   if (
     videoIds.length !== strataIds.length ||
-    videoIds.some((id) => !Object.hasOwn(inventory.primary_stratum_by_video, id))
+    videoIds.some(
+      (id) => !Object.hasOwn(inventory.primary_stratum_by_video, id),
+    )
   )
     errors.push('INVENTORY_STRATUM_MAP_MISMATCH');
   const now = Date.parse(asOf);
@@ -438,31 +445,33 @@ export function validateGate0PlayerTrackInventory(
       errors.push(`INVENTORY_METADATA_INVALID:${key}`);
     if (
       Number.isFinite(now) &&
-      (Date.parse(video.published_at) > now || Date.parse(video.checked_at) > now)
+      (Date.parse(video.published_at) > now ||
+        Date.parse(video.checked_at) > now)
     )
       errors.push(`INVENTORY_METADATA_AFTER_AS_OF:${key}`);
-    if (!Number.isInteger(video.caption_track_count) || video.caption_track_count < 0)
+    if (
+      !Number.isInteger(video.caption_track_count) ||
+      video.caption_track_count < 0
+    )
       errors.push(`INVENTORY_TRACK_COUNT_INVALID:${key}`);
     if (
       (video.caption_track_count === 0) !==
       (video.selected_track_evidence === null)
     )
       errors.push(`INVENTORY_SELECTED_TRACK_MISMATCH:${key}`);
-    if (video.shorts_surface_url !== null &&
-      video.shorts_surface_url !== `https://www.youtube.com/shorts/${key}`)
+    if (
+      video.shorts_surface_url !== null &&
+      video.shorts_surface_url !== `https://www.youtube.com/shorts/${key}`
+    )
       errors.push(`INVENTORY_SHORTS_URL_INVALID:${key}`);
-    if (video.live_end_timestamp !== null &&
-      !Number.isFinite(Date.parse(video.live_end_timestamp)))
+    if (
+      video.live_end_timestamp !== null &&
+      !Number.isFinite(Date.parse(video.live_end_timestamp))
+    )
       errors.push(`INVENTORY_LIVE_END_INVALID:${key}`);
-    if (
-      stratum === 'no_or_late_captions' &&
-      video.caption_track_count !== 0
-    )
+    if (stratum === 'no_or_late_captions' && video.caption_track_count !== 0)
       errors.push(`INVENTORY_NO_CAPTIONS_NOT_EMPTY:${key}`);
-    if (
-      stratum !== 'no_or_late_captions' &&
-      video.caption_track_count === 0
-    )
+    if (stratum !== 'no_or_late_captions' && video.caption_track_count === 0)
       errors.push(`INVENTORY_ELIGIBLE_TRACK_MISSING:${key}`);
     if (video.selected_track_evidence) {
       const track = video.selected_track_evidence;
@@ -497,7 +506,9 @@ export function validateGate0InventoryReferences(
   inventory: Gate0PlayerTrackInventory,
 ): string[] {
   const errors: string[] = [];
-  if (manifest.source_evidence_sha256 !== gate0PlayerTrackInventoryHash(inventory))
+  if (
+    manifest.source_evidence_sha256 !== gate0PlayerTrackInventoryHash(inventory)
+  )
     errors.push('PLAYER_TRACK_EVIDENCE_HASH_MISMATCH');
   for (const entry of manifest.entries) {
     const evidence = inventory.videos[entry.video_id];
@@ -589,7 +600,8 @@ export function buildGate0DryRunRequestPlan(
     const index = perStratumIndex.get(entry.primary_stratum) ?? 0;
     videoAssignments.set(
       entry.video_id,
-      manifest.retry_windows_local[index % 2] ?? manifest.retry_windows_local[0]!,
+      manifest.retry_windows_local[index % 2] ??
+        manifest.retry_windows_local[0]!,
     );
     perStratumIndex.set(entry.primary_stratum, index + 1);
   }
@@ -625,8 +637,10 @@ export function buildGate0DryRunRequestPlan(
       },
       {
         id: 'youtube-transcript-api',
-        runtime: 'local Python 3.14.4; Node.js 24.21.0 available for the run harness',
-        version: 'youtube-transcript-api 1.2.4; pinned transitive lock in requirements-gate0.lock.txt',
+        runtime:
+          'local Python 3.14.4; Node.js 24.21.0 available for the run harness',
+        version:
+          'youtube-transcript-api 1.2.4; pinned transitive lock in requirements-gate0.lock.txt',
         license: 'MIT',
         status: 'NOT_RUN',
         media_download: false,
@@ -634,7 +648,8 @@ export function buildGate0DryRunRequestPlan(
       {
         id: 'yt-dlp captions-only',
         runtime: 'Python 3.14.4 + Node.js 24.21.0 + yt-dlp-ejs 0.8.0',
-        version: 'yt-dlp 2026.08.19; pinned transitive lock in requirements-gate0.lock.txt',
+        version:
+          'yt-dlp 2026.08.19; pinned transitive lock in requirements-gate0.lock.txt',
         license: 'Unlicense source package; no bundled executable used',
         status: 'NOT_RUN',
         media_download: false,
@@ -658,13 +673,13 @@ export function buildGate0DryRunRequestPlan(
     timestamp_policy: manifest.measurement_policy.timestamps,
     cpu_policy: manifest.measurement_policy.cpu,
     videos: manifest.entries.map((entry) => {
-      const noCaptions =
-        entry.primary_stratum === 'no_or_late_captions';
+      const noCaptions = entry.primary_stratum === 'no_or_late_captions';
       return {
         video_id: entry.video_id,
         primary_stratum: entry.primary_stratum,
         scheduled_window_local_time:
-          videoAssignments.get(entry.video_id) ?? manifest.retry_windows_local[0]!,
+          videoAssignments.get(entry.video_id) ??
+          manifest.retry_windows_local[0]!,
         public_url: entry.public_url,
         public_access_confirmed_at_freeze: true,
         baseline_track: entry.tracks[0] ?? null,
@@ -719,7 +734,8 @@ function validateMeasurementPolicy(manifest: Gate0Manifest): string[] {
   )
     errors.push('CPU_POLICY_INVALID');
   if (
-    boundaries.no_captions_requires_public_access_and_empty_tracklist !== true ||
+    boundaries.no_captions_requires_public_access_and_empty_tracklist !==
+      true ||
     boundaries.ip_blocked_is_no_captions !== false ||
     boundaries.preserve_video_row_after_failure !== true ||
     boundaries.transient_retry.maximum_attempts !== 4 ||
@@ -769,7 +785,11 @@ function writeJson(path: string, value: unknown): void {
   writeFileSync(path, `${JSON.stringify(value, null, 2)}\n`, 'utf8');
 }
 
-function report(result: string, manifest: Gate0Manifest, errors: string[]): void {
+function report(
+  result: string,
+  manifest: Gate0Manifest,
+  errors: string[],
+): void {
   console.log(
     JSON.stringify({
       result,
@@ -789,9 +809,7 @@ function runCli(): void {
   const manifestPath = resolve(
     manifestArg ?? 'docs/verification/gate-0/MANIFEST.json',
   );
-  const inventoryPath = resolve(
-    inventoryArg ?? inventoryRelativePath,
-  );
+  const inventoryPath = resolve(inventoryArg ?? inventoryRelativePath);
   let manifest = readJson<Gate0Manifest>(manifestPath);
 
   if (command === 'prepare') {
@@ -800,7 +818,8 @@ function runCli(): void {
       inventory,
       manifest.as_of,
     );
-    if (manifest.status !== 'DRAFT') inventoryErrors.push('PREPARE_REQUIRES_DRAFT');
+    if (manifest.status !== 'DRAFT')
+      inventoryErrors.push('PREPARE_REQUIRES_DRAFT');
     if (manifest.entry_criteria.first_measurement_started)
       inventoryErrors.push('MEASUREMENT_ALREADY_STARTED');
     manifest = prepareGate0Manifest(manifest, inventory);
@@ -856,7 +875,8 @@ function runCli(): void {
       ...validateGate0InventoryReferences(manifest, inventory),
       ...validateGate0Manifest(manifest),
     ];
-    if (manifest.status !== 'FROZEN') errors.push('DRY_RUN_REQUIRES_FROZEN_MANIFEST');
+    if (manifest.status !== 'FROZEN')
+      errors.push('DRY_RUN_REQUIRES_FROZEN_MANIFEST');
     if (errors.length) {
       report('NOT_READY', manifest, errors);
       process.exitCode = 2;
@@ -886,7 +906,9 @@ function runCli(): void {
     return;
   }
 
-  console.error('Usage: transcript-bench.ts <prepare|freeze|plan|validate> [manifest-path] [inventory-path]');
+  console.error(
+    'Usage: transcript-bench.ts <prepare|freeze|plan|validate> [manifest-path] [inventory-path]',
+  );
   process.exitCode = 2;
 }
 

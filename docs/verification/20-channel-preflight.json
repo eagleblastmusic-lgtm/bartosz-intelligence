@@ -1,0 +1,116 @@
+{
+  "checkpoint": "CP-1.7",
+  "status": "COMPLETE_CAPACITY_UNKNOWN",
+  "as_of": "2026-10-05T17:03:46.665Z",
+  "channels": 20,
+  "ordinary_videos_per_day": {
+    "min": 4,
+    "max": 20,
+    "basis": "Master28.1 assumption0.2-1/channel/day, not measured arrival"
+  },
+  "requests_per_ordinary_video": 1,
+  "input_tokens_per_video": 20000,
+  "output_tokens_per_video": 2000,
+  "length_basis": "Master baseline estimates; production tokenizer/path absent",
+  "source_duration_seconds": {
+    "min": 7,
+    "p95": 4618,
+    "max": 7449,
+    "n": 40,
+    "basis": "Frozen source metadata"
+  },
+  "input_byte_caps": {
+    "watch": 5242880,
+    "captions": 4194304
+  },
+  "local_hours_per_day": 8,
+  "hours_basis": "Owner declaration",
+  "concurrency": 1,
+  "local_cpu_us": {
+    "n": 71,
+    "min": 1062500,
+    "p95": 4546875,
+    "max": 4593750
+  },
+  "local_wall_ms": {
+    "n": 98,
+    "min": 1867,
+    "p95": 6106,
+    "max": 6629
+  },
+  "gemini": {
+    "model": "gemini-3.8-flash",
+    "quota_snapshot": {
+      "api_id": "gemini-3.8-flash",
+      "dashboard_label": "Gemini 3.8 Flash",
+      "rpm": 5,
+      "input_tpm": 250000,
+      "rpd": 20,
+      "peak_usage_last_28_days": 1,
+      "observed_in_rate_limit_ui": true,
+      "observed_after_invalid_legacy_probe": true
+    },
+    "snapshot_at": "2026-10-04T18:28:46.747Z",
+    "remaining_quota": "UNKNOWN",
+    "reserve_fraction": 0.2,
+    "ordinary_rpd_after_reserve": 16,
+    "reset_zone": "America/Los_Angeles",
+    "reset_basis": "Selected-model authenticated UI",
+    "refresh_before_submission": true
+  },
+  "youtube": {
+    "quota_snapshot": {
+      "project": "bartosz-intelligence",
+      "billing": "DISABLED",
+      "billing_evidence": "Cloud Manage account toast: project payments disabled; absent from linked project list",
+      "youtube_queries_per_day": {
+        "limit": 10000,
+        "usage": 1
+      },
+      "youtube_queries_per_minute": {
+        "limit": 1800000,
+        "usage": 1
+      },
+      "youtube_search_per_day": {
+        "limit": 100,
+        "usage": 0
+      },
+      "youtube_search_per_minute": {
+        "limit": 100,
+        "usage": 0
+      },
+      "youtube_video_batch_get_stats_per_day": {
+        "limit": 10000,
+        "usage": 0
+      },
+      "youtube_video_batch_get_stats_per_minute": {
+        "limit": 600,
+        "usage": 0
+      },
+      "reset_timezone": "America/Los_Angeles",
+      "reset_timezone_source": "official YouTube documentation, not account UI",
+      "key_project_binding": "owner-selected project; matching YouTube usage corroborates lookup; cryptographic binding not verified"
+    },
+    "snapshot_at": "2026-10-04T18:28:46.747Z",
+    "remaining_quota": "UNKNOWN",
+    "discovery_units_per_day_baseline": 260,
+    "formula": "20*(12 head checks+1 daily page)+metadata_batches+extra/backfill",
+    "reserve_fraction": 0.2,
+    "reset_zone": "America/Los_Angeles"
+  },
+  "cloudflare": {
+    "requests_per_day": 100000,
+    "cpu_limit_ms": 10,
+    "cpu_p95_target_ms": 8,
+    "queues_ops_per_day": 10000,
+    "reset_zone": "UNKNOWN",
+    "d1_current_usage": "UNKNOWN",
+    "snapshot_ref": "docs/verification/gate-e/dashboard-observations.json",
+    "control_plane_only": true
+  },
+  "rss_requests_per_day": 960,
+  "bottleneck": "Observed Gemini20RPD=>16 ordinary requests with20% reserve; upper assumed20/day must defer. PC uptime and YouTube restrictions add limits; never paid fallback.",
+  "mu": "UNKNOWN",
+  "gate_c": "NOT_RUN",
+  "capacity_pass": false
+}

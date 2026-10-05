@@ -1,0 +1,37 @@
+{
+  "checkpoint": "CP-1.7",
+  "status": "PASS",
+  "as_of": "2026-10-05T17:03:46.665Z",
+  "primary": {
+    "enabled": true,
+    "provider": "yt-dlp captions-only",
+    "runtime": "python",
+    "version": "yt-dlp@2026.08.19+yt-dlp-ejs@0.8.0",
+    "eligibility_ref": "docs/verification/gate-0/local-eligibility.json",
+    "benchmark_ref": "docs/verification/gate-0/FINAL_EVALUATION_V2.json",
+    "failure_restrictions": "Concurrency1; internal retries0; four attempts total with full-jitter1/5/20min; AUTH/IP/REGION stop; no same-IP library fallback; no video download",
+    "local_hours_per_day": 8
+  },
+  "active_dependency_gates": {
+    "gemini_free": "PASS",
+    "local_free": "PASS",
+    "local_source": "PASS_CRITERIA_V2",
+    "local_cpu": "MEASURED_OWNER_RUNTIME"
+  },
+  "inactive": [
+    "DirectCaptionsEdge CPUFAIL",
+    "youtube-transcript-api harnessINCONCLUSIVE",
+    "SECONDARY",
+    "TERTIARY",
+    "LAST_RESORT",
+    "Deno",
+    "WorkersAI",
+    "Drive/archive",
+    "STT"
+  ],
+  "shared_upstream": "Extractors share YouTube/IP; no independent redundancy or same-IP retry storm",
+  "gate0b": "NOT_REQUIRED:GeminiFree eligible",
+  "preflight_ref": "docs/verification/20-channel-preflight.json",
+  "defaults_remain_disabled": true,
+  "production_requests": 0
+}

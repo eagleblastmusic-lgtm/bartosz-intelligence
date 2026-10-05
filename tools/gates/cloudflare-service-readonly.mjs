@@ -158,7 +158,10 @@ try {
               ? groups.reduce((sum, row) => sum + (row.sum?.rowsRead ?? 0), 0)
               : null,
             row_written_count: groups.length
-              ? groups.reduce((sum, row) => sum + (row.sum?.rowsWritten ?? 0), 0)
+              ? groups.reduce(
+                  (sum, row) => sum + (row.sum?.rowsWritten ?? 0),
+                  0,
+                )
               : null,
             usage_observed: groups.length > 0,
             groups: groups.length,
