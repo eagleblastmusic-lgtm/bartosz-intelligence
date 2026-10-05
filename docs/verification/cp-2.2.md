@@ -1,0 +1,5 @@
+# CP-2.2 — Source, Item and immutable metadata
+
+PASS, local verification 2026-10-05. Migration 002_sources_items.sql, exact hash/dependency in migration-ledger; next 003. Namespace identities and owner composite FKs separate identity from content. Public/Short/live/unknown kinds and publication provenance are explicit; null publication is retained. Soft source disable preserves items/revisions and records audit. Changed metadata creates an immutable snapshot; stale fetched input does not replace a newer selected revision.
+
+`pnpm typecheck`, `pnpm lint`: PASS. Three real workerd fixture files / 9 tests (including CP-2.1 regression) PASS. Fresh migrations, independent empty SQLite restore, integrity_check and foreign_key_check PASS. D1 cross-owner relationships reject writes; revision update trigger rejects edits. Keyset cursor signature binds owner/sort/snapshot, limit 1–50; later inserts do not contaminate the original snapshot. EXPLAIN uses items_publication index. No live provider requests or deployment. Stage 02 IN_PROGRESS; domain discovery/JobStore is not claimed ready.

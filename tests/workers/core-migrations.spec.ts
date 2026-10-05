@@ -16,34 +16,13 @@ import {
   authenticateWorker,
   rotateWorker,
 } from '../../packages/core/src/auth/worker.js';
+import { resetCore } from './core-fixture.js';
 
 const now = new Date('2026-10-05T17:30:00Z');
 const secret = 'fixture-session-signing-key-32-bytes-minimum';
 describe('CP-2.1 real D1 identity boundary', () => {
   beforeEach(async () => {
-    for (const table of [
-      'oidc_login_intents',
-      'audit_events',
-      'config_versions',
-      'worker_identities',
-      'owner_sessions',
-      'owner_users',
-      'applied_migrations',
-    ]) {
-      await env.DB.prepare(`DROP TABLE IF EXISTS ${table}`).run();
-    }
-    await applyMigrations(env.DB, env.CORE_MIGRATIONS, now.toISOString());
-    await env.DB.batch(
-      ['a', 'b'].map((owner) =>
-        env.DB.prepare('INSERT INTO owner_users VALUES(?,?,?,?,?)').bind(
-          owner,
-          'https://accounts.google.com',
-          `subject-${owner}`,
-          1,
-          now.toISOString(),
-        ),
-      ),
-    );
+    await resetCore();
   });
   it('repeat migration is idempotent; changed applied checksum blocks', async () => {
     await applyMigrations(env.DB, env.CORE_MIGRATIONS, now.toISOString());
@@ -51,7 +30,7 @@ describe('CP-2.1 real D1 identity boundary', () => {
       await env.DB.prepare('SELECT COUNT(*) n FROM applied_migrations').first(
         'n',
       ),
-    ).toBe(1);
+    ).toBe(env.CORE_MIGRATIONS.length);
     await env.DB.prepare(
       "UPDATE applied_migrations SET sha256='corrupt'",
     ).run();

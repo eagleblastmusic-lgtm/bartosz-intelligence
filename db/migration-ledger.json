@@ -4,6 +4,11 @@
       "depends_on": [],
       "name": "001_identity_config.sql",
       "sha256": "a1ab3359cb116ad0ffd5f23cd58a87070d404e34d21affb120905b0061f5dbcc"
+    },
+    {
+      "depends_on": ["001_identity_config.sql"],
+      "sha256": "af4ac6b2ea63b3f50a426751af3ded723541366a5268abfa1d317e4d6b685484",
+      "name": "002_sources_items.sql"
     }
   ],
   "version": 1
