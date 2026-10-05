@@ -39,6 +39,11 @@
       "name": "008_backup_barrier.sql",
       "depends_on": ["007_owner_bootstrap.sql"],
       "sha256": "3c6d2fd8fdab3ae4ac1bd792cd5724665dbfb323032b5de32f04c96b51a14a0c"
+    },
+    {
+      "name": "009_transcript_artifacts.sql",
+      "depends_on": ["008_backup_barrier.sql"],
+      "sha256": "99c04cfd0181aca64824858f82b4dd9f3cc316a97da056899c2deca0f364468e"
     }
   ],
   "version": 1

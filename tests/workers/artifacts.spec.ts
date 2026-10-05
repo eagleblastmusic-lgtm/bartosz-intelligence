@@ -1,0 +1,366 @@
+import { env } from 'cloudflare:workers';
+import { beforeEach, it, expect } from 'vitest';
+import { fixtureNow, fixtureOwner, resetCore } from './core-fixture.js';
+import { SourceRepository } from '../../packages/core/src/db/sources.js';
+import { ItemRepository } from '../../packages/core/src/db/items.js';
+import { AccessContext } from '../../packages/core/src/db/boundary.js';
+import { JobStore } from '../../packages/core/src/jobs/store.js';
+import { sha256 } from '../../packages/core/src/auth/crypto.js';
+import {
+  ArtifactRepository,
+  splitArtifactText,
+  artifactChunkBytes,
+} from '../../packages/core/src/artifacts/store.js';
+import type { ArtifactDescriptor } from '../../packages/core/src/artifacts/store.js';
+import {
+  CoreBackup,
+  backupTables,
+} from '../../packages/core/src/backup/snapshot.js';
+import type { BackupChunk } from '../../packages/core/src/backup/snapshot.js';
+import { restoreCanonical } from '../../packages/core/src/backup/restore.js';
+import { applyMigrations } from '../../packages/core/src/db/migrations.js';
+beforeEach(resetCore);
+async function setup() {
+  const owner = await fixtureOwner(),
+    source = (await new SourceRepository(env.DB, owner).upsert(
+      {
+        namespace: 'youtube',
+        external_id: 'UC-fixture',
+        canonical_locator: 'https://www.youtube.com/channel/fixture',
+        title: 'Fixture',
+        uploads_playlist_id: 'UU-fixture',
+        handle: null,
+      },
+      fixtureNow.toISOString(),
+    ))!;
+  const item = (await new ItemRepository(env.DB, owner).upsert(
+    source.source_id,
+    {
+      namespace: 'youtube',
+      external_id: 'artifact001',
+      canonical_url: 'https://www.youtube.com/watch?v=artifact001',
+      title: 'Fixture',
+      item_type: 'video',
+      published_at: null,
+      publication_provenance: 'unknown',
+      availability: 'PUBLIC',
+      duration_seconds: 60,
+    },
+    fixtureNow.toISOString(),
+  ))!;
+  const credential = await sha256('artifact-worker-fixture');
+  await env.DB.prepare('INSERT INTO worker_identities VALUES(?,?,?,?,?,NULL)')
+    .bind(
+      'artifact-worker',
+      'a',
+      credential,
+      '["FETCH_TRANSCRIPT"]',
+      fixtureNow.toISOString(),
+    )
+    .run();
+  const job = (await new JobStore(env.DB, owner).enqueue(
+    {
+      item_id: item.item_id,
+      source_id: source.source_id,
+      task_type: 'FETCH_TRANSCRIPT',
+      input_revision: 'fixture',
+      profile_revision: 'fixture',
+      prompt_snapshot_id: null,
+      routing_policy_version: 'local-1',
+      wire_schema_version: null,
+      canonical_schema_version: null,
+      enrichment_version: null,
+      explicit_run_nonce: '',
+      arrival_origin_at: fixtureNow.toISOString(),
+      origin_kind: 'NEW',
+      payload: {},
+      priority: 80,
+      due_at: fixtureNow.toISOString(),
+    },
+    fixtureNow.toISOString(),
+  ))!;
+  const access = await AccessContext.worker(env.DB, credential),
+    store = new JobStore(env.DB, access),
+    token = (await store.lease(
+      job.job_id,
+      'FETCH_TRANSCRIPT',
+      fixtureNow,
+      'local',
+    ))!;
+  await store.start(token, 'FETCH_TRANSCRIPT', fixtureNow);
+  return {
+    owner,
+    item,
+    token,
+    repository: new ArtifactRepository(env.DB, access),
+  };
+}
+it('large Unicode cue is resumable, ordered/hash verified, immutable and portable through canonical restore', async () => {
+  const { owner, item, token, repository } = await setup(),
+    text = 'e\u0301🦋\n'.repeat(13000),
+    chunks = splitArtifactText(text);
+  expect(chunks.length).toBeGreaterThan(1);
+  for (const chunk of chunks) {
+    expect(chunk.byteLength).toBeLessThanOrEqual(artifactChunkBytes);
+    expect(() =>
+      new TextDecoder('utf-8', { fatal: true, ignoreBOM: false }).decode(chunk),
+    ).not.toThrow();
+  }
+  const descriptor: ArtifactDescriptor = {
+    item_id: item.item_id,
+    kind: 'SOURCE_ORIGINAL',
+    content_hash: await sha256(text),
+    byte_size: new TextEncoder().encode(text).byteLength,
+    chunk_count: chunks.length,
+    schema_version: 'source-text-1',
+    producer_version: 'fixture-1',
+    provenance: { provider: 'fixture', language: 'unknown' },
+    original_ref: null,
+  };
+  const artifact = await repository.begin(
+    descriptor,
+    token,
+    'FETCH_TRANSCRIPT',
+    fixtureNow,
+  );
+  await expect(
+    repository.verifyLocal(
+      artifact.artifact_id,
+      token,
+      'FETCH_TRANSCRIPT',
+      fixtureNow,
+      'local',
+    ),
+  ).rejects.toThrow('ARTIFACT_CHUNK_MISSING');
+  expect(
+    (
+      await repository.get(
+        artifact.artifact_id,
+        token,
+        'FETCH_TRANSCRIPT',
+        fixtureNow,
+      )
+    ).state,
+  ).toBe('UPLOADING');
+  let offset = 0;
+  for (let index = 0; index < chunks.length; index++) {
+    await repository.writeChunk(
+      artifact.artifact_id,
+      index,
+      offset,
+      chunks[index]!,
+      token,
+      'FETCH_TRANSCRIPT',
+      fixtureNow,
+    );
+    offset += chunks[index]!.length;
+  }
+  expect(
+    (await repository.begin(descriptor, token, 'FETCH_TRANSCRIPT', fixtureNow))
+      .artifact_id,
+  ).toBe(artifact.artifact_id);
+  await expect(
+    repository.writeChunk(
+      artifact.artifact_id,
+      0,
+      0,
+      new TextEncoder().encode('changed'),
+      token,
+      'FETCH_TRANSCRIPT',
+      fixtureNow,
+    ),
+  ).rejects.toThrow('ARTIFACT_CHUNK_CONFLICT');
+  const verified = await repository.verifyLocal(
+    artifact.artifact_id,
+    token,
+    'FETCH_TRANSCRIPT',
+    fixtureNow,
+    'local',
+  );
+  expect(verified.state).toBe('VERIFIED');
+  expect(verified.manifest_hash).toMatch(/^[a-f0-9]{64}$/);
+  expect(
+    (
+      await repository.verifyLocal(
+        artifact.artifact_id,
+        token,
+        'FETCH_TRANSCRIPT',
+        fixtureNow,
+        'local',
+      )
+    ).manifest_hash,
+  ).toBe(verified.manifest_hash);
+  await expect(
+    env.DB.prepare('UPDATE artifacts SET content_hash=? WHERE artifact_id=?')
+      .bind('0'.repeat(64), artifact.artifact_id)
+      .run(),
+  ).rejects.toThrow('IMMUTABLE_ARTIFACT');
+  await expect(
+    new ArtifactRepository(env.DB, await fixtureOwner('b')).get(
+      artifact.artifact_id,
+    ),
+  ).rejects.toThrow('NOT_FOUND');
+  await expect(
+    repository.get(
+      artifact.artifact_id,
+      { ...token, fencing_token: 0 },
+      'FETCH_TRANSCRIPT',
+      fixtureNow,
+    ),
+  ).rejects.toThrow('NOT_FOUND');
+  const backup = new CoreBackup(env.DB, owner),
+    start = await backup.begin(),
+    portableChunks: BackupChunk[] = [];
+  for (const table of backupTables) {
+    let cursor: number | null = 0;
+    do {
+      const chunk = await backup.chunk(start.backup_id, table, cursor);
+      portableChunks.push(chunk);
+      cursor = chunk.next_cursor;
+    } while (cursor !== null);
+  }
+  const portable = {
+    manifest: await backup.complete(start.backup_id),
+    chunks: portableChunks,
+  };
+  const tables = (
+    await env.DB.prepare(
+      "SELECT name FROM sqlite_master WHERE type='table' AND name NOT LIKE 'sqlite_%' AND name NOT LIKE '_cf_%'",
+    ).all<{ name: string }>()
+  ).results;
+  await env.DB.batch([
+    env.DB.prepare('PRAGMA defer_foreign_keys=ON'),
+    ...tables.map((row) => env.DB.prepare(`DROP TABLE "${row.name}"`)),
+  ]);
+  await applyMigrations(env.DB, env.CORE_MIGRATIONS, fixtureNow.toISOString());
+  await restoreCanonical(env.DB, portable, 'subject-a');
+  const restored = new ArtifactRepository(env.DB, await fixtureOwner());
+  expect((await restored.get(artifact.artifact_id)).manifest_hash).toBe(
+    verified.manifest_hash,
+  );
+  let restoredText = '';
+  for (let index = 0; index < chunks.length; index++) {
+    const row = await restored.chunk(artifact.artifact_id, index);
+    restoredText += new TextDecoder().decode(
+      Uint8Array.from(
+        atob(row.body_base64.replaceAll('-', '+').replaceAll('_', '/')),
+        (char) => char.charCodeAt(0),
+      ),
+    );
+  }
+  expect(restoredText).toBe(text);
+  expect(await sha256(restoredText)).toBe(descriptor.content_hash);
+  // Inject physical corruption only in the disposable fixture, bypassing its immutability trigger.
+  await env.DB.prepare('DROP TRIGGER artifact_chunks_no_update').run();
+  await env.DB.prepare(
+    "UPDATE artifact_chunks SET body_base64='YQ' WHERE chunk_index=0",
+  ).run();
+  await expect(restored.chunk(artifact.artifact_id, 0)).rejects.toThrow(
+    'ARTIFACT_CHUNK_CORRUPT',
+  );
+});
+it('empty payload is valid but oversized chunk, bad range, wrong total hash and unverified parent cannot become VERIFIED', async () => {
+  const { item, token, repository } = await setup();
+  const descriptor: ArtifactDescriptor = {
+    item_id: item.item_id,
+    kind: 'RAW',
+    content_hash: await sha256(''),
+    byte_size: 0,
+    chunk_count: 1,
+    schema_version: 'raw-1',
+    producer_version: 'fixture-1',
+    provenance: {},
+    original_ref: null,
+  };
+  const empty = await repository.begin(
+    descriptor,
+    token,
+    'FETCH_TRANSCRIPT',
+    fixtureNow,
+  );
+  await expect(
+    repository.begin(
+      { ...descriptor, kind: 'NORMALIZED', original_ref: empty.artifact_id },
+      token,
+      'FETCH_TRANSCRIPT',
+      fixtureNow,
+    ),
+  ).rejects.toThrow('ARTIFACT_PARENT_NOT_VERIFIED');
+  await expect(
+    repository.writeChunk(
+      empty.artifact_id,
+      0,
+      0,
+      new Uint8Array(artifactChunkBytes + 1),
+      token,
+      'FETCH_TRANSCRIPT',
+      fixtureNow,
+    ),
+  ).rejects.toThrow('INVALID_ARTIFACT_CHUNK');
+  await repository.writeChunk(
+    empty.artifact_id,
+    0,
+    0,
+    new Uint8Array(),
+    token,
+    'FETCH_TRANSCRIPT',
+    fixtureNow,
+  );
+  let clockReads = 0;
+  await expect(
+    repository.verifyLocal(
+      empty.artifact_id,
+      token,
+      'FETCH_TRANSCRIPT',
+      fixtureNow,
+      'local',
+      () =>
+        new Date(fixtureNow.getTime() + (clockReads++ === 0 ? 0 : 16 * 60000)),
+    ),
+  ).rejects.toThrow('NOT_FOUND');
+  expect(
+    (
+      await repository.get(
+        empty.artifact_id,
+        token,
+        'FETCH_TRANSCRIPT',
+        fixtureNow,
+      )
+    ).state,
+  ).toBe('UPLOADING');
+  expect(
+    (
+      await repository.verifyLocal(
+        empty.artifact_id,
+        token,
+        'FETCH_TRANSCRIPT',
+        fixtureNow,
+        'local',
+      )
+    ).state,
+  ).toBe('VERIFIED');
+  const bad = await repository.begin(
+    { ...descriptor, byte_size: 1, content_hash: '0'.repeat(64) },
+    token,
+    'FETCH_TRANSCRIPT',
+    fixtureNow,
+  );
+  await repository.writeChunk(
+    bad.artifact_id,
+    0,
+    0,
+    new Uint8Array([97]),
+    token,
+    'FETCH_TRANSCRIPT',
+    fixtureNow,
+  );
+  await expect(
+    repository.verifyLocal(
+      bad.artifact_id,
+      token,
+      'FETCH_TRANSCRIPT',
+      fixtureNow,
+      'local',
+    ),
+  ).rejects.toThrow('ARTIFACT_CONTENT_MISMATCH');
+});

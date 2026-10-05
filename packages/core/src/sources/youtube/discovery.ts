@@ -2,6 +2,7 @@ import type { AccessContext, Database, Statement } from '../../db/boundary.js';
 import { ItemRepository } from '../../db/items.js';
 import { sha256 } from '../../auth/crypto.js';
 import { jobDedup } from '../../jobs/policy.js';
+import { leasePredicate } from '../../jobs/lease-guard.js';
 import type { LeaseToken, TaskType } from '../../../../contracts/src/jobs.js';
 import type { ItemMetadata } from '../../../../contracts/src/discovery.js';
 export interface ScanState {
@@ -32,27 +33,6 @@ export async function getScan(
     )
     .bind(context.ownerId, jobId)
     .first<ScanState>();
-}
-function leasePredicate(
-  context: AccessContext,
-  token: LeaseToken,
-  now: string,
-  task: TaskType,
-) {
-  context.requireTask(task);
-  if (token.lease_owner !== context.actorId) throw new Error('STALE_FENCE');
-  return {
-    predicate: `EXISTS(SELECT 1 FROM jobs j JOIN worker_identities w ON w.owner_id=j.owner_id AND w.worker_id=j.lease_owner WHERE j.owner_id=? AND j.job_id=? AND j.task_type=? AND j.state='RUNNING' AND j.lease_owner=? AND j.fencing_token=? AND j.lease_until>? AND w.revoked_at IS NULL AND w.credential_hash=?)`,
-    bindings: [
-      context.ownerId,
-      token.job_id,
-      task,
-      context.actorId,
-      token.fencing_token,
-      now,
-      context.credentialHash!,
-    ] as const,
-  };
 }
 export async function restartExpiredCursor(
   db: Database,
