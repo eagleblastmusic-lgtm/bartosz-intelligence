@@ -44,6 +44,11 @@
       "name": "009_transcript_artifacts.sql",
       "depends_on": ["008_backup_barrier.sql"],
       "sha256": "99c04cfd0181aca64824858f82b4dd9f3cc316a97da056899c2deca0f364468e"
+    },
+    {
+      "name": "010_registry_integrity.sql",
+      "depends_on": ["009_transcript_artifacts.sql"],
+      "sha256": "4d3bcdafc53d0db2a536f493b47734d9ef859c0139061b61dc8d4934cfccb9e0"
     }
   ],
   "version": 1
