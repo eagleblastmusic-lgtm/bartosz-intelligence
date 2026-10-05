@@ -46,7 +46,7 @@ app.all('*', (c) =>
 export default {
   fetch: app.fetch,
   queue(batch: MessageBatch<unknown>, environment: Env) {
-    return consumeSignals(batch, environment?.DB);
+    return consumeSignals(batch, environment?.DB, environment);
   },
   scheduled(
     controller: ScheduledController,

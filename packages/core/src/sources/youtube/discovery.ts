@@ -358,6 +358,7 @@ export async function commitDiscoveryPage(
   }
   return {
     coverage: scanComplete ? 'COMPLETE' : 'PARTIAL',
+    continuation: !jobDone,
     pages: scan.page_revision + 1,
   };
 }

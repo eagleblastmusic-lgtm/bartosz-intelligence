@@ -42,6 +42,61 @@ if (mode === 'migrate') {
       foreign_key_check: 'PASS',
     }),
   );
+} else if (mode === 'control-worker') {
+  const owners = (
+    await query('SELECT owner_id FROM owner_users WHERE allowlisted=1 LIMIT 2')
+  )[0].results;
+  if (owners.length !== 1) throw new Error('VERIFIED_OWNER_REQUIRED');
+  const owner = owners[0].owner_id;
+  const existing = (
+    await query(
+      'SELECT owner_id,credential_hash,scopes_json,revoked_at FROM worker_identities WHERE worker_id=?',
+      ['control-plane'],
+    )
+  )[0].results;
+  if (existing.length) {
+    if (
+      existing[0].owner_id !== owner ||
+      existing[0].revoked_at ||
+      !process.env.CONTROL_WORKER_CREDENTIAL ||
+      existing[0].credential_hash !==
+        hash(process.env.CONTROL_WORKER_CREDENTIAL) ||
+      existing[0].scopes_json !== '["DISCOVER","RECONCILE"]'
+    )
+      throw new Error('CONTROL_CREDENTIAL_RECOVERY_REQUIRED');
+  } else {
+    const credential =
+      process.env.CONTROL_WORKER_CREDENTIAL ||
+      randomBytes(32).toString('base64url');
+    if (!/^[A-Za-z0-9_-]{43}$/.test(credential))
+      throw new Error('CONTROL_CREDENTIAL_INVALID');
+    // Persist the recoverable private value before creating its hashed identity.
+    let local = readFileSync('.env', 'utf8');
+    if (/^CONTROL_WORKER_CREDENTIAL=/m.test(local))
+      local = local.replace(
+        /^CONTROL_WORKER_CREDENTIAL=.*$/m,
+        'CONTROL_WORKER_CREDENTIAL=' + credential,
+      );
+    else local += '\nCONTROL_WORKER_CREDENTIAL=' + credential + '\n';
+    writeFileSync('.env', local);
+    await query(
+      'INSERT INTO worker_identities(worker_id,owner_id,credential_hash,scopes_json,created_at) VALUES(?,?,?,?,?)',
+      [
+        'control-plane',
+        owner,
+        hash(credential),
+        '["DISCOVER","RECONCILE"]',
+        new Date().toISOString(),
+      ],
+    );
+  }
+  console.log(
+    JSON.stringify({
+      control_worker_registered: true,
+      scopes: ['DISCOVER', 'RECONCILE'],
+      runtime: 'cloud',
+    }),
+  );
 } else if (mode === 'secrets') {
   mkdirSync('.local', { recursive: true });
   let local = readFileSync('.env', 'utf8');

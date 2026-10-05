@@ -1,3 +1,4 @@
+import { controlTick } from '../control.js';
 import { apiRouter, body, text } from './common.js';
 import { taskTypes } from '../../../../packages/contracts/src/jobs.js';
 import type {
@@ -8,10 +9,7 @@ import { JobStore } from '../../../../packages/core/src/jobs/store.js';
 import { pull } from '../../../../packages/core/src/jobs/recovery.js';
 import { retryDisposition } from '../../../../packages/core/src/jobs/policy.js';
 import { executeDiscoveryChunk } from '../../../../packages/core/src/sources/youtube/executor.js';
-import {
-  YoutubeClient,
-  YoutubeError,
-} from '../../../../packages/core/src/sources/youtube/client.js';
+import { YoutubeClient } from '../../../../packages/core/src/sources/youtube/client.js';
 export const workersApp = apiRouter();
 workersApp.use('*', async (c, next) => {
   // Authenticate before reading payload or any domain row. Scope is checked again per action.
@@ -239,111 +237,5 @@ workersApp.post('/control-tick', async (c) => {
       `Bearer ${c.env.CONTROL_WORKER_CREDENTIAL}`
   )
     throw new Error('FORBIDDEN');
-  const access = c.get('access');
-  access.requireTask('DISCOVER');
-  access.requireTask('RECONCILE');
-  if (!c.env.YOUTUBE_API_KEY)
-    throw new Error('PROVIDER_CONFIGURATION_REQUIRED');
-  const store = new JobStore(c.env.DB, access),
-    now = new Date();
-  const running = await c.env.DB.prepare(
-    `SELECT job_id,task_type,lease_owner,lease_until,fencing_token FROM jobs WHERE owner_id=? AND lease_owner=? AND task_type IN ('DISCOVER','RECONCILE') AND state='RUNNING' AND lease_until>? ORDER BY priority DESC,arrival_origin_at LIMIT 1`,
-  )
-    .bind(access.ownerId, access.actorId, now.toISOString())
-    .first<LeaseToken & { task_type: TaskType }>();
-  let lease: LeaseToken, type: TaskType;
-  if (running) {
-    type = running.task_type;
-    lease = await store.heartbeat(running, type, now, 'cloud');
-  } else {
-    const job = await c.env.DB.prepare(
-      `SELECT job_id,task_type,state FROM jobs WHERE owner_id=? AND (state='PENDING' OR (state='DEFERRED' AND reason_code='CONTINUATION')) AND due_at<=? AND task_type IN ('DISCOVER','RECONCILE') ORDER BY priority DESC,arrival_origin_at,job_id LIMIT 1`,
-    )
-      .bind(access.ownerId, now.toISOString())
-      .first<{ job_id: string; task_type: TaskType; state: string }>();
-    if (!job) return c.json({ status: 'IDLE' });
-    type = job.task_type;
-    if (job.state === 'DEFERRED') {
-      await c.env.DB.prepare(
-        `UPDATE jobs SET state='PENDING',reason_code=NULL,updated_at=? WHERE owner_id=? AND job_id=? AND state='DEFERRED' AND reason_code='CONTINUATION' AND due_at<=? AND EXISTS(SELECT 1 FROM worker_identities WHERE owner_id=? AND worker_id=? AND credential_hash=? AND revoked_at IS NULL)`,
-      )
-        .bind(
-          now.toISOString(),
-          access.ownerId,
-          job.job_id,
-          now.toISOString(),
-          access.ownerId,
-          access.actorId,
-          access.credentialHash!,
-        )
-        .run();
-    }
-    const acquired = await store.lease(job.job_id, type, now, 'cloud');
-    if (!acquired) throw new Error('STALE_FENCE');
-    lease = acquired;
-    await store.start(lease, type, now);
-  }
-  try {
-    return c.json(
-      await executeDiscoveryChunk(
-        c.env.DB,
-        access,
-        lease,
-        new YoutubeClient(c.env.YOUTUBE_API_KEY, 3),
-        now,
-        type,
-        () => new Date(),
-        4,
-      ),
-    );
-  } catch (error) {
-    if (error instanceof Error && error.message === 'SOURCE_DISABLED') {
-      await store.disposition(
-        lease,
-        type,
-        'BLOCKED',
-        'SOURCE_DISABLED',
-        new Date().toISOString(),
-        new Date(),
-      );
-      return c.json({ status: 'BLOCKED', reason: 'SOURCE_DISABLED' });
-    }
-    if (!(error instanceof YoutubeError)) throw error;
-    if (error.code === 'QUOTA' && !error.retryAt) {
-      await store.disposition(
-        lease,
-        type,
-        'BLOCKED',
-        'QUOTA_RESET_UNKNOWN',
-        new Date().toISOString(),
-        new Date(),
-      );
-      return c.json({
-        status: 'BLOCKED',
-        reason: 'QUOTA_RESET_UNKNOWN',
-        retry_at: null,
-      });
-    }
-    const current = await store.get(lease.job_id),
-      decision = retryDisposition(
-        error.code === 'QUOTA'
-          ? 'QUOTA'
-          : error.code === 'AUTH'
-            ? 'AUTH'
-            : 'TRANSIENT',
-        current!.attempt_count,
-        new Date(),
-        Math.random,
-        error.retryAt ?? undefined,
-      );
-    await store.disposition(
-      lease,
-      type,
-      decision.state,
-      decision.reason,
-      decision.due_at,
-      new Date(),
-    );
-    return c.json({ status: decision.state, reason: decision.reason });
-  }
+  return c.json(await controlTick(c.env, c.get('access')));
 });
