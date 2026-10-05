@@ -1,0 +1,1 @@
+{"schema_version":"gate0-harness-failure-1.0","recorded_at":"2026-10-05T10:27:46.7779843Z","reason":"HARNESS_FAILURE","reason_code":"PREVIEW_RESULT_INVALID","youtube_requests_executed":0,"cleanup":"preview_delete_command_completed_successfully","cause":"Wrangler stdout is nested preview/deployment; flattened schema applies to output-file events only","corrected":true}

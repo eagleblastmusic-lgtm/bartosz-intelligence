@@ -1,0 +1,106 @@
+{
+  "mode": "account",
+  "sampled_at": "2026-10-04T18:07:48.922Z",
+  "result": "FAIL",
+  "paid_services_enabled": false,
+  "network_submissions": 0,
+  "provider_generation_submissions": 1,
+  "account_metadata_read": {
+    "cloudflare_auth": "ACCESS_OBSERVED_ACCOUNT_SELECTED",
+    "cli_exit_code": 0
+  },
+  "credential_presence_only": {
+    "CLOUDFLARE_API_TOKEN": false,
+    "CLOUDFLARE_ACCOUNT_ID": true,
+    "GOOGLE_PROJECT_ID": true,
+    "YOUTUBE_API_KEY": true,
+    "GEMINI_API_KEY": true
+  },
+  "snapshots": [],
+  "owner_use_classification": "professional_single_owner",
+  "gemini_live_probe": {
+    "sampled_at": "2026-10-04T18:00:42.577Z",
+    "model": "gemini-3.8-flash",
+    "runtime": "node-24.21.0",
+    "harness_version": "rest-v1beta-probe-1",
+    "owner_use_classification": "professional_single_owner",
+    "classification_ref": "docs/verification/gate-e/owner-use-decision.json",
+    "billing_route": "disabled",
+    "paid_services_enabled": false,
+    "probe_budget": {
+      "generation_requests": 1,
+      "max_output_tokens": 64,
+      "retries": 0,
+      "tools": false,
+      "grounding": false
+    },
+    "models_http_status": 200,
+    "capability_observed": true,
+    "generation_submissions": 1,
+    "http_status": 200,
+    "structured_output_valid": false,
+    "usage": null,
+    "latency_ms": 3666,
+    "cpu_platform_ms": null,
+    "request_sha256": "3a82732e15baa5e297fbc04a561f26ae95c76057cc938d369c115405e659f66a",
+    "result": "FAIL",
+    "reason": "HTTP_200_STRUCTURED_RESPONSE_VALIDATION_FAILED_DIAGNOSTIC_NOT_PRESERVED",
+    "response_diagnostic": null,
+    "diagnostic_note": "The single request returned HTTP 200. The original harness catch did not save a response shape summary; no request retry is made to recover it."
+  },
+  "account_evidence_refs": [
+    "account-readonly.json",
+    "dashboard-observations.json",
+    "owner-use-decision.json",
+    "gemini-probe.json",
+    "gemini-probe-reservation.json"
+  ],
+  "services": [
+    {
+      "service": "cloudflare-workers",
+      "active_baseline_required": true,
+      "free_eligible": "UNKNOWN",
+      "gate": "NOT_RUN"
+    },
+    {
+      "service": "cloudflare-d1",
+      "active_baseline_required": true,
+      "free_eligible": "UNKNOWN",
+      "gate": "NOT_RUN"
+    },
+    {
+      "service": "cloudflare-queues",
+      "active_baseline_required": true,
+      "free_eligible": "UNKNOWN",
+      "gate": "NOT_RUN"
+    },
+    {
+      "service": "cloudflare-assets",
+      "active_baseline_required": true,
+      "free_eligible": "UNKNOWN",
+      "gate": "NOT_RUN"
+    },
+    {
+      "service": "youtube-data-api",
+      "active_baseline_required": true,
+      "free_eligible": "UNKNOWN",
+      "gate": "NOT_RUN"
+    },
+    {
+      "service": "gemini",
+      "active_baseline_required": true,
+      "free_eligible": "UNKNOWN",
+      "gate": "FAIL"
+    }
+  ],
+  "drive": {
+    "active": false,
+    "gate": "UNAVAILABLE",
+    "reason": "NO_AUTHORIZED_ACCOUNT_STORAGE_API_SNAPSHOT"
+  },
+  "blockers": [
+    "CLOUDFLARE_D1_QUEUES_ASSETS_USAGE_LIMITS_AND_LIVE_PROBES_NOT_QUALIFIED",
+    "GEMINI_STRUCTURED_OUTPUT_VALIDATION_FAILED",
+    "OTHER_REQUIRED_SERVICE_PROBES_NOT_RUN"
+  ]
+}

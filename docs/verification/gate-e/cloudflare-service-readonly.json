@@ -1,0 +1,82 @@
+{
+  "sampled_at": "2026-10-04T18:41:04.251Z",
+  "mode": "read-only",
+  "account_pseudonym": "cf-40d0a5314bb84431",
+  "paid_services_enabled": false,
+  "oauth_token_exported": false,
+  "external_mutations": 0,
+  "observations": [
+    {
+      "service": "cloudflare-d1-list",
+      "http_status": 200,
+      "content_type": "application/json",
+      "json_shape": ["errors", "messages", "result", "result_info", "success"],
+      "evidence": {
+        "success": true,
+        "database_count": 1,
+        "databases": [
+          {
+            "pseudonym": "8bdcae02cdf4776a",
+            "size_bytes": 2895872
+          }
+        ]
+      }
+    },
+    {
+      "service": "cloudflare-d1-detail",
+      "http_status": 200,
+      "content_type": "application/json",
+      "json_shape": ["errors", "messages", "result", "success"],
+      "evidence": {
+        "success": true,
+        "database_pseudonym": "8bdcae02cdf4776a",
+        "size_bytes": 2895872,
+        "jurisdiction": null,
+        "read_replication": "disabled"
+      }
+    },
+    {
+      "service": "cloudflare-d1-daily-usage",
+      "http_status": 200,
+      "content_type": "application/json",
+      "json_shape": ["data", "errors"],
+      "evidence": {
+        "period": "2026-10-04",
+        "row_read_count": null,
+        "row_written_count": null,
+        "usage_observed": false,
+        "groups": 0
+      }
+    },
+    {
+      "service": "cloudflare-queues-list",
+      "http_status": 200,
+      "content_type": "application/json; charset=UTF-8",
+      "json_shape": ["errors", "messages", "result", "result_info", "success"],
+      "evidence": {
+        "success": true,
+        "queue_count": 0
+      }
+    },
+    {
+      "service": "cloudflare-worker-account-settings",
+      "http_status": 200,
+      "content_type": "application/json; charset=UTF-8",
+      "json_shape": ["errors", "messages", "result", "success"],
+      "evidence": {
+        "success": true,
+        "default_usage_model": "standard"
+      }
+    },
+    {
+      "service": "cloudflare-worker-scripts-list",
+      "http_status": 200,
+      "content_type": "application/json; charset=UTF-8",
+      "json_shape": ["errors", "messages", "result", "success"],
+      "evidence": {
+        "success": true,
+        "script_count": 1
+      }
+    }
+  ]
+}

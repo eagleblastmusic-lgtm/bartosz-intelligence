@@ -1,0 +1,192 @@
+[
+  {
+    "video_id": "uEztHu4NHrs",
+    "stratum": "en_manual",
+    "source": "Official public YouTube transcript via browser export",
+    "checked_at": "2026-10-05T11:11:24.081Z",
+    "source_file_sha256": "2426e1ad9280c3c0112eb0617984996a8a8360efed8a308ebc860a603a72d5f8",
+    "reference_cue_count": 241,
+    "candidate_cue_count": 241,
+    "candidate_request_id": "9ea2aa7933ee8ec0af66e0b4b6a3ce78",
+    "boundaries": [
+      {
+        "boundary": "first_cue",
+        "text_hash_match": true,
+        "source_start_second": 3,
+        "candidate_start_ms": 3833,
+        "candidate_end_ms": 7712,
+        "start_within_source_display_second": true
+      },
+      {
+        "boundary": "middle_cue",
+        "text_hash_match": true,
+        "source_start_second": 405,
+        "candidate_start_ms": 405985,
+        "candidate_end_ms": 407570,
+        "start_within_source_display_second": true
+      },
+      {
+        "boundary": "last_cue",
+        "text_hash_match": true,
+        "source_start_second": 786,
+        "candidate_start_ms": 786782,
+        "candidate_end_ms": 790870,
+        "start_within_source_display_second": true
+      }
+    ],
+    "precise_250ms_fidelity_status": "INCONCLUSIVE",
+    "limitation": "UI export shows integer seconds and no cue end. Text hashes and displayed-second alignment can be checked; this does not prove frozen 250ms start/end fidelity. No source text retained in evidence."
+  },
+  {
+    "video_id": "ukzFI9rgwfU",
+    "stratum": "en_generated",
+    "source": "Official public YouTube transcript via browser export",
+    "checked_at": "2026-10-05T11:11:24.208Z",
+    "source_file_sha256": "94a0add675502396a371975760574e79bd9d834c4bc430e8105a9f8966ceb967",
+    "reference_cue_count": 206,
+    "candidate_cue_count": 206,
+    "candidate_request_id": "58a44c58b54534ddee1b5ba1eb88d5a1",
+    "boundaries": [
+      {
+        "boundary": "first_cue",
+        "text_hash_match": true,
+        "source_start_second": 0,
+        "candidate_start_ms": 240,
+        "candidate_end_ms": 3760,
+        "start_within_source_display_second": true
+      },
+      {
+        "boundary": "middle_cue",
+        "text_hash_match": true,
+        "source_start_second": 238,
+        "candidate_start_ms": 238640,
+        "candidate_end_ms": 242319,
+        "start_within_source_display_second": true
+      },
+      {
+        "boundary": "last_cue",
+        "text_hash_match": true,
+        "source_start_second": 463,
+        "candidate_start_ms": 463680,
+        "candidate_end_ms": 468199,
+        "start_within_source_display_second": true
+      }
+    ],
+    "precise_250ms_fidelity_status": "INCONCLUSIVE",
+    "limitation": "UI export shows integer seconds and no cue end. Text hashes and displayed-second alignment can be checked; this does not prove frozen 250ms start/end fidelity. No source text retained in evidence."
+  },
+  {
+    "video_id": "JSaaq05o0ZQ",
+    "stratum": "pl_manual",
+    "source": "Official public YouTube transcript via browser export",
+    "checked_at": "2026-10-05T11:11:24.330Z",
+    "source_file_sha256": "d5b484fc53ff37937dcd4ecad63d9eccaa59b508efc86c9c5fd37af99019ec82",
+    "reference_cue_count": 84,
+    "candidate_cue_count": 84,
+    "candidate_request_id": "22a1041aa5ba48149339ae7da88a886e",
+    "boundaries": [
+      {
+        "boundary": "first_cue",
+        "text_hash_match": true,
+        "source_start_second": 0,
+        "candidate_start_ms": 500,
+        "candidate_end_ms": 6314,
+        "start_within_source_display_second": true
+      },
+      {
+        "boundary": "middle_cue",
+        "text_hash_match": true,
+        "source_start_second": 167,
+        "candidate_start_ms": 167364,
+        "candidate_end_ms": 171037,
+        "start_within_source_display_second": true
+      },
+      {
+        "boundary": "last_cue",
+        "text_hash_match": true,
+        "source_start_second": 341,
+        "candidate_start_ms": 341002,
+        "candidate_end_ms": 341846,
+        "start_within_source_display_second": true
+      }
+    ],
+    "precise_250ms_fidelity_status": "INCONCLUSIVE",
+    "limitation": "UI export shows integer seconds and no cue end. Text hashes and displayed-second alignment can be checked; this does not prove frozen 250ms start/end fidelity. No source text retained in evidence."
+  },
+  {
+    "video_id": "yoiTl_srtUs",
+    "stratum": "pl_generated",
+    "source": "Official public YouTube transcript via browser export",
+    "checked_at": "2026-10-05T11:11:24.484Z",
+    "source_file_sha256": "73e935c5ce9e38ea7bc442b562d93d9010cacb8e7ea5ca4f4f597aeca9238b89",
+    "reference_cue_count": 2875,
+    "candidate_cue_count": 2875,
+    "candidate_request_id": "247dc32b3437e40469c11e46c8c9b6d0",
+    "boundaries": [
+      {
+        "boundary": "first_cue",
+        "text_hash_match": true,
+        "source_start_second": 0,
+        "candidate_start_ms": 0,
+        "candidate_end_ms": 4839,
+        "start_within_source_display_second": true
+      },
+      {
+        "boundary": "middle_cue",
+        "text_hash_match": true,
+        "source_start_second": 3654,
+        "candidate_start_ms": 3654079,
+        "candidate_end_ms": 3658079,
+        "start_within_source_display_second": true
+      },
+      {
+        "boundary": "last_cue",
+        "text_hash_match": true,
+        "source_start_second": 7129,
+        "candidate_start_ms": 7129880,
+        "candidate_end_ms": 7135079,
+        "start_within_source_display_second": true
+      }
+    ],
+    "precise_250ms_fidelity_status": "INCONCLUSIVE",
+    "limitation": "UI export shows integer seconds and no cue end. Text hashes and displayed-second alignment can be checked; this does not prove frozen 250ms start/end fidelity. No source text retained in evidence."
+  },
+  {
+    "video_id": "Q6BclIP5QBQ",
+    "stratum": "other",
+    "source": "Official public YouTube transcript via browser export",
+    "checked_at": "2026-10-05T11:11:24.618Z",
+    "source_file_sha256": "9dc383dbd964fadae4a911ed76b9b6c9f4f372561ca88e16a34f51dbfccb5279",
+    "reference_cue_count": 988,
+    "candidate_cue_count": 988,
+    "candidate_request_id": "b92af6bfabaf6493e3ed124b524eb481",
+    "boundaries": [
+      {
+        "boundary": "first_cue",
+        "text_hash_match": true,
+        "source_start_second": 17,
+        "candidate_start_ms": 17320,
+        "candidate_end_ms": 23120,
+        "start_within_source_display_second": true
+      },
+      {
+        "boundary": "middle_cue",
+        "text_hash_match": true,
+        "source_start_second": 1829,
+        "candidate_start_ms": 1829040,
+        "candidate_end_ms": 1831240,
+        "start_within_source_display_second": true
+      },
+      {
+        "boundary": "last_cue",
+        "text_hash_match": true,
+        "source_start_second": 3677,
+        "candidate_start_ms": 3677480,
+        "candidate_end_ms": 3681240,
+        "start_within_source_display_second": true
+      }
+    ],
+    "precise_250ms_fidelity_status": "INCONCLUSIVE",
+    "limitation": "UI export shows integer seconds and no cue end. Text hashes and displayed-second alignment can be checked; this does not prove frozen 250ms start/end fidelity. No source text retained in evidence."
+  }
+]

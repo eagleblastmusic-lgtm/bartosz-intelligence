@@ -1,0 +1,5 @@
+WEBVTT
+
+cue-without-valid-timestamps
+not-a-time --> 00:00:01.250
+missing timestamp must fail

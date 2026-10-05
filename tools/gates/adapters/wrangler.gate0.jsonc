@@ -1,0 +1,30 @@
+{
+  "name": "bartosz-intelligence-gate0-cp16",
+  "main": "./direct-captions-edge-worker.ts",
+  // Inject a fresh GATE0_BENCH_TOKEN with `wrangler preview --var` per run.
+  // Never place a token in this file; the Worker rejects unauthenticated probes.
+  "compatibility_date": "2026-10-01",
+  "workers_dev": true,
+  "observability": {
+    "enabled": true,
+    "logs": {
+      "enabled": true,
+      "invocation_logs": true
+    }
+  },
+  "previews": {
+    "observability": {
+      "enabled": true,
+      "logs": {
+        "enabled": true,
+        "invocation_logs": true,
+        "persist": true
+      },
+      "traces": {
+        "enabled": true,
+        "head_sampling_rate": 1,
+        "persist": true
+      }
+    }
+  }
+}

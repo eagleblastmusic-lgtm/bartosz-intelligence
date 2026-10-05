@@ -1,0 +1,26 @@
+{
+  "schema_version": "gate0-schedule-adjustment-1.0",
+  "registration_version": 2,
+  "reason": "schedule adjustment before first live measurement",
+  "recorded_at": "2026-10-05T10:23:00.515Z",
+  "timezone": "Europe/Warsaw",
+  "measurement_date": "2026-10-05",
+  "old_windows": [
+    "09:00",
+    "19:00"
+  ],
+  "new_windows": [
+    "12:23",
+    "18:23"
+  ],
+  "window_duration_minutes": 60,
+  "separation_minutes": 360,
+  "previous_manifest_sha256": "59540b501a50da518d0bf3198cc34363fbeff4add6419459509fec779a4b6ba9",
+  "manifest_sha256": "999f680ce90d39ab1ec33fc35c94510ebaa8206c952126a3dc7bbfb477827770",
+  "benchmark_parameters_sha256": "2687601c22abdd66c7041e5e014c220dab986060e9b5ad04c51690727ab86c6d",
+  "non_schedule_parameters_identical": true,
+  "results_exist": false,
+  "preview_runs_exist": false,
+  "first_live_measurement_started": false,
+  "preserved_snapshot": "docs/verification/gate-0/preregistration-v1"
+}

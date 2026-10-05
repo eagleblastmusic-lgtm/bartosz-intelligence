@@ -1,0 +1,21 @@
+{
+  "source": "Cloudflare Dashboard, exact Preview Observability events, last 1 hour",
+  "window": "2026-10-05/12:23",
+  "preview_id": "4d036857e7224de08c157c1020ccc837",
+  "preview_slug": "gate0-cp16-20261005-1223-b02906",
+  "deployment_id": "766ef744-9c9a-4f4b-b9e3-f022bfd492e6",
+  "event_time_range_local": ["2026-10-05 12:28:27.870 CEST", "2026-10-05 12:28:42.340 CEST"],
+  "field": "$workers.cpuTimeMs",
+  "matched_invocations": 20,
+  "cpu_ms_reverse_chronological": [40, 40, 47, 38, 32, 33, 38, 35, 37, 38, 38, 31, 63, 49, 41, 39, 33, 49, 62, 50],
+  "p95_method": "nearest-rank, sorted index ceil(0.95 * 20)-1",
+  "cpu_p95_ms": 62,
+  "cpu_max_ms": 63,
+  "required_p95_max_ms": 8,
+  "required_max_exclusive_ms": 10,
+  "capture_status": "CAPTURED",
+  "cpu_gate_status": "FAIL",
+  "scope": "First-window refusal-path invocations only; no full-corpus or successful-caption CPU PASS implied",
+  "api_capture": "cpu-first-window.json records OAuth HTTP 403; dashboard resolved read access without changing permissions or billing",
+  "privacy": "Only CPU numbers and benchmark identifiers retained; request headers, client location, IP and raw log bodies excluded"
+}

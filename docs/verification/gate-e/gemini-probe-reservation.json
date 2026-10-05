@@ -1,9 +1,68 @@
 {
-  "sampled_at": "2026-10-04T18:00:42.577Z",
+  "sampled_at": "2026-10-04T19:06:09.176Z",
   "model": "gemini-3.8-flash",
-  "generation_requests": 1,
-  "max_output_tokens": 64,
+  "max_generation_attempts": 4,
+  "max_output_tokens_per_attempt": 512,
+  "retry_policy": "Master Architecture § retry/5xx: 1m -> 5m -> 20m -> 60m full jitter; max 4 quick attempts total",
+  "attempts": [
+    {
+      "attempt_number": 1,
+      "sampled_at": "2026-10-04T18:30:08.686Z",
+      "completed_at": "2026-10-04T18:30:11.270Z",
+      "status": "SETTLED",
+      "http_status": 503,
+      "result": "TEMPORARY_FAILURE",
+      "reason": "UPSTREAM_HTTP_503",
+      "usage": null,
+      "retry_delay_after_ms": 4661,
+      "delay_after_previous_failure_ms": null,
+      "next_retry_not_before": "2026-10-04T18:30:15.931Z"
+    },
+    {
+      "attempt_number": 2,
+      "sampled_at": "2026-10-04T18:54:55.126Z",
+      "status": "SETTLED",
+      "delay_after_previous_failure_ms": 4661,
+      "harness_version": "interactions-v1beta-probe-2",
+      "max_output_tokens": 64,
+      "thinking_level": "default",
+      "request_sha256": "5e541de2fd33fd3169e9a2130732487ee4e2d4e4dc08722b3d7bd801e0d496a3",
+      "next_retry_not_before": "2026-10-04T18:55:10.083Z",
+      "http_status": 200,
+      "result": "INCOMPLETE",
+      "reason": "INTERACTION_INCOMPLETE_OUTPUT_BUDGET",
+      "usage": {
+        "input_tokens": 19,
+        "output_tokens": 0,
+        "total_tokens": 79
+      },
+      "completed_at": "2026-10-04T18:54:57.623Z",
+      "retry_delay_after_ms": 12460
+    },
+    {
+      "attempt_number": 3,
+      "sampled_at": "2026-10-04T19:06:09.176Z",
+      "status": "SETTLED",
+      "delay_after_previous_failure_ms": 12460,
+      "next_retry_not_before": null,
+      "harness_version": "interactions-v1beta-probe-3",
+      "max_output_tokens": 512,
+      "thinking_level": "low",
+      "request_sha256": "46af7d656fd20eeb457d2371c20392bde29b8afbb7867b8ea08fd9d7fef62554",
+      "http_status": 200,
+      "result": "PASS",
+      "reason": "QUALIFIED_MINIMAL_PROBE",
+      "usage": {
+        "input_tokens": 19,
+        "output_tokens": 9,
+        "total_tokens": 28
+      },
+      "completed_at": "2026-10-04T19:06:12.512Z"
+    }
+  ],
+  "generation_requests_total": 3,
   "status": "SETTLED",
-  "http_status": 200,
-  "usage": null
+  "permanent_provider_failure": false,
+  "retry_required": false,
+  "paid_services_enabled": false
 }

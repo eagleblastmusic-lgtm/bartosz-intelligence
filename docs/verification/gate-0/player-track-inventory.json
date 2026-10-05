@@ -1,0 +1,789 @@
+{
+  "schema_version": "gate0-youtube-player-track-inventory-1.0",
+  "captured_at": "2026-10-04T20:28:10Z",
+  "collection_method": "Public YouTube watch-page player metadata; titles, video metadata, and caption-track descriptors only. Transcript text and caption base URLs were not collected.",
+  "videos": {
+    "uEztHu4NHrs": {
+      "video_id": "uEztHu4NHrs",
+      "title": "The Last 6 Decades of AI — and What Comes Next | Ray Kurzweil | TED",
+      "channel_id": "UCAuUUnT6oDeKwE6v1NGQxug",
+      "duration_seconds": 792,
+      "published_at": "2024-06-27T04:00:54-07:00",
+      "checked_at": "2026-10-04T20:28:10Z",
+      "public_url": "https://www.youtube.com/watch?v=uEztHu4NHrs",
+      "public_access": true,
+      "shorts_surface_url": null,
+      "caption_track_count": 17,
+      "selected_track_evidence": {
+        "language_code": "en",
+        "kind": "manual",
+        "name": "angielski",
+        "vss_id": ".en"
+      },
+      "live_end_timestamp": null
+    },
+    "KKNCiRWd_j0": {
+      "video_id": "KKNCiRWd_j0",
+      "title": "What Is an AI Anyway? | Mustafa Suleyman | TED",
+      "channel_id": "UCAuUUnT6oDeKwE6v1NGQxug",
+      "duration_seconds": 1322,
+      "published_at": "2024-04-22T10:24:11-07:00",
+      "checked_at": "2026-10-04T20:28:10Z",
+      "public_url": "https://www.youtube.com/watch?v=KKNCiRWd_j0",
+      "public_access": true,
+      "shorts_surface_url": null,
+      "caption_track_count": 23,
+      "selected_track_evidence": {
+        "language_code": "en",
+        "kind": "manual",
+        "name": "angielski",
+        "vss_id": null
+      },
+      "live_end_timestamp": null
+    },
+    "jGwO_UgTS7I": {
+      "video_id": "jGwO_UgTS7I",
+      "title": "Stanford CS229: Machine Learning Lecture 1 - Andrew Ng (Autumn 2018)",
+      "channel_id": "UCBa5G_ESCn8Yd4vw5U-gIcg",
+      "duration_seconds": 4520,
+      "published_at": "2020-04-17T13:07:45-07:00",
+      "checked_at": "2026-10-04T20:28:10Z",
+      "public_url": "https://www.youtube.com/watch?v=jGwO_UgTS7I",
+      "public_access": true,
+      "shorts_surface_url": null,
+      "caption_track_count": 2,
+      "selected_track_evidence": {
+        "language_code": "en",
+        "kind": "manual",
+        "name": "angielski",
+        "vss_id": null
+      },
+      "live_end_timestamp": null
+    },
+    "ukzFI9rgwfU": {
+      "video_id": "ukzFI9rgwfU",
+      "title": "Machine Learning | What Is Machine Learning? | Introduction To Machine Learning | 2026 | Simplilearn",
+      "channel_id": "UCsvqVGtbbyHaMoevxPAq9Fg",
+      "duration_seconds": 472,
+      "published_at": "2018-09-19T07:57:02-07:00",
+      "checked_at": "2026-10-04T20:28:10Z",
+      "public_url": "https://www.youtube.com/watch?v=ukzFI9rgwfU",
+      "public_access": true,
+      "shorts_surface_url": null,
+      "caption_track_count": 1,
+      "selected_track_evidence": {
+        "language_code": "en",
+        "kind": "generated",
+        "name": "angielski (wygenerowane automatycznie)",
+        "vss_id": null
+      },
+      "live_end_timestamp": null
+    },
+    "yoiTl_srtUs": {
+      "video_id": "yoiTl_srtUs",
+      "title": "Czego nie umie AI? Przewagi inteligencji ludzkiej nad tzw. sztuczną - wykład online.",
+      "channel_id": "UCdqjM1gzdNH1psxOfmMd6tg",
+      "duration_seconds": 7145,
+      "published_at": "2024-09-18T23:09:22-07:00",
+      "checked_at": "2026-10-04T20:28:10Z",
+      "public_url": "https://www.youtube.com/watch?v=yoiTl_srtUs",
+      "public_access": true,
+      "shorts_surface_url": null,
+      "caption_track_count": 1,
+      "selected_track_evidence": {
+        "language_code": "pl",
+        "kind": "generated",
+        "name": "polski (wygenerowane automatycznie)",
+        "vss_id": "a.pl"
+      },
+      "live_end_timestamp": "2024-09-18T17:59:51+00:00"
+    },
+    "lspUkroiYfs": {
+      "video_id": "lspUkroiYfs",
+      "title": "New study says AI has 'pain signals', researchers say",
+      "channel_id": "UCeY0bbntWzzVIaj2z3QigXg",
+      "duration_seconds": 307,
+      "published_at": "2026-09-30T19:17:56-07:00",
+      "checked_at": "2026-10-04T20:28:10Z",
+      "public_url": "https://www.youtube.com/watch?v=lspUkroiYfs",
+      "public_access": true,
+      "shorts_surface_url": null,
+      "caption_track_count": 1,
+      "selected_track_evidence": {
+        "language_code": "en",
+        "kind": "generated",
+        "name": "angielski (wygenerowane automatycznie)",
+        "vss_id": null
+      },
+      "live_end_timestamp": null
+    },
+    "Q6BclIP5QBQ": {
+      "video_id": "Q6BclIP5QBQ",
+      "title": "Una clase magistral del pionero de la inteligencia artificial | Jürgen Schmidhuber",
+      "channel_id": "UCI6QcXatdaEAaRTRjl3dc0w",
+      "duration_seconds": 3716,
+      "published_at": "2024-11-20T09:18:33-08:00",
+      "checked_at": "2026-10-04T20:28:10Z",
+      "public_url": "https://www.youtube.com/watch?v=Q6BclIP5QBQ",
+      "public_access": true,
+      "shorts_surface_url": null,
+      "caption_track_count": 2,
+      "selected_track_evidence": {
+        "language_code": "es",
+        "kind": "manual",
+        "name": "hiszpański",
+        "vss_id": null
+      },
+      "live_end_timestamp": null
+    },
+    "r26EVyQl_NA": {
+      "video_id": "r26EVyQl_NA",
+      "title": "AI learns to drive (Gen 1 vs Gen 36) #shorts",
+      "channel_id": "UCksk4J8bYUFlQ0f6jjvwSkw",
+      "duration_seconds": 27,
+      "published_at": "2026-10-04T10:07:57-07:00",
+      "checked_at": "2026-10-04T20:28:10Z",
+      "public_url": "https://www.youtube.com/watch?v=r26EVyQl_NA",
+      "public_access": true,
+      "shorts_surface_url": "https://www.youtube.com/shorts/r26EVyQl_NA",
+      "caption_track_count": 0,
+      "selected_track_evidence": null,
+      "live_end_timestamp": null
+    },
+    "CdX7uCXpYe4": {
+      "video_id": "CdX7uCXpYe4",
+      "title": "Maths for AI | Maths for ML | Maths topics for AI #shorts #mathskills #mathsforai #aiskills",
+      "channel_id": "UCV4zEWebZdor2_A0y0svuoA",
+      "duration_seconds": 7,
+      "published_at": "2022-08-10T22:23:15-07:00",
+      "checked_at": "2026-10-04T20:28:10Z",
+      "public_url": "https://www.youtube.com/watch?v=CdX7uCXpYe4",
+      "public_access": true,
+      "shorts_surface_url": "https://www.youtube.com/shorts/CdX7uCXpYe4",
+      "caption_track_count": 0,
+      "selected_track_evidence": null,
+      "live_end_timestamp": null
+    },
+    "VhfS-G6PDLE": {
+      "video_id": "VhfS-G6PDLE",
+      "title": "🔥What Is Machine Learning ? | Machine Learning Explained in 60 Seconds #Shorts #simplilearn",
+      "channel_id": "UCsvqVGtbbyHaMoevxPAq9Fg",
+      "duration_seconds": 45,
+      "published_at": "2024-06-20T07:47:46-07:00",
+      "checked_at": "2026-10-04T20:28:10Z",
+      "public_url": "https://www.youtube.com/watch?v=VhfS-G6PDLE",
+      "public_access": true,
+      "shorts_surface_url": "https://www.youtube.com/shorts/VhfS-G6PDLE",
+      "caption_track_count": 1,
+      "selected_track_evidence": {
+        "language_code": "en",
+        "kind": "generated",
+        "name": "angielski (wygenerowane automatycznie)",
+        "vss_id": null
+      },
+      "live_end_timestamp": null
+    },
+    "kDr-VsKjGeo": {
+      "video_id": "kDr-VsKjGeo",
+      "title": "Synopsys, OpenAI develop NEW AI model for chip design work",
+      "channel_id": "UCCXoCcu9Rp7NPbTzIvogpZg",
+      "duration_seconds": 505,
+      "published_at": "2026-10-03T21:00:26-07:00",
+      "checked_at": "2026-10-04T20:28:10Z",
+      "public_url": "https://www.youtube.com/watch?v=kDr-VsKjGeo",
+      "public_access": true,
+      "shorts_surface_url": null,
+      "caption_track_count": 23,
+      "selected_track_evidence": {
+        "language_code": "en",
+        "kind": "manual",
+        "name": "angielski - CC1",
+        "vss_id": null
+      },
+      "live_end_timestamp": null
+    },
+    "FYsIh53ttvw": {
+      "video_id": "FYsIh53ttvw",
+      "title": "Nadludzka AI już tu jest a rok 2026 będzie przełomowy - prof. Włodzisław Duch - wykład - dyskusja",
+      "channel_id": "UCtDbbEfaRjwTKlYnZ74KCrA",
+      "duration_seconds": 7449,
+      "published_at": "2026-03-26T12:00:06-07:00",
+      "checked_at": "2026-10-04T20:28:10Z",
+      "public_url": "https://www.youtube.com/watch?v=FYsIh53ttvw",
+      "public_access": true,
+      "shorts_surface_url": null,
+      "caption_track_count": 1,
+      "selected_track_evidence": {
+        "language_code": "pl",
+        "kind": "generated",
+        "name": "polski (wygenerowane automatycznie)",
+        "vss_id": "a.pl"
+      },
+      "live_end_timestamp": "2026-03-26T21:06:15+00:00"
+    },
+    "vMEhU_3_gSE": {
+      "video_id": "vMEhU_3_gSE",
+      "title": "Sztuczna Inteligencja – jak działa i jak zmienia świat? | Wykład prof. Ryszarda Tadeusiewicza z AGH",
+      "channel_id": "UCd3yxx2W4hqxRdXFTTEuyKg",
+      "duration_seconds": 4618,
+      "published_at": "2025-03-11T00:37:53-07:00",
+      "checked_at": "2026-10-04T20:28:10Z",
+      "public_url": "https://www.youtube.com/watch?v=vMEhU_3_gSE",
+      "public_access": true,
+      "shorts_surface_url": null,
+      "caption_track_count": 1,
+      "selected_track_evidence": {
+        "language_code": "pl",
+        "kind": "generated",
+        "name": "polski (wygenerowane automatycznie)",
+        "vss_id": null
+      },
+      "live_end_timestamp": null
+    },
+    "JSaaq05o0ZQ": {
+      "video_id": "JSaaq05o0ZQ",
+      "title": "Nick Hanauer - zbanowana mowa z TED",
+      "channel_id": "UCkyGgkpQah0D9ZweJQdH1xA",
+      "duration_seconds": 349,
+      "published_at": "2014-02-09T09:10:52-08:00",
+      "checked_at": "2026-10-04T20:28:10Z",
+      "public_url": "https://www.youtube.com/watch?v=JSaaq05o0ZQ",
+      "public_access": true,
+      "shorts_surface_url": null,
+      "caption_track_count": 2,
+      "selected_track_evidence": {
+        "language_code": "pl",
+        "kind": "manual",
+        "name": "polski",
+        "vss_id": ".pl"
+      },
+      "live_end_timestamp": null
+    },
+    "e0CHi3mDyko": {
+      "video_id": "e0CHi3mDyko",
+      "title": "Isabel Allende - Opowieści o pasji - Polish Subtitles",
+      "channel_id": "UC1rFVGd1m_OE2AAA0xLWy8Q",
+      "duration_seconds": 1076,
+      "published_at": "2015-12-05T05:52:20-08:00",
+      "checked_at": "2026-10-04T20:28:10Z",
+      "public_url": "https://www.youtube.com/watch?v=e0CHi3mDyko",
+      "public_access": true,
+      "shorts_surface_url": null,
+      "caption_track_count": 2,
+      "selected_track_evidence": {
+        "language_code": "pl",
+        "kind": "manual",
+        "name": "polski",
+        "vss_id": ".pl"
+      },
+      "live_end_timestamp": null
+    },
+    "t9wsy3gsI2U": {
+      "video_id": "t9wsy3gsI2U",
+      "title": "Steven Pinker - Krótka historia przemocy - Polish Subtitles",
+      "channel_id": "UC1rFVGd1m_OE2AAA0xLWy8Q",
+      "duration_seconds": 1167,
+      "published_at": "2015-12-05T05:51:43-08:00",
+      "checked_at": "2026-10-04T20:28:10Z",
+      "public_url": "https://www.youtube.com/watch?v=t9wsy3gsI2U",
+      "public_access": true,
+      "shorts_surface_url": null,
+      "caption_track_count": 2,
+      "selected_track_evidence": {
+        "language_code": "pl",
+        "kind": "manual",
+        "name": "polski",
+        "vss_id": ".pl"
+      },
+      "live_end_timestamp": null
+    },
+    "RpSUk0YY6LA": {
+      "video_id": "RpSUk0YY6LA",
+      "title": "Susan Savage-Rumbaugh: Małpy, które piszą - Polish Subtitles",
+      "channel_id": "UC1rFVGd1m_OE2AAA0xLWy8Q",
+      "duration_seconds": 1057,
+      "published_at": "2015-12-05T05:53:23-08:00",
+      "checked_at": "2026-10-04T20:28:10Z",
+      "public_url": "https://www.youtube.com/watch?v=RpSUk0YY6LA",
+      "public_access": true,
+      "shorts_surface_url": null,
+      "caption_track_count": 2,
+      "selected_track_evidence": {
+        "language_code": "pl",
+        "kind": "manual",
+        "name": "polski",
+        "vss_id": ".pl"
+      },
+      "live_end_timestamp": null
+    },
+    "B26DJATjmTE": {
+      "video_id": "B26DJATjmTE",
+      "title": "Richard Dawkins - Wykład w Berkeley - Polskie napisy",
+      "channel_id": "UC1rFVGd1m_OE2AAA0xLWy8Q",
+      "duration_seconds": 3367,
+      "published_at": "2012-05-05T17:11:42-07:00",
+      "checked_at": "2026-10-04T20:28:10Z",
+      "public_url": "https://www.youtube.com/watch?v=B26DJATjmTE",
+      "public_access": true,
+      "shorts_surface_url": null,
+      "caption_track_count": 2,
+      "selected_track_evidence": {
+        "language_code": "pl",
+        "kind": "manual",
+        "name": "polski",
+        "vss_id": ".pl"
+      },
+      "live_end_timestamp": null
+    },
+    "Cb4ldFWaw74": {
+      "video_id": "Cb4ldFWaw74",
+      "title": "Richard Dawkins o kreacjonizmie",
+      "channel_id": "UC1rFVGd1m_OE2AAA0xLWy8Q",
+      "duration_seconds": 184,
+      "published_at": "2012-05-05T17:07:06-07:00",
+      "checked_at": "2026-10-04T20:28:10Z",
+      "public_url": "https://www.youtube.com/watch?v=Cb4ldFWaw74",
+      "public_access": true,
+      "shorts_surface_url": null,
+      "caption_track_count": 2,
+      "selected_track_evidence": {
+        "language_code": "pl",
+        "kind": "manual",
+        "name": "polski",
+        "vss_id": ".pl"
+      },
+      "live_end_timestamp": null
+    },
+    "Zbc1-fSZQq0": {
+      "video_id": "Zbc1-fSZQq0",
+      "title": "Czy możemy ufać sztucznej inteligencji? | prof. Przemysław Biecek",
+      "channel_id": "UCA3eFuPG9YK6aUj5pXa0Nxw",
+      "duration_seconds": 3934,
+      "published_at": "2026-09-09T23:00:33-07:00",
+      "checked_at": "2026-10-04T20:28:10Z",
+      "public_url": "https://www.youtube.com/watch?v=Zbc1-fSZQq0",
+      "public_access": true,
+      "shorts_surface_url": null,
+      "caption_track_count": 1,
+      "selected_track_evidence": {
+        "language_code": "pl",
+        "kind": "generated",
+        "name": "polski (wygenerowane automatycznie)",
+        "vss_id": "a.pl"
+      },
+      "live_end_timestamp": null
+    },
+    "AoglG2EpcjI": {
+      "video_id": "AoglG2EpcjI",
+      "title": "AI zmienia świat szybciej niż kiedykolwiek wcześniej. | Milena Kowalik-Szeruga | TEDxUEW",
+      "channel_id": "UCsT0YIqwnpJCM-mx7-gSA4Q",
+      "duration_seconds": 877,
+      "published_at": "2026-07-29T09:01:23-07:00",
+      "checked_at": "2026-10-04T20:28:10Z",
+      "public_url": "https://www.youtube.com/watch?v=AoglG2EpcjI",
+      "public_access": true,
+      "shorts_surface_url": null,
+      "caption_track_count": 1,
+      "selected_track_evidence": {
+        "language_code": "pl",
+        "kind": "generated",
+        "name": "polski (wygenerowane automatycznie)",
+        "vss_id": "a.pl"
+      },
+      "live_end_timestamp": null
+    },
+    "eANk3-vRpCM": {
+      "video_id": "eANk3-vRpCM",
+      "title": "Okradzeni – rzecz o nocnych markach | Magdalena Komsta | TEDxKoszalin",
+      "channel_id": "UCsT0YIqwnpJCM-mx7-gSA4Q",
+      "duration_seconds": 1018,
+      "published_at": "2019-12-20T08:05:39-08:00",
+      "checked_at": "2026-10-04T20:28:10Z",
+      "public_url": "https://www.youtube.com/watch?v=eANk3-vRpCM",
+      "public_access": true,
+      "shorts_surface_url": null,
+      "caption_track_count": 1,
+      "selected_track_evidence": {
+        "language_code": "pl",
+        "kind": "generated",
+        "name": "polski (wygenerowane automatycznie)",
+        "vss_id": "a.pl"
+      },
+      "live_end_timestamp": null
+    },
+    "5gtsfEESdmA": {
+      "video_id": "5gtsfEESdmA",
+      "title": "Instrukcja obsługi najmłodszych w dobie dominacji AI | Agata Hofman | TEDxGdansk",
+      "channel_id": "UCsT0YIqwnpJCM-mx7-gSA4Q",
+      "duration_seconds": 1062,
+      "published_at": "2026-05-05T09:20:14-07:00",
+      "checked_at": "2026-10-04T20:28:10Z",
+      "public_url": "https://www.youtube.com/watch?v=5gtsfEESdmA",
+      "public_access": true,
+      "shorts_surface_url": null,
+      "caption_track_count": 1,
+      "selected_track_evidence": {
+        "language_code": "pl",
+        "kind": "generated",
+        "name": "polski (wygenerowane automatycznie)",
+        "vss_id": "a.pl"
+      },
+      "live_end_timestamp": null
+    },
+    "Yi_6jQWEyuY": {
+      "video_id": "Yi_6jQWEyuY",
+      "title": "Tak dobrzy, że nie mogą Was zastąpić przez AI | prof. Mikołaj Morzy | TEDxMickiewiczHighSchool",
+      "channel_id": "UCsT0YIqwnpJCM-mx7-gSA4Q",
+      "duration_seconds": 1215,
+      "published_at": "2024-05-24T08:17:04-07:00",
+      "checked_at": "2026-10-04T20:28:10Z",
+      "public_url": "https://www.youtube.com/watch?v=Yi_6jQWEyuY",
+      "public_access": true,
+      "shorts_surface_url": null,
+      "caption_track_count": 1,
+      "selected_track_evidence": {
+        "language_code": "pl",
+        "kind": "generated",
+        "name": "polski (wygenerowane automatycznie)",
+        "vss_id": "a.pl"
+      },
+      "live_end_timestamp": null
+    },
+    "lqIUD3ovyIM": {
+      "video_id": "lqIUD3ovyIM",
+      "title": "MarkBezos TED TALK polish subtitles",
+      "channel_id": "UCBJJYETjVAuDdUmEUpc8clA",
+      "duration_seconds": 245,
+      "published_at": "2016-11-17T17:37:31-08:00",
+      "checked_at": "2026-10-04T20:28:10Z",
+      "public_url": "https://www.youtube.com/watch?v=lqIUD3ovyIM",
+      "public_access": true,
+      "shorts_surface_url": null,
+      "caption_track_count": 1,
+      "selected_track_evidence": {
+        "language_code": "en",
+        "kind": "generated",
+        "name": "angielski (wygenerowane automatycznie)",
+        "vss_id": "a.en"
+      },
+      "live_end_timestamp": null
+    },
+    "dpAIbWjlO6Y": {
+      "video_id": "dpAIbWjlO6Y",
+      "title": "TED - David Bolinsky - Fantastyczna podroż do wnętrza komórki - Polish Subtitles",
+      "channel_id": "UCJgcTq3GJTzYLm4lwxDn3tQ",
+      "duration_seconds": 586,
+      "published_at": "2009-05-09T10:45:37-07:00",
+      "checked_at": "2026-10-04T20:28:10Z",
+      "public_url": "https://www.youtube.com/watch?v=dpAIbWjlO6Y",
+      "public_access": true,
+      "shorts_surface_url": null,
+      "caption_track_count": 1,
+      "selected_track_evidence": {
+        "language_code": "en",
+        "kind": "generated",
+        "name": "angielski (wygenerowane automatycznie)",
+        "vss_id": "a.en"
+      },
+      "live_end_timestamp": null
+    },
+    "gdmuCVhzoAs": {
+      "video_id": "gdmuCVhzoAs",
+      "title": "Money Can Buy Happiness - Michael Norton (TED Talk) - Polish Subtitles",
+      "channel_id": "UChKl6iKEH30_l66pKQxFbxQ",
+      "duration_seconds": 656,
+      "published_at": "2017-02-02T08:00:22-08:00",
+      "checked_at": "2026-10-04T20:28:10Z",
+      "public_url": "https://www.youtube.com/watch?v=gdmuCVhzoAs",
+      "public_access": true,
+      "shorts_surface_url": null,
+      "caption_track_count": 1,
+      "selected_track_evidence": {
+        "language_code": "en",
+        "kind": "generated",
+        "name": "angielski (wygenerowane automatycznie)",
+        "vss_id": null
+      },
+      "live_end_timestamp": null
+    },
+    "iP6OQMyjGL4": {
+      "video_id": "iP6OQMyjGL4",
+      "title": "TED - Jill Bolte Taylor i jej wylew zrozumienia [PL]",
+      "channel_id": "UCd0TRZde0KcJS3ThCxoGb-A",
+      "duration_seconds": 1122,
+      "published_at": "2012-12-07T14:13:12-08:00",
+      "checked_at": "2026-10-04T20:28:10Z",
+      "public_url": "https://www.youtube.com/watch?v=iP6OQMyjGL4",
+      "public_access": true,
+      "shorts_surface_url": null,
+      "caption_track_count": 1,
+      "selected_track_evidence": {
+        "language_code": "en",
+        "kind": "generated",
+        "name": "angielski (wygenerowane automatycznie)",
+        "vss_id": "a.en"
+      },
+      "live_end_timestamp": null
+    },
+    "TcsKkf6Sb4M": {
+      "video_id": "TcsKkf6Sb4M",
+      "title": "Colin Stokes 'Jak filmy uczą męskości' TED (napisy PL)",
+      "channel_id": "UCLq1OPakfg0c_BeL8u_tkTA",
+      "duration_seconds": 773,
+      "published_at": "2017-12-16T13:56:14-08:00",
+      "checked_at": "2026-10-04T20:28:10Z",
+      "public_url": "https://www.youtube.com/watch?v=TcsKkf6Sb4M",
+      "public_access": true,
+      "shorts_surface_url": null,
+      "caption_track_count": 1,
+      "selected_track_evidence": {
+        "language_code": "en",
+        "kind": "generated",
+        "name": "angielski (wygenerowane automatycznie)",
+        "vss_id": "a.en"
+      },
+      "live_end_timestamp": null
+    },
+    "RsZ8Lt9aR04": {
+      "video_id": "RsZ8Lt9aR04",
+      "title": "Richard St. John - Sekrety sukcesu - Polish Subtitles",
+      "channel_id": "UCJgcTq3GJTzYLm4lwxDn3tQ",
+      "duration_seconds": 211,
+      "published_at": "2009-05-09T10:39:42-07:00",
+      "checked_at": "2026-10-04T20:28:10Z",
+      "public_url": "https://www.youtube.com/watch?v=RsZ8Lt9aR04",
+      "public_access": true,
+      "shorts_surface_url": null,
+      "caption_track_count": 1,
+      "selected_track_evidence": {
+        "language_code": "en",
+        "kind": "generated",
+        "name": "angielski (wygenerowane automatycznie)",
+        "vss_id": "a.en"
+      },
+      "live_end_timestamp": null
+    },
+    "msE-ktwSuR4": {
+      "video_id": "msE-ktwSuR4",
+      "title": "[PL] TEDTalks Ken Robinson - szkoły zabijają kreatywność 1",
+      "channel_id": "UCXTpeq-rPGDFsFeLcnKH9zA",
+      "duration_seconds": 598,
+      "published_at": "2008-12-19T09:14:33-08:00",
+      "checked_at": "2026-10-04T20:28:10Z",
+      "public_url": "https://www.youtube.com/watch?v=msE-ktwSuR4",
+      "public_access": true,
+      "shorts_surface_url": null,
+      "caption_track_count": 1,
+      "selected_track_evidence": {
+        "language_code": "en",
+        "kind": "generated",
+        "name": "angielski (wygenerowane automatycznie)",
+        "vss_id": "a.en"
+      },
+      "live_end_timestamp": null
+    },
+    "MVl_B5MXjw4": {
+      "video_id": "MVl_B5MXjw4",
+      "title": "Cybersecurity expert warns of China's AI capabilities",
+      "channel_id": "UCCXoCcu9Rp7NPbTzIvogpZg",
+      "duration_seconds": 280,
+      "published_at": "2026-10-03T17:00:16-07:00",
+      "checked_at": "2026-10-04T20:28:10Z",
+      "public_url": "https://www.youtube.com/watch?v=MVl_B5MXjw4",
+      "public_access": true,
+      "shorts_surface_url": null,
+      "caption_track_count": 23,
+      "selected_track_evidence": {
+        "language_code": "en",
+        "kind": "manual",
+        "name": "angielski - CC1",
+        "vss_id": ".en.uYU-mmqFLq8"
+      },
+      "live_end_timestamp": null
+    },
+    "83HMZrhL_Uw": {
+      "video_id": "83HMZrhL_Uw",
+      "title": "AI & Music: How AI Is Changing Music Creation & Creativity",
+      "channel_id": "UCKWaEZ-_VweaEx1j62do_vQ",
+      "duration_seconds": 1037,
+      "published_at": "2026-10-04T04:00:25-07:00",
+      "checked_at": "2026-10-04T20:28:10Z",
+      "public_url": "https://www.youtube.com/watch?v=83HMZrhL_Uw",
+      "public_access": true,
+      "shorts_surface_url": null,
+      "caption_track_count": 2,
+      "selected_track_evidence": {
+        "language_code": "en",
+        "kind": "manual",
+        "name": "angielski",
+        "vss_id": ".en"
+      },
+      "live_end_timestamp": null
+    },
+    "gMTwg3jJGaU": {
+      "video_id": "gMTwg3jJGaU",
+      "title": "White House Moves to Assess Growing AI Risks",
+      "channel_id": "UCIALMKvObZNtJ6AmdCLP7Lg",
+      "duration_seconds": 658,
+      "published_at": "2026-10-04T05:38:54-07:00",
+      "checked_at": "2026-10-04T20:28:10Z",
+      "public_url": "https://www.youtube.com/watch?v=gMTwg3jJGaU",
+      "public_access": true,
+      "shorts_surface_url": null,
+      "caption_track_count": 22,
+      "selected_track_evidence": {
+        "language_code": "en",
+        "kind": "manual",
+        "name": "angielski",
+        "vss_id": ".en"
+      },
+      "live_end_timestamp": null
+    },
+    "SEkGLj0bwAU": {
+      "video_id": "SEkGLj0bwAU",
+      "title": "The Exciting, Perilous Journey Toward AGI | Ilya Sutskever | TED",
+      "channel_id": "UCAuUUnT6oDeKwE6v1NGQxug",
+      "duration_seconds": 744,
+      "published_at": "2023-11-20T14:32:21-08:00",
+      "checked_at": "2026-10-04T20:28:10Z",
+      "public_url": "https://www.youtube.com/watch?v=SEkGLj0bwAU",
+      "public_access": true,
+      "shorts_surface_url": null,
+      "caption_track_count": 14,
+      "selected_track_evidence": {
+        "language_code": "en",
+        "kind": "manual",
+        "name": "angielski",
+        "vss_id": ".en"
+      },
+      "live_end_timestamp": null
+    },
+    "BV2QhXwtLlY": {
+      "video_id": "BV2QhXwtLlY",
+      "title": "R. Tech LIVE: iPhone 18 at ₹70K, ₹1,000 Screen Guard, Glasses War & NVIDIA AI Police | Rajiv Makhni",
+      "channel_id": "UCwqusr8YDwM-3mEYTDeJHzw",
+      "duration_seconds": 1330,
+      "published_at": "2026-10-04T00:24:14-07:00",
+      "checked_at": "2026-10-04T20:28:10Z",
+      "public_url": "https://www.youtube.com/watch?v=BV2QhXwtLlY",
+      "public_access": true,
+      "shorts_surface_url": null,
+      "caption_track_count": 21,
+      "selected_track_evidence": {
+        "language_code": "ar",
+        "kind": "generated",
+        "name": "arabski (wygenerowane automatycznie)",
+        "vss_id": "a.ar"
+      },
+      "live_end_timestamp": "2026-10-04T07:21:15+00:00"
+    },
+    "JpFhmu6jpB8": {
+      "video_id": "JpFhmu6jpB8",
+      "title": "Why Anthropic Invited A Hindu Monk To Discuss AI Ethics",
+      "channel_id": "UCZFMm1mMw0F81Z37aaEzTUA",
+      "duration_seconds": 157,
+      "published_at": "2026-10-03T19:45:14-07:00",
+      "checked_at": "2026-10-04T20:28:10Z",
+      "public_url": "https://www.youtube.com/watch?v=JpFhmu6jpB8",
+      "public_access": true,
+      "shorts_surface_url": null,
+      "caption_track_count": 19,
+      "selected_track_evidence": {
+        "language_code": "ar",
+        "kind": "generated",
+        "name": "arabski (wygenerowane automatycznie)",
+        "vss_id": "a.ar"
+      },
+      "live_end_timestamp": "2026-10-04T02:49:51+00:00"
+    },
+    "cIFlDoY6Wbs": {
+      "video_id": "cIFlDoY6Wbs",
+      "title": "Bill Gates Issues Warning Over Unchecked AI | Hassan Nisar Expert Analysis | SAMAA TV",
+      "channel_id": "UCJekW1Vj5fCVEGdye_mBN6Q",
+      "duration_seconds": 482,
+      "published_at": "2026-10-03T17:44:35-07:00",
+      "checked_at": "2026-10-04T20:28:10Z",
+      "public_url": "https://www.youtube.com/watch?v=cIFlDoY6Wbs",
+      "public_access": true,
+      "shorts_surface_url": null,
+      "caption_track_count": 1,
+      "selected_track_evidence": {
+        "language_code": "hi",
+        "kind": "generated",
+        "name": "hindi (wygenerowane automatycznie)",
+        "vss_id": "a.hi"
+      },
+      "live_end_timestamp": "2026-10-04T00:54:33+00:00"
+    },
+    "QndanaE1eqg": {
+      "video_id": "QndanaE1eqg",
+      "title": "Real Life Vs AI. Part 14",
+      "channel_id": "UCDb8-E9XyZnyAA7QB_SD8Sg",
+      "duration_seconds": 24,
+      "published_at": "2025-08-10T06:00:47-07:00",
+      "checked_at": "2026-10-04T20:28:10Z",
+      "public_url": "https://www.youtube.com/watch?v=QndanaE1eqg",
+      "public_access": true,
+      "shorts_surface_url": "https://www.youtube.com/shorts/QndanaE1eqg",
+      "caption_track_count": 0,
+      "selected_track_evidence": null,
+      "live_end_timestamp": null
+    },
+    "trDtjNmzoZc": {
+      "video_id": "trDtjNmzoZc",
+      "title": "What is this ai slop💀sub to @Stumpedgtag   #shorts #fyp #shortsfeed #funny",
+      "channel_id": "UC0DELSArewJN3yQzjxg1Qhw",
+      "duration_seconds": 21,
+      "published_at": "2025-10-08T10:47:05-07:00",
+      "checked_at": "2026-10-04T20:28:10Z",
+      "public_url": "https://www.youtube.com/watch?v=trDtjNmzoZc",
+      "public_access": true,
+      "shorts_surface_url": "https://www.youtube.com/shorts/trDtjNmzoZc",
+      "caption_track_count": 0,
+      "selected_track_evidence": null,
+      "live_end_timestamp": null
+    }
+  },
+  "primary_stratum_by_video": {
+    "uEztHu4NHrs": "en_manual",
+    "KKNCiRWd_j0": "en_manual",
+    "jGwO_UgTS7I": "en_manual",
+    "ukzFI9rgwfU": "en_generated",
+    "yoiTl_srtUs": "pl_generated",
+    "lspUkroiYfs": "en_generated",
+    "Q6BclIP5QBQ": "other",
+    "r26EVyQl_NA": "no_or_late_captions",
+    "CdX7uCXpYe4": "no_or_late_captions",
+    "VhfS-G6PDLE": "en_generated",
+    "kDr-VsKjGeo": "en_manual",
+    "FYsIh53ttvw": "pl_generated",
+    "vMEhU_3_gSE": "pl_generated",
+    "JSaaq05o0ZQ": "pl_manual",
+    "e0CHi3mDyko": "pl_manual",
+    "t9wsy3gsI2U": "pl_manual",
+    "RpSUk0YY6LA": "pl_manual",
+    "B26DJATjmTE": "pl_manual",
+    "Cb4ldFWaw74": "pl_manual",
+    "Zbc1-fSZQq0": "pl_generated",
+    "AoglG2EpcjI": "pl_generated",
+    "eANk3-vRpCM": "pl_generated",
+    "5gtsfEESdmA": "pl_generated",
+    "Yi_6jQWEyuY": "pl_generated",
+    "lqIUD3ovyIM": "en_generated",
+    "dpAIbWjlO6Y": "en_generated",
+    "gdmuCVhzoAs": "en_generated",
+    "iP6OQMyjGL4": "en_generated",
+    "TcsKkf6Sb4M": "en_generated",
+    "RsZ8Lt9aR04": "en_generated",
+    "msE-ktwSuR4": "en_generated",
+    "MVl_B5MXjw4": "en_manual",
+    "83HMZrhL_Uw": "en_manual",
+    "gMTwg3jJGaU": "en_manual",
+    "SEkGLj0bwAU": "en_manual",
+    "BV2QhXwtLlY": "other",
+    "JpFhmu6jpB8": "other",
+    "cIFlDoY6Wbs": "other",
+    "QndanaE1eqg": "no_or_late_captions",
+    "trDtjNmzoZc": "no_or_late_captions"
+  }
+}

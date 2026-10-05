@@ -1,0 +1,95 @@
+{
+  "stage": "01",
+  "checkpoint": "CP-1.6 recovery using CP-1.7 dependency policy",
+  "status": "LOCAL_SOURCE_DURATION_GATE_FAIL",
+  "measurement_ref": "cpu-retest-platform.json",
+  "canonical_authority": [
+    "Master section 4",
+    "Master section 26.1",
+    "Master section 27.2",
+    "Stage CP-1.7 task 3"
+  ],
+  "decision": "Continue qualification of existing local Python captions-only adapter; no Deno account/deployment needed before measuring the simpler existing runtime",
+  "control_plane": "Cloudflare Free unchanged",
+  "provider_candidate": "yt-dlp captions-only",
+  "runtime": "owner computer, local Python 3.14.4",
+  "eligibility": "Existing owner hardware/runtime; no billed service, paid upgrade, proxy, trial credit or video download",
+  "paid_services_enabled": false,
+  "billing_route": "disabled",
+  "production_enabled": false,
+  "canary_ref": "local-ytdlp-canary.json",
+  "canary_source_status": "OK",
+  "canary_cpu_us": 1250000,
+  "canary_wall_ms": 2393,
+  "edge_cpu_thresholds_unchanged": {
+    "p95_ms_max": 8,
+    "maximum_ms_exclusive": 10
+  },
+  "cpu_interpretation": "Local compute is measured separately; it does not gain Cloudflare CPU PASS or relax edge thresholds. Cloudflare control stages remain subject to frozen limits.",
+  "manifest_sha256": "d944e2c2f0f4c6164c6c7f32b788b509ba3c915b2350fea47e089a9dfd3a2c81",
+  "manifest_mutated": false,
+  "local_harness_changes": [
+    "CaptureSession delegates Session attributes",
+    "UTF-8 subprocess output",
+    "process CPU capture"
+  ],
+  "local_checks": {
+    "python_tests": "6/6 PASS",
+    "direct_caption_contract_tests": "10/10 PASS",
+    "tools_typecheck": "PASS",
+    "targeted_lint": "PASS",
+    "python_syntax": "PASS"
+  },
+  "remaining": [
+    "Seven source-exact cue ends violate frozen +1000ms duration bound. No local parser error found: exact source hash and all cue boundaries match. Clamping would fabricate times; runtime change or retry does not resolve same source data. Frozen criterion/corpus cannot be silently changed."
+  ],
+  "retry_limit": "4 total attempts, including retained historical failed attempts conservatively; no automatic retry storm",
+  "updated_at": "2026-10-05T11:53:40.037Z",
+  "actual_python_version": "Python 3.14.4",
+  "python_adapter_sha256": "9b38625b12726151460e35ce944ff423ee55d41d6efbfb6b17e00bf49b280a3d",
+  "runner_sha256": "90d9d6be1808dceb9b5c14516e5a39d469f337eb8ca6167b81e81b14fee256b6",
+  "current_summary": {
+    "corpus_video_denominator": 40,
+    "eligible_video_denominator": 36,
+    "natural_no_caption_videos": 4,
+    "eligible_successes": 35,
+    "eligible_success_rate": 0.9722222222222222,
+    "eligible_failures": 1,
+    "eligible_unmeasured": 0,
+    "eligible_inconclusive": 0,
+    "eligible_ip_blocked_videos": 0,
+    "measured_unique_videos": 40,
+    "total_recorded_attempts": 98,
+    "statuses": {
+      "OK": 35,
+      "NO_CAPTIONS": 4,
+      "TEMPORARY_FAILURE": 1
+    },
+    "errors": []
+  },
+  "buffer_repair": {
+    "reason": "Actual ENOBUFS on attempts 3, all three cases; stderr empty. Two cases succeeded at allowed attempt 4 after correction.",
+    "old_node_default_max_buffer_bytes": 1048576,
+    "new_explicit_capture_max_bytes": 8388608,
+    "upstream_limits_and_benchmark_thresholds_unchanged": true,
+    "local_fixture": "1.2MB valid JSON reproduces default ENOBUFS and passes explicit bounded capture"
+  },
+  "verification": {
+    "gate0_contracts": "24/24 PASS",
+    "python_tests": "6/6 PASS",
+    "typecheck": "PASS",
+    "targeted_lint": "PASS",
+    "source_ui_spot_checks": "5 strata, cue counts + first/middle/last text hashes and displayed-second alignment; precise 250ms INCONCLUSIVE"
+  },
+  "source_temp_exports_cleanup": "All five agent-created transcript export files removed; only hashes, cue counts and timestamps retained",
+  "next_window_policy": "Both windows completed; no additional run scheduled",
+  "activation_limitations": [
+    "Full source qualification pending",
+    "Local availability hours UNKNOWN; no capacity PASS",
+    "Control-plane runtime unchanged; local workload is not an edge CPU PASS",
+    "All transcript production roles remain disabled"
+  ],
+  "source_status": "EXACT_SOURCE_FIDELITY_PASS_DURATION_SANITY_FAIL",
+  "source_ref": "docs/verification/gate-0/source-exact-reference.json",
+  "qualification_ref": "docs/verification/gate-0/FINAL_EVALUATION.json"
+}

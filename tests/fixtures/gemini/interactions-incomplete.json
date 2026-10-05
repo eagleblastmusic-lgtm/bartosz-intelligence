@@ -1,0 +1,14 @@
+{
+  "model": "gemini-3.8-flash",
+  "object": "interaction",
+  "status": "incomplete",
+  "service_tier": "free",
+  "created": "synthetic-time",
+  "updated": "synthetic-time",
+  "usage": {
+    "total_input_tokens": 19,
+    "total_output_tokens": 0,
+    "total_tokens": 79,
+    "total_thought_tokens": 60
+  }
+}

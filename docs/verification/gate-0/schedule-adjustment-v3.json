@@ -1,0 +1,55 @@
+{
+  "registration_version": 3,
+  "reason": "schedule adjustment before second live measurement; no corpus, threshold or pass-criteria change",
+  "recorded_at": "2026-10-05T11:29:37.365Z",
+  "owner_authorized_after_first_window": true,
+  "timezone": "Europe/Warsaw",
+  "date": "2026-10-05",
+  "old_windows": [
+    "12:23",
+    "18:23"
+  ],
+  "new_windows": [
+    "12:23",
+    "13:29"
+  ],
+  "old_manifest_sha256": "999f680ce90d39ab1ec33fc35c94510ebaa8206c952126a3dc7bbfb477827770",
+  "manifest_sha256": "d944e2c2f0f4c6164c6c7f32b788b509ba3c915b2350fea47e089a9dfd3a2c81",
+  "non_schedule_parameters_identical": true,
+  "second_corpus_identical": true,
+  "second_video_ids": [
+    "83HMZrhL_Uw",
+    "BV2QhXwtLlY",
+    "Cb4ldFWaw74",
+    "CdX7uCXpYe4",
+    "FYsIh53ttvw",
+    "KKNCiRWd_j0",
+    "RpSUk0YY6LA",
+    "SEkGLj0bwAU",
+    "TcsKkf6Sb4M",
+    "Yi_6jQWEyuY",
+    "Zbc1-fSZQq0",
+    "cIFlDoY6Wbs",
+    "e0CHi3mDyko",
+    "eANk3-vRpCM",
+    "gdmuCVhzoAs",
+    "kDr-VsKjGeo",
+    "lqIUD3ovyIM",
+    "lspUkroiYfs",
+    "msE-ktwSuR4",
+    "trDtjNmzoZc"
+  ],
+  "corpus_videos": 40,
+  "eligible_denominator": 36,
+  "maximum_attempts": 4,
+  "previous_observations": 99,
+  "previous_results_sha256": "236538d9e27cbbf72f9d4aab87cdee64a3a04db3a14dde2f400f2e391ea74b2a",
+  "frozen_implementation": {
+    "tools/gates/transcript-bench-live.ts": "90d9d6be1808dceb9b5c14516e5a39d469f337eb8ca6167b81e81b14fee256b6",
+    "tools/gates/adapters/gate0_python_adapters.py": "9b38625b12726151460e35ce944ff423ee55d41d6efbfb6b17e00bf49b280a3d",
+    "tools/gates/adapters/python-process-evidence.ts": "d55eb88f874c3c3989750be02e2d20e87b66e8ea338981e8c2118dbbe1f0951e",
+    "tools/gates/adapters/direct-captions-core.ts": "1fe301861271aa543d8e7e60a628a0a5d6c65c3d43bbce98ecdadf97fd900844"
+  },
+  "history_snapshot": "docs/verification/gate-0/preregistration-v2",
+  "second_live_measurement_started": false
+}

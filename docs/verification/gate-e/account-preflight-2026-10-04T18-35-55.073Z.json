@@ -1,0 +1,118 @@
+{
+  "mode": "account",
+  "sampled_at": "2026-10-04T18:35:55.073Z",
+  "result": "INCONCLUSIVE",
+  "paid_services_enabled": false,
+  "network_submissions": 0,
+  "provider_generation_submissions": 1,
+  "account_metadata_read": {
+    "cloudflare_auth": "ACCESS_OBSERVED_ACCOUNT_SELECTED",
+    "cli_exit_code": 0
+  },
+  "credential_presence_only": {
+    "CLOUDFLARE_API_TOKEN": false,
+    "CLOUDFLARE_ACCOUNT_ID": true,
+    "GOOGLE_PROJECT_ID": true,
+    "YOUTUBE_API_KEY": true,
+    "GEMINI_API_KEY": true
+  },
+  "snapshots": [],
+  "owner_use_classification": "professional_single_owner",
+  "gemini_live_probe": {
+    "sampled_at": "2026-10-04T18:30:08.686Z",
+    "model": "gemini-3.8-flash",
+    "runtime": "node-24.21.0",
+    "harness_version": "interactions-v1beta-probe-2",
+    "owner_use_classification": "professional_single_owner",
+    "classification_ref": "docs/verification/gate-e/owner-use-decision.json",
+    "billing_route": "disabled",
+    "paid_services_enabled": false,
+    "probe_budget": {
+      "generation_requests": 1,
+      "max_output_tokens": 64,
+      "retries": 0,
+      "tools": false,
+      "grounding": false
+    },
+    "models_http_status": 200,
+    "capability_observed": true,
+    "generation_submissions": 1,
+    "http_status": 503,
+    "structured_output_valid": false,
+    "response_diagnostic": {
+      "content_type": "application/json; charset=UTF-8",
+      "json_valid": true,
+      "json_shape": {
+        "top_level_keys": [
+          "error"
+        ],
+        "step_types": [],
+        "output_content_types": [],
+        "usage_keys": []
+      },
+      "finish_reason": null,
+      "model_identifier": null
+    },
+    "usage": null,
+    "latency_ms": 2584,
+    "cpu_platform_ms": null,
+    "request_sha256": "5e541de2fd33fd3169e9a2130732487ee4e2d4e4dc08722b3d7bd801e0d496a3",
+    "result": "INCONCLUSIVE",
+    "reason": "UPSTREAM_HTTP_503"
+  },
+  "account_evidence_refs": [
+    "account-readonly.json",
+    "dashboard-observations.json",
+    "owner-use-decision.json",
+    "gemini-probe.json",
+    "gemini-probe-reservation.json"
+  ],
+  "services": [
+    {
+      "service": "cloudflare-workers",
+      "active_baseline_required": true,
+      "free_eligible": "UNKNOWN",
+      "gate": "NOT_RUN"
+    },
+    {
+      "service": "cloudflare-d1",
+      "active_baseline_required": true,
+      "free_eligible": "UNKNOWN",
+      "gate": "NOT_RUN"
+    },
+    {
+      "service": "cloudflare-queues",
+      "active_baseline_required": true,
+      "free_eligible": "UNKNOWN",
+      "gate": "NOT_RUN"
+    },
+    {
+      "service": "cloudflare-assets",
+      "active_baseline_required": true,
+      "free_eligible": "UNKNOWN",
+      "gate": "NOT_RUN"
+    },
+    {
+      "service": "youtube-data-api",
+      "active_baseline_required": true,
+      "free_eligible": "UNKNOWN",
+      "gate": "NOT_RUN"
+    },
+    {
+      "service": "gemini",
+      "active_baseline_required": true,
+      "free_eligible": "UNKNOWN",
+      "gate": "INCONCLUSIVE"
+    }
+  ],
+  "drive": {
+    "active": false,
+    "gate": "UNAVAILABLE",
+    "reason": "NO_AUTHORIZED_ACCOUNT_STORAGE_API_SNAPSHOT"
+  },
+  "blockers": [
+    "CLOUDFLARE_D1_QUEUES_ASSETS_USAGE_LIMITS_AND_LIVE_PROBES_NOT_QUALIFIED",
+    "GEMINI_LIVE_PROBE_INCONCLUSIVE_UPSTREAM_HTTP_503",
+    "OTHER_REQUIRED_SERVICE_PROBES_NOT_RUN"
+  ]
+}

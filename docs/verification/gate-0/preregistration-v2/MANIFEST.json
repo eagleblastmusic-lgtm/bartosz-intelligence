@@ -1,0 +1,950 @@
+{
+  "schema_version": "gate0-corpus-1.0",
+  "as_of": "2026-10-04T20:28:10Z",
+  "status": "FROZEN",
+  "frozen_at": "2026-10-05T10:23:00.515Z",
+  "sha256": "999f680ce90d39ab1ec33fc35c94510ebaa8206c952126a3dc7bbfb477827770",
+  "source_evidence_sha256": "31b8cc0c7bc9e3b44934863b43bc8494db09dab54c141cb23f512b101395b49e",
+  "entry_criteria": {
+    "minimum_videos": 40,
+    "minimum_channels": 12,
+    "primary_strata": {
+      "en_manual": 8,
+      "en_generated": 10,
+      "pl_manual": 6,
+      "pl_generated": 8,
+      "other": 4,
+      "no_or_late_captions": 4
+    },
+    "crosscuts_minimum": {
+      "shorts": 4,
+      "ended_live": 4,
+      "over_60_minutes": 6,
+      "new_under_48_hours": 8,
+      "old_over_90_days": 8
+    },
+    "first_measurement_started": false
+  },
+  "retry_windows_local": [
+    "12:23",
+    "18:23"
+  ],
+  "retry_policy": "Maximum 4 attempts for TEMPORARY_FAILURE or RATE_LIMITED with 1/5/20/60-minute full jitter in the two Europe/Warsaw windows; no immediate retry, no same-IP library storm, no paid route.",
+  "measurement_policy": {
+    "denominator": {
+      "full_corpus_videos": 40,
+      "eligible_video_rule": "at_least_one_track_at_freeze",
+      "unit": "unique_video_id",
+      "natural_no_captions_stratum": "no_or_late_captions",
+      "failures_stay_in_denominator": true,
+      "attempts_do_not_increase_denominator": true
+    },
+    "success": {
+      "eligible_video_success_rate_minimum": 0.95,
+      "successful_status": "OK",
+      "partial_counts_as_success": false
+    },
+    "timestamps": {
+      "precision_unit": "integer_ms",
+      "source_reference_required": true,
+      "cue_boundary_match_tolerance_ms": 250,
+      "duration_end_tolerance_ms": 1000,
+      "synthetic_timestamps_allowed": false,
+      "overlapping_cues_allowed": true
+    },
+    "cpu": {
+      "edge_runtime": "Cloudflare Workers Free",
+      "edge_invocation_cpu_limit_ms": 10,
+      "actual_platform_cpu_metrics_required": true,
+      "wall_clock_counts_as_cpu": false
+    }
+  },
+  "error_boundaries": {
+    "no_captions_requires_public_access_and_empty_tracklist": true,
+    "ip_blocked_is_no_captions": false,
+    "preserve_video_row_after_failure": true,
+    "no_captions_retry_schedule": [
+      "1h",
+      "6h",
+      "24h",
+      "3d",
+      "7d",
+      "weekly"
+    ],
+    "transient_retry": {
+      "maximum_attempts": 4,
+      "delays_minutes_full_jitter": [
+        1,
+        5,
+        20,
+        60
+      ],
+      "statuses": [
+        "TEMPORARY_FAILURE",
+        "RATE_LIMITED"
+      ]
+    }
+  },
+  "entries": [
+    {
+      "video_id": "uEztHu4NHrs",
+      "public_url": "https://www.youtube.com/watch?v=uEztHu4NHrs",
+      "channel_id": "UCAuUUnT6oDeKwE6v1NGQxug",
+      "duration_seconds": 792,
+      "published_at": "2024-06-27T04:00:54-07:00",
+      "checked_at": "2026-10-04T20:28:10Z",
+      "public_access": true,
+      "primary_stratum": "en_manual",
+      "tracks": [
+        {
+          "language": "en",
+          "kind": "manual"
+        }
+      ],
+      "track_inventory_ref": "docs/verification/gate-0/player-track-inventory.json#/videos/uEztHu4NHrs/selected_track_evidence",
+      "short": false,
+      "shorts_url": null,
+      "ended_live": false,
+      "live_end_timestamp": null,
+      "verified_metadata_ref": "docs/verification/gate-0/player-track-inventory.json#/videos/uEztHu4NHrs"
+    },
+    {
+      "video_id": "KKNCiRWd_j0",
+      "public_url": "https://www.youtube.com/watch?v=KKNCiRWd_j0",
+      "channel_id": "UCAuUUnT6oDeKwE6v1NGQxug",
+      "duration_seconds": 1322,
+      "published_at": "2024-04-22T10:24:11-07:00",
+      "checked_at": "2026-10-04T20:28:10Z",
+      "public_access": true,
+      "primary_stratum": "en_manual",
+      "tracks": [
+        {
+          "language": "en",
+          "kind": "manual"
+        }
+      ],
+      "track_inventory_ref": "docs/verification/gate-0/player-track-inventory.json#/videos/KKNCiRWd_j0/selected_track_evidence",
+      "short": false,
+      "shorts_url": null,
+      "ended_live": false,
+      "live_end_timestamp": null,
+      "verified_metadata_ref": "docs/verification/gate-0/player-track-inventory.json#/videos/KKNCiRWd_j0"
+    },
+    {
+      "video_id": "jGwO_UgTS7I",
+      "public_url": "https://www.youtube.com/watch?v=jGwO_UgTS7I",
+      "channel_id": "UCBa5G_ESCn8Yd4vw5U-gIcg",
+      "duration_seconds": 4520,
+      "published_at": "2020-04-17T13:07:45-07:00",
+      "checked_at": "2026-10-04T20:28:10Z",
+      "public_access": true,
+      "primary_stratum": "en_manual",
+      "tracks": [
+        {
+          "language": "en",
+          "kind": "manual"
+        }
+      ],
+      "track_inventory_ref": "docs/verification/gate-0/player-track-inventory.json#/videos/jGwO_UgTS7I/selected_track_evidence",
+      "short": false,
+      "shorts_url": null,
+      "ended_live": false,
+      "live_end_timestamp": null,
+      "verified_metadata_ref": "docs/verification/gate-0/player-track-inventory.json#/videos/jGwO_UgTS7I"
+    },
+    {
+      "video_id": "ukzFI9rgwfU",
+      "public_url": "https://www.youtube.com/watch?v=ukzFI9rgwfU",
+      "channel_id": "UCsvqVGtbbyHaMoevxPAq9Fg",
+      "duration_seconds": 472,
+      "published_at": "2018-09-19T07:57:02-07:00",
+      "checked_at": "2026-10-04T20:28:10Z",
+      "public_access": true,
+      "primary_stratum": "en_generated",
+      "tracks": [
+        {
+          "language": "en",
+          "kind": "generated"
+        }
+      ],
+      "track_inventory_ref": "docs/verification/gate-0/player-track-inventory.json#/videos/ukzFI9rgwfU/selected_track_evidence",
+      "short": false,
+      "shorts_url": null,
+      "ended_live": false,
+      "live_end_timestamp": null,
+      "verified_metadata_ref": "docs/verification/gate-0/player-track-inventory.json#/videos/ukzFI9rgwfU"
+    },
+    {
+      "video_id": "yoiTl_srtUs",
+      "public_url": "https://www.youtube.com/watch?v=yoiTl_srtUs",
+      "channel_id": "UCdqjM1gzdNH1psxOfmMd6tg",
+      "duration_seconds": 7145,
+      "published_at": "2024-09-18T23:09:22-07:00",
+      "checked_at": "2026-10-04T20:28:10Z",
+      "public_access": true,
+      "primary_stratum": "pl_generated",
+      "tracks": [
+        {
+          "language": "pl",
+          "kind": "generated"
+        }
+      ],
+      "track_inventory_ref": "docs/verification/gate-0/player-track-inventory.json#/videos/yoiTl_srtUs/selected_track_evidence",
+      "short": false,
+      "shorts_url": null,
+      "ended_live": true,
+      "live_end_timestamp": "2024-09-18T17:59:51+00:00",
+      "verified_metadata_ref": "docs/verification/gate-0/player-track-inventory.json#/videos/yoiTl_srtUs"
+    },
+    {
+      "video_id": "lspUkroiYfs",
+      "public_url": "https://www.youtube.com/watch?v=lspUkroiYfs",
+      "channel_id": "UCeY0bbntWzzVIaj2z3QigXg",
+      "duration_seconds": 307,
+      "published_at": "2026-09-30T19:17:56-07:00",
+      "checked_at": "2026-10-04T20:28:10Z",
+      "public_access": true,
+      "primary_stratum": "en_generated",
+      "tracks": [
+        {
+          "language": "en",
+          "kind": "generated"
+        }
+      ],
+      "track_inventory_ref": "docs/verification/gate-0/player-track-inventory.json#/videos/lspUkroiYfs/selected_track_evidence",
+      "short": false,
+      "shorts_url": null,
+      "ended_live": false,
+      "live_end_timestamp": null,
+      "verified_metadata_ref": "docs/verification/gate-0/player-track-inventory.json#/videos/lspUkroiYfs"
+    },
+    {
+      "video_id": "Q6BclIP5QBQ",
+      "public_url": "https://www.youtube.com/watch?v=Q6BclIP5QBQ",
+      "channel_id": "UCI6QcXatdaEAaRTRjl3dc0w",
+      "duration_seconds": 3716,
+      "published_at": "2024-11-20T09:18:33-08:00",
+      "checked_at": "2026-10-04T20:28:10Z",
+      "public_access": true,
+      "primary_stratum": "other",
+      "tracks": [
+        {
+          "language": "es",
+          "kind": "manual"
+        }
+      ],
+      "track_inventory_ref": "docs/verification/gate-0/player-track-inventory.json#/videos/Q6BclIP5QBQ/selected_track_evidence",
+      "short": false,
+      "shorts_url": null,
+      "ended_live": false,
+      "live_end_timestamp": null,
+      "verified_metadata_ref": "docs/verification/gate-0/player-track-inventory.json#/videos/Q6BclIP5QBQ"
+    },
+    {
+      "video_id": "r26EVyQl_NA",
+      "public_url": "https://www.youtube.com/watch?v=r26EVyQl_NA",
+      "channel_id": "UCksk4J8bYUFlQ0f6jjvwSkw",
+      "duration_seconds": 27,
+      "published_at": "2026-10-04T10:07:57-07:00",
+      "checked_at": "2026-10-04T20:28:10Z",
+      "public_access": true,
+      "primary_stratum": "no_or_late_captions",
+      "tracks": [],
+      "track_inventory_ref": "docs/verification/gate-0/player-track-inventory.json#/videos/r26EVyQl_NA/caption_track_count",
+      "short": true,
+      "shorts_url": "https://www.youtube.com/shorts/r26EVyQl_NA",
+      "ended_live": false,
+      "live_end_timestamp": null,
+      "verified_metadata_ref": "docs/verification/gate-0/player-track-inventory.json#/videos/r26EVyQl_NA"
+    },
+    {
+      "video_id": "CdX7uCXpYe4",
+      "public_url": "https://www.youtube.com/watch?v=CdX7uCXpYe4",
+      "channel_id": "UCV4zEWebZdor2_A0y0svuoA",
+      "duration_seconds": 7,
+      "published_at": "2022-08-10T22:23:15-07:00",
+      "checked_at": "2026-10-04T20:28:10Z",
+      "public_access": true,
+      "primary_stratum": "no_or_late_captions",
+      "tracks": [],
+      "track_inventory_ref": "docs/verification/gate-0/player-track-inventory.json#/videos/CdX7uCXpYe4/caption_track_count",
+      "short": true,
+      "shorts_url": "https://www.youtube.com/shorts/CdX7uCXpYe4",
+      "ended_live": false,
+      "live_end_timestamp": null,
+      "verified_metadata_ref": "docs/verification/gate-0/player-track-inventory.json#/videos/CdX7uCXpYe4"
+    },
+    {
+      "video_id": "VhfS-G6PDLE",
+      "public_url": "https://www.youtube.com/watch?v=VhfS-G6PDLE",
+      "channel_id": "UCsvqVGtbbyHaMoevxPAq9Fg",
+      "duration_seconds": 45,
+      "published_at": "2024-06-20T07:47:46-07:00",
+      "checked_at": "2026-10-04T20:28:10Z",
+      "public_access": true,
+      "primary_stratum": "en_generated",
+      "tracks": [
+        {
+          "language": "en",
+          "kind": "generated"
+        }
+      ],
+      "track_inventory_ref": "docs/verification/gate-0/player-track-inventory.json#/videos/VhfS-G6PDLE/selected_track_evidence",
+      "short": true,
+      "shorts_url": "https://www.youtube.com/shorts/VhfS-G6PDLE",
+      "ended_live": false,
+      "live_end_timestamp": null,
+      "verified_metadata_ref": "docs/verification/gate-0/player-track-inventory.json#/videos/VhfS-G6PDLE"
+    },
+    {
+      "video_id": "kDr-VsKjGeo",
+      "public_url": "https://www.youtube.com/watch?v=kDr-VsKjGeo",
+      "channel_id": "UCCXoCcu9Rp7NPbTzIvogpZg",
+      "duration_seconds": 505,
+      "published_at": "2026-10-03T21:00:26-07:00",
+      "checked_at": "2026-10-04T20:28:10Z",
+      "public_access": true,
+      "primary_stratum": "en_manual",
+      "tracks": [
+        {
+          "language": "en",
+          "kind": "manual"
+        }
+      ],
+      "track_inventory_ref": "docs/verification/gate-0/player-track-inventory.json#/videos/kDr-VsKjGeo/selected_track_evidence",
+      "short": false,
+      "shorts_url": null,
+      "ended_live": false,
+      "live_end_timestamp": null,
+      "verified_metadata_ref": "docs/verification/gate-0/player-track-inventory.json#/videos/kDr-VsKjGeo"
+    },
+    {
+      "video_id": "FYsIh53ttvw",
+      "public_url": "https://www.youtube.com/watch?v=FYsIh53ttvw",
+      "channel_id": "UCtDbbEfaRjwTKlYnZ74KCrA",
+      "duration_seconds": 7449,
+      "published_at": "2026-03-26T12:00:06-07:00",
+      "checked_at": "2026-10-04T20:28:10Z",
+      "public_access": true,
+      "primary_stratum": "pl_generated",
+      "tracks": [
+        {
+          "language": "pl",
+          "kind": "generated"
+        }
+      ],
+      "track_inventory_ref": "docs/verification/gate-0/player-track-inventory.json#/videos/FYsIh53ttvw/selected_track_evidence",
+      "short": false,
+      "shorts_url": null,
+      "ended_live": true,
+      "live_end_timestamp": "2026-03-26T21:06:15+00:00",
+      "verified_metadata_ref": "docs/verification/gate-0/player-track-inventory.json#/videos/FYsIh53ttvw"
+    },
+    {
+      "video_id": "vMEhU_3_gSE",
+      "public_url": "https://www.youtube.com/watch?v=vMEhU_3_gSE",
+      "channel_id": "UCd3yxx2W4hqxRdXFTTEuyKg",
+      "duration_seconds": 4618,
+      "published_at": "2025-03-11T00:37:53-07:00",
+      "checked_at": "2026-10-04T20:28:10Z",
+      "public_access": true,
+      "primary_stratum": "pl_generated",
+      "tracks": [
+        {
+          "language": "pl",
+          "kind": "generated"
+        }
+      ],
+      "track_inventory_ref": "docs/verification/gate-0/player-track-inventory.json#/videos/vMEhU_3_gSE/selected_track_evidence",
+      "short": false,
+      "shorts_url": null,
+      "ended_live": false,
+      "live_end_timestamp": null,
+      "verified_metadata_ref": "docs/verification/gate-0/player-track-inventory.json#/videos/vMEhU_3_gSE"
+    },
+    {
+      "video_id": "JSaaq05o0ZQ",
+      "public_url": "https://www.youtube.com/watch?v=JSaaq05o0ZQ",
+      "channel_id": "UCkyGgkpQah0D9ZweJQdH1xA",
+      "duration_seconds": 349,
+      "published_at": "2014-02-09T09:10:52-08:00",
+      "checked_at": "2026-10-04T20:28:10Z",
+      "public_access": true,
+      "primary_stratum": "pl_manual",
+      "tracks": [
+        {
+          "language": "pl",
+          "kind": "manual"
+        }
+      ],
+      "track_inventory_ref": "docs/verification/gate-0/player-track-inventory.json#/videos/JSaaq05o0ZQ/selected_track_evidence",
+      "short": false,
+      "shorts_url": null,
+      "ended_live": false,
+      "live_end_timestamp": null,
+      "verified_metadata_ref": "docs/verification/gate-0/player-track-inventory.json#/videos/JSaaq05o0ZQ"
+    },
+    {
+      "video_id": "e0CHi3mDyko",
+      "public_url": "https://www.youtube.com/watch?v=e0CHi3mDyko",
+      "channel_id": "UC1rFVGd1m_OE2AAA0xLWy8Q",
+      "duration_seconds": 1076,
+      "published_at": "2015-12-05T05:52:20-08:00",
+      "checked_at": "2026-10-04T20:28:10Z",
+      "public_access": true,
+      "primary_stratum": "pl_manual",
+      "tracks": [
+        {
+          "language": "pl",
+          "kind": "manual"
+        }
+      ],
+      "track_inventory_ref": "docs/verification/gate-0/player-track-inventory.json#/videos/e0CHi3mDyko/selected_track_evidence",
+      "short": false,
+      "shorts_url": null,
+      "ended_live": false,
+      "live_end_timestamp": null,
+      "verified_metadata_ref": "docs/verification/gate-0/player-track-inventory.json#/videos/e0CHi3mDyko"
+    },
+    {
+      "video_id": "t9wsy3gsI2U",
+      "public_url": "https://www.youtube.com/watch?v=t9wsy3gsI2U",
+      "channel_id": "UC1rFVGd1m_OE2AAA0xLWy8Q",
+      "duration_seconds": 1167,
+      "published_at": "2015-12-05T05:51:43-08:00",
+      "checked_at": "2026-10-04T20:28:10Z",
+      "public_access": true,
+      "primary_stratum": "pl_manual",
+      "tracks": [
+        {
+          "language": "pl",
+          "kind": "manual"
+        }
+      ],
+      "track_inventory_ref": "docs/verification/gate-0/player-track-inventory.json#/videos/t9wsy3gsI2U/selected_track_evidence",
+      "short": false,
+      "shorts_url": null,
+      "ended_live": false,
+      "live_end_timestamp": null,
+      "verified_metadata_ref": "docs/verification/gate-0/player-track-inventory.json#/videos/t9wsy3gsI2U"
+    },
+    {
+      "video_id": "RpSUk0YY6LA",
+      "public_url": "https://www.youtube.com/watch?v=RpSUk0YY6LA",
+      "channel_id": "UC1rFVGd1m_OE2AAA0xLWy8Q",
+      "duration_seconds": 1057,
+      "published_at": "2015-12-05T05:53:23-08:00",
+      "checked_at": "2026-10-04T20:28:10Z",
+      "public_access": true,
+      "primary_stratum": "pl_manual",
+      "tracks": [
+        {
+          "language": "pl",
+          "kind": "manual"
+        }
+      ],
+      "track_inventory_ref": "docs/verification/gate-0/player-track-inventory.json#/videos/RpSUk0YY6LA/selected_track_evidence",
+      "short": false,
+      "shorts_url": null,
+      "ended_live": false,
+      "live_end_timestamp": null,
+      "verified_metadata_ref": "docs/verification/gate-0/player-track-inventory.json#/videos/RpSUk0YY6LA"
+    },
+    {
+      "video_id": "B26DJATjmTE",
+      "public_url": "https://www.youtube.com/watch?v=B26DJATjmTE",
+      "channel_id": "UC1rFVGd1m_OE2AAA0xLWy8Q",
+      "duration_seconds": 3367,
+      "published_at": "2012-05-05T17:11:42-07:00",
+      "checked_at": "2026-10-04T20:28:10Z",
+      "public_access": true,
+      "primary_stratum": "pl_manual",
+      "tracks": [
+        {
+          "language": "pl",
+          "kind": "manual"
+        }
+      ],
+      "track_inventory_ref": "docs/verification/gate-0/player-track-inventory.json#/videos/B26DJATjmTE/selected_track_evidence",
+      "short": false,
+      "shorts_url": null,
+      "ended_live": false,
+      "live_end_timestamp": null,
+      "verified_metadata_ref": "docs/verification/gate-0/player-track-inventory.json#/videos/B26DJATjmTE"
+    },
+    {
+      "video_id": "Cb4ldFWaw74",
+      "public_url": "https://www.youtube.com/watch?v=Cb4ldFWaw74",
+      "channel_id": "UC1rFVGd1m_OE2AAA0xLWy8Q",
+      "duration_seconds": 184,
+      "published_at": "2012-05-05T17:07:06-07:00",
+      "checked_at": "2026-10-04T20:28:10Z",
+      "public_access": true,
+      "primary_stratum": "pl_manual",
+      "tracks": [
+        {
+          "language": "pl",
+          "kind": "manual"
+        }
+      ],
+      "track_inventory_ref": "docs/verification/gate-0/player-track-inventory.json#/videos/Cb4ldFWaw74/selected_track_evidence",
+      "short": false,
+      "shorts_url": null,
+      "ended_live": false,
+      "live_end_timestamp": null,
+      "verified_metadata_ref": "docs/verification/gate-0/player-track-inventory.json#/videos/Cb4ldFWaw74"
+    },
+    {
+      "video_id": "Zbc1-fSZQq0",
+      "public_url": "https://www.youtube.com/watch?v=Zbc1-fSZQq0",
+      "channel_id": "UCA3eFuPG9YK6aUj5pXa0Nxw",
+      "duration_seconds": 3934,
+      "published_at": "2026-09-09T23:00:33-07:00",
+      "checked_at": "2026-10-04T20:28:10Z",
+      "public_access": true,
+      "primary_stratum": "pl_generated",
+      "tracks": [
+        {
+          "language": "pl",
+          "kind": "generated"
+        }
+      ],
+      "track_inventory_ref": "docs/verification/gate-0/player-track-inventory.json#/videos/Zbc1-fSZQq0/selected_track_evidence",
+      "short": false,
+      "shorts_url": null,
+      "ended_live": false,
+      "live_end_timestamp": null,
+      "verified_metadata_ref": "docs/verification/gate-0/player-track-inventory.json#/videos/Zbc1-fSZQq0"
+    },
+    {
+      "video_id": "AoglG2EpcjI",
+      "public_url": "https://www.youtube.com/watch?v=AoglG2EpcjI",
+      "channel_id": "UCsT0YIqwnpJCM-mx7-gSA4Q",
+      "duration_seconds": 877,
+      "published_at": "2026-07-29T09:01:23-07:00",
+      "checked_at": "2026-10-04T20:28:10Z",
+      "public_access": true,
+      "primary_stratum": "pl_generated",
+      "tracks": [
+        {
+          "language": "pl",
+          "kind": "generated"
+        }
+      ],
+      "track_inventory_ref": "docs/verification/gate-0/player-track-inventory.json#/videos/AoglG2EpcjI/selected_track_evidence",
+      "short": false,
+      "shorts_url": null,
+      "ended_live": false,
+      "live_end_timestamp": null,
+      "verified_metadata_ref": "docs/verification/gate-0/player-track-inventory.json#/videos/AoglG2EpcjI"
+    },
+    {
+      "video_id": "eANk3-vRpCM",
+      "public_url": "https://www.youtube.com/watch?v=eANk3-vRpCM",
+      "channel_id": "UCsT0YIqwnpJCM-mx7-gSA4Q",
+      "duration_seconds": 1018,
+      "published_at": "2019-12-20T08:05:39-08:00",
+      "checked_at": "2026-10-04T20:28:10Z",
+      "public_access": true,
+      "primary_stratum": "pl_generated",
+      "tracks": [
+        {
+          "language": "pl",
+          "kind": "generated"
+        }
+      ],
+      "track_inventory_ref": "docs/verification/gate-0/player-track-inventory.json#/videos/eANk3-vRpCM/selected_track_evidence",
+      "short": false,
+      "shorts_url": null,
+      "ended_live": false,
+      "live_end_timestamp": null,
+      "verified_metadata_ref": "docs/verification/gate-0/player-track-inventory.json#/videos/eANk3-vRpCM"
+    },
+    {
+      "video_id": "5gtsfEESdmA",
+      "public_url": "https://www.youtube.com/watch?v=5gtsfEESdmA",
+      "channel_id": "UCsT0YIqwnpJCM-mx7-gSA4Q",
+      "duration_seconds": 1062,
+      "published_at": "2026-05-05T09:20:14-07:00",
+      "checked_at": "2026-10-04T20:28:10Z",
+      "public_access": true,
+      "primary_stratum": "pl_generated",
+      "tracks": [
+        {
+          "language": "pl",
+          "kind": "generated"
+        }
+      ],
+      "track_inventory_ref": "docs/verification/gate-0/player-track-inventory.json#/videos/5gtsfEESdmA/selected_track_evidence",
+      "short": false,
+      "shorts_url": null,
+      "ended_live": false,
+      "live_end_timestamp": null,
+      "verified_metadata_ref": "docs/verification/gate-0/player-track-inventory.json#/videos/5gtsfEESdmA"
+    },
+    {
+      "video_id": "Yi_6jQWEyuY",
+      "public_url": "https://www.youtube.com/watch?v=Yi_6jQWEyuY",
+      "channel_id": "UCsT0YIqwnpJCM-mx7-gSA4Q",
+      "duration_seconds": 1215,
+      "published_at": "2024-05-24T08:17:04-07:00",
+      "checked_at": "2026-10-04T20:28:10Z",
+      "public_access": true,
+      "primary_stratum": "pl_generated",
+      "tracks": [
+        {
+          "language": "pl",
+          "kind": "generated"
+        }
+      ],
+      "track_inventory_ref": "docs/verification/gate-0/player-track-inventory.json#/videos/Yi_6jQWEyuY/selected_track_evidence",
+      "short": false,
+      "shorts_url": null,
+      "ended_live": false,
+      "live_end_timestamp": null,
+      "verified_metadata_ref": "docs/verification/gate-0/player-track-inventory.json#/videos/Yi_6jQWEyuY"
+    },
+    {
+      "video_id": "lqIUD3ovyIM",
+      "public_url": "https://www.youtube.com/watch?v=lqIUD3ovyIM",
+      "channel_id": "UCBJJYETjVAuDdUmEUpc8clA",
+      "duration_seconds": 245,
+      "published_at": "2016-11-17T17:37:31-08:00",
+      "checked_at": "2026-10-04T20:28:10Z",
+      "public_access": true,
+      "primary_stratum": "en_generated",
+      "tracks": [
+        {
+          "language": "en",
+          "kind": "generated"
+        }
+      ],
+      "track_inventory_ref": "docs/verification/gate-0/player-track-inventory.json#/videos/lqIUD3ovyIM/selected_track_evidence",
+      "short": false,
+      "shorts_url": null,
+      "ended_live": false,
+      "live_end_timestamp": null,
+      "verified_metadata_ref": "docs/verification/gate-0/player-track-inventory.json#/videos/lqIUD3ovyIM"
+    },
+    {
+      "video_id": "dpAIbWjlO6Y",
+      "public_url": "https://www.youtube.com/watch?v=dpAIbWjlO6Y",
+      "channel_id": "UCJgcTq3GJTzYLm4lwxDn3tQ",
+      "duration_seconds": 586,
+      "published_at": "2009-05-09T10:45:37-07:00",
+      "checked_at": "2026-10-04T20:28:10Z",
+      "public_access": true,
+      "primary_stratum": "en_generated",
+      "tracks": [
+        {
+          "language": "en",
+          "kind": "generated"
+        }
+      ],
+      "track_inventory_ref": "docs/verification/gate-0/player-track-inventory.json#/videos/dpAIbWjlO6Y/selected_track_evidence",
+      "short": false,
+      "shorts_url": null,
+      "ended_live": false,
+      "live_end_timestamp": null,
+      "verified_metadata_ref": "docs/verification/gate-0/player-track-inventory.json#/videos/dpAIbWjlO6Y"
+    },
+    {
+      "video_id": "gdmuCVhzoAs",
+      "public_url": "https://www.youtube.com/watch?v=gdmuCVhzoAs",
+      "channel_id": "UChKl6iKEH30_l66pKQxFbxQ",
+      "duration_seconds": 656,
+      "published_at": "2017-02-02T08:00:22-08:00",
+      "checked_at": "2026-10-04T20:28:10Z",
+      "public_access": true,
+      "primary_stratum": "en_generated",
+      "tracks": [
+        {
+          "language": "en",
+          "kind": "generated"
+        }
+      ],
+      "track_inventory_ref": "docs/verification/gate-0/player-track-inventory.json#/videos/gdmuCVhzoAs/selected_track_evidence",
+      "short": false,
+      "shorts_url": null,
+      "ended_live": false,
+      "live_end_timestamp": null,
+      "verified_metadata_ref": "docs/verification/gate-0/player-track-inventory.json#/videos/gdmuCVhzoAs"
+    },
+    {
+      "video_id": "iP6OQMyjGL4",
+      "public_url": "https://www.youtube.com/watch?v=iP6OQMyjGL4",
+      "channel_id": "UCd0TRZde0KcJS3ThCxoGb-A",
+      "duration_seconds": 1122,
+      "published_at": "2012-12-07T14:13:12-08:00",
+      "checked_at": "2026-10-04T20:28:10Z",
+      "public_access": true,
+      "primary_stratum": "en_generated",
+      "tracks": [
+        {
+          "language": "en",
+          "kind": "generated"
+        }
+      ],
+      "track_inventory_ref": "docs/verification/gate-0/player-track-inventory.json#/videos/iP6OQMyjGL4/selected_track_evidence",
+      "short": false,
+      "shorts_url": null,
+      "ended_live": false,
+      "live_end_timestamp": null,
+      "verified_metadata_ref": "docs/verification/gate-0/player-track-inventory.json#/videos/iP6OQMyjGL4"
+    },
+    {
+      "video_id": "TcsKkf6Sb4M",
+      "public_url": "https://www.youtube.com/watch?v=TcsKkf6Sb4M",
+      "channel_id": "UCLq1OPakfg0c_BeL8u_tkTA",
+      "duration_seconds": 773,
+      "published_at": "2017-12-16T13:56:14-08:00",
+      "checked_at": "2026-10-04T20:28:10Z",
+      "public_access": true,
+      "primary_stratum": "en_generated",
+      "tracks": [
+        {
+          "language": "en",
+          "kind": "generated"
+        }
+      ],
+      "track_inventory_ref": "docs/verification/gate-0/player-track-inventory.json#/videos/TcsKkf6Sb4M/selected_track_evidence",
+      "short": false,
+      "shorts_url": null,
+      "ended_live": false,
+      "live_end_timestamp": null,
+      "verified_metadata_ref": "docs/verification/gate-0/player-track-inventory.json#/videos/TcsKkf6Sb4M"
+    },
+    {
+      "video_id": "RsZ8Lt9aR04",
+      "public_url": "https://www.youtube.com/watch?v=RsZ8Lt9aR04",
+      "channel_id": "UCJgcTq3GJTzYLm4lwxDn3tQ",
+      "duration_seconds": 211,
+      "published_at": "2009-05-09T10:39:42-07:00",
+      "checked_at": "2026-10-04T20:28:10Z",
+      "public_access": true,
+      "primary_stratum": "en_generated",
+      "tracks": [
+        {
+          "language": "en",
+          "kind": "generated"
+        }
+      ],
+      "track_inventory_ref": "docs/verification/gate-0/player-track-inventory.json#/videos/RsZ8Lt9aR04/selected_track_evidence",
+      "short": false,
+      "shorts_url": null,
+      "ended_live": false,
+      "live_end_timestamp": null,
+      "verified_metadata_ref": "docs/verification/gate-0/player-track-inventory.json#/videos/RsZ8Lt9aR04"
+    },
+    {
+      "video_id": "msE-ktwSuR4",
+      "public_url": "https://www.youtube.com/watch?v=msE-ktwSuR4",
+      "channel_id": "UCXTpeq-rPGDFsFeLcnKH9zA",
+      "duration_seconds": 598,
+      "published_at": "2008-12-19T09:14:33-08:00",
+      "checked_at": "2026-10-04T20:28:10Z",
+      "public_access": true,
+      "primary_stratum": "en_generated",
+      "tracks": [
+        {
+          "language": "en",
+          "kind": "generated"
+        }
+      ],
+      "track_inventory_ref": "docs/verification/gate-0/player-track-inventory.json#/videos/msE-ktwSuR4/selected_track_evidence",
+      "short": false,
+      "shorts_url": null,
+      "ended_live": false,
+      "live_end_timestamp": null,
+      "verified_metadata_ref": "docs/verification/gate-0/player-track-inventory.json#/videos/msE-ktwSuR4"
+    },
+    {
+      "video_id": "MVl_B5MXjw4",
+      "public_url": "https://www.youtube.com/watch?v=MVl_B5MXjw4",
+      "channel_id": "UCCXoCcu9Rp7NPbTzIvogpZg",
+      "duration_seconds": 280,
+      "published_at": "2026-10-03T17:00:16-07:00",
+      "checked_at": "2026-10-04T20:28:10Z",
+      "public_access": true,
+      "primary_stratum": "en_manual",
+      "tracks": [
+        {
+          "language": "en",
+          "kind": "manual"
+        }
+      ],
+      "track_inventory_ref": "docs/verification/gate-0/player-track-inventory.json#/videos/MVl_B5MXjw4/selected_track_evidence",
+      "short": false,
+      "shorts_url": null,
+      "ended_live": false,
+      "live_end_timestamp": null,
+      "verified_metadata_ref": "docs/verification/gate-0/player-track-inventory.json#/videos/MVl_B5MXjw4"
+    },
+    {
+      "video_id": "83HMZrhL_Uw",
+      "public_url": "https://www.youtube.com/watch?v=83HMZrhL_Uw",
+      "channel_id": "UCKWaEZ-_VweaEx1j62do_vQ",
+      "duration_seconds": 1037,
+      "published_at": "2026-10-04T04:00:25-07:00",
+      "checked_at": "2026-10-04T20:28:10Z",
+      "public_access": true,
+      "primary_stratum": "en_manual",
+      "tracks": [
+        {
+          "language": "en",
+          "kind": "manual"
+        }
+      ],
+      "track_inventory_ref": "docs/verification/gate-0/player-track-inventory.json#/videos/83HMZrhL_Uw/selected_track_evidence",
+      "short": false,
+      "shorts_url": null,
+      "ended_live": false,
+      "live_end_timestamp": null,
+      "verified_metadata_ref": "docs/verification/gate-0/player-track-inventory.json#/videos/83HMZrhL_Uw"
+    },
+    {
+      "video_id": "gMTwg3jJGaU",
+      "public_url": "https://www.youtube.com/watch?v=gMTwg3jJGaU",
+      "channel_id": "UCIALMKvObZNtJ6AmdCLP7Lg",
+      "duration_seconds": 658,
+      "published_at": "2026-10-04T05:38:54-07:00",
+      "checked_at": "2026-10-04T20:28:10Z",
+      "public_access": true,
+      "primary_stratum": "en_manual",
+      "tracks": [
+        {
+          "language": "en",
+          "kind": "manual"
+        }
+      ],
+      "track_inventory_ref": "docs/verification/gate-0/player-track-inventory.json#/videos/gMTwg3jJGaU/selected_track_evidence",
+      "short": false,
+      "shorts_url": null,
+      "ended_live": false,
+      "live_end_timestamp": null,
+      "verified_metadata_ref": "docs/verification/gate-0/player-track-inventory.json#/videos/gMTwg3jJGaU"
+    },
+    {
+      "video_id": "SEkGLj0bwAU",
+      "public_url": "https://www.youtube.com/watch?v=SEkGLj0bwAU",
+      "channel_id": "UCAuUUnT6oDeKwE6v1NGQxug",
+      "duration_seconds": 744,
+      "published_at": "2023-11-20T14:32:21-08:00",
+      "checked_at": "2026-10-04T20:28:10Z",
+      "public_access": true,
+      "primary_stratum": "en_manual",
+      "tracks": [
+        {
+          "language": "en",
+          "kind": "manual"
+        }
+      ],
+      "track_inventory_ref": "docs/verification/gate-0/player-track-inventory.json#/videos/SEkGLj0bwAU/selected_track_evidence",
+      "short": false,
+      "shorts_url": null,
+      "ended_live": false,
+      "live_end_timestamp": null,
+      "verified_metadata_ref": "docs/verification/gate-0/player-track-inventory.json#/videos/SEkGLj0bwAU"
+    },
+    {
+      "video_id": "BV2QhXwtLlY",
+      "public_url": "https://www.youtube.com/watch?v=BV2QhXwtLlY",
+      "channel_id": "UCwqusr8YDwM-3mEYTDeJHzw",
+      "duration_seconds": 1330,
+      "published_at": "2026-10-04T00:24:14-07:00",
+      "checked_at": "2026-10-04T20:28:10Z",
+      "public_access": true,
+      "primary_stratum": "other",
+      "tracks": [
+        {
+          "language": "ar",
+          "kind": "generated"
+        }
+      ],
+      "track_inventory_ref": "docs/verification/gate-0/player-track-inventory.json#/videos/BV2QhXwtLlY/selected_track_evidence",
+      "short": false,
+      "shorts_url": null,
+      "ended_live": true,
+      "live_end_timestamp": "2026-10-04T07:21:15+00:00",
+      "verified_metadata_ref": "docs/verification/gate-0/player-track-inventory.json#/videos/BV2QhXwtLlY"
+    },
+    {
+      "video_id": "JpFhmu6jpB8",
+      "public_url": "https://www.youtube.com/watch?v=JpFhmu6jpB8",
+      "channel_id": "UCZFMm1mMw0F81Z37aaEzTUA",
+      "duration_seconds": 157,
+      "published_at": "2026-10-03T19:45:14-07:00",
+      "checked_at": "2026-10-04T20:28:10Z",
+      "public_access": true,
+      "primary_stratum": "other",
+      "tracks": [
+        {
+          "language": "ar",
+          "kind": "generated"
+        }
+      ],
+      "track_inventory_ref": "docs/verification/gate-0/player-track-inventory.json#/videos/JpFhmu6jpB8/selected_track_evidence",
+      "short": false,
+      "shorts_url": null,
+      "ended_live": true,
+      "live_end_timestamp": "2026-10-04T02:49:51+00:00",
+      "verified_metadata_ref": "docs/verification/gate-0/player-track-inventory.json#/videos/JpFhmu6jpB8"
+    },
+    {
+      "video_id": "cIFlDoY6Wbs",
+      "public_url": "https://www.youtube.com/watch?v=cIFlDoY6Wbs",
+      "channel_id": "UCJekW1Vj5fCVEGdye_mBN6Q",
+      "duration_seconds": 482,
+      "published_at": "2026-10-03T17:44:35-07:00",
+      "checked_at": "2026-10-04T20:28:10Z",
+      "public_access": true,
+      "primary_stratum": "other",
+      "tracks": [
+        {
+          "language": "hi",
+          "kind": "generated"
+        }
+      ],
+      "track_inventory_ref": "docs/verification/gate-0/player-track-inventory.json#/videos/cIFlDoY6Wbs/selected_track_evidence",
+      "short": false,
+      "shorts_url": null,
+      "ended_live": true,
+      "live_end_timestamp": "2026-10-04T00:54:33+00:00",
+      "verified_metadata_ref": "docs/verification/gate-0/player-track-inventory.json#/videos/cIFlDoY6Wbs"
+    },
+    {
+      "video_id": "QndanaE1eqg",
+      "public_url": "https://www.youtube.com/watch?v=QndanaE1eqg",
+      "channel_id": "UCDb8-E9XyZnyAA7QB_SD8Sg",
+      "duration_seconds": 24,
+      "published_at": "2025-08-10T06:00:47-07:00",
+      "checked_at": "2026-10-04T20:28:10Z",
+      "public_access": true,
+      "primary_stratum": "no_or_late_captions",
+      "tracks": [],
+      "track_inventory_ref": "docs/verification/gate-0/player-track-inventory.json#/videos/QndanaE1eqg/caption_track_count",
+      "short": true,
+      "shorts_url": "https://www.youtube.com/shorts/QndanaE1eqg",
+      "ended_live": false,
+      "live_end_timestamp": null,
+      "verified_metadata_ref": "docs/verification/gate-0/player-track-inventory.json#/videos/QndanaE1eqg"
+    },
+    {
+      "video_id": "trDtjNmzoZc",
+      "public_url": "https://www.youtube.com/watch?v=trDtjNmzoZc",
+      "channel_id": "UC0DELSArewJN3yQzjxg1Qhw",
+      "duration_seconds": 21,
+      "published_at": "2025-10-08T10:47:05-07:00",
+      "checked_at": "2026-10-04T20:28:10Z",
+      "public_access": true,
+      "primary_stratum": "no_or_late_captions",
+      "tracks": [],
+      "track_inventory_ref": "docs/verification/gate-0/player-track-inventory.json#/videos/trDtjNmzoZc/caption_track_count",
+      "short": true,
+      "shorts_url": "https://www.youtube.com/shorts/trDtjNmzoZc",
+      "ended_live": false,
+      "live_end_timestamp": null,
+      "verified_metadata_ref": "docs/verification/gate-0/player-track-inventory.json#/videos/trDtjNmzoZc"
+    }
+  ]
+}

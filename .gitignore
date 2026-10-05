@@ -13,3 +13,5 @@ test-results/
 coverage/
 Plan/
 *.tsbuildinfo
+__pycache__/
+*.pyc

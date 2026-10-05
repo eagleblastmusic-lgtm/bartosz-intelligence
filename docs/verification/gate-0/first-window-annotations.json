@@ -1,0 +1,499 @@
+{
+  "window": "2026-10-05/12:23",
+  "raw_results_preserved": true,
+  "annotations": [
+    {
+      "request_id": "170303e32e60c2ff805c54b7aa1a7fa3",
+      "provider": "DirectCaptionsEdge",
+      "original_status": "UNAVAILABLE",
+      "classification": "AUTH_REQUIRED",
+      "reason": "PLAYABILITY_LOGIN_REQUIRED",
+      "detail": "Status-based interpretation; no proof of permanent video unavailability; no authenticated bypass or retry"
+    },
+    {
+      "request_id": "3f3dae13a8162d61edadbe5eb023727b",
+      "provider": "DirectCaptionsEdge",
+      "original_status": "UNAVAILABLE",
+      "classification": "AUTH_REQUIRED",
+      "reason": "PLAYABILITY_LOGIN_REQUIRED",
+      "detail": "Status-based interpretation; no proof of permanent video unavailability; no authenticated bypass or retry"
+    },
+    {
+      "request_id": "3deb3e54a792893c0ba35d1cc82f2ea6",
+      "provider": "DirectCaptionsEdge",
+      "original_status": "UNAVAILABLE",
+      "classification": "AUTH_REQUIRED",
+      "reason": "PLAYABILITY_LOGIN_REQUIRED",
+      "detail": "Status-based interpretation; no proof of permanent video unavailability; no authenticated bypass or retry"
+    },
+    {
+      "request_id": "7b322c5385a2e6962e0a43ea1e88b00b",
+      "provider": "DirectCaptionsEdge",
+      "original_status": "UNAVAILABLE",
+      "classification": "AUTH_REQUIRED",
+      "reason": "PLAYABILITY_LOGIN_REQUIRED",
+      "detail": "Status-based interpretation; no proof of permanent video unavailability; no authenticated bypass or retry"
+    },
+    {
+      "request_id": "5fed0979395d30b098eacf60a094e340",
+      "provider": "DirectCaptionsEdge",
+      "original_status": "UNAVAILABLE",
+      "classification": "AUTH_REQUIRED",
+      "reason": "PLAYABILITY_LOGIN_REQUIRED",
+      "detail": "Status-based interpretation; no proof of permanent video unavailability; no authenticated bypass or retry"
+    },
+    {
+      "request_id": "4c564b244b684ae4745859990f41758d",
+      "provider": "DirectCaptionsEdge",
+      "original_status": "UNAVAILABLE",
+      "classification": "AUTH_REQUIRED",
+      "reason": "PLAYABILITY_LOGIN_REQUIRED",
+      "detail": "Status-based interpretation; no proof of permanent video unavailability; no authenticated bypass or retry"
+    },
+    {
+      "request_id": "218238460f1f282194607887785627e9",
+      "provider": "DirectCaptionsEdge",
+      "original_status": "UNAVAILABLE",
+      "classification": "AUTH_REQUIRED",
+      "reason": "PLAYABILITY_LOGIN_REQUIRED",
+      "detail": "Status-based interpretation; no proof of permanent video unavailability; no authenticated bypass or retry"
+    },
+    {
+      "request_id": "feadb2fdc3af87e49cf8d0bced5e2546",
+      "provider": "DirectCaptionsEdge",
+      "original_status": "UNAVAILABLE",
+      "classification": "AUTH_REQUIRED",
+      "reason": "PLAYABILITY_LOGIN_REQUIRED",
+      "detail": "Status-based interpretation; no proof of permanent video unavailability; no authenticated bypass or retry"
+    },
+    {
+      "request_id": "6be5e2e66276e19c89e0f53b5626c2a5",
+      "provider": "DirectCaptionsEdge",
+      "original_status": "UNAVAILABLE",
+      "classification": "AUTH_REQUIRED",
+      "reason": "PLAYABILITY_LOGIN_REQUIRED",
+      "detail": "Status-based interpretation; no proof of permanent video unavailability; no authenticated bypass or retry"
+    },
+    {
+      "request_id": "6c1e21e85e474473d6f9d5263df3ccc8",
+      "provider": "DirectCaptionsEdge",
+      "original_status": "UNAVAILABLE",
+      "classification": "AUTH_REQUIRED",
+      "reason": "PLAYABILITY_LOGIN_REQUIRED",
+      "detail": "Status-based interpretation; no proof of permanent video unavailability; no authenticated bypass or retry"
+    },
+    {
+      "request_id": "086965ef57e9a5d7d7ef589ac9ddf8ee",
+      "provider": "DirectCaptionsEdge",
+      "original_status": "UNAVAILABLE",
+      "classification": "AUTH_REQUIRED",
+      "reason": "PLAYABILITY_LOGIN_REQUIRED",
+      "detail": "Status-based interpretation; no proof of permanent video unavailability; no authenticated bypass or retry"
+    },
+    {
+      "request_id": "7fe2c0bc704b4ff4f424d8323982b640",
+      "provider": "DirectCaptionsEdge",
+      "original_status": "UNAVAILABLE",
+      "classification": "AUTH_REQUIRED",
+      "reason": "PLAYABILITY_LOGIN_REQUIRED",
+      "detail": "Status-based interpretation; no proof of permanent video unavailability; no authenticated bypass or retry"
+    },
+    {
+      "request_id": "a6750b2c6de5115f46da5ea567ef17d0",
+      "provider": "DirectCaptionsEdge",
+      "original_status": "UNAVAILABLE",
+      "classification": "AUTH_REQUIRED",
+      "reason": "PLAYABILITY_LOGIN_REQUIRED",
+      "detail": "Status-based interpretation; no proof of permanent video unavailability; no authenticated bypass or retry"
+    },
+    {
+      "request_id": "9e9d3c8c9f31717a0d96e16c612c8abf",
+      "provider": "DirectCaptionsEdge",
+      "original_status": "UNAVAILABLE",
+      "classification": "AUTH_REQUIRED",
+      "reason": "PLAYABILITY_LOGIN_REQUIRED",
+      "detail": "Status-based interpretation; no proof of permanent video unavailability; no authenticated bypass or retry"
+    },
+    {
+      "request_id": "c19573abd1408e988e4f02ae61223572",
+      "provider": "DirectCaptionsEdge",
+      "original_status": "UNAVAILABLE",
+      "classification": "AUTH_REQUIRED",
+      "reason": "PLAYABILITY_LOGIN_REQUIRED",
+      "detail": "Status-based interpretation; no proof of permanent video unavailability; no authenticated bypass or retry"
+    },
+    {
+      "request_id": "d4907fa683f63c586506442f30276d39",
+      "provider": "DirectCaptionsEdge",
+      "original_status": "UNAVAILABLE",
+      "classification": "AUTH_REQUIRED",
+      "reason": "PLAYABILITY_LOGIN_REQUIRED",
+      "detail": "Status-based interpretation; no proof of permanent video unavailability; no authenticated bypass or retry"
+    },
+    {
+      "request_id": "ddb2f977e6242450dba458ba09402095",
+      "provider": "DirectCaptionsEdge",
+      "original_status": "UNAVAILABLE",
+      "classification": "AUTH_REQUIRED",
+      "reason": "PLAYABILITY_LOGIN_REQUIRED",
+      "detail": "Status-based interpretation; no proof of permanent video unavailability; no authenticated bypass or retry"
+    },
+    {
+      "request_id": "50190d6ab3688597323da5e95b032324",
+      "provider": "DirectCaptionsEdge",
+      "original_status": "UNAVAILABLE",
+      "classification": "AUTH_REQUIRED",
+      "reason": "PLAYABILITY_LOGIN_REQUIRED",
+      "detail": "Status-based interpretation; no proof of permanent video unavailability; no authenticated bypass or retry"
+    },
+    {
+      "request_id": "f4051fc6fb8bcdbc8049d1083d1d4232",
+      "provider": "DirectCaptionsEdge",
+      "original_status": "UNAVAILABLE",
+      "classification": "AUTH_REQUIRED",
+      "reason": "PLAYABILITY_LOGIN_REQUIRED",
+      "detail": "Status-based interpretation; no proof of permanent video unavailability; no authenticated bypass or retry"
+    },
+    {
+      "request_id": "a92a4902f891fa5c49468e98ad83b992",
+      "provider": "DirectCaptionsEdge",
+      "original_status": "UNAVAILABLE",
+      "classification": "AUTH_REQUIRED",
+      "reason": "PLAYABILITY_LOGIN_REQUIRED",
+      "detail": "Status-based interpretation; no proof of permanent video unavailability; no authenticated bypass or retry"
+    },
+    {
+      "request_id": "0057eab5f3828c720a3f98058d447156",
+      "provider": "youtube-transcript-api",
+      "original_status": "TEMPORARY_FAILURE",
+      "classification": "INCONCLUSIVE",
+      "reason": "HARNESS_FAILURE",
+      "provider_failure": false,
+      "detail": "CaptureSession lacked headers delegation; reproduced locally and fixed, fixture test PASS"
+    },
+    {
+      "request_id": "bafb0904d1eabc8ebca7a3c7704e4621",
+      "provider": "youtube-transcript-api",
+      "original_status": "TEMPORARY_FAILURE",
+      "classification": "INCONCLUSIVE",
+      "reason": "HARNESS_FAILURE",
+      "provider_failure": false,
+      "detail": "CaptureSession lacked headers delegation; reproduced locally and fixed, fixture test PASS"
+    },
+    {
+      "request_id": "55a8a77fc135e73ce01bda014e6902d7",
+      "provider": "youtube-transcript-api",
+      "original_status": "TEMPORARY_FAILURE",
+      "classification": "INCONCLUSIVE",
+      "reason": "HARNESS_FAILURE",
+      "provider_failure": false,
+      "detail": "CaptureSession lacked headers delegation; reproduced locally and fixed, fixture test PASS"
+    },
+    {
+      "request_id": "19c416175e1cb6810e3d5d73a93a9243",
+      "provider": "youtube-transcript-api",
+      "original_status": "TEMPORARY_FAILURE",
+      "classification": "INCONCLUSIVE",
+      "reason": "HARNESS_FAILURE",
+      "provider_failure": false,
+      "detail": "CaptureSession lacked headers delegation; reproduced locally and fixed, fixture test PASS"
+    },
+    {
+      "request_id": "5e885ec526503d05394f4f6f4948aaaf",
+      "provider": "youtube-transcript-api",
+      "original_status": "TEMPORARY_FAILURE",
+      "classification": "INCONCLUSIVE",
+      "reason": "HARNESS_FAILURE",
+      "provider_failure": false,
+      "detail": "CaptureSession lacked headers delegation; reproduced locally and fixed, fixture test PASS"
+    },
+    {
+      "request_id": "076a1b6ea1b185f7f90135d9e65bf0f2",
+      "provider": "youtube-transcript-api",
+      "original_status": "TEMPORARY_FAILURE",
+      "classification": "INCONCLUSIVE",
+      "reason": "HARNESS_FAILURE",
+      "provider_failure": false,
+      "detail": "CaptureSession lacked headers delegation; reproduced locally and fixed, fixture test PASS"
+    },
+    {
+      "request_id": "633184b8440c8676615af417e31880d5",
+      "provider": "youtube-transcript-api",
+      "original_status": "TEMPORARY_FAILURE",
+      "classification": "INCONCLUSIVE",
+      "reason": "HARNESS_FAILURE",
+      "provider_failure": false,
+      "detail": "CaptureSession lacked headers delegation; reproduced locally and fixed, fixture test PASS"
+    },
+    {
+      "request_id": "7332ea60ff7a7fa3272ecede7a2699c5",
+      "provider": "youtube-transcript-api",
+      "original_status": "TEMPORARY_FAILURE",
+      "classification": "INCONCLUSIVE",
+      "reason": "HARNESS_FAILURE",
+      "provider_failure": false,
+      "detail": "CaptureSession lacked headers delegation; reproduced locally and fixed, fixture test PASS"
+    },
+    {
+      "request_id": "f83d7c6f563954ad567ca31f73f727fd",
+      "provider": "youtube-transcript-api",
+      "original_status": "TEMPORARY_FAILURE",
+      "classification": "INCONCLUSIVE",
+      "reason": "HARNESS_FAILURE",
+      "provider_failure": false,
+      "detail": "CaptureSession lacked headers delegation; reproduced locally and fixed, fixture test PASS"
+    },
+    {
+      "request_id": "1342275743dd87ab708ce7551d6e7454",
+      "provider": "youtube-transcript-api",
+      "original_status": "TEMPORARY_FAILURE",
+      "classification": "INCONCLUSIVE",
+      "reason": "HARNESS_FAILURE",
+      "provider_failure": false,
+      "detail": "CaptureSession lacked headers delegation; reproduced locally and fixed, fixture test PASS"
+    },
+    {
+      "request_id": "4a1bc10ef694b027d6a25027763b734f",
+      "provider": "youtube-transcript-api",
+      "original_status": "TEMPORARY_FAILURE",
+      "classification": "INCONCLUSIVE",
+      "reason": "HARNESS_FAILURE",
+      "provider_failure": false,
+      "detail": "CaptureSession lacked headers delegation; reproduced locally and fixed, fixture test PASS"
+    },
+    {
+      "request_id": "86aa6233556225691fc284b0873d309e",
+      "provider": "youtube-transcript-api",
+      "original_status": "TEMPORARY_FAILURE",
+      "classification": "INCONCLUSIVE",
+      "reason": "HARNESS_FAILURE",
+      "provider_failure": false,
+      "detail": "CaptureSession lacked headers delegation; reproduced locally and fixed, fixture test PASS"
+    },
+    {
+      "request_id": "56f8f85b7acd50cc4abc5fcfb9c83ba5",
+      "provider": "youtube-transcript-api",
+      "original_status": "TEMPORARY_FAILURE",
+      "classification": "INCONCLUSIVE",
+      "reason": "HARNESS_FAILURE",
+      "provider_failure": false,
+      "detail": "CaptureSession lacked headers delegation; reproduced locally and fixed, fixture test PASS"
+    },
+    {
+      "request_id": "9b401706c33cfa92a9fa69df9d420925",
+      "provider": "youtube-transcript-api",
+      "original_status": "TEMPORARY_FAILURE",
+      "classification": "INCONCLUSIVE",
+      "reason": "HARNESS_FAILURE",
+      "provider_failure": false,
+      "detail": "CaptureSession lacked headers delegation; reproduced locally and fixed, fixture test PASS"
+    },
+    {
+      "request_id": "c8d3f7a5e0d841bfbef816c508b41cbc",
+      "provider": "youtube-transcript-api",
+      "original_status": "TEMPORARY_FAILURE",
+      "classification": "INCONCLUSIVE",
+      "reason": "HARNESS_FAILURE",
+      "provider_failure": false,
+      "detail": "CaptureSession lacked headers delegation; reproduced locally and fixed, fixture test PASS"
+    },
+    {
+      "request_id": "203198ed272b355712a14e1dbde8e74e",
+      "provider": "youtube-transcript-api",
+      "original_status": "TEMPORARY_FAILURE",
+      "classification": "INCONCLUSIVE",
+      "reason": "HARNESS_FAILURE",
+      "provider_failure": false,
+      "detail": "CaptureSession lacked headers delegation; reproduced locally and fixed, fixture test PASS"
+    },
+    {
+      "request_id": "8de2a5eacf182606feb82ed7b1711d9f",
+      "provider": "youtube-transcript-api",
+      "original_status": "TEMPORARY_FAILURE",
+      "classification": "INCONCLUSIVE",
+      "reason": "HARNESS_FAILURE",
+      "provider_failure": false,
+      "detail": "CaptureSession lacked headers delegation; reproduced locally and fixed, fixture test PASS"
+    },
+    {
+      "request_id": "f671b95b2020c85f0c83578142ef1c53",
+      "provider": "youtube-transcript-api",
+      "original_status": "TEMPORARY_FAILURE",
+      "classification": "INCONCLUSIVE",
+      "reason": "HARNESS_FAILURE",
+      "provider_failure": false,
+      "detail": "CaptureSession lacked headers delegation; reproduced locally and fixed, fixture test PASS"
+    },
+    {
+      "request_id": "a04f5c3db42c9f74d2a757bf31c099b6",
+      "provider": "youtube-transcript-api",
+      "original_status": "TEMPORARY_FAILURE",
+      "classification": "INCONCLUSIVE",
+      "reason": "HARNESS_FAILURE",
+      "provider_failure": false,
+      "detail": "CaptureSession lacked headers delegation; reproduced locally and fixed, fixture test PASS"
+    },
+    {
+      "request_id": "39a95ea37e8aaf5a443da86c1dd68201",
+      "provider": "youtube-transcript-api",
+      "original_status": "TEMPORARY_FAILURE",
+      "classification": "INCONCLUSIVE",
+      "reason": "HARNESS_FAILURE",
+      "provider_failure": false,
+      "detail": "CaptureSession lacked headers delegation; reproduced locally and fixed, fixture test PASS"
+    },
+    {
+      "request_id": "e2b25fb2bff6a2f9dbc2b5d6478ec9fc",
+      "provider": "yt-dlp captions-only",
+      "original_status": "TEMPORARY_FAILURE",
+      "classification": "INCONCLUSIVE",
+      "reason": "HARNESS_FAILURE",
+      "provider_failure": false,
+      "detail": "Subprocess failure; UTF-8 output configured, exact original cause remains unproven"
+    },
+    {
+      "request_id": "cf3d84409aef80338e3946143ae6acec",
+      "provider": "yt-dlp captions-only",
+      "original_status": "TEMPORARY_FAILURE",
+      "classification": "INCONCLUSIVE",
+      "reason": "HARNESS_FAILURE",
+      "provider_failure": false,
+      "detail": "Subprocess failure; UTF-8 output configured, exact original cause remains unproven"
+    },
+    {
+      "request_id": "13cf35313c8b2ce716f529f99a777395",
+      "provider": "yt-dlp captions-only",
+      "original_status": "TEMPORARY_FAILURE",
+      "classification": "INCONCLUSIVE",
+      "reason": "HARNESS_FAILURE",
+      "provider_failure": false,
+      "detail": "Subprocess failure; UTF-8 output configured, exact original cause remains unproven"
+    },
+    {
+      "request_id": "2513ca5011e0f674e5d7f6531d6d7a84",
+      "provider": "yt-dlp captions-only",
+      "original_status": "TEMPORARY_FAILURE",
+      "classification": "INCONCLUSIVE",
+      "reason": "HARNESS_FAILURE",
+      "provider_failure": false,
+      "detail": "Subprocess failure; UTF-8 output configured, exact original cause remains unproven"
+    },
+    {
+      "request_id": "64f745d6199aaad1bc661e980ae64cfa",
+      "provider": "yt-dlp captions-only",
+      "original_status": "TEMPORARY_FAILURE",
+      "classification": "INCONCLUSIVE",
+      "reason": "HARNESS_FAILURE",
+      "provider_failure": false,
+      "detail": "Subprocess failure; UTF-8 output configured, exact original cause remains unproven"
+    },
+    {
+      "request_id": "f33ba2f438d1c11733458213a3816331",
+      "provider": "yt-dlp captions-only",
+      "original_status": "TEMPORARY_FAILURE",
+      "classification": "INCONCLUSIVE",
+      "reason": "HARNESS_FAILURE",
+      "provider_failure": false,
+      "detail": "Subprocess failure; UTF-8 output configured, exact original cause remains unproven"
+    },
+    {
+      "request_id": "02970852c31394c234b695aec099412b",
+      "provider": "yt-dlp captions-only",
+      "original_status": "TEMPORARY_FAILURE",
+      "classification": "INCONCLUSIVE",
+      "reason": "HARNESS_FAILURE",
+      "provider_failure": false,
+      "detail": "Subprocess failure; UTF-8 output configured, exact original cause remains unproven"
+    },
+    {
+      "request_id": "971cfc0c4d9ebc8fe7c84585dda57328",
+      "provider": "yt-dlp captions-only",
+      "original_status": "TEMPORARY_FAILURE",
+      "classification": "INCONCLUSIVE",
+      "reason": "HARNESS_FAILURE",
+      "provider_failure": false,
+      "detail": "Subprocess failure; UTF-8 output configured, exact original cause remains unproven"
+    },
+    {
+      "request_id": "722baa72f8d48c3a9a7ef3032aba81fa",
+      "provider": "yt-dlp captions-only",
+      "original_status": "TEMPORARY_FAILURE",
+      "classification": "INCONCLUSIVE",
+      "reason": "HARNESS_FAILURE",
+      "provider_failure": false,
+      "detail": "Subprocess failure; UTF-8 output configured, exact original cause remains unproven"
+    },
+    {
+      "request_id": "5c530151dd60474012ad2a07a1ca7750",
+      "provider": "yt-dlp captions-only",
+      "original_status": "TEMPORARY_FAILURE",
+      "classification": "INCONCLUSIVE",
+      "reason": "HARNESS_FAILURE",
+      "provider_failure": false,
+      "detail": "Subprocess failure; UTF-8 output configured, exact original cause remains unproven"
+    },
+    {
+      "request_id": "4c7005b3f5edaa617fbc6bc6b0b6329c",
+      "provider": "yt-dlp captions-only",
+      "original_status": "TEMPORARY_FAILURE",
+      "classification": "INCONCLUSIVE",
+      "reason": "HARNESS_FAILURE",
+      "provider_failure": false,
+      "detail": "Subprocess failure; UTF-8 output configured, exact original cause remains unproven"
+    },
+    {
+      "request_id": "00d8b9c2f2f55c28553b469bce1ee488",
+      "provider": "yt-dlp captions-only",
+      "original_status": "TEMPORARY_FAILURE",
+      "classification": "INCONCLUSIVE",
+      "reason": "HARNESS_FAILURE",
+      "provider_failure": false,
+      "detail": "Subprocess failure; UTF-8 output configured, exact original cause remains unproven"
+    },
+    {
+      "request_id": "2d7c730780f80ada90d832ad9f4b0c4e",
+      "provider": "yt-dlp captions-only",
+      "original_status": "TEMPORARY_FAILURE",
+      "classification": "INCONCLUSIVE",
+      "reason": "HARNESS_FAILURE",
+      "provider_failure": false,
+      "detail": "Subprocess failure; UTF-8 output configured, exact original cause remains unproven"
+    },
+    {
+      "request_id": "afacfecb668da0e73c7b38d5ed479208",
+      "provider": "yt-dlp captions-only",
+      "original_status": "TEMPORARY_FAILURE",
+      "classification": "INCONCLUSIVE",
+      "reason": "HARNESS_FAILURE",
+      "provider_failure": false,
+      "detail": "Subprocess failure; UTF-8 output configured, exact original cause remains unproven"
+    },
+    {
+      "request_id": "ddf4d2e6ddd8d77fb4a5e4c95b0a8a5d",
+      "provider": "yt-dlp captions-only",
+      "original_status": "TEMPORARY_FAILURE",
+      "classification": "INCONCLUSIVE",
+      "reason": "HARNESS_FAILURE",
+      "provider_failure": false,
+      "detail": "Subprocess failure; UTF-8 output configured, exact original cause remains unproven"
+    },
+    {
+      "request_id": "e0f4e82ed77b743fa9f8c33dbeeb4fb1",
+      "provider": "yt-dlp captions-only",
+      "original_status": "TEMPORARY_FAILURE",
+      "classification": "INCONCLUSIVE",
+      "reason": "HARNESS_FAILURE",
+      "provider_failure": false,
+      "detail": "Subprocess failure; UTF-8 output configured, exact original cause remains unproven"
+    },
+    {
+      "request_id": "7209ed3c8ed87914bc3d4817349c7054",
+      "provider": "yt-dlp captions-only",
+      "original_status": "TEMPORARY_FAILURE",
+      "classification": "INCONCLUSIVE",
+      "reason": "HARNESS_FAILURE",
+      "provider_failure": false,
+      "detail": "Subprocess failure; UTF-8 output configured, exact original cause remains unproven"
+    }
+  ]
+}

@@ -1,0 +1,241 @@
+{
+  "started_at": "2026-10-05T10:55:46.885Z",
+  "runtime": "v24.21.0",
+  "measurement_ref": "cpu-retest-platform.json",
+  "provider": "DirectCaptionsLocal",
+  "manifest_sha256": "999f680ce90d39ab1ec33fc35c94510ebaa8206c952126a3dc7bbfb477827770",
+  "provider_sha256": "1fe301861271aa543d8e7e60a628a0a5d6c65c3d43bbce98ecdadf97fd900844",
+  "paid_services_enabled": false,
+  "billing_route": "disabled",
+  "control_plane": "Cloudflare Free unchanged",
+  "purpose": "bounded local recovery canary, not full Gate 0 PASS",
+  "status": "MEASURED",
+  "upstream_request_limit": 2,
+  "completed_at": "2026-10-05T10:55:47.664Z",
+  "actual_upstream_requests": 2,
+  "result": {
+    "schema_version": "gate0-direct-edge-result-1.0",
+    "request_id": "local-runtime-canary-1",
+    "video_id": "uEztHu4NHrs",
+    "status": "PARSE_ERROR",
+    "reason_code": "CAPTION_JSON3_INVALID",
+    "watch_http_status": 200,
+    "watch_content_type": "text/html",
+    "watch_retry_after": null,
+    "caption_http_status": 200,
+    "caption_content_type": "text/html",
+    "caption_retry_after": null,
+    "player_response_shape": [
+      "adBreakHeartbeatParams",
+      "adPlacements",
+      "captions",
+      "cards",
+      "endscreen",
+      "frameworkUpdates",
+      "microformat",
+      "playabilityStatus",
+      "playbackTracking",
+      "playerConfig",
+      "responseContext",
+      "storyboards",
+      "streamingData",
+      "trackingParams",
+      "videoDetails"
+    ],
+    "track_count": 17,
+    "available_tracks": [
+      {
+        "language_code": "en",
+        "kind": "manual",
+        "name": "angielski",
+        "is_translatable": true,
+        "vss_id": ".en"
+      },
+      {
+        "language_code": "en",
+        "kind": "generated",
+        "name": "angielski (wygenerowane automatycznie)",
+        "is_translatable": true,
+        "vss_id": "a.en"
+      },
+      {
+        "language_code": "ar",
+        "kind": "manual",
+        "name": "arabski",
+        "is_translatable": true,
+        "vss_id": ".ar"
+      },
+      {
+        "language_code": "zh-TW",
+        "kind": "manual",
+        "name": "chiński (Tajwan)",
+        "is_translatable": true,
+        "vss_id": ".zh-TW"
+      },
+      {
+        "language_code": "zh-CN",
+        "kind": "manual",
+        "name": "chiński (Chiny)",
+        "is_translatable": true,
+        "vss_id": ".zh-CN"
+      },
+      {
+        "language_code": "fr",
+        "kind": "manual",
+        "name": "francuski",
+        "is_translatable": true,
+        "vss_id": ".fr"
+      },
+      {
+        "language_code": "iw",
+        "kind": "manual",
+        "name": "hebrajski",
+        "is_translatable": true,
+        "vss_id": ".iw"
+      },
+      {
+        "language_code": "hi",
+        "kind": "manual",
+        "name": "hindi",
+        "is_translatable": true,
+        "vss_id": ".hi"
+      },
+      {
+        "language_code": "es",
+        "kind": "manual",
+        "name": "hiszpański",
+        "is_translatable": true,
+        "vss_id": ".es"
+      },
+      {
+        "language_code": "id",
+        "kind": "manual",
+        "name": "indonezyjski",
+        "is_translatable": true,
+        "vss_id": ".id"
+      },
+      {
+        "language_code": "ja",
+        "kind": "manual",
+        "name": "japoński",
+        "is_translatable": true,
+        "vss_id": ".ja"
+      },
+      {
+        "language_code": "ko",
+        "kind": "manual",
+        "name": "koreański",
+        "is_translatable": true,
+        "vss_id": ".ko"
+      },
+      {
+        "language_code": "pt-PT",
+        "kind": "manual",
+        "name": "portugalski (Portugalia)",
+        "is_translatable": true,
+        "vss_id": ".pt-PT"
+      },
+      {
+        "language_code": "ru",
+        "kind": "manual",
+        "name": "rosyjski",
+        "is_translatable": true,
+        "vss_id": ".ru"
+      },
+      {
+        "language_code": "tr",
+        "kind": "manual",
+        "name": "turecki",
+        "is_translatable": true,
+        "vss_id": ".tr"
+      },
+      {
+        "language_code": "vi",
+        "kind": "manual",
+        "name": "wietnamski",
+        "is_translatable": true,
+        "vss_id": ".vi"
+      },
+      {
+        "language_code": "it",
+        "kind": "manual",
+        "name": "włoski",
+        "is_translatable": true,
+        "vss_id": ".it"
+      }
+    ],
+    "selected_track": {
+      "language_code": "en",
+      "kind": "manual",
+      "name": "angielski",
+      "is_translatable": true,
+      "vss_id": ".en"
+    },
+    "is_translated_track": false,
+    "cue_count": null,
+    "first_cue": null,
+    "middle_cue": null,
+    "last_cue": null,
+    "within_duration": null,
+    "watch_response_sha256": "3d1e4f4f3784c378643a44006845d2ba561338f524bfd37ddfb8d4300b78ea84",
+    "caption_response_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "upstream_bytes_received": 1370030,
+    "elapsed_wall_ms": 777
+  },
+  "phases": {
+    "watch_fetch_headers": {
+      "cpu_us": 141000,
+      "wall_ms": 207.1314,
+      "cpu_resolution_note": "Windows scheduler accounting is coarse; 0 is below resolution, not zero work"
+    },
+    "watch_stream_read_copy": {
+      "cpu_us": 171000,
+      "wall_ms": 519.7593,
+      "cpu_resolution_note": "Windows scheduler accounting is coarse; 0 is below resolution, not zero work"
+    },
+    "watch_sha256": {
+      "cpu_us": 0,
+      "wall_ms": 4.540000000000077,
+      "cpu_resolution_note": "Windows scheduler accounting is coarse; 0 is below resolution, not zero work"
+    },
+    "watch_utf8_decode": {
+      "cpu_us": 0,
+      "wall_ms": 0.8854000000000042,
+      "cpu_resolution_note": "Windows scheduler accounting is coarse; 0 is below resolution, not zero work"
+    },
+    "watch_player_extract_json": {
+      "cpu_us": 31000,
+      "wall_ms": 3.5895000000000437,
+      "cpu_resolution_note": "Windows scheduler accounting is coarse; 0 is below resolution, not zero work"
+    },
+    "track_normalization": {
+      "cpu_us": 0,
+      "wall_ms": 0.2982999999999265,
+      "cpu_resolution_note": "Windows scheduler accounting is coarse; 0 is below resolution, not zero work"
+    },
+    "caption_fetch_headers": {
+      "cpu_us": 0,
+      "wall_ms": 37.945100000000025,
+      "cpu_resolution_note": "Windows scheduler accounting is coarse; 0 is below resolution, not zero work"
+    },
+    "caption_stream_read_copy": {
+      "cpu_us": 0,
+      "wall_ms": 0.427599999999984,
+      "cpu_resolution_note": "Windows scheduler accounting is coarse; 0 is below resolution, not zero work"
+    },
+    "caption_sha256": {
+      "cpu_us": 0,
+      "wall_ms": 0.25670000000002346,
+      "cpu_resolution_note": "Windows scheduler accounting is coarse; 0 is below resolution, not zero work"
+    },
+    "caption_decode_parse_normalize_hash": {
+      "cpu_us": 0,
+      "wall_ms": 0.18360000000006949,
+      "cpu_resolution_note": "Windows scheduler accounting is coarse; 0 is below resolution, not zero work"
+    }
+  },
+  "total_cpu_us": 343000,
+  "total_wall_ms": 777.1972000000001,
+  "eligibility": "Existing owner computer and pinned Node; no external billing or account required; not yet production enabled",
+  "limits": "8ms/10ms remain unchanged for ordinary edge invocations. Local compute measurements do not grant edge PASS. Whole-corpus two-window and source fidelity qualification still required."
+}

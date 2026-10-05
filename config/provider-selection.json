@@ -1,6 +1,6 @@
 {
   "config_version": "1",
-  "status": "BLOCKED_GATE_E",
+  "status": "GATE_E_PASS_PENDING_CP_1_5_1_8",
   "transcript_roles": {
     "PRIMARY": {
       "enabled": false,
@@ -43,15 +43,14 @@
     "eligibility_ref": "docs/verification/gate-e/owner-use-decision.json",
     "owner_use_classification": "professional_single_owner",
     "billing_route": "disabled",
-    "free_eligible": null,
-    "production_enabled": false,
-    "qualification_status": "LIVE_PROBE_UNPARSEABLE_HTTP_200",
+    "free_eligible": true,
+    "production_enabled": true,
+    "qualification_status": "LIVE_FUNCTIONAL_PASS_INTERACTIONS_HTTP_200",
     "probe_ref": "docs/verification/gate-e/gemini-probe.json"
   },
   "limitations": [
-    "Gate E not qualified",
-    "Gate 0 and CPU not run",
+    "Gate 0 live benchmark and CPU not run",
     "No measured primary route",
-    "Owner permits Gemini Free for sole-user professional use; model production availability not qualified"
+    "Owner permits Gemini Free for sole-user professional use; Gate E qualification does not activate production routing"
   ]
 }

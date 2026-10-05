@@ -1,0 +1,38 @@
+{
+  "checkpoint": "CP-1.6",
+  "as_of": "2026-10-05T11:57:37.018Z",
+  "gate0_contracts": {
+    "passed": 29,
+    "failed": 0,
+    "command": "node node_modules/vitest/vitest.mjs run --project contracts tests/contracts/gate0-functional-evaluation.spec.ts tests/contracts/gate0-direct-captions.spec.ts tests/contracts/gate0-live-runner.spec.ts tests/contracts/gate0-manifest.spec.ts"
+  },
+  "python": {
+    "passed": 8,
+    "failed": 0,
+    "command": "python -m unittest discover -s tests/unit -p test_gate0*.py"
+  },
+  "typecheck": {
+    "status": "PASS",
+    "command": "node node_modules/typescript/bin/tsc -p tsconfig.tools.json --noEmit"
+  },
+  "lint": {
+    "status": "PASS",
+    "command": "node node_modules/eslint/bin/eslint.js tools/gates tests/contracts/gate0*.spec.ts"
+  },
+  "format": {
+    "status": "PASS",
+    "scope": "new functional evaluator and regression tests"
+  },
+  "whitespace": "PASS for source/config with CRLF accepted; immutable evidence bytes preserved, Markdown deliberate hard-line-break spaces retained",
+  "node": "24.21.0",
+  "python_version": "3.14.4",
+  "revision_hashes": {
+    "tools/gates/gate0-functional-evaluation.ts": "9ddc55f21de0b7e09cfa72409fb3b939da13d047630e0daf3fe3a6e764167f83",
+    "tools/gates/source_reference_probe.py": "ca4da51157a3363344ed8ab567b1c858c1d8824f3029860f2375b9f5ad75b8b9",
+    "tools/gates/adapters/gate0_python_adapters.py": "9b38625b12726151460e35ce944ff423ee55d41d6efbfb6b17e00bf49b280a3d",
+    "tools/gates/transcript-bench-live.ts": "90d9d6be1808dceb9b5c14516e5a39d469f337eb8ca6167b81e81b14fee256b6",
+    "config/provider-selection.json": "b83f668b9b8619ffc91c948a3d3d029c9bde324f91048ca7abfaa1f4d5e4a9bb"
+  },
+  "live_test_status": "FAIL: seven SOURCE_DURATION_CONFLICT cases, not masked by local tests",
+  "clean_stage01_verification": "NOT_RUN: CP-1.8 not entered"
+}

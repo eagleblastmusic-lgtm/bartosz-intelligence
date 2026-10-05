@@ -1,0 +1,11 @@
+{
+  "sampled_at": "2026-10-04T18:00:42.577Z",
+  "model": "gemini-3.8-flash",
+  "generation_requests": 1,
+  "max_output_tokens": 64,
+  "status": "SETTLED",
+  "http_status": 200,
+  "usage": null,
+  "classification": "INVALIDATED_HARNESS_FAILURE",
+  "reason": "HARNESS_FAILURE"
+}

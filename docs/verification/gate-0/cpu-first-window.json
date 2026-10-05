@@ -1,0 +1,34 @@
+{
+  "schema_version": "gate0-platform-cpu-1.0",
+  "captured_at": "2026-10-05T10:34:39.971Z",
+  "source": "Cloudflare Workers Preview Observability REST API",
+  "http_status": 403,
+  "content_type": "application/json",
+  "raw_response_sha256": "ec1ce23212b4bdd8ba0a57465d5ec266c8d72ffb56750aa5f34a955b227de9f4",
+  "response_shape": [
+    "success",
+    "errors",
+    "messages",
+    "result"
+  ],
+  "result_shape": null,
+  "preview_id": "4d036857e7224de08c157c1020ccc837",
+  "preview_slug": "gate0-cp16-20261005-1223-b02906",
+  "window": "2026-10-05/12:23",
+  "timeframe": {
+    "from": 1791196043007,
+    "to": 1791196178665
+  },
+  "expected_edge_invocations": 20,
+  "matched_unique_invocations": 0,
+  "cpu_p95_ms": null,
+  "cpu_max_ms": null,
+  "observed_event_shapes": [],
+  "platform_events": [],
+  "capture_status": "INCONCLUSIVE",
+  "cpu_gate_status": "INCONCLUSIVE",
+  "sampling_note": "Compare matched unique invocation count to all recorded Edge calls; no wall-clock substitution.",
+  "api_error_codes": [
+    10000
+  ]
+}

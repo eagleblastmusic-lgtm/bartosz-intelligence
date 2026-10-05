@@ -1,0 +1,834 @@
+{
+  "schema_version": "gate0-request-plan-1.0",
+  "generated_at": "2026-10-05T11:29:37.365Z",
+  "mode": "DRY_RUN_NO_NETWORK",
+  "live_requests_executed": false,
+  "paid_routes_allowed": false,
+  "manifest_sha256": "d944e2c2f0f4c6164c6c7f32b788b509ba3c915b2350fea47e089a9dfd3a2c81",
+  "source_evidence_sha256": "31b8cc0c7bc9e3b44934863b43bc8494db09dab54c141cb23f512b101395b49e",
+  "windows": {
+    "timezone": "Europe/Warsaw",
+    "daily_local_times": [
+      "12:23",
+      "13:29"
+    ],
+    "assignment_policy": "alternate_within_primary_stratum",
+    "video_assignments": {
+      "uEztHu4NHrs": "12:23",
+      "KKNCiRWd_j0": "13:29",
+      "jGwO_UgTS7I": "12:23",
+      "ukzFI9rgwfU": "12:23",
+      "yoiTl_srtUs": "12:23",
+      "lspUkroiYfs": "13:29",
+      "Q6BclIP5QBQ": "12:23",
+      "r26EVyQl_NA": "12:23",
+      "CdX7uCXpYe4": "13:29",
+      "VhfS-G6PDLE": "12:23",
+      "kDr-VsKjGeo": "13:29",
+      "FYsIh53ttvw": "13:29",
+      "vMEhU_3_gSE": "12:23",
+      "JSaaq05o0ZQ": "12:23",
+      "e0CHi3mDyko": "13:29",
+      "t9wsy3gsI2U": "12:23",
+      "RpSUk0YY6LA": "13:29",
+      "B26DJATjmTE": "12:23",
+      "Cb4ldFWaw74": "13:29",
+      "Zbc1-fSZQq0": "13:29",
+      "AoglG2EpcjI": "12:23",
+      "eANk3-vRpCM": "13:29",
+      "5gtsfEESdmA": "12:23",
+      "Yi_6jQWEyuY": "13:29",
+      "lqIUD3ovyIM": "13:29",
+      "dpAIbWjlO6Y": "12:23",
+      "gdmuCVhzoAs": "13:29",
+      "iP6OQMyjGL4": "12:23",
+      "TcsKkf6Sb4M": "13:29",
+      "RsZ8Lt9aR04": "12:23",
+      "msE-ktwSuR4": "13:29",
+      "MVl_B5MXjw4": "12:23",
+      "83HMZrhL_Uw": "13:29",
+      "gMTwg3jJGaU": "12:23",
+      "SEkGLj0bwAU": "13:29",
+      "BV2QhXwtLlY": "13:29",
+      "JpFhmu6jpB8": "12:23",
+      "cIFlDoY6Wbs": "13:29",
+      "QndanaE1eqg": "12:23",
+      "trDtjNmzoZc": "13:29"
+    }
+  },
+  "denominator": {
+    "corpus_videos": 40,
+    "caption_eligible_videos": 36,
+    "natural_no_caption_videos": 4,
+    "denominator_unit": "unique_video_id",
+    "attempts_count_as_videos": false
+  },
+  "candidate_adapters": [
+    {
+      "id": "DirectCaptionsEdge",
+      "runtime": "Cloudflare Workers Free; measure platform CPU and egress",
+      "version": "repository source hash captured with CP-1.6 results",
+      "license": "project code; no Ptyktos code reused",
+      "status": "NOT_RUN",
+      "media_download": false
+    },
+    {
+      "id": "youtube-transcript-api",
+      "runtime": "local Python 3.14.4; Node.js 24.21.0 available for the run harness",
+      "version": "youtube-transcript-api 1.2.4; pinned transitive lock in requirements-gate0.lock.txt",
+      "license": "MIT",
+      "status": "NOT_RUN",
+      "media_download": false
+    },
+    {
+      "id": "yt-dlp captions-only",
+      "runtime": "Python 3.14.4 + Node.js 24.21.0 + yt-dlp-ejs 0.8.0",
+      "version": "yt-dlp 2026.08.19; pinned transitive lock in requirements-gate0.lock.txt",
+      "license": "Unlicense source package; no bundled executable used",
+      "status": "NOT_RUN",
+      "media_download": false
+    }
+  ],
+  "request_policy": {
+    "first_operation": "LIST_TRACKS",
+    "fetch_track_when_present": true,
+    "transient_maximum_attempts": 4,
+    "transient_delays_minutes_full_jitter": [
+      1,
+      5,
+      20,
+      60
+    ],
+    "no_captions_retry_schedule": [
+      "1h",
+      "6h",
+      "24h",
+      "3d",
+      "7d",
+      "weekly"
+    ],
+    "ip_blocked_is_no_captions": false,
+    "same_ip_fallback_is_independent": false,
+    "retain_failed_video_rows": true
+  },
+  "timestamp_policy": {
+    "precision_unit": "integer_ms",
+    "source_reference_required": true,
+    "cue_boundary_match_tolerance_ms": 250,
+    "duration_end_tolerance_ms": 1000,
+    "synthetic_timestamps_allowed": false,
+    "overlapping_cues_allowed": true
+  },
+  "cpu_policy": {
+    "edge_runtime": "Cloudflare Workers Free",
+    "edge_invocation_cpu_limit_ms": 10,
+    "actual_platform_cpu_metrics_required": true,
+    "wall_clock_counts_as_cpu": false
+  },
+  "videos": [
+    {
+      "video_id": "uEztHu4NHrs",
+      "primary_stratum": "en_manual",
+      "scheduled_window_local_time": "12:23",
+      "public_url": "https://www.youtube.com/watch?v=uEztHu4NHrs",
+      "public_access_confirmed_at_freeze": true,
+      "baseline_track": {
+        "language": "en",
+        "kind": "manual"
+      },
+      "track_inventory_ref": "docs/verification/gate-0/player-track-inventory.json#/videos/uEztHu4NHrs/selected_track_evidence",
+      "expected_baseline_class": "CAPTION_ELIGIBLE",
+      "planned_operations": [
+        "LIST_TRACKS",
+        "FETCH_SELECTED_TRACK"
+      ],
+      "failure_boundary": "provider/network/parser failures remain distinct from NO_CAPTIONS"
+    },
+    {
+      "video_id": "KKNCiRWd_j0",
+      "primary_stratum": "en_manual",
+      "scheduled_window_local_time": "13:29",
+      "public_url": "https://www.youtube.com/watch?v=KKNCiRWd_j0",
+      "public_access_confirmed_at_freeze": true,
+      "baseline_track": {
+        "language": "en",
+        "kind": "manual"
+      },
+      "track_inventory_ref": "docs/verification/gate-0/player-track-inventory.json#/videos/KKNCiRWd_j0/selected_track_evidence",
+      "expected_baseline_class": "CAPTION_ELIGIBLE",
+      "planned_operations": [
+        "LIST_TRACKS",
+        "FETCH_SELECTED_TRACK"
+      ],
+      "failure_boundary": "provider/network/parser failures remain distinct from NO_CAPTIONS"
+    },
+    {
+      "video_id": "jGwO_UgTS7I",
+      "primary_stratum": "en_manual",
+      "scheduled_window_local_time": "12:23",
+      "public_url": "https://www.youtube.com/watch?v=jGwO_UgTS7I",
+      "public_access_confirmed_at_freeze": true,
+      "baseline_track": {
+        "language": "en",
+        "kind": "manual"
+      },
+      "track_inventory_ref": "docs/verification/gate-0/player-track-inventory.json#/videos/jGwO_UgTS7I/selected_track_evidence",
+      "expected_baseline_class": "CAPTION_ELIGIBLE",
+      "planned_operations": [
+        "LIST_TRACKS",
+        "FETCH_SELECTED_TRACK"
+      ],
+      "failure_boundary": "provider/network/parser failures remain distinct from NO_CAPTIONS"
+    },
+    {
+      "video_id": "ukzFI9rgwfU",
+      "primary_stratum": "en_generated",
+      "scheduled_window_local_time": "12:23",
+      "public_url": "https://www.youtube.com/watch?v=ukzFI9rgwfU",
+      "public_access_confirmed_at_freeze": true,
+      "baseline_track": {
+        "language": "en",
+        "kind": "generated"
+      },
+      "track_inventory_ref": "docs/verification/gate-0/player-track-inventory.json#/videos/ukzFI9rgwfU/selected_track_evidence",
+      "expected_baseline_class": "CAPTION_ELIGIBLE",
+      "planned_operations": [
+        "LIST_TRACKS",
+        "FETCH_SELECTED_TRACK"
+      ],
+      "failure_boundary": "provider/network/parser failures remain distinct from NO_CAPTIONS"
+    },
+    {
+      "video_id": "yoiTl_srtUs",
+      "primary_stratum": "pl_generated",
+      "scheduled_window_local_time": "12:23",
+      "public_url": "https://www.youtube.com/watch?v=yoiTl_srtUs",
+      "public_access_confirmed_at_freeze": true,
+      "baseline_track": {
+        "language": "pl",
+        "kind": "generated"
+      },
+      "track_inventory_ref": "docs/verification/gate-0/player-track-inventory.json#/videos/yoiTl_srtUs/selected_track_evidence",
+      "expected_baseline_class": "CAPTION_ELIGIBLE",
+      "planned_operations": [
+        "LIST_TRACKS",
+        "FETCH_SELECTED_TRACK"
+      ],
+      "failure_boundary": "provider/network/parser failures remain distinct from NO_CAPTIONS"
+    },
+    {
+      "video_id": "lspUkroiYfs",
+      "primary_stratum": "en_generated",
+      "scheduled_window_local_time": "13:29",
+      "public_url": "https://www.youtube.com/watch?v=lspUkroiYfs",
+      "public_access_confirmed_at_freeze": true,
+      "baseline_track": {
+        "language": "en",
+        "kind": "generated"
+      },
+      "track_inventory_ref": "docs/verification/gate-0/player-track-inventory.json#/videos/lspUkroiYfs/selected_track_evidence",
+      "expected_baseline_class": "CAPTION_ELIGIBLE",
+      "planned_operations": [
+        "LIST_TRACKS",
+        "FETCH_SELECTED_TRACK"
+      ],
+      "failure_boundary": "provider/network/parser failures remain distinct from NO_CAPTIONS"
+    },
+    {
+      "video_id": "Q6BclIP5QBQ",
+      "primary_stratum": "other",
+      "scheduled_window_local_time": "12:23",
+      "public_url": "https://www.youtube.com/watch?v=Q6BclIP5QBQ",
+      "public_access_confirmed_at_freeze": true,
+      "baseline_track": {
+        "language": "es",
+        "kind": "manual"
+      },
+      "track_inventory_ref": "docs/verification/gate-0/player-track-inventory.json#/videos/Q6BclIP5QBQ/selected_track_evidence",
+      "expected_baseline_class": "CAPTION_ELIGIBLE",
+      "planned_operations": [
+        "LIST_TRACKS",
+        "FETCH_SELECTED_TRACK"
+      ],
+      "failure_boundary": "provider/network/parser failures remain distinct from NO_CAPTIONS"
+    },
+    {
+      "video_id": "r26EVyQl_NA",
+      "primary_stratum": "no_or_late_captions",
+      "scheduled_window_local_time": "12:23",
+      "public_url": "https://www.youtube.com/watch?v=r26EVyQl_NA",
+      "public_access_confirmed_at_freeze": true,
+      "baseline_track": null,
+      "track_inventory_ref": "docs/verification/gate-0/player-track-inventory.json#/videos/r26EVyQl_NA/caption_track_count",
+      "expected_baseline_class": "NATURAL_NO_CAPTIONS_OR_LATE",
+      "planned_operations": [
+        "LIST_TRACKS"
+      ],
+      "failure_boundary": "NO_CAPTIONS is only valid for public access with empty tracklist"
+    },
+    {
+      "video_id": "CdX7uCXpYe4",
+      "primary_stratum": "no_or_late_captions",
+      "scheduled_window_local_time": "13:29",
+      "public_url": "https://www.youtube.com/watch?v=CdX7uCXpYe4",
+      "public_access_confirmed_at_freeze": true,
+      "baseline_track": null,
+      "track_inventory_ref": "docs/verification/gate-0/player-track-inventory.json#/videos/CdX7uCXpYe4/caption_track_count",
+      "expected_baseline_class": "NATURAL_NO_CAPTIONS_OR_LATE",
+      "planned_operations": [
+        "LIST_TRACKS"
+      ],
+      "failure_boundary": "NO_CAPTIONS is only valid for public access with empty tracklist"
+    },
+    {
+      "video_id": "VhfS-G6PDLE",
+      "primary_stratum": "en_generated",
+      "scheduled_window_local_time": "12:23",
+      "public_url": "https://www.youtube.com/watch?v=VhfS-G6PDLE",
+      "public_access_confirmed_at_freeze": true,
+      "baseline_track": {
+        "language": "en",
+        "kind": "generated"
+      },
+      "track_inventory_ref": "docs/verification/gate-0/player-track-inventory.json#/videos/VhfS-G6PDLE/selected_track_evidence",
+      "expected_baseline_class": "CAPTION_ELIGIBLE",
+      "planned_operations": [
+        "LIST_TRACKS",
+        "FETCH_SELECTED_TRACK"
+      ],
+      "failure_boundary": "provider/network/parser failures remain distinct from NO_CAPTIONS"
+    },
+    {
+      "video_id": "kDr-VsKjGeo",
+      "primary_stratum": "en_manual",
+      "scheduled_window_local_time": "13:29",
+      "public_url": "https://www.youtube.com/watch?v=kDr-VsKjGeo",
+      "public_access_confirmed_at_freeze": true,
+      "baseline_track": {
+        "language": "en",
+        "kind": "manual"
+      },
+      "track_inventory_ref": "docs/verification/gate-0/player-track-inventory.json#/videos/kDr-VsKjGeo/selected_track_evidence",
+      "expected_baseline_class": "CAPTION_ELIGIBLE",
+      "planned_operations": [
+        "LIST_TRACKS",
+        "FETCH_SELECTED_TRACK"
+      ],
+      "failure_boundary": "provider/network/parser failures remain distinct from NO_CAPTIONS"
+    },
+    {
+      "video_id": "FYsIh53ttvw",
+      "primary_stratum": "pl_generated",
+      "scheduled_window_local_time": "13:29",
+      "public_url": "https://www.youtube.com/watch?v=FYsIh53ttvw",
+      "public_access_confirmed_at_freeze": true,
+      "baseline_track": {
+        "language": "pl",
+        "kind": "generated"
+      },
+      "track_inventory_ref": "docs/verification/gate-0/player-track-inventory.json#/videos/FYsIh53ttvw/selected_track_evidence",
+      "expected_baseline_class": "CAPTION_ELIGIBLE",
+      "planned_operations": [
+        "LIST_TRACKS",
+        "FETCH_SELECTED_TRACK"
+      ],
+      "failure_boundary": "provider/network/parser failures remain distinct from NO_CAPTIONS"
+    },
+    {
+      "video_id": "vMEhU_3_gSE",
+      "primary_stratum": "pl_generated",
+      "scheduled_window_local_time": "12:23",
+      "public_url": "https://www.youtube.com/watch?v=vMEhU_3_gSE",
+      "public_access_confirmed_at_freeze": true,
+      "baseline_track": {
+        "language": "pl",
+        "kind": "generated"
+      },
+      "track_inventory_ref": "docs/verification/gate-0/player-track-inventory.json#/videos/vMEhU_3_gSE/selected_track_evidence",
+      "expected_baseline_class": "CAPTION_ELIGIBLE",
+      "planned_operations": [
+        "LIST_TRACKS",
+        "FETCH_SELECTED_TRACK"
+      ],
+      "failure_boundary": "provider/network/parser failures remain distinct from NO_CAPTIONS"
+    },
+    {
+      "video_id": "JSaaq05o0ZQ",
+      "primary_stratum": "pl_manual",
+      "scheduled_window_local_time": "12:23",
+      "public_url": "https://www.youtube.com/watch?v=JSaaq05o0ZQ",
+      "public_access_confirmed_at_freeze": true,
+      "baseline_track": {
+        "language": "pl",
+        "kind": "manual"
+      },
+      "track_inventory_ref": "docs/verification/gate-0/player-track-inventory.json#/videos/JSaaq05o0ZQ/selected_track_evidence",
+      "expected_baseline_class": "CAPTION_ELIGIBLE",
+      "planned_operations": [
+        "LIST_TRACKS",
+        "FETCH_SELECTED_TRACK"
+      ],
+      "failure_boundary": "provider/network/parser failures remain distinct from NO_CAPTIONS"
+    },
+    {
+      "video_id": "e0CHi3mDyko",
+      "primary_stratum": "pl_manual",
+      "scheduled_window_local_time": "13:29",
+      "public_url": "https://www.youtube.com/watch?v=e0CHi3mDyko",
+      "public_access_confirmed_at_freeze": true,
+      "baseline_track": {
+        "language": "pl",
+        "kind": "manual"
+      },
+      "track_inventory_ref": "docs/verification/gate-0/player-track-inventory.json#/videos/e0CHi3mDyko/selected_track_evidence",
+      "expected_baseline_class": "CAPTION_ELIGIBLE",
+      "planned_operations": [
+        "LIST_TRACKS",
+        "FETCH_SELECTED_TRACK"
+      ],
+      "failure_boundary": "provider/network/parser failures remain distinct from NO_CAPTIONS"
+    },
+    {
+      "video_id": "t9wsy3gsI2U",
+      "primary_stratum": "pl_manual",
+      "scheduled_window_local_time": "12:23",
+      "public_url": "https://www.youtube.com/watch?v=t9wsy3gsI2U",
+      "public_access_confirmed_at_freeze": true,
+      "baseline_track": {
+        "language": "pl",
+        "kind": "manual"
+      },
+      "track_inventory_ref": "docs/verification/gate-0/player-track-inventory.json#/videos/t9wsy3gsI2U/selected_track_evidence",
+      "expected_baseline_class": "CAPTION_ELIGIBLE",
+      "planned_operations": [
+        "LIST_TRACKS",
+        "FETCH_SELECTED_TRACK"
+      ],
+      "failure_boundary": "provider/network/parser failures remain distinct from NO_CAPTIONS"
+    },
+    {
+      "video_id": "RpSUk0YY6LA",
+      "primary_stratum": "pl_manual",
+      "scheduled_window_local_time": "13:29",
+      "public_url": "https://www.youtube.com/watch?v=RpSUk0YY6LA",
+      "public_access_confirmed_at_freeze": true,
+      "baseline_track": {
+        "language": "pl",
+        "kind": "manual"
+      },
+      "track_inventory_ref": "docs/verification/gate-0/player-track-inventory.json#/videos/RpSUk0YY6LA/selected_track_evidence",
+      "expected_baseline_class": "CAPTION_ELIGIBLE",
+      "planned_operations": [
+        "LIST_TRACKS",
+        "FETCH_SELECTED_TRACK"
+      ],
+      "failure_boundary": "provider/network/parser failures remain distinct from NO_CAPTIONS"
+    },
+    {
+      "video_id": "B26DJATjmTE",
+      "primary_stratum": "pl_manual",
+      "scheduled_window_local_time": "12:23",
+      "public_url": "https://www.youtube.com/watch?v=B26DJATjmTE",
+      "public_access_confirmed_at_freeze": true,
+      "baseline_track": {
+        "language": "pl",
+        "kind": "manual"
+      },
+      "track_inventory_ref": "docs/verification/gate-0/player-track-inventory.json#/videos/B26DJATjmTE/selected_track_evidence",
+      "expected_baseline_class": "CAPTION_ELIGIBLE",
+      "planned_operations": [
+        "LIST_TRACKS",
+        "FETCH_SELECTED_TRACK"
+      ],
+      "failure_boundary": "provider/network/parser failures remain distinct from NO_CAPTIONS"
+    },
+    {
+      "video_id": "Cb4ldFWaw74",
+      "primary_stratum": "pl_manual",
+      "scheduled_window_local_time": "13:29",
+      "public_url": "https://www.youtube.com/watch?v=Cb4ldFWaw74",
+      "public_access_confirmed_at_freeze": true,
+      "baseline_track": {
+        "language": "pl",
+        "kind": "manual"
+      },
+      "track_inventory_ref": "docs/verification/gate-0/player-track-inventory.json#/videos/Cb4ldFWaw74/selected_track_evidence",
+      "expected_baseline_class": "CAPTION_ELIGIBLE",
+      "planned_operations": [
+        "LIST_TRACKS",
+        "FETCH_SELECTED_TRACK"
+      ],
+      "failure_boundary": "provider/network/parser failures remain distinct from NO_CAPTIONS"
+    },
+    {
+      "video_id": "Zbc1-fSZQq0",
+      "primary_stratum": "pl_generated",
+      "scheduled_window_local_time": "13:29",
+      "public_url": "https://www.youtube.com/watch?v=Zbc1-fSZQq0",
+      "public_access_confirmed_at_freeze": true,
+      "baseline_track": {
+        "language": "pl",
+        "kind": "generated"
+      },
+      "track_inventory_ref": "docs/verification/gate-0/player-track-inventory.json#/videos/Zbc1-fSZQq0/selected_track_evidence",
+      "expected_baseline_class": "CAPTION_ELIGIBLE",
+      "planned_operations": [
+        "LIST_TRACKS",
+        "FETCH_SELECTED_TRACK"
+      ],
+      "failure_boundary": "provider/network/parser failures remain distinct from NO_CAPTIONS"
+    },
+    {
+      "video_id": "AoglG2EpcjI",
+      "primary_stratum": "pl_generated",
+      "scheduled_window_local_time": "12:23",
+      "public_url": "https://www.youtube.com/watch?v=AoglG2EpcjI",
+      "public_access_confirmed_at_freeze": true,
+      "baseline_track": {
+        "language": "pl",
+        "kind": "generated"
+      },
+      "track_inventory_ref": "docs/verification/gate-0/player-track-inventory.json#/videos/AoglG2EpcjI/selected_track_evidence",
+      "expected_baseline_class": "CAPTION_ELIGIBLE",
+      "planned_operations": [
+        "LIST_TRACKS",
+        "FETCH_SELECTED_TRACK"
+      ],
+      "failure_boundary": "provider/network/parser failures remain distinct from NO_CAPTIONS"
+    },
+    {
+      "video_id": "eANk3-vRpCM",
+      "primary_stratum": "pl_generated",
+      "scheduled_window_local_time": "13:29",
+      "public_url": "https://www.youtube.com/watch?v=eANk3-vRpCM",
+      "public_access_confirmed_at_freeze": true,
+      "baseline_track": {
+        "language": "pl",
+        "kind": "generated"
+      },
+      "track_inventory_ref": "docs/verification/gate-0/player-track-inventory.json#/videos/eANk3-vRpCM/selected_track_evidence",
+      "expected_baseline_class": "CAPTION_ELIGIBLE",
+      "planned_operations": [
+        "LIST_TRACKS",
+        "FETCH_SELECTED_TRACK"
+      ],
+      "failure_boundary": "provider/network/parser failures remain distinct from NO_CAPTIONS"
+    },
+    {
+      "video_id": "5gtsfEESdmA",
+      "primary_stratum": "pl_generated",
+      "scheduled_window_local_time": "12:23",
+      "public_url": "https://www.youtube.com/watch?v=5gtsfEESdmA",
+      "public_access_confirmed_at_freeze": true,
+      "baseline_track": {
+        "language": "pl",
+        "kind": "generated"
+      },
+      "track_inventory_ref": "docs/verification/gate-0/player-track-inventory.json#/videos/5gtsfEESdmA/selected_track_evidence",
+      "expected_baseline_class": "CAPTION_ELIGIBLE",
+      "planned_operations": [
+        "LIST_TRACKS",
+        "FETCH_SELECTED_TRACK"
+      ],
+      "failure_boundary": "provider/network/parser failures remain distinct from NO_CAPTIONS"
+    },
+    {
+      "video_id": "Yi_6jQWEyuY",
+      "primary_stratum": "pl_generated",
+      "scheduled_window_local_time": "13:29",
+      "public_url": "https://www.youtube.com/watch?v=Yi_6jQWEyuY",
+      "public_access_confirmed_at_freeze": true,
+      "baseline_track": {
+        "language": "pl",
+        "kind": "generated"
+      },
+      "track_inventory_ref": "docs/verification/gate-0/player-track-inventory.json#/videos/Yi_6jQWEyuY/selected_track_evidence",
+      "expected_baseline_class": "CAPTION_ELIGIBLE",
+      "planned_operations": [
+        "LIST_TRACKS",
+        "FETCH_SELECTED_TRACK"
+      ],
+      "failure_boundary": "provider/network/parser failures remain distinct from NO_CAPTIONS"
+    },
+    {
+      "video_id": "lqIUD3ovyIM",
+      "primary_stratum": "en_generated",
+      "scheduled_window_local_time": "13:29",
+      "public_url": "https://www.youtube.com/watch?v=lqIUD3ovyIM",
+      "public_access_confirmed_at_freeze": true,
+      "baseline_track": {
+        "language": "en",
+        "kind": "generated"
+      },
+      "track_inventory_ref": "docs/verification/gate-0/player-track-inventory.json#/videos/lqIUD3ovyIM/selected_track_evidence",
+      "expected_baseline_class": "CAPTION_ELIGIBLE",
+      "planned_operations": [
+        "LIST_TRACKS",
+        "FETCH_SELECTED_TRACK"
+      ],
+      "failure_boundary": "provider/network/parser failures remain distinct from NO_CAPTIONS"
+    },
+    {
+      "video_id": "dpAIbWjlO6Y",
+      "primary_stratum": "en_generated",
+      "scheduled_window_local_time": "12:23",
+      "public_url": "https://www.youtube.com/watch?v=dpAIbWjlO6Y",
+      "public_access_confirmed_at_freeze": true,
+      "baseline_track": {
+        "language": "en",
+        "kind": "generated"
+      },
+      "track_inventory_ref": "docs/verification/gate-0/player-track-inventory.json#/videos/dpAIbWjlO6Y/selected_track_evidence",
+      "expected_baseline_class": "CAPTION_ELIGIBLE",
+      "planned_operations": [
+        "LIST_TRACKS",
+        "FETCH_SELECTED_TRACK"
+      ],
+      "failure_boundary": "provider/network/parser failures remain distinct from NO_CAPTIONS"
+    },
+    {
+      "video_id": "gdmuCVhzoAs",
+      "primary_stratum": "en_generated",
+      "scheduled_window_local_time": "13:29",
+      "public_url": "https://www.youtube.com/watch?v=gdmuCVhzoAs",
+      "public_access_confirmed_at_freeze": true,
+      "baseline_track": {
+        "language": "en",
+        "kind": "generated"
+      },
+      "track_inventory_ref": "docs/verification/gate-0/player-track-inventory.json#/videos/gdmuCVhzoAs/selected_track_evidence",
+      "expected_baseline_class": "CAPTION_ELIGIBLE",
+      "planned_operations": [
+        "LIST_TRACKS",
+        "FETCH_SELECTED_TRACK"
+      ],
+      "failure_boundary": "provider/network/parser failures remain distinct from NO_CAPTIONS"
+    },
+    {
+      "video_id": "iP6OQMyjGL4",
+      "primary_stratum": "en_generated",
+      "scheduled_window_local_time": "12:23",
+      "public_url": "https://www.youtube.com/watch?v=iP6OQMyjGL4",
+      "public_access_confirmed_at_freeze": true,
+      "baseline_track": {
+        "language": "en",
+        "kind": "generated"
+      },
+      "track_inventory_ref": "docs/verification/gate-0/player-track-inventory.json#/videos/iP6OQMyjGL4/selected_track_evidence",
+      "expected_baseline_class": "CAPTION_ELIGIBLE",
+      "planned_operations": [
+        "LIST_TRACKS",
+        "FETCH_SELECTED_TRACK"
+      ],
+      "failure_boundary": "provider/network/parser failures remain distinct from NO_CAPTIONS"
+    },
+    {
+      "video_id": "TcsKkf6Sb4M",
+      "primary_stratum": "en_generated",
+      "scheduled_window_local_time": "13:29",
+      "public_url": "https://www.youtube.com/watch?v=TcsKkf6Sb4M",
+      "public_access_confirmed_at_freeze": true,
+      "baseline_track": {
+        "language": "en",
+        "kind": "generated"
+      },
+      "track_inventory_ref": "docs/verification/gate-0/player-track-inventory.json#/videos/TcsKkf6Sb4M/selected_track_evidence",
+      "expected_baseline_class": "CAPTION_ELIGIBLE",
+      "planned_operations": [
+        "LIST_TRACKS",
+        "FETCH_SELECTED_TRACK"
+      ],
+      "failure_boundary": "provider/network/parser failures remain distinct from NO_CAPTIONS"
+    },
+    {
+      "video_id": "RsZ8Lt9aR04",
+      "primary_stratum": "en_generated",
+      "scheduled_window_local_time": "12:23",
+      "public_url": "https://www.youtube.com/watch?v=RsZ8Lt9aR04",
+      "public_access_confirmed_at_freeze": true,
+      "baseline_track": {
+        "language": "en",
+        "kind": "generated"
+      },
+      "track_inventory_ref": "docs/verification/gate-0/player-track-inventory.json#/videos/RsZ8Lt9aR04/selected_track_evidence",
+      "expected_baseline_class": "CAPTION_ELIGIBLE",
+      "planned_operations": [
+        "LIST_TRACKS",
+        "FETCH_SELECTED_TRACK"
+      ],
+      "failure_boundary": "provider/network/parser failures remain distinct from NO_CAPTIONS"
+    },
+    {
+      "video_id": "msE-ktwSuR4",
+      "primary_stratum": "en_generated",
+      "scheduled_window_local_time": "13:29",
+      "public_url": "https://www.youtube.com/watch?v=msE-ktwSuR4",
+      "public_access_confirmed_at_freeze": true,
+      "baseline_track": {
+        "language": "en",
+        "kind": "generated"
+      },
+      "track_inventory_ref": "docs/verification/gate-0/player-track-inventory.json#/videos/msE-ktwSuR4/selected_track_evidence",
+      "expected_baseline_class": "CAPTION_ELIGIBLE",
+      "planned_operations": [
+        "LIST_TRACKS",
+        "FETCH_SELECTED_TRACK"
+      ],
+      "failure_boundary": "provider/network/parser failures remain distinct from NO_CAPTIONS"
+    },
+    {
+      "video_id": "MVl_B5MXjw4",
+      "primary_stratum": "en_manual",
+      "scheduled_window_local_time": "12:23",
+      "public_url": "https://www.youtube.com/watch?v=MVl_B5MXjw4",
+      "public_access_confirmed_at_freeze": true,
+      "baseline_track": {
+        "language": "en",
+        "kind": "manual"
+      },
+      "track_inventory_ref": "docs/verification/gate-0/player-track-inventory.json#/videos/MVl_B5MXjw4/selected_track_evidence",
+      "expected_baseline_class": "CAPTION_ELIGIBLE",
+      "planned_operations": [
+        "LIST_TRACKS",
+        "FETCH_SELECTED_TRACK"
+      ],
+      "failure_boundary": "provider/network/parser failures remain distinct from NO_CAPTIONS"
+    },
+    {
+      "video_id": "83HMZrhL_Uw",
+      "primary_stratum": "en_manual",
+      "scheduled_window_local_time": "13:29",
+      "public_url": "https://www.youtube.com/watch?v=83HMZrhL_Uw",
+      "public_access_confirmed_at_freeze": true,
+      "baseline_track": {
+        "language": "en",
+        "kind": "manual"
+      },
+      "track_inventory_ref": "docs/verification/gate-0/player-track-inventory.json#/videos/83HMZrhL_Uw/selected_track_evidence",
+      "expected_baseline_class": "CAPTION_ELIGIBLE",
+      "planned_operations": [
+        "LIST_TRACKS",
+        "FETCH_SELECTED_TRACK"
+      ],
+      "failure_boundary": "provider/network/parser failures remain distinct from NO_CAPTIONS"
+    },
+    {
+      "video_id": "gMTwg3jJGaU",
+      "primary_stratum": "en_manual",
+      "scheduled_window_local_time": "12:23",
+      "public_url": "https://www.youtube.com/watch?v=gMTwg3jJGaU",
+      "public_access_confirmed_at_freeze": true,
+      "baseline_track": {
+        "language": "en",
+        "kind": "manual"
+      },
+      "track_inventory_ref": "docs/verification/gate-0/player-track-inventory.json#/videos/gMTwg3jJGaU/selected_track_evidence",
+      "expected_baseline_class": "CAPTION_ELIGIBLE",
+      "planned_operations": [
+        "LIST_TRACKS",
+        "FETCH_SELECTED_TRACK"
+      ],
+      "failure_boundary": "provider/network/parser failures remain distinct from NO_CAPTIONS"
+    },
+    {
+      "video_id": "SEkGLj0bwAU",
+      "primary_stratum": "en_manual",
+      "scheduled_window_local_time": "13:29",
+      "public_url": "https://www.youtube.com/watch?v=SEkGLj0bwAU",
+      "public_access_confirmed_at_freeze": true,
+      "baseline_track": {
+        "language": "en",
+        "kind": "manual"
+      },
+      "track_inventory_ref": "docs/verification/gate-0/player-track-inventory.json#/videos/SEkGLj0bwAU/selected_track_evidence",
+      "expected_baseline_class": "CAPTION_ELIGIBLE",
+      "planned_operations": [
+        "LIST_TRACKS",
+        "FETCH_SELECTED_TRACK"
+      ],
+      "failure_boundary": "provider/network/parser failures remain distinct from NO_CAPTIONS"
+    },
+    {
+      "video_id": "BV2QhXwtLlY",
+      "primary_stratum": "other",
+      "scheduled_window_local_time": "13:29",
+      "public_url": "https://www.youtube.com/watch?v=BV2QhXwtLlY",
+      "public_access_confirmed_at_freeze": true,
+      "baseline_track": {
+        "language": "ar",
+        "kind": "generated"
+      },
+      "track_inventory_ref": "docs/verification/gate-0/player-track-inventory.json#/videos/BV2QhXwtLlY/selected_track_evidence",
+      "expected_baseline_class": "CAPTION_ELIGIBLE",
+      "planned_operations": [
+        "LIST_TRACKS",
+        "FETCH_SELECTED_TRACK"
+      ],
+      "failure_boundary": "provider/network/parser failures remain distinct from NO_CAPTIONS"
+    },
+    {
+      "video_id": "JpFhmu6jpB8",
+      "primary_stratum": "other",
+      "scheduled_window_local_time": "12:23",
+      "public_url": "https://www.youtube.com/watch?v=JpFhmu6jpB8",
+      "public_access_confirmed_at_freeze": true,
+      "baseline_track": {
+        "language": "ar",
+        "kind": "generated"
+      },
+      "track_inventory_ref": "docs/verification/gate-0/player-track-inventory.json#/videos/JpFhmu6jpB8/selected_track_evidence",
+      "expected_baseline_class": "CAPTION_ELIGIBLE",
+      "planned_operations": [
+        "LIST_TRACKS",
+        "FETCH_SELECTED_TRACK"
+      ],
+      "failure_boundary": "provider/network/parser failures remain distinct from NO_CAPTIONS"
+    },
+    {
+      "video_id": "cIFlDoY6Wbs",
+      "primary_stratum": "other",
+      "scheduled_window_local_time": "13:29",
+      "public_url": "https://www.youtube.com/watch?v=cIFlDoY6Wbs",
+      "public_access_confirmed_at_freeze": true,
+      "baseline_track": {
+        "language": "hi",
+        "kind": "generated"
+      },
+      "track_inventory_ref": "docs/verification/gate-0/player-track-inventory.json#/videos/cIFlDoY6Wbs/selected_track_evidence",
+      "expected_baseline_class": "CAPTION_ELIGIBLE",
+      "planned_operations": [
+        "LIST_TRACKS",
+        "FETCH_SELECTED_TRACK"
+      ],
+      "failure_boundary": "provider/network/parser failures remain distinct from NO_CAPTIONS"
+    },
+    {
+      "video_id": "QndanaE1eqg",
+      "primary_stratum": "no_or_late_captions",
+      "scheduled_window_local_time": "12:23",
+      "public_url": "https://www.youtube.com/watch?v=QndanaE1eqg",
+      "public_access_confirmed_at_freeze": true,
+      "baseline_track": null,
+      "track_inventory_ref": "docs/verification/gate-0/player-track-inventory.json#/videos/QndanaE1eqg/caption_track_count",
+      "expected_baseline_class": "NATURAL_NO_CAPTIONS_OR_LATE",
+      "planned_operations": [
+        "LIST_TRACKS"
+      ],
+      "failure_boundary": "NO_CAPTIONS is only valid for public access with empty tracklist"
+    },
+    {
+      "video_id": "trDtjNmzoZc",
+      "primary_stratum": "no_or_late_captions",
+      "scheduled_window_local_time": "13:29",
+      "public_url": "https://www.youtube.com/watch?v=trDtjNmzoZc",
+      "public_access_confirmed_at_freeze": true,
+      "baseline_track": null,
+      "track_inventory_ref": "docs/verification/gate-0/player-track-inventory.json#/videos/trDtjNmzoZc/caption_track_count",
+      "expected_baseline_class": "NATURAL_NO_CAPTIONS_OR_LATE",
+      "planned_operations": [
+        "LIST_TRACKS"
+      ],
+      "failure_boundary": "NO_CAPTIONS is only valid for public access with empty tracklist"
+    }
+  ]
+}

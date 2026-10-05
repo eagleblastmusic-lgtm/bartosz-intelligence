@@ -1,0 +1,32 @@
+{
+  "checked_at": "2026-10-05T11:38:06.621Z",
+  "reason": "schedule adjustment before second live measurement; no corpus, threshold or pass-criteria change",
+  "implementation_unchanged": true,
+  "checks": [
+    {
+      "file": "tools/gates/transcript-bench-live.ts",
+      "expected": "90d9d6be1808dceb9b5c14516e5a39d469f337eb8ca6167b81e81b14fee256b6",
+      "actual": "90d9d6be1808dceb9b5c14516e5a39d469f337eb8ca6167b81e81b14fee256b6"
+    },
+    {
+      "file": "tools/gates/adapters/gate0_python_adapters.py",
+      "expected": "9b38625b12726151460e35ce944ff423ee55d41d6efbfb6b17e00bf49b280a3d",
+      "actual": "9b38625b12726151460e35ce944ff423ee55d41d6efbfb6b17e00bf49b280a3d"
+    },
+    {
+      "file": "tools/gates/adapters/python-process-evidence.ts",
+      "expected": "d55eb88f874c3c3989750be02e2d20e87b66e8ea338981e8c2118dbbe1f0951e",
+      "actual": "d55eb88f874c3c3989750be02e2d20e87b66e8ea338981e8c2118dbbe1f0951e"
+    },
+    {
+      "file": "tools/gates/adapters/direct-captions-core.ts",
+      "expected": "1fe301861271aa543d8e7e60a628a0a5d6c65c3d43bbce98ecdadf97fd900844",
+      "actual": "1fe301861271aa543d8e7e60a628a0a5d6c65c3d43bbce98ecdadf97fd900844"
+    }
+  ],
+  "earlier_results_unchanged": true,
+  "previous_results_sha256": "236538d9e27cbbf72f9d4aab87cdee64a3a04db3a14dde2f400f2e391ea74b2a",
+  "new_rows": 39,
+  "window": "2026-10-05/13:29",
+  "live_completed": true
+}

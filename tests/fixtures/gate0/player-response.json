@@ -1,0 +1,25 @@
+{
+  "playabilityStatus": { "status": "OK" },
+  "videoDetails": { "videoId": "uEztHu4NHrs" },
+  "captions": {
+    "playerCaptionsTracklistRenderer": {
+      "captionTracks": [
+        {
+          "baseUrl": "https://www.youtube.com/api/timedtext?v=uEztHu4NHrs&sig=fixture-signature-manual",
+          "name": { "simpleText": "English" },
+          "vssId": ".en",
+          "languageCode": "en",
+          "isTranslatable": true
+        },
+        {
+          "baseUrl": "https://www.youtube.com/api/timedtext?v=uEztHu4NHrs&sig=fixture-signature-generated",
+          "name": { "simpleText": "English (auto-generated)" },
+          "vssId": "a.en",
+          "languageCode": "en",
+          "kind": "asr",
+          "isTranslatable": false
+        }
+      ]
+    }
+  }
+}

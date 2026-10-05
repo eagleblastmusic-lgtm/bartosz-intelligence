@@ -1,0 +1,376 @@
+{
+  "started_at": "2026-10-05T10:50:15.036Z",
+  "name": "gate0-cpu-recovery-1791197361888",
+  "config": "tools/gates/adapters/wrangler.cpu-profile.jsonc",
+  "live_request_limit": 1,
+  "live_attempts": 1,
+  "synthetic_requests": 15,
+  "observations": [
+    {
+      "mode": "control",
+      "request_id": "cpu-control-0",
+      "http_status": 200,
+      "wall_ms": 421,
+      "response_sha256": "e6529517e694f32f896a0b8275f5b18c549419064aa0f90855a7c3a7ceab6115",
+      "result": {
+        "mode": "control",
+        "request_id": "cpu-control-0",
+        "synthetic": true
+      }
+    },
+    {
+      "mode": "control",
+      "request_id": "cpu-control-1",
+      "http_status": 200,
+      "wall_ms": 35,
+      "response_sha256": "d290e503bce6e34eb8e44486ad0adde778d19975d82580b39f1ba6bcb14dafd0",
+      "result": {
+        "mode": "control",
+        "request_id": "cpu-control-1",
+        "synthetic": true
+      }
+    },
+    {
+      "mode": "control",
+      "request_id": "cpu-control-2",
+      "http_status": 200,
+      "wall_ms": 30,
+      "response_sha256": "f28b67ca85897002590e850b17f0c4637f3a9128980e02b9a557d45e76cbc21a",
+      "result": {
+        "mode": "control",
+        "request_id": "cpu-control-2",
+        "synthetic": true
+      }
+    },
+    {
+      "mode": "hash",
+      "request_id": "cpu-hash-0",
+      "http_status": 200,
+      "wall_ms": 34,
+      "response_sha256": "ef9a3e7155a2ce6e2342396a6764a194c5aac76f902a45ff1e0f6c4cf0ebe1e4",
+      "result": {
+        "mode": "hash",
+        "request_id": "cpu-hash-0",
+        "synthetic": true
+      }
+    },
+    {
+      "mode": "hash",
+      "request_id": "cpu-hash-1",
+      "http_status": 200,
+      "wall_ms": 35,
+      "response_sha256": "4cfe6889cb9fb9ffc98b9a70a7ee89b44dbb447ad4660ad39c59f641fbc387db",
+      "result": {
+        "mode": "hash",
+        "request_id": "cpu-hash-1",
+        "synthetic": true
+      }
+    },
+    {
+      "mode": "hash",
+      "request_id": "cpu-hash-2",
+      "http_status": 200,
+      "wall_ms": 34,
+      "response_sha256": "9a55077610b0d4809131c8676b399dca3bf7cdd46655d13a13e40959d0fcacd1",
+      "result": {
+        "mode": "hash",
+        "request_id": "cpu-hash-2",
+        "synthetic": true
+      }
+    },
+    {
+      "mode": "decode",
+      "request_id": "cpu-decode-0",
+      "http_status": 200,
+      "wall_ms": 33,
+      "response_sha256": "b31a783e8c8dfb80f69236b53cb5199bf488a7ff7d34879efd5303668c29d125",
+      "result": {
+        "mode": "decode",
+        "request_id": "cpu-decode-0",
+        "synthetic": true
+      }
+    },
+    {
+      "mode": "decode",
+      "request_id": "cpu-decode-1",
+      "http_status": 200,
+      "wall_ms": 41,
+      "response_sha256": "9577e48ca911c4b2bd91ad86a1bb5dab84acb5d0cae8e645680a67a43dcc9f0d",
+      "result": {
+        "mode": "decode",
+        "request_id": "cpu-decode-1",
+        "synthetic": true
+      }
+    },
+    {
+      "mode": "decode",
+      "request_id": "cpu-decode-2",
+      "http_status": 200,
+      "wall_ms": 37,
+      "response_sha256": "86494a273e99818ea915f0fc216b5d6c67dbce248eabd090be489825a7cd9974",
+      "result": {
+        "mode": "decode",
+        "request_id": "cpu-decode-2",
+        "synthetic": true
+      }
+    },
+    {
+      "mode": "extract",
+      "request_id": "cpu-extract-0",
+      "http_status": 200,
+      "wall_ms": 31,
+      "response_sha256": "3c8e8a5112652a1a08e70c57cf0d97da5e248ffda4c2f73dafd340084efd281d",
+      "result": {
+        "mode": "extract",
+        "request_id": "cpu-extract-0",
+        "synthetic": true
+      }
+    },
+    {
+      "mode": "extract",
+      "request_id": "cpu-extract-1",
+      "http_status": 200,
+      "wall_ms": 31,
+      "response_sha256": "5fbe7fcd849619a79ce48728be13692cf6b0f9d240f547ffbfe47337b0c6d104",
+      "result": {
+        "mode": "extract",
+        "request_id": "cpu-extract-1",
+        "synthetic": true
+      }
+    },
+    {
+      "mode": "extract",
+      "request_id": "cpu-extract-2",
+      "http_status": 200,
+      "wall_ms": 26,
+      "response_sha256": "a826ba6414f26216bcd51e8b8bf1ac26b290b2d0cb4c8d929529ae34312244c9",
+      "result": {
+        "mode": "extract",
+        "request_id": "cpu-extract-2",
+        "synthetic": true
+      }
+    },
+    {
+      "mode": "body",
+      "request_id": "cpu-body-0",
+      "http_status": 200,
+      "wall_ms": 36,
+      "response_sha256": "f91a9ef39afe495b070f0b94be0c241e53a0f11c24c13e40af3ca9bcad17ecaf",
+      "result": {
+        "mode": "body",
+        "request_id": "cpu-body-0",
+        "synthetic": true
+      }
+    },
+    {
+      "mode": "body",
+      "request_id": "cpu-body-1",
+      "http_status": 200,
+      "wall_ms": 39,
+      "response_sha256": "cd0bb82f6ca886c80b974ced1463196f8842dc29c23c7301bbf4f27ec706ea21",
+      "result": {
+        "mode": "body",
+        "request_id": "cpu-body-1",
+        "synthetic": true
+      }
+    },
+    {
+      "mode": "body",
+      "request_id": "cpu-body-2",
+      "http_status": 200,
+      "wall_ms": 40,
+      "response_sha256": "cc7a22ea5ae348a121b28026c1d73e9f24e8632513065e96a566ce770390a79d",
+      "result": {
+        "mode": "body",
+        "request_id": "cpu-body-2",
+        "synthetic": true
+      }
+    },
+    {
+      "mode": "live",
+      "request_id": "cpu-live-0",
+      "http_status": 200,
+      "wall_ms": 1116,
+      "response_sha256": "47967f781fb40aacfebd216291bb430b78327b978baba30d87baa15f6f3ce640",
+      "result": {
+        "schema_version": "gate0-direct-edge-result-1.0",
+        "request_id": "cpu-live-0",
+        "video_id": "uEztHu4NHrs",
+        "status": "PARSE_ERROR",
+        "reason_code": "CAPTION_JSON3_INVALID",
+        "watch_http_status": 200,
+        "watch_content_type": "text/html",
+        "watch_retry_after": null,
+        "caption_http_status": 200,
+        "caption_content_type": "text/html",
+        "caption_retry_after": null,
+        "player_response_shape": [
+          "adBreakHeartbeatParams",
+          "adPlacements",
+          "captions",
+          "cards",
+          "endscreen",
+          "frameworkUpdates",
+          "microformat",
+          "playabilityStatus",
+          "playbackTracking",
+          "playerConfig",
+          "responseContext",
+          "storyboards",
+          "streamingData",
+          "trackingParams",
+          "videoDetails"
+        ],
+        "track_count": 17,
+        "available_tracks": [
+          {
+            "language_code": "en",
+            "kind": "manual",
+            "name": "angielski",
+            "is_translatable": true,
+            "vss_id": ".en"
+          },
+          {
+            "language_code": "en",
+            "kind": "generated",
+            "name": "angielski (wygenerowane automatycznie)",
+            "is_translatable": true,
+            "vss_id": "a.en"
+          },
+          {
+            "language_code": "ar",
+            "kind": "manual",
+            "name": "arabski",
+            "is_translatable": true,
+            "vss_id": ".ar"
+          },
+          {
+            "language_code": "zh-TW",
+            "kind": "manual",
+            "name": "chiński (Tajwan)",
+            "is_translatable": true,
+            "vss_id": ".zh-TW"
+          },
+          {
+            "language_code": "zh-CN",
+            "kind": "manual",
+            "name": "chiński (Chiny)",
+            "is_translatable": true,
+            "vss_id": ".zh-CN"
+          },
+          {
+            "language_code": "fr",
+            "kind": "manual",
+            "name": "francuski",
+            "is_translatable": true,
+            "vss_id": ".fr"
+          },
+          {
+            "language_code": "iw",
+            "kind": "manual",
+            "name": "hebrajski",
+            "is_translatable": true,
+            "vss_id": ".iw"
+          },
+          {
+            "language_code": "hi",
+            "kind": "manual",
+            "name": "hindi",
+            "is_translatable": true,
+            "vss_id": ".hi"
+          },
+          {
+            "language_code": "es",
+            "kind": "manual",
+            "name": "hiszpański",
+            "is_translatable": true,
+            "vss_id": ".es"
+          },
+          {
+            "language_code": "id",
+            "kind": "manual",
+            "name": "indonezyjski",
+            "is_translatable": true,
+            "vss_id": ".id"
+          },
+          {
+            "language_code": "ja",
+            "kind": "manual",
+            "name": "japoński",
+            "is_translatable": true,
+            "vss_id": ".ja"
+          },
+          {
+            "language_code": "ko",
+            "kind": "manual",
+            "name": "koreański",
+            "is_translatable": true,
+            "vss_id": ".ko"
+          },
+          {
+            "language_code": "pt-PT",
+            "kind": "manual",
+            "name": "portugalski (Portugalia)",
+            "is_translatable": true,
+            "vss_id": ".pt-PT"
+          },
+          {
+            "language_code": "ru",
+            "kind": "manual",
+            "name": "rosyjski",
+            "is_translatable": true,
+            "vss_id": ".ru"
+          },
+          {
+            "language_code": "tr",
+            "kind": "manual",
+            "name": "turecki",
+            "is_translatable": true,
+            "vss_id": ".tr"
+          },
+          {
+            "language_code": "vi",
+            "kind": "manual",
+            "name": "wietnamski",
+            "is_translatable": true,
+            "vss_id": ".vi"
+          },
+          {
+            "language_code": "it",
+            "kind": "manual",
+            "name": "włoski",
+            "is_translatable": true,
+            "vss_id": ".it"
+          }
+        ],
+        "selected_track": {
+          "language_code": "en",
+          "kind": "manual",
+          "name": "angielski",
+          "is_translatable": true,
+          "vss_id": ".en"
+        },
+        "is_translated_track": false,
+        "cue_count": null,
+        "first_cue": null,
+        "middle_cue": null,
+        "last_cue": null,
+        "within_duration": null,
+        "watch_response_sha256": "31f9e2b37d3703ae23220f5f4b0df8d6c6c4c94123126caf4eafa7bcb9cde2b3",
+        "caption_response_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "upstream_bytes_received": 1383837,
+        "elapsed_wall_ms": 1045
+      }
+    }
+  ],
+  "cleanup_status": "DELETED",
+  "preview_id": "8fae12ec16554c0d9ac663d871632b57",
+  "preview_slug": "gate0-cpu-recovery-17911",
+  "deployment_id": "a3374e4a-9e34-4b47-87b3-30684434fe91",
+  "preview_url": "https://gate0-cpu-recovery-17911-bartosz-intelligence-gate0-cpu-profile.eagleblastmusic.workers.dev",
+  "completed_at": "2026-10-05T10:50:22.393Z",
+  "cleanup_cli_exit_code": 0,
+  "cleanup_completed_at": "2026-10-05T11:19:28.890Z",
+  "platform_cpu_ref": "cpu-retest-platform.json",
+  "initial_preview_startup_note": "First deployment had no captured observations and zero live attempts. Recreated same Preview after harness capture correction; exactly one live request was reserved/executed. No provider failure inferred from initial harness exception."
+}

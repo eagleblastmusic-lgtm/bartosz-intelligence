@@ -1,0 +1,206 @@
+{
+  "started_at": "2026-10-05T10:58:07.505Z",
+  "status": "MEASURED",
+  "provider": "yt-dlp captions-only",
+  "runtime": "local Python",
+  "measurement_ref": "cpu-retest-platform.json",
+  "manifest_sha256": "999f680ce90d39ab1ec33fc35c94510ebaa8206c952126a3dc7bbfb477827770",
+  "video_id": "Q6BclIP5QBQ",
+  "provider_revision": "9b38625b12726151460e35ce944ff423ee55d41d6efbfb6b17e00bf49b280a3d",
+  "paid_services_enabled": false,
+  "billing_route": "disabled",
+  "control_plane": "Cloudflare Free unchanged",
+  "request_policy": "One caption-only extraction; internal retries 0, no retry or same-IP fallback after refusal; uses prior successful corpus canary",
+  "production_enabled": false,
+  "completed_at": "2026-10-05T10:58:10.217Z",
+  "result": {
+    "schema_version": "gate0-local-adapter-result-1.0",
+    "request_id": "local-ytdlp-cpu-canary-1",
+    "video_id": "Q6BclIP5QBQ",
+    "provider": "yt-dlp",
+    "provider_version": "2026.8.19",
+    "runtime": "Python 3.14.4",
+    "operation": "fetch",
+    "status": "OK",
+    "reason_code": null,
+    "track_count": 16,
+    "available_tracks": [
+      {
+        "language_code": "ca",
+        "kind": "manual",
+        "name": "Catalan",
+        "extension": "json3",
+        "is_translatable": null
+      },
+      {
+        "language_code": "ca",
+        "kind": "manual",
+        "name": "Catalan",
+        "extension": "srv1",
+        "is_translatable": null
+      },
+      {
+        "language_code": "ca",
+        "kind": "manual",
+        "name": "Catalan",
+        "extension": "srv2",
+        "is_translatable": null
+      },
+      {
+        "language_code": "ca",
+        "kind": "manual",
+        "name": "Catalan",
+        "extension": "srv3",
+        "is_translatable": null
+      },
+      {
+        "language_code": "ca",
+        "kind": "manual",
+        "name": "Catalan",
+        "extension": "ttml",
+        "is_translatable": null
+      },
+      {
+        "language_code": "ca",
+        "kind": "manual",
+        "name": "Catalan",
+        "extension": "srt",
+        "is_translatable": null
+      },
+      {
+        "language_code": "ca",
+        "kind": "manual",
+        "name": "Catalan",
+        "extension": "vtt",
+        "is_translatable": null
+      },
+      {
+        "language_code": "es",
+        "kind": "manual",
+        "name": "Spanish",
+        "extension": "json3",
+        "is_translatable": null
+      },
+      {
+        "language_code": "es",
+        "kind": "manual",
+        "name": "Spanish",
+        "extension": "srv1",
+        "is_translatable": null
+      },
+      {
+        "language_code": "es",
+        "kind": "manual",
+        "name": "Spanish",
+        "extension": "srv2",
+        "is_translatable": null
+      },
+      {
+        "language_code": "es",
+        "kind": "manual",
+        "name": "Spanish",
+        "extension": "srv3",
+        "is_translatable": null
+      },
+      {
+        "language_code": "es",
+        "kind": "manual",
+        "name": "Spanish",
+        "extension": "ttml",
+        "is_translatable": null
+      },
+      {
+        "language_code": "es",
+        "kind": "manual",
+        "name": "Spanish",
+        "extension": "srt",
+        "is_translatable": null
+      },
+      {
+        "language_code": "es",
+        "kind": "manual",
+        "name": "Spanish",
+        "extension": "vtt",
+        "is_translatable": null
+      },
+      {
+        "language_code": "ca",
+        "kind": "generated",
+        "name": "ca",
+        "extension": "vtt",
+        "is_translatable": null
+      },
+      {
+        "language_code": "es",
+        "kind": "generated",
+        "name": "es",
+        "extension": "vtt",
+        "is_translatable": null
+      }
+    ],
+    "selected_track": {
+      "language_code": "es",
+      "kind": "manual",
+      "extension": "json3",
+      "track_http_status": 200
+    },
+    "is_translated_track": false,
+    "cue_count": 988,
+    "first_cue": {
+      "start_ms": 17320,
+      "end_ms": 23120,
+      "text_sha256": "bd5be7155245bcbc7c0978c9dc82439ecc0fc0589ab9d6ce7b7be5e75b70086c"
+    },
+    "middle_cue": {
+      "start_ms": 1829040,
+      "end_ms": 1831240,
+      "text_sha256": "72e2d1100c48469f510fe1b1945b1b79fdeab38cac4e9739a9d554e873d2ebc1"
+    },
+    "last_cue": {
+      "start_ms": 3677480,
+      "end_ms": 3681240,
+      "text_sha256": "f0ceb1066346bc2173e37456217600679a23becf54679909f9a94ff1c607234c"
+    },
+    "within_duration": true,
+    "http_observations": [
+      {
+        "http_status": 200,
+        "content_type": "text/html",
+        "retry_after": null,
+        "date": "Mon, 05 Oct 2026 10:58:12 GMT",
+        "bytes_received": 1360400,
+        "response_sha256": "33c0a3bd737527c48f3348722e45c8cdcf37a9c91e960ab1f867c972c2a28f57"
+      },
+      {
+        "http_status": 200,
+        "content_type": "application/json",
+        "retry_after": null,
+        "date": "Mon, 05 Oct 2026 10:58:13 GMT",
+        "bytes_received": 88206,
+        "response_sha256": "a60631d899e92738689dfdbf824fc48f8a9546938716bd5ca8e1417c72d3eff9"
+      },
+      {
+        "http_status": 200,
+        "content_type": "application/vnd.apple.mpegurl",
+        "retry_after": null,
+        "date": "Mon, 05 Oct 2026 10:58:13 GMT",
+        "bytes_received": 28100,
+        "response_sha256": "3c0d36a32bc6c7a986655660de9bcc796eea2674785b0d6083e9c5f1316dc741"
+      },
+      {
+        "http_status": 200,
+        "content_type": "application/json",
+        "retry_after": null,
+        "date": "Mon, 05 Oct 2026 10:58:13 GMT",
+        "bytes_received": 193188,
+        "response_sha256": "396aa662914afddc90b301a925a0c0a6fe7345185795d7f798631fa43cedf314"
+      }
+    ],
+    "upstream_bytes_received": 1669894,
+    "media_download": false,
+    "elapsed_wall_ms": 2393,
+    "process_cpu_us": 1250000,
+    "cpu_measurement_source": "time.process_time_ns; local process, not edge CPU"
+  },
+  "cpu_budget_note": "Local compute has no Cloudflare invocation limit; unchanged edge thresholds apply to control plane; full source/corpus/fidelity qualification still pending"
+}

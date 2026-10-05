@@ -1,128 +1,72 @@
-# Stage 01 handoff — BLOCKED, not completed
+# Stage 01 completion handoff
 
 Stage: 01 / 01_PHASE_0_GATES_AND_BOOTSTRAP.md
 Status: BLOCKED
-Date: 2026-10-04
-Current checkpoint tag: `stage-01-cp-1.4-gemini-3.8-probe`.
-Decision: NO-GO for Stage 02
+Date: 2026-10-05T11:57:37.018Z
+Checkpoint commit: see git log message "Stage 01 CP-1.6: second window and source-duration gate failure"; local-verification JSON binds current relevant file hashes.
+Decision: NO-GO for Stage 02. Stage 02 NOT_STARTED.
 
-## Implemented and checkpoints
+## Implemented
 
-CP-1.1 COMPLETE — pinned toolchain/workspace and positive/negative proofs (`690d1f4`).
-CP-1.2 COMPLETE — config/registry/guard/redaction (`f00980a`).
-CP-1.3 COMPLETE — local Worker/D1/Queues/Assets and local CI verification (`98a76fb`).
-CP-1.4 BLOCKED — parser and preflight exist; account snapshots/live qualification incomplete.
-CP-1.5, CP-1.6, CP-1.7, CP-1.8 NOT_STARTED. Stage 02 NOT_STARTED.
+CP-1.1 toolchain COMPLETE (690d1f4);CP-1.2 config/free guard COMPLETE (f00980a);CP-1.3 local Worker/D1/Queue/Assets COMPLETE (98a76fb). CP-1.4 GateE COMPLETE with actual account/probe evidence;CP-1.5 frozen preregistration COMPLETE. CP-1.6 live measurement completed, exit FAIL. CP-1.7/1.8 NOT_STARTED. No product/domain features from Stage02.
 
-## Files and contracts
+## Files/modules created
 
-- `apps/api/src/index.ts`, `apps/api/wrangler.jsonc`: Hono /health, reserved /api JSON
-  404, Assets forwarding and retry-only skeleton. No private endpoints or domain.
-- `apps/web/src/main.tsx`: empty React bootstrap shell; no product GUI.
-- `packages/contracts/src/config.ts`, `packages/core/src/config/index.ts`:
-  policy v1, immutable descriptors and guardedFetch admission before transport.
-- `packages/telemetry/src/redact.ts`: redaction/correlation records.
-- `config/defaults.json`, `config/provider-selection.json`: paid=false; no active roles.
-- `tools/db/*`, `db/migration-ledger.json`, `db/fixtures/smoke.sql`: empty production
-  ledger plus integrity validator and isolated local fixture.
-- `tools/gates/eligibility*.ts`: strict snapshot parser and fail-closed account
-  preflight; `account-readonly.mjs` and `metadata-admission.ts` provide bounded
-  read-only account discovery. Live runtime qualification remains incomplete.
-- `tests/{unit,contracts,workers,e2e}`, configs and `.github/workflows/ci.yml`.
-- `docs/verification/cp-1.*.md`, `toolchain.json`, `gate-e/*`, `phase0-decision.md`.
-
-## Toolchain and scripts
-
-Node 24.21.0, pnpm 12.9.1, TypeScript 6.0.3, React 19.3.0, Vite 8.3.2,
-Vitest 4.1.11, Wrangler 4.147.0, workerd 1.20261001.1, Cloudflare Vitest plugin
-1.3.6, Playwright 1.63.0. compatibility_date 2026-10-01. Windows x64.
-Exact manifest/lockfile in repo, optional tool downloads ignored under `.tools/`.
-Scripts: lint, format:check, typecheck, build, dev, dev:api, test:unit,
-test:contract, test:workers, test:e2e, verify:config, verify:migrations, gate:e.
-gate:0 is not implemented: CP-1.5 has not started.
+apps/api health and reserved API/Assets boundary;React bootstrap shell;typed config/ProviderRegistry/admission/redaction;tools/db local migration verification;tools/gates eligibility and bounded probes;caption adapters and live runner;frozen Gate0 corpus/results/source/CPU reports and regression fixtures. Current config/provider-selection.json keeps all transcript roles and AI traffic disabled. Full earlier bootstrap descriptions preserved in history/STAGE_01_COMPLETION-before-cp16-second-window.md.
 
 ## Database migrations
 
-NONE. Next free production number 001; no Core tables or migration applications.
-No real D1 resources created; one unrelated existing account DB was listed read-only.
-Fixture restore passed locally; production restore NOT_RUN.
-Wrangler database UUID is a local fixture and must not be deployed as a real ID.
+NONE in production. Empty migration ledger; isolated local smoke fixture and rollback test retained. No remote database/schema mutation.
 
-## Tests and runtime evidence
+## API/contracts introduced
 
-Passed: clean frozen install, lint/format/typecheck/build, configuration and ledger
-validation. Local CI source export `.local/clean-cp13` passed 22 unit + 4 contract +
-6 real workerd + 1 Chromium tests (33). After Gate E preparation, unit suite passed
-31 tests including 9 snapshot tests; lint and all typechecks also passed.
-After resumed Gate E work, 40 unit tests, tools typecheck, targeted lint and syntax
-passed. Current relevant evidence covers 51 tests; unchanged Worker/contract/E2E
-inputs retain CP-1.3 evidence. Node/lint/format negative controls also passed.
-Failed required local tests: NONE in previous CP-1.1–CP-1.3 suites. Current
-Gemini Gate E probe is FAIL: HTTP 200 without preserved/validated structured output.
-The account gate command exits 2 on this failure.
-Skipped/not run: real runtime qualification probes, Gate 0 corpus/benchmark, platform CPU, 0B,
-hosted GitHub Actions and Stage 01 final DoD/GO. Hosted CI has no remote/push.
+Policy v1, immutable ProviderDescriptor, pre-transport Free-only guard;health/shell/reserved API boundary only. gate0-corpus-1.0 and gate0-live-observation-1.0 contracts. No domain jobs/Core lease contract yet.
 
-The actual browser startup found an invalid value export; fixed and retested.
-Generated Wrangler cache was subsequently excluded from lint, preserving source
-checks. No later Worker/config/dependency changes invalidate its runtime proof.
+## Tests
 
-## Gate E, measurements and zero cost
+Passed:29Gate0 contract tests,8Python adapter/source tests,tools typecheck,targeted ESLint,changed evaluator/test formatting,git diff whitespace. docs/verification/gate-0/cp-1.6-local-verification.json. Earlier CP-1.3 clean33tests and bootstrap positive/negative evidence retained;not represented as final CP-1.8 clean suite.
+Failed live gate:CP-1.6 source-duration sanity;disabled Edge CPU. Skipped/not run:CP-1.8 full clean final suite;Gate0B unnecessary with eligible Gemini;GateC NOT_RUN;Stage02 onward NOT_STARTED. Local mocks/tests do not override live FAIL.
 
-Current account-preflight: OAuth access and selected account confirmed, credentials
-present in ignored .env. Original 16:55 preflight preserved as timestamped history.
-account-readonly.json records HTTP 200 Workers/D1/Queues/scripts and YouTube;
-subscriptions HTTP 403. dashboard-observations.json records Workers Free Current
-plan, 0/100,000 requests today, no Workers billable usage in current period; Google
-project billing disabled and AI Studio Free tier. YouTube quota 10,000/day usage 1,
-search 100/day usage 0. Gemini Flash 5 RPM/250K TPM/20 RPD; Flash Lite 10/250K/20.
-Purpose: private professional/business, confirmed by owner; single-owner PL/EEA,
-no distribution. Owner explicitly approves professional_single_owner classification;
-Terms do not describe that exact case; this is not legal advice or individual Google
-confirmation. Reverify on Terms/eligibility/project/billing/audience change.
-One minimal synthetic canonical Gemini 3.8 probe: models.list HTTP 200 with
-generateContent advertised; generation HTTP 200 but output parse/validation failed
-and response diagnostics/usage were not saved. No retries or paid fallback.
-Production disabled; technical qualification not promoted to PASS. Prior
-gemini-2.5-flash request and reservation are marked invalid legacy evidence and
-excluded. D1/Queues/Assets budgets/reset/runtime proof incomplete.
-Cloud metadata access and local bootstrap do not establish Gate E PASS.
-Gate E FAIL; Gate 0/CPU NOT_RUN. Gate 0B NOT_RUN and disabled; no alternate
-subscription route was selected. Gate C NOT_RUN. Measured sustainable μ UNKNOWN.
-All transcript roles and AI routes disabled; no benchmark-based selections exist.
-No paid services, upgrades, credits, proxy or trial baseline activated in this run.
-This does not prove account-level zero billing without actual billing evidence.
+## Runtime verification
 
-## Known issues, architecture deviations and deferred items
+40videos /28channels /36eligible /4natural no-captions,two windows12:23/13:29 on2026-10-05 Warsaw. Acquisition35/36=97.22%,source exact35/35 PASS;all source boundaries0ms delta,original hashes match. Functional28/36=77.78% FAIL due7source ends1360–2780ms beyond duration versus frozen1000ms. Full rows138,history unchanged,cap4attempts,0lost cases/0fabricated times. FINAL_EVALUATION.json includes Wilson95% intervals and per-case detail.
 
-Blocking Gemini response validation and incomplete service qualification: `gate-e/REPORT.md`.
-Architecture deviations: NONE. No ARCHITECTURE CHANGE REQUIRED established.
-Master SHA-256 verified against index; all Plan inputs remained untouched.
-The start prompt was absent in Plan; the owner-mentioned Downloads copy was used.
-Domain Core, source/AI production pipeline and all Stage 02+ features untouched.
-No corpus selected/frozen ahead of Gate E. Optional infrastructure remains disabled.
+Cloudflare Edge actualp95 62/max63ms;bounded decomposition and one optimized retest59ms FAIL;frozen<=8/<10ms unchanged. Owner-local Python3.14.4 /yt-dlp2026.08.19 /yt-dlp-ejs0.8.0 recovery actually measured,not qualified PRIMARY due duration gate. Local CPU statistics separate from wall time;Windows CPU coarse. Source hash/timing replay independent field reader but same extractor resolves upstream URLs;does not prove independent availability. Official UI spot checks5caption strata. No new retry:gdmuCVhzoAs TEMPORARY_FAILURE remains,not permanent failure;at best29/36 still fails.
 
-## Guarantees and resume
+Current manifest d944e2c2f0f4c6164c6c7f32b788b509ba3c915b2350fea47e089a9dfd3a2c81;results hash 55089a5e82bdd2c44debfcf92f1203610c71570d453ca0a248c2c9ad7465e02d. v1/v2 archived,v3 changes onlysecond schedule per owner,exact reason in schedule-adjustment-v3.json. Frozen code invariant through run proved in schedule-adjustment-v3-run-proof.json. Preview resources cleaned;no new production deployment.
 
-Confirmed: repeatable local bootstrap, policy/admission fail-closed, public/server
-config separation, local D1 rollback/isolation and Assets/API boundary.
-NOT guaranteed: qualified source access, free account eligibility, actual CPU,
-selected AI route, useful capacity or Stage 02 readiness. Never start Stage 02
-from this BLOCKED handoff.
+## Architecture deviations
 
-Resume CP-1.4 response parsing/capability qualification with a new owner-authorized
-bounded reservation if needed, preserving the one completed request and owner
-decision. No owner legal clarification is required. Login, project and credentials
-remain configured. Then finish budgets and bounded real service probes.
-DoD reviewed against Stage 01 plan §18: not satisfied because active-path eligibility,
-Gate 0/CPU, later checkpoints and selected AI/source routes are not qualified.
-CP-1.8 final clean suite is not claimed; no completion or readiness implied.
+NONE. Master4/26.1/27.2 permits measured local recovery after persistent Edge CPU fail;Cloudflare stays control plane. No Deno/paid/trial deployment. Source-duration conflict is a failed frozen gate,not authorization to change Master or preregistration. No architecture change declared.
 
-## Context to load
+## Known issues
 
-On resume: `Plan/00_IMPLEMENTATION_MASTER_INDEX.md`, `Plan/01_PHASE_0_GATES_AND_BOOTSTRAP.md`,
-`STAGE_01_PROGRESS.md`, this handoff and Gate E report/preflight. Read only required
-Master sections; preserve canonical hash and source hierarchy.
-Only after Stage 01 DONE/GO, Stage 02 loads index, its own plan and the updated
-completed handoff. Until then do not open or implement Stage 02–08.
-No need to reload other stage plans, full Master or raw logs without a trigger.
+Blocking:seven SOURCE_DURATION_CONFLICT cases;exact source agrees,so local parser repair,clipping or retry cannot legitimately cure frozen criterion. Owner must resolve admission conflict before any new controlled benchmark. CP-1.7/1.8 cannot proceed. Provider/API not declared permanently failed.
+
+## Deferred items
+
+All fallback roles disabled. Gate0B unnecessary;GateC requires later measurement. STT/Deno/WorkersAI/archive/Drive remain inactive and require explicit trigger+gates before activation. Source and AI production pipeline absent. Owner-local availability8h/day declared,not measured uptime or capacity PASS.
+
+## Measurements
+
+GateE PASS:PL/EEA,private professional_single_owner;developer=singleuser declaration accepted;Terms do not explicitly describe case,no legal opinion or individual Google confirmation. Reverify Terms/eligibility change. Actual Google project bartosz-intelligence,Free tier,billing disabled. Canonical gemini-3.8-flash availability and functional response PASS;prior harness-invalid200/transient503 remain history.
+
+Snapshot2026-10-04T18:28:46.747Z:Gemini5RPM/250KinputTPM/20RPD,reset America/Los_Angeles per selected-model UI;lag15min/28daypeak not remaining quota. YouTube10000queries/day,search100/day,reset America/Los_Angeles;historical usage1and0,remaining UNKNOWN. WorkersFree100000requests/day/10msCPU;reset UNKNOWN;D1/Queue/Assets eligibility refs in GateE REPORT/account-preflight,usageUNKNOWN where unavailable. Snapshots must be refreshed before production admission. No extra live generation for this checkpoint.
+
+Toolchain exact:Node24.21.0,pnpm12.9.1,TypeScript6.0.3,React19.3.0,Vite8.3.2,Vitest4.1.11,Wrangler4.147.0,workerd1.20261001.1,Cloudflare Vitest plugin1.3.6,Playwright1.63.0;compatibility_date2026-10-01. Scripts package.json. Defaults paid_services_enabled=false;optional flagsfalse;secrets onlyignored.env refs CLOUDFLARE_ACCOUNT_ID,WranglerOAuth,YOUTUBE_API_KEY,GEMINI_API_KEY;API_TOKEN empty. No values in evidence.
+
+## Decisions made during implementation
+
+Owner-directed second-window adjustment,no criterion/corpus/threshold mutation. Preserve raw acquisition OK separately from functional FAIL. Four attempts total including invalidated harness attempts conservatively;no fifth. No retry that cannot close known gate. No live route activated or new paid service.
+
+## Guarantees for next stage
+
+Retained bootstrap,Free guard,public/server separation,local D1 rollback and routing proofs. Source acquisition/fidelity measured,full functional eligibility NOT qualified. No allowed PRIMARY yet;no Stage02 readiness,no capacity guarantee. Stage01 DoD reviewed:CP1.6 fails;CP1.7/1.8 exits and final clean suite absent =>BLOCKED/NO-GO.
+
+## Context next stage MUST load
+
+Currently resume Stage01 only:Plan/00_IMPLEMENTATION_MASTER_INDEX.md,Plan/01_PHASE_0_GATES_AND_BOOTSTRAP.md,this handoff,STAGE_01_PROGRESS.md,Gate0 FINAL_EVALUATION/REPORT and GateE REPORT/account-preflight. Only current required Master sections. Stage02 plan must wait for Stage01 DONE/GO.
+
+## Context next stage DOES NOT need
+
+Full Master without trigger,Stage02–08 plans,full raw captions/logs,unrelated optional infra. History archives are for inspect if a concrete discrepancy arises.

@@ -1,0 +1,23 @@
+{
+  "source": "Exact Cloudflare Preview Observability invocation events",
+  "preview_id": "8fae12ec16554c0d9ac663d871632b57",
+  "deployment_id": "a3374e4a-9e34-4b47-87b3-30684434fe91",
+  "event_time_range_local": ["2026-10-05 12:50:24.437 CEST", "2026-10-05 12:50:26.038 CEST"],
+  "field": "$workers.cpuTimeMs",
+  "ordered_stages_chronological": [
+    {"mode":"control","cpu_ms":[0,0,0]},
+    {"mode":"hash","cpu_ms":[4,3,3]},
+    {"mode":"decode","cpu_ms":[3,2,3]},
+    {"mode":"extract","cpu_ms":[1,1,0]},
+    {"mode":"body","cpu_ms":[10,11,10]},
+    {"mode":"live","cpu_ms":[59]}
+  ],
+  "live_retests": 1,
+  "live_wall_ms": 1116,
+  "live_bytes": 1383837,
+  "live_source_status": "PARSE_ERROR",
+  "cpu_gate_status": "FAIL",
+  "frozen_edge_thresholds": {"p95_ms_max":8,"maximum_ms_exclusive":10},
+  "limitations": "One live retest establishes maximum failure, not corpus p95. Synthetic inputs have the same baseline size but are not the historical raw HTML. Stage CPU includes fixture construction/encoding as applicable. Residual cannot be attributed exactly to original 62ms from aggregate telemetry; transfer/decompression/real chunk processing and actual content remain confounded. Wall/network latency is not CPU.",
+  "recovery_trigger": "Measured CPU bottleneck persists after bounded decomposition and no-copy hash optimization; Master sections 4,26.1,27.2 and Stage CP-1.7(3) permit local runtime qualification; Cloudflare remains control plane"
+}

@@ -1,0 +1,42 @@
+{
+  "experiment": "synthetic refusal-path component decomposition",
+  "measured_at": "2026-10-05T10:46:54.111Z",
+  "runtime": "v24.21.0",
+  "cpu_source": "process.cpuUsage user+system; isolated sequential process",
+  "input_bytes": 1316765,
+  "upstream_requests": 0,
+  "stages": {
+    "body_read_64k_chunks": {
+      "cpu_us": 775,
+      "wall_ms": 0.4799775000000004,
+      "iterations": 40
+    },
+    "body_read_1k_chunks": {
+      "cpu_us": 3900,
+      "wall_ms": 1.4753399999999992,
+      "iterations": 40
+    },
+    "sha256_raw_response": {
+      "cpu_us": 4300,
+      "wall_ms": 3.996065,
+      "iterations": 40
+    },
+    "utf8_decode": {
+      "cpu_us": 800,
+      "wall_ms": 0.8311150000000012,
+      "iterations": 40
+    },
+    "player_extract_and_json_parse": {
+      "cpu_us": 0,
+      "wall_ms": 0.010710000000000264,
+      "iterations": 40
+    },
+    "result_serialization": {
+      "cpu_us": 0,
+      "wall_ms": 0.0024074999999982084,
+      "iterations": 40
+    }
+  },
+  "limits": "Local CPU is not Cloudflare CPU. Original platform invocation has no phase profiler; exact 62ms attribution cannot be reconstructed from aggregate metrics. Network excluded by synthetic stream; body processing includes stream dispatch and copies.",
+  "cpu_resolution_note": "Windows process accounting is coarse; component CPU_us=0 means below measurement resolution, not zero CPU cost."
+}

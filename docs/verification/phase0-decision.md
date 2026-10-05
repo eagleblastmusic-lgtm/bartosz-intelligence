@@ -1,25 +1,9 @@
 # Phase 0 decision
 
-Stage status: BLOCKED at CP-1.4. Decision: NO-GO for progression to Stage 02.
-This is not a finding that Free services are inherently infeasible.
+Status: **Stage01 BLOCKED / Stage02 NO-GO**. CP1.1–1.5 COMPLETE;CP1.6 FAIL;CP1.7/1.8 NOT_STARTED.
 
-Gate E: FAIL at Gemini structured response validation; OAuth/selected account, professional purpose, Workers Free,
-Google disabled billing and actual YouTube/Gemini quotas now observed. Remaining
-blocker: Gemini 3.8 minimal generation returned HTTP 200 but structured output
-validation failed; D1/Queues/Assets budgets and
-real runtime qualification incomplete. Gate 0 and CPU: NOT_RUN. Gate 0B: NOT_RUN, no
-subscription route activated. Gate C: NOT_RUN, outside Stage 01.
+GateE PASS from actual account eligibility and canonical Gemini probe. Gate0 acquisition35/36 and exact source35/35 pass their individual checks,but7 genuine source cue ends violate frozen +1000ms duration bound. Functional28/36=77.78%<95%. EdgeCPU FAIL persists after bounded recovery;local alternative tested but duration gate remains FAIL. No active PRIMARY route. This is a real unresolved gate,not a transient503 or permanent provider failure claim.
 
-No selected transcript roles or AI/runtime baseline. All routes disabled.
-Unknown actual throughput/CPU/quota never becomes a zero, infinity or PASS.
-Bootstrap proofs remain valid; they do not qualify source or AI access.
-Resume requirements and current account evidence are in `gate-e/REPORT.md`.
-No GO-WITH-CONDITIONS: missing active-path Free eligibility cannot be deferred.
+No paid/billing/trial change;Cloudflare control plane retained. No final unnecessary retry,clipped times,corpus exclusions or relaxed thresholds. Owner resolution required for source-duration admission conflict. Remaining transient recovery cannot improve beyond29/36.
 
-Stage 01 Definition of Done reviewed: unmet active-path Gate E, Gate 0, CPU,
-provider selection and CP-1.5–CP-1.8. CP-1.1–CP-1.3 proofs remain valid.
-No architecture deviation or paid/credit baseline introduced; Stage 02 untouched.
-
-Owner professional_single_owner decision accepted; lack of an explicit Terms
-sole-user example is no longer a blocker. Gemini production flag stays false
-because probe validation failed. No paid billing activated or probe retry made.
+Evidence:gate-0/FINAL_EVALUATION.json,source-exact-reference.json,REPORT.md,cp-1.6-local-verification.json;gate-e/REPORT.md. Stage01 DoD unmet and final CP1.8 clean verification NOT_RUN. No Stage02 implementation.

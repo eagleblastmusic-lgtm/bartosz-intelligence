@@ -1,10 +1,10 @@
 {
   "mode": "account",
-  "sampled_at": "2026-10-04T18:07:48.922Z",
-  "result": "FAIL",
+  "sampled_at": "2026-10-04T19:08:13.664Z",
+  "result": "PASS",
   "paid_services_enabled": false,
   "network_submissions": 0,
-  "provider_generation_submissions": 1,
+  "provider_generation_submissions": 3,
   "account_metadata_read": {
     "cloudflare_auth": "ACCESS_OBSERVED_ACCOUNT_SELECTED",
     "cli_exit_code": 0
@@ -19,17 +19,22 @@
   "snapshots": [],
   "owner_use_classification": "professional_single_owner",
   "gemini_live_probe": {
-    "sampled_at": "2026-10-04T18:00:42.577Z",
+    "sampled_at": "2026-10-04T19:06:09.176Z",
     "model": "gemini-3.8-flash",
     "runtime": "node-24.21.0",
-    "harness_version": "rest-v1beta-probe-1",
+    "harness_version": "interactions-v1beta-probe-3",
     "owner_use_classification": "professional_single_owner",
+    "free_tier_project_eligibility": "PASS",
+    "model_availability": "PASS",
+    "generate_content_capability": "PASS",
+    "harness_parsing_capture": "PASS",
     "classification_ref": "docs/verification/gate-e/owner-use-decision.json",
     "billing_route": "disabled",
     "paid_services_enabled": false,
     "probe_budget": {
       "generation_requests": 1,
-      "max_output_tokens": 64,
+      "max_output_tokens": 512,
+      "thinking_level": "low",
       "retries": 0,
       "tools": false,
       "grounding": false
@@ -37,19 +42,92 @@
     "models_http_status": 200,
     "capability_observed": true,
     "generation_submissions": 1,
+    "attempt_number": 3,
+    "total_generation_attempts": 3,
+    "retry_policy_ref": "Master Architecture § retry/5xx: 1m -> 5m -> 20m -> 60m full jitter; max 4 quick attempts total",
     "http_status": 200,
-    "structured_output_valid": false,
-    "usage": null,
-    "latency_ms": 3666,
+    "structured_output_valid": true,
+    "response_diagnostic": {
+      "content_type": "application/json",
+      "json_valid": true,
+      "json_shape": {
+        "top_level_keys": [
+          "created",
+          "model",
+          "object",
+          "service_tier",
+          "status",
+          "steps",
+          "updated",
+          "usage"
+        ],
+        "step_types": [
+          "thought",
+          "model_output"
+        ],
+        "output_content_types": [
+          "text"
+        ],
+        "usage_keys": [
+          "input_tokens_by_modality",
+          "model_invocation_token_counts",
+          "non_grounding_model_invocation_token_counts",
+          "raw_prompt_token",
+          "total_cached_tokens",
+          "total_input_tokens",
+          "total_output_tokens",
+          "total_thought_tokens",
+          "total_tokens",
+          "total_tool_use_tokens"
+        ]
+      },
+      "finish_reason": "completed",
+      "model_identifier": "gemini-3.8-flash",
+      "token_usage_numeric_fields": {
+        "total_tokens": 28,
+        "total_input_tokens": 19,
+        "input_tokens_by_modality[0].tokens": 19,
+        "total_cached_tokens": 0,
+        "total_output_tokens": 9,
+        "total_tool_use_tokens": 0,
+        "total_thought_tokens": 0,
+        "raw_prompt_token": 100,
+        "model_invocation_token_counts[0].prompt_tokens_details[0].tokens": 100,
+        "model_invocation_token_counts[0].candidates_tokens_details[0].tokens": 25,
+        "non_grounding_model_invocation_token_counts[0].prompt_tokens_details[0].tokens": 100,
+        "non_grounding_model_invocation_token_counts[0].candidates_tokens_details[0].tokens": 25
+      }
+    },
+    "usage": {
+      "input_tokens": 19,
+      "output_tokens": 9,
+      "total_tokens": 28
+    },
+    "token_usage_numeric_fields": {
+      "total_tokens": 28,
+      "total_input_tokens": 19,
+      "input_tokens_by_modality[0].tokens": 19,
+      "total_cached_tokens": 0,
+      "total_output_tokens": 9,
+      "total_tool_use_tokens": 0,
+      "total_thought_tokens": 0,
+      "raw_prompt_token": 100,
+      "model_invocation_token_counts[0].prompt_tokens_details[0].tokens": 100,
+      "model_invocation_token_counts[0].candidates_tokens_details[0].tokens": 25,
+      "non_grounding_model_invocation_token_counts[0].prompt_tokens_details[0].tokens": 100,
+      "non_grounding_model_invocation_token_counts[0].candidates_tokens_details[0].tokens": 25
+    },
+    "latency_ms": 3334,
     "cpu_platform_ms": null,
-    "request_sha256": "3a82732e15baa5e297fbc04a561f26ae95c76057cc938d369c115405e659f66a",
-    "result": "FAIL",
-    "reason": "HTTP_200_STRUCTURED_RESPONSE_VALIDATION_FAILED_DIAGNOSTIC_NOT_PRESERVED",
-    "response_diagnostic": null,
-    "diagnostic_note": "The single request returned HTTP 200. The original harness catch did not save a response shape summary; no request retry is made to recover it."
+    "request_sha256": "46af7d656fd20eeb457d2371c20392bde29b8afbb7867b8ea08fd9d7fef62554",
+    "result": "PASS",
+    "permanent_provider_failure": false,
+    "retry_required": false,
+    "reason": "QUALIFIED_MINIMAL_PROBE"
   },
   "account_evidence_refs": [
     "account-readonly.json",
+    "cloudflare-service-readonly.json",
     "dashboard-observations.json",
     "owner-use-decision.json",
     "gemini-probe.json",
@@ -59,38 +137,44 @@
     {
       "service": "cloudflare-workers",
       "active_baseline_required": true,
-      "free_eligible": "UNKNOWN",
-      "gate": "NOT_RUN"
+      "free_eligible": "PASS",
+      "production_enabled": false,
+      "gate": "ACCOUNT_ELIGIBILITY_PASS_RUNTIME_NOT_DEPLOYED"
     },
     {
       "service": "cloudflare-d1",
       "active_baseline_required": true,
-      "free_eligible": "UNKNOWN",
-      "gate": "NOT_RUN"
+      "free_eligible": "PASS",
+      "production_enabled": false,
+      "gate": "ACCOUNT_ELIGIBILITY_PASS_NO_PROJECT_RESOURCE"
     },
     {
       "service": "cloudflare-queues",
       "active_baseline_required": true,
-      "free_eligible": "UNKNOWN",
-      "gate": "NOT_RUN"
+      "free_eligible": "PASS",
+      "production_enabled": false,
+      "gate": "ACCOUNT_ELIGIBILITY_PASS_NO_PROJECT_RESOURCE"
     },
     {
       "service": "cloudflare-assets",
       "active_baseline_required": true,
-      "free_eligible": "UNKNOWN",
-      "gate": "NOT_RUN"
+      "free_eligible": "PASS",
+      "production_enabled": false,
+      "gate": "ACCOUNT_ELIGIBILITY_PASS_LOCAL_RUNTIME_NOT_DEPLOYED"
     },
     {
       "service": "youtube-data-api",
       "active_baseline_required": true,
-      "free_eligible": "UNKNOWN",
-      "gate": "NOT_RUN"
+      "free_eligible": "PASS",
+      "production_enabled": false,
+      "gate": "ACCOUNT_PROBE_PASS"
     },
     {
       "service": "gemini",
       "active_baseline_required": true,
-      "free_eligible": "UNKNOWN",
-      "gate": "FAIL"
+      "free_eligible": "PASS",
+      "production_enabled": false,
+      "gate": "PASS"
     }
   ],
   "drive": {
@@ -98,9 +182,5 @@
     "gate": "UNAVAILABLE",
     "reason": "NO_AUTHORIZED_ACCOUNT_STORAGE_API_SNAPSHOT"
   },
-  "blockers": [
-    "CLOUDFLARE_D1_QUEUES_ASSETS_USAGE_LIMITS_AND_LIVE_PROBES_NOT_QUALIFIED",
-    "GEMINI_STRUCTURED_OUTPUT_VALIDATION_FAILED",
-    "OTHER_REQUIRED_SERVICE_PROBES_NOT_RUN"
-  ]
+  "blockers": []
 }

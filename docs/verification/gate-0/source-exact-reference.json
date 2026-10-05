@@ -1,0 +1,1308 @@
+{
+  "started_at": "2026-10-05T11:39:36Z",
+  "source": "Official YouTube JSON3 tStartMs/dDurationMs; separate fresh reference read, independent timing-field reader",
+  "limitations": "Same extractor only resolves public source URLs; source verification is not independent upstream/runtime availability. Full-cue replay proves same-input parser fidelity only when original raw hash matches; original three stored boundaries are directly compared.",
+  "acquisition_retries_added": 0,
+  "reference_max_cases": 35,
+  "automatic_retries": 0,
+  "candidate_revision_sha256": "9b38625b12726151460e35ce944ff423ee55d41d6efbfb6b17e00bf49b280a3d",
+  "cases": [
+    {
+      "video_id": "Q6BclIP5QBQ",
+      "stratum": "other",
+      "candidate_request_id": "b92af6bfabaf6493e3ed124b524eb481",
+      "translated": false,
+      "http_status": 200,
+      "content_type": "application/json",
+      "bytes": 193188,
+      "source_sha256": "396aa662914afddc90b301a925a0c0a6fe7345185795d7f798631fa43cedf314",
+      "original_payload_hash_match": true,
+      "source_cue_count": 988,
+      "original_cue_count_match": true,
+      "all_cue_boundaries_compared": 1976,
+      "all_cue_max_delta_ms": 0,
+      "all_cue_text_hashes_equal": true,
+      "original_boundary_samples": [
+        {
+          "boundary": "first_cue",
+          "start_delta_ms": 0,
+          "end_delta_ms": 0,
+          "text_hash_match": true
+        },
+        {
+          "boundary": "middle_cue",
+          "start_delta_ms": 0,
+          "end_delta_ms": 0,
+          "text_hash_match": true
+        },
+        {
+          "boundary": "last_cue",
+          "start_delta_ms": 0,
+          "end_delta_ms": 0,
+          "text_hash_match": true
+        }
+      ],
+      "status": "PASS"
+    },
+    {
+      "video_id": "uEztHu4NHrs",
+      "stratum": "en_manual",
+      "candidate_request_id": "9ea2aa7933ee8ec0af66e0b4b6a3ce78",
+      "translated": false,
+      "http_status": 200,
+      "content_type": "application/json",
+      "bytes": 33217,
+      "source_sha256": "e1e512e81f6a364ac9a38d7790c0df4465cc991b7a8eba5a529d1f6a93f2adff",
+      "original_payload_hash_match": true,
+      "source_cue_count": 241,
+      "original_cue_count_match": true,
+      "all_cue_boundaries_compared": 482,
+      "all_cue_max_delta_ms": 0,
+      "all_cue_text_hashes_equal": true,
+      "original_boundary_samples": [
+        {
+          "boundary": "first_cue",
+          "start_delta_ms": 0,
+          "end_delta_ms": 0,
+          "text_hash_match": true
+        },
+        {
+          "boundary": "middle_cue",
+          "start_delta_ms": 0,
+          "end_delta_ms": 0,
+          "text_hash_match": true
+        },
+        {
+          "boundary": "last_cue",
+          "start_delta_ms": 0,
+          "end_delta_ms": 0,
+          "text_hash_match": true
+        }
+      ],
+      "status": "PASS"
+    },
+    {
+      "video_id": "jGwO_UgTS7I",
+      "stratum": "en_manual",
+      "candidate_request_id": "f59edefec6c30df95f46269b27605b50",
+      "translated": false,
+      "http_status": 200,
+      "content_type": "application/json",
+      "bytes": 211659,
+      "source_sha256": "966f3ee9ecf4ed6f81c7271f9280abc1ce3f86e0f984a9abebb3ca915efc1ea4",
+      "original_payload_hash_match": true,
+      "source_cue_count": 1464,
+      "original_cue_count_match": true,
+      "all_cue_boundaries_compared": 2928,
+      "all_cue_max_delta_ms": 0,
+      "all_cue_text_hashes_equal": true,
+      "original_boundary_samples": [
+        {
+          "boundary": "first_cue",
+          "start_delta_ms": 0,
+          "end_delta_ms": 0,
+          "text_hash_match": true
+        },
+        {
+          "boundary": "middle_cue",
+          "start_delta_ms": 0,
+          "end_delta_ms": 0,
+          "text_hash_match": true
+        },
+        {
+          "boundary": "last_cue",
+          "start_delta_ms": 0,
+          "end_delta_ms": 0,
+          "text_hash_match": true
+        }
+      ],
+      "status": "PASS"
+    },
+    {
+      "video_id": "ukzFI9rgwfU",
+      "stratum": "en_generated",
+      "candidate_request_id": "58a44c58b54534ddee1b5ba1eb88d5a1",
+      "translated": false,
+      "http_status": 200,
+      "content_type": "application/json",
+      "bytes": 149780,
+      "source_sha256": "2608bd64c1b821f5ad830d8003b53c6f04411b0b7b2e2bb4f82a94668bee1920",
+      "original_payload_hash_match": true,
+      "source_cue_count": 206,
+      "original_cue_count_match": true,
+      "all_cue_boundaries_compared": 412,
+      "all_cue_max_delta_ms": 0,
+      "all_cue_text_hashes_equal": true,
+      "original_boundary_samples": [
+        {
+          "boundary": "first_cue",
+          "start_delta_ms": 0,
+          "end_delta_ms": 0,
+          "text_hash_match": true
+        },
+        {
+          "boundary": "middle_cue",
+          "start_delta_ms": 0,
+          "end_delta_ms": 0,
+          "text_hash_match": true
+        },
+        {
+          "boundary": "last_cue",
+          "start_delta_ms": 0,
+          "end_delta_ms": 0,
+          "text_hash_match": true
+        }
+      ],
+      "status": "PASS"
+    },
+    {
+      "video_id": "yoiTl_srtUs",
+      "stratum": "pl_generated",
+      "candidate_request_id": "247dc32b3437e40469c11e46c8c9b6d0",
+      "translated": false,
+      "http_status": 200,
+      "content_type": "application/json",
+      "bytes": 1823923,
+      "source_sha256": "93c2e153e5caed80f36177c51bbb1e301343007760c10fc3635d0aeaf32b39ec",
+      "original_payload_hash_match": true,
+      "source_cue_count": 2875,
+      "original_cue_count_match": true,
+      "all_cue_boundaries_compared": 5750,
+      "all_cue_max_delta_ms": 0,
+      "all_cue_text_hashes_equal": true,
+      "original_boundary_samples": [
+        {
+          "boundary": "first_cue",
+          "start_delta_ms": 0,
+          "end_delta_ms": 0,
+          "text_hash_match": true
+        },
+        {
+          "boundary": "middle_cue",
+          "start_delta_ms": 0,
+          "end_delta_ms": 0,
+          "text_hash_match": true
+        },
+        {
+          "boundary": "last_cue",
+          "start_delta_ms": 0,
+          "end_delta_ms": 0,
+          "text_hash_match": true
+        }
+      ],
+      "status": "PASS"
+    },
+    {
+      "video_id": "VhfS-G6PDLE",
+      "stratum": "en_generated",
+      "candidate_request_id": "9f2d6dc710f313131c34854cb911fa38",
+      "translated": false,
+      "http_status": 200,
+      "content_type": "application/json",
+      "bytes": 17568,
+      "source_sha256": "ca1395d1c810c5f9f36d419a4f0ee24a5384578bfbab3b82a598f5438ad1a853",
+      "original_payload_hash_match": true,
+      "source_cue_count": 22,
+      "original_cue_count_match": true,
+      "all_cue_boundaries_compared": 44,
+      "all_cue_max_delta_ms": 0,
+      "all_cue_text_hashes_equal": true,
+      "original_boundary_samples": [
+        {
+          "boundary": "first_cue",
+          "start_delta_ms": 0,
+          "end_delta_ms": 0,
+          "text_hash_match": true
+        },
+        {
+          "boundary": "middle_cue",
+          "start_delta_ms": 0,
+          "end_delta_ms": 0,
+          "text_hash_match": true
+        },
+        {
+          "boundary": "last_cue",
+          "start_delta_ms": 0,
+          "end_delta_ms": 0,
+          "text_hash_match": true
+        }
+      ],
+      "status": "PASS"
+    },
+    {
+      "video_id": "vMEhU_3_gSE",
+      "stratum": "pl_generated",
+      "candidate_request_id": "1568170bbb6e1965c72987876c259e2c",
+      "translated": false,
+      "http_status": 200,
+      "content_type": "application/json",
+      "bytes": 1057018,
+      "source_sha256": "102769fae60f38f4098058612d905bc07d2583f7c2e61dec1bd3f2c9514fd97d",
+      "original_payload_hash_match": true,
+      "source_cue_count": 1644,
+      "original_cue_count_match": true,
+      "all_cue_boundaries_compared": 3288,
+      "all_cue_max_delta_ms": 0,
+      "all_cue_text_hashes_equal": true,
+      "original_boundary_samples": [
+        {
+          "boundary": "first_cue",
+          "start_delta_ms": 0,
+          "end_delta_ms": 0,
+          "text_hash_match": true
+        },
+        {
+          "boundary": "middle_cue",
+          "start_delta_ms": 0,
+          "end_delta_ms": 0,
+          "text_hash_match": true
+        },
+        {
+          "boundary": "last_cue",
+          "start_delta_ms": 0,
+          "end_delta_ms": 0,
+          "text_hash_match": true
+        }
+      ],
+      "status": "PASS"
+    },
+    {
+      "video_id": "JSaaq05o0ZQ",
+      "stratum": "pl_manual",
+      "candidate_request_id": "22a1041aa5ba48149339ae7da88a886e",
+      "translated": false,
+      "http_status": 200,
+      "content_type": "application/json",
+      "bytes": 13518,
+      "source_sha256": "798f4cd75761156838e0517b79053091df162dcf5dab6dd01a08e2f82c841c1b",
+      "original_payload_hash_match": true,
+      "source_cue_count": 84,
+      "original_cue_count_match": true,
+      "all_cue_boundaries_compared": 168,
+      "all_cue_max_delta_ms": 0,
+      "all_cue_text_hashes_equal": true,
+      "original_boundary_samples": [
+        {
+          "boundary": "first_cue",
+          "start_delta_ms": 0,
+          "end_delta_ms": 0,
+          "text_hash_match": true
+        },
+        {
+          "boundary": "middle_cue",
+          "start_delta_ms": 0,
+          "end_delta_ms": 0,
+          "text_hash_match": true
+        },
+        {
+          "boundary": "last_cue",
+          "start_delta_ms": 0,
+          "end_delta_ms": 0,
+          "text_hash_match": true
+        }
+      ],
+      "status": "PASS"
+    },
+    {
+      "video_id": "t9wsy3gsI2U",
+      "stratum": "pl_manual",
+      "candidate_request_id": "fe5abfd97667fa680e827d141e07f835",
+      "translated": false,
+      "http_status": 200,
+      "content_type": "application/json",
+      "bytes": 40210,
+      "source_sha256": "2a0d8268d9c18a05a4bbc03f96f1c5866a7e909f78fc25920d574bd6f8e72939",
+      "original_payload_hash_match": true,
+      "source_cue_count": 226,
+      "original_cue_count_match": true,
+      "all_cue_boundaries_compared": 452,
+      "all_cue_max_delta_ms": 0,
+      "all_cue_text_hashes_equal": true,
+      "original_boundary_samples": [
+        {
+          "boundary": "first_cue",
+          "start_delta_ms": 0,
+          "end_delta_ms": 0,
+          "text_hash_match": true
+        },
+        {
+          "boundary": "middle_cue",
+          "start_delta_ms": 0,
+          "end_delta_ms": 0,
+          "text_hash_match": true
+        },
+        {
+          "boundary": "last_cue",
+          "start_delta_ms": 0,
+          "end_delta_ms": 0,
+          "text_hash_match": true
+        }
+      ],
+      "status": "PASS"
+    },
+    {
+      "video_id": "B26DJATjmTE",
+      "stratum": "pl_manual",
+      "candidate_request_id": "5e0681729403af9b961d08c8fbb5bc2d",
+      "translated": false,
+      "http_status": 200,
+      "content_type": "application/json",
+      "bytes": 107462,
+      "source_sha256": "47d02ec10a0061e556dd2627ad52eb82a89fdbbc43f4b473e7386b74f6aa43eb",
+      "original_payload_hash_match": true,
+      "source_cue_count": 617,
+      "original_cue_count_match": true,
+      "all_cue_boundaries_compared": 1234,
+      "all_cue_max_delta_ms": 0,
+      "all_cue_text_hashes_equal": true,
+      "original_boundary_samples": [
+        {
+          "boundary": "first_cue",
+          "start_delta_ms": 0,
+          "end_delta_ms": 0,
+          "text_hash_match": true
+        },
+        {
+          "boundary": "middle_cue",
+          "start_delta_ms": 0,
+          "end_delta_ms": 0,
+          "text_hash_match": true
+        },
+        {
+          "boundary": "last_cue",
+          "start_delta_ms": 0,
+          "end_delta_ms": 0,
+          "text_hash_match": true
+        }
+      ],
+      "status": "PASS"
+    },
+    {
+      "video_id": "AoglG2EpcjI",
+      "stratum": "pl_generated",
+      "candidate_request_id": "eb230ca52f907604336fffed8d03fcd7",
+      "translated": false,
+      "http_status": 200,
+      "content_type": "application/json",
+      "bytes": 162805,
+      "source_sha256": "22effc27b17973f71d540db1ca624172aa25467c50a650482837144af44292a0",
+      "original_payload_hash_match": true,
+      "source_cue_count": 287,
+      "original_cue_count_match": true,
+      "all_cue_boundaries_compared": 574,
+      "all_cue_max_delta_ms": 0,
+      "all_cue_text_hashes_equal": true,
+      "original_boundary_samples": [
+        {
+          "boundary": "first_cue",
+          "start_delta_ms": 0,
+          "end_delta_ms": 0,
+          "text_hash_match": true
+        },
+        {
+          "boundary": "middle_cue",
+          "start_delta_ms": 0,
+          "end_delta_ms": 0,
+          "text_hash_match": true
+        },
+        {
+          "boundary": "last_cue",
+          "start_delta_ms": 0,
+          "end_delta_ms": 0,
+          "text_hash_match": true
+        }
+      ],
+      "status": "PASS"
+    },
+    {
+      "video_id": "5gtsfEESdmA",
+      "stratum": "pl_generated",
+      "candidate_request_id": "09774d72a27c4447b6a2b68b0de4735d",
+      "translated": false,
+      "http_status": 200,
+      "content_type": "application/json",
+      "bytes": 244351,
+      "source_sha256": "17944f7fe8403ccaabafb20879d63ab8183fceab2971e19a8a9c8c9e3b5b40e9",
+      "original_payload_hash_match": true,
+      "source_cue_count": 415,
+      "original_cue_count_match": true,
+      "all_cue_boundaries_compared": 830,
+      "all_cue_max_delta_ms": 0,
+      "all_cue_text_hashes_equal": true,
+      "original_boundary_samples": [
+        {
+          "boundary": "first_cue",
+          "start_delta_ms": 0,
+          "end_delta_ms": 0,
+          "text_hash_match": true
+        },
+        {
+          "boundary": "middle_cue",
+          "start_delta_ms": 0,
+          "end_delta_ms": 0,
+          "text_hash_match": true
+        },
+        {
+          "boundary": "last_cue",
+          "start_delta_ms": 0,
+          "end_delta_ms": 0,
+          "text_hash_match": true
+        }
+      ],
+      "status": "PASS"
+    },
+    {
+      "video_id": "dpAIbWjlO6Y",
+      "stratum": "en_generated",
+      "candidate_request_id": "9bc21fe143901e1077b0079d74418540",
+      "translated": false,
+      "http_status": 200,
+      "content_type": "application/json",
+      "bytes": 153932,
+      "source_sha256": "c04e0f93d24f9d0f50c1047c6e840488f53e5dfcaa74910a5bdc431442760058",
+      "original_payload_hash_match": true,
+      "source_cue_count": 215,
+      "original_cue_count_match": true,
+      "all_cue_boundaries_compared": 430,
+      "all_cue_max_delta_ms": 0,
+      "all_cue_text_hashes_equal": true,
+      "original_boundary_samples": [
+        {
+          "boundary": "first_cue",
+          "start_delta_ms": 0,
+          "end_delta_ms": 0,
+          "text_hash_match": true
+        },
+        {
+          "boundary": "middle_cue",
+          "start_delta_ms": 0,
+          "end_delta_ms": 0,
+          "text_hash_match": true
+        },
+        {
+          "boundary": "last_cue",
+          "start_delta_ms": 0,
+          "end_delta_ms": 0,
+          "text_hash_match": true
+        }
+      ],
+      "status": "PASS"
+    },
+    {
+      "video_id": "iP6OQMyjGL4",
+      "stratum": "en_generated",
+      "candidate_request_id": "bb95f472e39c5b35788a67be9065cdaa",
+      "translated": false,
+      "http_status": 200,
+      "content_type": "application/json",
+      "bytes": 292370,
+      "source_sha256": "cf86f47e382142f2e17d386e600f1bc087e483a2ebd1c151750755973890adca",
+      "original_payload_hash_match": true,
+      "source_cue_count": 404,
+      "original_cue_count_match": true,
+      "all_cue_boundaries_compared": 808,
+      "all_cue_max_delta_ms": 0,
+      "all_cue_text_hashes_equal": true,
+      "original_boundary_samples": [
+        {
+          "boundary": "first_cue",
+          "start_delta_ms": 0,
+          "end_delta_ms": 0,
+          "text_hash_match": true
+        },
+        {
+          "boundary": "middle_cue",
+          "start_delta_ms": 0,
+          "end_delta_ms": 0,
+          "text_hash_match": true
+        },
+        {
+          "boundary": "last_cue",
+          "start_delta_ms": 0,
+          "end_delta_ms": 0,
+          "text_hash_match": true
+        }
+      ],
+      "status": "PASS"
+    },
+    {
+      "video_id": "RsZ8Lt9aR04",
+      "stratum": "en_generated",
+      "candidate_request_id": "f9e656c1d731b6ded6399eb655d8c36d",
+      "translated": false,
+      "http_status": 200,
+      "content_type": "application/json",
+      "bytes": 58545,
+      "source_sha256": "993da2e33a4a20b22d6f44bb0f2a3f18e248b1809a3166afad4823c2611988c4",
+      "original_payload_hash_match": true,
+      "source_cue_count": 79,
+      "original_cue_count_match": true,
+      "all_cue_boundaries_compared": 158,
+      "all_cue_max_delta_ms": 0,
+      "all_cue_text_hashes_equal": true,
+      "original_boundary_samples": [
+        {
+          "boundary": "first_cue",
+          "start_delta_ms": 0,
+          "end_delta_ms": 0,
+          "text_hash_match": true
+        },
+        {
+          "boundary": "middle_cue",
+          "start_delta_ms": 0,
+          "end_delta_ms": 0,
+          "text_hash_match": true
+        },
+        {
+          "boundary": "last_cue",
+          "start_delta_ms": 0,
+          "end_delta_ms": 0,
+          "text_hash_match": true
+        }
+      ],
+      "status": "PASS"
+    },
+    {
+      "video_id": "MVl_B5MXjw4",
+      "stratum": "en_manual",
+      "candidate_request_id": "f2cd0bbe2f8356638632510ce8b84407",
+      "translated": false,
+      "http_status": 200,
+      "content_type": "application/json",
+      "bytes": 129082,
+      "source_sha256": "c3228576cc9f052771b5d1d24a4fcf438254ee5757b956089cc579f7a528fcaf",
+      "original_payload_hash_match": true,
+      "source_cue_count": 145,
+      "original_cue_count_match": true,
+      "all_cue_boundaries_compared": 290,
+      "all_cue_max_delta_ms": 0,
+      "all_cue_text_hashes_equal": true,
+      "original_boundary_samples": [
+        {
+          "boundary": "first_cue",
+          "start_delta_ms": 0,
+          "end_delta_ms": 0,
+          "text_hash_match": true
+        },
+        {
+          "boundary": "middle_cue",
+          "start_delta_ms": 0,
+          "end_delta_ms": 0,
+          "text_hash_match": true
+        },
+        {
+          "boundary": "last_cue",
+          "start_delta_ms": 0,
+          "end_delta_ms": 0,
+          "text_hash_match": true
+        }
+      ],
+      "status": "PASS"
+    },
+    {
+      "video_id": "gMTwg3jJGaU",
+      "stratum": "en_manual",
+      "candidate_request_id": "1113e610cf79892788ced80569e31b58",
+      "translated": false,
+      "http_status": 200,
+      "content_type": "application/json",
+      "bytes": 37682,
+      "source_sha256": "c42429204f4dc8acc2f2e391a269f4f23734d611be0b33f2c3e636a5be6ef073",
+      "original_payload_hash_match": true,
+      "source_cue_count": 152,
+      "original_cue_count_match": true,
+      "all_cue_boundaries_compared": 304,
+      "all_cue_max_delta_ms": 0,
+      "all_cue_text_hashes_equal": true,
+      "original_boundary_samples": [
+        {
+          "boundary": "first_cue",
+          "start_delta_ms": 0,
+          "end_delta_ms": 0,
+          "text_hash_match": true
+        },
+        {
+          "boundary": "middle_cue",
+          "start_delta_ms": 0,
+          "end_delta_ms": 0,
+          "text_hash_match": true
+        },
+        {
+          "boundary": "last_cue",
+          "start_delta_ms": 0,
+          "end_delta_ms": 0,
+          "text_hash_match": true
+        }
+      ],
+      "status": "PASS"
+    },
+    {
+      "video_id": "KKNCiRWd_j0",
+      "stratum": "en_manual",
+      "candidate_request_id": "23ee1789dee6722e12d9315ba60467c4",
+      "translated": false,
+      "http_status": 200,
+      "content_type": "application/json",
+      "bytes": 58680,
+      "source_sha256": "ae2ef8b64d21d62b0734ad4a7a8212917ff65a8e880345a492b1c9f101ab54ea",
+      "original_payload_hash_match": true,
+      "source_cue_count": 416,
+      "original_cue_count_match": true,
+      "all_cue_boundaries_compared": 832,
+      "all_cue_max_delta_ms": 0,
+      "all_cue_text_hashes_equal": true,
+      "original_boundary_samples": [
+        {
+          "boundary": "first_cue",
+          "start_delta_ms": 0,
+          "end_delta_ms": 0,
+          "text_hash_match": true
+        },
+        {
+          "boundary": "middle_cue",
+          "start_delta_ms": 0,
+          "end_delta_ms": 0,
+          "text_hash_match": true
+        },
+        {
+          "boundary": "last_cue",
+          "start_delta_ms": 0,
+          "end_delta_ms": 0,
+          "text_hash_match": true
+        }
+      ],
+      "status": "PASS"
+    },
+    {
+      "video_id": "lspUkroiYfs",
+      "stratum": "en_generated",
+      "candidate_request_id": "cde7131de2501f5064973613070d61eb",
+      "translated": false,
+      "http_status": 200,
+      "content_type": "application/json",
+      "bytes": 87027,
+      "source_sha256": "271b782e6c8b2bee2b0f196a83de4a903a3aeb4596c218e179a59e3e25976d59",
+      "original_payload_hash_match": true,
+      "source_cue_count": 153,
+      "original_cue_count_match": true,
+      "all_cue_boundaries_compared": 306,
+      "all_cue_max_delta_ms": 0,
+      "all_cue_text_hashes_equal": true,
+      "original_boundary_samples": [
+        {
+          "boundary": "first_cue",
+          "start_delta_ms": 0,
+          "end_delta_ms": 0,
+          "text_hash_match": true
+        },
+        {
+          "boundary": "middle_cue",
+          "start_delta_ms": 0,
+          "end_delta_ms": 0,
+          "text_hash_match": true
+        },
+        {
+          "boundary": "last_cue",
+          "start_delta_ms": 0,
+          "end_delta_ms": 0,
+          "text_hash_match": true
+        }
+      ],
+      "status": "PASS"
+    },
+    {
+      "video_id": "kDr-VsKjGeo",
+      "stratum": "en_manual",
+      "candidate_request_id": "af49d42d4b3b3dfce3494a27a54a9022",
+      "translated": false,
+      "http_status": 200,
+      "content_type": "application/json",
+      "bytes": 223380,
+      "source_sha256": "9e040634ef2fdd67f5b98234ab9d52da679c4d16ff24701822c03e238cdee20b",
+      "original_payload_hash_match": true,
+      "source_cue_count": 238,
+      "original_cue_count_match": true,
+      "all_cue_boundaries_compared": 476,
+      "all_cue_max_delta_ms": 0,
+      "all_cue_text_hashes_equal": true,
+      "original_boundary_samples": [
+        {
+          "boundary": "first_cue",
+          "start_delta_ms": 0,
+          "end_delta_ms": 0,
+          "text_hash_match": true
+        },
+        {
+          "boundary": "middle_cue",
+          "start_delta_ms": 0,
+          "end_delta_ms": 0,
+          "text_hash_match": true
+        },
+        {
+          "boundary": "last_cue",
+          "start_delta_ms": 0,
+          "end_delta_ms": 0,
+          "text_hash_match": true
+        }
+      ],
+      "status": "PASS"
+    },
+    {
+      "video_id": "FYsIh53ttvw",
+      "stratum": "pl_generated",
+      "candidate_request_id": "5716bedabec49f8c28d014edc3caa016",
+      "translated": false,
+      "http_status": 200,
+      "content_type": "application/json",
+      "bytes": 2028970,
+      "source_sha256": "ea56a666e5a9e1181cbce87fc8d55bad3f05e47d1107cfd11fbd9dd99a1d52c5",
+      "original_payload_hash_match": true,
+      "source_cue_count": 3073,
+      "original_cue_count_match": true,
+      "all_cue_boundaries_compared": 6146,
+      "all_cue_max_delta_ms": 0,
+      "all_cue_text_hashes_equal": true,
+      "original_boundary_samples": [
+        {
+          "boundary": "first_cue",
+          "start_delta_ms": 0,
+          "end_delta_ms": 0,
+          "text_hash_match": true
+        },
+        {
+          "boundary": "middle_cue",
+          "start_delta_ms": 0,
+          "end_delta_ms": 0,
+          "text_hash_match": true
+        },
+        {
+          "boundary": "last_cue",
+          "start_delta_ms": 0,
+          "end_delta_ms": 0,
+          "text_hash_match": true
+        }
+      ],
+      "status": "PASS"
+    },
+    {
+      "video_id": "e0CHi3mDyko",
+      "stratum": "pl_manual",
+      "candidate_request_id": "d8001e859a60b81a9d9466ff5d5d0179",
+      "translated": false,
+      "http_status": 200,
+      "content_type": "application/json",
+      "bytes": 42576,
+      "source_sha256": "29ffc6ffdfb705da927afd1df67b7f9b261a665a18a74f6d967192db20981625",
+      "original_payload_hash_match": true,
+      "source_cue_count": 278,
+      "original_cue_count_match": true,
+      "all_cue_boundaries_compared": 556,
+      "all_cue_max_delta_ms": 0,
+      "all_cue_text_hashes_equal": true,
+      "original_boundary_samples": [
+        {
+          "boundary": "first_cue",
+          "start_delta_ms": 0,
+          "end_delta_ms": 0,
+          "text_hash_match": true
+        },
+        {
+          "boundary": "middle_cue",
+          "start_delta_ms": 0,
+          "end_delta_ms": 0,
+          "text_hash_match": true
+        },
+        {
+          "boundary": "last_cue",
+          "start_delta_ms": 0,
+          "end_delta_ms": 0,
+          "text_hash_match": true
+        }
+      ],
+      "status": "PASS"
+    },
+    {
+      "video_id": "RpSUk0YY6LA",
+      "stratum": "pl_manual",
+      "candidate_request_id": "011a12bf7e12a5f5c0760c2ceedbd92a",
+      "translated": false,
+      "http_status": 200,
+      "content_type": "application/json",
+      "bytes": 32834,
+      "source_sha256": "11a79128111306b67872856efe3ebd13ea79ffbd066bc52f68f56c12a18681d1",
+      "original_payload_hash_match": true,
+      "source_cue_count": 220,
+      "original_cue_count_match": true,
+      "all_cue_boundaries_compared": 440,
+      "all_cue_max_delta_ms": 0,
+      "all_cue_text_hashes_equal": true,
+      "original_boundary_samples": [
+        {
+          "boundary": "first_cue",
+          "start_delta_ms": 0,
+          "end_delta_ms": 0,
+          "text_hash_match": true
+        },
+        {
+          "boundary": "middle_cue",
+          "start_delta_ms": 0,
+          "end_delta_ms": 0,
+          "text_hash_match": true
+        },
+        {
+          "boundary": "last_cue",
+          "start_delta_ms": 0,
+          "end_delta_ms": 0,
+          "text_hash_match": true
+        }
+      ],
+      "status": "PASS"
+    },
+    {
+      "video_id": "Cb4ldFWaw74",
+      "stratum": "pl_manual",
+      "candidate_request_id": "efcb8a993d268ef5c16537c25d21126f",
+      "translated": false,
+      "http_status": 200,
+      "content_type": "application/json",
+      "bytes": 7174,
+      "source_sha256": "d46bf7ba61093916c32cb2596a8e316f32d9abb5ee3edcf2f32d821dec1387e6",
+      "original_payload_hash_match": true,
+      "source_cue_count": 47,
+      "original_cue_count_match": true,
+      "all_cue_boundaries_compared": 94,
+      "all_cue_max_delta_ms": 0,
+      "all_cue_text_hashes_equal": true,
+      "original_boundary_samples": [
+        {
+          "boundary": "first_cue",
+          "start_delta_ms": 0,
+          "end_delta_ms": 0,
+          "text_hash_match": true
+        },
+        {
+          "boundary": "middle_cue",
+          "start_delta_ms": 0,
+          "end_delta_ms": 0,
+          "text_hash_match": true
+        },
+        {
+          "boundary": "last_cue",
+          "start_delta_ms": 0,
+          "end_delta_ms": 0,
+          "text_hash_match": true
+        }
+      ],
+      "status": "PASS"
+    },
+    {
+      "video_id": "Zbc1-fSZQq0",
+      "stratum": "pl_generated",
+      "candidate_request_id": "f06fd03577605abf81154f825465c52d",
+      "translated": false,
+      "http_status": 200,
+      "content_type": "application/json",
+      "bytes": 1255709,
+      "source_sha256": "fbb7cd9b4f77fd17baf73864410dd8cd0cb40286097fd9ca807dcd05d9af0b55",
+      "original_payload_hash_match": true,
+      "source_cue_count": 1927,
+      "original_cue_count_match": true,
+      "all_cue_boundaries_compared": 3854,
+      "all_cue_max_delta_ms": 0,
+      "all_cue_text_hashes_equal": true,
+      "original_boundary_samples": [
+        {
+          "boundary": "first_cue",
+          "start_delta_ms": 0,
+          "end_delta_ms": 0,
+          "text_hash_match": true
+        },
+        {
+          "boundary": "middle_cue",
+          "start_delta_ms": 0,
+          "end_delta_ms": 0,
+          "text_hash_match": true
+        },
+        {
+          "boundary": "last_cue",
+          "start_delta_ms": 0,
+          "end_delta_ms": 0,
+          "text_hash_match": true
+        }
+      ],
+      "status": "PASS"
+    },
+    {
+      "video_id": "eANk3-vRpCM",
+      "stratum": "pl_generated",
+      "candidate_request_id": "99bc5a0ed649930a245a28c73e6ae038",
+      "translated": false,
+      "http_status": 200,
+      "content_type": "application/json",
+      "bytes": 234916,
+      "source_sha256": "2a6b27cbb47c0de3e06a9c0a38592239c35ad13dfea91b6c99276ea5b1c3a235",
+      "original_payload_hash_match": true,
+      "source_cue_count": 387,
+      "original_cue_count_match": true,
+      "all_cue_boundaries_compared": 774,
+      "all_cue_max_delta_ms": 0,
+      "all_cue_text_hashes_equal": true,
+      "original_boundary_samples": [
+        {
+          "boundary": "first_cue",
+          "start_delta_ms": 0,
+          "end_delta_ms": 0,
+          "text_hash_match": true
+        },
+        {
+          "boundary": "middle_cue",
+          "start_delta_ms": 0,
+          "end_delta_ms": 0,
+          "text_hash_match": true
+        },
+        {
+          "boundary": "last_cue",
+          "start_delta_ms": 0,
+          "end_delta_ms": 0,
+          "text_hash_match": true
+        }
+      ],
+      "status": "PASS"
+    },
+    {
+      "video_id": "Yi_6jQWEyuY",
+      "stratum": "pl_generated",
+      "candidate_request_id": "8a7c0db4227879dd5f5979420636c818",
+      "translated": false,
+      "http_status": 200,
+      "content_type": "application/json",
+      "bytes": 341554,
+      "source_sha256": "773c60694467d6794fad1ab85f9ead460b9f20814852d96c85b8249a1e4f4fd0",
+      "original_payload_hash_match": true,
+      "source_cue_count": 517,
+      "original_cue_count_match": true,
+      "all_cue_boundaries_compared": 1034,
+      "all_cue_max_delta_ms": 0,
+      "all_cue_text_hashes_equal": true,
+      "original_boundary_samples": [
+        {
+          "boundary": "first_cue",
+          "start_delta_ms": 0,
+          "end_delta_ms": 0,
+          "text_hash_match": true
+        },
+        {
+          "boundary": "middle_cue",
+          "start_delta_ms": 0,
+          "end_delta_ms": 0,
+          "text_hash_match": true
+        },
+        {
+          "boundary": "last_cue",
+          "start_delta_ms": 0,
+          "end_delta_ms": 0,
+          "text_hash_match": true
+        }
+      ],
+      "status": "PASS"
+    },
+    {
+      "video_id": "lqIUD3ovyIM",
+      "stratum": "en_generated",
+      "candidate_request_id": "fabfeeee7c8232c9afce65b6c6448c0e",
+      "translated": false,
+      "http_status": 200,
+      "content_type": "application/json",
+      "bytes": 61507,
+      "source_sha256": "809f86277a2b55ce4ae5b4bdde0fcde7eda4fb034b35ef7aba4b33399352e871",
+      "original_payload_hash_match": true,
+      "source_cue_count": 79,
+      "original_cue_count_match": true,
+      "all_cue_boundaries_compared": 158,
+      "all_cue_max_delta_ms": 0,
+      "all_cue_text_hashes_equal": true,
+      "original_boundary_samples": [
+        {
+          "boundary": "first_cue",
+          "start_delta_ms": 0,
+          "end_delta_ms": 0,
+          "text_hash_match": true
+        },
+        {
+          "boundary": "middle_cue",
+          "start_delta_ms": 0,
+          "end_delta_ms": 0,
+          "text_hash_match": true
+        },
+        {
+          "boundary": "last_cue",
+          "start_delta_ms": 0,
+          "end_delta_ms": 0,
+          "text_hash_match": true
+        }
+      ],
+      "status": "PASS"
+    },
+    {
+      "video_id": "TcsKkf6Sb4M",
+      "stratum": "en_generated",
+      "candidate_request_id": "bb91703a02a6bcf245c2cfa5e71554e4",
+      "translated": false,
+      "http_status": 200,
+      "content_type": "application/json",
+      "bytes": 200808,
+      "source_sha256": "15a3cc5b91055f06c8a41cc97b1f78face97f02c2210c73ef512c82482327808",
+      "original_payload_hash_match": true,
+      "source_cue_count": 258,
+      "original_cue_count_match": true,
+      "all_cue_boundaries_compared": 516,
+      "all_cue_max_delta_ms": 0,
+      "all_cue_text_hashes_equal": true,
+      "original_boundary_samples": [
+        {
+          "boundary": "first_cue",
+          "start_delta_ms": 0,
+          "end_delta_ms": 0,
+          "text_hash_match": true
+        },
+        {
+          "boundary": "middle_cue",
+          "start_delta_ms": 0,
+          "end_delta_ms": 0,
+          "text_hash_match": true
+        },
+        {
+          "boundary": "last_cue",
+          "start_delta_ms": 0,
+          "end_delta_ms": 0,
+          "text_hash_match": true
+        }
+      ],
+      "status": "PASS"
+    },
+    {
+      "video_id": "msE-ktwSuR4",
+      "stratum": "en_generated",
+      "candidate_request_id": "92b88bbe941982e6b8cd1fb842c3a274",
+      "translated": false,
+      "http_status": 200,
+      "content_type": "application/json",
+      "bytes": 169700,
+      "source_sha256": "cb1da4a3021030420136d26c54c07d782779dc71985f9723bdc1edb16fb7999f",
+      "original_payload_hash_match": true,
+      "source_cue_count": 240,
+      "original_cue_count_match": true,
+      "all_cue_boundaries_compared": 480,
+      "all_cue_max_delta_ms": 0,
+      "all_cue_text_hashes_equal": true,
+      "original_boundary_samples": [
+        {
+          "boundary": "first_cue",
+          "start_delta_ms": 0,
+          "end_delta_ms": 0,
+          "text_hash_match": true
+        },
+        {
+          "boundary": "middle_cue",
+          "start_delta_ms": 0,
+          "end_delta_ms": 0,
+          "text_hash_match": true
+        },
+        {
+          "boundary": "last_cue",
+          "start_delta_ms": 0,
+          "end_delta_ms": 0,
+          "text_hash_match": true
+        }
+      ],
+      "status": "PASS"
+    },
+    {
+      "video_id": "83HMZrhL_Uw",
+      "stratum": "en_manual",
+      "candidate_request_id": "a8454186ed7fd1aa3c7d61b87aa1b296",
+      "translated": false,
+      "http_status": 200,
+      "content_type": "application/json",
+      "bytes": 37716,
+      "source_sha256": "154d70c4648a7d81c7911df375077a64f7aad9195891e478be0d222ed92df551",
+      "original_payload_hash_match": true,
+      "source_cue_count": 229,
+      "original_cue_count_match": true,
+      "all_cue_boundaries_compared": 458,
+      "all_cue_max_delta_ms": 0,
+      "all_cue_text_hashes_equal": true,
+      "original_boundary_samples": [
+        {
+          "boundary": "first_cue",
+          "start_delta_ms": 0,
+          "end_delta_ms": 0,
+          "text_hash_match": true
+        },
+        {
+          "boundary": "middle_cue",
+          "start_delta_ms": 0,
+          "end_delta_ms": 0,
+          "text_hash_match": true
+        },
+        {
+          "boundary": "last_cue",
+          "start_delta_ms": 0,
+          "end_delta_ms": 0,
+          "text_hash_match": true
+        }
+      ],
+      "status": "PASS"
+    },
+    {
+      "video_id": "SEkGLj0bwAU",
+      "stratum": "en_manual",
+      "candidate_request_id": "eb9fbed6a86cd98303bc5b955c534f39",
+      "translated": false,
+      "http_status": 200,
+      "content_type": "application/json",
+      "bytes": 30497,
+      "source_sha256": "8cabf9f14072e806c8b09a977ee9407aefe7c74dccc48af2756e97f3948d6303",
+      "original_payload_hash_match": true,
+      "source_cue_count": 215,
+      "original_cue_count_match": true,
+      "all_cue_boundaries_compared": 430,
+      "all_cue_max_delta_ms": 0,
+      "all_cue_text_hashes_equal": true,
+      "original_boundary_samples": [
+        {
+          "boundary": "first_cue",
+          "start_delta_ms": 0,
+          "end_delta_ms": 0,
+          "text_hash_match": true
+        },
+        {
+          "boundary": "middle_cue",
+          "start_delta_ms": 0,
+          "end_delta_ms": 0,
+          "text_hash_match": true
+        },
+        {
+          "boundary": "last_cue",
+          "start_delta_ms": 0,
+          "end_delta_ms": 0,
+          "text_hash_match": true
+        }
+      ],
+      "status": "PASS"
+    },
+    {
+      "video_id": "BV2QhXwtLlY",
+      "stratum": "other",
+      "candidate_request_id": "91d2dfb238c3993a0e02d97de0d363ce",
+      "translated": false,
+      "http_status": 200,
+      "content_type": "application/json",
+      "bytes": 384237,
+      "source_sha256": "2f742afcaa15876002e2b7ab7fcaf57fb98d27a646fb25730b51268c834db677",
+      "original_payload_hash_match": true,
+      "source_cue_count": 873,
+      "original_cue_count_match": true,
+      "all_cue_boundaries_compared": 1746,
+      "all_cue_max_delta_ms": 0,
+      "all_cue_text_hashes_equal": true,
+      "original_boundary_samples": [
+        {
+          "boundary": "first_cue",
+          "start_delta_ms": 0,
+          "end_delta_ms": 0,
+          "text_hash_match": true
+        },
+        {
+          "boundary": "middle_cue",
+          "start_delta_ms": 0,
+          "end_delta_ms": 0,
+          "text_hash_match": true
+        },
+        {
+          "boundary": "last_cue",
+          "start_delta_ms": 0,
+          "end_delta_ms": 0,
+          "text_hash_match": true
+        }
+      ],
+      "status": "PASS"
+    },
+    {
+      "video_id": "cIFlDoY6Wbs",
+      "stratum": "other",
+      "candidate_request_id": "72d6a69c9a690c575bc78a617b317375",
+      "translated": false,
+      "http_status": 200,
+      "content_type": "application/json",
+      "bytes": 126732,
+      "source_sha256": "733f959dacff9f85d3585fd6a8f61e72b27d2d2c20f5ef2d2dc77e07a459fc70",
+      "original_payload_hash_match": true,
+      "source_cue_count": 161,
+      "original_cue_count_match": true,
+      "all_cue_boundaries_compared": 322,
+      "all_cue_max_delta_ms": 0,
+      "all_cue_text_hashes_equal": true,
+      "original_boundary_samples": [
+        {
+          "boundary": "first_cue",
+          "start_delta_ms": 0,
+          "end_delta_ms": 0,
+          "text_hash_match": true
+        },
+        {
+          "boundary": "middle_cue",
+          "start_delta_ms": 0,
+          "end_delta_ms": 0,
+          "text_hash_match": true
+        },
+        {
+          "boundary": "last_cue",
+          "start_delta_ms": 0,
+          "end_delta_ms": 0,
+          "text_hash_match": true
+        }
+      ],
+      "status": "PASS"
+    },
+    {
+      "video_id": "JpFhmu6jpB8",
+      "stratum": "other",
+      "candidate_request_id": "96cee0ad733064d83f9c730ea145549c",
+      "translated": false,
+      "http_status": 200,
+      "content_type": "application/json",
+      "bytes": 44232,
+      "source_sha256": "b930b2d74e7b00f77fb203a8453024c8a36d8889070a80ffdbd5eb9a81c8dbdd",
+      "original_payload_hash_match": true,
+      "source_cue_count": 106,
+      "original_cue_count_match": true,
+      "all_cue_boundaries_compared": 212,
+      "all_cue_max_delta_ms": 0,
+      "all_cue_text_hashes_equal": true,
+      "original_boundary_samples": [
+        {
+          "boundary": "first_cue",
+          "start_delta_ms": 0,
+          "end_delta_ms": 0,
+          "text_hash_match": true
+        },
+        {
+          "boundary": "middle_cue",
+          "start_delta_ms": 0,
+          "end_delta_ms": 0,
+          "text_hash_match": true
+        },
+        {
+          "boundary": "last_cue",
+          "start_delta_ms": 0,
+          "end_delta_ms": 0,
+          "text_hash_match": true
+        }
+      ],
+      "status": "PASS"
+    }
+  ],
+  "status": "PASS",
+  "completed_at": "2026-10-05T11:41:16Z"
+}

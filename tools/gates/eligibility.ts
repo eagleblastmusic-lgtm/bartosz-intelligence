@@ -88,6 +88,10 @@ const dashboard = existsSync(dashboardPath)
   ? (JSON.parse(readFileSync(dashboardPath, 'utf8')) as {
       result?: string;
       blockers?: string[];
+      cloudflare?: { plan?: string };
+      google?: { billing?: string; project?: string };
+      gemini?: { tier?: string };
+      drive?: { active?: boolean };
     })
   : null;
 const ownerPath = resolve(output, 'owner-use-decision.json');
@@ -112,15 +116,71 @@ const probe = existsSync(probePath)
       result?: string;
       http_status?: number;
       reason?: string;
+      retry_required?: boolean;
+    })
+  : null;
+const cloudflareSnapshotPath = resolve(
+  output,
+  'cloudflare-service-readonly.json',
+);
+const cloudflareSnapshot = existsSync(cloudflareSnapshotPath)
+  ? (JSON.parse(readFileSync(cloudflareSnapshotPath, 'utf8')) as {
+      sampled_at?: string;
+      observations?: { service: string; http_status: number | null }[];
     })
   : null;
 const reservationPath = resolve(output, 'gemini-probe-reservation.json');
 const reservation = existsSync(reservationPath)
   ? (JSON.parse(readFileSync(reservationPath, 'utf8')) as {
-      generation_requests?: number;
+      generation_requests_total?: number;
     })
   : null;
 const probeFailed = probe?.result === 'FAIL';
+const probePassed = probe?.result === 'PASS';
+const probeTemporary = probe?.result === 'TEMPORARY_FAILURE';
+const probeIncomplete = probe?.result === 'INCOMPLETE';
+const probeInconclusive = probe?.result === 'INCONCLUSIVE';
+const requiredSnapshotChecksPassed =
+  dashboard?.cloudflare?.plan === 'Workers Free' &&
+  dashboard?.google?.billing === 'DISABLED' &&
+  dashboard?.google?.project === 'bartosz-intelligence' &&
+  dashboard?.gemini?.tier === 'Free tier' &&
+  ownerClassified &&
+  probePassed &&
+  cloudflareSnapshot?.observations?.length &&
+  cloudflareSnapshot.observations.every((item) => item.http_status === 200);
+function gateForService(service: string): string {
+  if (service === 'gemini') {
+    if (probePassed) return 'PASS';
+    if (probeFailed) return 'FAIL';
+    if (probeTemporary) return 'TEMPORARY_FAILURE';
+    if (probeIncomplete) return 'INCOMPLETE';
+    if (probeInconclusive) return 'INCONCLUSIVE';
+    return 'NOT_RUN';
+  }
+  if (service === 'youtube-data-api')
+    return dashboard?.google?.project === 'bartosz-intelligence' &&
+      credentials.YOUTUBE_API_KEY
+      ? 'ACCOUNT_PROBE_PASS'
+      : 'INCONCLUSIVE';
+  if (service === 'cloudflare-workers')
+    return dashboard?.cloudflare?.plan === 'Workers Free'
+      ? 'ACCOUNT_ELIGIBILITY_PASS_RUNTIME_NOT_DEPLOYED'
+      : 'INCONCLUSIVE';
+  if (service === 'cloudflare-assets')
+    return dashboard?.cloudflare?.plan === 'Workers Free'
+      ? 'ACCOUNT_ELIGIBILITY_PASS_LOCAL_RUNTIME_NOT_DEPLOYED'
+      : 'INCONCLUSIVE';
+  if (service === 'cloudflare-d1' || service === 'cloudflare-queues')
+    return cloudflareSnapshot?.observations?.some(
+      (item) =>
+        item.service.includes(service.replace('cloudflare-', '')) &&
+        item.http_status === 200,
+    )
+      ? 'ACCOUNT_ELIGIBILITY_PASS_NO_PROJECT_RESOURCE'
+      : 'INCONCLUSIVE';
+  return 'NOT_RUN';
+}
 const report = {
   mode: values.mode,
   sampled_at: new Date().toISOString(),
@@ -129,10 +189,18 @@ const report = {
       ? 'NOT_RUN'
       : probeFailed
         ? 'FAIL'
-        : 'INCONCLUSIVE',
+        : probeTemporary || probeIncomplete
+          ? 'INCOMPLETE'
+          : probeInconclusive
+            ? 'INCONCLUSIVE'
+            : probePassed &&
+                dashboard?.drive?.active === false &&
+                requiredSnapshotChecksPassed
+              ? 'PASS'
+              : 'INCONCLUSIVE',
   paid_services_enabled: false,
   network_submissions: 0,
-  provider_generation_submissions: reservation?.generation_requests ?? 0,
+  provider_generation_submissions: reservation?.generation_requests_total ?? 0,
   account_metadata_read: { cloudflare_auth: auth, cli_exit_code: authExit },
   credential_presence_only: credentials,
   snapshots: [],
@@ -144,6 +212,7 @@ const report = {
     values.mode === 'account'
       ? [
           'account-readonly.json',
+          ...(cloudflareSnapshot ? ['cloudflare-service-readonly.json'] : []),
           ...(dashboard ? ['dashboard-observations.json'] : []),
           ...(ownerClassified ? ['owner-use-decision.json'] : []),
           ...(probe
@@ -161,8 +230,28 @@ const report = {
   ].map((service) => ({
     service,
     active_baseline_required: true,
-    free_eligible: 'UNKNOWN',
-    gate: service === 'gemini' && probeFailed ? 'FAIL' : 'NOT_RUN',
+    free_eligible:
+      service === 'cloudflare-workers' ||
+      service === 'cloudflare-d1' ||
+      service === 'cloudflare-queues' ||
+      service === 'cloudflare-assets'
+        ? dashboard?.cloudflare?.plan === 'Workers Free'
+          ? 'PASS'
+          : 'UNKNOWN'
+        : service === 'gemini'
+          ? dashboard?.google?.billing === 'DISABLED' &&
+            dashboard?.gemini?.tier === 'Free tier' &&
+            ownerClassified
+            ? 'PASS'
+            : 'UNKNOWN'
+          : service === 'youtube-data-api'
+            ? credentials.YOUTUBE_API_KEY &&
+              dashboard?.google?.project === 'bartosz-intelligence'
+              ? 'PASS'
+              : 'UNKNOWN'
+            : 'UNKNOWN',
+    production_enabled: false,
+    gate: gateForService(service),
   })),
   drive: {
     active: false,
@@ -182,14 +271,23 @@ const report = {
             dashboard?.blockers ?? [
               'ACCOUNT_QUOTA_BILLING_AND_PURPOSE_PROOF_REQUIRED',
             ]
-          ).filter(
-            (blocker) =>
-              !(
-                ownerClassified &&
-                blocker ===
-                  'GEMINI_EEA_SINGLE_OWNER_API_CLIENT_ELIGIBILITY_UNRESOLVED'
-              ),
-          ),
+          )
+            .filter(
+              (blocker) =>
+                !(
+                  cloudflareSnapshot &&
+                  blocker ===
+                    'CLOUDFLARE_D1_QUEUES_ASSETS_USAGE_LIMITS_AND_LIVE_PROBES_NOT_QUALIFIED'
+                ),
+            )
+            .filter(
+              (blocker) =>
+                !(
+                  ownerClassified &&
+                  blocker ===
+                    'GEMINI_EEA_SINGLE_OWNER_API_CLIENT_ELIGIBILITY_UNRESOLVED'
+                ),
+            ),
           ...(probeFailed
             ? [
                 probe.http_status === 200
@@ -197,7 +295,18 @@ const report = {
                   : `GEMINI_LIVE_PROBE_FAILED_${probe.http_status ?? 'TRANSPORT'}`,
               ]
             : []),
-          'OTHER_REQUIRED_SERVICE_PROBES_NOT_RUN',
+          ...(probeInconclusive && probe?.http_status === 503
+            ? ['GEMINI_LIVE_PROBE_INCONCLUSIVE_UPSTREAM_HTTP_503']
+            : []),
+          ...(probeTemporary
+            ? [
+                `GEMINI_LIVE_PROBE_TEMPORARY_HTTP_${probe?.http_status ?? 'UNKNOWN'}_RETRY_REQUIRED`,
+              ]
+            : []),
+          ...(probeIncomplete && probe?.retry_required
+            ? ['GEMINI_LIVE_PROBE_INCOMPLETE_OUTPUT_RETRY_REQUIRED']
+            : []),
+          ...(probePassed ? [] : ['GEMINI_LIVE_FUNCTIONAL_PROBE_NOT_PASSED']),
         ],
 };
 mkdirSync(output, { recursive: true });
