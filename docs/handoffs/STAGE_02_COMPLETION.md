@@ -1,13 +1,14 @@
 # Stage completion handoff
 
 Stage: 02 / 02_V1A_CORE_CONTROL_PLANE.md
-Status: READY_FOR_VERIFICATION
-Date: 2026-10-05T21:45:00Z
-Final commit/tag: PENDING final real reference completion
+Status: DONE
+Date: 2026-10-05T21:46:54.242Z
+Final commit/tag: stage-02-done (resolve with git rev-parse stage-02-done)
+Verified implementation commit: 778c722
 
 ## Implemented
 
-CP-2.1–2.10 complete; CP-2.11 combined recovery passes, final public reference completion pending. Cloudflare D1 is the canonical authority; Queue messages are expendable hints. Owner Google OIDC, one-use bootstrap and fixed issuer/subject allowlist are live. Sources, Channels, immutable Item revisions, durable jobs/attempts, outbox, acceptance fence, registry/export skeleton, discovery/reconciliation and canonical private backup/restore are implemented. Cloud control intake continues while local executor is offline. Transcript and AI production execution are intentionally not certified by Stage 02.
+CP-2.1–2.11 complete. Cloudflare D1 is the canonical authority; Queue messages are expendable hints. Owner Google OIDC, one-use bootstrap and fixed issuer/subject allowlist are live. Sources, Channels, immutable Item revisions, durable jobs/attempts, outbox, acceptance fence, registry/export skeleton, discovery/reconciliation and canonical private backup/restore are implemented. Cloud control intake continues while local executor is offline. Transcript and AI production execution are intentionally not certified by Stage 02.
 
 ## Files/modules created
 
@@ -31,7 +32,7 @@ Skipped: production AI/transcript output, later UI/Knowledge/Drive, large-corpus
 
 ## Runtime verification
 
-Actual origin: `https://bartosz-intelligence.eagleblastmusic.workers.dev`, fixed server callback `/api/v1/auth/callback`. Owner completed real Google login; subject was privately pinned locally and deployed. Secrets are present only in private environment/deployment files. Narrow control identity scopes are DISCOVER/RECONCILE. Automated Queue/cron advanced real TED discovery and retained 50 transcript intents while local execution was absent. Reference exact window: 2026-09-05T21:05:07.309Z through 2026-10-05T21:05:07.309Z; independent all-page reference 117 pages / 234 metadata requests / 50 video IDs / zero unknown dates. Final COMPLETE equality is recorded separately before marking DONE.
+Actual origin: `https://bartosz-intelligence.eagleblastmusic.workers.dev`, fixed server callback `/api/v1/auth/callback`. Owner completed real Google login; subject was privately pinned locally and deployed. Secrets are present only in private environment/deployment files. Narrow control identity scopes are DISCOVER/RECONCILE. Automated Queue/cron advanced real TED discovery and retained 50 transcript intents while local execution was absent. Reference exact window: 2026-09-05T21:05:07.309Z through 2026-10-05T21:05:07.309Z; independent all-page reference 117 pages / 234 metadata requests / 50 video IDs / zero unknown dates. Final COMPLETE equality PASS: docs/verification/core-acceptance/reference-2026-10-05T21-46-54.242Z.json; 50 reference IDs = 50 scan member IDs, no missing transcript intents, completed watermark matches the window end. Runtime version 3e3fb0f3-9668-4aae-9bd4-4d1d89503bb7.
 
 Live private backup `68e7e814-6fce-44ca-b233-c006286cfdfa`: 1501 rows, 518696 row bytes, restore integrity/FK PASS, zero active restored sessions/credentials. Actual private file in Downloads and recovery locator/database in ignored `.local/backups`; no canonical payload or secret values committed. Backup manifest contains cut_seq/counts/hashes/migration ledger; a two-minute SQL barrier prevents concurrent canonical writes and an expired/incomplete cut cannot become VERIFIED. Pilot limits are 200 chunks / 2 MiB, not large-corpus qualification. Details: `docs/verification/cp-2.10.md`.
 
