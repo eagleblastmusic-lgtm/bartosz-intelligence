@@ -1,0 +1,9 @@
+# CP-2.6 — public resolver and atomic backfill intent
+
+PASS, 2026-10-05. Resolver supports stable UC identity, handle/channel/video URLs through allowlisted normalization and official metadata API only; redirects fail closed. Video-to-channel resolution requires GUI confirmation. Source identity/metadata snapshots preserve handle changes without a duplicate source. Default range 30 days; only-new activation cutoff, 7/90/custom windows are explicit. Preview enumerates max 50/page and bulk videos metadata, reports partial/complete and unknown publication/duration, does not use playlist total as range count or infer Shorts from duration.
+
+Atomic intake uses one request permit: Source/Channel/config revision/DISCOVER Job/Outbox/scan/change event, same idempotency key returns the same source/job and changed payload gives conflict. Different key for identical source/window shares intent. Concurrent calls and injected SQL failure prove no orphan Source or partial request.
+
+10 targeted unit/workerd tests PASS; typecheck/lint/fresh migrations/independent empty restore/integrity/FKs PASS. Real public channel ID and equivalent handle resolved to the same identity; 30-day bounded preview PASS. Evidence docs/verification/core-source/cp-2.6-2026-10-05T18-35-34.092Z.json. Four metadata API calls/estimated quota units, no AI, no OAuth. Account remaining quota UNKNOWN. Coverage is honestly PARTIAL where continuation remains; full channel completeness belongs to CP-2.7/2.11, not this bounded preview.
+
+Migration mapping: operations/health/quota/heartbeat/change-log/barrier plus discovery intent/scan state → 005_operations_snapshots_backup.sql. Schema created at CP-2.6 because resumable/idempotent source intake requires durable scan state; CP-2.10 behavior/backup tests remain unimplemented. Source scheduling extension is additive; 001–004 unchanged. Exact hash in ledger; next 006. No production schema applied.

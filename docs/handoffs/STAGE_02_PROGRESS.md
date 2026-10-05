@@ -14,6 +14,8 @@ CP-2.4: PASS; evidence docs/verification/cp-2.4.md. Runs/registry/export skeleto
 
 CP-2.5: PASS; evidence docs/verification/cp-2.5.md. Bounded cron recovery, durable Outbox and scoped local pull. Migrations unchanged; next 005.
 
-Current checkpoint: CP-2.6 — resolver and atomic backfill intent. No completed Stage 02 claim. Actual owner Google OIDC smoke remains pending configuration: GOOGLE_OIDC_CLIENT_ID, GOOGLE_OIDC_CLIENT_SECRET, GOOGLE_OIDC_OWNER_SUBJECT, APP_ORIGIN. SESSION_SIGNING_SECRET will be provisioned privately; no secret value requested in chat. Existing YouTube and Gemini keys are present; paid services remain disabled.
+CP-2.6: PASS; evidence docs/verification/cp-2.6.md and immutable core-source live JSON. Operations/scan-intent schema → 005_operations_snapshots_backup.sql; exact hash in ledger; next 006. Operational behavior/backup remain CP-2.10.
+
+Current checkpoint: CP-2.7 — paginated durable discovery and metadata authority. No completed Stage 02 claim. Actual owner Google OIDC smoke remains pending configuration: GOOGLE_OIDC_CLIENT_ID, GOOGLE_OIDC_CLIENT_SECRET, GOOGLE_OIDC_OWNER_SUBJECT, APP_ORIGIN. SESSION_SIGNING_SECRET will be provisioned privately; no secret value requested in chat. Existing YouTube and Gemini keys are present; paid services remain disabled.
 
 Required context on resume: index, Stage 02 plan, Stage 01 completion, this progress, current Git/migration ledger and CP evidence. Reuse Stage 01 gates. Do not load later stage plans yet.

@@ -19,6 +19,11 @@
       "name": "004_runs_registry_exports.sql",
       "depends_on": ["003_jobs_outbox.sql"],
       "sha256": "f2eb46d0319cd3fced2d05e94bd5cd36b122957f96c84845c10e15a5398f280f"
+    },
+    {
+      "depends_on": ["004_runs_registry_exports.sql"],
+      "name": "005_operations_snapshots_backup.sql",
+      "sha256": "6d74c835112740f5e856047665c711f48e969d45dd6b23e25138f3b358b90247"
     }
   ],
   "version": 1
