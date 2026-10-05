@@ -10,6 +10,8 @@ import { pull } from '../../../../packages/core/src/jobs/recovery.js';
 import { retryDisposition } from '../../../../packages/core/src/jobs/policy.js';
 import { executeDiscoveryChunk } from '../../../../packages/core/src/sources/youtube/executor.js';
 import { YoutubeClient } from '../../../../packages/core/src/sources/youtube/client.js';
+import { TranscriptRecovery } from '../../../../packages/core/src/transcript/recovery.js';
+import { transcriptStatuses } from '../../../../packages/contracts/src/transcript.js';
 export const workersApp = apiRouter();
 workersApp.use('*', async (c, next) => {
   // Authenticate before reading payload or any domain row. Scope is checked again per action.
@@ -121,6 +123,32 @@ workersApp.post('/start', async (c) => {
     new Date(),
   );
   return c.json({ state: 'RUNNING' });
+});
+workersApp.get('/transcript/admission', async (c) =>
+  c.json(
+    await new TranscriptRecovery(c.env.DB, c.get('access')).admission(
+      new Date(),
+      runtime(c.req.query('runtime')),
+    ),
+  ),
+);
+workersApp.post('/transcript/outcome', async (c) => {
+  const input = await body(c, ['token', 'status', 'active_live']),
+    access = c.get('access');
+  if (
+    !transcriptStatuses.some((status) => status === input.status) ||
+    (input.active_live !== undefined && typeof input.active_live !== 'boolean')
+  )
+    throw new Error('INVALID_INPUT');
+  const status = input.status as (typeof transcriptStatuses)[number];
+  return c.json(
+    await new TranscriptRecovery(c.env.DB, access).outcome(
+      token(input.token, access.actorId),
+      status,
+      new Date(),
+      input.active_live === true,
+    ),
+  );
 });
 workersApp.post('/retry', async (c) => {
   const input = await body(c, ['task_type', 'token', 'code', 'reset_at']),

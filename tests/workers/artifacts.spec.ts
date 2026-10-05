@@ -21,7 +21,78 @@ import { restoreCanonical } from '../../packages/core/src/backup/restore.js';
 import { applyMigrations } from '../../packages/core/src/db/migrations.js';
 import { RepresentationRepository } from '../../packages/core/src/transcript/representations.js';
 import { selectTranscriptLanguage } from '../../packages/core/src/transcript/language.js';
+import { TranscriptRecovery } from '../../packages/core/src/transcript/recovery.js';
+import { sweep } from '../../packages/core/src/jobs/recovery.js';
 beforeEach(resetCore);
+it('caption recovery persists independent counters and derives a durable shared circuit', async () => {
+  const { access, token } = await setup(),
+    recovery = new TranscriptRecovery(env.DB, access);
+  const first = await recovery.outcome(token, 'NO_CAPTIONS', fixtureNow);
+  expect(Date.parse(first.due_at) - fixtureNow.getTime()).toBe(3600000);
+  await expect(
+    recovery.outcome(token, 'NO_CAPTIONS', fixtureNow),
+  ).rejects.toThrow('STALE_FENCE');
+  const next = new Date(Date.parse(first.due_at));
+  await sweep(env.DB, next, () => true);
+  const store = new JobStore(env.DB, access),
+    token2 = (await store.lease(
+      token.job_id,
+      'FETCH_TRANSCRIPT',
+      next,
+      'local',
+    ))!;
+  await store.start(token2, 'FETCH_TRANSCRIPT', next);
+  const second = await recovery.outcome(token2, 'NO_CAPTIONS', next);
+  expect(Date.parse(second.due_at) - next.getTime()).toBe(21600000);
+  await env.DB.prepare(
+    'INSERT INTO job_attempts(attempt_id,owner_id,job_id,fencing_token,executor_id,started_at,finished_at,error_code) VALUES(?,?,?,?,?,?,?,?)',
+  )
+    .bind(
+      'parser',
+      'a',
+      token.job_id,
+      999,
+      'artifact-worker',
+      fixtureNow.toISOString(),
+      fixtureNow.toISOString(),
+      'LOCAL_YTDLP_PARSER_CHANGED',
+    )
+    .run();
+  await env.DB.prepare(
+    'INSERT INTO job_attempts(attempt_id,owner_id,job_id,fencing_token,executor_id,started_at,finished_at,error_code) VALUES(?,?,?,?,?,?,?,?)',
+  )
+    .bind(
+      'ip',
+      'a',
+      token.job_id,
+      1000,
+      'artifact-worker',
+      next.toISOString(),
+      next.toISOString(),
+      'LOCAL_YTDLP_IP_BLOCKED',
+    )
+    .run();
+  const later = new Date(next.getTime() + 3600000);
+  expect((await recovery.admission(later, 'local')).reason).toBe(
+    'LOCAL_YTDLP_PARSER_CHANGED',
+  );
+  expect(
+    (
+      await recovery.admission(
+        new Date(fixtureNow.getTime() + 21600000),
+        'local',
+      )
+    ).available,
+  ).toBe(true);
+  expect((await recovery.admission(later, 'cloud')).reason).toBe(
+    'LOCAL_EXECUTOR_REQUIRED',
+  );
+  expect(
+    await env.DB.prepare(
+      "SELECT COUNT(*) AS n FROM job_attempts WHERE error_code='LOCAL_YTDLP_NO_CAPTIONS'",
+    ).first('n'),
+  ).toBe(2);
+});
 async function setup() {
   const owner = await fixtureOwner(),
     source = (await new SourceRepository(env.DB, owner).upsert(
