@@ -1,4 +1,5 @@
 Plan/
+packages/core/src/registry/generated/
 pnpm-lock.yaml
 .tools/
 .local/

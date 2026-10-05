@@ -54,6 +54,11 @@
       "name": "011_ai_admission.sql",
       "depends_on": ["010_registry_integrity.sql"],
       "sha256": "8e5c42803cd7a39db8b87a5e39c9be18964dbc2e50f6b96c32fe6351c64bf78a"
+    },
+    {
+      "name": "012_candidate_repair.sql",
+      "depends_on": ["011_ai_admission.sql"],
+      "sha256": "ab50e5c8b60243d4a07959ab2319ba3ffe07ca06cb052ae3d958a38b44934224"
     }
   ],
   "version": 1

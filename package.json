@@ -15,7 +15,7 @@
     "typecheck": "pnpm -r typecheck && tsc -p tsconfig.tools.json && tsc -p tests/workers/tsconfig.json",
     "build": "pnpm --filter @bartosz/web build && pnpm --filter @bartosz/api build && pnpm -r --filter @bartosz/contracts --filter @bartosz/core --filter @bartosz/telemetry build",
     "verify:config": "tsx tools/verify-config.ts",
-    "verify:bundle": "tsx tools/registry/verify-bundle.ts",
+    "verify:bundle": "tsx tools/registry/verify-bundle.ts && tsx tools/registry/generate-validators.ts --check",
     "test:unit": "vitest run --project unit",
     "dev": "concurrently -k \"pnpm dev:api\" \"pnpm --filter @bartosz/web exec vite --host 127.0.0.1\"",
     "test:workers": "vitest run --project workers",

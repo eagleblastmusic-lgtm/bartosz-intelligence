@@ -8,6 +8,7 @@ export default tseslint.config(
       '.tools/**',
       '.local/**',
       'Plan/**',
+      'packages/core/src/registry/generated/**',
     ],
   },
   ...tseslint.configs.recommended,

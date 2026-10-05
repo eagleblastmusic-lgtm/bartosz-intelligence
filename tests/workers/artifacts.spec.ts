@@ -28,7 +28,123 @@ import {
   type AdmissionBucket,
 } from '../../packages/core/src/ai/admission.js';
 import type { TaskType } from '../../packages/contracts/src/jobs.js';
+import { CandidateRepairAttempts } from '../../packages/core/src/ai/repair/attempts.js';
 beforeEach(resetCore);
+it('repair is admitted once per immutable candidate, never for unknown estimates or stale fences', async () => {
+  const { owner, access, token, item, repository } = await setup('ANALYZE');
+  const raw = '{"fixture":true,}';
+  const artifact = await repository.begin(
+    {
+      item_id: item.item_id,
+      kind: 'ANALYSIS_CANDIDATE',
+      content_hash: await sha256(raw),
+      byte_size: new TextEncoder().encode(raw).length,
+      chunk_count: 1,
+      schema_version: 'economy-wire:1.0',
+      producer_version: 'fixture',
+      provenance: {},
+      original_ref: null,
+    },
+    token,
+    'ANALYZE',
+    fixtureNow,
+  );
+  await repository.writeChunk(
+    artifact.artifact_id,
+    0,
+    0,
+    new TextEncoder().encode(raw),
+    token,
+    'ANALYZE',
+    fixtureNow,
+  );
+  await repository.verifyLocal(
+    artifact.artifact_id,
+    token,
+    'ANALYZE',
+    fixtureNow,
+    'local',
+  );
+  const attempts = new CandidateRepairAttempts(env.DB, access);
+  const input = {
+    candidate_artifact_id: artifact.artifact_id,
+    request_id: 'repair',
+    estimated_repair_tokens: 35,
+    estimated_full_retry_tokens: 100,
+    error_class: 'FIXTURE_STRUCTURAL',
+    measurement_hash: 'a'.repeat(64),
+  };
+  expect(
+    await attempts.claim(
+      { ...input, estimated_repair_tokens: null },
+      token,
+      fixtureNow,
+    ),
+  ).toBe(false);
+  expect(
+    await attempts.claim(
+      { ...input, estimated_repair_tokens: 36 },
+      token,
+      fixtureNow,
+    ),
+  ).toBe(false);
+  expect(
+    await attempts.claim(
+      input,
+      { ...token, fencing_token: token.fencing_token + 1 },
+      fixtureNow,
+    ),
+  ).toBe(false);
+  const claims = await Promise.all([
+    attempts.claim(input, token, fixtureNow),
+    attempts.claim({ ...input, request_id: 'redelivery' }, token, fixtureNow),
+  ]);
+  expect(claims.filter(Boolean)).toHaveLength(1);
+  expect(
+    await attempts.claim({ ...input, request_id: 'third' }, token, fixtureNow),
+  ).toBe(false);
+  await expect(
+    env.DB.prepare('DELETE FROM candidate_repair_attempts').run(),
+  ).rejects.toThrow('IMMUTABLE_REPAIR_ATTEMPT');
+  const backup = new CoreBackup(env.DB, owner);
+  const start = await backup.begin();
+  const chunks: BackupChunk[] = [];
+  for (const table of backupTables) {
+    let cursor: number | null = 0;
+    do {
+      const chunk = await backup.chunk(start.backup_id, table, cursor);
+      chunks.push(chunk);
+      cursor = chunk.next_cursor;
+    } while (cursor !== null);
+  }
+  const portable = { manifest: await backup.complete(start.backup_id), chunks };
+  const tables = (
+    await env.DB.prepare(
+      "SELECT name FROM sqlite_master WHERE type='table' AND name NOT LIKE 'sqlite_%' AND name NOT LIKE '_cf_%'",
+    ).all<{ name: string }>()
+  ).results;
+  await env.DB.batch([
+    env.DB.prepare('PRAGMA defer_foreign_keys=ON'),
+    ...tables.map((row) => env.DB.prepare(`DROP TABLE "${row.name}"`)),
+  ]);
+  await applyMigrations(env.DB, env.CORE_MIGRATIONS, fixtureNow.toISOString());
+  await restoreCanonical(env.DB, portable, 'subject-a');
+  expect(
+    await env.DB.prepare(
+      'SELECT COUNT(*) FROM candidate_repair_attempts WHERE candidate_artifact_id=?',
+    )
+      .bind(artifact.artifact_id)
+      .first('COUNT(*)'),
+  ).toBe(1);
+  // Restore revokes the executor and fences the old attempt; it cannot consume another repair.
+  expect(
+    await attempts.claim(
+      { ...input, request_id: 'after-restore' },
+      token,
+      new Date(),
+    ),
+  ).toBe(false);
+});
 it('caption recovery persists independent counters and derives a durable shared circuit', async () => {
   const { access, token } = await setup(),
     recovery = new TranscriptRecovery(env.DB, access);

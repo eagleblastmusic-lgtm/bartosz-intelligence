@@ -229,14 +229,12 @@ export async function normalizeTranscript(
         text,
         source_start: sourceOffset + begin.raw_start,
         source_end: sourceOffset + end.raw_end,
-        offsets: normalized.offsets
-          .slice(first, last)
-          .map((span) => ({
-            normalized_start: span.normalized_start - begin.normalized_start,
-            normalized_end: span.normalized_end - begin.normalized_start,
-            raw_start: span.raw_start + sourceOffset,
-            raw_end: span.raw_end + sourceOffset,
-          })),
+        offsets: normalized.offsets.slice(first, last).map((span) => ({
+          normalized_start: span.normalized_start - begin.normalized_start,
+          normalized_end: span.normalized_end - begin.normalized_start,
+          raw_start: span.raw_start + sourceOffset,
+          raw_end: span.raw_end + sourceOffset,
+        })),
         start_ms: cue.start_ms,
         end_ms: cue.end_ms,
         timestamp_precision:

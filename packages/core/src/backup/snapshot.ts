@@ -22,6 +22,7 @@ export const backupTables = [
   'model_registry',
   'quota_reservations',
   'usage_records',
+  'candidate_repair_attempts',
   'analysis_runs',
   'active_analysis_selections',
   'export_state',
