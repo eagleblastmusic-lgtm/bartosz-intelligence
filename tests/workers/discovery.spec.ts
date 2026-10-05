@@ -331,3 +331,68 @@ it('stale fence cannot stage or persist items/jobs/watermark', async () => {
     ),
   ).toBeNull();
 });
+it('skips an entire out-of-window page within one bounded commit but still visits late eligible entries on following pages', async () => {
+  const { intent, context, lease } = await setup();
+  const old = Array.from({ length: 50 }, (_, index) => ({
+    ...item(`old${index}`),
+    published_at: '2020-01-01T00:00:00.000Z',
+  }));
+  let token = await lease(),
+    scan = (await getScan(env.DB, context, intent.job_id))!;
+  let statements = 0;
+  const bounded: Database = {
+    prepare: env.DB.prepare.bind(env.DB),
+    batch: async (batch) => {
+      statements = batch.length;
+      return env.DB.batch(batch as D1PreparedStatement[]);
+    },
+  };
+  await commitDiscoveryPage(
+    bounded,
+    context,
+    token,
+    scan,
+    old,
+    'next-page',
+    fixtureNow,
+    'DISCOVER',
+    3,
+  );
+  expect(statements).toBeLessThan(15);
+  expect(
+    await env.DB.prepare(
+      'SELECT cursor,page_offset,pages_committed FROM discovery_scans',
+    ).first(),
+  ).toMatchObject({ cursor: 'next-page', page_offset: 0, pages_committed: 1 });
+  expect(
+    await env.DB.prepare('SELECT last_complete_window_end FROM sources').first(
+      'last_complete_window_end',
+    ),
+  ).toBeNull();
+  token = await lease();
+  scan = (await getScan(env.DB, context, intent.job_id))!;
+  await commitDiscoveryPage(
+    bounded,
+    context,
+    token,
+    scan,
+    [...old.slice(0, 49), item('late-eligible')],
+    null,
+    fixtureNow,
+    'DISCOVER',
+    3,
+  );
+  expect(
+    await env.DB.prepare('SELECT external_id FROM items').first('external_id'),
+  ).toBe('late-eligible');
+  expect(
+    await env.DB.prepare(
+      "SELECT COUNT(*) n FROM jobs WHERE task_type='FETCH_TRANSCRIPT'",
+    ).first('n'),
+  ).toBe(1);
+  expect(
+    await env.DB.prepare('SELECT last_complete_window_end FROM sources').first(
+      'last_complete_window_end',
+    ),
+  ).toBe(backfillWindow(fixtureNow).window_end);
+});

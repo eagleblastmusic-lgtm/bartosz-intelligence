@@ -123,14 +123,25 @@ export async function commitDiscoveryPage(
   }
   const staged = (await getScan(db, context, token.job_id))!;
   const pageCandidates = JSON.parse(staged.staged_page_json!) as ItemMetadata[];
-  const slice = pageCandidates.slice(
-    staged.page_offset,
-    staged.page_offset + chunkSize,
-  );
-  const pageFinished = staged.page_offset + chunkSize >= pageCandidates.length;
   const mode = JSON.parse(staged.job_payload_json).mode ?? 'FULL';
   if (!['FULL', 'HEAD', 'RSS', 'REFRESH'].includes(mode))
     throw new Error('INVALID_SCAN_MODE');
+  // Every staged candidate is examined, even after old/known entries.
+  // The SQL work budget counts candidates eligible for mutation, not skipped dates.
+  let offsetAfter = staged.page_offset,
+    writable = 0;
+  while (offsetAfter < pageCandidates.length && writable < chunkSize) {
+    const item = pageCandidates[offsetAfter++]!;
+    if (
+      mode === 'REFRESH' ||
+      item.published_at === null ||
+      (item.published_at >= scan.window_start &&
+        item.published_at <= scan.window_end)
+    )
+      writable++;
+  }
+  const slice = pageCandidates.slice(staged.page_offset, offsetAfter);
+  const pageFinished = offsetAfter >= pageCandidates.length;
   const jobDone =
     pageFinished && (staged.staged_next_cursor === null || mode !== 'FULL');
   const scanComplete = jobDone && mode === 'FULL';
@@ -287,7 +298,7 @@ export async function commitDiscoveryPage(
         scanComplete ? 'COMPLETE' : 'PARTIAL',
         staged.staged_page_hash,
         scanComplete ? at : null,
-        pageFinished ? 0 : staged.page_offset + slice.length,
+        pageFinished ? 0 : offsetAfter,
         pageFinished ? null : staged.staged_page_json,
         pageFinished ? null : staged.staged_next_cursor,
         pageFinished ? null : staged.staged_page_hash,
