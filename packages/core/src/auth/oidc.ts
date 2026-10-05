@@ -21,8 +21,13 @@ export async function verifyGoogleToken(
   config: OidcConfig,
   nonceHash: string,
   now: number,
+  bootstrap = false,
 ) {
-  if (!config.clientId || !config.ownerSubject || token.length > 16384)
+  if (
+    !config.clientId ||
+    (!config.ownerSubject && !bootstrap) ||
+    token.length > 16384
+  )
     throw new Error('OIDC_DENIED');
   const parts = token.split('.');
   if (parts.length !== 3) throw new Error('OIDC_DENIED');
@@ -62,7 +67,10 @@ export async function verifyGoogleToken(
     typeof claims.iat !== 'number' ||
     claims.iat > now + 60 ||
     claims.iat > claims.exp ||
-    claims.sub !== config.ownerSubject ||
+    typeof claims.sub !== 'string' ||
+    !claims.sub ||
+    claims.sub.length > 256 ||
+    (!bootstrap && claims.sub !== config.ownerSubject) ||
     typeof claims.nonce !== 'string' ||
     (await sha256(claims.nonce)) !== nonceHash
   )
@@ -73,11 +81,16 @@ export async function verifyGoogleToken(
   };
 }
 
-export async function beginLogin(db: Database, config: OidcConfig, now: Date) {
+export async function beginLogin(
+  db: Database,
+  config: OidcConfig,
+  now: Date,
+  purpose: 'LOGIN' | 'BOOTSTRAP' = 'LOGIN',
+) {
   if (
     !config.clientId ||
     !config.clientSecret ||
-    !config.ownerSubject ||
+    (!config.ownerSubject && purpose !== 'BOOTSTRAP') ||
     new URL(config.redirectUri).protocol !== 'https:'
   )
     throw new Error('OIDC_CONFIG_REQUIRED');
@@ -87,7 +100,7 @@ export async function beginLogin(db: Database, config: OidcConfig, now: Date) {
     browser = randomToken();
   await db
     .prepare(
-      'INSERT INTO oidc_login_intents(state_hash,nonce_hash,verifier,browser_hash,expires_at) VALUES(?,?,?,?,?)',
+      'INSERT INTO oidc_login_intents(state_hash,nonce_hash,verifier,browser_hash,expires_at,purpose) VALUES(?,?,?,?,?,?)',
     )
     .bind(
       await sha256(state),
@@ -95,6 +108,7 @@ export async function beginLogin(db: Database, config: OidcConfig, now: Date) {
       verifier,
       await sha256(browser),
       new Date(now.getTime() + 600000).toISOString(),
+      purpose,
     )
     .run();
   const url = new URL('https://accounts.google.com/o/oauth2/v2/auth');
@@ -129,6 +143,7 @@ export async function finishLogin(
   browser: string,
   now: Date,
   fetcher: typeof fetch = fetch,
+  purpose: 'LOGIN' | 'BOOTSTRAP' = 'LOGIN',
 ) {
   if (
     !state ||
@@ -142,7 +157,7 @@ export async function finishLogin(
   const intent = await db
     .prepare(
       `UPDATE oidc_login_intents SET consumed_at=?
-    WHERE state_hash=? AND browser_hash=? AND consumed_at IS NULL AND expires_at>?
+    WHERE state_hash=? AND browser_hash=? AND consumed_at IS NULL AND expires_at>? AND purpose=?
     RETURNING nonce_hash,verifier`,
     )
     .bind(
@@ -150,6 +165,7 @@ export async function finishLogin(
       await sha256(state),
       await sha256(browser),
       now.toISOString(),
+      purpose,
     )
     .first<{ nonce_hash: string; verifier: string }>();
   if (!intent) throw new Error('OIDC_DENIED');
@@ -186,5 +202,6 @@ export async function finishLogin(
     config,
     intent.nonce_hash,
     now.getTime() / 1000,
+    purpose === 'BOOTSTRAP',
   );
 }

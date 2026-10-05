@@ -12,6 +12,11 @@ import {
   revokeSession,
 } from '../../../packages/core/src/auth/session.js';
 import { sha256 } from '../../../packages/core/src/auth/crypto.js';
+import {
+  beginOwnerBootstrap,
+  bootstrapState,
+  claimBootstrapOwner,
+} from '../../../packages/core/src/auth/bootstrap.js';
 export const authCallbackPath = application.auth_callback_path;
 export const authApp = new Hono<{ Bindings: Env }>();
 export function applicationOrigin(env: Env) {
@@ -48,12 +53,25 @@ export function cookieValue(request: Request, name: string) {
   if (pairs.length > 1) throw new Error('UNAUTHENTICATED');
   return pairs[0]?.slice(name.length + 1) ?? '';
 }
+export async function runtimeOidcConfiguration(env: Env) {
+  if (env.GOOGLE_OIDC_OWNER_SUBJECT) return oidcConfiguration(env);
+  const owners = (
+    await env.DB.prepare(
+      'SELECT subject FROM owner_users WHERE allowlisted=1 LIMIT 2',
+    ).all<{ subject: string }>()
+  ).results;
+  if (owners.length !== 1) throw new Error('AUTH_CONFIGURATION_REQUIRED');
+  return oidcConfiguration({
+    ...env,
+    GOOGLE_OIDC_OWNER_SUBJECT: owners[0]!.subject,
+  });
+}
 export async function ownerContext(
   env: Env,
   request: Request,
   mutation = false,
 ) {
-  oidcConfiguration(env);
+  await runtimeOidcConfiguration(env);
   const signed = cookieValue(request, '__Host-bi-session');
   return mutation
     ? requireCsrf(
@@ -96,22 +114,76 @@ authApp.onError((error, c) => {
 authApp.get('/login', async (c) => {
   const intent = await beginLogin(
     c.env.DB,
-    oidcConfiguration(c.env),
+    await runtimeOidcConfiguration(c.env),
     new Date(),
   );
   c.header('Set-Cookie', intent.browserCookie);
   return c.redirect(intent.url, 302);
 });
+authApp.post('/bootstrap/login', async (c) => {
+  if (Number(c.req.header('Content-Length') ?? 0) > 256)
+    throw new Error('FORBIDDEN');
+  const reader = c.req.raw.body?.getReader();
+  if (!reader) throw new Error('FORBIDDEN');
+  const chunks: Uint8Array[] = [];
+  let size = 0;
+  for (;;) {
+    const part = await reader.read();
+    if (part.done) break;
+    size += part.value.byteLength;
+    if (size > 256) {
+      await reader.cancel();
+      throw new Error('FORBIDDEN');
+    }
+    chunks.push(part.value);
+  }
+  const bytes = new Uint8Array(size);
+  let offset = 0;
+  for (const chunk of chunks) {
+    bytes.set(chunk, offset);
+    offset += chunk.byteLength;
+  }
+  const value = new TextDecoder().decode(bytes);
+  const capability = new URLSearchParams(value).get('capability') ?? '';
+  const config = oidcConfiguration({
+    ...c.env,
+    GOOGLE_OIDC_OWNER_SUBJECT: 'bootstrap-only',
+  });
+  const intent = await beginOwnerBootstrap(
+    c.env.DB,
+    config,
+    capability,
+    new Date(),
+  );
+  c.header('Set-Cookie', intent.browserCookie);
+  c.header('Referrer-Policy', 'no-referrer');
+  return c.redirect(intent.url, 303);
+});
 authApp.get('/callback', async (c) => {
-  const config = oidcConfiguration(c.env);
+  const state = c.req.query('state') ?? '',
+    now = new Date();
+  const bootstrap = await bootstrapState(c.env.DB, state, now);
+  const config = bootstrap
+    ? {
+        ...oidcConfiguration({
+          ...c.env,
+          GOOGLE_OIDC_OWNER_SUBJECT: 'bootstrap-only',
+        }),
+        ownerSubject: '',
+      }
+    : await runtimeOidcConfiguration(c.env);
   const identity = await finishLogin(
     c.env.DB,
     config,
-    c.req.query('state') ?? '',
+    state,
     c.req.query('code') ?? '',
     cookieValue(c.req.raw, '__Host-bi-login'),
-    new Date(),
+    now,
+    fetch,
+    bootstrap ? 'BOOTSTRAP' : 'LOGIN',
   );
+  if (bootstrap)
+    await claimBootstrapOwner(c.env.DB, state, identity, new Date());
   const existing = await c.env.DB.prepare(
     'SELECT owner_id FROM owner_users WHERE issuer=? AND subject=? AND allowlisted=1',
   )

@@ -1,0 +1,48 @@
+{
+  "$schema": "../../node_modules/wrangler/config-schema.json",
+  "name": "bartosz-intelligence",
+  "account_id": "0db26be1cc4c4f7f196d5ac401e232f3",
+  "main": "src/index.ts",
+  "compatibility_date": "2026-10-01",
+  "workers_dev": true,
+  "preview_urls": false,
+  "observability": {
+    "enabled": false
+  },
+  "assets": {
+    "directory": "../web/dist",
+    "binding": "ASSETS",
+    "not_found_handling": "single-page-application",
+    "run_worker_first": ["/api", "/api/*", "/internal/*", "/health"]
+  },
+  "vars": {
+    "APP_ORIGIN": "https://bartosz-intelligence.eagleblastmusic.workers.dev"
+  },
+  "d1_databases": [
+    {
+      "binding": "DB",
+      "database_name": "bartosz-intelligence-core",
+      "database_id": "6f7a7527-610b-4e56-ad80-682ea7acd567",
+      "migrations_dir": "../../db/migrations"
+    }
+  ],
+  "queues": {
+    "producers": [
+      {
+        "binding": "BARTOSZ_QUEUE",
+        "queue": "bartosz-intelligence-signals"
+      }
+    ],
+    "consumers": [
+      {
+        "queue": "bartosz-intelligence-signals",
+        "max_retries": 0,
+        "max_batch_size": 1,
+        "max_concurrency": 1
+      }
+    ]
+  },
+  "triggers": {
+    "crons": ["*/5 * * * *"]
+  }
+}

@@ -6,6 +6,6 @@
   "authorized_javascript_origins": [],
   "sampled_at": "2026-10-05T18:53:01.311Z",
   "origin_source": "actual selected Cloudflare account workers subdomain",
-  "deployment_status": "NOT_DEPLOYED",
+  "deployment_status": "CONTROL_PLANE_DEPLOYED",
   "paid_services_enabled": false
 }

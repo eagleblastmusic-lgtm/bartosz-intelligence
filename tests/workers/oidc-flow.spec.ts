@@ -1,6 +1,6 @@
 import { env } from 'cloudflare:workers';
 import { beforeEach, it, expect } from 'vitest';
-import { applyMigrations } from '../../packages/core/src/db/migrations.js';
+import { resetCore } from './core-fixture.js';
 import { beginLogin, finishLogin } from '../../packages/core/src/auth/oidc.js';
 const now = new Date('2026-10-05T17:30:00Z');
 const config = {
@@ -10,10 +10,7 @@ const config = {
   ownerSubject: 'subject-a',
 };
 beforeEach(async () => {
-  // This file only owns its login-intent fixture; other canonical rows are preserved.
-  const applied = env.CORE_MIGRATIONS;
-  await applyMigrations(env.DB, applied, now.toISOString());
-  await env.DB.prepare('DELETE FROM oidc_login_intents').run();
+  await resetCore();
 });
 it('login binds state/nonce/PKCE to the initiating browser, never requests Drive scopes', async () => {
   const login = await beginLogin(env.DB, config, now);

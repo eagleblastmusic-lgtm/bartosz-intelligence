@@ -1,0 +1,10 @@
+{
+  "worker_name": "bartosz-intelligence",
+  "app_origin": "https://bartosz-intelligence.eagleblastmusic.workers.dev",
+  "database_name": "bartosz-intelligence-core",
+  "database_id": "6f7a7527-610b-4e56-ad80-682ea7acd567",
+  "queue_name": "bartosz-intelligence-signals",
+  "queue_id": "48550659182b4795a7be57551abd8311",
+  "paid_services_enabled": false,
+  "provisioned_at": "2026-10-05T19:41:59.556Z"
+}

@@ -29,6 +29,11 @@
       "depends_on": ["005_operations_snapshots_backup.sql"],
       "name": "006_discovery_scan_members.sql",
       "sha256": "90bf2c4358b104087c5ba051363f1957b0ffc0d8befd8508d07c4d6c7c971d40"
+    },
+    {
+      "name": "007_owner_bootstrap.sql",
+      "depends_on": ["006_discovery_scan_members.sql"],
+      "sha256": "3760b1ab8aa7f69a8dfb60def421d68c4ba94a59472c13ce584277cbea1c1d97"
     }
   ],
   "version": 1

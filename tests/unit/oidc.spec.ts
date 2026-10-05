@@ -35,6 +35,37 @@ const claims = {
   exp: 2000,
   iat: 900,
 };
+it('unbound subject is denied by default; bootstrap still verifies signature, nonce and audience', async () => {
+  const value = await token(claims),
+    unbound = { ...config, ownerSubject: '' },
+    nonce = await sha256('nonce');
+  await expect(
+    verifyGoogleToken(value, [publicKey], unbound, nonce, 1000),
+  ).rejects.toThrow('OIDC_DENIED');
+  expect(
+    await verifyGoogleToken(value, [publicKey], unbound, nonce, 1000, true),
+  ).toMatchObject({ subject: 'owner-subject' });
+  await expect(
+    verifyGoogleToken(
+      await token({ ...claims, aud: 'wrong' }),
+      [publicKey],
+      unbound,
+      nonce,
+      1000,
+      true,
+    ),
+  ).rejects.toThrow('OIDC_DENIED');
+  await expect(
+    verifyGoogleToken(
+      await token({ ...claims, sub: '' }),
+      [publicKey],
+      unbound,
+      nonce,
+      1000,
+      true,
+    ),
+  ).rejects.toThrow('OIDC_DENIED');
+});
 async function token(payload: object, algorithm = 'RS256') {
   const encode = (value: object) =>
     base64url(new TextEncoder().encode(JSON.stringify(value)));
