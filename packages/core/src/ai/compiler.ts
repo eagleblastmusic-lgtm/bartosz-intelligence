@@ -3,6 +3,7 @@ import { renderPrompt } from '../registry/bundle.js';
 import type { PromptSnapshot } from '../registry/store.js';
 import type { normalizeTranscript } from '../transcript/normalize.js';
 import type { AIRequest, PipelineProfile } from '../../../contracts/src/ai.js';
+import { verifyChunkPlan, type ChunkPlan } from './long-input/plan.js';
 type Manifest = Awaited<ReturnType<typeof normalizeTranscript>>['manifest'];
 export async function analysisQualityScope(
   prompt: PromptSnapshot,
@@ -11,6 +12,7 @@ export async function analysisQualityScope(
     limits: Record<string, number>;
     max_output_tokens: number;
     source_language: string;
+    analysis_mode: 'ORDINARY' | 'CHUNK';
   },
 ) {
   return sha256(
@@ -53,6 +55,7 @@ export async function compileEconomy(input: {
   mode: 'PRODUCTION' | 'QUALITY_TEST';
   max_output_tokens: number;
   limits: Record<string, number>;
+  chunk?: { plan: ChunkPlan; plan_hash: string; chunk_index: number };
 }) {
   if (
     !Number.isSafeInteger(input.max_output_tokens) ||
@@ -111,13 +114,32 @@ export async function compileEconomy(input: {
     )
   )
     throw new Error('INCOMPLETE_SOURCE_COVERAGE');
+  let assigned = manifest.anchors;
+  const chunk = input.chunk;
+  if (chunk) {
+    await verifyChunkPlan(
+      chunk.plan,
+      chunk.plan_hash,
+      manifest,
+      input.manifest_hash,
+    );
+    const part = chunk.plan.chunks[chunk.chunk_index];
+    if (
+      !part ||
+      chunk.plan.context_hash !== (await economyChunkContextHash(input)) ||
+      chunk.plan.output_tokens !== input.max_output_tokens ||
+      chunk.plan.context_tokens !== input.profile.context_tokens
+    )
+      throw new Error('CHUNK_CONTEXT_MISMATCH');
+    assigned = manifest.anchors.slice(part.overlap_start, part.primary_end);
+  }
   const text = renderPrompt(input.prompt.text, {
     wire_schema_json: JSON.stringify(input.prompt.wire.schema),
     semantic_context_json: JSON.stringify(input.semantic_context),
     limits_json: JSON.stringify(input.limits),
     source_segments_with_aliases_json: JSON.stringify(
-      manifest.anchors.map((anchor) => ({
-        segment_ref: anchor.alias,
+      assigned.map((anchor, index) => ({
+        segment_ref: chunk ? `s${index + 1}` : anchor.alias,
         text: anchor.text,
       })),
     ),
@@ -132,6 +154,7 @@ export async function compileEconomy(input: {
     limits: structuredClone(input.limits),
     max_output_tokens: input.max_output_tokens,
     source_language: input.semantic_context.source_language,
+    analysis_mode: chunk ? ('CHUNK' as const) : ('ORDINARY' as const),
   };
   const scope = await analysisQualityScope(
     input.prompt,
@@ -153,6 +176,18 @@ export async function compileEconomy(input: {
   };
   const runContext = {
     source_artifact_id: input.source_artifact_id,
+    chunk: chunk
+      ? {
+          plan_hash: chunk.plan_hash,
+          chunk_index: chunk.chunk_index,
+          assigned_aliases: structuredClone(
+            chunk.plan.chunks[chunk.chunk_index]!.aliases,
+          ),
+          primary_segment_ids: [
+            ...chunk.plan.chunks[chunk.chunk_index]!.primary_segment_ids,
+          ],
+        }
+      : null,
     source_revision: manifest.source_revision,
     source_manifest_hash: input.manifest_hash,
     source_text_version: manifest.source_text_version,
@@ -170,4 +205,33 @@ export async function compileEconomy(input: {
     run_context: runContext,
     context_hash: await sha256(JSON.stringify(runContext)),
   };
+}
+export async function economyChunkContextHash(input: {
+  manifest_hash: string;
+  prompt: PromptSnapshot;
+  profile: PipelineProfile;
+  profile_revision: string;
+  max_output_tokens: number;
+  limits: Record<string, number>;
+  semantic_context: {
+    title: string | null;
+    author: string | null;
+    published_at: string | null;
+    source_language: string;
+  };
+}) {
+  return sha256(
+    JSON.stringify({
+      manifest_hash: input.manifest_hash,
+      prompt_hash: input.prompt.prompt_hash,
+      wire_hash: input.prompt.wire.hash,
+      profile: input.profile,
+      profile_revision: input.profile_revision,
+      max_output_tokens: input.max_output_tokens,
+      limits: Object.fromEntries(
+        Object.entries(input.limits).sort(([a], [b]) => a.localeCompare(b)),
+      ),
+      semantic_context: input.semantic_context,
+    }),
+  );
 }

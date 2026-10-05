@@ -1,5 +1,9 @@
 import { it, expect } from 'vitest';
-import { compileEconomy } from '../../packages/core/src/ai/compiler.js';
+import {
+  compileEconomy,
+  economyChunkContextHash,
+} from '../../packages/core/src/ai/compiler.js';
+import { createChunkPlan } from '../../packages/core/src/ai/long-input/plan.js';
 import { normalizeTranscript } from '../../packages/core/src/transcript/normalize.js';
 import { sha256 } from '../../packages/core/src/auth/crypto.js';
 import {
@@ -91,6 +95,59 @@ async function fixture() {
     limits: { claims: 40 },
   };
 }
+it('chunk compiler pins full original source but sends only assigned local aliases and a distinct quality scope', async () => {
+  const input = await fixture();
+  const cues = Array.from({ length: 200 }, (_, index) => ({
+    upstream_index: index,
+    text: `Cue ${index}: ` + 'ordinary source statement '.repeat(6),
+    start_ms: index * 1000,
+    end_ms: index * 1000 + 1500,
+    speaker_label: null,
+  }));
+  const source = await normalizeTranscript(
+    await sha256(cues.map((c) => c.text).join('\n')),
+    cues,
+    'CUE',
+  );
+  Object.assign(input, {
+    source_text: source.source_text,
+    manifest: source.manifest,
+    manifest_hash: source.manifest_hash,
+  });
+  input.profile.context_tokens = 12000;
+  const built = await createChunkPlan({
+    ...source,
+    context_hash: await economyChunkContextHash(input),
+    context_tokens: 12000,
+    output_tokens: input.max_output_tokens,
+    prompt_overhead_tokens: 7000,
+  });
+  const part = built.plan.chunks[1]!;
+  const compiled = await compileEconomy({
+    ...input,
+    chunk: { ...built, chunk_index: 1 },
+  });
+  expect(compiled.run_context.chunk?.assigned_aliases).toEqual(part.aliases);
+  expect(compiled.run_context.source_revision).toBe(
+    source.manifest.source_revision,
+  );
+  expect(compiled.request.prompt).toContain(
+    source.manifest.anchors[part.primary_start]!.text,
+  );
+  expect(compiled.request.prompt).not.toContain(
+    source.manifest.anchors[0]!.text,
+  );
+  expect(compiled.request.prompt).toContain('"segment_ref":"s1"');
+  expect(compiled.run_context.generation_settings.analysis_mode).toBe('CHUNK');
+  const changed = {
+    ...input,
+    limits: { claims: 1 },
+    chunk: { ...built, chunk_index: 1 },
+  };
+  await expect(compileEconomy(changed)).rejects.toThrow(
+    'CHUNK_CONTEXT_MISMATCH',
+  );
+});
 it('one admitted structural repair preserves content and cannot repair its envelope or semantic errors', async () => {
   const main = (await compileEconomy(await fixture())).request;
   // Synthetic budget and measured error class are fixture inputs, not a live approval.
