@@ -14,6 +14,11 @@
       "sha256": "b101d30017b99f5283cb631c567ce47acbe84052693a5591c85d18e531e22dc4",
       "depends_on": ["002_sources_items.sql"],
       "name": "003_jobs_outbox.sql"
+    },
+    {
+      "name": "004_runs_registry_exports.sql",
+      "depends_on": ["003_jobs_outbox.sql"],
+      "sha256": "f2eb46d0319cd3fced2d05e94bd5cd36b122957f96c84845c10e15a5398f280f"
     }
   ],
   "version": 1

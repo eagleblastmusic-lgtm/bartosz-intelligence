@@ -123,7 +123,7 @@ export class JobStore {
         .prepare(
           `UPDATE jobs SET state='LEASED',lease_owner=?,lease_until=?,fencing_token=fencing_token+1,attempt_count=attempt_count+1,updated_at=?
         WHERE owner_id=? AND job_id=? AND task_type=? AND state='PENDING' AND due_at<=?
-        AND EXISTS(SELECT 1 FROM worker_identities w WHERE w.owner_id=jobs.owner_id AND w.worker_id=? AND w.revoked_at IS NULL)`,
+        AND EXISTS(SELECT 1 FROM worker_identities w WHERE w.owner_id=jobs.owner_id AND w.worker_id=? AND w.revoked_at IS NULL AND w.credential_hash=?)`,
         )
         .bind(
           this.context.actorId,
@@ -134,6 +134,7 @@ export class JobStore {
           task,
           now.toISOString(),
           this.context.actorId,
+          this.context.credentialHash!,
         ),
       this.db
         .prepare(
@@ -166,7 +167,7 @@ export class JobStore {
     const result = await this.db
       .prepare(
         `UPDATE jobs SET state='RUNNING',updated_at=? WHERE owner_id=? AND job_id=? AND task_type=? AND state='LEASED' AND lease_owner=? AND fencing_token=? AND lease_until>?
-      AND EXISTS(SELECT 1 FROM worker_identities WHERE owner_id=? AND worker_id=? AND revoked_at IS NULL)`,
+      AND EXISTS(SELECT 1 FROM worker_identities WHERE owner_id=? AND worker_id=? AND revoked_at IS NULL AND credential_hash=?)`,
       )
       .bind(
         now.toISOString(),
@@ -178,9 +179,44 @@ export class JobStore {
         now.toISOString(),
         this.context.ownerId,
         this.context.actorId,
+        this.context.credentialHash!,
       )
       .run();
     if (result.meta.changes !== 1) throw new Error('STALE_FENCE');
+  }
+  async heartbeat(
+    token: LeaseToken,
+    task: TaskType,
+    now: Date,
+    runtime: 'local' | 'cloud',
+  ) {
+    this.context.requireTask(task);
+    if (token.lease_owner !== this.context.actorId)
+      throw new Error('STALE_FENCE');
+    const until = new Date(
+      now.getTime() + (runtime === 'local' ? 900000 : 300000),
+    ).toISOString();
+    const result = await this.db
+      .prepare(
+        `UPDATE jobs SET lease_until=?,updated_at=? WHERE owner_id=? AND job_id=? AND task_type=? AND state IN ('LEASED','RUNNING') AND lease_owner=? AND fencing_token=? AND lease_until>?
+      AND EXISTS(SELECT 1 FROM worker_identities WHERE owner_id=? AND worker_id=? AND revoked_at IS NULL AND credential_hash=?)`,
+      )
+      .bind(
+        until,
+        now.toISOString(),
+        this.context.ownerId,
+        token.job_id,
+        task,
+        this.context.actorId,
+        token.fencing_token,
+        now.toISOString(),
+        this.context.ownerId,
+        this.context.actorId,
+        this.context.credentialHash!,
+      )
+      .run();
+    if (result.meta.changes !== 1) throw new Error('STALE_FENCE');
+    return { ...token, lease_until: until };
   }
   async disposition(
     token: LeaseToken,
@@ -198,7 +234,7 @@ export class JobStore {
         .prepare(
           `UPDATE job_attempts SET finished_at=?,error_code=? WHERE owner_id=? AND job_id=? AND fencing_token=?
         AND EXISTS(SELECT 1 FROM jobs WHERE owner_id=? AND job_id=? AND task_type=? AND state='RUNNING' AND lease_owner=? AND fencing_token=? AND lease_until>?)
-        AND EXISTS(SELECT 1 FROM worker_identities WHERE owner_id=? AND worker_id=? AND revoked_at IS NULL)`,
+        AND EXISTS(SELECT 1 FROM worker_identities WHERE owner_id=? AND worker_id=? AND revoked_at IS NULL AND credential_hash=?)`,
         )
         .bind(
           now.toISOString(),
@@ -214,11 +250,12 @@ export class JobStore {
           now.toISOString(),
           this.context.ownerId,
           this.context.actorId,
+          this.context.credentialHash!,
         ),
       this.db
         .prepare(
           `UPDATE jobs SET state=?,reason_code=?,due_at=?,updated_at=?,lease_owner=NULL,lease_until=NULL WHERE owner_id=? AND job_id=? AND task_type=? AND state='RUNNING' AND lease_owner=? AND fencing_token=? AND lease_until>?
-        AND EXISTS(SELECT 1 FROM worker_identities WHERE owner_id=? AND worker_id=? AND revoked_at IS NULL)`,
+        AND EXISTS(SELECT 1 FROM worker_identities WHERE owner_id=? AND worker_id=? AND revoked_at IS NULL AND credential_hash=?)`,
         )
         .bind(
           state,
@@ -233,6 +270,7 @@ export class JobStore {
           now.toISOString(),
           this.context.ownerId,
           this.context.actorId,
+          this.context.credentialHash!,
         ),
     ]);
     if (results[1]?.meta.changes !== 1) throw new Error('STALE_FENCE');

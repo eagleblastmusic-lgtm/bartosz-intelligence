@@ -16,6 +16,7 @@ export class AccessContext {
     readonly actorId: string,
     readonly kind: 'owner' | 'worker',
     readonly scopes: readonly string[],
+    readonly credentialHash: string | null = null,
   ) {
     contexts.add(this);
     Object.freeze(this);
@@ -49,6 +50,7 @@ export class AccessContext {
       row.worker_id,
       'worker',
       Object.freeze(scopes),
+      credentialHash,
     );
   }
   requireOwner() {
