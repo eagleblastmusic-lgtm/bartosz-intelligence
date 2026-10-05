@@ -137,3 +137,23 @@ it('rejects unsupported alg, unknown signing key and altered signature', async (
     ),
   ).rejects.toThrow('OIDC_DENIED');
 });
+it('diagnostic reasons distinguish claims and nonce rejection without changing acceptance', async () => {
+  await expect(
+    verifyGoogleToken(
+      await token({ ...claims, aud: 'wrong' }),
+      [publicKey],
+      config,
+      await sha256('nonce'),
+      1000,
+    ),
+  ).rejects.toMatchObject({ message: 'OIDC_DENIED', reason: 'CLAIMS' });
+  await expect(
+    verifyGoogleToken(
+      await token(claims),
+      [publicKey],
+      config,
+      await sha256('wrong-nonce'),
+      1000,
+    ),
+  ).rejects.toMatchObject({ message: 'OIDC_DENIED', reason: 'NONCE' });
+});

@@ -4,6 +4,7 @@ import application from '../../../config/application.json';
 import {
   beginLogin,
   finishLogin,
+  OidcFailure,
 } from '../../../packages/core/src/auth/oidc.js';
 import {
   issueSession,
@@ -107,6 +108,7 @@ authApp.onError((error, c) => {
         ? 'Owner authentication configuration is required.'
         : 'Authentication denied.',
       correlation_id: crypto.randomUUID(),
+      ...(error instanceof OidcFailure ? { reason: error.reason } : {}),
     },
     config ? 503 : forbidden ? 403 : 401,
   );
