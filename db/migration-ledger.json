@@ -49,6 +49,11 @@
       "name": "010_registry_integrity.sql",
       "depends_on": ["009_transcript_artifacts.sql"],
       "sha256": "4d3bcdafc53d0db2a536f493b47734d9ef859c0139061b61dc8d4934cfccb9e0"
+    },
+    {
+      "name": "011_ai_admission.sql",
+      "depends_on": ["010_registry_integrity.sql"],
+      "sha256": "8e5c42803cd7a39db8b87a5e39c9be18964dbc2e50f6b96c32fe6351c64bf78a"
     }
   ],
   "version": 1

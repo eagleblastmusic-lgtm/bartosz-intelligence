@@ -23,6 +23,11 @@ import { RepresentationRepository } from '../../packages/core/src/transcript/rep
 import { selectTranscriptLanguage } from '../../packages/core/src/transcript/language.js';
 import { TranscriptRecovery } from '../../packages/core/src/transcript/recovery.js';
 import { sweep } from '../../packages/core/src/jobs/recovery.js';
+import {
+  QuotaAdmission,
+  type AdmissionBucket,
+} from '../../packages/core/src/ai/admission.js';
+import type { TaskType } from '../../packages/contracts/src/jobs.js';
 beforeEach(resetCore);
 it('caption recovery persists independent counters and derives a durable shared circuit', async () => {
   const { access, token } = await setup(),
@@ -93,7 +98,7 @@ it('caption recovery persists independent counters and derives a durable shared 
     ).first('n'),
   ).toBe(2);
 });
-async function setup() {
+async function setup(taskType: TaskType = 'FETCH_TRANSCRIPT') {
   const owner = await fixtureOwner(),
     source = (await new SourceRepository(env.DB, owner).upsert(
       {
@@ -127,7 +132,7 @@ async function setup() {
       'artifact-worker',
       'a',
       credential,
-      '["FETCH_TRANSCRIPT"]',
+      JSON.stringify([taskType]),
       fixtureNow.toISOString(),
     )
     .run();
@@ -135,7 +140,7 @@ async function setup() {
     {
       item_id: item.item_id,
       source_id: source.source_id,
-      task_type: 'FETCH_TRANSCRIPT',
+      task_type: taskType,
       input_revision: 'fixture',
       profile_revision: 'fixture',
       prompt_snapshot_id: null,
@@ -154,13 +159,8 @@ async function setup() {
   ))!;
   const access = await AccessContext.worker(env.DB, credential),
     store = new JobStore(env.DB, access),
-    token = (await store.lease(
-      job.job_id,
-      'FETCH_TRANSCRIPT',
-      fixtureNow,
-      'local',
-    ))!;
-  await store.start(token, 'FETCH_TRANSCRIPT', fixtureNow);
+    token = (await store.lease(job.job_id, taskType, fixtureNow, 'local'))!;
+  await store.start(token, taskType, fixtureNow);
   return {
     owner,
     access,
@@ -169,6 +169,122 @@ async function setup() {
     repository: new ArtifactRepository(env.DB, access),
   };
 }
+it('atomic AI reservation has one winner for the last request and cannot resubmit or use stale lease', async () => {
+  const { access, token } = await setup('ANALYZE'),
+    quota = new QuotaAdmission(env.DB, access);
+  const buckets: AdmissionBucket[] = [];
+  for (const bucket of ['RPM', 'RPD', 'INPUT_TPM'] as const) {
+    const row = {
+      snapshot_id: bucket,
+      bucket,
+      window_start: fixtureNow.toISOString(),
+      reset_at: new Date(fixtureNow.getTime() + 3600000).toISOString(),
+      remaining: bucket === 'INPUT_TPM' ? 1000 : 1,
+      sampled_at: fixtureNow.toISOString(),
+      expires_at: new Date(fixtureNow.getTime() + 60000).toISOString(),
+      reserve: 0,
+    };
+    buckets.push(row);
+    await env.DB.prepare(
+      'INSERT INTO quota_snapshots VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)',
+    )
+      .bind(
+        bucket,
+        'a',
+        'gemini',
+        'gemini-3.8-flash',
+        bucket,
+        bucket === 'INPUT_TPM' ? 'tokens' : 'requests',
+        row.remaining,
+        0,
+        row.remaining,
+        row.reset_at,
+        'America/Los_Angeles',
+        'dashboard',
+        row.sampled_at,
+        row.expires_at,
+        'actual',
+      )
+      .run();
+  }
+  const input = {
+    account_key: 'fixture-project',
+    model: 'gemini-3.8-flash',
+    input_tokens: 100,
+    buckets,
+    paid_services_enabled: false,
+  };
+  const results = await Promise.allSettled(
+    ['first', 'second'].map((request_id) =>
+      quota.reserve({ ...input, request_id }, token, fixtureNow),
+    ),
+  );
+  expect(results.filter((row) => row.status === 'fulfilled')).toHaveLength(1);
+  expect(
+    await env.DB.prepare('SELECT COUNT(*) AS n FROM quota_reservations').first(
+      'n',
+    ),
+  ).toBe(1);
+  const winner = results.find((row) => row.status === 'fulfilled')!;
+  if (winner.status !== 'fulfilled') throw new Error('FIXTURE');
+  await quota.submit(winner.value.reservation_id, token, fixtureNow);
+  await expect(
+    quota.submit(winner.value.reservation_id, token, fixtureNow),
+  ).rejects.toThrow('RESERVATION_NOT_SUBMITTABLE');
+  await expect(
+    quota.reserve(
+      { ...input, request_id: 'stale' },
+      { ...token, fencing_token: token.fencing_token + 1 },
+      fixtureNow,
+    ),
+  ).rejects.toThrow('QUOTA_ADMISSION_DENIED');
+  await expect(
+    quota.reserve(
+      { ...input, request_id: 'paid', paid_services_enabled: true },
+      token,
+      fixtureNow,
+    ),
+  ).rejects.toThrow('PAID_SERVICES_DISABLED_REQUIRED');
+  const response = {
+    request_id: winner.value.request_id,
+    status: 'TEMPORARY_FAILURE' as const,
+    raw_output: null,
+    actual_provider: 'gemini',
+    actual_model: null,
+    finish_reason: 'TRANSPORT_FAILURE',
+    usage: { input_tokens: null, output_tokens: null, total_tokens: null },
+    retry_after: null,
+  };
+  await quota.reconcile(winner.value.reservation_id, response, fixtureNow);
+  await quota.reconcile(winner.value.reservation_id, response, fixtureNow);
+  expect(
+    await env.DB.prepare(
+      'SELECT state FROM quota_reservations WHERE reservation_id=?',
+    )
+      .bind(winner.value.reservation_id)
+      .first('state'),
+  ).toBe('UNKNOWN');
+  expect(
+    await env.DB.prepare(
+      'SELECT charged_input_tokens FROM quota_reservations WHERE reservation_id=?',
+    )
+      .bind(winner.value.reservation_id)
+      .first('charged_input_tokens'),
+  ).toBe(100);
+  await expect(
+    quota.reserve({ ...input, request_id: 'after-timeout' }, token, fixtureNow),
+  ).rejects.toThrow('QUOTA_ADMISSION_DENIED');
+  await expect(
+    quota.reconcile(
+      winner.value.reservation_id,
+      {
+        ...response,
+        usage: { input_tokens: 1, output_tokens: 1, total_tokens: 2 },
+      },
+      fixtureNow,
+    ),
+  ).rejects.toThrow('USAGE_RECONCILIATION_CONFLICT');
+});
 it('representation binds verified source, immutable selection and current fence', async () => {
   const { access, item, token, repository } = await setup();
   const text = 'Original source',
