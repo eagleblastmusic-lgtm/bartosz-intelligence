@@ -1,0 +1,28 @@
+{
+  "sampled_at": "2026-10-05T22:04:18.530Z",
+  "runtime": "local",
+  "provider_version": "yt-dlp@2026.08.19+yt-dlp-ejs@0.8.0",
+  "video_id": "uEztHu4NHrs",
+  "list_status": "OK",
+  "track_count": 173,
+  "selected": {
+    "language": "ar",
+    "kind": "MANUAL",
+    "is_translated": false,
+    "is_original": null
+  },
+  "fetch_status": "OK",
+  "failure_code": null,
+  "cue_count": 241,
+  "raw_payload_hash": "0ac4d4c6f9a7f092792ec90426b9ae472f14ce87464c8b90468ad4badff164dd",
+  "source_times": {
+    "first": 0,
+    "last": 790870
+  },
+  "warnings": [],
+  "bytes": 49770,
+  "paid_services_enabled": false,
+  "model_generation_requests": 0,
+  "result": "PASS",
+  "evidence_sha256": "05c61e9e467649ef49dafaca1f189cb1731fa8b99684196d21a69929dd665ec0"
+}

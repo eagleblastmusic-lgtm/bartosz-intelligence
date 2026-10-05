@@ -1,0 +1,9 @@
+# CP-3.2 — qualified local transcript adapter
+
+PASS, 2026-10-05 UTC. The production TranscriptProvider contract preserves classified failures, source timestamps, original decoded cue text and private raw payload bytes. Only the Stage 01 qualified local yt-dlp 2026.08.19 + yt-dlp-ejs 0.8.0 route is implemented. Cloud execution returns unavailable; translation/STT capabilities remain disabled. No paid fallback or model request is made.
+
+Python reuses the qualified timing parsers in an isolated import, excluding their benchmark-only text normalization. Signed caption locators remain private, restricted to HTTPS YouTube timedtext with no alternate port/userinfo. The child process receives an environment allowlist without application credentials; bounded bytes, deadline, concurrency one and zero internal retries apply. The TypeScript boundary verifies dependency versions, payload SHA-256, selected track identity and integer cue times. Source duration overrun is a warning and never clips source timestamps.
+
+Verification: 39 files / 183 tests PASS, four Python regressions PASS, lint/typecheck/build including the executor PASS. Conformance includes unavailable runtime, expired/foreign track, malformed payload/hash, bounds, deadline, concurrency, denied access and all failure classes. Live smoke receipt: `transcript/runtime-2026-10-05T22-04-18.530Z.json`: 173 tracks, 241 cues, 49,770 raw bytes, matching SHA-256, zero AI requests. Raw content is retained privately outside Git.
+
+This smoke establishes adapter behavior, not original-language authority: the selected manual Arabic track has unknown original provenance. CP-3.3 must select source from actual metadata and retain unknown provenance. Stage 01 benchmarks were not repeated. No production transcript handler or ninth remote migration is claimed here.
