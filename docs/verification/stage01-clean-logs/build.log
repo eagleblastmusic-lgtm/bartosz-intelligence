@@ -1,0 +1,27 @@
+vite v8.3.2 building client environment for production...
+transforming...
+✓ 14 modules transformed.
+rendering chunks...
+computing gzip size...
+dist/index.html                  0.25 kB │ gzip:  0.19 kB
+dist/assets/index-BKnrB5Nx.js  219.65 kB │ gzip: 68.63 kB
+
+✓ built in 462ms
+
+ ⛅️ wrangler 4.147.0
+────────────────────
+✨ Read 3 files from the assets directory C:\Projekty\Aplikacje\Bartosz Intelligence\.local\clean-stage01-b263317\apps\web\dist
+Total Upload: 59.01 KiB / gzip: 14.94 KiB
+Your Worker has access to the following bindings:
+Binding                                        Resource         
+env.BARTOSZ_QUEUE (stage01-local-fixture)      Queue            
+env.DB (stage01-local-fixture)                 D1 Database      
+env.ASSETS                                     Assets           
+
+--dry-run: exiting now.
+packages/core build$ tsc -p tsconfig.json
+packages/telemetry build$ tsc -p tsconfig.json
+packages/contracts build$ tsc -p tsconfig.json
+packages/contracts build: Done
+packages/telemetry build: Done
+packages/core build: Done

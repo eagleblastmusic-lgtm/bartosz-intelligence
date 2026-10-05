@@ -1,13 +1,15 @@
 # Stage 01 progress
 
 Stage: 01
-Status: IN_PROGRESS
-Current checkpoint: CP-1.8 clean verification
-Last completed checkpoints: CP-1.1–CP-1.7 COMPLETE
-Stage 02: NOT_STARTED
+Status: DONE
+Last completed checkpoint: CP-1.8
+CP-1.1–CP-1.8 COMPLETE
+Decision: GO
+Stage02: NOT_STARTED
+Final tag: stage-01-done
 
-CP-1.6 PASS under explicitly authorized criteria amendment v2; historical criteria-v1 FAIL unchanged. Corpus/data/denominator/CPU/250ms fidelity and1000ms metadata-warning threshold unchanged.35/36eligible success;35source proofs exact. Seven SOURCE_DURATION_OVERRUN warnings retained,not adapter failures. References:gate-0/CRITERIA_AMENDMENT_V2.json,FINAL_EVALUATION_V2.json,REPORT_V2.md.
+GateE PASS;Gate0 criteria-v2 PASS35/36 (97.22%),originalcriteria-v1FAIL/data/historyunchanged. Seven source-duration metadata warnings retained,source drift0. Measured localPython yt-dlp PRIMARY;Gemini3.8FlashFree;Cloudflare control plane. EdgeCPUFAIL and other unqualified roles disabled. No paid/billing/trial fallback.
 
-CP-1.7 PASS: PRIMARY local yt-dlp Python3.14.4; Cloudflare remains control plane; Gemini gemini-3.8-flash Free. Secondary/tertiary/last-resort optional routes disabled;Edge CPUFAIL retained. Owner local8h/day. Actual quota snapshots plus demand/length assumptions in20-channel-preflight.json;mu UNKNOWN/GateC NOT_RUN.
+Clean110 tests PASS,install/lint/format/typecheck/build/config/migrations PASS. Original browser cache error and corrected PASS logged. DoD/evaluator:docs/verification/stage01-definition-of-done.json;details:STAGE_01_COMPLETION.md,Gate0REPORT_V2,GateEreport,20-channelpreflight,cleanverification. Ownerlocal8h/day,quota remaining/usablecapacityUNKNOWN;GateCNOT_RUN.
 
-Next: full clean frozen install,lints/format/typecheck/build/config/migrations/unit/contracts/real workerd/browser smoke,final DoD/handoff/evaluator. No Stage02 implementation.
+No further Stage01 work required. Stage02 may start separately with index,own plan and completion handoff;it was not opened or implemented here.

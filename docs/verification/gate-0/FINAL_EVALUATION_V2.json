@@ -179,7 +179,7 @@
     "reason": "LIBRARY_DOWNLOADERROR",
     "permanent_provider_failure": false,
     "automatic_retry": false,
-    "reason_no_retry": "Even recovery yields at most29/36 functional successes; cannot resolve seven source-duration conflicts"
+    "reason_no_retry": "35/36 meets amended frozen95% threshold; failure retained in denominator; no extra retry required"
   },
   "edge_cpu": "FAIL_DISABLED; originalp95 62/max63 and one optimized retest59ms retained",
   "qualified_runtime": "owner-local Python3.14.4; yt-dlp@2026.08.19+yt-dlp-ejs@0.8.0; Cloudflare remains control plane",

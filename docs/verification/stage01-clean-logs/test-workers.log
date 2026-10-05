@@ -1,0 +1,9 @@
+
+ RUN  v4.1.11 C:/Projekty/Aplikacje/Bartosz Intelligence/.local/clean-stage01-b263317
+
+
+ Test Files  2 passed (2)
+      Tests  6 passed (6)
+   Start at  19:10:32
+   Duration  3.16s (transform 178ms, setup 0ms, import 303ms, tests 130ms, environment 0ms)
+

@@ -1,0 +1,61 @@
+{
+  "stage": "01",
+  "status": "DONE",
+  "decision": "GO",
+  "as_of": "2026-10-05T17:16:23.247Z",
+  "verified_implementation_commit": "b263317",
+  "completion_tag": "stage-01-done",
+  "evaluated_input": {
+    "activeGates": {
+      "eligibility": "PASS",
+      "source": "PASS",
+      "localRuntime": "PASS"
+    },
+    "evidenceComplete": true,
+    "cleanVerification": "PASS",
+    "architectureChangeRequired": false,
+    "inactiveConditions": []
+  },
+  "checks": {
+    "all_checkpoint_exits": "PASS",
+    "exact_toolchain_and_clean_install": "PASS",
+    "hard_free_guard": "PASS",
+    "worker_assets_api_boundary": "PASS",
+    "active_service_gate_e": "PASS",
+    "corpus40_channels28_two_windows": "PASS",
+    "source_fidelity_and_95_percent": "PASS_CRITERIA_V2",
+    "original_criteria_v1_fail_retained": "PASS",
+    "immutable_corpus_results_and_history": "PASS",
+    "cpu_recovery": "PASS_LOCAL_MEASURED_EDGE_DISABLED",
+    "allowed_provider_roles": "PASS",
+    "architecture_deviation": "NONE",
+    "handoff": "PASS",
+    "capacity": "UNKNOWN_GATE_C_NOT_RUN"
+  },
+  "tests": {
+    "unit": 53,
+    "contract": 42,
+    "workers": 6,
+    "e2e": 1,
+    "python": 8,
+    "total": 110
+  },
+  "clean_ref": "docs/verification/stage01-clean-verification.json",
+  "source_ref": "docs/verification/gate-0/FINAL_EVALUATION_V2.json",
+  "preflight_ref": "docs/verification/20-channel-preflight.json",
+  "conditions": [],
+  "restrictions": [
+    "Edge CPUFAIL and unqualified fallback roles remain disabled",
+    "Refresh quota/eligibility admission before real production submissions",
+    "Propagate seven source-duration metadata warnings; never alter source times",
+    "Local owner computer declared8h/day; no SLA or capacityPASS",
+    "GateC NOT_RUN;Stage02 not executed"
+  ],
+  "final_targeted_verification": {
+    "handoff_config_decision_tests": 5,
+    "status": "PASS",
+    "root_format": "PASS",
+    "secret_scan": "PASS",
+    "original_inputs_unchanged": true
+  }
+}

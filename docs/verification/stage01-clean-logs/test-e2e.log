@@ -1,0 +1,26 @@
+
+Running 1 test using 1 worker
+F
+
+  1) tests\e2e\bootstrap.spec.ts:2:1 › same-origin Assets shell, health, API boundary ──────────────
+
+    Error: browserType.launch: Executable doesn't exist at C:\Users\Skarabeusz\AppData\Local\ms-playwright\chromium_headless_shell-1243\chrome-headless-shell-win64\chrome-headless-shell.exe
+    ╔════════════════════════════════════════════════════════════╗
+    ║ Looks like Playwright was just installed or updated.       ║
+    ║ Please run the following command to download new browsers: ║
+    ║                                                            ║
+    ║     pnpm exec playwright install                           ║
+    ║                                                            ║
+    ║ <3 Playwright Team                                         ║
+    ╚════════════════════════════════════════════════════════════╝
+
+    Error Context: test-results\bootstrap-same-origin-Assets-shell-health-API-boundary\error-context.md
+
+  1 failed
+    tests\e2e\bootstrap.spec.ts:2:1 › same-origin Assets shell, health, API boundary ───────────────
+
+$ playwright test
+[WebServer] $ wrangler dev --local --config apps/api/wrangler.jsonc --persist-to .local/worker
+(node:39048) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+[ELIFECYCLE] Command failed with exit code 1.

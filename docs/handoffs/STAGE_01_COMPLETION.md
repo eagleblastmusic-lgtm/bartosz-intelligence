@@ -1,73 +1,74 @@
 # Stage completion handoff
 
 Stage: 01 / 01_PHASE_0_GATES_AND_BOOTSTRAP.md
-Status: READY_FOR_VERIFICATION
-Date: 2026-10-05T17:07:39.603Z
-Final commit/tag: pending CP-1.8 clean verification.
-Decision: final verification pending; Stage02 NOT_STARTED.
+Status: DONE
+Date: 2026-10-05T17:16:23.247Z
+Verified implementation commit: b263317
+Final commit/tag: stage-01-done (resolve with git rev-parse stage-01-done)
+Decision: GO for qualified active baseline. Stage02 NOT_STARTED.
 
 ## Implemented
 
-CP-1.1–CP-1.3 COMPLETE bootstrap/config/local worker. CP-1.4 GateE PASS real Free accounts and canonical Gemini response. CP-1.5 corpus/preregistration COMPLETE. CP-1.6 originalcriteria-v1 FAIL preserved; authorizedversioned amendmentv2 yieldsPASS with35/36 eligible,seven separatemetadata warnings. CP-1.7 qualifiedlocal PRIMARY/FreeAI and20channel preflight COMPLETE. CP-1.8 finalclean suite pending. No Stage02 features.
+CP-1.1–CP-1.8 COMPLETE. Bootstrap, Free guards, actual Gate E, frozen corpus/live measurement, explicit criteria amendment, measured local provider selection and clean verification. No Stage 02 features.
 
 ## Files/modules created
 
-apps/api health,reserved API/Assets routing;React shell;packages/contracts typedpolicy and packages/core ProviderRegistry/Freeadmission;telemetryredaction;tools/db isolatedsmoke/migrationverification;tools/gates eligibility/livebenchmark/sourceproof/functionalcriteria/decisionevaluator;config/defaults.json,provider-selection.json,qualified-runtime.json;tests unit/contracts/workerd/browser. Gate0/evidence JSON refs below. Originalbootstrap details preserved under history/.
+apps/api health and reserved API/Assets boundary; apps/web React shell; packages/contracts/core/telemetry policy, ProviderRegistry and redaction; tools/db smoke/migrations; tools/gates eligibility, bounded captions benchmark, source verification and evaluators. config/defaults.json remains disabled; provider-selection.json and qualified-runtime.json record the qualified route. Tests unit/contracts/workerd/browser.
 
 ## Database migrations
 
-NONE production. Emptyledger;isolatedlocalfixture androllback tested. No productionD1/schema mutation.
+NONE production. Empty ledger, isolated fixture and rollback verified; no remote schema mutation.
 
 ## API/contracts introduced
 
-Policyv1,immutableProviderDescriptor andguardedFetch;gate0-corpus-1.0,gate0-live-observation-1.0;explicitgate0-criteria-v2 amendment. Health/shell and reserved/api404 only. Domainjobs/leases/API remain future work. qualified-runtime.json admits local-ytdlp and gemini via existingregistry;defaults remain disabled. Qualification does not implement or submit productionjobs.
+Policy v1, immutable ProviderDescriptor and guardedFetch; gate0-corpus-1.0, gate0-live-observation-1.0 and explicit gate0-criteria-v2. Health/shell and reserved /api404 only. Domain jobs/leases/Core API remain future work. Allowed route: local-ytdlp + gemini via existing registry. Qualification submits no production jobs.
 
 ## Tests
 
-Passed:38Gate0contracts (including immutablev1FAIL and v2sourceoverrun regression);4qualifiedconfiguration/decisiontests;8Pythonparser/adaptertests;toolstypecheck/lint. EarlierCP1.3 cleanbootstrap evidence retained. FullCP1.8cleanverification pending; noPASS frommocks forlivegates. HistoricalEdgeCPUFAIL andcriteria-v1FAIL retained;not currentactive-route failures.
+Clean export b263317 without .env/node_modules: frozen offline install, lint, format, typecheck, build, config and migrations PASS. 53 unit +42 contract +6 real workerd +1 Chromium +8 Python =110 tests PASS. Python uses existing pinned dependencies against clean source. Initial Chromium executable lookup failed; only PLAYWRIGHT_BROWSERS_PATH corrected to existing pinned cache, then PASS. Both logs retained; no remaining required test failures. Evidence: docs/verification/stage01-clean-verification.json and referenced logs.
 
 ## Runtime verification
 
-Actual40video/28channelcorpus in two frozenwindows12:23/13:29 Warsaw2026-10-05;36eligible/4naturalnocaptions.35/36success97.22%,Wilson95% interval85.83–99.51%;smallcorpus notglobal95%proof.35sourcecases/38962boundaries0msdrift,originalrawhashes andtext/cuecounts match;5officialUIstrata checks. Source uses independentfieldreader but sameextractorURLresolution;not independentupstreamavailability. Remaining1TEMPORARY_FAILURE persists without unnecessaryretry. All138rows retained,max4attempts,0lost/duplicate/fabricatedtimestamps.
+Actual40 videos /28channels /36eligible /4natural no-captions in two windows12:23 and13:29 Europe/Warsaw2026-10-05. 35/36=97.22%; Wilson95% interval85.83–99.51%, not global95% proof. 35source cases /38962 cue boundaries /0ms drift; original input hashes, text hashes and cue counts match;5official UI strata checks. Same extractor resolves source URLs, independent timing-field reader verifies payload; no independent upstream-availability claim. All138rows retained,max4attempts,0lost/duplicate/fabricated times. One transient remains counted; no extra live requests for amendment.
 
-Seven SOURCE_DURATION_OVERRUN metadatawarnings1360–2780ms retain originalsourceends and1000mssanitywarning;no toleranceincrease,corpusmutation orclipping. OriginalFINAL_EVALUATION.json FAIL unchanged;amendmentregistered before newFINAL_EVALUATION_V2.json. Scheduleversionsv1/v2/v3 are distinctfromcriteriav1/v2. Manifest26c4508b2e148a1c102dd34d7f289f76a0100bdfa5db245d2eb73ce26e0a66df;resultshash55089a5e82bdd2c44debfcf92f1203610c71570d453ca0a248c2c9ad7465e02d.
+Historical FINAL_EVALUATION.json FAIL unchanged. CRITERIA_AMENDMENT_V2.json registered before FINAL_EVALUATION_V2.json PASS. Schedule revisionsv1/v2/v3 are separate from criteriav1/v2. Seven SOURCE_DURATION_OVERRUN warnings1360–2780ms retain original source times and1000ms metadata-warning threshold;250ms source-fidelity tolerance unchanged. Corpus/data hashes unchanged, no clipping or tolerance increase.
 
-EdgeordinaryCPUFAIL:p9562/max63ms;boundeddecomposition,unnecessaryhashcopyremoved,oneactualretest59ms. Frozen<=8/<10ms unchanged. Measuredowner-localPython3.14.4 /yt-dlp2026.08.19 +ejs0.8.0 approvedrecovery underMaster4/26.1/27.2;localprocessCPU is separatefromwall/network,Windowsaccountingcoarse. Cloudflarecontrolplane unchanged;Previewresourcesdeleted. NoDeno/paidtrial/proxydeployment.
+Edge actual CPU p95 62/max63ms; bounded decomposition and exactly one optimized retest59ms FAIL. Frozen<=8/<10ms unchanged. Measured local Python3.14.4 /yt-dlp2026.08.19+ejs0.8.0 recovery under Master4/26.1/27.2; local process CPU and wall separated, Windows accounting coarse. Cloudflare remains control plane. Preview resources deleted. Refs: Gate0 REPORT_V2/FINAL_EVALUATION_V2/source/CPU/local-eligibility.
 
 ## Architecture deviations
 
-NONE. Master10 source-time preservation and duration sanity both retained;metadata sanity warning no longer misclassifiedasadapterdrift. Indexsourceauthority invariant4 andMaster24.7/26.1support separation. Explicitowneramendmentauthorization;Master/Plan files unchanged. No ARCHITECTURE CHANGE REQUIRED.
+NONE. Master10 source-time preservation and duration sanity both retained; metadata inconsistency no longer confused with adapter drift. Index invariant4 and Master24.7/26.1 establish source authority. Explicit owner amendment authorization; Plan/Master unchanged. No ARCHITECTURE CHANGE REQUIRED.
 
 ## Known issues
 
-Seven upstreamsource-metadata inconsistencies remain warnings; propagate them,neverrepairtimes silently. One transientacquisitionfailure retained;not permanentproviderfailure. EdgeCPUfailed and disabled. youtube-transcript-api harnessinvalid isINCONCLUSIVE,not providerfailure. SharedIPextractors notindependentfallbacks. LocalPC requiresowneravailability8h/day declared,not uptimeSLA. Quota remainingUNKNOWN.
+Seven source/metadata discrepancies must remain visible warnings in future artifacts; never silently repair source times. One TEMPORARY_FAILURE is not permanent provider failure. Edge CPUFAIL disabled; youtube-transcript-api harness-INCONCLUSIVE retained. Shared upstream/IP libraries are not independent redundancy. Owner-local8h/day is a declaration, not measured uptime/SLA. Remaining quota UNKNOWN.
 
 ## Deferred items
 
-Secondary/tertiary/lastresort disabled;STT,Deno,WorkersAI,archive/Drive requiretrigger+qualificationbeforeactivation. Gate0B unnecessary becauseGeminieligible;GateC NOT_RUN,muUNKNOWN,nocapacityPASS. Owner upperassumed20films/day exceeds16ordinaryGeminirequests/day after20%reserve;defer toreset,no paidfallback. NoStage02orproductiondeployment.
+SECONDARY/TERTIARY/LAST_RESORT disabled. STT/Deno/WorkersAI/Drive/archive require measurement trigger and gates before activation. Gate0B unnecessary with eligible Gemini. GateC NOT_RUN;muUNKNOWN,no capacityPASS. Upper assumed20videos/day exceeds16ordinary Gemini requests/day after20%reserve: defer until reset, never paid fallback. No Stage02 work or production deployment.
 
 ## Measurements
 
-GateE PASS realCloudflareOAuth/selectedFreeaccount;Googleproject bartosz-intelligence,FreeGemini,billingdisabled,PL/EEA privateprofessional_single_owner. Ownerclassification accepted;Terms donotexplicitlydescribe developer=singleuser;notlegalopinion orindividualGoogleconfirmation. ReverifyTerms/eligibility/audience/project/billingchange. Canonicalgemini-3.8-flash models/capabilityandfunctionalresponsePASS;previousinvalid200/503 history retained.
+GateE PASS: actual Cloudflare OAuth/selected Free account; Google project bartosz-intelligence, Gemini Free, billing disabled, PL/EEA/private professional_single_owner. Owner classification accepted; Terms do not explicitly describe developer=singleuser, not legal opinion or individual Google confirmation. Reverify Terms/eligibility/audience/account/project/billing change. Canonical gemini-3.8-flash availability/capability/validated functional response PASS; invalid200/transient503 history retained.
 
-Snapshot2026-10-04T18:28:46.747Z:Gemini5RPM/250KinputTPM/20RPD,selectedmodelUIresetAmerica/Los_Angeles,lag15min/28daypeaknotremainingquota. YouTube10000queries/day and100search/day,resetAmerica/Los_Angeles;historicalusage1/0,remainingUNKNOWN. WorkersFree100000requests/day/10msCPU;resetUNKNOWN;D1usageUNKNOWN,Queues10000ops/day;Assets/D1/QueueFreeaccounteligibilityandlocalruntimeproof inGateEREPORT/account-preflight. No projectproductionresources.
+Snapshot2026-10-04T18:28:46.747Z: Gemini5RPM/250KinputTPM/20RPD, selected-model UI reset America/Los_Angeles;15min UI lag/28daypeak not remainingquota. YouTube10000queries/day,search100/day,resetAmerica/Los_Angeles,historical usage1/0. WorkersFree100000requests/day,10msCPU,resetUNKNOWN;D1currentusageUNKNOWN;Queues10000ops/day;D1/Queues/Assets Free eligibility/local runtime proof in GateE REPORT/account-preflight. No production project resources. Refresh quota reservations before production submission.
 
-Preflight20channels:4–20videos/day assumption0.2–1/channel/day,oneordinaryAIrequest/video,20kinput+2koutputtokenestimate. RSS960fetch/day;discovery260units/day+metadata/extras,20%reserve. Actualsource-lengthmin/p95/max andlocalCPUdistribution in20-channel-preflight.json. ExactremainingquotaandmuUNKNOWN;refreshsnapshot/reservationbeforeeachproductionsubmission.
+20-channel preflight:4–20videos/day assumed,oneordinaryAIrequest/video,20Kinput+2Koutput token estimate,owner8h/day. RSS960fetch/day;discovery260units/day+metadata/extras,20%reserve. Actual corpus duration and local CPU distributions in20-channel-preflight.json;muUNKNOWN.
 
-Toolchain Node24.21.0,pnpm12.9.1,TS6.0.3,React19.3.0,Vite8.3.2,Vitest4.1.11,Wrangler4.147.0,workerd1.20261001.1,CloudflareVitestplugin1.3.6,Playwright1.63.0;compatibility_date2026-10-01. scripts package.json. paid_services_enabled=false;optionalflagsfalse;secretrefs CLOUDFLARE_ACCOUNT_ID/WranglerOAuth,YOUTUBE_API_KEY,GEMINI_API_KEY onlyignored.env;API_TOKENempty. No values. Descriptorvalidityexpires explicitly,versions/runtime/evidence match;staleeligibility failsclosed.
+Exact toolchain: Node24.21.0,pnpm12.9.1,TS6.0.3,React19.3.0,Vite8.3.2,Vitest4.1.11,Wrangler4.147.0,workerd1.20261001.1,CloudflareVitestplugin1.3.6,Playwright1.63.0;compatibility_date2026-10-01. Scripts package.json. paid_services_enabled=false;optional flagsfalse. Secret refs only in ignored.env:CLOUDFLARE_ACCOUNT_ID/WranglerOAuth,YOUTUBE_API_KEY,GEMINI_API_KEY;CLOUDFLARE_API_TOKENempty. No values in evidence. Descriptors have explicit expiry and matching evidence/runtime/version; stale eligibility fails closed.
 
 ## Decisions made during implementation
 
-Owner-directedversionedcriterionamendment;history/data unchanged. Preserve1000msmetadatacontrol separatelyfrom250mssourcefidelity. Noarbritraryincreasedtolerance,sameIPstorm,fifthattempt,paidroute ornewlive measurement. PRIMARY localyt-dlp;unverifiedfallbacksdisabled;AIcanonicalFreeGemini. Defaultconfig remainsdisabled;futureproductionadmission refreshes quota.
+Preserve historical FAIL, version amendment before re-evaluation, distinguish source fidelity from metadata warnings. No arbitrary tolerance increase, same-IP storm, fifth attempt, paid route, trial baseline or additional live measurement. PRIMARY local yt-dlp; canonical Gemini Free; unqualified roles disabled. Immutable evidence excluded from formatting to preserve byte hashes; source/config formatting checked.
 
 ## Guarantees for next stage
 
-Bootstrap/Freeguard/public-serverconfig/localD1rollback/routing proof retained. Qualifiedsource andAIallowedroute withversionedevidence and restrictions;actualsource acquisition/fidelity,notglobalSLA orcapacity. BeforeStage02 mustfinishCP1.8cleanchecks andGOdecision. GateC remainsNOT_RUN. Noarchitecturechange.
+Repeatable bootstrap, hard Free guard, public/server separation, local D1 rollback and API/Assets routing verified. Qualified source/AI route with evidence and restrictions; no global source SLA or sustainable-capacity claim. Stage01 DONE/GO for active baseline;Stage02 NOT_STARTED. GateC remains NOT_RUN.
 
 ## Context next stage MUST load
 
-AfterStage01DONE/GO only:Plan/00_IMPLEMENTATION_MASTER_INDEX.md,ownStage02plan,thishandoff. RequiredMastersections only. Inspectcurrentprovider-selection/qualified-runtime,GateE REPORT/account-preflight,Gate0 REPORT_V2/CRITERIA_AMENDMENT_V2/FINAL_EVALUATION_V2,20-channelpreflight,finalcleanverification/decisionrefs asneeded.
+Plan/00_IMPLEMENTATION_MASTER_INDEX.md, own Stage02 plan and this handoff. Required Master sections only. Inspect selected config, GateE REPORT/preflight, Gate0 amendment/REPORT_V2/FINAL_EVALUATION_V2,20-channel-preflight,stage01-clean-verification and stage01-definition-of-done as needed.
 
 ## Context next stage DOES NOT need
 
-FullMasterwithouttrigger,Stage03–08plans,rawlivecaption/logdatasets,fullhistoricalplans,unqualifiedoptionalinfra. OriginalFAILandhistoryavailable for specificaudit.
+Full Master without trigger, Stage03–08 plans, full raw caption/log datasets, previous full stage plans, unqualified optional infrastructure. Historical FAIL/schedules remain available for a specific audit.

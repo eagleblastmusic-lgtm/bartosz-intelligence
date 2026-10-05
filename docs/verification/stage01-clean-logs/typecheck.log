@@ -1,0 +1,10 @@
+apps/web typecheck$ tsc -p tsconfig.json
+packages/contracts typecheck$ tsc -p tsconfig.json
+apps/api typecheck$ tsc -p tsconfig.json
+packages/core typecheck$ tsc -p tsconfig.json
+packages/contracts typecheck: Done
+packages/telemetry typecheck$ tsc -p tsconfig.json
+packages/core typecheck: Done
+packages/telemetry typecheck: Done
+apps/web typecheck: Done
+apps/api typecheck: Done

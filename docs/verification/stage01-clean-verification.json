@@ -1,0 +1,111 @@
+{
+  "source_commit": "b263317",
+  "workspace": "C:\\Projekty\\Aplikacje\\Bartosz Intelligence\\.local\\clean-stage01-b263317",
+  "started_at": "2026-10-05T17:09:52.764Z",
+  "node": "24.21.0",
+  "pnpm": "12.9.1",
+  "config_sha256": "938a2dd31b87a7f5951507f739269cc59809e5231682f67e1c5a225f1eb91faa",
+  "checks": [
+    {
+      "command": "pnpm install --frozen-lockfile --offline",
+      "status": "PASS",
+      "exit_code": 0,
+      "elapsed_ms": 15569,
+      "log": "docs/verification/stage01-clean-logs/install.log"
+    },
+    {
+      "command": "pnpm run lint",
+      "status": "PASS",
+      "exit_code": 0,
+      "elapsed_ms": 4316,
+      "log": "docs/verification/stage01-clean-logs/lint.log"
+    },
+    {
+      "command": "pnpm run format:check",
+      "status": "PASS",
+      "exit_code": 0,
+      "elapsed_ms": 2071,
+      "log": "docs/verification/stage01-clean-logs/format-check.log"
+    },
+    {
+      "command": "pnpm run typecheck",
+      "status": "PASS",
+      "exit_code": 0,
+      "elapsed_ms": 6047,
+      "log": "docs/verification/stage01-clean-logs/typecheck.log"
+    },
+    {
+      "command": "pnpm run build",
+      "status": "PASS",
+      "exit_code": 0,
+      "elapsed_ms": 5072,
+      "log": "docs/verification/stage01-clean-logs/build.log"
+    },
+    {
+      "command": "pnpm run verify:config",
+      "status": "PASS",
+      "exit_code": 0,
+      "elapsed_ms": 490,
+      "log": "docs/verification/stage01-clean-logs/verify-config.log"
+    },
+    {
+      "command": "pnpm run verify:migrations",
+      "status": "PASS",
+      "exit_code": 0,
+      "elapsed_ms": 475,
+      "log": "docs/verification/stage01-clean-logs/verify-migrations.log"
+    },
+    {
+      "command": "pnpm run test:unit",
+      "status": "PASS",
+      "exit_code": 0,
+      "elapsed_ms": 2303,
+      "log": "docs/verification/stage01-clean-logs/test-unit.log"
+    },
+    {
+      "command": "pnpm run test:contract",
+      "status": "PASS",
+      "exit_code": 0,
+      "elapsed_ms": 2188,
+      "log": "docs/verification/stage01-clean-logs/test-contract.log"
+    },
+    {
+      "command": "pnpm run test:workers",
+      "status": "PASS",
+      "exit_code": 0,
+      "elapsed_ms": 4574,
+      "log": "docs/verification/stage01-clean-logs/test-workers.log"
+    },
+    {
+      "command": "pnpm run test:e2e",
+      "status": "FAIL",
+      "exit_code": 1,
+      "elapsed_ms": 6316,
+      "log": "docs/verification/stage01-clean-logs/test-e2e.log"
+    },
+    {
+      "command": "pnpm run test:e2e",
+      "status": "PASS",
+      "exit_code": 0,
+      "elapsed_ms": 4399,
+      "attempt": 2,
+      "log": "docs/verification/stage01-clean-logs/test-e2e-corrected-browser-path.log",
+      "repair": "Use existing pinned Chromium1243 cache at .local/playwright via PLAYWRIGHT_BROWSERS_PATH; no code/dependency/browser version change. Initial missing-executable failure preserved."
+    }
+  ],
+  "status": "PASS",
+  "final_checks": {
+    "pnpm install --frozen-lockfile --offline": "PASS",
+    "pnpm run lint": "PASS",
+    "pnpm run format:check": "PASS",
+    "pnpm run typecheck": "PASS",
+    "pnpm run build": "PASS",
+    "pnpm run verify:config": "PASS",
+    "pnpm run verify:migrations": "PASS",
+    "pnpm run test:unit": "PASS",
+    "pnpm run test:contract": "PASS",
+    "pnpm run test:workers": "PASS",
+    "pnpm run test:e2e": "PASS"
+  },
+  "completed_at": "2026-10-05T17:11:41.998Z"
+}
