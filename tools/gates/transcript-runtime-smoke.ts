@@ -8,6 +8,7 @@ import type {
   TranscriptRequestContext,
   SourceItemRef,
 } from '../../packages/contracts/src/transcript.js';
+import { selectTranscriptLanguage } from '../../packages/core/src/transcript/language.js';
 const defaults = JSON.parse(readFileSync('config/defaults.json', 'utf8'));
 if (defaults.paid_services_enabled !== false)
   throw new Error('PAID_SERVICES_DISABLED_REQUIRED');
@@ -37,18 +38,16 @@ const context: TranscriptRequestContext = {
   request_id: requestId,
 };
 const list = await provider.list_tracks(item, context);
-const selected = list.tracks
-  .filter((track) => track.is_translated === false)
-  .sort(
-    (a, b) =>
-      (a.track_kind === 'MANUAL' ? 0 : 1) - (b.track_kind === 'MANUAL' ? 0 : 1),
-  )[0];
-const fetched = selected
-  ? await provider.fetch(item, selected, {
-      ...context,
-      deadline: new Date(Date.now() + 60000).toISOString(),
-    })
-  : null;
+const selection = selectTranscriptLanguage(list, 'live-tracklist:' + requestId);
+const selected = selection.source;
+const metadataOnly = process.argv.includes('--list-only');
+const fetched =
+  selected && !metadataOnly
+    ? await provider.fetch(item, selected, {
+        ...context,
+        deadline: new Date(Date.now() + 60000).toISOString(),
+      })
+    : null;
 const report = {
   sampled_at: started.toISOString(),
   runtime: 'local',
@@ -56,6 +55,10 @@ const report = {
   video_id: item.external_id,
   list_status: list.status,
   track_count: list.tracks.length,
+  video_language: list.video_language,
+  authority_basis: selection.authority_basis,
+  selection_status: selection.status,
+  metadata_only: metadataOnly,
   selected: selected
     ? {
         language: selected.language_code,
@@ -79,8 +82,18 @@ const report = {
   paid_services_enabled: false,
   model_generation_requests: 0,
   result:
-    list.status === 'OK' && fetched?.result.status === 'OK' ? 'PASS' : 'FAIL',
+    list.status === 'OK' &&
+    selection.status === 'SELECTED' &&
+    (metadataOnly || fetched?.result.status === 'OK')
+      ? 'PASS'
+      : 'FAIL',
 };
+mkdirSync('.local/transcript-smoke', { recursive: true });
+writeFileSync(
+  `.local/transcript-smoke/${requestId}.tracks.json`,
+  JSON.stringify({ list, selection }),
+  { mode: 0o600, flag: 'wx' },
+);
 if (fetched?.raw_payload) {
   mkdirSync('.local/transcript-smoke', { recursive: true });
   writeFileSync(

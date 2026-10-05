@@ -7,6 +7,13 @@ spec=importlib.util.spec_from_file_location('production_captions',ROOT/'apps/exe
 adapter=importlib.util.module_from_spec(spec)
 spec.loader.exec_module(adapter)
 class TranscriptAdapterTests(unittest.TestCase):
+    def test_original_vendor_alias_preserves_provenance_and_deduplicates(self):
+        formats=[{'ext':'json3','url':'https://www.youtube.com/api/timedtext?lang=en&kind=asr'}]
+        tracks=adapter.tracks_from_info({'automatic_captions':{'en':formats,'en-orig':formats}})
+        self.assertEqual(len(tracks),1)
+        self.assertEqual(tracks[0]['language_code'],'en')
+        self.assertTrue(tracks[0]['is_original'])
+        self.assertFalse(tracks[0]['is_translated'])
     def test_raw_source_text_and_original_cue_times(self):
         payload=json.dumps({'events':[{'tStartMs':250,'dDurationMs':3250,'segs':[{'utf8':'e\u0301  &amp; <literal>\nSource'}]}]}).encode()
         cue=adapter.decode_segments(payload,'json3')[0]

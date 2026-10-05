@@ -45,8 +45,20 @@ def tracks_from_info(info):
             query=parse_qs(locator.query)
             translated=bool(query.get("tlang"))
             source_language=(query.get("lang") or [None])[0] if translated else None
+            # The pinned YouTube extractor explicitly emits -orig for the original
+            # audio caption track. This is vendor provenance, not title inference.
+            original = generated and str(language).endswith("-orig") and not translated
+            code = str(language)[:-5] if original else str(language)
+            asr = (query.get("kind") or [None])[0] == "asr" if translated else generated
             kind="TRANSLATED" if translated else "GENERATED" if generated else "MANUAL"
-            result.append({"language_code":str(language),"track_kind":kind,"is_generated":generated,"is_translated":translated,"source_language":source_language,"translation_source_track_id":None,"is_translatable":None,"translation_languages":[],"is_original":None,"extension":value["ext"],"_url":value["url"]})
+            result.append({"language_code":code,"track_kind":kind,"is_generated":asr,"is_translated":translated,"source_language":source_language,"translation_source_track_id":None,"is_translatable":None,"translation_languages":[],"is_original":True if original else None,"extension":value["ext"],"_url":value["url"]})
+    # Compatibility aliases emitted by yt-dlp must not conceal explicit original
+    # provenance or create duplicate public identities.
+    unique={}
+    for track in result:
+        key=(track["language_code"],track["track_kind"],track["extension"],track["source_language"])
+        if key not in unique or track["is_original"] is True: unique[key]=track
+    result=list(unique.values())
     return result
 
 def execute(request):

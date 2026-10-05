@@ -19,6 +19,8 @@ import {
 import type { BackupChunk } from '../../packages/core/src/backup/snapshot.js';
 import { restoreCanonical } from '../../packages/core/src/backup/restore.js';
 import { applyMigrations } from '../../packages/core/src/db/migrations.js';
+import { RepresentationRepository } from '../../packages/core/src/transcript/representations.js';
+import { selectTranscriptLanguage } from '../../packages/core/src/transcript/language.js';
 beforeEach(resetCore);
 async function setup() {
   const owner = await fixtureOwner(),
@@ -90,11 +92,144 @@ async function setup() {
   await store.start(token, 'FETCH_TRANSCRIPT', fixtureNow);
   return {
     owner,
+    access,
     item,
     token,
     repository: new ArtifactRepository(env.DB, access),
   };
 }
+it('representation binds verified source, immutable selection and current fence', async () => {
+  const { access, item, token, repository } = await setup();
+  const text = 'Original source',
+    bytes = new TextEncoder().encode(text),
+    hash = await sha256(text);
+  const selection = selectTranscriptLanguage(
+    {
+      status: 'OK',
+      failure_code: null,
+      provider_id: 'fixture',
+      provider_version: 'fixture-1',
+      runtime_id: 'local',
+      video_language: 'en',
+      retrieved_at: fixtureNow.toISOString(),
+      request_id: 'fixture',
+      tracks: [
+        {
+          track_id: 'track',
+          item_id: item.item_id,
+          language_code: 'en',
+          track_kind: 'MANUAL',
+          is_generated: false,
+          is_translated: false,
+          source_language: null,
+          translation_source_track_id: null,
+          is_translatable: null,
+          translation_languages: [],
+          is_original: null,
+          extension: 'json3',
+          expires_at: fixtureNow.toISOString(),
+        },
+      ],
+    },
+    hash,
+  );
+  const artifact = await repository.begin(
+    {
+      item_id: item.item_id,
+      kind: 'SOURCE_ORIGINAL',
+      content_hash: hash,
+      byte_size: bytes.length,
+      chunk_count: 1,
+      schema_version: 'source-1',
+      producer_version: 'fixture-1',
+      provenance: { provider_id: 'fixture', upstream_track_id: 'track' },
+      original_ref: null,
+    },
+    token,
+    'FETCH_TRANSCRIPT',
+    fixtureNow,
+  );
+  const representations = new RepresentationRepository(env.DB, access);
+  await expect(
+    representations.record(
+      artifact.artifact_id,
+      selection,
+      'SOURCE_AUTHORITY',
+      token,
+      'FETCH_TRANSCRIPT',
+      fixtureNow,
+    ),
+  ).rejects.toThrow('INVALID_REPRESENTATION_SOURCE');
+  await repository.writeChunk(
+    artifact.artifact_id,
+    0,
+    0,
+    bytes,
+    token,
+    'FETCH_TRANSCRIPT',
+    fixtureNow,
+  );
+  await repository.verifyLocal(
+    artifact.artifact_id,
+    token,
+    'FETCH_TRANSCRIPT',
+    fixtureNow,
+    'local',
+  );
+  const id = await representations.record(
+    artifact.artifact_id,
+    selection,
+    'SOURCE_AUTHORITY',
+    token,
+    'FETCH_TRANSCRIPT',
+    fixtureNow,
+  );
+  expect(
+    await representations.record(
+      artifact.artifact_id,
+      selection,
+      'SOURCE_AUTHORITY',
+      token,
+      'FETCH_TRANSCRIPT',
+      fixtureNow,
+    ),
+  ).toBe(id);
+  await expect(
+    representations.record(
+      artifact.artifact_id,
+      { ...selection, source_revision: 'b'.repeat(64) },
+      'SOURCE_AUTHORITY',
+      token,
+      'FETCH_TRANSCRIPT',
+      fixtureNow,
+    ),
+  ).rejects.toThrow('REPRESENTATION_REVISION_MISMATCH');
+  await expect(
+    representations.record(
+      artifact.artifact_id,
+      { ...selection, authority_basis: 'EXPLICIT_ORIGINAL' },
+      'SOURCE_AUTHORITY',
+      token,
+      'FETCH_TRANSCRIPT',
+      fixtureNow,
+    ),
+  ).rejects.toThrow('REPRESENTATION_CONFLICT');
+  await expect(
+    representations.record(
+      artifact.artifact_id,
+      selection,
+      'SOURCE_AUTHORITY',
+      { ...token, fencing_token: token.fencing_token + 1 },
+      'FETCH_TRANSCRIPT',
+      fixtureNow,
+    ),
+  ).rejects.toThrow();
+  expect(
+    await env.DB.prepare(
+      'SELECT COUNT(*) AS n FROM transcript_representations',
+    ).first('n'),
+  ).toBe(1);
+});
 it('large Unicode cue is resumable, ordered/hash verified, immutable and portable through canonical restore', async () => {
   const { owner, item, token, repository } = await setup(),
     text = 'e\u0301🦋\n'.repeat(13000),

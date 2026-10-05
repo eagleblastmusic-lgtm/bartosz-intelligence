@@ -1,0 +1,29 @@
+{
+  "sampled_at": "2026-10-05T22:12:32.106Z",
+  "runtime": "local",
+  "provider_version": "yt-dlp@2026.08.19+yt-dlp-ejs@0.8.0",
+  "video_id": "uEztHu4NHrs",
+  "list_status": "OK",
+  "track_count": 172,
+  "video_language": "en",
+  "authority_basis": "EXPLICIT_ORIGINAL",
+  "selection_status": "SELECTED",
+  "metadata_only": true,
+  "selected": {
+    "language": "en",
+    "kind": "MANUAL",
+    "is_translated": false,
+    "is_original": null
+  },
+  "fetch_status": null,
+  "failure_code": null,
+  "cue_count": null,
+  "raw_payload_hash": null,
+  "source_times": null,
+  "warnings": [],
+  "bytes": null,
+  "paid_services_enabled": false,
+  "model_generation_requests": 0,
+  "result": "PASS",
+  "evidence_sha256": "2999903eec37cb2665aa35d42c8d1c6fe8bd7eee62b8bdd4f7c1153657664c3d"
+}
