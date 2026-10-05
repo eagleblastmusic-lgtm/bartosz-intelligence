@@ -1,0 +1,5 @@
+# CP-2.3 — durable JobStore, dedup and retry
+
+PASS local, 2026-10-05. 003_jobs_outbox.sql creates exact JobState/TaskType enums, immutable arrival/input snapshots, composite owner FKs, attempts and transport-only Outbox. D1 is authority; DISCOVER/RECONCILE use PULL without message per poll. Stable dedup preserves routine retry identity; explicit nonce/bundle revisions create separate runs. Transitions are guarded by SQL; SUCCEEDED cannot reopen. FAILED replay requires owner and atomic audit. Quota requires real future reset, auth/input block, transient full jitter has four fast retries then durable defer. Fair selector prioritizes integrity and reserves >=20% available non-integrity slots for backfill.
+
+Targeted unit + workerd regression: 4 files / 12 tests PASS. Actual concurrent duplicate insert → one job/outbox. Enum, illegal transition, immutable origin and cross-owner negatives PASS. `pnpm typecheck`, `pnpm lint`, `pnpm verify:migrations` PASS; 3 migrations, next 004, fresh/independent empty restore/integrity/FKs PASS. Leases are implemented but CP-2.4 acceptance/fencing proof is still pending. No provider calls/deployment/AI.

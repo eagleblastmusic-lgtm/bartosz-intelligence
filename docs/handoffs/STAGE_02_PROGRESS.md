@@ -8,6 +8,8 @@ CP-2.1: local exit PASS; evidence docs/verification/cp-2.1.md. Auth primitives a
 
 CP-2.2: PASS; evidence docs/verification/cp-2.2.md. Migration source/items → 002_sources_items.sql; checksum/dependency in ledger; next 003.
 
-Current checkpoint: CP-2.3 — durable JobStore, dedup and retry. No completed Stage 02 claim. Actual owner Google OIDC smoke remains pending configuration: GOOGLE_OIDC_CLIENT_ID, GOOGLE_OIDC_CLIENT_SECRET, GOOGLE_OIDC_OWNER_SUBJECT, APP_ORIGIN. SESSION_SIGNING_SECRET will be provisioned privately; no secret value requested in chat. Existing YouTube and Gemini keys are present; paid services remain disabled.
+CP-2.3: PASS; evidence docs/verification/cp-2.3.md. Jobs/outbox → 003_jobs_outbox.sql; exact checksum in ledger; next 004.
+
+Current checkpoint: CP-2.4 — fenced leases and atomic guarded acceptance. No completed Stage 02 claim. Actual owner Google OIDC smoke remains pending configuration: GOOGLE_OIDC_CLIENT_ID, GOOGLE_OIDC_CLIENT_SECRET, GOOGLE_OIDC_OWNER_SUBJECT, APP_ORIGIN. SESSION_SIGNING_SECRET will be provisioned privately; no secret value requested in chat. Existing YouTube and Gemini keys are present; paid services remain disabled.
 
 Required context on resume: index, Stage 02 plan, Stage 01 completion, this progress, current Git/migration ledger and CP evidence. Reuse Stage 01 gates. Do not load later stage plans yet.

@@ -9,6 +9,11 @@
       "depends_on": ["001_identity_config.sql"],
       "sha256": "af4ac6b2ea63b3f50a426751af3ded723541366a5268abfa1d317e4d6b685484",
       "name": "002_sources_items.sql"
+    },
+    {
+      "sha256": "b101d30017b99f5283cb631c567ce47acbe84052693a5591c85d18e531e22dc4",
+      "depends_on": ["002_sources_items.sql"],
+      "name": "003_jobs_outbox.sql"
     }
   ],
   "version": 1
