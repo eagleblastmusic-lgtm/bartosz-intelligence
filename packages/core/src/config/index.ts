@@ -1,4 +1,5 @@
 import { parsePolicy, PolicyError } from '../../../contracts/src/config.js';
+import { fetchWithoutRedirect } from '../http/no-redirect.js';
 import type {
   ProviderDescriptor,
   RuntimePolicy,
@@ -140,5 +141,5 @@ export async function guardedFetch(
     !provider.allowed_origins.includes(target.origin)
   )
     throw new PolicyError('PROVIDER_TARGET_DENIED');
-  return transport(target.href, { ...options, redirect: 'error' });
+  return fetchWithoutRedirect(target.href, options, transport);
 }

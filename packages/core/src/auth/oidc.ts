@@ -1,5 +1,6 @@
 import { base64url, decode64, randomToken, sha256 } from './crypto.js';
 import type { Database } from '../db/boundary.js';
+import { fetchWithoutRedirect } from '../http/no-redirect.js';
 
 export type OidcFailureReason =
   | 'INPUT'
@@ -207,19 +208,22 @@ export async function finishLogin(
     )
     .first<{ nonce_hash: string; verifier: string }>();
   if (!intent) throw new OidcFailure('OIDC_DENIED', 'STATE_OR_BROWSER');
-  const response = await fetcher('https://oauth2.googleapis.com/token', {
-    method: 'POST',
-    redirect: 'error',
-    signal: AbortSignal.timeout(10000),
-    body: new URLSearchParams({
-      code,
-      client_id: config.clientId,
-      client_secret: config.clientSecret,
-      redirect_uri: config.redirectUri,
-      grant_type: 'authorization_code',
-      code_verifier: intent.verifier,
-    }),
-  }).catch(() => {
+  const response = await fetchWithoutRedirect(
+    'https://oauth2.googleapis.com/token',
+    {
+      method: 'POST',
+      signal: AbortSignal.timeout(10000),
+      body: new URLSearchParams({
+        code,
+        client_id: config.clientId,
+        client_secret: config.clientSecret,
+        redirect_uri: config.redirectUri,
+        grant_type: 'authorization_code',
+        code_verifier: intent.verifier,
+      }),
+    },
+    fetcher,
+  ).catch(() => {
     throw new OidcFailure('OIDC_EXCHANGE_FAILED', 'TOKEN_TRANSPORT');
   });
   if (!response.ok) {
@@ -247,9 +251,10 @@ export async function finishLogin(
   const token: unknown = parseTokenJson(body)?.id_token;
   if (typeof token !== 'string')
     throw new OidcFailure('OIDC_DENIED', 'TOKEN_FORMAT');
-  const keyResponse = await fetcher(
+  const keyResponse = await fetchWithoutRedirect(
     'https://www.googleapis.com/oauth2/v3/certs',
-    { redirect: 'error', signal: AbortSignal.timeout(10000) },
+    { signal: AbortSignal.timeout(10000) },
+    fetcher,
   ).catch(() => {
     throw new OidcFailure('OIDC_KEYS_UNAVAILABLE', 'KEYS_UNAVAILABLE');
   });

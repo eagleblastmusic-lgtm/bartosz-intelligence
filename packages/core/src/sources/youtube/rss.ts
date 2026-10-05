@@ -1,3 +1,4 @@
+import { fetchWithoutRedirect } from '../../http/no-redirect.js';
 export function parseAtomHints(xml: string) {
   if (
     new TextEncoder().encode(xml).byteLength > 64000 ||
@@ -58,9 +59,10 @@ export async function pollRss(
   const headers = new Headers();
   if (etag) headers.set('If-None-Match', etag);
   if (modified) headers.set('If-Modified-Since', modified);
-  const response = await fetcher(
+  const response = await fetchWithoutRedirect(
     `https://www.youtube.com/feeds/videos.xml?channel_id=${channelId}`,
-    { headers, redirect: 'error', signal: AbortSignal.timeout(10000) },
+    { headers, signal: AbortSignal.timeout(10000) },
+    fetcher,
   );
   if (response.status === 304)
     return {

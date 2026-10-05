@@ -1,3 +1,4 @@
+import { fetchWithoutRedirect } from '../../http/no-redirect.js';
 type JsonRecord = Record<string, unknown>;
 export class YoutubeError extends Error {
   constructor(
@@ -40,11 +41,14 @@ export class YoutubeClient {
     this.used++;
     let response: Response;
     try {
-      response = await this.fetcher(url.href, {
-        redirect: 'error',
-        headers: { 'x-goog-api-key': this.key },
-        signal: AbortSignal.timeout(10000),
-      });
+      response = await fetchWithoutRedirect(
+        url.href,
+        {
+          headers: { 'x-goog-api-key': this.key },
+          signal: AbortSignal.timeout(10000),
+        },
+        this.fetcher,
+      );
     } catch {
       throw new YoutubeError('TRANSIENT');
     }

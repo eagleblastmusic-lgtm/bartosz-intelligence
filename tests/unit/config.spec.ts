@@ -148,7 +148,7 @@ describe('hard Free policy', () => {
       network,
     );
     expect(network).toHaveBeenCalledExactlyOnceWith('https://example.com/', {
-      redirect: 'error',
+      redirect: 'manual',
     });
   });
   it('makes copied descriptors immutable', () => {

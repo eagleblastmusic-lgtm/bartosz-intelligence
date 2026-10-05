@@ -27,7 +27,7 @@ it('locator normalization rejects internal hosts, credentials, unsupported paths
 });
 it('public resolver uses channels forHandle, resolves equivalent identity and redacts transport errors', async () => {
   const fake: typeof fetch = async (input, init) => {
-    expect(init?.redirect).toBe('error');
+    expect(init?.redirect).toBe('manual');
     const url = new URL(input as string);
     expect(url.pathname).toBe('/youtube/v3/channels');
     expect(url.searchParams.get('forHandle')).toBe('@fixture');
