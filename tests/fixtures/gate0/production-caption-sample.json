@@ -1,0 +1,16 @@
+{
+  "video_id": "uEztHu4NHrs",
+  "provider_version": "yt-dlp@2026.08.19+yt-dlp-ejs@0.8.0",
+  "raw_payload_hash": "0ac4d4c6f9a7f092792ec90426b9ae472f14ce87464c8b90468ad4badff164dd",
+  "language": "ar",
+  "authority_qualified": false,
+  "segments": [
+    {
+      "upstream_index": 1,
+      "start_ms": 3833,
+      "end_ms": 7712,
+      "text": "حسنًا، لقد سمعنا الكثير\nعن الذكاء الاصطناعي.",
+      "speaker_label": null
+    }
+  ]
+}
