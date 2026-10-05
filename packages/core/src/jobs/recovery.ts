@@ -1,5 +1,9 @@
 import type { Database } from '../db/boundary.js';
-import type { QueueSignal, JobRecord } from '../../../contracts/src/jobs.js';
+import type {
+  QueueSignal,
+  JobRecord,
+  TaskType,
+} from '../../../contracts/src/jobs.js';
 import { taskTypes } from '../../../contracts/src/jobs.js';
 import { fairJobOrder } from './policy.js';
 import { JobStore } from './store.js';
@@ -192,9 +196,11 @@ export async function pull(
   now: Date,
   runtime: 'local' | 'cloud',
   slots = 1,
+  tasks?: readonly TaskType[],
 ) {
   if (!Number.isInteger(slots) || slots < 1 || slots > 10)
     throw new Error('INVALID_SLOTS');
+  for (const task of tasks ?? []) store.context.requireTask(task);
   const groups = await Promise.all(
     [
       "task_type IN ('DISCOVER','RECONCILE','BACKUP')",
@@ -211,7 +217,11 @@ export async function pull(
   );
   const rows = groups
     .flatMap((group) => group.results)
-    .filter((row) => store.context.scopes.includes(row.task_type));
+    .filter(
+      (row) =>
+        store.context.scopes.includes(row.task_type) &&
+        (!tasks || tasks.includes(row.task_type)),
+    );
   const selected = fairJobOrder(rows, slots, now),
     leases = [];
   for (const job of selected) {

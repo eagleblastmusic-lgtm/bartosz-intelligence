@@ -1,5 +1,11 @@
 import { it, expect } from 'vitest';
 import { createHash } from 'node:crypto';
+import { executeTranscript } from '../../apps/executor/src/transcript-runner.js';
+import { sha256 } from '../../packages/core/src/auth/crypto.js';
+import type {
+  ArtifactDescriptor,
+  ArtifactRow,
+} from '../../packages/core/src/artifacts/store.js';
 import {
   YtdlpTranscriptProvider,
   ytdlpProviderVersion,
@@ -62,6 +68,112 @@ const successful = {
   upstream_requests: 3,
   bytes_received: raw.length,
 };
+it('local transcript orchestration retains raw/source/maps separately, preserves overrun and rejects incomplete or stale acceptance', async () => {
+  const provider = new YtdlpTranscriptProvider(
+    async () => successful,
+    () => now,
+  );
+  const uploads: {
+    text: string;
+    descriptor: Omit<
+      ArtifactDescriptor,
+      'content_hash' | 'byte_size' | 'chunk_count'
+    >;
+  }[] = [];
+  const uploader = {
+    upload: async (
+      text: string,
+      descriptor: Omit<
+        ArtifactDescriptor,
+        'content_hash' | 'byte_size' | 'chunk_count'
+      >,
+    ): Promise<ArtifactRow> => {
+      uploads.push({ text, descriptor });
+      return {
+        ...descriptor,
+        content_hash: await sha256(text),
+        byte_size: new TextEncoder().encode(text).length,
+        chunk_count: 1,
+        owner_id: 'a',
+        artifact_id: descriptor.kind,
+        state: 'VERIFIED',
+        manifest_hash: 'a'.repeat(64),
+        provenance_json: JSON.stringify(descriptor.provenance),
+        created_at: now.toISOString(),
+        verified_at: now.toISOString(),
+      };
+    },
+  };
+  const events: string[] = [];
+  const lifecycle = {
+    admission: async () => ({ available: true, reason: null }),
+    heartbeat: async () => {},
+    outcome: async (status: string) => {
+      events.push(status);
+    },
+    diagnostic: async (code: string) => {
+      events.push(code);
+    },
+    accept: async (
+      value: Parameters<
+        import('../../apps/executor/src/transcript-runner.js').TranscriptLifecycle['accept']
+      >[0],
+    ) => {
+      expect(value.selection.source_revision).toBe(
+        await sha256(successful.segments[0]!.text),
+      );
+      expect(value.warnings).toEqual(['SOURCE_DURATION_OVERRUN']);
+      expect(value.source_artifact_id).toBe('SOURCE_ORIGINAL');
+      events.push('accepted');
+    },
+  };
+  expect(
+    await executeTranscript(item, context, provider, uploader, lifecycle),
+  ).toEqual({ accepted: true, reason: null });
+  expect(uploads.map((row) => row.descriptor.kind)).toEqual([
+    'RAW',
+    'SOURCE_ORIGINAL',
+    'NORMALIZED',
+    'SEGMENT_MAP',
+    'OFFSET_MAP',
+  ]);
+  expect(uploads[0]!.text).toBe(raw.toString());
+  expect(uploads[1]!.text).toBe(successful.segments[0]!.text);
+  const manifest = JSON.parse(uploads[3]!.text);
+  expect(manifest.anchors[0]).toMatchObject({ start_ms: 250, end_ms: 3500 });
+  expect(uploads[3]!.descriptor.original_ref).toBe('SOURCE_ORIGINAL');
+  expect(events).toEqual(['accepted']);
+  uploads.length = 0;
+  events.length = 0;
+  expect(
+    await executeTranscript(item, context, provider, uploader, {
+      ...lifecycle,
+      heartbeat: async () => {
+        throw new Error('stale');
+      },
+    }),
+  ).toEqual({ accepted: false, reason: 'STALE_TRANSCRIPT_LEASE' });
+  expect(uploads).toHaveLength(0);
+  expect(events).toEqual(['STALE_TRANSCRIPT_LEASE']);
+  events.length = 0;
+  const partial = {
+    capabilities: provider.capabilities.bind(provider),
+    list_tracks: provider.list_tracks.bind(provider),
+    fetch: async () => {
+      const list = await provider.list_tracks(item, context),
+        fetched = await provider.fetch(item, list.tracks[0]!, context);
+      return {
+        ...fetched,
+        result: { ...fetched.result, status: 'PARTIAL' as const },
+      };
+    },
+  };
+  expect(
+    await executeTranscript(item, context, partial, uploader, lifecycle),
+  ).toEqual({ accepted: false, reason: 'INCOMPLETE_SOURCE' });
+  expect(uploads).toHaveLength(0);
+  expect(events).toEqual(['INCOMPLETE_SOURCE']);
+});
 it('selected local adapter preserves source cues/provenance and warns without clipping source duration overrun', async () => {
   const provider = new YtdlpTranscriptProvider(
       async () => successful,

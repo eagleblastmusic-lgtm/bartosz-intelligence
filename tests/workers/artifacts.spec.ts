@@ -1,6 +1,16 @@
 import { env } from 'cloudflare:workers';
+import { createExecutionContext } from 'cloudflare:test';
+import worker from '../../apps/api/src/index.js';
+import { ArtifactClient } from '../../apps/executor/src/artifact-client.js';
+import { LocalTranscriptWorker } from '../../apps/executor/src/local-worker.js';
+import { YtdlpTranscriptProvider } from '../../apps/executor/src/providers/ytdlp.js';
 import { beforeEach, it, expect } from 'vitest';
-import { fixtureNow, fixtureOwner, resetCore } from './core-fixture.js';
+import {
+  fixtureNow,
+  fixtureOwner,
+  resetCore,
+  fixtureSecret,
+} from './core-fixture.js';
 import { SourceRepository } from '../../packages/core/src/db/sources.js';
 import { ItemRepository } from '../../packages/core/src/db/items.js';
 import { AccessContext } from '../../packages/core/src/db/boundary.js';
@@ -33,7 +43,467 @@ import { enrichEconomy } from '../../packages/core/src/ai/enrichment/canonical.j
 import { IntelligenceLedger } from '../../packages/core/src/ai/enrichment/ledger.js';
 import { normalizeTranscript } from '../../packages/core/src/transcript/normalize.js';
 import { RunRepository } from '../../packages/core/src/jobs/acceptance.js';
+import {
+  TranscriptAcceptance,
+  type TranscriptSourceCompletion,
+} from '../../packages/core/src/transcript/acceptance.js';
 beforeEach(resetCore);
+it('local poller consumes durable caption backlog through the real Worker API and leaves accepted source ready for later AI', async () => {
+  const { token } = await setup();
+  const credential = 'e'.repeat(43);
+  await env.DB.prepare(
+    'UPDATE worker_identities SET credential_hash=? WHERE worker_id=?',
+  )
+    .bind(await sha256(credential), 'artifact-worker')
+    .run();
+  await sweep(env.DB, new Date(), () => true);
+  const raw =
+    '{"events":[{"tStartMs":250,"dDurationMs":70000,"segs":[{"utf8":"Exact original."}]}]}';
+  const track = {
+    language_code: 'en',
+    track_kind: 'MANUAL',
+    is_generated: false,
+    is_translated: false,
+    source_language: null,
+    is_translatable: false,
+    is_original: null,
+    extension: 'json3',
+  };
+  let providerCalls = 0;
+  const provider = new YtdlpTranscriptProvider(async () => {
+    providerCalls++;
+    return {
+      status: 'OK',
+      failure_code: null,
+      provider_version: '2026.8.19',
+      python_version: '3.14.4',
+      tracks: [
+        track,
+        {
+          ...track,
+          track_kind: 'GENERATED',
+          is_generated: true,
+          is_original: true,
+        },
+      ],
+      video_language: 'en',
+      selected: track,
+      segments: [
+        {
+          upstream_index: 0,
+          start_ms: 250,
+          end_ms: 70250,
+          text: 'Exact original.',
+          speaker_label: null,
+        },
+      ],
+      raw_payload_base64: btoa(raw),
+      raw_payload_hash: await sha256(raw),
+      upstream_requests: 1,
+      bytes_received: raw.length,
+    };
+  });
+  const transport: typeof fetch = async (input, init) =>
+    worker.fetch(
+      new Request(input, init),
+      { ...env, SESSION_SIGNING_SECRET: fixtureSecret },
+      createExecutionContext(),
+    );
+  const local = new LocalTranscriptWorker(
+    'https://executor-fixture.invalid',
+    credential,
+    provider,
+    transport,
+  );
+  expect(await local.cycle()).toEqual({
+    accepted: true,
+    reason: null,
+    idle: false,
+  });
+  expect(providerCalls).toBe(2);
+  const representation = await env.DB.prepare(
+    'SELECT flags_json FROM transcript_representations',
+  ).first<{ flags_json: string }>();
+  expect(JSON.parse(representation!.flags_json)).toMatchObject({
+    selection: {
+      authority_basis: 'EXPLICIT_ORIGINAL',
+      source: { is_original: null, track_kind: 'MANUAL' },
+    },
+  });
+  expect(
+    await env.DB.prepare('SELECT state FROM jobs WHERE job_id=?')
+      .bind(token.job_id)
+      .first('state'),
+  ).toBe('SUCCEEDED');
+  expect(
+    await env.DB.prepare(
+      "SELECT count(*) AS n FROM artifacts WHERE state='VERIFIED'",
+    ).first('n'),
+  ).toBe(5);
+  const run = await env.DB.prepare(
+    "SELECT outcome_json FROM analysis_runs WHERE job_id=? AND state='ACCEPTED'",
+  )
+    .bind(token.job_id)
+    .first<{ outcome_json: string }>();
+  expect(JSON.parse(run!.outcome_json).warnings).toEqual([
+    'SOURCE_DURATION_OVERRUN',
+  ]);
+  expect(
+    await env.DB.prepare('SELECT count(*) AS n FROM observations').first('n'),
+  ).toBe(0);
+  expect(await local.cycle()).toEqual({
+    accepted: false,
+    reason: null,
+    idle: true,
+  });
+  expect(providerCalls).toBe(2);
+});
+it('verified source acceptance binds original authority, all five representations and the current fence without creating AI knowledge', async () => {
+  const { item, token, access, repository } = await setup();
+  const sourceText = 'Original statement.',
+    revision = await sha256(sourceText);
+  const track = {
+    track_id: 'native-en',
+    item_id: item.item_id,
+    language_code: 'en',
+    track_kind: 'MANUAL' as const,
+    is_generated: false,
+    is_translated: false,
+    source_language: null,
+    translation_source_track_id: null,
+    is_translatable: false,
+    translation_languages: [],
+    is_original: true,
+    extension: 'json3',
+    expires_at: new Date(fixtureNow.getTime() + 600000).toISOString(),
+  };
+  const selection = selectTranscriptLanguage(
+    {
+      status: 'OK',
+      failure_code: null,
+      provider_id: 'local_ytdlp',
+      provider_version: 'yt-dlp@2026.08.19+yt-dlp-ejs@0.8.0',
+      runtime_id: 'local',
+      tracks: [track],
+      video_language: 'en',
+      retrieved_at: fixtureNow.toISOString(),
+      request_id: 'source-test',
+    },
+    revision,
+  );
+  const provenance = {
+    provider_id: 'local_ytdlp',
+    upstream_track_id: track.track_id,
+    language_code: 'en',
+    track_kind: 'MANUAL',
+    is_generated: false,
+    is_translated: false,
+    is_original: true,
+    video_language: 'en',
+    original_language: 'en',
+  };
+  const upload = async (
+    kind: ArtifactDescriptor['kind'],
+    text: string,
+    original: string | null,
+  ) => {
+    const artifact = await repository.begin(
+      {
+        item_id: item.item_id,
+        kind,
+        content_hash: await sha256(text),
+        byte_size: new TextEncoder().encode(text).length,
+        chunk_count: 1,
+        schema_version: 'fixture:1',
+        producer_version: original
+          ? 'source-normalizer:1'
+          : 'yt-dlp@2026.08.19+yt-dlp-ejs@0.8.0',
+        provenance: original
+          ? { ...provenance, source_revision: revision }
+          : provenance,
+        original_ref: original,
+      },
+      token,
+      'FETCH_TRANSCRIPT',
+      fixtureNow,
+    );
+    await repository.writeChunk(
+      artifact.artifact_id,
+      0,
+      0,
+      new TextEncoder().encode(text),
+      token,
+      'FETCH_TRANSCRIPT',
+      fixtureNow,
+    );
+    return repository.verifyLocal(
+      artifact.artifact_id,
+      token,
+      'FETCH_TRANSCRIPT',
+      fixtureNow,
+      'local',
+    );
+  };
+  const raw = await upload('RAW', '{"events":[]}', null),
+    source = await upload('SOURCE_ORIGINAL', sourceText, null);
+  const normalized = await upload('NORMALIZED', sourceText, source.artifact_id),
+    map = await upload(
+      'SEGMENT_MAP',
+      '{"source_revision":"' + revision + '"}',
+      source.artifact_id,
+    ),
+    offsets = await upload('OFFSET_MAP', '[]', source.artifact_id);
+  const input: TranscriptSourceCompletion = {
+    raw_artifact_id: raw.artifact_id,
+    source_artifact_id: source.artifact_id,
+    normalized_artifact_id: normalized.artifact_id,
+    segment_map_artifact_id: map.artifact_id,
+    offset_map_artifact_id: offsets.artifact_id,
+    selection,
+    warnings: ['SOURCE_DURATION_OVERRUN'],
+  };
+  const acceptance = new TranscriptAcceptance(env.DB, access);
+  await expect(
+    acceptance.accept(
+      { ...input, selection: { ...selection, authority_confidence: 'LOW' } },
+      token,
+      fixtureNow,
+    ),
+  ).rejects.toThrow('INVALID_SOURCE_COMPLETION');
+  await expect(
+    acceptance.accept(
+      { ...input, offset_map_artifact_id: map.artifact_id },
+      token,
+      fixtureNow,
+    ),
+  ).rejects.toThrow('INVALID_SOURCE_ARTIFACT_SET');
+  await expect(
+    acceptance.accept(
+      input,
+      { ...token, fencing_token: token.fencing_token + 1 },
+      fixtureNow,
+    ),
+  ).rejects.toThrow();
+  expect(
+    await env.DB.prepare(
+      "SELECT count(*) AS n FROM analysis_runs WHERE state='ACCEPTED'",
+    ).first('n'),
+  ).toBe(0);
+  const accepted = await acceptance.accept(input, token, fixtureNow);
+  expect(accepted.accepted).toBe(true);
+  expect(await acceptance.accept(input, token, fixtureNow)).toMatchObject({
+    accepted: true,
+    duplicate: true,
+    run_id: accepted.run_id,
+  });
+  expect(
+    await env.DB.prepare('SELECT state FROM jobs WHERE job_id=?')
+      .bind(token.job_id)
+      .first('state'),
+  ).toBe('SUCCEEDED');
+  expect(
+    await env.DB.prepare('SELECT count(*) AS n FROM observations').first('n'),
+  ).toBe(0);
+});
+it('artifact RPC/client resumes interrupted upload, verifies bounded chunks and restores literal UTF-8 including BOM', async () => {
+  const { item, token } = await setup();
+  const credential = 'c'.repeat(43);
+  await env.DB.prepare(
+    'UPDATE worker_identities SET credential_hash=? WHERE worker_id=?',
+  )
+    .bind(await sha256(credential), 'artifact-worker')
+    .run();
+  await env.DB.prepare('UPDATE jobs SET lease_until=? WHERE job_id=?')
+    .bind(new Date(Date.now() + 900000).toISOString(), token.job_id)
+    .run();
+  let writes = 0,
+    interrupted = false,
+    verificationCalls = 0;
+  const transport: typeof fetch = async (input, init) => {
+    const req = new Request(input, init);
+    if (new URL(req.url).pathname.endsWith('/write')) {
+      writes++;
+      if (writes === 2 && !interrupted) {
+        interrupted = true;
+        return new Response('{}', { status: 503 });
+      }
+    }
+    if (new URL(req.url).pathname.endsWith('/verify-step')) verificationCalls++;
+    return worker.fetch(
+      req,
+      { ...env, SESSION_SIGNING_SECRET: fixtureSecret },
+      createExecutionContext(),
+    );
+  };
+  const client = new ArtifactClient(
+    'https://executor-fixture.invalid',
+    credential,
+    () => token,
+    'FETCH_TRANSCRIPT',
+    transport,
+  );
+  const text = '\uFEFF' + 'Raw 😀 e\u0301 literal text.\n'.repeat(4000);
+  const descriptor = {
+    item_id: item.item_id,
+    kind: 'SOURCE_ORIGINAL' as const,
+    schema_version: 'source-text:1',
+    producer_version: 'fixture',
+    provenance: { provider_id: 'fixture', upstream_track_id: 'track' },
+    original_ref: null,
+  };
+  await expect(client.upload(text, descriptor)).rejects.toThrow(
+    'ARTIFACT_RPC_FAILED',
+  );
+  expect(
+    await env.DB.prepare('SELECT state FROM artifacts WHERE item_id=?')
+      .bind(item.item_id)
+      .first('state'),
+  ).toBe('UPLOADING');
+  const artifact = await client.upload(text, descriptor);
+  expect(artifact.state).toBe('VERIFIED');
+  expect(verificationCalls).toBe(splitArtifactText(text).length);
+  expect(await client.readText(artifact.artifact_id)).toEqual({
+    artifact,
+    text,
+  });
+  expect((await client.upload(text, descriptor)).artifact_id).toBe(
+    artifact.artifact_id,
+  );
+  const stale = new ArtifactClient(
+    'https://executor-fixture.invalid',
+    credential,
+    () => ({ ...token, fencing_token: token.fencing_token + 1 }),
+    'FETCH_TRANSCRIPT',
+    transport,
+  );
+  await expect(stale.readText(artifact.artifact_id)).rejects.toThrow(
+    'ARTIFACT_RPC_FAILED',
+  );
+  const denied = new ArtifactClient(
+    'https://executor-fixture.invalid',
+    'd'.repeat(43),
+    () => token,
+    'FETCH_TRANSCRIPT',
+    transport,
+  );
+  await expect(denied.readText(artifact.artifact_id)).rejects.toThrow(
+    'EXECUTOR_AUTH_DENIED',
+  );
+});
+it('bounded server verification resumes with authenticated SHA state and rejects tampering or another fence', async () => {
+  const { item, token, repository } = await setup();
+  const text = 'e\u0301😀 Raw source.\n'.repeat(5000),
+    chunks = splitArtifactText(text);
+  const artifact = await repository.begin(
+    {
+      item_id: item.item_id,
+      kind: 'SOURCE_ORIGINAL',
+      content_hash: await sha256(text),
+      byte_size: new TextEncoder().encode(text).length,
+      chunk_count: chunks.length,
+      schema_version: 'source:1',
+      producer_version: 'fixture',
+      provenance: { fixture: true },
+      original_ref: null,
+    },
+    token,
+    'FETCH_TRANSCRIPT',
+    fixtureNow,
+  );
+  let offset = 0;
+  for (let i = 0; i < chunks.length; i++) {
+    await repository.writeChunk(
+      artifact.artifact_id,
+      i,
+      offset,
+      chunks[i]!,
+      token,
+      'FETCH_TRANSCRIPT',
+      fixtureNow,
+    );
+    offset += chunks[i]!.length;
+  }
+  const first = await repository.verifyStep(
+    artifact.artifact_id,
+    token,
+    'FETCH_TRANSCRIPT',
+    fixtureNow,
+    fixtureSecret,
+  );
+  expect(first.complete).toBe(false);
+  expect(first.next_index).toBe(1);
+  const proof = first.proof!;
+  await expect(
+    repository.verifyStep(
+      artifact.artifact_id,
+      token,
+      'FETCH_TRANSCRIPT',
+      fixtureNow,
+      fixtureSecret,
+      proof.slice(0, -2) + 'xx',
+    ),
+  ).rejects.toThrow('UNAUTHENTICATED');
+  await expect(
+    repository.verifyStep(
+      artifact.artifact_id,
+      { ...token, fencing_token: token.fencing_token + 1 },
+      'FETCH_TRANSCRIPT',
+      fixtureNow,
+      fixtureSecret,
+      proof,
+    ),
+  ).rejects.toThrow();
+  await expect(
+    repository.verifyStep(
+      artifact.artifact_id,
+      token,
+      'FETCH_TRANSCRIPT',
+      new Date(fixtureNow.getTime() + 16 * 60000),
+      fixtureSecret,
+      proof,
+    ),
+  ).rejects.toThrow();
+  expect(
+    (
+      await repository.get(
+        artifact.artifact_id,
+        token,
+        'FETCH_TRANSCRIPT',
+        fixtureNow,
+      )
+    ).state,
+  ).toBe('UPLOADING');
+  let state = first;
+  while (!state.complete)
+    state = await repository.verifyStep(
+      artifact.artifact_id,
+      token,
+      'FETCH_TRANSCRIPT',
+      fixtureNow,
+      fixtureSecret,
+      state.proof!,
+    );
+  expect(state.artifact!.state).toBe('VERIFIED');
+  const local = await repository.verifyLocal(
+    artifact.artifact_id,
+    token,
+    'FETCH_TRANSCRIPT',
+    fixtureNow,
+    'local',
+  );
+  expect(state.artifact!.manifest_hash).toBe(local.manifest_hash);
+  // Retrying the same first step is deterministic; no signed state can mark
+  // a different content hash or omit a chunk.
+  const replay = await repository.verifyStep(
+    artifact.artifact_id,
+    token,
+    'FETCH_TRANSCRIPT',
+    fixtureNow,
+    fixtureSecret,
+    proof,
+  );
+  expect(replay.complete).toBe(chunks.length === 2);
+});
 it('canonical Ledger effects share the fenced acceptance batch, rollback on SQL failure and deduplicate redelivery', async () => {
   const { owner, access, token, item, repository } = await setup('ANALYZE');
   const text = 'I did not adopt Tool X.';

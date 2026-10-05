@@ -34,6 +34,7 @@ const runner: CaptionProcessRunner = async (input, timeoutMs) => {
   const inherited: Record<string, string> = {};
   for (const [key, value] of Object.entries(process.env))
     if (
+      typeof value === 'string' &&
       value &&
       [
         'PATH',

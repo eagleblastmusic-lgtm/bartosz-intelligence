@@ -2,7 +2,14 @@ import type { AccessContext, Database } from '../db/boundary.js';
 import { assertContext } from '../db/boundary.js';
 import type { LeaseToken, TaskType } from '../../../contracts/src/jobs.js';
 import { leasePredicate } from '../jobs/lease-guard.js';
-import { base64url, decode64, sha256 } from '../auth/crypto.js';
+import {
+  base64url,
+  decode64,
+  sha256,
+  sign,
+  verifySigned,
+} from '../auth/crypto.js';
+import { CheckpointSha256, type HashCheckpoint } from './hash-checkpoint.js';
 import { sha256 as incrementalSha256 } from '@noble/hashes/sha2.js';
 import { bytesToHex } from '@noble/hashes/utils.js';
 export const artifactChunkBytes = 32768;
@@ -46,6 +53,40 @@ export interface ArtifactChunk {
   body_base64: string;
 }
 const hashBytes = (bytes: Uint8Array) => bytesToHex(incrementalSha256(bytes));
+async function artifactManifestHash(
+  header: ArtifactRow,
+  offset: number,
+  chunkManifestHash: string,
+) {
+  return sha256(
+    JSON.stringify({
+      version: 1,
+      item_id: header.item_id,
+      kind: header.kind,
+      content_hash: header.content_hash,
+      byte_size: offset,
+      chunk_count: header.chunk_count,
+      chunk_manifest_hash: chunkManifestHash,
+      schema_version: header.schema_version,
+      producer_version: header.producer_version,
+      provenance: JSON.parse(header.provenance_json),
+      original_ref: header.original_ref,
+    }),
+  );
+}
+interface VerificationCheckpoint {
+  version: 'artifact-verification:1';
+  owner_id: string;
+  artifact_id: string;
+  job_id: string;
+  fencing_token: number;
+  task: TaskType;
+  expires_at: string;
+  index: number;
+  offset: number;
+  content: HashCheckpoint;
+  manifest: HashCheckpoint;
+}
 export function splitArtifactText(text: string): Uint8Array[] {
   const chunks: Uint8Array[] = [];
   let parts: string[] = [],
@@ -259,6 +300,139 @@ export class ArtifactRepository {
       throw new Error('ARTIFACT_CHUNK_CORRUPT');
     return row;
   }
+  async verifyStep(
+    id: string,
+    token: LeaseToken,
+    task: TaskType,
+    now: Date,
+    secret: string,
+    proof?: string,
+  ) {
+    if (secret.length < 32) throw new Error('SESSION_SECRET_REQUIRED');
+    const header = await this.get(id, token, task, now);
+    let state: VerificationCheckpoint;
+    if (proof !== undefined) {
+      if (proof.length > 8192)
+        throw new Error('INVALID_VERIFICATION_CHECKPOINT');
+      const encoded = await verifySigned(proof, secret);
+      state = JSON.parse(
+        new TextDecoder('utf-8', { fatal: true, ignoreBOM: false }).decode(
+          decode64(encoded),
+        ),
+      ) as VerificationCheckpoint;
+      if (
+        state.version !== 'artifact-verification:1' ||
+        state.owner_id !== this.context.ownerId ||
+        state.artifact_id !== id ||
+        state.job_id !== token.job_id ||
+        state.fencing_token !== token.fencing_token ||
+        state.task !== task ||
+        !Number.isFinite(Date.parse(state.expires_at)) ||
+        state.expires_at <= now.toISOString() ||
+        !Number.isSafeInteger(state.index) ||
+        state.index < 0 ||
+        state.index >= header.chunk_count ||
+        !Number.isSafeInteger(state.offset) ||
+        state.offset < 0 ||
+        state.offset > header.byte_size
+      )
+        throw new Error('INVALID_VERIFICATION_CHECKPOINT');
+    } else
+      state = {
+        version: 'artifact-verification:1',
+        owner_id: this.context.ownerId,
+        artifact_id: id,
+        job_id: token.job_id,
+        fencing_token: token.fencing_token,
+        task,
+        expires_at: new Date(now.getTime() + 900000).toISOString(),
+        index: 0,
+        offset: 0,
+        content: new CheckpointSha256().snapshot(),
+        manifest: new CheckpointSha256().snapshot(),
+      };
+    const content = CheckpointSha256.restore(state.content),
+      manifest = CheckpointSha256.restore(state.manifest);
+    if (state.content.length !== state.offset)
+      throw new Error('INVALID_VERIFICATION_CHECKPOINT');
+    const chunk = await this.chunk(id, state.index, token, task, now);
+    if (chunk.byte_start !== state.offset)
+      throw new Error('ARTIFACT_RANGE_MISMATCH');
+    content.update(
+      chunk.body_base64 ? decode64(chunk.body_base64) : new Uint8Array(),
+    );
+    manifest.update(
+      new TextEncoder().encode(
+        JSON.stringify({
+          index: state.index,
+          start: state.offset,
+          bytes: chunk.byte_size,
+          hash: chunk.byte_hash,
+        }) + '\n',
+      ),
+    );
+    state.index++;
+    state.offset += chunk.byte_size;
+    if (state.index < header.chunk_count) {
+      state.content = content.snapshot();
+      state.manifest = manifest.snapshot();
+      const encoded = base64url(
+        new TextEncoder().encode(JSON.stringify(state)),
+      );
+      return {
+        complete: false,
+        proof: encoded + '.' + (await sign(encoded, secret)),
+        next_index: state.index,
+        artifact: null,
+      };
+    }
+    if (
+      state.offset !== header.byte_size ||
+      bytesToHex(content.digest()) !== header.content_hash
+    )
+      throw new Error('ARTIFACT_CONTENT_MISMATCH');
+    const manifestHash = await artifactManifestHash(
+      header,
+      state.offset,
+      bytesToHex(manifest.digest()),
+    );
+    await this.seal(header, manifestHash, token, task, now);
+    return {
+      complete: true,
+      proof: null,
+      next_index: null,
+      artifact: await this.get(id, token, task, now),
+    };
+  }
+  private async seal(
+    header: ArtifactRow,
+    manifestHash: string,
+    token: LeaseToken,
+    task: TaskType,
+    now: Date,
+  ) {
+    if (header.state === 'VERIFIED') {
+      if (header.manifest_hash !== manifestHash)
+        throw new Error('ARTIFACT_MANIFEST_MISMATCH');
+      return;
+    }
+    const guard = this.guard(token, task, now);
+    const result = await this.db
+      .prepare(
+        `UPDATE artifacts SET state='VERIFIED',manifest_hash=?,verified_at=? WHERE owner_id=? AND artifact_id=? AND state='UPLOADING' AND (SELECT COUNT(*) FROM artifact_chunks WHERE owner_id=? AND artifact_id=?)=chunk_count AND ${guard.predicate}`,
+      )
+      .bind(
+        manifestHash,
+        now.toISOString(),
+        this.context.ownerId,
+        header.artifact_id,
+        this.context.ownerId,
+        header.artifact_id,
+        ...guard.bindings,
+      )
+      .run();
+    if (result.meta.changes !== 1) throw new Error('STALE_FENCE');
+  }
   // Local executor orchestration only. A large source must not run this loop in
   // one Workers Free request; its per-chunk reads/writes are bounded RPC units.
   async verifyLocal(
@@ -301,20 +475,10 @@ export class ArtifactRepository {
       bytesToHex(content.digest()) !== header.content_hash
     )
       throw new Error('ARTIFACT_CONTENT_MISMATCH');
-    const manifestHash = await sha256(
-      JSON.stringify({
-        version: 1,
-        item_id: header.item_id,
-        kind: header.kind,
-        content_hash: header.content_hash,
-        byte_size: offset,
-        chunk_count: header.chunk_count,
-        chunk_manifest_hash: bytesToHex(manifest.digest()),
-        schema_version: header.schema_version,
-        producer_version: header.producer_version,
-        provenance: JSON.parse(header.provenance_json),
-        original_ref: header.original_ref,
-      }),
+    const manifestHash = await artifactManifestHash(
+      header,
+      offset,
+      bytesToHex(manifest.digest()),
     );
     if (header.state === 'VERIFIED') {
       if (header.manifest_hash !== manifestHash)
@@ -322,22 +486,7 @@ export class ArtifactRepository {
       return this.get(id, token, task, currentTime());
     }
     const commitAt = currentTime();
-    const guard = this.guard(token, task, commitAt);
-    const result = await this.db
-      .prepare(
-        `UPDATE artifacts SET state='VERIFIED',manifest_hash=?,verified_at=? WHERE owner_id=? AND artifact_id=? AND state='UPLOADING' AND (SELECT COUNT(*) FROM artifact_chunks WHERE owner_id=? AND artifact_id=?)=chunk_count AND ${guard.predicate}`,
-      )
-      .bind(
-        manifestHash,
-        commitAt.toISOString(),
-        this.context.ownerId,
-        id,
-        this.context.ownerId,
-        id,
-        ...guard.bindings,
-      )
-      .run();
-    if (result.meta.changes !== 1) throw new Error('STALE_FENCE');
+    await this.seal(header, manifestHash, token, task, commitAt);
     return this.get(id, token, task, currentTime());
   }
 }

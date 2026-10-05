@@ -12,6 +12,15 @@ import { executeDiscoveryChunk } from '../../../../packages/core/src/sources/you
 import { YoutubeClient } from '../../../../packages/core/src/sources/youtube/client.js';
 import { TranscriptRecovery } from '../../../../packages/core/src/transcript/recovery.js';
 import { transcriptStatuses } from '../../../../packages/contracts/src/transcript.js';
+import {
+  ArtifactRepository,
+  type ArtifactDescriptor,
+} from '../../../../packages/core/src/artifacts/store.js';
+import { decode64 } from '../../../../packages/core/src/auth/crypto.js';
+import {
+  TranscriptAcceptance,
+  type TranscriptSourceCompletion,
+} from '../../../../packages/core/src/transcript/acceptance.js';
 export const workersApp = apiRouter();
 workersApp.use('*', async (c, next) => {
   // Authenticate before reading payload or any domain row. Scope is checked again per action.
@@ -64,6 +73,154 @@ function token(value: unknown, actor: string): LeaseToken {
     lease_until: row.lease_until,
   };
 }
+function artifactTask(value: unknown) {
+  const type = task(value);
+  if (
+    ![
+      'FETCH_TRANSCRIPT',
+      'NORMALIZE',
+      'ANALYZE',
+      'TRANSLATE',
+      'REPROCESS',
+    ].includes(type)
+  )
+    throw new Error('INVALID_ARTIFACT_TASK');
+  return type;
+}
+workersApp.post('/artifacts/begin', async (c) => {
+  const input = await body(c, ['task_type', 'token', 'descriptor']),
+    access = c.get('access');
+  const value = input.descriptor;
+  if (!value || typeof value !== 'object' || Array.isArray(value))
+    throw new Error('INVALID_ARTIFACT_DESCRIPTOR');
+  const d = value as Record<string, unknown>;
+  if (
+    Object.keys(d).some(
+      (key) =>
+        ![
+          'item_id',
+          'kind',
+          'content_hash',
+          'byte_size',
+          'chunk_count',
+          'schema_version',
+          'producer_version',
+          'provenance',
+          'original_ref',
+        ].includes(key),
+    ) ||
+    ![
+      'RAW',
+      'SOURCE_ORIGINAL',
+      'NORMALIZED',
+      'PL_HELPER',
+      'ANALYSIS_CANDIDATE',
+      'SEGMENT_MAP',
+      'OFFSET_MAP',
+    ].includes(String(d.kind)) ||
+    !Number.isSafeInteger(d.byte_size) ||
+    !Number.isSafeInteger(d.chunk_count) ||
+    !d.provenance ||
+    typeof d.provenance !== 'object' ||
+    Array.isArray(d.provenance) ||
+    !(d.original_ref === null || typeof d.original_ref === 'string')
+  )
+    throw new Error('INVALID_ARTIFACT_DESCRIPTOR');
+  const descriptor: ArtifactDescriptor = {
+    item_id: text(d.item_id, 128),
+    kind: d.kind as ArtifactDescriptor['kind'],
+    content_hash: text(d.content_hash, 64),
+    byte_size: Number(d.byte_size),
+    chunk_count: Number(d.chunk_count),
+    schema_version: text(d.schema_version, 128),
+    producer_version: text(d.producer_version, 128),
+    provenance: d.provenance as Record<string, unknown>,
+    original_ref: d.original_ref === null ? null : text(d.original_ref, 128),
+  };
+  return c.json(
+    await new ArtifactRepository(c.env.DB, access).begin(
+      descriptor,
+      token(input.token, access.actorId),
+      artifactTask(input.task_type),
+      new Date(),
+    ),
+  );
+});
+workersApp.post('/artifacts/read', async (c) => {
+  const input = await body(c, [
+      'task_type',
+      'token',
+      'artifact_id',
+      'chunk_index',
+    ]),
+    access = c.get('access'),
+    repository = new ArtifactRepository(c.env.DB, access),
+    lease = token(input.token, access.actorId),
+    type = artifactTask(input.task_type),
+    id = text(input.artifact_id, 128),
+    now = new Date();
+  if (input.chunk_index === undefined)
+    return c.json({ artifact: await repository.get(id, lease, type, now) });
+  if (!Number.isSafeInteger(input.chunk_index) || Number(input.chunk_index) < 0)
+    throw new Error('INVALID_CHUNK_INDEX');
+  return c.json({
+    chunk: await repository.chunk(
+      id,
+      Number(input.chunk_index),
+      lease,
+      type,
+      now,
+    ),
+  });
+});
+workersApp.post('/artifacts/write', async (c) => {
+  const input = await body(c, [
+      'task_type',
+      'token',
+      'artifact_id',
+      'chunk_index',
+      'byte_start',
+      'body_base64',
+    ]),
+    access = c.get('access');
+  if (
+    typeof input.body_base64 !== 'string' ||
+    input.body_base64.length > 43692 ||
+    !Number.isSafeInteger(input.chunk_index) ||
+    !Number.isSafeInteger(input.byte_start)
+  )
+    throw new Error('INVALID_ARTIFACT_CHUNK');
+  const bytes = input.body_base64
+    ? decode64(input.body_base64)
+    : new Uint8Array();
+  return c.json(
+    await new ArtifactRepository(c.env.DB, access).writeChunk(
+      text(input.artifact_id, 128),
+      Number(input.chunk_index),
+      Number(input.byte_start),
+      bytes,
+      token(input.token, access.actorId),
+      artifactTask(input.task_type),
+      new Date(),
+    ),
+  );
+});
+workersApp.post('/artifacts/verify-step', async (c) => {
+  const input = await body(c, ['task_type', 'token', 'artifact_id', 'proof']),
+    access = c.get('access');
+  if (!c.env.SESSION_SIGNING_SECRET)
+    throw new Error('AUTH_CONFIGURATION_REQUIRED');
+  return c.json(
+    await new ArtifactRepository(c.env.DB, access).verifyStep(
+      text(input.artifact_id, 128),
+      token(input.token, access.actorId),
+      artifactTask(input.task_type),
+      new Date(),
+      c.env.SESSION_SIGNING_SECRET,
+      input.proof === undefined ? undefined : text(input.proof, 8192),
+    ),
+  );
+});
 workersApp.post('/lease', async (c) => {
   const input = await body(c, ['runtime', 'task_type', 'job_id']),
     access = c.get('access'),
@@ -83,8 +240,9 @@ workersApp.post('/lease', async (c) => {
     const job = await store.get(lease.job_id);
     return c.json({ leases: [{ token: lease, job }] });
   }
-  if (input.task_type !== undefined) throw new Error('INVALID_INPUT');
-  return c.json({ leases: await pull(store, now, location, 1) });
+  const types =
+    input.task_type === undefined ? undefined : [task(input.task_type)];
+  return c.json({ leases: await pull(store, now, location, 1, types) });
 });
 workersApp.post('/heartbeat', async (c) => {
   const input = await body(c, ['runtime', 'task_type', 'token']),
@@ -132,6 +290,46 @@ workersApp.get('/transcript/admission', async (c) =>
     ),
   ),
 );
+workersApp.post('/transcript/input', async (c) => {
+  const input = await body(c, ['token']),
+    access = c.get('access'),
+    lease = token(input.token, access.actorId);
+  access.requireTask('FETCH_TRANSCRIPT');
+  const row = await c.env.DB.prepare(
+    `SELECT i.item_id,i.namespace,i.external_id,r.metadata_json FROM jobs j JOIN items i ON i.owner_id=j.owner_id AND i.item_id=j.item_id JOIN item_revisions r ON r.owner_id=i.owner_id AND r.item_id=i.item_id AND r.revision_id=i.current_revision_id WHERE j.owner_id=? AND j.job_id=? AND j.task_type='FETCH_TRANSCRIPT' AND j.state='RUNNING' AND j.lease_owner=? AND j.fencing_token=? AND j.lease_until>?`,
+  )
+    .bind(
+      access.ownerId,
+      lease.job_id,
+      access.actorId,
+      lease.fencing_token,
+      new Date().toISOString(),
+    )
+    .first<{
+      item_id: string;
+      namespace: string;
+      external_id: string;
+      metadata_json: string;
+    }>();
+  if (!row) throw new Error('STALE_FENCE');
+  const metadata = JSON.parse(row.metadata_json) as {
+    duration_seconds: number | null;
+  };
+  if (
+    row.namespace !== 'youtube' ||
+    !/^[A-Za-z0-9_-]{11}$/.test(row.external_id)
+  )
+    throw new Error('INVALID_TRANSCRIPT_ITEM');
+  return c.json({
+    item_id: row.item_id,
+    namespace: 'youtube',
+    external_id: row.external_id,
+    duration_ms:
+      metadata.duration_seconds === null
+        ? null
+        : metadata.duration_seconds * 1000,
+  });
+});
 workersApp.post('/transcript/outcome', async (c) => {
   const input = await body(c, ['token', 'status', 'active_live']),
     access = c.get('access');
@@ -147,6 +345,47 @@ workersApp.post('/transcript/outcome', async (c) => {
       status,
       new Date(),
       input.active_live === true,
+    ),
+  );
+});
+workersApp.post('/transcript/accept', async (c) => {
+  const input = await body(c, ['token', 'source']),
+    access = c.get('access');
+  if (
+    !input.source ||
+    typeof input.source !== 'object' ||
+    Array.isArray(input.source)
+  )
+    throw new Error('INVALID_SOURCE_COMPLETION');
+  const source = input.source as Record<string, unknown>;
+  if (
+    Object.keys(source).some(
+      (key) =>
+        ![
+          'raw_artifact_id',
+          'source_artifact_id',
+          'normalized_artifact_id',
+          'segment_map_artifact_id',
+          'offset_map_artifact_id',
+          'selection',
+          'warnings',
+        ].includes(key),
+    )
+  )
+    throw new Error('INVALID_SOURCE_COMPLETION');
+  for (const key of [
+    'raw_artifact_id',
+    'source_artifact_id',
+    'normalized_artifact_id',
+    'segment_map_artifact_id',
+    'offset_map_artifact_id',
+  ])
+    text(source[key], 128);
+  return c.json(
+    await new TranscriptAcceptance(c.env.DB, access).accept(
+      source as unknown as TranscriptSourceCompletion,
+      token(input.token, access.actorId),
+      new Date(),
     ),
   );
 });
