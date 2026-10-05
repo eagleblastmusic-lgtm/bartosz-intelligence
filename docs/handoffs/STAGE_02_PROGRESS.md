@@ -18,6 +18,8 @@ CP-2.6: PASS; evidence docs/verification/cp-2.6.md and immutable core-source liv
 
 CP-2.7: PASS; evidence docs/verification/cp-2.7.md. Scan membership/bounded page staging → 006_discovery_scan_members.sql; exact hash in ledger; next 007. Uncreated Stage 03 migration numbers must follow actual map.
 
-Current checkpoint: CP-2.8 — scheduler, overlap and missed-job recovery. No completed Stage 02 claim. Actual owner Google OIDC smoke remains pending configuration: GOOGLE_OIDC_CLIENT_ID, GOOGLE_OIDC_CLIENT_SECRET, GOOGLE_OIDC_OWNER_SUBJECT, APP_ORIGIN. SESSION_SIGNING_SECRET will be provisioned privately; no secret value requested in chat. Existing YouTube and Gemini keys are present; paid services remain disabled.
+CP-2.8: PASS local; evidence docs/verification/cp-2.8.md. Scheduler/overlap/missing intents/30-day metadata refresh. Migrations unchanged; next 007.
+
+Current checkpoint: CP-2.9 — owner/worker API contracts. No completed Stage 02 claim. Actual owner Google OIDC smoke is explicitly paused until owner confirms client creation and local configuration: GOOGLE_OIDC_CLIENT_ID, GOOGLE_OIDC_CLIENT_SECRET, GOOGLE_OIDC_OWNER_SUBJECT, APP_ORIGIN. Exact origin/callback/client name are recorded in config/application.json; production is NOT_DEPLOYED. SESSION_SIGNING_SECRET will be provisioned privately; no secret value requested in chat. Existing YouTube and Gemini keys are present; paid services remain disabled.
 
 Required context on resume: index, Stage 02 plan, Stage 01 completion, this progress, current Git/migration ledger and CP evidence. Reuse Stage 01 gates. Do not load later stage plans yet.

@@ -37,7 +37,7 @@ export function parseAtomHints(xml: string) {
       videoText = '';
     }
     if (!/\/\s*>$/.test(token)) stack.push(opening[1]!);
-    if (stack.length > 32 || ids.length > 200) throw new Error('RSS_LIMIT');
+    if (stack.length > 32 || ids.length > 50) throw new Error('RSS_LIMIT');
   }
   if (
     stack.length ||

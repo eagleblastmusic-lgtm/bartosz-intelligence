@@ -49,6 +49,25 @@ export async function enumeratePage(
     );
     return id;
   });
+  const candidates = await fetchVideoMetadata(client, identity, ids, published);
+  return {
+    candidates,
+    next_cursor:
+      typeof uploads.nextPageToken === 'string' ? uploads.nextPageToken : null,
+    ordering_guarantee: 'unknown' as const,
+    coverage: uploads.nextPageToken
+      ? ('PARTIAL' as const)
+      : ('COMPLETE' as const),
+  };
+}
+export async function fetchVideoMetadata(
+  client: YoutubeClient,
+  identity: SourceIdentity,
+  ids: string[],
+  published = new Map<string, string | null>(),
+) {
+  if (ids.length > 50 || ids.some((id) => !/^[\w-]{11}$/.test(id)))
+    throw new YoutubeError('PARSER');
   const videos = ids.length
     ? await client.get('videos', {
         part: 'snippet,contentDetails,status,liveStreamingDetails',
@@ -115,15 +134,7 @@ export async function enumeratePage(
         duration_seconds: null,
       },
   );
-  return {
-    candidates,
-    next_cursor:
-      typeof uploads.nextPageToken === 'string' ? uploads.nextPageToken : null,
-    ordering_guarantee: 'unknown' as const,
-    coverage: uploads.nextPageToken
-      ? ('PARTIAL' as const)
-      : ('COMPLETE' as const),
-  };
+  return candidates;
 }
 export async function previewBackfill(
   client: YoutubeClient,

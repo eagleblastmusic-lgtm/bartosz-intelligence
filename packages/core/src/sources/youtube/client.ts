@@ -36,12 +36,13 @@ export class YoutubeClient {
   ): Promise<JsonRecord> {
     if (this.used >= this.budget) throw new YoutubeError('QUOTA');
     const url = new URL(`https://www.googleapis.com/youtube/v3/${resource}`);
-    url.search = new URLSearchParams({ ...params, key: this.key }).toString();
+    url.search = new URLSearchParams(params).toString();
     this.used++;
     let response: Response;
     try {
       response = await this.fetcher(url.href, {
         redirect: 'error',
+        headers: { 'x-goog-api-key': this.key },
         signal: AbortSignal.timeout(10000),
       });
     } catch {

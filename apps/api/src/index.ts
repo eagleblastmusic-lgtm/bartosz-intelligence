@@ -1,15 +1,14 @@
 import { Hono } from 'hono';
 import { consumeSignals } from './queue.js';
-import { recoverJobs } from './scheduled.js';
+import { scheduleControlPlane } from './scheduled.js';
+import { authApp } from './auth.js';
+import type { Env } from './env.js';
+export type { Env } from './env.js';
 
 const buildVersion = '0.0.1';
 
-export interface Env {
-  DB: D1Database;
-  BARTOSZ_QUEUE: Queue;
-  ASSETS: Fetcher;
-}
 const app = new Hono<{ Bindings: Env }>();
+app.route('/api/v1/auth', authApp);
 app.get('/health', (c) => {
   const bindings = {
     DB: Boolean(c.env.DB),
@@ -44,7 +43,7 @@ export default {
     context: ExecutionContext,
   ) {
     context.waitUntil(
-      recoverJobs(
+      scheduleControlPlane(
         environment.DB,
         environment.BARTOSZ_QUEUE,
         new Date(controller.scheduledTime),

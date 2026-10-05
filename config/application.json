@@ -1,0 +1,11 @@
+{
+  "oauth_client_name": "Bartosz Intelligence",
+  "worker_name": "bartosz-intelligence",
+  "app_origin": "https://bartosz-intelligence.eagleblastmusic.workers.dev",
+  "auth_callback_path": "/api/v1/auth/callback",
+  "authorized_javascript_origins": [],
+  "sampled_at": "2026-10-05T18:53:01.311Z",
+  "origin_source": "actual selected Cloudflare account workers subdomain",
+  "deployment_status": "NOT_DEPLOYED",
+  "paid_services_enabled": false
+}

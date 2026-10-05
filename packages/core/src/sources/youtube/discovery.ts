@@ -17,6 +17,9 @@ export interface ScanState {
   staged_next_cursor: string | null;
   staged_page_hash: string | null;
   page_offset: number;
+  job_payload_json: string;
+  job_origin_kind: string;
+  source_activated_at: string;
 }
 export async function getScan(
   db: Database,
@@ -24,7 +27,9 @@ export async function getScan(
   jobId: string,
 ) {
   return db
-    .prepare('SELECT * FROM discovery_scans WHERE owner_id=? AND job_id=?')
+    .prepare(
+      'SELECT s.*,j.payload_json AS job_payload_json,j.origin_kind AS job_origin_kind,src.activated_at AS source_activated_at FROM discovery_scans s JOIN jobs j ON j.owner_id=s.owner_id AND j.job_id=s.job_id JOIN sources src ON src.owner_id=s.owner_id AND src.source_id=s.source_id WHERE s.owner_id=? AND s.job_id=?',
+    )
     .bind(context.ownerId, jobId)
     .first<ScanState>();
 }
@@ -119,7 +124,12 @@ export async function commitDiscoveryPage(
     staged.page_offset + 5,
   );
   const pageFinished = staged.page_offset + 5 >= pageCandidates.length;
-  const scanComplete = pageFinished && staged.staged_next_cursor === null;
+  const mode = JSON.parse(staged.job_payload_json).mode ?? 'FULL';
+  if (!['FULL', 'HEAD', 'RSS', 'REFRESH'].includes(mode))
+    throw new Error('INVALID_SCAN_MODE');
+  const jobDone =
+    pageFinished && (staged.staged_next_cursor === null || mode !== 'FULL');
+  const scanComplete = jobDone && mode === 'FULL';
   const cursorAfter = pageFinished ? staged.staged_next_cursor : scan.cursor;
   const permit = {
     predicate: `EXISTS(SELECT 1 FROM discovery_scans s WHERE s.owner_id=? AND s.scan_id=? AND s.job_id=? AND s.commit_nonce=?) AND ${lease.predicate}`,
@@ -150,6 +160,7 @@ export async function commitDiscoveryPage(
   const unique = new Map(slice.map((item) => [item.external_id, item]));
   for (const item of unique.values()) {
     if (
+      mode !== 'REFRESH' &&
       item.published_at !== null &&
       (item.published_at < scan.window_start ||
         item.published_at > scan.window_end)
@@ -158,6 +169,14 @@ export async function commitDiscoveryPage(
     statements.push(
       ...(await items.prepareUpsert(scan.source_id, item, at, permit)),
     );
+    const origin =
+      item.published_at !== null
+        ? item.published_at < staged.source_activated_at
+          ? 'BACKFILL'
+          : 'NEW'
+        : staged.job_origin_kind === 'BACKFILL'
+          ? 'BACKFILL'
+          : 'NEW';
     const dedup = await jobDedup(context.ownerId, {
       item_id: `${item.namespace}:${item.external_id}`,
       source_id: null,
@@ -171,9 +190,9 @@ export async function commitDiscoveryPage(
       enrichment_version: null,
       explicit_run_nonce: '',
       arrival_origin_at: item.published_at ?? at,
-      origin_kind: 'BACKFILL',
+      origin_kind: origin,
       payload: {},
-      priority: 20,
+      priority: origin === 'BACKFILL' ? 20 : 80,
       due_at: at,
     });
     const state =
@@ -210,7 +229,7 @@ export async function commitDiscoveryPage(
       db
         .prepare(
           `INSERT INTO jobs(job_id,owner_id,item_id,source_id,task_type,input_revision,profile_revision,routing_policy_version,explicit_run_nonce,dedup_key,state,reason_code,due_at,priority,arrival_origin_at,origin_kind,payload_json,created_at,updated_at)
-        SELECT ?,owner_id,item_id,source_id,'FETCH_TRANSCRIPT','source-intake-1','economy-1','local-primary-1','',?,?,?,?,20,?,'BACKFILL','{}',?,? FROM items WHERE owner_id=? AND source_id=? AND namespace=? AND external_id=? AND ${permit.predicate}
+        SELECT ?,owner_id,item_id,source_id,'FETCH_TRANSCRIPT','source-intake-1','economy-1','local-primary-1','',?,?,?,?,?,?,?,'{}',?,? FROM items WHERE owner_id=? AND source_id=? AND namespace=? AND external_id=? AND ${permit.predicate}
         ON CONFLICT(owner_id,dedup_key) DO NOTHING`,
         )
         .bind(
@@ -219,7 +238,9 @@ export async function commitDiscoveryPage(
           state,
           reason,
           due,
+          origin === 'BACKFILL' ? 20 : 80,
           item.published_at ?? at,
+          origin,
           at,
           at,
           context.ownerId,
@@ -316,8 +337,8 @@ export async function commitDiscoveryPage(
         `UPDATE jobs SET state=?,reason_code=?,due_at=?,updated_at=?,lease_owner=NULL,lease_until=NULL WHERE owner_id=? AND job_id=? AND ${permit.predicate}`,
       )
       .bind(
-        scanComplete ? 'SUCCEEDED' : 'DEFERRED',
-        scanComplete ? null : 'CONTINUATION',
+        jobDone ? 'SUCCEEDED' : 'DEFERRED',
+        jobDone ? null : 'CONTINUATION',
         at,
         at,
         context.ownerId,
