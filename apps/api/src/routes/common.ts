@@ -1,0 +1,145 @@
+import { Hono } from 'hono';
+import type { Context } from 'hono';
+import type { Env } from '../env.js';
+import type { AccessContext } from '../../../../packages/core/src/db/boundary.js';
+import { ownerContext } from '../auth.js';
+export type ApiEnvironment = {
+  Bindings: Env;
+  Variables: { access: AccessContext; correlation: string };
+};
+export function apiRouter() {
+  const router = new Hono<ApiEnvironment>();
+  router.use('*', async (c, next) => {
+    c.set('correlation', crypto.randomUUID());
+    c.header('Cache-Control', 'no-store');
+    c.header('X-Content-Type-Options', 'nosniff');
+    await next();
+  });
+  router.onError((error, c) => {
+    const raw = error.message;
+    const forbidden = ['FORBIDDEN', 'CSRF_DENIED'].includes(raw);
+    const unavailable = [
+      'AUTH_CONFIGURATION_REQUIRED',
+      'PROVIDER_CONFIGURATION_REQUIRED',
+      'QUOTA',
+      'TRANSIENT',
+      'AUTH',
+      'PARSER',
+      'CAPABILITY_NOT_AVAILABLE',
+    ].includes(raw);
+    const invalid =
+      raw.startsWith('INVALID_') ||
+      ['RESET_REQUIRED', 'UNEXPECTED_FIELD', 'PAYLOAD_TOO_LARGE'].includes(raw);
+    const conflict = [
+      'STALE_FENCE',
+      'IDEMPOTENCY_CONFLICT',
+      'REPLAY_DENIED',
+    ].includes(raw);
+    const unauthenticated = ['UNAUTHENTICATED', 'INVALID_ENCODING'].includes(
+      raw,
+    );
+    const status = unauthenticated
+      ? 401
+      : forbidden
+        ? 403
+        : raw === 'NOT_FOUND'
+          ? 404
+          : conflict
+            ? 409
+            : invalid
+              ? 422
+              : unavailable
+                ? 503
+                : 500;
+    return c.json(
+      {
+        code:
+          status === 500
+            ? 'INTERNAL_ERROR'
+            : unauthenticated
+              ? 'UNAUTHENTICATED'
+              : forbidden
+                ? 'FORBIDDEN'
+                : raw,
+        message:
+          status === 500
+            ? 'Request could not be completed.'
+            : 'Request rejected.',
+        correlation_id: c.get('correlation'),
+      },
+      status,
+    );
+  });
+  return router;
+}
+export function ownerRouter() {
+  const router = apiRouter();
+  router.use('*', async (c, next) => {
+    c.set(
+      'access',
+      await ownerContext(
+        c.env,
+        c.req.raw,
+        !['GET', 'HEAD'].includes(c.req.method),
+      ),
+    );
+    await next();
+  });
+  return router;
+}
+export async function body(
+  c: Context<ApiEnvironment>,
+  fields: readonly string[],
+) {
+  if (!/^application\/json(?:;|$)/i.test(c.req.header('Content-Type') ?? ''))
+    throw new Error('INVALID_CONTENT_TYPE');
+  if (Number(c.req.header('Content-Length') ?? 0) > 65536)
+    throw new Error('PAYLOAD_TOO_LARGE');
+  const reader = c.req.raw.body?.getReader();
+  if (!reader) throw new Error('INVALID_BODY');
+  const chunks: Uint8Array[] = [];
+  let bytes = 0;
+  for (;;) {
+    const part = await reader.read();
+    if (part.done) break;
+    bytes += part.value.byteLength;
+    if (bytes > 65536) {
+      await reader.cancel();
+      throw new Error('PAYLOAD_TOO_LARGE');
+    }
+    chunks.push(part.value);
+  }
+  const data = new Uint8Array(bytes);
+  let offset = 0;
+  for (const chunk of chunks) {
+    data.set(chunk, offset);
+    offset += chunk.byteLength;
+  }
+  let value: unknown;
+  try {
+    value = JSON.parse(
+      new TextDecoder('utf-8', { fatal: true, ignoreBOM: false }).decode(data),
+    );
+  } catch {
+    throw new Error('INVALID_BODY');
+  }
+  if (!value || typeof value !== 'object' || Array.isArray(value))
+    throw new Error('INVALID_BODY');
+  if (Object.keys(value).some((key) => !fields.includes(key)))
+    throw new Error('UNEXPECTED_FIELD');
+  return value as Record<string, unknown>;
+}
+export function text(value: unknown, maximum = 2048): string {
+  if (typeof value !== 'string' || !value || value.length > maximum)
+    throw new Error('INVALID_INPUT');
+  return value;
+}
+export function queryFields(
+  c: Context<ApiEnvironment>,
+  fields: readonly string[],
+) {
+  const params = new URL(c.req.url).searchParams;
+  for (const key of params.keys())
+    if (!fields.includes(key) || params.getAll(key).length !== 1)
+      throw new Error('INVALID_FILTER');
+}

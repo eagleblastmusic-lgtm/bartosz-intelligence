@@ -3,12 +3,22 @@ import { consumeSignals } from './queue.js';
 import { scheduleControlPlane } from './scheduled.js';
 import { authApp } from './auth.js';
 import type { Env } from './env.js';
+import { sourcesApp } from './routes/sources.js';
+import { itemsApp } from './routes/items.js';
+import { jobsApp } from './routes/jobs.js';
+import { workersApp } from './routes/workers.js';
+import { systemApp } from './routes/system.js';
 export type { Env } from './env.js';
 
 const buildVersion = '0.0.1';
 
 const app = new Hono<{ Bindings: Env }>();
 app.route('/api/v1/auth', authApp);
+app.route('/api/v1/sources', sourcesApp);
+app.route('/api/v1/items', itemsApp);
+app.route('/api/v1/jobs', jobsApp);
+app.route('/api/v1/system', systemApp);
+app.route('/internal/workers', workersApp);
 app.get('/health', (c) => {
   const bindings = {
     DB: Boolean(c.env.DB),
@@ -27,6 +37,7 @@ app.get('/health', (c) => {
 });
 app.all('/api/*', (c) => c.json({ error: 'NOT_FOUND' }, 404));
 app.all('/api', (c) => c.json({ error: 'NOT_FOUND' }, 404));
+app.all('/internal/*', (c) => c.json({ error: 'NOT_FOUND' }, 404));
 app.all('*', (c) =>
   c.env.ASSETS
     ? c.env.ASSETS.fetch(c.req.raw)

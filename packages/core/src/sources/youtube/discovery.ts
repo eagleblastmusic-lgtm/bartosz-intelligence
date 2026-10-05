@@ -86,8 +86,12 @@ export async function commitDiscoveryPage(
   nextCursor: string | null,
   now: Date,
   task: TaskType = 'DISCOVER',
+  chunkSize = 5,
 ) {
   if (
+    !Number.isInteger(chunkSize) ||
+    chunkSize < 1 ||
+    chunkSize > 5 ||
     candidates.length > 50 ||
     (nextCursor !== null && (!nextCursor || nextCursor.length > 2048))
   )
@@ -121,9 +125,9 @@ export async function commitDiscoveryPage(
   const pageCandidates = JSON.parse(staged.staged_page_json!) as ItemMetadata[];
   const slice = pageCandidates.slice(
     staged.page_offset,
-    staged.page_offset + 5,
+    staged.page_offset + chunkSize,
   );
-  const pageFinished = staged.page_offset + 5 >= pageCandidates.length;
+  const pageFinished = staged.page_offset + chunkSize >= pageCandidates.length;
   const mode = JSON.parse(staged.job_payload_json).mode ?? 'FULL';
   if (!['FULL', 'HEAD', 'RSS', 'REFRESH'].includes(mode))
     throw new Error('INVALID_SCAN_MODE');

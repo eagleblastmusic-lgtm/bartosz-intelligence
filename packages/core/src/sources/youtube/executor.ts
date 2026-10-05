@@ -18,6 +18,7 @@ export async function executeDiscoveryChunk(
   now: Date,
   task: TaskType = 'DISCOVER',
   clock: () => Date = () => now,
+  chunkSize = 5,
 ) {
   context.requireTask(task);
   let scan = await getScan(db, context, token.job_id);
@@ -33,6 +34,7 @@ export async function executeDiscoveryChunk(
       null,
       clock(),
       task,
+      chunkSize,
     );
   const source = await db
     .prepare(
@@ -70,6 +72,7 @@ export async function executeDiscoveryChunk(
       null,
       clock(),
       task,
+      chunkSize,
     );
   }
   if (mode === 'RSS') {
@@ -94,6 +97,7 @@ export async function executeDiscoveryChunk(
       null,
       clock(),
       task,
+      chunkSize,
     );
     await db
       .prepare(
@@ -141,5 +145,6 @@ export async function executeDiscoveryChunk(
     page.next_cursor,
     clock(),
     task,
+    chunkSize,
   );
 }

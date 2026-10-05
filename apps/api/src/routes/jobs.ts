@@ -1,0 +1,92 @@
+import { ownerRouter, body, queryFields, text } from './common.js';
+import { JobStore } from '../../../../packages/core/src/jobs/store.js';
+import {
+  jobStates,
+  taskTypes,
+} from '../../../../packages/contracts/src/jobs.js';
+import {
+  decodeCursor,
+  encodeCursor,
+  pageLimit,
+} from '../../../../packages/core/src/db/cursor.js';
+export const jobsApp = ownerRouter();
+const columns =
+  'job_id,item_id,source_id,task_type,state,reason_code,due_at,priority,attempt_count,lease_until,fencing_token,arrival_origin_at,origin_kind,created_at,updated_at';
+jobsApp.get('/', async (c) => {
+  queryFields(c, ['limit', 'cursor', 'state', 'task_type']);
+  const limit = pageLimit(Number(c.req.query('limit') ?? 20)),
+    state = c.req.query('state') ?? null,
+    task = c.req.query('task_type') ?? null;
+  if (
+    (state !== null && !jobStates.some((value) => value === state)) ||
+    (task !== null && !taskTypes.some((value) => value === task))
+  )
+    throw new Error('INVALID_FILTER');
+  const access = c.get('access'),
+    kind = `jobs:created:desc:${state ?? '*'}:${task ?? '*'}`,
+    cursor = c.req.query('cursor');
+  const position = cursor
+      ? await decodeCursor(
+          cursor,
+          access.ownerId,
+          kind,
+          c.env.SESSION_SIGNING_SECRET!,
+        )
+      : null,
+    snapshot = position?.snapshot ?? new Date().toISOString();
+  const rows = (
+    await c.env.DB.prepare(
+      `SELECT ${columns} FROM jobs WHERE owner_id=? AND created_at<=? AND (? IS NULL OR state=?) AND (? IS NULL OR task_type=?) AND (? IS NULL OR created_at<? OR (created_at=? AND job_id<?)) ORDER BY created_at DESC,job_id DESC LIMIT ?`,
+    )
+      .bind(
+        access.ownerId,
+        snapshot,
+        state,
+        state,
+        task,
+        task,
+        position?.time ?? null,
+        position?.time ?? null,
+        position?.time ?? null,
+        position?.id ?? null,
+        limit + 1,
+      )
+      .all<{ job_id: string; created_at: string }>()
+  ).results;
+  const page = rows.slice(0, limit),
+    last = page.at(-1);
+  return c.json({
+    jobs: page,
+    next_cursor:
+      rows.length > limit && last
+        ? await encodeCursor(
+            {
+              owner: access.ownerId,
+              kind,
+              snapshot,
+              time: last.created_at,
+              id: last.job_id,
+            },
+            c.env.SESSION_SIGNING_SECRET!,
+          )
+        : null,
+  });
+});
+jobsApp.get('/:id', async (c) => {
+  const row = await c.env.DB.prepare(
+    `SELECT ${columns} FROM jobs WHERE owner_id=? AND job_id=?`,
+  )
+    .bind(c.get('access').ownerId, text(c.req.param('id'), 128))
+    .first();
+  if (!row) throw new Error('NOT_FOUND');
+  return c.json(row);
+});
+jobsApp.post('/:id/replay', async (c) => {
+  await body(c, []);
+  await new JobStore(c.env.DB, c.get('access')).replay(
+    text(c.req.param('id'), 128),
+    new Date().toISOString(),
+    c.get('correlation'),
+  );
+  return c.json({ state: 'PENDING' });
+});
