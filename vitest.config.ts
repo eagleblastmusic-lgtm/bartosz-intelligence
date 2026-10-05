@@ -1,5 +1,17 @@
 import { defineConfig } from 'vitest/config';
-import { cloudflareTest } from '@cloudflare/vitest-plugin';
+import { cloudflareTest, readD1Migrations } from '@cloudflare/vitest-plugin';
+import { readFileSync } from 'node:fs';
+
+const migrationQueries = await readD1Migrations('./db/migrations');
+const ledger = JSON.parse(readFileSync('db/migration-ledger.json', 'utf8'));
+const coreMigrations = ledger.migrations.map(
+  (row: { name: string; sha256: string; depends_on: string[] }) => ({
+    ...row,
+    sql: readFileSync(`db/migrations/${row.name}`, 'utf8'),
+    queries: migrationQueries.find((migration) => migration.name === row.name)!
+      .queries,
+  }),
+);
 
 export default defineConfig({
   test: {
@@ -12,6 +24,7 @@ export default defineConfig({
         plugins: [
           cloudflareTest({
             wrangler: { configPath: './apps/api/wrangler.jsonc' },
+            miniflare: { bindings: { CORE_MIGRATIONS: coreMigrations } },
           }),
         ],
         test: { name: 'workers', include: ['tests/workers/**/*.spec.ts'] },
