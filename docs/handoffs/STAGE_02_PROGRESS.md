@@ -12,6 +12,8 @@ CP-2.3: PASS; evidence docs/verification/cp-2.3.md. Jobs/outbox → 003_jobs_out
 
 CP-2.4: PASS; evidence docs/verification/cp-2.4.md. Runs/registry/export skeleton → 004_runs_registry_exports.sql; exact hash in ledger; next 005.
 
-Current checkpoint: CP-2.5 — Outbox, transport, pull and sweeper. No completed Stage 02 claim. Actual owner Google OIDC smoke remains pending configuration: GOOGLE_OIDC_CLIENT_ID, GOOGLE_OIDC_CLIENT_SECRET, GOOGLE_OIDC_OWNER_SUBJECT, APP_ORIGIN. SESSION_SIGNING_SECRET will be provisioned privately; no secret value requested in chat. Existing YouTube and Gemini keys are present; paid services remain disabled.
+CP-2.5: PASS; evidence docs/verification/cp-2.5.md. Bounded cron recovery, durable Outbox and scoped local pull. Migrations unchanged; next 005.
+
+Current checkpoint: CP-2.6 — resolver and atomic backfill intent. No completed Stage 02 claim. Actual owner Google OIDC smoke remains pending configuration: GOOGLE_OIDC_CLIENT_ID, GOOGLE_OIDC_CLIENT_SECRET, GOOGLE_OIDC_OWNER_SUBJECT, APP_ORIGIN. SESSION_SIGNING_SECRET will be provisioned privately; no secret value requested in chat. Existing YouTube and Gemini keys are present; paid services remain disabled.
 
 Required context on resume: index, Stage 02 plan, Stage 01 completion, this progress, current Git/migration ledger and CP evidence. Reuse Stage 01 gates. Do not load later stage plans yet.

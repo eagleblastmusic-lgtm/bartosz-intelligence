@@ -76,7 +76,7 @@ describe('LOCAL workerd smoke (not Gate E)', () => {
       (await env.DB.prepare('SELECT * FROM smoke ORDER BY id').all()).results,
     ).toEqual(snapshot.results);
   });
-  it('local Queue producer accepts message and skeleton retries', async () => {
+  it('local Queue producer accepts message and invalid signal retries', async () => {
     await env.BARTOSZ_QUEUE.send({ fixture: true });
     const batch = createMessageBatch('stage01-local-fixture', [
       {
@@ -87,7 +87,9 @@ describe('LOCAL workerd smoke (not Gate E)', () => {
       },
     ]);
     const context = createExecutionContext();
-    worker.queue(batch);
-    expect((await getQueueResult(batch, context)).retryBatch.retry).toBe(true);
+    await worker.queue(batch, env);
+    expect((await getQueueResult(batch, context)).retryMessages).toEqual([
+      { msgId: 'smoke' },
+    ]);
   });
 });

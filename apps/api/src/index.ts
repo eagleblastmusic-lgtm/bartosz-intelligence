@@ -1,4 +1,6 @@
 import { Hono } from 'hono';
+import { consumeSignals } from './queue.js';
+import { recoverJobs } from './scheduled.js';
 
 const buildVersion = '0.0.1';
 
@@ -33,8 +35,20 @@ app.all('*', (c) =>
 );
 export default {
   fetch: app.fetch,
-  // No domain consumer exists in Phase 0; unknown jobs are never acknowledged.
-  queue(batch: MessageBatch<unknown>) {
-    batch.retryAll({ delaySeconds: 60 });
+  queue(batch: MessageBatch<unknown>, environment: Env) {
+    return consumeSignals(batch, environment?.DB);
+  },
+  scheduled(
+    controller: ScheduledController,
+    environment: Env,
+    context: ExecutionContext,
+  ) {
+    context.waitUntil(
+      recoverJobs(
+        environment.DB,
+        environment.BARTOSZ_QUEUE,
+        new Date(controller.scheduledTime),
+      ),
+    );
   },
 } satisfies ExportedHandler<Env>;
