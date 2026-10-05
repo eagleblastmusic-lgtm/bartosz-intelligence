@@ -16,7 +16,9 @@ export function apiRouter() {
     await next();
   });
   router.onError((error, c) => {
-    const raw = error.message;
+    const raw = error.message.includes('BACKUP_MUTATION_PAUSED')
+      ? 'BACKUP_BUSY'
+      : error.message;
     const forbidden = ['FORBIDDEN', 'CSRF_DENIED'].includes(raw);
     const unavailable = [
       'AUTH_CONFIGURATION_REQUIRED',
@@ -26,6 +28,9 @@ export function apiRouter() {
       'AUTH',
       'PARSER',
       'CAPABILITY_NOT_AVAILABLE',
+      'BACKUP_BUSY',
+      'BACKUP_PILOT_LIMIT',
+      'BACKUP_ROW_TOO_LARGE',
     ].includes(raw);
     const invalid =
       raw.startsWith('INVALID_') ||
@@ -34,6 +39,9 @@ export function apiRouter() {
       'STALE_FENCE',
       'IDEMPOTENCY_CONFLICT',
       'REPLAY_DENIED',
+      'BACKUP_EXPIRED_OR_CLOSED',
+      'BACKUP_NOT_VERIFIED',
+      'BACKUP_INCOMPLETE',
     ].includes(raw);
     const unauthenticated = ['UNAUTHENTICATED', 'INVALID_ENCODING'].includes(
       raw,

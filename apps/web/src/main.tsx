@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { createRoot } from 'react-dom/client';
 import type { SourceIdentity } from '../../../packages/contracts/src/discovery.js';
 import type { JobRecord } from '../../../packages/contracts/src/jobs.js';
+import { BackupDownload } from './backup.js';
 
 async function api<T>(path: string, input?: unknown, key?: string): Promise<T> {
   const csrf = document.cookie
@@ -287,6 +288,7 @@ function App() {
               </button>
             )}
           </section>
+          <BackupDownload request={api} />
         </>
       )}
     </main>

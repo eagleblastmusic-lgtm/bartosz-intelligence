@@ -34,6 +34,11 @@
       "name": "007_owner_bootstrap.sql",
       "depends_on": ["006_discovery_scan_members.sql"],
       "sha256": "3760b1ab8aa7f69a8dfb60def421d68c4ba94a59472c13ce584277cbea1c1d97"
+    },
+    {
+      "name": "008_backup_barrier.sql",
+      "depends_on": ["007_owner_bootstrap.sql"],
+      "sha256": "3c6d2fd8fdab3ae4ac1bd792cd5724665dbfb323032b5de32f04c96b51a14a0c"
     }
   ],
   "version": 1

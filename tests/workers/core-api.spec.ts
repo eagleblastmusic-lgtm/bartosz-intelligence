@@ -95,6 +95,7 @@ it('owner routes require auth before domain reads and never fall through to HTML
     '/api/v1/jobs',
     '/api/v1/sources',
     '/api/v1/system/summary',
+    '/api/v1/backup/missing/manifest',
   ]) {
     const response = await request(path);
     expect(response.status).toBe(401);
@@ -103,6 +104,52 @@ it('owner routes require auth before domain reads and never fall through to HTML
   const response = await request('/internal/unknown');
   expect(response.status).toBe(404);
   expect(await response.json()).toEqual({ error: 'NOT_FOUND' });
+});
+it('backup requires owner CSRF, rejects worker access, and remains closed before verification', async () => {
+  await fixtureOwner();
+  const headers = await ownerHeaders();
+  expect(
+    (await request('/api/v1/backup', { ...headers, 'X-CSRF-Token': '' }, {}))
+      .status,
+  ).toBe(403);
+  expect(
+    (
+      await request(
+        '/api/v1/backup',
+        {
+          ...(await credential()),
+          Origin: application.app_origin,
+          'X-CSRF-Token': 'fixture',
+        },
+        {},
+      )
+    ).status,
+  ).toBe(401);
+  expect(
+    await env.DB.prepare('SELECT COUNT(*) n FROM backup_snapshots').first('n'),
+  ).toBe(0);
+  const begun = await request('/api/v1/backup', headers, {});
+  expect(begun.status).toBe(201);
+  const { backup_id } = (await begun.json()) as { backup_id: string };
+  expect(
+    (await request(`/api/v1/backup/${backup_id}/manifest`, headers)).status,
+  ).toBe(409);
+  expect(
+    (
+      await request(
+        `/api/v1/backup/${backup_id}/chunk?table=owner_sessions`,
+        headers,
+      )
+    ).status,
+  ).toBe(422);
+  expect(
+    (await request(`/api/v1/backup/${backup_id}/abort`, headers, {})).status,
+  ).toBe(200);
+  expect(
+    await env.DB.prepare('SELECT barrier_token FROM maintenance_state').first(
+      'barrier_token',
+    ),
+  ).toBeNull();
 });
 it('owner listing is bounded, owner-scoped and filter cursors cannot be repurposed', async () => {
   const a = await fixtureOwner(),
@@ -238,6 +285,14 @@ it('rejects malformed and oversized input with secret-free errors', async () => 
     workers: [],
     unobserved_provider_status: 'UNKNOWN',
     paid_services_enabled: false,
+    outbox: { pending: 0, oldest_due_at: null },
+    backup: { last_verified_at: null },
+    capacity: {
+      arrival_count: 0,
+      service_rate: null,
+      service_rate_status: 'NOT_CALIBRATED',
+    },
+    database_usage: { status: 'UNKNOWN', storage_bytes: null },
   });
   expect(JSON.stringify(data)).not.toContain(fixtureSecret);
 });
