@@ -27,7 +27,7 @@ const server = createServer((request, response) => {
     'Cache-Control': 'no-store',
     'Referrer-Policy': 'no-referrer',
     'X-Content-Type-Options': 'nosniff',
-    'Content-Security-Policy': `default-src 'none'; script-src 'sha256-${scriptHash}'; form-action https://bartosz-intelligence.eagleblastmusic.workers.dev; frame-ancestors 'none'; base-uri 'none'`,
+    'Content-Security-Policy': `default-src 'none'; script-src 'sha256-${scriptHash}'; form-action https://bartosz-intelligence.eagleblastmusic.workers.dev https://accounts.google.com; frame-ancestors 'none'; base-uri 'none'`,
   });
   response.end(starter);
 });
