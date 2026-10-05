@@ -15,7 +15,13 @@ export class ItemRepository {
     sourceId: string,
     metadata: ItemMetadata,
     now: string,
+    permit?: {
+      predicate: string;
+      bindings: readonly (string | number | null)[];
+    },
   ): Promise<Statement[]> {
+    const guard = permit?.predicate ?? '1';
+    const bindings = permit?.bindings ?? [];
     if (
       metadata.published_at !== null &&
       (!Number.isFinite(Date.parse(metadata.published_at)) ||
@@ -40,7 +46,7 @@ export class ItemRepository {
       this.db
         .prepare(
           `INSERT INTO items(item_id,owner_id,source_id,namespace,external_id,item_type,canonical_url,published_at,publication_provenance,discovered_at,availability)
-        VALUES(?,?,?,?,?,?,?,?,?,?,?) ON CONFLICT(owner_id,namespace,external_id) DO NOTHING`,
+        SELECT ?,?,?,?,?,?,?,?,?,?,? WHERE ${guard} ON CONFLICT(owner_id,namespace,external_id) DO NOTHING`,
         )
         .bind(
           itemId,
@@ -54,11 +60,12 @@ export class ItemRepository {
           metadata.publication_provenance,
           now,
           metadata.availability,
+          ...bindings,
         ),
       this.db
         .prepare(
           `INSERT INTO item_revisions(revision_id,owner_id,item_id,metadata_hash,metadata_json,fetched_at,availability)
-        SELECT ?,owner_id,item_id,?,?,?,? FROM items WHERE owner_id=? AND source_id=? AND namespace=? AND external_id=?
+        SELECT ?,owner_id,item_id,?,?,?,? FROM items WHERE owner_id=? AND source_id=? AND namespace=? AND external_id=? AND ${guard}
         ON CONFLICT(owner_id,item_id,metadata_hash) DO NOTHING`,
         )
         .bind(
@@ -71,12 +78,13 @@ export class ItemRepository {
           sourceId,
           metadata.namespace,
           metadata.external_id,
+          ...bindings,
         ),
       this.db
         .prepare(
           `UPDATE items SET current_revision_id=(SELECT revision_id FROM item_revisions r WHERE r.owner_id=items.owner_id AND r.item_id=items.item_id AND r.metadata_hash=?),
         published_at=?,publication_provenance=?,availability=?,item_type=?,canonical_url=? WHERE owner_id=? AND source_id=? AND namespace=? AND external_id=?
-        AND NOT EXISTS(SELECT 1 FROM item_revisions r WHERE r.owner_id=items.owner_id AND r.item_id=items.item_id AND r.revision_id=items.current_revision_id AND r.fetched_at>?)`,
+        AND NOT EXISTS(SELECT 1 FROM item_revisions r WHERE r.owner_id=items.owner_id AND r.item_id=items.item_id AND r.revision_id=items.current_revision_id AND r.fetched_at>?) AND ${guard}`,
         )
         .bind(
           hash,
@@ -90,6 +98,7 @@ export class ItemRepository {
           metadata.namespace,
           metadata.external_id,
           now,
+          ...bindings,
         ),
     ];
   }

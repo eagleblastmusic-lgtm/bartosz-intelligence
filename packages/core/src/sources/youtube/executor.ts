@@ -1,0 +1,60 @@
+import type { AccessContext, Database } from '../../db/boundary.js';
+import type { LeaseToken, TaskType } from '../../../../contracts/src/jobs.js';
+import type { SourceIdentity } from '../../../../contracts/src/discovery.js';
+import {
+  getScan,
+  commitDiscoveryPage,
+  restartExpiredCursor,
+} from './discovery.js';
+import { enumeratePage } from './preview.js';
+import { YoutubeClient, YoutubeError } from './client.js';
+export async function executeDiscoveryChunk(
+  db: Database,
+  context: AccessContext,
+  token: LeaseToken,
+  client: YoutubeClient,
+  now: Date,
+  task: TaskType = 'DISCOVER',
+) {
+  context.requireTask(task);
+  let scan = await getScan(db, context, token.job_id);
+  if (!scan || !['PENDING', 'PARTIAL'].includes(scan.coverage))
+    throw new Error('SCAN_NOT_PENDING');
+  if (scan.staged_page_json !== null)
+    return commitDiscoveryPage(db, context, token, scan, [], null, now, task);
+  const source = await db
+    .prepare(
+      `SELECT s.namespace,s.external_id,s.canonical_locator,c.title,c.uploads_playlist_id,c.handle_snapshot FROM sources s JOIN channels c USING(owner_id,source_id) WHERE s.owner_id=? AND s.source_id=? AND s.enabled=1`,
+    )
+    .bind(context.ownerId, scan.source_id)
+    .first<SourceIdentity & { handle_snapshot: string | null }>();
+  if (!source) throw new Error('SOURCE_DISABLED');
+  let page;
+  try {
+    page = await enumeratePage(
+      client,
+      { ...source, handle: source.handle_snapshot },
+      scan.cursor,
+    );
+  } catch (error) {
+    if (!(error instanceof YoutubeError) || error.code !== 'INVALID_CURSOR')
+      throw error;
+    await restartExpiredCursor(db, context, token, scan, now, task);
+    scan = (await getScan(db, context, token.job_id))!;
+    page = await enumeratePage(
+      client,
+      { ...source, handle: source.handle_snapshot },
+      null,
+    );
+  }
+  return commitDiscoveryPage(
+    db,
+    context,
+    token,
+    scan,
+    page.candidates,
+    page.next_cursor,
+    now,
+    task,
+  );
+}

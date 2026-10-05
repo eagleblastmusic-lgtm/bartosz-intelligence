@@ -1,0 +1,9 @@
+# CP-2.7 — resumable durable discovery
+
+PASS local, 2026-10-05. Official uploads page <=50, videos metadata batches, publication from video metadata or playlist videoPublishedAt fallback (never insertion time), no duration-based Shorts classification. RSS/304 only hints; bounded parser rejects DTD/entities, excessive depth, unsafe/malformed XML. Resolver API calls disable redirects. Invalid upstream page token restarts first page with dedup.
+
+Discovery page snapshot is durably staged <=64 KiB and processed in five-item chunks. Each <=41-statement guarded batch requires owner/task/worker/current credential/fence/unexpired RUNNING lease plus page revision/offset permit. Item/revisions, primary FETCH_TRANSCRIPT intents, scan membership and Outbox are durable before cursor/complete watermark. Subsequent chunks use the staged snapshot rather than moving upstream content. Partial SQL failure preserves old watermark and staged data. Live/unknown access produce explicit durable reasons; public refresh can unblock these tasks. Source access/unknown publication is not NO_CAPTIONS.
+
+Migration 006_discovery_scan_members.sql adds unique membership and bounded page staging so crash/restarted pages do not inflate enumerated counts. This is necessary Core bookkeeping, not Stage 03 artifacts/evidence. Exact hash/dependency in ledger; next 007 for still-uncreated migrations. Prior 001–005 unchanged.
+
+Broad unit/contracts/workerd: 27 files / 146 tests PASS. Discovery fixtures cover >=3 pages, known-before-new, nonmonotonic dates, live/Shorts, page-2 DB failure, cursor restart, 50-item bounded chunks, moving playlist, stale fence and reference ID/job equality. Typecheck/migrations/format/build PASS. Lint found one fixture variable declared let rather than const; corrected. No additional live calls: reuse actual CP-2.6 source preview. Full production reference enumeration, scheduler and cron smoke remain CP-2.8/2.11. No AI/production completeness claim.
