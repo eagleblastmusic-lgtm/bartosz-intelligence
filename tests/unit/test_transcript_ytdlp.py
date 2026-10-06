@@ -7,6 +7,23 @@ spec=importlib.util.spec_from_file_location('production_captions',ROOT/'apps/exe
 adapter=importlib.util.module_from_spec(spec)
 spec.loader.exec_module(adapter)
 class TranscriptAdapterTests(unittest.TestCase):
+    def test_json3_format_only_final_append_does_not_reject_source_or_invent_time(self):
+        payload=json.dumps({'events':[
+            {'tStartMs':0,'dDurationMs':1000,'segs':[{'utf8':'  Exact source.  '}]},
+            {'tStartMs':1000,'wWinId':1,'aAppend':1,'segs':[{'utf8':'\n'}]}
+        ]}).encode()
+        cues=adapter.decode_segments(payload,'json3')
+        self.assertEqual(len(cues),1)
+        self.assertEqual(cues[0]['text'],'  Exact source.  ')
+        self.assertEqual((cues[0]['start_ms'],cues[0]['end_ms']),(0,1000))
+    def test_empty_http_success_is_transport_failure_not_parser_regression(self):
+        result={}
+        adapter.decode_response(result,b'',{'extension':'json3'})
+        self.assertEqual(result['status'],'TEMPORARY_FAILURE')
+        self.assertEqual(result['failure_code'],'EMPTY_UPSTREAM_PAYLOAD')
+        self.assertEqual(result['bytes_received'],0)
+        self.assertEqual(result['raw_payload_base64'],'')
+        self.assertEqual(result['raw_payload_hash'],'e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855')
     def test_original_vendor_alias_preserves_provenance_and_deduplicates(self):
         formats=[{'ext':'json3','url':'https://www.youtube.com/api/timedtext?lang=en&kind=asr'}]
         tracks=adapter.tracks_from_info({'automatic_captions':{'en':formats,'en-orig':formats}})

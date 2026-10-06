@@ -28,6 +28,7 @@ export type CaptionProcessRunner = (
   input: ProcessInput,
   timeoutMs: number,
 ) => Promise<unknown>;
+export { runner as runYtdlpProcess };
 const digest = (value: string | Uint8Array) =>
   createHash('sha256').update(value).digest('hex');
 const runner: CaptionProcessRunner = async (input, timeoutMs) => {
@@ -333,6 +334,21 @@ export class YtdlpTranscriptProvider implements TranscriptProvider {
         result: {
           ...empty,
           status: response.status as TranscriptStatus,
+          raw_payload_hash:
+            typeof response.raw_payload_hash === 'string' &&
+            /^[a-f0-9]{64}$/.test(response.raw_payload_hash)
+              ? response.raw_payload_hash
+              : null,
+          usage: {
+            upstream_requests: Number.isSafeInteger(response.upstream_requests)
+              ? (response.upstream_requests as number)
+              : null,
+            bytes_received:
+              Number.isSafeInteger(response.bytes_received) &&
+              Number(response.bytes_received) >= 0
+                ? (response.bytes_received as number)
+                : null,
+          },
           failure_code:
             typeof response.failure_code === 'string' &&
             /^[A-Z0-9_]{1,128}$/.test(response.failure_code)

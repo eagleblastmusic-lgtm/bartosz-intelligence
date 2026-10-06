@@ -13,7 +13,7 @@ import type {
   LeaseToken,
   TaskType,
 } from '../../../packages/contracts/src/jobs.js';
-import { WorkerRpc } from './worker-rpc.js';
+import { WorkerRpc, WorkerRpcError } from './worker-rpc.js';
 export class ArtifactClient {
   private connection: WorkerRpc;
   constructor(
@@ -34,7 +34,9 @@ export class ArtifactClient {
       });
     } catch (error) {
       if (error instanceof Error && error.message === 'WORKER_RPC_FAILED')
-        throw new Error('ARTIFACT_RPC_FAILED');
+        throw error instanceof WorkerRpcError
+          ? new WorkerRpcError('ARTIFACT_RPC_FAILED', error.route, error.status)
+          : new Error('ARTIFACT_RPC_FAILED');
       throw error;
     }
   }

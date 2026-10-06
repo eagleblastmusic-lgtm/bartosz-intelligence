@@ -1,5 +1,6 @@
 import { setTimeout as delay } from 'node:timers/promises';
 import { LocalTranscriptWorker } from '../../apps/executor/src/local-worker.js';
+import { WorkerRpcError } from '../../apps/executor/src/worker-rpc.js';
 const origin = process.env.APP_ORIGIN,
   credential = process.env.LOCAL_WORKER_CREDENTIAL;
 if (!origin || !credential)
@@ -32,6 +33,9 @@ do {
         event: denied
           ? 'LOCAL_EXECUTOR_AUTH_DENIED'
           : 'LOCAL_EXECUTOR_CYCLE_FAILED',
+        ...(error instanceof WorkerRpcError
+          ? { route: error.route, status: error.status }
+          : {}),
       }) + '\n',
     );
     if (denied || once) {

@@ -1,4 +1,13 @@
 import { fetchWithoutRedirect } from '../../../packages/core/src/http/no-redirect.js';
+export class WorkerRpcError extends Error {
+  constructor(
+    message: string,
+    readonly route: string,
+    readonly status: number,
+  ) {
+    super(message);
+  }
+}
 export class WorkerRpc {
   private origin: URL;
   constructor(
@@ -58,12 +67,14 @@ export class WorkerRpc {
     );
     if (!response.ok) {
       await response.body?.cancel();
-      throw new Error(
+      throw new WorkerRpcError(
         response.status === 401 || response.status === 403
           ? 'EXECUTOR_AUTH_DENIED'
           : response.status === 409
             ? 'STALE_FENCE'
             : 'WORKER_RPC_FAILED',
+        path,
+        response.status,
       );
     }
     const length = Number(response.headers.get('content-length') ?? 0);

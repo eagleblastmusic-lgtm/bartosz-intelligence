@@ -260,9 +260,16 @@ it('verified source acceptance binds original authority, all five representation
     segment_map_artifact_id: map.artifact_id,
     offset_map_artifact_id: offsets.artifact_id,
     selection,
-    warnings: ['SOURCE_DURATION_OVERRUN'],
+    warnings: ['SOURCE_DURATION_OVERRUN', 'NO_TIMESTAMP'],
   };
   const acceptance = new TranscriptAcceptance(env.DB, access);
+  await expect(
+    acceptance.accept(
+      { ...input, warnings: ['UNKNOWN_SOURCE_WARNING'] },
+      token,
+      fixtureNow,
+    ),
+  ).rejects.toThrow('INVALID_SOURCE_COMPLETION');
   await expect(
     acceptance.accept(
       { ...input, selection: { ...selection, authority_confidence: 'LOW' } },

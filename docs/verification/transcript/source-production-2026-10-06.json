@@ -1,0 +1,83 @@
+{
+  "checked_at": "2026-10-06T09:09:16.136Z",
+  "job": {
+    "job_id": "7f6a35df-3fdb-4d59-b65d-50d2e645b96e",
+    "item_id": "0831686a-fd87-493e-a389-f8f8d8ff51a9",
+    "state": "SUCCEEDED",
+    "fencing_token": 2
+  },
+  "attempts": [
+    {
+      "fencing_token": 1,
+      "error_code": "LOCAL_YTDLP_PARSER_CHANGED",
+      "finished_at": "2026-10-06T00:01:13.700Z"
+    },
+    {
+      "fencing_token": 2,
+      "error_code": null,
+      "finished_at": "2026-10-06T09:07:10.618Z"
+    }
+  ],
+  "runs": [
+    {
+      "run_id": "transcript_39cfb0e1bcf555ab6cc5131d4908549af2713325a58858663832dddf0d55599a",
+      "state": "ACCEPTED",
+      "accepted_at": "2026-10-06T09:07:10.618Z"
+    }
+  ],
+  "artifacts": [
+    {
+      "artifact_id": "c885b0cd-d5ea-4df4-b440-67fa22c8e62f",
+      "kind": "NORMALIZED",
+      "content_hash": "f0f0874314d88f5b19acc2abb55aa9a326425a5e1f93f42b006534d1a7c092c0",
+      "byte_size": 39736,
+      "chunk_count": 2,
+      "state": "VERIFIED"
+    },
+    {
+      "artifact_id": "de31eda5-f6aa-4bd3-890c-3a1f65be2741",
+      "kind": "OFFSET_MAP",
+      "content_hash": "6854b51aa90fe379116724459e1c95451eaaeb14243e389d363fcf6435021673",
+      "byte_size": 3074600,
+      "chunk_count": 94,
+      "state": "VERIFIED"
+    },
+    {
+      "artifact_id": "87385f99-4369-4b15-8d34-b80766d705b7",
+      "kind": "RAW",
+      "content_hash": "d2c9a5f39b615e7f4ae693c45a5fcec126111abf7ec7bbd4ee1bd73b460bb8b9",
+      "byte_size": 807747,
+      "chunk_count": 25,
+      "state": "VERIFIED"
+    },
+    {
+      "artifact_id": "735b70e0-3434-457c-9caf-0b3ede16adce",
+      "kind": "SEGMENT_MAP",
+      "content_hash": "3be85a7fd1724be21b6a897224639e711727751f9e6e73afa75176585efb0a7e",
+      "byte_size": 3580573,
+      "chunk_count": 110,
+      "state": "VERIFIED"
+    },
+    {
+      "artifact_id": "65266a87-8847-43f3-9d9b-c70ce5586f44",
+      "kind": "SOURCE_ORIGINAL",
+      "content_hash": "f0f0874314d88f5b19acc2abb55aa9a326425a5e1f93f42b006534d1a7c092c0",
+      "byte_size": 39736,
+      "chunk_count": 2,
+      "state": "VERIFIED"
+    }
+  ],
+  "raw_cue_count": 1071,
+  "normalized_anchor_count": 1071,
+  "source_text_byte_fidelity": "PASS",
+  "remote_artifact_chunk_and_full_hashes": "PASS",
+  "counts": {
+    "observations": 0,
+    "project_jobs": 0
+  },
+  "gemini_requests": 0,
+  "paid_services_enabled": false,
+  "credential_values_recorded": false,
+  "parser_root_cause": "Whitespace-only JSON3 append event without duration was incorrectly treated as speech.",
+  "recovery": "Existing cooldown expired; normal sweeper resumed job; original failed attempt preserved."
+}

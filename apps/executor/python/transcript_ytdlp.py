@@ -17,7 +17,10 @@ spec.loader.exec_module(qualified)
 
 def decode_segments(body: bytes, extension: str):
     # Reuse qualified timing parsers without their benchmark-only text/hash summary.
-    qualified.normalize_text = lambda text: text
+    # JSON3 includes window/newline-only control events, sometimes without a
+    # duration. They carry no utterance. Preserve all source-bearing cue bytes
+    # verbatim, including their surrounding whitespace; RAW preserves controls.
+    qualified.normalize_text = lambda text: text if text.strip() else ""
     def cue(start, end, text):
         if not isinstance(start,int) or not isinstance(end,int) or start<0 or end<start:
             raise ValueError("invalid timestamp")
@@ -95,13 +98,23 @@ def execute(request):
                     response,body=qualified.fetch_ytdlp_track(ydl,{"url":track["_url"]})
                     response.close()
                     if len(body)>maximum: raise qualified.TooLargeResponse()
-                    segments=decode_segments(body,track["extension"])
-                    if not segments: result.update(status="PARSE_ERROR",failure_code="CAPTION_PAYLOAD_INVALID")
-                    else: result.update(status="OK",failure_code=None,selected={key:value for key,value in track.items() if not key.startswith("_")},segments=segments,raw_payload_base64=base64.b64encode(body).decode("ascii"),raw_payload_hash=hashlib.sha256(body).hexdigest(),bytes_received=len(body))
+                    decode_response(result,body,track)
         result["upstream_requests"]=len(observations)
     except Exception as error:
         result.update(status=qualified.safe_status(error,observations),failure_code=qualified.safe_reason(error))
     return result
+
+def decode_response(result,body,track):
+    # Keep actual transport evidence even when the upstream body cannot be parsed.
+    result.update(bytes_received=len(body),raw_payload_base64=base64.b64encode(body).decode("ascii"),raw_payload_hash=hashlib.sha256(body).hexdigest())
+    if not body:
+        # HTTP success with zero bytes is not a parser regression and does not
+        # justify the owner-wide parser cooldown or claim captions are absent.
+        result.update(status="TEMPORARY_FAILURE",failure_code="EMPTY_UPSTREAM_PAYLOAD")
+        return
+    segments=decode_segments(body,track["extension"])
+    if not segments: result.update(status="PARSE_ERROR",failure_code="CAPTION_PAYLOAD_INVALID")
+    else: result.update(status="OK",failure_code=None,selected={key:value for key,value in track.items() if not key.startswith("_")},segments=segments)
 
 if __name__=="__main__":
     try:

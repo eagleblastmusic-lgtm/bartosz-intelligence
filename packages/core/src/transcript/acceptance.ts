@@ -54,8 +54,11 @@ export class TranscriptAcceptance {
       track.track_id.length < 1 ||
       track.track_id.length > 256 ||
       !Array.isArray(input.warnings) ||
-      input.warnings.length > 1 ||
-      input.warnings.some((warning) => warning !== 'SOURCE_DURATION_OVERRUN') ||
+      input.warnings.length > 2 ||
+      input.warnings.some(
+        (warning) =>
+          !['SOURCE_DURATION_OVERRUN', 'NO_TIMESTAMP'].includes(warning),
+      ) ||
       !/^[a-f0-9]{64}$/.test(selection.source_revision)
     )
       throw new Error('INVALID_SOURCE_COMPLETION');
