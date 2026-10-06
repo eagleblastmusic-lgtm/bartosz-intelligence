@@ -68,6 +68,8 @@ it('one lean no-tools request consumes permit before transport and captures actu
             total_input_tokens: 100,
             total_output_tokens: 2,
             total_tokens: 102,
+            total_thought_tokens: 4,
+            raw_prompt_token: 120,
           },
         }),
         { headers: { 'content-type': 'application/json' } },
@@ -83,6 +85,10 @@ it('one lean no-tools request consumes permit before transport and captures actu
   expect(result.status).toBe('OK');
   expect(result.usage.input_tokens).toBe(100);
   expect(result.actual_model).toBe('gemini-3.8-flash');
+  expect(result.token_usage_numeric_fields).toMatchObject({
+    raw_prompt_token: 120,
+    total_thought_tokens: 4,
+  });
   await expect(
     provider.run(
       { ...request, mode: 'PRODUCTION' },

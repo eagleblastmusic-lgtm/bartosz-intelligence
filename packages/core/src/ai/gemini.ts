@@ -5,6 +5,7 @@ import type {
 } from '../../../contracts/src/ai.js';
 import { materializeProviderSchema } from '../registry/bundle.js';
 import { fetchWithoutRedirect } from '../http/no-redirect.js';
+import { extractTokenAccounting } from './accounting.js';
 const record = (value: unknown): Record<string, unknown> =>
   value && typeof value === 'object' && !Array.isArray(value)
     ? (value as Record<string, unknown>)
@@ -94,6 +95,7 @@ export class GeminiFreeProvider implements AIProvider {
       finish_reason: 'TRANSPORT_FAILURE',
       usage: { input_tokens: null, output_tokens: null, total_tokens: null },
       retry_after: null,
+      token_usage_numeric_fields: null,
     };
     try {
       const response = await fetchWithoutRedirect(
@@ -205,6 +207,7 @@ export class GeminiFreeProvider implements AIProvider {
           output_tokens: count(usage.total_output_tokens),
           total_tokens: count(usage.total_tokens),
         },
+        token_usage_numeric_fields: extractTokenAccounting(root.usage),
       };
     } catch {
       return base;

@@ -6,6 +6,7 @@ import {
 import { leasePredicate } from '../jobs/lease-guard.js';
 import type { LeaseToken } from '../../../contracts/src/jobs.js';
 import type { AIResponse } from '../../../contracts/src/ai.js';
+import { validTokenAccounting } from './accounting.js';
 export interface AdmissionBucket {
   snapshot_id: string;
   bucket: 'RPM' | 'RPD' | 'INPUT_TPM';
@@ -181,6 +182,16 @@ export class QuotaAdmission {
   async reconcile(id: string, response: AIResponse, now: Date) {
     this.context.requireTask('ANALYZE');
     const usage = response.usage;
+    if (
+      response.token_usage_numeric_fields !== undefined &&
+      !validTokenAccounting(response.token_usage_numeric_fields)
+    )
+      throw new Error('INVALID_USAGE');
+    const inputCounts = [
+      usage.input_tokens,
+      response.token_usage_numeric_fields?.raw_prompt_token ?? null,
+    ].filter((n): n is number => n !== null);
+    const actualInput = inputCounts.length ? Math.max(...inputCounts) : null;
     for (const value of Object.values(usage))
       if (value !== null && (!Number.isSafeInteger(value) || value < 0))
         throw new Error('INVALID_USAGE');
@@ -231,8 +242,8 @@ export class QuotaAdmission {
         .bind(
           known ? 'SETTLED' : 'UNKNOWN',
           known ? 1 : 0,
-          usage.input_tokens,
-          usage.input_tokens,
+          actualInput,
+          actualInput,
           now.toISOString(),
           this.context.ownerId,
           id,

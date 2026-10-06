@@ -5,6 +5,7 @@ import {
 } from '../db/boundary.js';
 import { ArtifactRepository } from '../artifacts/store.js';
 import { QuotaAdmission } from './admission.js';
+import { validTokenAccounting } from './accounting.js';
 import type { LeaseToken } from '../../../contracts/src/jobs.js';
 import type { AIResponse } from '../../../contracts/src/ai.js';
 
@@ -62,6 +63,7 @@ export class AnalysisResponses {
             'finish_reason',
             'usage',
             'retry_after',
+            'token_usage_numeric_fields',
           ].includes(k),
       ) ||
       response.request_id !== reservation?.request_id ||
@@ -75,6 +77,8 @@ export class AnalysisResponses {
         'INVALID_REQUEST',
       ].includes(response.status) ||
       response.actual_provider !== 'gemini' ||
+      (response.token_usage_numeric_fields !== undefined &&
+        !validTokenAccounting(response.token_usage_numeric_fields)) ||
       !(
         response.actual_model === null ||
         (typeof response.actual_model === 'string' &&

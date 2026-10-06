@@ -306,6 +306,56 @@ it('bounded response RPC retains a null failure output and unknown usage after l
       .bind(mismatch)
       .first(),
   ).toMatchObject({ state: 'UNKNOWN', charged_input_tokens: 100 });
+  const detailed = crypto.randomUUID();
+  await env.DB.prepare(
+    "INSERT INTO quota_reservations(reservation_id,owner_id,job_id,fencing_token,request_id,provider,model,account_key,snapshots_json,input_tokens,charged_input_tokens,state,created_at,expires_at) SELECT ?,owner_id,job_id,fencing_token,?,provider,model,account_key,snapshots_json,input_tokens,charged_input_tokens,'SUBMITTED',created_at,expires_at FROM quota_reservations WHERE reservation_id=?",
+  )
+    .bind(detailed, 'detailed-accounting', mismatch)
+    .run();
+  const detailedInput = {
+    ...input,
+    reservation_id: detailed,
+    response: {
+      ...response,
+      request_id: 'detailed-accounting',
+      status: 'OK' as const,
+      raw_output: '{}',
+      actual_model: 'gemini-3.8-flash',
+      usage: { input_tokens: 19, output_tokens: 9, total_tokens: 28 },
+      token_usage_numeric_fields: {
+        total_input_tokens: 19,
+        raw_prompt_token: 100,
+        total_thought_tokens: 0,
+      },
+    },
+  };
+  const detailedReceipt = (await retainAnalysisResponse(detailedInput)) as {
+    artifact_id: string;
+  };
+  expect(
+    await env.DB.prepare(
+      'SELECT state,charged_input_tokens FROM quota_reservations WHERE reservation_id=?',
+    )
+      .bind(detailed)
+      .first(),
+  ).toMatchObject({ state: 'SETTLED', charged_input_tokens: 100 });
+  const provenance = await env.DB.prepare(
+    'SELECT provenance_json FROM artifacts WHERE artifact_id=?',
+  )
+    .bind(detailedReceipt.artifact_id)
+    .first<string>('provenance_json');
+  expect(JSON.parse(provenance!).response.token_usage_numeric_fields).toEqual(
+    detailedInput.response.token_usage_numeric_fields,
+  );
+  await expect(
+    retainAnalysisResponse({
+      ...detailedInput,
+      response: {
+        ...detailedInput.response,
+        token_usage_numeric_fields: { raw_prompt_token: 101 },
+      },
+    }),
+  ).rejects.toThrow();
 });
 it('local poller consumes durable caption backlog through the real Worker API and leaves accepted source ready for later AI', async () => {
   const { token } = await setup();

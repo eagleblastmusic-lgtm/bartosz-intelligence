@@ -51,6 +51,7 @@ export interface AIResponse {
     total_tokens: number | null;
   };
   retry_after: string | null;
+  token_usage_numeric_fields?: Record<string, number> | null;
 }
 export interface AIProvider {
   provider_id: string;
