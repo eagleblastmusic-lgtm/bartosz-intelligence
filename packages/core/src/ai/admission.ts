@@ -184,7 +184,15 @@ export class QuotaAdmission {
     for (const value of Object.values(usage))
       if (value !== null && (!Number.isSafeInteger(value) || value < 0))
         throw new Error('INVALID_USAGE');
+    const reservation = await this.db
+      .prepare(
+        'SELECT model FROM quota_reservations WHERE owner_id=? AND reservation_id=? AND request_id=?',
+      )
+      .bind(this.context.ownerId, id, response.request_id)
+      .first<{ model: string }>();
     const known =
+      response.actual_provider === 'gemini' &&
+      response.actual_model === reservation?.model &&
       usage.input_tokens !== null &&
       usage.output_tokens !== null &&
       usage.total_tokens !== null;
@@ -218,10 +226,12 @@ export class QuotaAdmission {
         ),
       this.db
         .prepare(
-          `UPDATE quota_reservations SET state=?,charged_input_tokens=COALESCE(?,charged_input_tokens),settled_at=? WHERE owner_id=? AND reservation_id=? AND request_id=? AND state='SUBMITTED' AND EXISTS(SELECT 1 FROM usage_records WHERE owner_id=? AND reservation_id=?) AND ${liveCredential}`,
+          `UPDATE quota_reservations SET state=?,charged_input_tokens=CASE WHEN ?=1 THEN ? ELSE MAX(charged_input_tokens,COALESCE(?,charged_input_tokens)) END,settled_at=? WHERE owner_id=? AND reservation_id=? AND request_id=? AND state='SUBMITTED' AND EXISTS(SELECT 1 FROM usage_records WHERE owner_id=? AND reservation_id=?) AND ${liveCredential}`,
         )
         .bind(
           known ? 'SETTLED' : 'UNKNOWN',
+          known ? 1 : 0,
+          usage.input_tokens,
           usage.input_tokens,
           now.toISOString(),
           this.context.ownerId,
@@ -234,7 +244,7 @@ export class QuotaAdmission {
     ]);
     const row = await this.db
       .prepare(
-        'SELECT request_id,input_tokens,output_tokens,total_tokens,finish_reason FROM usage_records WHERE owner_id=? AND reservation_id=?',
+        'SELECT request_id,input_tokens,output_tokens,total_tokens,finish_reason,actual_model FROM usage_records WHERE owner_id=? AND reservation_id=?',
       )
       .bind(this.context.ownerId, id)
       .first<{
@@ -243,6 +253,7 @@ export class QuotaAdmission {
         output_tokens: number | null;
         total_tokens: number | null;
         finish_reason: string;
+        actual_model: string | null;
       }>();
     if (
       !row ||
@@ -250,7 +261,8 @@ export class QuotaAdmission {
       row.input_tokens !== usage.input_tokens ||
       row.output_tokens !== usage.output_tokens ||
       row.total_tokens !== usage.total_tokens ||
-      row.finish_reason !== response.finish_reason
+      row.finish_reason !== response.finish_reason ||
+      row.actual_model !== response.actual_model
     )
       throw new Error('USAGE_RECONCILIATION_CONFLICT');
   }

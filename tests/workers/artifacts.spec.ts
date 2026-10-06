@@ -51,11 +51,260 @@ import type { PipelineProfile } from '../../packages/contracts/src/ai.js';
 import { dailyQuotaWindow } from '../../packages/core/src/ai/windows.js';
 import { WorkerRpc } from '../../apps/executor/src/worker-rpc.js';
 import { prepareAnalysis } from '../../apps/executor/src/analysis-preparation.js';
+import { AnalysisResponses } from '../../packages/core/src/ai/responses.js';
+import { retainAnalysisResponse } from '../../apps/executor/src/analysis-response.js';
 import {
   TranscriptAcceptance,
   type TranscriptSourceCompletion,
 } from '../../packages/core/src/transcript/acceptance.js';
 beforeEach(resetCore);
+it('late submitted AI response can retain only diagnostic candidate bytes after lease expiry, never source or accepted effects', async () => {
+  const { access, token, item } = await setup('ANALYZE');
+  const reservation = crypto.randomUUID();
+  await env.DB.prepare(
+    "INSERT INTO quota_reservations(reservation_id,owner_id,job_id,fencing_token,request_id,provider,model,account_key,snapshots_json,input_tokens,charged_input_tokens,state,created_at,expires_at) VALUES(?,?,?,?,?,?,?,?,?,?,?,'RESERVED',?,?)",
+  )
+    .bind(
+      reservation,
+      'a',
+      token.job_id,
+      token.fencing_token,
+      'late-request',
+      'gemini',
+      'gemini-3.8-flash',
+      'project',
+      '[]',
+      100,
+      100,
+      fixtureNow.toISOString(),
+      new Date(fixtureNow.getTime() + 300000).toISOString(),
+    )
+    .run();
+  const text = 'Late response ' + '😀 diagnostic. '.repeat(3000);
+  const chunks = splitArtifactText(text);
+  const descriptor: ArtifactDescriptor = {
+    item_id: item.item_id,
+    kind: 'ANALYSIS_CANDIDATE',
+    content_hash: await sha256(text),
+    byte_size: new TextEncoder().encode(text).length,
+    chunk_count: chunks.length,
+    schema_version: 'provider-output:1',
+    producer_version: 'gemini-response:1:' + reservation,
+    provenance: {
+      reservation_id: reservation,
+      raw_output_present: true,
+      response: {
+        request_id: 'late-request',
+        status: 'OK',
+        actual_provider: 'gemini',
+        actual_model: 'gemini-3.8-flash',
+        finish_reason: 'completed',
+        usage: { input_tokens: 100, output_tokens: 20, total_tokens: 120 },
+        retry_after: null,
+      },
+    },
+    original_ref: null,
+  };
+  const late = new Date(fixtureNow.getTime() + 900001);
+  const diagnostics = new ArtifactRepository(env.DB, access, reservation);
+  await expect(
+    diagnostics.begin(descriptor, token, 'ANALYZE', late),
+  ).rejects.toThrow('STALE_FENCE');
+  await env.DB.prepare(
+    "UPDATE quota_reservations SET state='SUBMITTED' WHERE reservation_id=?",
+  )
+    .bind(reservation)
+    .run();
+  await sweep(env.DB, late, () => true);
+  await expect(
+    new ArtifactRepository(env.DB, access).begin(
+      descriptor,
+      token,
+      'ANALYZE',
+      late,
+    ),
+  ).rejects.toThrow('STALE_FENCE');
+  await expect(
+    diagnostics.begin(
+      { ...descriptor, kind: 'SOURCE_ORIGINAL' },
+      token,
+      'ANALYZE',
+      late,
+    ),
+  ).rejects.toThrow('INVALID_DIAGNOSTIC_ARTIFACT');
+  const artifact = await diagnostics.begin(descriptor, token, 'ANALYZE', late);
+  let offset = 0;
+  for (let i = 0; i < chunks.length; i++) {
+    await diagnostics.writeChunk(
+      artifact.artifact_id,
+      i,
+      offset,
+      chunks[i]!,
+      token,
+      'ANALYZE',
+      late,
+    );
+    offset += chunks[i]!.length;
+  }
+  expect(
+    (
+      await diagnostics.verifyLocal(
+        artifact.artifact_id,
+        token,
+        'ANALYZE',
+        late,
+        'local',
+        () => late,
+      )
+    ).state,
+  ).toBe('VERIFIED');
+  const receipts = new AnalysisResponses(env.DB, access);
+  expect(
+    await receipts.record(token, reservation, artifact.artifact_id, late),
+  ).toMatchObject({ diagnostic_only: true, status: 'OK' });
+  expect(
+    await env.DB.prepare(
+      'SELECT state FROM quota_reservations WHERE reservation_id=?',
+    )
+      .bind(reservation)
+      .first('state'),
+  ).toBe('SETTLED');
+  expect(
+    await receipts.record(token, reservation, artifact.artifact_id, late),
+  ).toMatchObject({ diagnostic_only: true });
+  expect(
+    await env.DB.prepare('SELECT count(*) AS n FROM observations').first('n'),
+  ).toBe(0);
+  expect(
+    await env.DB.prepare(
+      "SELECT count(*) AS n FROM analysis_runs WHERE state='ACCEPTED'",
+    ).first('n'),
+  ).toBe(0);
+  await env.DB.prepare(
+    'UPDATE worker_identities SET revoked_at=? WHERE worker_id=?',
+  )
+    .bind(late.toISOString(), access.actorId)
+    .run();
+  await expect(
+    diagnostics.get(artifact.artifact_id, token, 'ANALYZE', late),
+  ).rejects.toThrow('NOT_FOUND');
+});
+it('bounded response RPC retains a null failure output and unknown usage after lease expiry, with immutable retry identity', async () => {
+  const { token, item } = await setup('ANALYZE');
+  const credential = 'n'.repeat(43);
+  await env.DB.prepare(
+    'UPDATE worker_identities SET credential_hash=? WHERE worker_id=?',
+  )
+    .bind(await sha256(credential), 'artifact-worker')
+    .run();
+  const reservation = crypto.randomUUID();
+  await env.DB.prepare(
+    "INSERT INTO quota_reservations(reservation_id,owner_id,job_id,fencing_token,request_id,provider,model,account_key,snapshots_json,input_tokens,charged_input_tokens,state,created_at,expires_at) VALUES(?,?,?,?,?,?,?,?,?,?,?,'SUBMITTED',?,?)",
+  )
+    .bind(
+      reservation,
+      'a',
+      token.job_id,
+      token.fencing_token,
+      'null-response',
+      'gemini',
+      'gemini-3.8-flash',
+      'project',
+      '[]',
+      100,
+      100,
+      fixtureNow.toISOString(),
+      new Date(fixtureNow.getTime() + 300000).toISOString(),
+    )
+    .run();
+  const response = {
+    request_id: 'null-response',
+    status: 'TEMPORARY_FAILURE' as const,
+    actual_provider: 'gemini',
+    actual_model: null,
+    finish_reason: 'transport_unknown',
+    usage: { input_tokens: null, output_tokens: null, total_tokens: null },
+    retry_after: null,
+    raw_output: null,
+  };
+  const transport: typeof fetch = async (input, init) =>
+    worker.fetch(
+      new Request(input, init),
+      { ...env, SESSION_SIGNING_SECRET: fixtureSecret },
+      createExecutionContext(),
+    );
+  const input = {
+    origin: 'https://fixture.invalid',
+    credential,
+    token,
+    reservation_id: reservation,
+    item_id: item.item_id,
+    response,
+    transport,
+  };
+  expect(await retainAnalysisResponse(input)).toMatchObject({
+    diagnostic_only: true,
+    status: 'TEMPORARY_FAILURE',
+  });
+  expect(await retainAnalysisResponse(input)).toMatchObject({
+    diagnostic_only: true,
+  });
+  const row = await env.DB.prepare(
+    'SELECT state,charged_input_tokens FROM quota_reservations WHERE reservation_id=?',
+  )
+    .bind(reservation)
+    .first();
+  expect(row).toMatchObject({ state: 'UNKNOWN', charged_input_tokens: 100 });
+  expect(
+    await env.DB.prepare('SELECT count(*) AS n FROM usage_records').first('n'),
+  ).toBe(1);
+  expect(
+    await env.DB.prepare('SELECT count(*) AS n FROM observations').first('n'),
+  ).toBe(0);
+  await expect(
+    retainAnalysisResponse({
+      ...input,
+      response: { ...response, finish_reason: 'different-result' },
+    }),
+  ).rejects.toThrow();
+  const mismatch = crypto.randomUUID();
+  await env.DB.prepare(
+    "INSERT INTO quota_reservations(reservation_id,owner_id,job_id,fencing_token,request_id,provider,model,account_key,snapshots_json,input_tokens,charged_input_tokens,state,created_at,expires_at) VALUES(?,?,?,?,?,?,?,?,?,?,?,'SUBMITTED',?,?)",
+  )
+    .bind(
+      mismatch,
+      'a',
+      token.job_id,
+      token.fencing_token,
+      'mismatched-model',
+      'gemini',
+      'gemini-3.8-flash',
+      'project',
+      '[]',
+      100,
+      100,
+      fixtureNow.toISOString(),
+      new Date(fixtureNow.getTime() + 300000).toISOString(),
+    )
+    .run();
+  await retainAnalysisResponse({
+    ...input,
+    reservation_id: mismatch,
+    response: {
+      ...response,
+      request_id: 'mismatched-model',
+      actual_model: 'unexpected-model',
+      usage: { input_tokens: 10, output_tokens: 2, total_tokens: 12 },
+    },
+  });
+  expect(
+    await env.DB.prepare(
+      'SELECT state,charged_input_tokens FROM quota_reservations WHERE reservation_id=?',
+    )
+      .bind(mismatch)
+      .first(),
+  ).toMatchObject({ state: 'UNKNOWN', charged_input_tokens: 100 });
+});
 it('local poller consumes durable caption backlog through the real Worker API and leaves accepted source ready for later AI', async () => {
   const { token } = await setup();
   const credential = 'e'.repeat(43);
@@ -446,7 +695,7 @@ it('verified source acceptance binds original authority, all five representation
   await expect(
     workerJobs.reserve(
       aiToken,
-        { request_id: prepared.run_id, input_tokens: 100 },
+      { request_id: prepared.run_id, input_tokens: 100 },
       fixtureNow,
     ),
   ).rejects.toThrow('QUOTA_UNKNOWN_OR_STALE');

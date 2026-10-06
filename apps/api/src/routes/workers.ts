@@ -1,6 +1,7 @@
 import { controlTick } from '../control.js';
 import { AnalysisJobs } from '../../../../packages/core/src/ai/jobs.js';
 import { QuotaAdmission } from '../../../../packages/core/src/ai/admission.js';
+import { AnalysisResponses } from '../../../../packages/core/src/ai/responses.js';
 import { apiRouter, body, text } from './common.js';
 import { taskTypes } from '../../../../packages/contracts/src/jobs.js';
 import type {
@@ -128,8 +129,30 @@ workersApp.post('/analysis/submit', async (c) => {
     ),
   );
 });
+workersApp.post('/analysis/response', async (c) => {
+  const input = await body(c, ['token', 'reservation_id', 'artifact_id']);
+  const access = c.get('access');
+  return c.json(
+    await new AnalysisResponses(c.env.DB, access).record(
+      token(input.token, access.actorId),
+      text(input.reservation_id, 36),
+      text(input.artifact_id, 128),
+      new Date(),
+    ),
+  );
+});
+function diagnosticReservation(input: Record<string, unknown>) {
+  return input.reservation_id === undefined
+    ? null
+    : text(input.reservation_id, 36);
+}
 workersApp.post('/artifacts/begin', async (c) => {
-  const input = await body(c, ['task_type', 'token', 'descriptor']),
+  const input = await body(c, [
+      'task_type',
+      'token',
+      'descriptor',
+      'reservation_id',
+    ]),
     access = c.get('access');
   const value = input.descriptor;
   if (!value || typeof value !== 'object' || Array.isArray(value))
@@ -179,7 +202,11 @@ workersApp.post('/artifacts/begin', async (c) => {
     original_ref: d.original_ref === null ? null : text(d.original_ref, 128),
   };
   return c.json(
-    await new ArtifactRepository(c.env.DB, access).begin(
+    await new ArtifactRepository(
+      c.env.DB,
+      access,
+      diagnosticReservation(input),
+    ).begin(
       descriptor,
       token(input.token, access.actorId),
       artifactTask(input.task_type),
@@ -193,9 +220,14 @@ workersApp.post('/artifacts/read', async (c) => {
       'token',
       'artifact_id',
       'chunk_index',
+      'reservation_id',
     ]),
     access = c.get('access'),
-    repository = new ArtifactRepository(c.env.DB, access),
+    repository = new ArtifactRepository(
+      c.env.DB,
+      access,
+      diagnosticReservation(input),
+    ),
     lease = token(input.token, access.actorId),
     type = artifactTask(input.task_type),
     id = text(input.artifact_id, 128),
@@ -222,6 +254,7 @@ workersApp.post('/artifacts/write', async (c) => {
       'chunk_index',
       'byte_start',
       'body_base64',
+      'reservation_id',
     ]),
     access = c.get('access');
   if (
@@ -235,7 +268,11 @@ workersApp.post('/artifacts/write', async (c) => {
     ? decode64(input.body_base64)
     : new Uint8Array();
   return c.json(
-    await new ArtifactRepository(c.env.DB, access).writeChunk(
+    await new ArtifactRepository(
+      c.env.DB,
+      access,
+      diagnosticReservation(input),
+    ).writeChunk(
       text(input.artifact_id, 128),
       Number(input.chunk_index),
       Number(input.byte_start),
@@ -247,12 +284,22 @@ workersApp.post('/artifacts/write', async (c) => {
   );
 });
 workersApp.post('/artifacts/verify-step', async (c) => {
-  const input = await body(c, ['task_type', 'token', 'artifact_id', 'proof']),
+  const input = await body(c, [
+      'task_type',
+      'token',
+      'artifact_id',
+      'proof',
+      'reservation_id',
+    ]),
     access = c.get('access');
   if (!c.env.SESSION_SIGNING_SECRET)
     throw new Error('AUTH_CONFIGURATION_REQUIRED');
   return c.json(
-    await new ArtifactRepository(c.env.DB, access).verifyStep(
+    await new ArtifactRepository(
+      c.env.DB,
+      access,
+      diagnosticReservation(input),
+    ).verifyStep(
       text(input.artifact_id, 128),
       token(input.token, access.actorId),
       artifactTask(input.task_type),

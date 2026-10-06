@@ -22,6 +22,7 @@ export class ArtifactClient {
     private lease: () => LeaseToken,
     private task: TaskType,
     transport: typeof fetch = fetch,
+    private diagnosticReservationId: string | null = null,
   ) {
     this.connection = new WorkerRpc(origin, credential, transport);
   }
@@ -30,6 +31,9 @@ export class ArtifactClient {
       return await this.connection.request('artifacts/' + path, {
         task_type: this.task,
         token: this.lease(),
+        ...(this.diagnosticReservationId === null
+          ? {}
+          : { reservation_id: this.diagnosticReservationId }),
         ...input,
       });
     } catch (error) {

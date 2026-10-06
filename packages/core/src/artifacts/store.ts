@@ -109,10 +109,31 @@ export class ArtifactRepository {
   constructor(
     private db: Database,
     private context: AccessContext,
+    private diagnosticReservationId: string | null = null,
   ) {
     assertContext(context);
   }
   private guard(token: LeaseToken, task: TaskType, now: Date) {
+    if (this.diagnosticReservationId !== null) {
+      this.context.requireTask('ANALYZE');
+      if (
+        task !== 'ANALYZE' ||
+        token.lease_owner !== this.context.actorId ||
+        !/^[a-f0-9-]{36}$/.test(this.diagnosticReservationId)
+      )
+        throw new Error('FORBIDDEN');
+      return {
+        predicate: `EXISTS(SELECT 1 FROM quota_reservations r JOIN job_attempts a ON a.owner_id=r.owner_id AND a.job_id=r.job_id AND a.fencing_token=r.fencing_token JOIN worker_identities w ON w.owner_id=a.owner_id AND w.worker_id=a.executor_id WHERE r.owner_id=? AND r.reservation_id=? AND r.job_id=? AND r.fencing_token=? AND r.state IN ('SUBMITTED','SETTLED','UNKNOWN') AND a.executor_id=? AND w.credential_hash=? AND w.revoked_at IS NULL)`,
+        bindings: [
+          this.context.ownerId,
+          this.diagnosticReservationId,
+          token.job_id,
+          token.fencing_token,
+          this.context.actorId,
+          this.context.credentialHash!,
+        ],
+      };
+    }
     return leasePredicate(this.context, token, now.toISOString(), task);
   }
   async begin(
@@ -121,6 +142,16 @@ export class ArtifactRepository {
     task: TaskType,
     now: Date,
   ) {
+    if (
+      this.diagnosticReservationId !== null &&
+      (descriptor.kind !== 'ANALYSIS_CANDIDATE' ||
+        descriptor.original_ref !== null ||
+        descriptor.schema_version !== 'provider-output:1' ||
+        descriptor.producer_version !==
+          'gemini-response:1:' + this.diagnosticReservationId ||
+        descriptor.provenance.reservation_id !== this.diagnosticReservationId)
+    )
+      throw new Error('INVALID_DIAGNOSTIC_ARTIFACT');
     if (
       !/^[a-f0-9]{64}$/.test(descriptor.content_hash) ||
       !Number.isSafeInteger(descriptor.byte_size) ||
@@ -208,6 +239,10 @@ export class ArtifactRepository {
       const guard = this.guard(token, task, now);
       filter = ` AND ${guard.predicate} AND EXISTS(SELECT 1 FROM jobs WHERE owner_id=? AND job_id=? AND item_id=artifacts.item_id)`;
       bindings = [...guard.bindings, this.context.ownerId, token.job_id];
+      if (this.diagnosticReservationId !== null) {
+        filter += ` AND kind='ANALYSIS_CANDIDATE' AND json_extract(provenance_json,'$.reservation_id')=?`;
+        bindings = [...bindings, this.diagnosticReservationId];
+      }
     }
     const result = await this.db
       .prepare(
