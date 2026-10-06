@@ -15,6 +15,7 @@ import { ledgerApp } from './routes/ledger.js';
 import { entitiesApp } from './routes/entities.js';
 import { correctionsApp } from './routes/corrections.js';
 import { organizationApp } from './routes/organization.js';
+import { searchApp } from './routes/search.js';
 export type { Env } from './env.js';
 
 const buildVersion = '0.0.1';
@@ -32,6 +33,7 @@ app.route('/api/v1/ledger', ledgerApp);
 app.route('/api/v1/entities', entitiesApp);
 app.route('/api/v1/corrections', correctionsApp);
 app.route('/api/v1/organization', organizationApp);
+app.route('/api/v1/search', searchApp);
 app.route('/internal/workers', workersApp);
 app.get('/health', (c) => {
   const bindings = {

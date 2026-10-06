@@ -3,28 +3,36 @@ import { LocalTranscriptWorker } from '../../apps/executor/src/local-worker.js';
 import { WorkerRpcError } from '../../apps/executor/src/worker-rpc.js';
 import { LocalAnalysisWorker } from '../../apps/executor/src/analysis-worker.js';
 import { LocalSourceCorrectionWorker } from '../../apps/executor/src/source-correction-worker.js';
+import { LocalSearchWorker } from '../../apps/executor/src/search-worker.js';
 const analysis = process.argv.includes('--analysis');
 const corrections = process.argv.includes('--source-corrections');
-if (analysis && corrections) throw new Error('INVALID_EXECUTOR_MODE');
+const search = process.argv.includes('--search');
+if ([analysis, corrections, search].filter(Boolean).length > 1)
+  throw new Error('INVALID_EXECUTOR_MODE');
 const origin = process.env.APP_ORIGIN,
-  credential = corrections
-    ? process.env.LOCAL_CORRECTION_WORKER_CREDENTIAL
-    : analysis
-      ? process.env.LOCAL_AI_WORKER_CREDENTIAL
-      : process.env.LOCAL_WORKER_CREDENTIAL;
+  credential = search
+    ? process.env.LOCAL_SEARCH_WORKER_CREDENTIAL
+    : corrections
+      ? process.env.LOCAL_CORRECTION_WORKER_CREDENTIAL
+      : analysis
+        ? process.env.LOCAL_AI_WORKER_CREDENTIAL
+        : process.env.LOCAL_WORKER_CREDENTIAL;
 if (!origin || !credential)
   throw new Error('LOCAL_EXECUTOR_CONFIGURATION_REQUIRED');
-const worker = corrections
-  ? new LocalSourceCorrectionWorker(origin, credential)
-  : analysis
-    ? new LocalAnalysisWorker(
-        origin,
-        credential,
-        process.env.GEMINI_API_KEY ?? '',
-      )
-    : new LocalTranscriptWorker(origin, credential);
+const worker = search
+  ? new LocalSearchWorker(origin, credential)
+  : corrections
+    ? new LocalSourceCorrectionWorker(origin, credential)
+    : analysis
+      ? new LocalAnalysisWorker(
+          origin,
+          credential,
+          process.env.GEMINI_API_KEY ?? '',
+        )
+      : new LocalTranscriptWorker(origin, credential);
 const once = process.argv.includes('--once');
 let stopped = false;
+let active = false;
 process.on('SIGINT', () => {
   stopped = true;
 });
@@ -34,6 +42,7 @@ process.on('SIGTERM', () => {
 do {
   try {
     const result = await worker.cycle();
+    active = !result.idle;
     process.stdout.write(
       JSON.stringify({
         event: 'LOCAL_EXECUTOR_CYCLE',
@@ -42,6 +51,7 @@ do {
       }) + '\n',
     );
   } catch (error) {
+    active = false;
     // Never print exception stacks, provider bodies, credentials or input text.
     const denied =
       error instanceof Error && error.message === 'EXECUTOR_AUTH_DENIED';
@@ -60,5 +70,5 @@ do {
       break;
     }
   }
-  if (!once && !stopped) await delay(30000);
+  if (!once && !stopped) await delay(search && active ? 250 : 30000);
 } while (!once && !stopped);

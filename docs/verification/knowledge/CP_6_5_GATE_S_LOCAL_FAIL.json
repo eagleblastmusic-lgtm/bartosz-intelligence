@@ -1,0 +1,10 @@
+{
+  "version": "gate-s-local:1",
+  "sampled_at": "2026-10-06T18:51:08.186Z",
+  "fixture": "SYNTHETIC_ISOLATED_10000_ITEMS",
+  "runtime": "actual local workerd/D1 and built GUI",
+  "production_d1": "NOT_RUN",
+  "ai_requests": 0,
+  "status": "INCONCLUSIVE",
+  "failure": "locator.waitFor: Timeout 30000ms exceeded.\nCall log:\n\u001b[2m  - waiting for getByRole('link', { name: /Publikacja ux-/ }).first() to be visible\u001b[22m\n"
+}

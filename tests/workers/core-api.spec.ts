@@ -20,6 +20,36 @@ import type {
 } from '../../packages/contracts/src/jobs.js';
 import { addSource } from '../../packages/core/src/sources/youtube/backfill.js';
 beforeEach(resetCore);
+it('search API is private, validates literal queries and protects rebuild with CSRF', async () => {
+  const headers = await ownerHeaders();
+  expect((await request('/api/v1/search?q=hello', {})).status).toBe(401);
+  const result = await request('/api/v1/search?q=hello', headers);
+  expect(result.status).toBe(200);
+  expect(await result.json()).toMatchObject({
+    documents: [],
+    freshness: 'UNKNOWN',
+  });
+  expect(
+    (await request('/api/v1/search?q=hello&owner_id=b', headers)).status,
+  ).toBe(422);
+  expect((await request('/api/v1/search?q=*', headers)).status).toBe(422);
+  const noCsrf: Record<string, string> = { ...headers };
+  delete noCsrf['X-CSRF-Token'];
+  expect((await request('/api/v1/search/rebuild', noCsrf, {})).status).toBe(
+    403,
+  );
+  expect((await request('/api/v1/search/rebuild', headers, {})).status).toBe(
+    200,
+  );
+  expect(
+    await (await request('/api/v1/search/status', headers)).json(),
+  ).toMatchObject({ freshness: 'BUILDING' });
+  expect(
+    await (
+      await request('/api/v1/search/status', await ownerHeaders('b'))
+    ).json(),
+  ).toMatchObject({ freshness: 'UNKNOWN' });
+});
 it('organization API keeps Spaces owner scoped and guards mutations with CSRF and revisions', async () => {
   const headers = await ownerHeaders(),
     space_id = crypto.randomUUID();

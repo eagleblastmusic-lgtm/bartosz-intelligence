@@ -1,5 +1,6 @@
 import { ownerRouter, body, text, queryFields } from './common.js';
 import { EntityKnowledge } from '../../../../packages/core/src/knowledge/entities.js';
+import { EntityTimeline } from '../../../../packages/core/src/knowledge/entity-timeline.js';
 import {
   EntityIdentity,
   type IdentityProposal,
@@ -87,6 +88,29 @@ entitiesApp.get('/:id', async (c) => {
   return c.json(
     await new EntityKnowledge(c.env.DB, c.get('access')).detail(
       text(c.req.param('id'), 128),
+    ),
+  );
+});
+entitiesApp.get('/:id/timeline', async (c) => {
+  queryFields(c, ['limit', 'cursor']);
+  return c.json(
+    await new EntityTimeline(c.env.DB, c.get('access')).page(
+      text(c.req.param('id'), 128),
+      Number(c.req.query('limit') ?? 20),
+      c.env.SESSION_SIGNING_SECRET!,
+      new Date(),
+      c.req.query('cursor'),
+    ),
+  );
+});
+entitiesApp.get('/:id/history', async (c) => {
+  queryFields(c, ['limit', 'cursor']);
+  return c.json(
+    await new EntityTimeline(c.env.DB, c.get('access')).events(
+      text(c.req.param('id'), 128),
+      Number(c.req.query('limit') ?? 20),
+      c.env.SESSION_SIGNING_SECRET!,
+      c.req.query('cursor'),
     ),
   );
 });

@@ -1,0 +1,144 @@
+{
+  "version": "gate-s-local:1",
+  "sampled_at": "2026-10-06T19:02:19.750Z",
+  "fixture": "SYNTHETIC_ISOLATED_10000_ITEMS",
+  "runtime": "actual local workerd/D1 and built GUI",
+  "production_d1": "NOT_RUN",
+  "ai_requests": 0,
+  "status": "INCONCLUSIVE",
+  "query_inspection": {
+    "engine": "actual local D1 EXPLAIN of KnowledgeSearch SQL",
+    "queries": 5,
+    "page_rows": 20,
+    "no_count_per_query": true,
+    "plans": [
+      [
+        "SEARCH search_index_state USING INDEX sqlite_autoindex_search_index_state_1 (owner_id=?)"
+      ],
+      [
+        "SEARCH change_log USING COVERING INDEX change_owner_seq (owner_id=?)"
+      ],
+      [
+        "SCAN knowledge_fts VIRTUAL TABLE INDEX 64:M1>",
+        "SEARCH d USING INTEGER PRIMARY KEY (rowid=?)",
+        "CORRELATED SCALAR SUBQUERY 1",
+        "SEARCH m USING COVERING INDEX sqlite_autoindex_item_revisions_3 (owner_id=?)",
+        "SEARCH i USING INDEX sqlite_autoindex_items_3 (owner_id=? AND item_id=?)",
+        "CORRELATED SCALAR SUBQUERY 2",
+        "SEARCH o USING COVERING INDEX observations_run_kind (owner_id=?)",
+        "SEARCH r USING INDEX sqlite_autoindex_analysis_runs_2 (owner_id=? AND run_id=?)",
+        "SEARCH s USING INDEX sqlite_autoindex_active_analysis_selections_1 (owner_id=? AND item_id=?)",
+        "CORRELATED SCALAR SUBQUERY 3",
+        "SEARCH n USING INDEX search_insight_cursor (owner_id=?)",
+        "CORRELATED SCALAR SUBQUERY 4",
+        "SEARCH e USING COVERING INDEX search_entity_cursor (owner_id=?)",
+        "CORRELATED SCALAR SUBQUERY 5",
+        "SEARCH a USING COVERING INDEX sqlite_autoindex_entity_aliases_1 (owner_id=?)",
+        "CORRELATED SCALAR SUBQUERY 25",
+        "SEARCH d USING INDEX alias_decision_latest (owner_id=? AND alias_id=?)",
+        "CORRELATED SCALAR SUBQUERY 6",
+        "SEARCH r USING INDEX search_summary_cursor (owner_id=?)",
+        "SEARCH s USING INDEX sqlite_autoindex_active_analysis_selections_1 (owner_id=? AND item_id=?)",
+        "SCAN j VIRTUAL TABLE INDEX 3:",
+        "CORRELATED SCALAR SUBQUERY 7",
+        "SEARCH p USING INDEX sqlite_autoindex_spaces_1 (owner_id=? AND space_id=?)",
+        "SEARCH x USING INDEX sqlite_autoindex_item_spaces_1 (owner_id=? AND item_id=? AND space_id=?)",
+        "CORRELATED SCALAR SUBQUERY 11",
+        "SEARCH e USING COVERING INDEX sqlite_autoindex_entities_1 (owner_id=? AND entity_id=?)",
+        "CORRELATED SCALAR SUBQUERY 8",
+        "SEARCH x USING INDEX identity_member_latest (owner_id=? AND entity_id=?)",
+        "CORRELATED SCALAR SUBQUERY 10",
+        "SEARCH t USING COVERING INDEX sqlite_autoindex_entities_1 (owner_id=? AND entity_id=?)",
+        "CORRELATED SCALAR SUBQUERY 9",
+        "SEARCH x USING INDEX identity_member_latest (owner_id=? AND entity_id=?)",
+        "CORRELATED SCALAR SUBQUERY 15",
+        "SEARCH e USING COVERING INDEX sqlite_autoindex_observation_entities_1 (owner_id=? AND observation_id=?)",
+        "CORRELATED SCALAR SUBQUERY 12",
+        "SEARCH x USING INDEX identity_member_latest (owner_id=? AND entity_id=?)",
+        "CORRELATED SCALAR SUBQUERY 14",
+        "SEARCH t USING COVERING INDEX sqlite_autoindex_entities_1 (owner_id=? AND entity_id=?)",
+        "CORRELATED SCALAR SUBQUERY 13",
+        "SEARCH x USING INDEX identity_member_latest (owner_id=? AND entity_id=?)",
+        "SEARCH i USING INDEX sqlite_autoindex_items_3 (owner_id=? AND item_id=?) LEFT-JOIN",
+        "SEARCH m USING INDEX sqlite_autoindex_item_revisions_3 (owner_id=? AND item_id=? AND revision_id=?) LEFT-JOIN"
+      ],
+      [
+        "SEARCH search_index_state USING INDEX sqlite_autoindex_search_index_state_1 (owner_id=?)"
+      ],
+      [
+        "SEARCH change_log USING COVERING INDEX change_owner_seq (owner_id=?)"
+      ]
+    ],
+    "rows_read": null,
+    "rows_read_status": "NOT_EXPOSED_BY_LOCAL_RUNTIME"
+  },
+  "requests": [
+    {
+      "path": "/search",
+      "status": 200,
+      "elapsed_ms": 56.046800000003714
+    },
+    {
+      "path": "/assets/index-BMxGKvCN.css",
+      "status": 200,
+      "elapsed_ms": 71.44550000000163
+    },
+    {
+      "path": "/assets/index-C0OEyUry.js",
+      "status": 200,
+      "elapsed_ms": 305.43069999999716
+    },
+    {
+      "path": "/api/v1/auth/session",
+      "status": 200,
+      "elapsed_ms": 193.97379999999976
+    },
+    {
+      "path": "/api/v1/search",
+      "status": 200,
+      "elapsed_ms": 72.80970000000525
+    },
+    {
+      "path": "/api/v1/search",
+      "status": 200,
+      "elapsed_ms": 61.362999999997555
+    },
+    {
+      "path": "/api/v1/search",
+      "status": 200,
+      "elapsed_ms": 70.95300000000134
+    },
+    {
+      "path": "/api/v1/search",
+      "status": 200,
+      "elapsed_ms": 58.906199999997625
+    },
+    {
+      "path": "/api/v1/search",
+      "status": 200,
+      "elapsed_ms": 62.36959999999817
+    },
+    {
+      "path": "/api/v1/search",
+      "status": 200,
+      "elapsed_ms": 62.17480000000069
+    },
+    {
+      "path": "/api/v1/search",
+      "status": 200,
+      "elapsed_ms": 53.616000000001804
+    }
+  ],
+  "search_render_ms": [
+    89.56620000000112,
+    94.08649999999761,
+    94.27320000000327,
+    105.65879999999743,
+    108.23349999999482
+  ],
+  "p95_search_render_ms": 108.23349999999482,
+  "target_ms": 300,
+  "axe_violations": [],
+  "mobile_overflow": false,
+  "local_acceptance": "PASS"
+}

@@ -103,6 +103,8 @@ export function Ledger({ route }: { route: string }) {
         <div>
           <h1>Wiedza</h1>
           <AppLink href="/entities">Encje i aliasy</AppLink>
+          {' · '}
+          <AppLink href="/search">Wyszukaj w Wiedzy</AppLink>
           <p className="muted">
             Wypowiedzi i interpretacje z wybranych, przyjętych analiz. Zachowują
             identyfikatory i dowody źródłowe.

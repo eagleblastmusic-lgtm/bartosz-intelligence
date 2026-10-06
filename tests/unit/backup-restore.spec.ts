@@ -20,6 +20,7 @@ import { EntityKnowledge } from '../../packages/core/src/knowledge/entities.js';
 import { EntityIdentity } from '../../packages/core/src/knowledge/identity.js';
 import { KnowledgeCorrections } from '../../packages/core/src/knowledge/corrections.js';
 import { KnowledgeOrganization } from '../../packages/core/src/knowledge/organization.js';
+import { SearchIndex } from '../../packages/core/src/knowledge/search-index.js';
 function database() {
   const sqlite = new DatabaseSync(':memory:');
   sqlite.exec('PRAGMA foreign_keys=ON');
@@ -304,6 +305,17 @@ it('independent canonical restore preserves cyclic revision refs/origins and inv
       },
       now,
     );
+    const searchIndex = new SearchIndex(source.db, owner);
+    for (let step = 0; step < 100; step++) {
+      const result = await searchIndex.step(now);
+      if (!result.progressed) break;
+    }
+    const searchBefore = source.sqlite
+      .prepare(
+        'SELECT doc_id,parent_id,text,content_hash FROM search_documents ORDER BY doc_id',
+      )
+      .all();
+    expect(searchBefore.length).toBeGreaterThan(0);
     const backup = new CoreBackup(source.db, owner),
       started = await backup.begin(),
       chunks = [];
@@ -340,6 +352,39 @@ it('independent canonical restore preserves cyclic revision refs/origins and inv
     expect(
       await restoreCanonical(target.db, portable, 'subject-a'),
     ).toMatchObject({ result: 'PASS' });
+    expect(
+      target.sqlite.prepare('SELECT COUNT(*) n FROM search_documents').get()!.n,
+    ).toBe(0);
+    target.sqlite
+      .prepare('INSERT INTO owner_sessions VALUES(?,?,?,?,?,NULL)')
+      .run(
+        'restored-search-session',
+        'a',
+        'restored-csrf',
+        now.toISOString(),
+        '2099-01-01T00:00:00Z',
+      );
+    const restoredOwner = await AccessContext.owner(
+      target.db,
+      'restored-search-session',
+      now.toISOString(),
+    );
+    const restoredIndex = new SearchIndex(target.db, restoredOwner);
+    expect((await restoredIndex.metadata()).freshness).toBe('UNKNOWN');
+    for (let step = 0; step < 100; step++) {
+      const result = await restoredIndex.step(now);
+      if (!result.progressed) break;
+    }
+    expect(
+      target.sqlite
+        .prepare(
+          'SELECT doc_id,parent_id,text,content_hash FROM search_documents ORDER BY doc_id',
+        )
+        .all(),
+    ).toEqual(searchBefore);
+    target.sqlite
+      .prepare('DELETE FROM owner_sessions WHERE session_hash=?')
+      .run('restored-search-session');
     expect(
       target.sqlite
         .prepare('SELECT * FROM entity_alias_decisions ORDER BY revision')

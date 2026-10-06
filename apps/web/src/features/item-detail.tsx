@@ -101,7 +101,9 @@ export function ItemDetail({ route }: { route: string }) {
     returnTo = url.searchParams.get('return'),
     back =
       returnTo &&
-      (returnTo.startsWith('/daily/') || /^\/ledger(?:\?|$)/.test(returnTo))
+      (returnTo.startsWith('/daily/') ||
+        /^\/(?:ledger|search)(?:\?|$)/.test(returnTo) ||
+        /^\/entities\/[A-Za-z0-9_-]+$/.test(returnTo))
         ? returnTo
         : '/daily/' + today(),
     [stored, setStored] = useState<{

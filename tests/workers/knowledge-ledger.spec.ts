@@ -13,6 +13,8 @@ import { sha256 } from '../../packages/core/src/auth/crypto.js';
 import { ObservationLedger } from '../../packages/core/src/knowledge/ledger.js';
 import { EntityIdentity } from '../../packages/core/src/knowledge/identity.js';
 import { KnowledgeCorrections } from '../../packages/core/src/knowledge/corrections.js';
+import { EntityTimeline } from '../../packages/core/src/knowledge/entity-timeline.js';
+import { SearchIndex } from '../../packages/core/src/knowledge/search-index.js';
 beforeEach(resetCore);
 it('pages current immutable observation identities, pins filters/cuts, and keeps unselected candidates out', async () => {
   const owner = await fixtureOwner();
@@ -112,6 +114,39 @@ it('pages current immutable observation identities, pins filters/cuts, and keeps
       .run();
   }
   const ledger = new ObservationLedger(env.DB, owner);
+  const timeline = new EntityTimeline(env.DB, owner);
+  const history = await timeline.page(
+    'entity-a',
+    50,
+    fixtureSecret,
+    fixtureNow,
+  );
+  expect(history.observations).toHaveLength(50);
+  expect(history.observations[0]?.published_at).toBe(
+    '2026-10-05T10:00:00.000Z',
+  );
+  expect(history.observations[0]?.observation.epistemic_status).toBe(
+    'SOURCE_REPORT',
+  );
+  expect(
+    (
+      await timeline.page(
+        'entity-a',
+        50,
+        fixtureSecret,
+        fixtureNow,
+        history.next_cursor!,
+      )
+    ).observations,
+  ).toHaveLength(2);
+  await expect(
+    new EntityTimeline(env.DB, await fixtureOwner('b')).page(
+      'entity-a',
+      50,
+      fixtureSecret,
+      fixtureNow,
+    ),
+  ).rejects.toThrow('NOT_FOUND');
   const first = await ledger.page(
     { kind: 'CLAIM', date: '2026-10-05', profile_id: 'economy' },
     50,
@@ -238,4 +273,35 @@ it('pages current immutable observation identities, pins filters/cuts, and keeps
       ).all()
     ).results,
   ).toEqual(rawBefore);
+  await env.DB.prepare('UPDATE items SET published_at=NULL WHERE item_id=?')
+    .bind(item.item_id)
+    .run();
+  const unknownPublication = await timeline.page(
+    'entity-b',
+    50,
+    fixtureSecret,
+    fixtureNow,
+  );
+  expect(unknownPublication.chronology).toBe('SOURCE_PUBLICATION_NULL_LAST');
+  expect(
+    unknownPublication.observations.every((row) => row.published_at === null),
+  ).toBe(true);
+  expect(
+    unknownPublication.observations.every((row) => row.recorded_at === at),
+  ).toBe(true);
+  const corrupt = JSON.stringify({
+    observation_id: 'corrupt',
+    kind: 'CLAIM',
+    content_pl: 'Corrupted restored row',
+  });
+  await env.DB.prepare('INSERT INTO observations VALUES(?,?,?,?,?,?,?)')
+    .bind('a', 'corrupt', 'selected', 'CLAIM', corrupt, '0'.repeat(64), at)
+    .run();
+  const index = new SearchIndex(env.DB, owner);
+  await index.rebuild(fixtureNow);
+  await expect(
+    (async () => {
+      for (let step = 0; step < 100; step++) await index.step(fixtureNow);
+    })(),
+  ).rejects.toThrow('LEDGER_INTEGRITY_FAILED');
 });

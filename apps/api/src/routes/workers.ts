@@ -8,6 +8,7 @@ import { LongInputJobs } from '../../../../packages/core/src/ai/long-input/jobs.
 import { LongInputCompletion } from '../../../../packages/core/src/ai/long-input/completion.js';
 import { apiRouter, body, text, queryFields } from './common.js';
 import { CapacityCollection } from '../../../../packages/core/src/projections/capacity-collection.js';
+import { SearchIndex } from '../../../../packages/core/src/knowledge/search-index.js';
 import { taskTypes } from '../../../../packages/contracts/src/jobs.js';
 import type {
   LeaseToken,
@@ -51,6 +52,12 @@ function task(value: unknown): TaskType {
     throw new Error('INVALID_TASK');
   return value as TaskType;
 }
+workersApp.post('/search/step', async (c) => {
+  await body(c, []);
+  return c.json(
+    await new SearchIndex(c.env.DB, c.get('access')).step(new Date()),
+  );
+});
 workersApp.get('/capacity-observation', async (c) => {
   queryFields(c, ['limit', 'cursor']);
   return c.json(

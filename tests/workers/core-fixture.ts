@@ -7,13 +7,27 @@ import {
 export const fixtureNow = new Date('2026-10-05T17:30:00.000Z');
 export const fixtureSecret = 'fixture-session-signing-key-32-bytes-minimum';
 export async function resetCore() {
-  const tables = (
+  const views = (
     await env.DB.prepare(
-      "SELECT name FROM sqlite_master WHERE type='table' AND name NOT LIKE 'sqlite_%' AND name NOT LIKE '_cf_%'",
+      "SELECT name FROM sqlite_master WHERE type='view'",
     ).all<{ name: string }>()
   ).results;
+  const tables = (
+    await env.DB.prepare('PRAGMA table_list').all<{
+      name: string;
+      type: string;
+    }>()
+  ).results.filter(
+    (row) =>
+      ['table', 'virtual'].includes(row.type) &&
+      !row.name.startsWith('sqlite_') &&
+      !row.name.startsWith('_cf_'),
+  );
   await env.DB.batch([
     env.DB.prepare('PRAGMA defer_foreign_keys=ON'),
+    ...views.map((row) =>
+      env.DB.prepare(`DROP VIEW "${row.name.replaceAll('"', '""')}"`),
+    ),
     ...tables.map((row) =>
       env.DB.prepare(`DROP TABLE "${row.name.replaceAll('"', '""')}"`),
     ),

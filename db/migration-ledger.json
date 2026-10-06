@@ -99,6 +99,11 @@
       "name": "020_spaces_review_insights.sql",
       "depends_on": ["019_source_correction_idempotency.sql"],
       "sha256": "81fe6695dd7bbb7714c7cf98f0095c5d460b073a74e47750c1410914e23a0a54"
+    },
+    {
+      "name": "021_knowledge_search.sql",
+      "depends_on": ["020_spaces_review_insights.sql"],
+      "sha256": "e3e8a10448c9c1d28df9ae157627956cf2a8964662a66f21896370222901ba87"
     }
   ],
   "version": 1

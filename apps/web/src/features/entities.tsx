@@ -4,6 +4,8 @@ import type { IdentityProposal } from '../../../../packages/core/src/knowledge/i
 import { api, errorMessage } from '../app/api.js';
 import { AppLink } from '../app/router.js';
 import { CorrectionEditor } from '../components/correction-editor.js';
+import { EntityTimeline } from '../components/entity-timeline.js';
+import { EntityHistory } from '../components/entity-history.js';
 type Catalog = Awaited<ReturnType<EntityKnowledge['list']>>;
 type Detail = Awaited<ReturnType<EntityKnowledge['detail']>>;
 const resolutions: Record<string, string> = {
@@ -252,6 +254,8 @@ export function Entities({ route }: { route: string }) {
           <section>
             <h2>Tożsamość encji</h2>
             <CorrectionEditor kind="ENTITY_LABEL" id={id} />
+            <EntityTimeline id={id} />
+            <EntityHistory id={id} />
             {detail.entity.effective_entity_id &&
               detail.entity.effective_entity_id !== id && (
                 <p className="notice">
