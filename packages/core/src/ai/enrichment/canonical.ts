@@ -3,7 +3,11 @@ import {
   validateCanonical,
   validateEconomyCandidate,
 } from '../repair/validate.js';
-import { buildEvidence, type EvidenceInput } from './evidence.js';
+import {
+  buildEvidence,
+  prepareEvidenceSource,
+  type EvidenceInput,
+} from './evidence.js';
 import {
   resolveEntityMention,
   type ApprovedAlias,
@@ -60,15 +64,13 @@ export async function enrichEconomy(input: {
   );
   if (!checked.valid) throw new Error(checked.reason!);
   const wire = checked.value as EconomyWire;
+  const evidenceBuilder = await prepareEvidenceSource(input.source);
   const evidenceMap = new Map<
     string,
     Awaited<ReturnType<typeof buildEvidence>>[number]
   >();
   const refs = async (aliases: readonly string[]) => {
-    const rows = await buildEvidence({
-      ...input.source,
-      segment_refs: aliases,
-    });
+    const rows = await evidenceBuilder(aliases);
     for (const row of rows) evidenceMap.set(row.canonical.evidence_id, row);
     return rows.map((row) => row.canonical.evidence_id);
   };

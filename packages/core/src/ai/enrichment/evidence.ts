@@ -36,8 +36,13 @@ function timestampUrl(locator: string | null, start: number | null) {
   url.searchParams.set('t', `${Math.floor(start / 1000)}s`);
   return url.href;
 }
-export async function buildEvidence(input: EvidenceInput) {
-  const { manifest } = input;
+export async function prepareEvidenceSource(
+  source: Omit<EvidenceInput, 'segment_refs'>,
+) {
+  // Private snapshot: a caller cannot mutate verified anchors while asynchronous
+  // quote hashes are being computed. Proofs live only for this enrichment run.
+  const input = structuredClone(source),
+    { manifest } = input;
   const sourceHash = await sha256(input.source_text);
   if (
     !input.owner_id ||
@@ -51,11 +56,6 @@ export async function buildEvidence(input: EvidenceInput) {
     (await sha256(JSON.stringify(manifest))) !== input.manifest_hash
   )
     throw new Error('EVIDENCE_SOURCE_MISMATCH');
-  if (
-    !input.segment_refs.length ||
-    new Set(input.segment_refs).size !== input.segment_refs.length
-  )
-    throw new Error('INVALID_EVIDENCE_REFS');
   const aliases = new Map(
     manifest.anchors.map((anchor, index) => [anchor.alias, { anchor, index }]),
   );
@@ -65,6 +65,24 @@ export async function buildEvidence(input: EvidenceInput) {
       manifest.anchors.length
   )
     throw new Error('INVALID_EVIDENCE_MANIFEST');
+  return (segment_refs: readonly string[]) =>
+    buildPreparedEvidence({ ...input, segment_refs }, aliases, sourceHash);
+}
+export async function buildEvidence(input: EvidenceInput) {
+  const { segment_refs, ...source } = input;
+  return (await prepareEvidenceSource(source))(segment_refs);
+}
+async function buildPreparedEvidence(
+  input: EvidenceInput,
+  aliases: Map<string, { anchor: SourceAnchor; index: number }>,
+  sourceHash: string,
+) {
+  const { manifest } = input;
+  if (
+    !input.segment_refs.length ||
+    new Set(input.segment_refs).size !== input.segment_refs.length
+  )
+    throw new Error('INVALID_EVIDENCE_REFS');
   const selected = input.segment_refs
     .map((alias) => {
       const entry = aliases.get(alias);

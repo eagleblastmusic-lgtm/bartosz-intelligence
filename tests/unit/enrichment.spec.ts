@@ -1,7 +1,10 @@
 import { it, expect } from 'vitest';
 import { sha256 } from '../../packages/core/src/auth/crypto.js';
 import { normalizeTranscript } from '../../packages/core/src/transcript/normalize.js';
-import { buildEvidence } from '../../packages/core/src/ai/enrichment/evidence.js';
+import {
+  buildEvidence,
+  prepareEvidenceSource,
+} from '../../packages/core/src/ai/enrichment/evidence.js';
 import { resolveEntityMention } from '../../packages/core/src/ai/enrichment/entities.js';
 import { enrichEconomy } from '../../packages/core/src/ai/enrichment/canonical.js';
 async function source() {
@@ -43,6 +46,28 @@ async function source() {
     segment_refs: ['s1', 's2'],
   };
 }
+it('prepared source isolates verified bytes and anchors from mutation across concurrent evidence builds', async () => {
+  const original = await source();
+  const expected = await buildEvidence(original);
+  const builder = await prepareEvidenceSource(original);
+  original.owner_id = 'different-owner';
+  original.source_text = 'changed';
+  original.manifest.anchors[0]!.source_start = 9999;
+  original.manifest.anchors[0]!.start_ms = 9999;
+  original.manifest.anchors[0]!.text = 'changed';
+  original.manifest.anchors.splice(1, 1);
+  const results = await Promise.all([
+    builder(['s1', 's2']),
+    builder(['s1', 's2']),
+  ]);
+  expect(results).toEqual([expected, expected]);
+  results[0]![0]!.canonical.segment_ids[0] = 'changed-result';
+  expect(await builder(['s1', 's2'])).toEqual(expected);
+  await expect(builder(['foreign'])).rejects.toThrow('FOREIGN_SOURCE_REF');
+  await expect(prepareEvidenceSource(original)).rejects.toThrow(
+    'EVIDENCE_SOURCE_MISMATCH',
+  );
+});
 it('canonical typed projections are exactly the Observation rows, without manufactured usage or duplicate effects', async () => {
   const fullSource = await source();
   const { segment_refs: unused, ...pinnedSource } = fullSource;
