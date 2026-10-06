@@ -480,6 +480,7 @@ it('local poller consumes durable caption backlog through the real Worker API an
 it.each([
   'QUALITY_TEST',
   'CHUNKED',
+  'CHUNK_LARGE',
   'CHUNK_COMPLETE',
   'CHUNK_PRODUCTION',
   'PRODUCTION',
@@ -495,9 +496,11 @@ it.each([
         : 'QUALITY_TEST';
     const { item, token, access, repository, owner } = await setup();
     const sourceText =
-        scenario === 'CHUNKED'
-          ? 'Original statement. '.repeat(40).trim()
-          : 'Original statement.',
+        scenario === 'CHUNK_LARGE'
+          ? 'Original statement. '.repeat(8000).trim()
+          : scenario === 'CHUNKED'
+            ? 'Original statement. '.repeat(40).trim()
+            : 'Original statement.',
       revision = await sha256(sourceText);
     const track = {
       track_id: 'native-en',
@@ -688,7 +691,7 @@ it.each([
       runtimes: ['local'],
       structured_output: true,
       context_tokens:
-        scenario === 'CHUNKED'
+        scenario === 'CHUNKED' || scenario === 'CHUNK_LARGE'
           ? economyPromptOverhead({
               prompt: await registry.current(),
               semantic_context: {
@@ -700,7 +703,7 @@ it.each([
               limits: { claims: 20 },
             }) +
             3000 +
-            128
+            (scenario === 'CHUNK_LARGE' ? 8500 : 128)
           : 100000,
       output_tokens: 8000,
       rank: 0,
@@ -938,7 +941,7 @@ it.each([
         artifact.artifact_id,
         fixtureNow,
       );
-      if (scenario === 'CHUNKED') {
+      if (scenario === 'CHUNKED' || scenario === 'CHUNK_LARGE') {
         expect(plan.plan.chunks.length).toBeGreaterThan(8);
         expect(created).toMatchObject({
           state: 'RUNNING',
@@ -972,7 +975,8 @@ it.each([
         missing: plan.plan.chunks.map((c) => c.chunk_index),
       });
       const childNow = new Date(created.due_at);
-      const childIndex = scenario === 'CHUNKED' ? 1 : 0;
+      const childIndex =
+        scenario === 'CHUNKED' || scenario === 'CHUNK_LARGE' ? 1 : 0;
       const childToken = (await aiStore.lease(
         status.parts[childIndex]!.job_id!,
         'ANALYZE',
@@ -1218,7 +1222,9 @@ it.each([
           fixtureSecret,
         );
         const current = await long.status(parentToken.job_id);
-        expect(current.complete).toBe(scenario !== 'CHUNKED');
+        expect(current.complete).toBe(
+          scenario !== 'CHUNKED' && scenario !== 'CHUNK_LARGE',
+        );
         expect(current.missing).not.toContain(childIndex);
         expect(current.parts[childIndex]!.completed).toBe(true);
         expect(
@@ -1262,9 +1268,12 @@ it.each([
         );
         expect(merged).toMatchObject({
           accepted: scenario === 'CHUNK_PRODUCTION',
-          state: scenario === 'CHUNKED' ? 'DEFERRED' : 'SUCCEEDED',
+          state:
+            scenario === 'CHUNKED' || scenario === 'CHUNK_LARGE'
+              ? 'DEFERRED'
+              : 'SUCCEEDED',
         });
-        if (scenario !== 'CHUNKED') {
+        if (scenario !== 'CHUNKED' && scenario !== 'CHUNK_LARGE') {
           const replay = await merger.complete(
             resumeToken,
             parentNow,

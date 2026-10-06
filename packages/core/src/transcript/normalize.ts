@@ -221,6 +221,34 @@ export async function normalizeTranscript(
           end.raw_end,
         ]),
       );
+      const fragmentOffsets: OffsetSpan[] = [];
+      let previousIdentity = false;
+      for (const span of normalized.offsets.slice(first, last)) {
+        const mapped: OffsetSpan = {
+          normalized_start: span.normalized_start - begin.normalized_start,
+          normalized_end: span.normalized_end - begin.normalized_start,
+          raw_start: span.raw_start + sourceOffset,
+          raw_end: span.raw_end + sourceOffset,
+        };
+        // Only literal 1:1 UTF-16 mappings coalesce. Entity decoding, NFC
+        // changes, collapsed whitespace and stripped-markup gaps retain their
+        // own exact spans. Fragment boundaries and segment IDs are unchanged.
+        const identity =
+          normalized.text.slice(span.normalized_start, span.normalized_end) ===
+          cue.text.slice(span.raw_start, span.raw_end);
+        const previous = fragmentOffsets.at(-1);
+        if (
+          identity &&
+          previousIdentity &&
+          previous &&
+          previous.raw_end === mapped.raw_start &&
+          previous.normalized_end === mapped.normalized_start
+        ) {
+          previous.normalized_end = mapped.normalized_end;
+          previous.raw_end = mapped.raw_end;
+        } else fragmentOffsets.push(mapped);
+        previousIdentity = identity;
+      }
       anchors.push({
         segment_id: id,
         alias: `s${anchors.length + 1}`,
@@ -229,12 +257,7 @@ export async function normalizeTranscript(
         text,
         source_start: sourceOffset + begin.raw_start,
         source_end: sourceOffset + end.raw_end,
-        offsets: normalized.offsets.slice(first, last).map((span) => ({
-          normalized_start: span.normalized_start - begin.normalized_start,
-          normalized_end: span.normalized_end - begin.normalized_start,
-          raw_start: span.raw_start + sourceOffset,
-          raw_end: span.raw_end + sourceOffset,
-        })),
+        offsets: fragmentOffsets,
         start_ms: cue.start_ms,
         end_ms: cue.end_ms,
         timestamp_precision:
@@ -264,6 +287,7 @@ export async function normalizeTranscript(
   }
   const manifest = {
     normalizer_version: normalizerVersion,
+    offset_encoding: 'lossless-identity-runs:1' as const,
     source_revision: artifactRevision,
     source_text_hash: await sha256(sourceText),
     offset_unit: 'UTF16_CODE_UNIT' as const,

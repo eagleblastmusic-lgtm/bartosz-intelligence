@@ -17,6 +17,81 @@ it('reconstructs an exact quote from the recorded real caption sample', async ()
   expect(anchor.text).toBe('حسنًا، لقد سمعنا الكثير\nعن الذكاء الاصطناعي.');
   expect([anchor.start_ms, anchor.end_ms]).toEqual([3833, 7712]);
 });
+it('packs a large literal cue losslessly without changing source coverage or fragment timing', async () => {
+  const text = 'Original statement. '.repeat(8000).trim();
+  const source = await normalizeTranscript(
+    'a'.repeat(64),
+    [
+      {
+        upstream_index: 0,
+        text,
+        start_ms: 0,
+        end_ms: 1000,
+        speaker_label: null,
+      },
+    ],
+    'CUE',
+  );
+  expect(source.source_text).toBe(text);
+  expect(source.manifest.anchors.map((a) => a.text).join('')).toBe(text);
+  expect(source.manifest.anchors.length).toBeGreaterThan(8);
+  expect(source.manifest.anchors.every((a) => a.offsets.length === 1)).toBe(
+    true,
+  );
+  expect(
+    new TextEncoder().encode(JSON.stringify(source.manifest)).length,
+  ).toBeLessThan(180000);
+  for (const anchor of source.manifest.anchors) {
+    const span = anchor.offsets[0]!;
+    expect(text.slice(span.raw_start, span.raw_end)).toBe(anchor.text);
+    expect(span.normalized_start).toBe(0);
+    expect(span.normalized_end).toBe(anchor.text.length);
+    expect([
+      anchor.start_ms,
+      anchor.end_ms,
+      anchor.timestamp_precision,
+    ]).toEqual([0, 1000, 'CUE']);
+  }
+});
+it('identity packing retains separate nonlinear spans for NFC, entities, whitespace and markup', async () => {
+  const raw = 'ab<b>cd</b> e\u0301  &amp; fg';
+  const legacy = normalizeCue(raw);
+  const result = await normalizeTranscript(
+    'a'.repeat(64),
+    [
+      {
+        upstream_index: 0,
+        text: raw,
+        start_ms: null,
+        end_ms: null,
+        speaker_label: null,
+      },
+    ],
+    'NONE',
+  );
+  const anchor = result.manifest.anchors[0]!;
+  expect(anchor.text).toBe(legacy.text);
+  for (const old of legacy.offsets) {
+    const span = anchor.offsets.find(
+      (s) =>
+        s.normalized_start <= old.normalized_start &&
+        s.normalized_end >= old.normalized_end,
+    )!;
+    if (
+      span.normalized_end - span.normalized_start ===
+        span.raw_end - span.raw_start &&
+      raw.slice(span.raw_start, span.raw_end) ===
+        anchor.text.slice(span.normalized_start, span.normalized_end)
+    ) {
+      expect(
+        span.raw_start + old.normalized_start - span.normalized_start,
+      ).toBe(old.raw_start);
+      expect(span.raw_start + old.normalized_end - span.normalized_start).toBe(
+        old.raw_end,
+      );
+    } else expect(span).toEqual(old);
+  }
+});
 it('normalizes entities/markup/NFC/newlines with explicit raw UTF16 spans', () => {
   const raw =
     '<b>e\u0301</b>  &amp; &#x1F642;\r\n&lt;literal&gt; &NotEqualTilde;';
