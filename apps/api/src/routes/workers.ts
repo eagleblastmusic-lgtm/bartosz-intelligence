@@ -6,7 +6,8 @@ import { AnalysisResponses } from '../../../../packages/core/src/ai/responses.js
 import { AnalysisValidation } from '../../../../packages/core/src/ai/validation.js';
 import { LongInputJobs } from '../../../../packages/core/src/ai/long-input/jobs.js';
 import { LongInputCompletion } from '../../../../packages/core/src/ai/long-input/completion.js';
-import { apiRouter, body, text } from './common.js';
+import { apiRouter, body, text, queryFields } from './common.js';
+import { CapacityCollection } from '../../../../packages/core/src/projections/capacity-collection.js';
 import { taskTypes } from '../../../../packages/contracts/src/jobs.js';
 import type {
   LeaseToken,
@@ -50,6 +51,17 @@ function task(value: unknown): TaskType {
     throw new Error('INVALID_TASK');
   return value as TaskType;
 }
+workersApp.get('/capacity-observation', async (c) => {
+  queryFields(c, ['limit', 'cursor']);
+  return c.json(
+    await new CapacityCollection(c.env.DB, c.get('access')).page(
+      Number(c.req.query('limit') ?? 50),
+      c.env.SESSION_SIGNING_SECRET!,
+      new Date(),
+      c.req.query('cursor'),
+    ),
+  );
+});
 function runtime(value: unknown) {
   if (value !== 'local' && value !== 'cloud')
     throw new Error('INVALID_RUNTIME');

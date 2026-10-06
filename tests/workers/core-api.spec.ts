@@ -20,6 +20,27 @@ import type {
 } from '../../packages/contracts/src/jobs.js';
 import { addSource } from '../../packages/core/src/sources/youtube/backfill.js';
 beforeEach(resetCore);
+it('capacity metadata endpoint authenticates and enforces PROJECT scope and strict bounded queries', async () => {
+  const path = '/internal/workers/capacity-observation';
+  expect((await request(path)).status).toBe(401);
+  const headers = await credential(['ANALYZE']);
+  expect((await request(path, headers)).status).toBe(403);
+  await env.DB.prepare(
+    'UPDATE worker_identities SET scopes_json=? WHERE worker_id=?',
+  )
+    .bind('["PROJECT"]', 'test-worker')
+    .run();
+  const response = await request(path, headers);
+  expect(response.status).toBe(200);
+  expect(await response.json()).toMatchObject({
+    cases: [],
+    next_cursor: null,
+    eligibility_status: 'UNCLASSIFIED',
+  });
+  expect((await request(path + '?limit=51', headers)).status).toBe(422);
+  expect((await request(path + '?unknown=1', headers)).status).toBe(422);
+  expect((await request(path + '?cursor=malformed', headers)).status).toBe(422);
+});
 it('System distinguishes task completion from accepted analysis and retains failed arrival age without fabricating capacity', async () => {
   const owner = await fixtureOwner(),
     headers = await ownerHeaders(),

@@ -1,0 +1,7 @@
+{
+  "version": "capacity-collector:1",
+  "paid_services_enabled": false,
+  "scope": "REAL_PRODUCTION",
+  "interval_seconds": 3600,
+  "max_pages": 200
+}

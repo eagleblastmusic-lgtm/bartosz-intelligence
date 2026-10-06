@@ -2,6 +2,8 @@
 
 Status: NOT_RUN. Automat axe i Playwright nie zastępują tego przeglądu. Nie oznaczać PASS na podstawie samego zatwierdzenia materiałów ani zrzutu ekranu.
 
+Informacja właściciela z 2026-10-06 po udostępnieniu lokalnego środowiska: „wszystko działa idź dalej”. Zapisana jako pozytywna ocena funkcjonalna i polecenie kontynuacji. Nie zawiera identyfikatora czytnika/wersji ani wyników poszczególnych prób, dlatego nie stanowi formalnego PASS ręcznego audytu dostępności.
+
 Osoba oceniająca zapisuje swój identyfikator, datę, commit/build, adres środowiska, system, przeglądarkę, czytnik ekranu i jego wersję, viewport oraz skalowanie. Każdy wiersz otrzymuje PASS/FAIL/NOT_RUN i krótki dowód. Nie zapisywać danych sesji, tokenów, sekretów ani całej prywatnej treści.
 
 | Próba                         | Oczekiwany wynik                                                                                                                     | Wynik / dowód |

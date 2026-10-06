@@ -1,0 +1,25 @@
+# Stage 05A — instrumentation checkpoint
+
+This checkpoint implements preparation under the owner execution amendment. It does not close Stage 03/04 acceptance, qualify a production baseline, select the twenty observation channels, or declare Gate C PASS. The collector has not been started against production.
+
+## Available mechanisms
+
+- `GET /internal/workers/capacity-observation` requires a separately provisioned PROJECT-scoped worker identity. It reads bounded, owner-scoped metadata, with signed pagination pinned to the change-log cut. It returns every enumerated Item, including unavailable sources and Items without a job or accepted analysis. It returns no transcript, quotations, prompt text or credentials. Source metadata is tied to the accepted analysis source artifact when present.
+- `pnpm capacity:collect config/capacity-collector.json .local/capacity/production --watch` runs sequential hourly read-only collection. Set `LOCAL_TELEMETRY_WORKER_CREDENTIAL` locally after provisioning the scoped identity. This command performs no Gemini requests. Do not use an ANALYZE credential or place credentials in the manifest. The loop is process-based and requires the operations supervisor; merely having this command does not establish continuous production observation.
+- START and OBSERVATION records are immutable, SHA-256 named and hash chained. Restart verifies the existing chain and fixed configuration. A writer lock prevents overlap; incomplete `.pending` files remain historical artifacts and cannot become accepted evidence. Pagination caps, transport errors and changed cuts produce PARTIAL records rather than zero counters or complete-day evidence.
+- `capacityMetrics` uses Warsaw calendar days, immutable publication/enqueue origins, nearest-rank conditional completion quantiles, open/late counts, mature cohort SLO and Wilson 95% interval. Retries do not become arrivals; probes and backfill are reported separately. Sustainable service rate requires seven consecutive full qualified saturated days and individual source retrieval references. Mean and min/max daily throughput are descriptive; the lower credible bound needs its own audit evidence.
+- `pnpm gate:c` without an input produces NOT_RUN. `pnpm gate:c <input.json> <new-report.json>` writes an immutable report. Synthetic fixtures always have production status NOT_RUN. Real input requires content-hashed evidence receipts; missing observations or proofs cannot qualify PASS. Previously recorded FAIL remains visible. The eight-condition report is distinct from implementation completion.
+
+## Remaining production preparation
+
+Before Stage 05B, deploy the verified implementation, provision the collector identity, connect the operations supervisor, freeze actual configuration/build/provider/prompt/runtime/reserve references and preregister twenty actual channels, authoritative thirty-day trace, eligibility decisions before analysis, calibration, saturation, outage/reset and extension policy. The raw collector deliberately reports UNCLASSIFIED; no success-based classification or automatic qualification is inferred. All-film source usefulness and missing-timestamp records need a separate auditable denominator.
+
+Actual quota snapshots, source retrieval, CPU, quality/human review, Cloudflare/Google zero-paid audit and six-hour outage/48-hour recovery evidence remain independent required inputs. A proof receipt is an auditable statement, not an automatically obtained billing or human-review result. The evaluator cannot manufacture these records. Start/config evidence and the collector's OBSERVING status are meaningful only after the real production collector is launched. Current long-run status: NOT_STARTED.
+
+No Core migration is introduced. Production still has the deployment/migration gap documented by the preceding implementation checkpoints; this checkpoint has not applied migrations remotely.
+
+## Historical failures retained
+
+The first collector query used the nonexistent `artifacts.artifact_kind` column. The actual schema uses `kind`; the query was corrected and real accepted-source assertions added to the existing artifact acceptance regression. An endpoint test incorrectly expected HTTP 400 for invalid parameters; the existing API contract is HTTP 422, so the expectation was corrected. A sandbox EPERM prevented test process startup; local workerd tests were rerun with authorized process execution. These are local implementation/harness issues, not provider failures.
+
+Final stable verification: 38 affected capacity/contract/API/Daily tests PASS; the 21 artifact acceptance tests PASS in a separate isolated run. One combined run timed out in the pre-existing CHUNK_LARGE scenario while typecheck was running concurrently; the isolated run retained the same five-second per-test limit and passed. Workspace, tools and Workers typecheck, lint, affected formatting and production build/dry-run PASS. No live Gemini request, remote deployment, production collection or long-run Gate C acceptance was performed.

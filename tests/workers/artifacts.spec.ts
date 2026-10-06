@@ -43,6 +43,7 @@ import { selectTranscriptLanguage } from '../../packages/core/src/transcript/lan
 import { TranscriptRecovery } from '../../packages/core/src/transcript/recovery.js';
 import { DailyProjection } from '../../packages/core/src/projections/daily.js';
 import { EvidenceProjection } from '../../packages/core/src/projections/evidence.js';
+import { CapacityCollection } from '../../packages/core/src/projections/capacity-collection.js';
 import { sweep } from '../../packages/core/src/jobs/recovery.js';
 import {
   QuotaAdmission,
@@ -1956,6 +1957,23 @@ it.each([
       expect(evidenceRead.quote_transport).toBe('INLINE_CANONICAL');
       expect(evidenceRead.timestamp_precision).toBe('CUE');
       expect(evidenceRead.helper_available).toBe(false);
+      const measurement = await new CapacityCollection(env.DB, owner).page(
+        50,
+        fixtureSecret,
+        new Date(),
+      );
+      expect(
+        measurement.cases.find((row) => row.item_id === item.item_id),
+      ).toMatchObject({
+        accepted_effect_id: prepared.run_id,
+        source_run_id: accepted.run_id,
+        source_hash: await sha256(sourceText),
+        source_authority: 'CONFIRMED',
+      });
+      expect(
+        measurement.cases.find((row) => row.item_id === item.item_id)!
+          .accepted_complete_at,
+      ).not.toBeNull();
       expect(
         await env.DB.prepare(
           'SELECT (SELECT COUNT(*) FROM jobs) jobs,(SELECT COUNT(*) FROM usage_records) usage,(SELECT COUNT(*) FROM change_log) changes',
