@@ -13,6 +13,10 @@ import { analysisQualityScope } from './compiler.js';
 import { QuotaAdmission, type AdmissionBucket } from './admission.js';
 import { dailyQuotaWindow } from './windows.js';
 import type { GeminiQuotaObservation } from './quota-snapshots.js';
+import type { compileEconomy } from './compiler.js';
+type CompiledContext = Awaited<
+  ReturnType<typeof compileEconomy>
+>['run_context'];
 import type { PipelineProfile } from '../../../contracts/src/ai.js';
 import type { LeaseToken } from '../../../contracts/src/jobs.js';
 
@@ -40,6 +44,7 @@ export interface AnalysisJobSnapshot {
   profile: PipelineProfile;
   settings: AnalysisSettings;
   quality_scope: string;
+  semantic_context?: CompiledContext['semantic_context'];
 }
 
 // The durable job captures registry snapshots before any provider request. Workers
@@ -167,6 +172,7 @@ export class AnalysisJobs {
       profile: selected.profile,
       settings: normalized,
       quality_scope: scope,
+      semantic_context: await this.semanticContext(source),
     };
     const hash = await sha256(JSON.stringify(snapshot));
     return new JobStore(this.db, this.context).enqueue(
@@ -190,6 +196,130 @@ export class AnalysisJobs {
       },
       now.toISOString(),
     );
+  }
+  private async semanticContext(source: SourceSnapshot) {
+    const row = await this.db
+      .prepare(
+        'SELECT r.metadata_json,r.metadata_hash,c.title AS author FROM items i LEFT JOIN item_revisions r ON r.owner_id=i.owner_id AND r.item_id=i.item_id AND r.revision_id=i.current_revision_id LEFT JOIN channels c ON c.owner_id=i.owner_id AND c.source_id=i.source_id WHERE i.owner_id=? AND i.item_id=?',
+      )
+      .bind(this.context.ownerId, source.item_id)
+      .first<{
+        metadata_json: string | null;
+        metadata_hash: string | null;
+        author: string | null;
+      }>();
+    if (!row) throw new Error('NOT_FOUND');
+    if (
+      row.metadata_json &&
+      (await sha256(row.metadata_json)) !== row.metadata_hash
+    )
+      throw new Error('ANALYSIS_METADATA_HASH_MISMATCH');
+    const metadata = row.metadata_json
+      ? (JSON.parse(row.metadata_json) as {
+          title: string;
+          published_at: string | null;
+        })
+      : null;
+    return {
+      title: metadata?.title ?? null,
+      author: row.author,
+      published_at: metadata?.published_at ?? null,
+      source_language: source.language_code,
+    };
+  }
+  async bindContext(
+    token: LeaseToken,
+    context: CompiledContext,
+    contextHash: string,
+    promptHash: string,
+    now: Date,
+  ) {
+    const prepared = await this.prepareRun(token, now),
+      snapshot = prepared.snapshot;
+    if (
+      !context ||
+      typeof context !== 'object' ||
+      Array.isArray(context) ||
+      !context.token_estimate ||
+      !Number.isSafeInteger(context.token_estimate.input) ||
+      context.token_estimate.input < 1 ||
+      context.token_estimate.input + snapshot.settings.max_output_tokens >
+        snapshot.profile.context_tokens ||
+      !/^[a-f0-9]{64}$/.test(promptHash)
+    )
+      throw new Error('INVALID_AI_CONTEXT');
+    const expected: CompiledContext = {
+      semantic_context: snapshot.semantic_context ?? {
+        title: null,
+        author: null,
+        published_at: null,
+        source_language: snapshot.source.language_code,
+      },
+      source_artifact_id: snapshot.source.source_artifact_id,
+      chunk: null,
+      source_revision: snapshot.source.source_hash,
+      source_manifest_hash: snapshot.source.manifest_hash,
+      source_text_version: 'decoded-cue-text:1',
+      prompt_snapshot: snapshot.prompt,
+      profile_snapshot: snapshot.profile,
+      profile_revision: prepared.snapshot_hash,
+      runtime: snapshot.settings.runtime,
+      quality_scope: snapshot.quality_scope,
+      token_estimate: {
+        method: 'utf8-byte-upper-bound:1',
+        input: context.token_estimate.input,
+      },
+      generation_settings: {
+        limits: snapshot.settings.limits,
+        max_output_tokens: snapshot.settings.max_output_tokens,
+        source_language: snapshot.source.language_code,
+        analysis_mode: 'ORDINARY',
+        thinking_level: 'low',
+      },
+      request_id: prepared.run_id,
+    };
+    const encoded = JSON.stringify(context),
+      hash = await sha256(encoded);
+    if (hash !== contextHash || encoded !== JSON.stringify(expected))
+      throw new Error('INVALID_AI_CONTEXT');
+    const payload = JSON.stringify({
+        context,
+        context_hash: contextHash,
+        request_prompt_hash: promptHash,
+      }),
+      payloadHash = await sha256(payload);
+    const guard = leasePredicate(
+      this.context,
+      token,
+      now.toISOString(),
+      'ANALYZE',
+    );
+    await this.db
+      .prepare(
+        `INSERT INTO config_versions(config_id,owner_id,revision,payload_json,content_hash,created_at) SELECT ?,?,1,?,?,? WHERE ${guard.predicate} ON CONFLICT DO NOTHING`,
+      )
+      .bind(
+        'analysis-request-' + prepared.run_id,
+        this.context.ownerId,
+        payload,
+        payloadHash,
+        now.toISOString(),
+        ...guard.bindings,
+      )
+      .run();
+    const stored = await this.db
+      .prepare(
+        'SELECT content_hash FROM config_versions WHERE owner_id=? AND config_id=? AND revision=1',
+      )
+      .bind(this.context.ownerId, 'analysis-request-' + prepared.run_id)
+      .first<{ content_hash: string }>();
+    if (stored?.content_hash !== payloadHash)
+      throw new Error('ANALYSIS_CONTEXT_CONFLICT');
+    return {
+      run_id: prepared.run_id,
+      context_hash: contextHash,
+      request_prompt_hash: promptHash,
+    };
   }
   async load(token: LeaseToken, now: Date) {
     const guard = leasePredicate(
@@ -243,6 +373,52 @@ export class AnalysisJobs {
       throw new Error('ANALYSIS_PROFILE_' + selected.reason);
     return { snapshot, snapshot_hash: row.profile_revision };
   }
+  async submit(
+    token: LeaseToken,
+    reservationId: string,
+    requestPromptHash: string,
+    now: Date,
+  ) {
+    const { run_id } = await this.prepareRun(token, now);
+    const receipt = await this.db
+      .prepare(
+        'SELECT payload_json,content_hash FROM config_versions WHERE owner_id=? AND config_id=? AND revision=1',
+      )
+      .bind(this.context.ownerId, 'analysis-request-' + run_id)
+      .first<{ payload_json: string; content_hash: string }>();
+    if (
+      !receipt ||
+      (await sha256(receipt.payload_json)) !== receipt.content_hash
+    )
+      throw new Error('ANALYSIS_CONTEXT_REQUIRED');
+    const context = JSON.parse(receipt.payload_json) as {
+      request_prompt_hash: string;
+      context: CompiledContext;
+    };
+    if (context.request_prompt_hash !== requestPromptHash)
+      throw new Error('INVALID_AI_REQUEST_SCOPE');
+    const reservation = await this.db
+      .prepare(
+        'SELECT request_id,input_tokens FROM quota_reservations WHERE owner_id=? AND reservation_id=? AND job_id=? AND fencing_token=?',
+      )
+      .bind(
+        this.context.ownerId,
+        reservationId,
+        token.job_id,
+        token.fencing_token,
+      )
+      .first<{ request_id: string; input_tokens: number }>();
+    if (
+      reservation?.request_id !== run_id ||
+      reservation.input_tokens !== context.context.token_estimate.input
+    )
+      throw new Error('INVALID_AI_REQUEST_SCOPE');
+    return new QuotaAdmission(this.db, this.context).submit(
+      reservationId,
+      token,
+      now,
+    );
+  }
   async reserve(
     token: LeaseToken,
     input: { request_id: string; input_tokens: number },
@@ -251,6 +427,23 @@ export class AnalysisJobs {
     const { snapshot, run_id } = await this.prepareRun(token, now);
     if (input.request_id !== run_id)
       throw new Error('INVALID_AI_REQUEST_SCOPE');
+    const contextReceipt = await this.db
+      .prepare(
+        'SELECT payload_json,content_hash FROM config_versions WHERE owner_id=? AND config_id=? AND revision=1',
+      )
+      .bind(this.context.ownerId, 'analysis-request-' + run_id)
+      .first<{ payload_json: string; content_hash: string }>();
+    if (
+      !contextReceipt ||
+      (await sha256(contextReceipt.payload_json)) !==
+        contextReceipt.content_hash
+    )
+      throw new Error('ANALYSIS_CONTEXT_REQUIRED');
+    if (
+      (JSON.parse(contextReceipt.payload_json) as { context: CompiledContext })
+        .context.token_estimate.input !== input.input_tokens
+    )
+      throw new Error('INVALID_AI_TOKEN_ESTIMATE');
     if (
       !input.request_id ||
       input.request_id.length > 128 ||

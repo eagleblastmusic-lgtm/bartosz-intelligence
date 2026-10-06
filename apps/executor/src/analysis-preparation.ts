@@ -49,7 +49,7 @@ export async function prepareAnalysis(
     prompt: snapshot.prompt,
     profile: snapshot.profile,
     profile_revision: prepared.snapshot_hash,
-    semantic_context: {
+    semantic_context: snapshot.semantic_context ?? {
       title: null,
       author: null,
       published_at: null,
@@ -64,6 +64,17 @@ export async function prepareAnalysis(
   });
   if (compiled.request.quality_scope !== snapshot.quality_scope)
     throw new Error('ANALYSIS_QUALITY_SCOPE_MISMATCH');
+  const receipt = (await rpc.request('analysis/context', {
+    token,
+    context: compiled.run_context,
+    context_hash: compiled.context_hash,
+    request_prompt_hash: await sha256(compiled.request.prompt),
+  })) as { run_id: string; context_hash: string };
+  if (
+    receipt.run_id !== prepared.run_id ||
+    receipt.context_hash !== compiled.context_hash
+  )
+    throw new Error('ANALYSIS_CONTEXT_CONFLICT');
   return {
     ...prepared,
     ...compiled,

@@ -44,6 +44,7 @@ export function apiRouter() {
         'QUOTA_POLICY_NOT_CONFIGURED',
         'QUOTA_ADMISSION_DENIED',
         'QUOTA_ACCOUNT_MISMATCH',
+        'ANALYSIS_CONTEXT_REQUIRED',
       ].includes(raw);
     const invalid =
       raw.startsWith('INVALID_') ||
@@ -57,6 +58,7 @@ export function apiRouter() {
       'BACKUP_INCOMPLETE',
       'ANALYSIS_SOURCE_NOT_ACCEPTED',
       'ANALYSIS_SOURCE_AUTHORITY_REQUIRED',
+      'ANALYSIS_CONTEXT_CONFLICT',
     ].includes(raw);
     const unauthenticated = ['UNAUTHENTICATED', 'INVALID_ENCODING'].includes(
       raw,

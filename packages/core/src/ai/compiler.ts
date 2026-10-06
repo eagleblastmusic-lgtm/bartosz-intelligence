@@ -175,6 +175,7 @@ export async function compileEconomy(input: {
     paid_services_enabled: false,
   };
   const runContext = {
+    semantic_context: structuredClone(input.semantic_context),
     source_artifact_id: input.source_artifact_id,
     chunk: chunk
       ? {

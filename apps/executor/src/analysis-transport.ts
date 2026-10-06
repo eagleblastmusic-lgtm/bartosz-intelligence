@@ -4,6 +4,7 @@ import type {
 } from '../../../packages/contracts/src/ai.js';
 import type { LeaseToken } from '../../../packages/contracts/src/jobs.js';
 import { GeminiFreeProvider } from '../../../packages/core/src/ai/gemini.js';
+import { sha256 } from '../../../packages/core/src/auth/crypto.js';
 import { ArtifactClient } from './artifact-client.js';
 import { executeAnalysis } from './analysis-runner.js';
 import { prepareAnalysis } from './analysis-preparation.js';
@@ -45,6 +46,7 @@ export async function executePreparedAnalysis(input: {
       const result = (await input.rpc.request('analysis/submit', {
         token,
         reservation_id: permit.reservation_id,
+        request_prompt_hash: await sha256(input.request.prompt),
       })) as { reservation_id: string };
       if (result.reservation_id !== permit.reservation_id)
         throw new Error('INVALID_AI_SUBMISSION_RECEIPT');

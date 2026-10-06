@@ -1,6 +1,6 @@
 import { controlTick } from '../control.js';
 import { AnalysisJobs } from '../../../../packages/core/src/ai/jobs.js';
-import { QuotaAdmission } from '../../../../packages/core/src/ai/admission.js';
+import type { compileEconomy } from '../../../../packages/core/src/ai/compiler.js';
 import { AnalysisResponses } from '../../../../packages/core/src/ai/responses.js';
 import { apiRouter, body, text } from './common.js';
 import { taskTypes } from '../../../../packages/contracts/src/jobs.js';
@@ -101,6 +101,26 @@ workersApp.post('/analysis/input', async (c) => {
     throw new Error('ANALYSIS_SNAPSHOT_TOO_LARGE');
   return c.json(prepared);
 });
+workersApp.post('/analysis/context', async (c) => {
+  const input = await body(c, [
+      'token',
+      'context',
+      'context_hash',
+      'request_prompt_hash',
+    ]),
+    access = c.get('access');
+  return c.json(
+    await new AnalysisJobs(c.env.DB, access).bindContext(
+      token(input.token, access.actorId),
+      input.context as Awaited<
+        ReturnType<typeof compileEconomy>
+      >['run_context'],
+      text(input.context_hash, 64),
+      text(input.request_prompt_hash, 64),
+      new Date(),
+    ),
+  );
+});
 workersApp.post('/analysis/reserve', async (c) => {
   const input = await body(c, ['token', 'request_id', 'input_tokens']);
   const access = c.get('access');
@@ -116,15 +136,19 @@ workersApp.post('/analysis/reserve', async (c) => {
   );
 });
 workersApp.post('/analysis/submit', async (c) => {
-  const input = await body(c, ['token', 'reservation_id']);
+  const input = await body(c, [
+    'token',
+    'reservation_id',
+    'request_prompt_hash',
+  ]);
   const access = c.get('access'),
     lease = token(input.token, access.actorId),
     now = new Date();
-  await new AnalysisJobs(c.env.DB, access).load(lease, now);
   return c.json(
-    await new QuotaAdmission(c.env.DB, access).submit(
-      text(input.reservation_id, 128),
+    await new AnalysisJobs(c.env.DB, access).submit(
       lease,
+      text(input.reservation_id, 128),
+      text(input.request_prompt_hash, 64),
       now,
     ),
   );

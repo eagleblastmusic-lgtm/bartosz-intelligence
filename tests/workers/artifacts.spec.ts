@@ -1,5 +1,6 @@
 import { env } from 'cloudflare:workers';
 import { QuotaSnapshots } from '../../packages/core/src/ai/quota-snapshots.js';
+import { compileEconomy } from '../../packages/core/src/ai/compiler.js';
 import { createExecutionContext } from 'cloudflare:test';
 import worker from '../../apps/api/src/index.js';
 import { ArtifactClient } from '../../apps/executor/src/artifact-client.js';
@@ -699,10 +700,75 @@ it('verified source acceptance binds original authority, all five representation
       { request_id: prepared.run_id, input_tokens: 100 },
       fixtureNow,
     ),
+  ).rejects.toThrow('ANALYSIS_CONTEXT_REQUIRED');
+  const compiled = await compileEconomy({
+    source_artifact_id: source.artifact_id,
+    source_text: sourceText,
+    manifest: sourceNormalized.manifest,
+    manifest_hash: map.content_hash!,
+    prompt: prepared.snapshot.prompt,
+    profile: prepared.snapshot.profile,
+    profile_revision: prepared.snapshot_hash,
+    semantic_context: prepared.snapshot.semantic_context!,
+    runtime: 'local',
+    request_id: prepared.run_id,
+    deadline: new Date(fixtureNow.getTime() + 300000).toISOString(),
+    mode: settings.mode,
+    max_output_tokens: settings.max_output_tokens,
+    limits: settings.limits,
+  });
+  const estimate = compiled.request.estimated_input_tokens;
+  const contextReceipt = await workerJobs.bindContext(
+    aiToken,
+    compiled.run_context,
+    compiled.context_hash,
+    await sha256(compiled.request.prompt),
+    fixtureNow,
+  );
+  expect(
+    await workerJobs.bindContext(
+      aiToken,
+      compiled.run_context,
+      compiled.context_hash,
+      await sha256(compiled.request.prompt),
+      fixtureNow,
+    ),
+  ).toEqual(contextReceipt);
+  await expect(
+    workerJobs.bindContext(
+      aiToken,
+      { ...compiled.run_context, runtime: 'cloud' },
+      compiled.context_hash,
+      await sha256(compiled.request.prompt),
+      fixtureNow,
+    ),
+  ).rejects.toThrow('INVALID_AI_CONTEXT');
+  await expect(
+    workerJobs.bindContext(
+      aiToken,
+      compiled.run_context,
+      compiled.context_hash,
+      await sha256('changed prompt'),
+      fixtureNow,
+    ),
+  ).rejects.toThrow('ANALYSIS_CONTEXT_CONFLICT');
+  await expect(
+    workerJobs.reserve(
+      aiToken,
+      { request_id: prepared.run_id, input_tokens: estimate - 1 },
+      fixtureNow,
+    ),
+  ).rejects.toThrow('INVALID_AI_TOKEN_ESTIMATE');
+  await expect(
+    workerJobs.reserve(
+      aiToken,
+      { request_id: prepared.run_id, input_tokens: estimate },
+      fixtureNow,
+    ),
   ).rejects.toThrow('QUOTA_UNKNOWN_OR_STALE');
   const daily = dailyQuotaWindow(fixtureNow, 'America/Los_Angeles');
   for (const bucket of ['RPM', 'RPD', 'INPUT_TPM'] as const) {
-    const remaining = bucket === 'INPUT_TPM' ? 1000 : 2;
+    const remaining = bucket === 'INPUT_TPM' ? 50000 : 2;
     await env.DB.prepare(
       'INSERT INTO quota_snapshots VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)',
     )
@@ -740,7 +806,7 @@ it('verified source acceptance binds original authority, all five representation
     .run();
   const permit = await workerJobs.reserve(
     aiToken,
-    { request_id: prepared.run_id, input_tokens: 100 },
+    { request_id: prepared.run_id, input_tokens: estimate },
     fixtureNow,
   );
   expect(
@@ -750,6 +816,30 @@ it('verified source acceptance binds original authority, all five representation
       .bind(permit.reservation_id)
       .first('account_key'),
   ).toBe(profile.account_key);
+  await expect(
+    workerJobs.submit(
+      aiToken,
+      permit.reservation_id,
+      await sha256('changed prompt'),
+      fixtureNow,
+    ),
+  ).rejects.toThrow('INVALID_AI_REQUEST_SCOPE');
+  expect(
+    await workerJobs.submit(
+      aiToken,
+      permit.reservation_id,
+      await sha256(compiled.request.prompt),
+      fixtureNow,
+    ),
+  ).toEqual({ reservation_id: permit.reservation_id });
+  await expect(
+    workerJobs.submit(
+      aiToken,
+      permit.reservation_id,
+      await sha256(compiled.request.prompt),
+      fixtureNow,
+    ),
+  ).rejects.toThrow('RESERVATION_NOT_SUBMITTABLE');
   await expect(
     workerJobs.reserve(
       aiToken,
@@ -777,7 +867,7 @@ it('verified source acceptance binds original authority, all five representation
   await expect(
     workerJobs.reserve(
       aiToken,
-      { request_id: prepared.run_id, input_tokens: 100 },
+      { request_id: prepared.run_id, input_tokens: estimate },
       observationTime,
     ),
   ).rejects.toThrow('QUOTA_ACCOUNT_MISMATCH');
