@@ -2,9 +2,11 @@ export function NavIcon({ kind }: { kind: string }) {
   const path =
     kind === 'daily'
       ? 'M5 3h14v18H5z M8 8h8 M8 12h8 M8 16h5'
-      : kind === 'channels'
-        ? 'M4 7h16v12H4z M8 3h8 M8 11h8 M8 15h5'
-        : 'M4 4h6v6H4z M14 4h6v6h-6z M4 14h6v6H4z M14 14h6v6h-6z';
+      : kind === 'ledger'
+        ? 'M3 5h8v15H3z M13 5h8v15h-8z M6 9h2 M16 9h2 M6 13h2 M16 13h2'
+        : kind === 'channels'
+          ? 'M4 7h16v12H4z M8 3h8 M8 11h8 M8 15h5'
+          : 'M4 4h6v6H4z M14 4h6v6h-6z M4 14h6v6H4z M14 14h6v6h-6z';
   return (
     <svg
       width="24"

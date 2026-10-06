@@ -12,6 +12,7 @@ import { Channels } from './channels.js';
 import { Daily } from './features/daily.js';
 import { System } from './features/system.js';
 import { ItemDetail } from './features/item-detail.js';
+import { Ledger } from './features/ledger.js';
 import './design/tokens.css';
 import { NavIcon } from './components/nav-icon.js';
 type Session = 'checking' | 'owner' | 'login' | 'setup' | 'denied' | 'error';
@@ -72,9 +73,11 @@ function App() {
     document.title =
       (route.startsWith('/channels')
         ? 'Kanały'
-        : route.startsWith('/system')
-          ? 'System'
-          : 'Dziennik') + ' · Bartosz Intelligence';
+        : route.startsWith('/ledger')
+          ? 'Wiedza'
+          : route.startsWith('/system')
+            ? 'System'
+            : 'Dziennik') + ' · Bartosz Intelligence';
     const frame = requestAnimationFrame(() => {
       document.getElementById('main-content')?.focus({ preventScroll: true });
       if (typeof history.state?.biScroll === 'number')
@@ -154,11 +157,13 @@ function App() {
     ? 'channels'
     : route.startsWith('/system')
       ? 'system'
-      : route.startsWith('/items/')
-        ? 'item'
-        : route.startsWith('/daily/')
-          ? 'daily'
-          : 'unknown';
+      : route.startsWith('/ledger')
+        ? 'ledger'
+        : route.startsWith('/items/')
+          ? 'item'
+          : route.startsWith('/daily/')
+            ? 'daily'
+            : 'unknown';
   return (
     <div className="app-shell">
       <a className="skip-link" href="#main-content">
@@ -179,6 +184,7 @@ function App() {
               symbol: '▤',
             },
             { id: 'channels', href: '/channels', label: 'Kanały', symbol: '◉' },
+            { id: 'ledger', href: '/ledger', label: 'Wiedza', symbol: '◇' },
             { id: 'system', href: '/system', label: 'System', symbol: '▦' },
           ].map((item) => (
             <AppLink
@@ -254,6 +260,7 @@ function App() {
           {section === 'daily' && <Daily route={route} />}
           {section === 'item' && <ItemDetail route={route} />}
           {section === 'system' && <System />}
+          {section === 'ledger' && <Ledger route={route} />}
           {section === 'unknown' && (
             <>
               <h1>Nie znaleziono widoku</h1>

@@ -311,6 +311,15 @@ test('reading verifies paged canonical bytes, preserves accepted text on failure
   await expect(drawer.locator('a')).toHaveCount(0);
   await drawer.getByRole('button', { name: 'Zamknij fragment źródła' }).click();
   corrupt = true;
+  const currentUrl = new URL(page.url());
+  currentUrl.searchParams.set(
+    'return',
+    '/ledger?kind=CLAIM&source_id=source-a',
+  );
+  await page.goto(currentUrl.href);
+  await expect(
+    page.getByRole('link', { name: '← Powrót do wiedzy' }),
+  ).toHaveAttribute('href', '/ledger?kind=CLAIM&source_id=source-a');
   await page.reload();
   await expect(page.getByRole('alert')).toBeVisible();
   await expect(page.getByText('Wypowiedź źródła', { exact: true })).toHaveCount(

@@ -44,6 +44,7 @@ import { TranscriptRecovery } from '../../packages/core/src/transcript/recovery.
 import { DailyProjection } from '../../packages/core/src/projections/daily.js';
 import { EvidenceProjection } from '../../packages/core/src/projections/evidence.js';
 import { CapacityCollection } from '../../packages/core/src/projections/capacity-collection.js';
+import { ObservationLedger } from '../../packages/core/src/knowledge/ledger.js';
 import { sweep } from '../../packages/core/src/jobs/recovery.js';
 import {
   QuotaAdmission,
@@ -1957,6 +1958,40 @@ it.each([
       expect(evidenceRead.quote_transport).toBe('INLINE_CANONICAL');
       expect(evidenceRead.timestamp_precision).toBe('CUE');
       expect(evidenceRead.helper_available).toBe(false);
+      const ledger = new ObservationLedger(env.DB, owner);
+      const ledgerPage = await ledger.page({}, 50, fixtureSecret, new Date());
+      const canonical = JSON.parse(canonicalCandidate.text);
+      expect(ledgerPage.observations.map((row) => row.observation)).toEqual(
+        canonical.claims,
+      );
+      expect(ledgerPage.observations[0]!.run_id).toBe(prepared.run_id);
+      expect(
+        (await ledger.page({ kind: 'STANCE' }, 50, fixtureSecret, new Date()))
+          .observations,
+      ).toHaveLength(0);
+      expect(
+        (
+          await ledger.page(
+            { source_id: 'foreign-source' },
+            50,
+            fixtureSecret,
+            new Date(),
+          )
+        ).observations,
+      ).toHaveLength(0);
+      expect(
+        (
+          await new ObservationLedger(env.DB, await fixtureOwner('b')).page(
+            {},
+            50,
+            fixtureSecret,
+            new Date(),
+          )
+        ).observations,
+      ).toHaveLength(0);
+      await expect(
+        ledger.page({ kind: 'VERIFIED_FACT' }, 50, fixtureSecret, new Date()),
+      ).rejects.toThrow('INVALID_LEDGER_KIND');
       const measurement = await new CapacityCollection(env.DB, owner).page(
         50,
         fixtureSecret,

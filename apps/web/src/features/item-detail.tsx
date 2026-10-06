@@ -98,7 +98,11 @@ export function ItemDetail({ route }: { route: string }) {
   const url = new URL(route, location.origin),
     itemId = url.pathname.slice('/items/'.length),
     returnTo = url.searchParams.get('return'),
-    back = returnTo?.startsWith('/daily/') ? returnTo : '/daily/' + today(),
+    back =
+      returnTo &&
+      (returnTo.startsWith('/daily/') || /^\/ledger(?:\?|$)/.test(returnTo))
+        ? returnTo
+        : '/daily/' + today(),
     [stored, setStored] = useState<{
       id: string;
       detail: Detail;
@@ -139,7 +143,9 @@ export function ItemDetail({ route }: { route: string }) {
     ] as const;
   return (
     <>
-      <AppLink href={back}>← Powrót do dnia</AppLink>
+      <AppLink href={back}>
+        {back.startsWith('/ledger') ? '← Powrót do wiedzy' : '← Powrót do dnia'}
+      </AppLink>
       <div className="page-heading">
         <div>
           <p className="eyebrow">Materiał źródłowy</p>
