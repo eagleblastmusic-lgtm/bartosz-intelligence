@@ -426,6 +426,67 @@ it('worker retry policy preserves immutable arrival clock and does not permit re
     origin_kind: 'NEW',
   });
 });
+it('model eligibility deferral is durable, fenced and limited to analysis tasks', async () => {
+  const owner = await fixtureOwner();
+  const headers = await credential(['ANALYZE', 'FETCH_TRANSCRIPT']);
+  for (const type of ['FETCH_TRANSCRIPT', 'ANALYZE'] as const) {
+    const job = (await new JobStore(env.DB, owner).enqueue(
+      { ...base, task_type: type },
+      fixtureNow.toISOString(),
+    ))!;
+    const leased = await request('/internal/workers/lease', headers, {
+      runtime: 'local',
+      task_type: type,
+      job_id: job.job_id,
+    });
+    const lease = ((await leased.json()) as { leases: { token: LeaseToken }[] })
+      .leases[0]!.token;
+    await request('/internal/workers/start', headers, {
+      task_type: type,
+      token: lease,
+    });
+    const due = new Date(Date.now() + 900000).toISOString();
+    const payload = {
+      task_type: type,
+      token: lease,
+      reason: 'MODEL_NOT_ELIGIBLE',
+      due_at: due,
+    };
+    if (type === 'FETCH_TRANSCRIPT') {
+      expect(
+        (await request('/internal/workers/defer', headers, payload)).status,
+      ).toBe(422);
+      continue;
+    }
+    expect(
+      (
+        await request('/internal/workers/defer', headers, {
+          ...payload,
+          token: { ...lease, fencing_token: lease.fencing_token + 1 },
+        })
+      ).status,
+    ).toBe(409);
+    expect(
+      (await request('/internal/workers/defer', headers, payload)).status,
+    ).toBe(200);
+    expect(
+      await env.DB.prepare(
+        'SELECT state,reason_code,due_at,lease_owner,arrival_origin_at FROM jobs WHERE job_id=?',
+      )
+        .bind(job.job_id)
+        .first(),
+    ).toMatchObject({
+      state: 'DEFERRED',
+      reason_code: 'MODEL_NOT_ELIGIBLE',
+      due_at: due,
+      lease_owner: null,
+      arrival_origin_at: fixtureNow.toISOString(),
+    });
+    expect(
+      (await request('/internal/workers/defer', headers, payload)).status,
+    ).toBe(409);
+  }
+});
 it('control execution stays below the Free D1 query budget and duplicate completion has no second effect', async () => {
   const owner = await fixtureOwner(),
     identity = {

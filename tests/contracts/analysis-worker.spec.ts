@@ -10,6 +10,18 @@ it('RPC retains only allowlisted quota categories and never a server body or cre
   for (const [status, payload, expected] of [
     [503, { code: 'QUOTA_UNKNOWN_OR_STALE' }, 'QUOTA_UNKNOWN_OR_STALE'],
     [503, { code: 'QUOTA_ADMISSION_DENIED' }, 'QUOTA_ADMISSION_DENIED'],
+    [
+      503,
+      { code: 'ANALYSIS_PROFILE_ACCOUNT_PURPOSE_REGION' },
+      'ANALYSIS_PROFILE_ACCOUNT_PURPOSE_REGION',
+    ],
+    [
+      503,
+      { code: 'ANALYSIS_PROFILE_QUALITY_SCOPE' },
+      'ANALYSIS_PROFILE_QUALITY_SCOPE',
+    ],
+    [503, { code: 'ANALYSIS_PROFILE_RUNTIME_BUDGET' }, null],
+    [500, { code: 'ANALYSIS_PROFILE_ACCOUNT_PURPOSE_REGION' }, null],
     [500, { code: 'QUOTA_UNKNOWN_OR_STALE' }, null],
     [503, { code: 'INTERNAL_ERROR', message: 'private-secret' }, null],
     [503, { code: 'QUOTA_POLICY_NOT_CONFIGURED' }, null],
@@ -28,6 +40,77 @@ it('RPC retains only allowlisted quota categories and never a server body or cre
       expect((error as WorkerRpcError).code).toBe(expected);
       expect(JSON.stringify(error)).not.toContain('private-secret');
     }
+  }
+});
+it('expired pinned eligibility defers before provider HTTP and arbitrary input failures stay errors', async () => {
+  for (const code of [
+    'ANALYSIS_PROFILE_ACCOUNT_PURPOSE_REGION',
+    'ANALYSIS_PROFILE_QUALITY_SCOPE',
+    'INTERNAL_ERROR',
+  ]) {
+    const token = {
+      job_id: 'job',
+      lease_owner: 'worker',
+      fencing_token: 4,
+      lease_until: new Date(Date.now() + 60000).toISOString(),
+    };
+    const calls: { route: string; body: Record<string, unknown> }[] = [];
+    let providerCalls = 0;
+    const transport: typeof fetch = async (url, init) => {
+      const route = new URL(String(url)).pathname.replace(
+        '/internal/workers/',
+        '',
+      );
+      const body = JSON.parse(String(init?.body));
+      calls.push({ route, body });
+      if (route === 'analysis/input')
+        return Response.json({ code }, { status: 503 });
+      return Response.json(
+        route === 'lease'
+          ? {
+              leases: [{ token, job: { job_id: 'job', task_type: 'ANALYZE' } }],
+            }
+          : {},
+      );
+    };
+    const worker = new LocalAnalysisWorker(
+      'https://fixture.invalid',
+      'a'.repeat(43),
+      'private-provider-key',
+      transport,
+      async () => {
+        providerCalls++;
+        throw new Error('unexpected provider HTTP');
+      },
+    );
+    if (code === 'INTERNAL_ERROR') {
+      await expect(worker.cycle()).rejects.toThrow('WORKER_RPC_FAILED');
+      expect(calls.map((call) => call.route)).not.toContain('defer');
+    } else {
+      expect(await worker.cycle()).toEqual({
+        accepted: false,
+        idle: false,
+        state: 'DEFERRED',
+      });
+      const deferred = calls.at(-1)!;
+      expect(deferred.route).toBe('defer');
+      expect(deferred.body).toMatchObject({
+        task_type: 'ANALYZE',
+        token,
+        reason: 'MODEL_NOT_ELIGIBLE',
+      });
+      expect(Date.parse(String(deferred.body.due_at))).toBeGreaterThan(
+        Date.now(),
+      );
+      expect(calls.map((call) => call.route)).toEqual([
+        'heartbeat',
+        'lease',
+        'start',
+        'analysis/input',
+        'defer',
+      ]);
+    }
+    expect(providerCalls).toBe(0);
   }
 });
 it('interrupted chunk enqueue resumes through bounded control pages and stops on a stale response', async () => {

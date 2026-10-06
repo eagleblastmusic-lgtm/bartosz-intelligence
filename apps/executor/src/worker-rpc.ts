@@ -5,7 +5,11 @@ export class WorkerRpcError extends Error {
     readonly route: string,
     readonly status: number,
     readonly code:
-      'QUOTA_UNKNOWN_OR_STALE' | 'QUOTA_ADMISSION_DENIED' | null = null,
+      | 'QUOTA_UNKNOWN_OR_STALE'
+      | 'QUOTA_ADMISSION_DENIED'
+      | 'ANALYSIS_PROFILE_ACCOUNT_PURPOSE_REGION'
+      | 'ANALYSIS_PROFILE_QUALITY_SCOPE'
+      | null = null,
   ) {
     super(message);
   }
@@ -100,7 +104,9 @@ export class WorkerRpc {
             if (
               response.status === 503 &&
               (value.code === 'QUOTA_UNKNOWN_OR_STALE' ||
-                value.code === 'QUOTA_ADMISSION_DENIED')
+                value.code === 'QUOTA_ADMISSION_DENIED' ||
+                value.code === 'ANALYSIS_PROFILE_ACCOUNT_PURPOSE_REGION' ||
+                value.code === 'ANALYSIS_PROFILE_QUALITY_SCOPE')
             )
               code = value.code;
           }

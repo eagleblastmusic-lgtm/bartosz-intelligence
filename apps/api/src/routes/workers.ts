@@ -654,11 +654,16 @@ workersApp.post('/defer', async (c) => {
     access = c.get('access'),
     due = text(input.due_at, 64),
     reason = text(input.reason, 64),
+    type = task(input.task_type),
     now = new Date();
   if (
-    !['LOCAL_OFFLINE', 'PROVIDER_UNAVAILABLE', 'LIVE_ACTIVE'].includes(
-      reason,
-    ) ||
+    ![
+      'LOCAL_OFFLINE',
+      'PROVIDER_UNAVAILABLE',
+      'LIVE_ACTIVE',
+      'MODEL_NOT_ELIGIBLE',
+    ].includes(reason) ||
+    (reason === 'MODEL_NOT_ELIGIBLE' && type !== 'ANALYZE') ||
     !Number.isFinite(Date.parse(due)) ||
     Date.parse(due) <= now.getTime() ||
     Date.parse(due) > now.getTime() + 86400000
@@ -666,7 +671,7 @@ workersApp.post('/defer', async (c) => {
     throw new Error('INVALID_DEFER');
   await new JobStore(c.env.DB, access).disposition(
     token(input.token, access.actorId),
-    task(input.task_type),
+    type,
     'DEFERRED',
     reason,
     new Date(due).toISOString(),

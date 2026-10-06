@@ -91,17 +91,28 @@ export class LocalAnalysisWorker {
           token: leased.token,
           transport: this.transport,
         });
-      // Missing/stale quota never reaches provider HTTP. Durable deferral allows
-      // a later fresh owner observation to resume admission without a tight loop.
+      // Admission failures happen before provider HTTP. Preserve the pinned
+      // snapshot and defer; expiry never selects a newer model implicitly.
       if (
         error instanceof WorkerRpcError &&
-        error.route === 'analysis/reserve' &&
-        error.code !== null
+        [
+          'analysis/input',
+          'analysis/context',
+          'analysis/reserve',
+          'analysis/submit',
+        ].includes(error.route) &&
+        (error.code === 'ANALYSIS_PROFILE_ACCOUNT_PURPOSE_REGION' ||
+          error.code === 'ANALYSIS_PROFILE_QUALITY_SCOPE' ||
+          (error.route === 'analysis/reserve' &&
+            (error.code === 'QUOTA_UNKNOWN_OR_STALE' ||
+              error.code === 'QUOTA_ADMISSION_DENIED')))
       ) {
         await this.rpc.request('defer', {
           task_type: 'ANALYZE',
           token: leased.token,
-          reason: 'PROVIDER_UNAVAILABLE',
+          reason: error.code?.startsWith('ANALYSIS_PROFILE_')
+            ? 'MODEL_NOT_ELIGIBLE'
+            : 'PROVIDER_UNAVAILABLE',
           due_at: new Date(Date.now() + 900000).toISOString(),
         });
         return { accepted: false, idle: false, state: 'DEFERRED' };
