@@ -1,0 +1,288 @@
+{
+  "version": "stage03-live-attempt:1",
+  "recorded_at": "2026-10-06T11:46:00Z",
+  "deployment_version": "177e2010-0e1a-41ff-9f9a-af1edaf13514",
+  "source_run_id": "transcript_39cfb0e1bcf555ab6cc5131d4908549af2713325a58858663832dddf0d55599a",
+  "job_id": "bff08262-0f44-4974-8ce2-5e622e051423",
+  "analysis_run_id": "analysis_2541d4d19f83c4f57f9f1ce565b8d8a901bb91218fbd07be390e5361fe00f05a",
+  "attempt": 3,
+  "generation_submissions": 1,
+  "provider_status": "TEMPORARY_FAILURE",
+  "finish_reason": "HTTP_503:service_unavailable",
+  "raw_output_present": false,
+  "raw_byte_size": 0,
+  "raw_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "quota_reservation_state": "UNKNOWN",
+  "reservation_created_at": "2026-10-06T11:41:43.588Z",
+  "reservation_settled_at": "2026-10-06T11:41:48.558Z",
+  "quota_observation": "quota-third-2026-10-06.json",
+  "automatic_hidden_retries": 0,
+  "accepted_effects": 0,
+  "quality_result": "NOT_ASSESSED",
+  "human_pilot": "NOT_CLAIMED",
+  "paid_services_enabled": false,
+  "secret_values_recorded": false,
+  "cpu": {
+    "source": "Cloudflare Wrangler tail platform cpuTime",
+    "coverage": "INCOMPLETE: context/submit/response events were not delivered; includes one explicit input replay, no complete-path CPU qualification",
+    "criterion": {
+      "p95_max_ms": 8,
+      "max_exclusive_ms": 10
+    },
+    "observed_n": 31,
+    "observed_p95_ms": 12,
+    "observed_max_ms": 13,
+    "result": "FAIL",
+    "samples": [
+      {
+        "at": "2026-10-06T11:41:20.740Z",
+        "route": "/internal/workers/heartbeat",
+        "cpu_ms": 6,
+        "wall_ms": 86,
+        "outcome": "ok",
+        "status": 200
+      },
+      {
+        "at": "2026-10-06T11:41:20.937Z",
+        "route": "/internal/workers/lease",
+        "cpu_ms": 6,
+        "wall_ms": 216,
+        "outcome": "ok",
+        "status": 200
+      },
+      {
+        "at": "2026-10-06T11:41:21.051Z",
+        "route": "/internal/workers/start",
+        "cpu_ms": 2,
+        "wall_ms": 86,
+        "outcome": "ok",
+        "status": 200
+      },
+      {
+        "at": "2026-10-06T11:41:21.470Z",
+        "route": "/internal/workers/analysis/input",
+        "cpu_ms": 13,
+        "wall_ms": 293,
+        "outcome": "ok",
+        "status": 200
+      },
+      {
+        "at": "2026-10-06T11:41:21.726Z",
+        "route": "/internal/workers/analysis/input",
+        "cpu_ms": 7,
+        "wall_ms": 261,
+        "outcome": "ok",
+        "status": 200
+      },
+      {
+        "at": "2026-10-06T11:41:21.826Z",
+        "route": "/internal/workers/artifacts/read",
+        "cpu_ms": 1,
+        "wall_ms": 74,
+        "outcome": "ok",
+        "status": 200
+      },
+      {
+        "at": "2026-10-06T11:41:21.965Z",
+        "route": "/internal/workers/artifacts/read",
+        "cpu_ms": 6,
+        "wall_ms": 115,
+        "outcome": "ok",
+        "status": 200
+      },
+      {
+        "at": "2026-10-06T11:41:22.110Z",
+        "route": "/internal/workers/artifacts/read",
+        "cpu_ms": 4,
+        "wall_ms": 115,
+        "outcome": "ok",
+        "status": 200
+      },
+      {
+        "at": "2026-10-06T11:41:22.215Z",
+        "route": "/internal/workers/artifacts/read",
+        "cpu_ms": 1,
+        "wall_ms": 77,
+        "outcome": "ok",
+        "status": 200
+      },
+      {
+        "at": "2026-10-06T11:41:22.361Z",
+        "route": "/internal/workers/artifacts/read",
+        "cpu_ms": 7,
+        "wall_ms": 126,
+        "outcome": "ok",
+        "status": 200
+      },
+      {
+        "at": "2026-10-06T11:41:22.516Z",
+        "route": "/internal/workers/artifacts/read",
+        "cpu_ms": 5,
+        "wall_ms": 134,
+        "outcome": "ok",
+        "status": 200
+      },
+      {
+        "at": "2026-10-06T11:41:22.671Z",
+        "route": "/internal/workers/artifacts/read",
+        "cpu_ms": 5,
+        "wall_ms": 124,
+        "outcome": "ok",
+        "status": 200
+      },
+      {
+        "at": "2026-10-06T11:41:26.674Z",
+        "route": "/internal/workers/artifacts/read",
+        "cpu_ms": 4,
+        "wall_ms": 147,
+        "outcome": "ok",
+        "status": 200
+      },
+      {
+        "at": "2026-10-06T11:41:27.596Z",
+        "route": "/internal/workers/artifacts/read",
+        "cpu_ms": 5,
+        "wall_ms": 117,
+        "outcome": "ok",
+        "status": 200
+      },
+      {
+        "at": "2026-10-06T11:41:28.696Z",
+        "route": "/internal/workers/artifacts/read",
+        "cpu_ms": 4,
+        "wall_ms": 120,
+        "outcome": "ok",
+        "status": 200
+      },
+      {
+        "at": "2026-10-06T11:41:29.749Z",
+        "route": "/internal/workers/artifacts/read",
+        "cpu_ms": 4,
+        "wall_ms": 148,
+        "outcome": "ok",
+        "status": 200
+      },
+      {
+        "at": "2026-10-06T11:41:30.630Z",
+        "route": "/internal/workers/artifacts/read",
+        "cpu_ms": 4,
+        "wall_ms": 124,
+        "outcome": "ok",
+        "status": 200
+      },
+      {
+        "at": "2026-10-06T11:41:31.635Z",
+        "route": "/internal/workers/artifacts/read",
+        "cpu_ms": 4,
+        "wall_ms": 108,
+        "outcome": "ok",
+        "status": 200
+      },
+      {
+        "at": "2026-10-06T11:41:32.674Z",
+        "route": "/internal/workers/artifacts/read",
+        "cpu_ms": 4,
+        "wall_ms": 118,
+        "outcome": "ok",
+        "status": 200
+      },
+      {
+        "at": "2026-10-06T11:41:33.707Z",
+        "route": "/internal/workers/artifacts/read",
+        "cpu_ms": 6,
+        "wall_ms": 121,
+        "outcome": "ok",
+        "status": 200
+      },
+      {
+        "at": "2026-10-06T11:41:34.585Z",
+        "route": "/internal/workers/artifacts/read",
+        "cpu_ms": 4,
+        "wall_ms": 123,
+        "outcome": "ok",
+        "status": 200
+      },
+      {
+        "at": "2026-10-06T11:41:35.625Z",
+        "route": "/internal/workers/artifacts/read",
+        "cpu_ms": 4,
+        "wall_ms": 123,
+        "outcome": "ok",
+        "status": 200
+      },
+      {
+        "at": "2026-10-06T11:41:35.774Z",
+        "route": "/internal/workers/artifacts/read",
+        "cpu_ms": 5,
+        "wall_ms": 123,
+        "outcome": "ok",
+        "status": 200
+      },
+      {
+        "at": "2026-10-06T11:41:37.623Z",
+        "route": "/internal/workers/artifacts/read",
+        "cpu_ms": 4,
+        "wall_ms": 112,
+        "outcome": "ok",
+        "status": 200
+      },
+      {
+        "at": "2026-10-06T11:41:38.626Z",
+        "route": "/internal/workers/artifacts/read",
+        "cpu_ms": 3,
+        "wall_ms": 114,
+        "outcome": "ok",
+        "status": 200
+      },
+      {
+        "at": "2026-10-06T11:41:39.697Z",
+        "route": "/internal/workers/analysis/reserve",
+        "cpu_ms": 12,
+        "wall_ms": 561,
+        "outcome": "ok",
+        "status": 200
+      },
+      {
+        "at": "2026-10-06T11:41:43.452Z",
+        "route": "/internal/workers/heartbeat",
+        "cpu_ms": 2,
+        "wall_ms": 128,
+        "outcome": "ok",
+        "status": 200
+      },
+      {
+        "at": "2026-10-06T11:41:43.596Z",
+        "route": "/internal/workers/artifacts/begin",
+        "cpu_ms": 2,
+        "wall_ms": 120,
+        "outcome": "ok",
+        "status": 200
+      },
+      {
+        "at": "2026-10-06T11:41:43.817Z",
+        "route": "/internal/workers/artifacts/write",
+        "cpu_ms": 3,
+        "wall_ms": 198,
+        "outcome": "ok",
+        "status": 200
+      },
+      {
+        "at": "2026-10-06T11:41:44.089Z",
+        "route": "/internal/workers/artifacts/verify-step",
+        "cpu_ms": 5,
+        "wall_ms": 251,
+        "outcome": "ok",
+        "status": 200
+      },
+      {
+        "at": "2026-10-06T11:41:44.908Z",
+        "route": "/internal/workers/analysis/disposition",
+        "cpu_ms": 10,
+        "wall_ms": 549,
+        "outcome": "ok",
+        "status": 200
+      }
+    ]
+  },
+  "input_replay_verified": true
+}

@@ -74,7 +74,9 @@ export class QuotaSnapshots {
           !['RPM', 'RPD', 'INPUT_TPM'].includes(b.bucket) ||
           !Number.isSafeInteger(b.limit) ||
           b.limit < 1 ||
-          !Number.isSafeInteger(b.used) ||
+          !(b.bucket === 'RPM'
+            ? Number.isFinite(b.used) && b.used <= Number.MAX_SAFE_INTEGER
+            : Number.isSafeInteger(b.used)) ||
           b.used < 0,
       ) ||
       new Set(observation.buckets.map((b) => b.bucket)).size !== 3
@@ -93,7 +95,9 @@ export class QuotaSnapshots {
     const rows = normalized.buckets.map((b) => ({
       snapshot_id: 'quota_' + scopedHash + '_' + b.bucket,
       bucket: b.bucket,
-      remaining: Math.max(0, b.limit - b.used),
+      // Official RPM telemetry can be a fractional rate. Preserve the actual
+      // observation and round available whole requests down, never usage down.
+      remaining: Math.max(0, Math.floor(b.limit - b.used)),
       reset_at:
         b.bucket === 'RPD'
           ? day.reset_at

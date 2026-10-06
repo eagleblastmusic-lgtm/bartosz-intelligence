@@ -763,6 +763,16 @@ it.each([
       prepared.run_id,
     );
     await expect(
+      env.DB.prepare(
+        "UPDATE analysis_runs SET prompt_snapshot_json='{}' WHERE run_id=?",
+      )
+        .bind(prepared.run_id)
+        .run(),
+    ).rejects.toThrow('IMMUTABLE_RUN_SNAPSHOT');
+    expect((await workerJobs.prepareRun(aiToken, fixtureNow)).run_id).toBe(
+      prepared.run_id,
+    );
+    await expect(
       workerJobs.prepareRun(
         { ...aiToken, fencing_token: aiToken.fencing_token + 1 },
         fixtureNow,
@@ -941,7 +951,7 @@ it.each([
         source: 'GOOGLE_CLOUD_QUOTA_CURRENT',
         sampled_at: observationTime.toISOString(),
         buckets: [
-          { bucket: 'RPM', limit: 5, used: 0 },
+          { bucket: 'RPM', limit: 5, used: 0.5 },
           { bucket: 'RPD', limit: 20, used: 0 },
           { bucket: 'INPUT_TPM', limit: 250000, used: 0 },
         ],
@@ -955,6 +965,13 @@ it.each([
         observationTime,
       ),
     ).rejects.toThrow('QUOTA_ACCOUNT_MISMATCH');
+    expect(
+      await env.DB.prepare(
+        "SELECT used_value,remaining FROM quota_snapshots WHERE owner_id=? AND bucket='RPM' ORDER BY sampled_at DESC LIMIT 1",
+      )
+        .bind('a')
+        .first(),
+    ).toMatchObject({ used_value: 0.5, remaining: 4 });
     await env.DB.prepare(
       'UPDATE sources SET ai_processing_allowed=0 WHERE owner_id=?',
     )
