@@ -4,6 +4,7 @@ import type { PromptSnapshot } from '../registry/store.js';
 import type { normalizeTranscript } from '../transcript/normalize.js';
 import type { AIRequest, PipelineProfile } from '../../../contracts/src/ai.js';
 import { verifyChunkPlan, type ChunkPlan } from './long-input/plan.js';
+import { validator_schema_hashes } from '../registry/generated/validators.js';
 type Manifest = Awaited<ReturnType<typeof normalizeTranscript>>['manifest'];
 export async function analysisQualityScope(
   prompt: PromptSnapshot,
@@ -72,6 +73,12 @@ export async function compileEconomy(input: {
     input.prompt.wire.id !== 'urn:bartosz:schema:economy-wire:1.0' ||
     input.prompt.canonical.id !==
       'urn:bartosz:schema:intelligence-canonical:1.2' ||
+    input.prompt.wire.hash !==
+      validator_schema_hashes['urn:bartosz:schema:economy-wire:1.0'] ||
+    input.prompt.canonical.hash !==
+      validator_schema_hashes[
+        'urn:bartosz:schema:intelligence-canonical:1.2'
+      ] ||
     (await sha256(input.prompt.text)) !== input.prompt.prompt_hash ||
     (await sha256(JSON.stringify(input.prompt.wire.schema))) !==
       input.prompt.wire.hash ||

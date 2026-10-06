@@ -109,7 +109,11 @@ it('retains one response through the existing receipt endpoint after a lost leas
       expect(id).toBe(reservation);
       expect(original).toEqual(token);
       expect(response.usage.total_tokens).toBe(17);
-      return { request_id: response.request_id, diagnostic_only: true };
+      return {
+        request_id: response.request_id,
+        diagnostic_only: true,
+        artifact_id: 'candidate',
+      };
     },
   });
   expect(events).toEqual([

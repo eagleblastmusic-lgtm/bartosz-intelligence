@@ -30,6 +30,7 @@ export async function executePreparedAnalysis(input: {
   let permit: { reservation_id: string; request_id: string } | null = null;
   let submissionAttempted = false,
     retained = false;
+  let responseArtifactId: string | null = null;
   const diagnostics: string[] = [];
   const provider = new GeminiFreeProvider(
     input.key,
@@ -92,13 +93,21 @@ export async function executePreparedAnalysis(input: {
         permit.reservation_id,
         token,
         response,
-      )) as { request_id: string; diagnostic_only: boolean };
+      )) as {
+        request_id: string;
+        diagnostic_only: boolean;
+        artifact_id: string;
+      };
       if (
         receipt.request_id !== response.request_id ||
-        receipt.diagnostic_only !== true
+        receipt.diagnostic_only !== true ||
+        typeof receipt.artifact_id !== 'string' ||
+        !receipt.artifact_id ||
+        receipt.artifact_id.length > 128
       )
         throw new Error('INVALID_AI_RESPONSE_RECEIPT');
       retained = true;
+      responseArtifactId = receipt.artifact_id;
     },
     reconcile: async (reservationId) => {
       // Retention's existing server endpoint settles from immutable artifact
@@ -115,6 +124,7 @@ export async function executePreparedAnalysis(input: {
     reservation_id: permit!.reservation_id,
     token,
     diagnostics,
+    response_artifact_id: responseArtifactId,
   };
 }
 
@@ -160,5 +170,12 @@ export async function executeLocalAnalysis(input: {
         transport,
       }),
   });
-  return { ...prepared, ...result };
+  const validation = result.eligible_for_validation
+    ? await rpc.request('analysis/validate', {
+        token: result.token,
+        reservation_id: result.reservation_id,
+        artifact_id: result.response_artifact_id,
+      })
+    : null;
+  return { ...prepared, ...result, validation };
 }

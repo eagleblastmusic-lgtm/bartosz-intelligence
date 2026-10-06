@@ -1,6 +1,7 @@
 import { env } from 'cloudflare:workers';
 import { QuotaSnapshots } from '../../packages/core/src/ai/quota-snapshots.js';
 import { compileEconomy } from '../../packages/core/src/ai/compiler.js';
+import { AnalysisValidation } from '../../packages/core/src/ai/validation.js';
 import { createExecutionContext } from 'cloudflare:test';
 import worker from '../../apps/api/src/index.js';
 import { ArtifactClient } from '../../apps/executor/src/artifact-client.js';
@@ -997,6 +998,149 @@ it('verified source acceptance binds original authority, all five representation
   expect(localPrepared.request.request_id).toBe(prepared.run_id);
   expect(localPrepared.manifest.anchors).toHaveLength(1);
   expect(localPrepared.run_context.source_manifest_hash).toBe(map.content_hash);
+  const responseReceipt = (await retainAnalysisResponse({
+    origin: 'https://fixture.invalid',
+    credential: 'q'.repeat(43),
+    token: aiToken,
+    reservation_id: permit.reservation_id,
+    item_id: item.item_id,
+    response: {
+      request_id: prepared.run_id,
+      status: 'OK',
+      raw_output: JSON.stringify({
+        summary_pl: [
+          { text_pl: 'Autor przedstawia wypowiedź.', segment_refs: ['s1'] },
+        ],
+        key_points: [],
+        entity_mentions: [],
+        tools: [],
+        claims: [],
+        stance: [],
+        predictions: [],
+        source_issues: [],
+      }),
+      actual_provider: 'gemini',
+      actual_model: profile.model,
+      finish_reason: 'completed',
+      usage: { input_tokens: 100, output_tokens: 50, total_tokens: 150 },
+      retry_after: null,
+    },
+    transport: analysisTransport,
+  })) as { artifact_id: string };
+  const validation = new AnalysisValidation(env.DB, aiAccess);
+  const validated = await validation.evaluate(
+    aiToken,
+    permit.reservation_id,
+    responseReceipt.artifact_id,
+    new Date(),
+    fixtureSecret,
+  );
+  expect(validated).toMatchObject({
+    status: 'VALIDATED',
+    mode: 'QUALITY_TEST',
+    accepted: false,
+    semantic_verification: 'NOT_ASSERTED',
+  });
+  expect(
+    await new WorkerRpc(
+      'https://fixture.invalid',
+      'q'.repeat(43),
+      analysisTransport,
+    ).request('analysis/validate', {
+      token: aiToken,
+      reservation_id: permit.reservation_id,
+      artifact_id: responseReceipt.artifact_id,
+    }),
+  ).toEqual(validated);
+  expect(
+    await validation.evaluate(
+      aiToken,
+      permit.reservation_id,
+      responseReceipt.artifact_id,
+      new Date(),
+      fixtureSecret,
+    ),
+  ).toEqual(validated);
+  expect(
+    (
+      await new ArtifactClient(
+        'https://fixture.invalid',
+        'q'.repeat(43),
+        () => aiToken,
+        'ANALYZE',
+        analysisTransport,
+      ).readText(validated.canonical_artifact_id!)
+    ).artifact.state,
+  ).toBe('VERIFIED');
+  const canonicalCandidate = await new ArtifactClient(
+    'https://fixture.invalid',
+    'q'.repeat(43),
+    () => aiToken,
+    'ANALYZE',
+    analysisTransport,
+  ).readText(validated.canonical_artifact_id!);
+  expect(JSON.parse(canonicalCandidate.text).evidence[0]).toMatchObject({
+    quote_original: sourceText,
+    start_ms: 0,
+    end_ms: 1500,
+    timestamp_precision: 'CUE',
+  });
+  expect(
+    await env.DB.prepare('SELECT state FROM analysis_runs WHERE run_id=?')
+      .bind(prepared.run_id)
+      .first('state'),
+  ).toBe('CANDIDATE');
+  expect(
+    await env.DB.prepare('SELECT COUNT(*) n FROM observations').first('n'),
+  ).toBe(0);
+  for (const [raw_output, expected] of [
+    [
+      JSON.stringify({
+        summary_pl: [{ text_pl: 'Wypowiedź.', segment_refs: ['s1'] }],
+        key_points: [],
+        entity_mentions: [],
+        tools: [],
+        claims: [],
+        stance: [],
+        predictions: [],
+        source_issues: ['unclear speech'],
+      }),
+      'REVIEW_REQUIRED',
+    ],
+    ['{"summary_pl":[],"summary_pl":[]}', 'DUPLICATE_JSON_KEY'],
+  ]) {
+    const retained = (await retainAnalysisResponse({
+      origin: 'https://fixture.invalid',
+      credential: 'q'.repeat(43),
+      token: aiToken,
+      reservation_id: permit.reservation_id,
+      item_id: item.item_id,
+      response: {
+        request_id: prepared.run_id,
+        status: 'OK',
+        raw_output: raw_output!,
+        actual_provider: 'gemini',
+        actual_model: profile.model,
+        finish_reason: 'completed',
+        usage: { input_tokens: 100, output_tokens: 50, total_tokens: 150 },
+        retry_after: null,
+      },
+      transport: analysisTransport,
+    })) as { artifact_id: string };
+    expect(
+      await validation.evaluate(
+        aiToken,
+        permit.reservation_id,
+        retained.artifact_id,
+        new Date(),
+        fixtureSecret,
+      ),
+    ).toMatchObject({
+      accepted: false,
+      canonical_artifact_id: null,
+      reason: expected,
+    });
+  }
   await expect(
     prepareAnalysis(
       new WorkerRpc(

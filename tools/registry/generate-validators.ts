@@ -24,6 +24,11 @@ mkdirSync('packages/core/src/registry/generated', { recursive: true });
 const path = 'packages/core/src/registry/generated/validators.ts',
   expected =
     '// @ts-nocheck\n// Generated from the exact Master bundle by tools/registry/generate-validators.ts.\n' +
+    'export const validator_schema_hashes = Object.freeze(' +
+    JSON.stringify(
+      Object.fromEntries(bundle.schemas.map((row) => [row.id, row.hash])),
+    ) +
+    ');\n' +
     source +
     '\n';
 if (process.argv.includes('--check')) {

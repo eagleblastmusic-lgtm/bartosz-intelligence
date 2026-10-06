@@ -2,6 +2,7 @@ import { controlTick } from '../control.js';
 import { AnalysisJobs } from '../../../../packages/core/src/ai/jobs.js';
 import type { compileEconomy } from '../../../../packages/core/src/ai/compiler.js';
 import { AnalysisResponses } from '../../../../packages/core/src/ai/responses.js';
+import { AnalysisValidation } from '../../../../packages/core/src/ai/validation.js';
 import { apiRouter, body, text } from './common.js';
 import { taskTypes } from '../../../../packages/contracts/src/jobs.js';
 import type {
@@ -162,6 +163,21 @@ workersApp.post('/analysis/response', async (c) => {
       text(input.reservation_id, 36),
       text(input.artifact_id, 128),
       new Date(),
+    ),
+  );
+});
+workersApp.post('/analysis/validate', async (c) => {
+  const input = await body(c, ['token', 'reservation_id', 'artifact_id']),
+    access = c.get('access');
+  if (!c.env.SESSION_SIGNING_SECRET)
+    throw new Error('AUTH_CONFIGURATION_REQUIRED');
+  return c.json(
+    await new AnalysisValidation(c.env.DB, access).evaluate(
+      token(input.token, access.actorId),
+      text(input.reservation_id, 36),
+      text(input.artifact_id, 128),
+      new Date(),
+      c.env.SESSION_SIGNING_SECRET,
     ),
   );
 });

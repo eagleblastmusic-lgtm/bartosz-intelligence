@@ -327,6 +327,16 @@ it('pins complete source and exact registry context without technical IDs in sem
   await expect(compileEconomy(incomplete)).rejects.toThrow(
     'INSUFFICIENT_SOURCE',
   );
+  const differentSchema = await fixture();
+  differentSchema.prompt.wire = structuredClone(differentSchema.prompt.wire);
+  differentSchema.prompt.wire.schema.description =
+    'Changed under the same schema identity';
+  differentSchema.prompt.wire.hash = await sha256(
+    JSON.stringify(differentSchema.prompt.wire.schema),
+  );
+  await expect(compileEconomy(differentSchema)).rejects.toThrow(
+    'INCOMPATIBLE_PROMPT_SNAPSHOT',
+  );
 });
 it('one ordinary call retains candidate before settling usage; stale response is diagnostic only', async () => {
   const compiled = await compileEconomy(await fixture()),
