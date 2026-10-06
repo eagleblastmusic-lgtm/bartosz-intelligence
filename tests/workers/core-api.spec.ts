@@ -94,6 +94,7 @@ it('owner routes require auth before domain reads and never fall through to HTML
     '/api/v1/items',
     '/api/v1/items/missing/detail',
     '/api/v1/items/missing/canonical?run_id=missing',
+    '/api/v1/evidence/missing?run_id=missing',
     '/api/v1/daily?date=2026-10-05',
     '/api/v1/daily/calendar?month=2026-10',
     '/api/v1/daily/undated',

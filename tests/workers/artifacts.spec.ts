@@ -42,6 +42,7 @@ import { RepresentationRepository } from '../../packages/core/src/transcript/rep
 import { selectTranscriptLanguage } from '../../packages/core/src/transcript/language.js';
 import { TranscriptRecovery } from '../../packages/core/src/transcript/recovery.js';
 import { DailyProjection } from '../../packages/core/src/projections/daily.js';
+import { EvidenceProjection } from '../../packages/core/src/projections/evidence.js';
 import { sweep } from '../../packages/core/src/jobs/recovery.js';
 import {
   QuotaAdmission,
@@ -1943,6 +1944,29 @@ it.each([
       ).readOwnerPage(detail.canonical!.artifact_id, 0);
       expect(ownerPage.chunks.length).toBeLessThanOrEqual(4);
       expect(ownerPage.next_index).toBeNull();
+      const beforeRead = await env.DB.prepare(
+        'SELECT (SELECT COUNT(*) FROM jobs) jobs,(SELECT COUNT(*) FROM usage_records) usage,(SELECT COUNT(*) FROM change_log) changes',
+      ).first();
+      const evidenceRead = await new EvidenceProjection(env.DB, owner).read(
+        JSON.parse(canonicalCandidate.text).evidence[0].evidence_id,
+        prepared.run_id,
+      );
+      expect(evidenceRead.quote_hash).toBe(await sha256(sourceText));
+      expect(evidenceRead.quote_original).toBe(sourceText);
+      expect(evidenceRead.quote_transport).toBe('INLINE_CANONICAL');
+      expect(evidenceRead.timestamp_precision).toBe('CUE');
+      expect(evidenceRead.helper_available).toBe(false);
+      expect(
+        await env.DB.prepare(
+          'SELECT (SELECT COUNT(*) FROM jobs) jobs,(SELECT COUNT(*) FROM usage_records) usage,(SELECT COUNT(*) FROM change_log) changes',
+        ).first(),
+      ).toEqual(beforeRead);
+      await expect(
+        new EvidenceProjection(env.DB, await fixtureOwner('b')).read(
+          evidenceRead.evidence_id,
+          prepared.run_id,
+        ),
+      ).rejects.toThrow('NOT_FOUND');
       await expect(
         new DailyProjection(env.DB, await fixtureOwner('b')).detail(
           item.item_id,

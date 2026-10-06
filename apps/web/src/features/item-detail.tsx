@@ -6,6 +6,7 @@ import type {
 import type { enrichEconomy } from '../../../../packages/core/src/ai/enrichment/canonical.js';
 import { api, errorMessage } from '../app/api.js';
 import { AppLink, today } from '../app/router.js';
+import { EvidenceChips } from '../components/evidence-drawer.js';
 type Canonical = Awaited<ReturnType<typeof enrichEconomy>>['canonical'];
 const decode = (value: string) =>
   Uint8Array.from(atob(value.replaceAll('-', '+').replaceAll('_', '/')), (c) =>
@@ -208,7 +209,14 @@ export function ItemDetail({ route }: { route: string }) {
                 <h2>Notatki</h2>
                 {canonical.enabled_modules.includes('summary') ? (
                   canonical.summary_pl.map((note, index) => (
-                    <p key={index}>{note.text_pl}</p>
+                    <div key={index}>
+                      <p>{note.text_pl}</p>
+                      <EvidenceChips
+                        ids={note.evidence_ids}
+                        evidence={canonical.evidence}
+                        runId={current.detail.selected_run_id!}
+                      />
+                    </div>
                   ))
                 ) : (
                   <p className="muted">Podsumowanie wyłączono w profilu.</p>
@@ -219,7 +227,14 @@ export function ItemDetail({ route }: { route: string }) {
                 {canonical.enabled_modules.includes('key_points') ? (
                   <ul>
                     {canonical.key_points.map((note, index) => (
-                      <li key={index}>{note.text_pl}</li>
+                      <li key={index}>
+                        {note.text_pl}
+                        <EvidenceChips
+                          ids={note.evidence_ids}
+                          evidence={canonical.evidence}
+                          runId={current.detail.selected_run_id!}
+                        />
+                      </li>
                     ))}
                   </ul>
                 ) : (
@@ -233,6 +248,11 @@ export function ItemDetail({ route }: { route: string }) {
                     <li key={entity.entity_id}>
                       {entity.label}{' '}
                       <span className="metadata">{entity.entity_type}</span>
+                      <EvidenceChips
+                        ids={entity.evidence_ids}
+                        evidence={canonical.evidence}
+                        runId={current.detail.selected_run_id!}
+                      />
                     </li>
                   ))}
                 </ul>
@@ -247,14 +267,21 @@ export function ItemDetail({ route }: { route: string }) {
               <section>
                 <h2>Narzędzia</h2>
                 {canonical.tools.map((tool, index) => (
-                  <p key={index}>
-                    <strong>
-                      {canonical.entities.find(
-                        (entity) => entity.entity_id === tool.entity_ref,
-                      )?.label ?? 'Narzędzie'}
-                    </strong>{' '}
-                    — {tool.context_pl}
-                  </p>
+                  <div key={index}>
+                    <p>
+                      <strong>
+                        {canonical.entities.find(
+                          (entity) => entity.entity_id === tool.entity_ref,
+                        )?.label ?? 'Narzędzie'}
+                      </strong>{' '}
+                      — {tool.context_pl}
+                    </p>
+                    <EvidenceChips
+                      ids={tool.evidence_ids}
+                      evidence={canonical.evidence}
+                      runId={current.detail.selected_run_id!}
+                    />
+                  </div>
                 ))}
                 {!canonical.tools.length && (
                   <p className="muted">
@@ -293,9 +320,11 @@ export function ItemDetail({ route }: { route: string }) {
                         {row.stance_polarity && (
                           <p>Stanowisko: {row.stance_polarity}</p>
                         )}
-                        <p className="metadata">
-                          Odwołania do źródła: {row.evidence_ids.length}
-                        </p>
+                        <EvidenceChips
+                          ids={row.evidence_ids}
+                          evidence={canonical.evidence}
+                          runId={current.detail.selected_run_id!}
+                        />
                       </div>
                     ))
                   )}

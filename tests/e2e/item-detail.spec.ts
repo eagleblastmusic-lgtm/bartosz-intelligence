@@ -7,7 +7,40 @@ test('reading verifies paged canonical bytes, preserves accepted text on failure
     digest = (value: Buffer) =>
       createHash('sha256').update(value).digest('hex');
   let corrupt = false,
-    disabled = false;
+    disabled = false,
+    badLink = false,
+    playerLoads = 0;
+  const original = '<img src=x onerror=alert(1)> Not adopted.',
+    second = 'Still evaluating.\nNo commitment.',
+    sourceHash = digest(Buffer.from(original + ' GAP ' + second));
+  const evidence = [
+    {
+      evidence_id: 'evidence-a',
+      source_artifact_id: 'source',
+      source_hash: sourceHash,
+      segment_ids: ['segment-a'],
+      quote_original: original,
+      quote_pl: null,
+      start_ms: 1234,
+      end_ms: 2500,
+      timestamp_precision: 'CUE',
+      timestamp_url: 'https://www.youtube.com/watch?v=rUhllpnYWR8&t=1s',
+      quote_hash: digest(Buffer.from(original)),
+    },
+    {
+      evidence_id: 'evidence-b',
+      source_artifact_id: 'source',
+      source_hash: sourceHash,
+      segment_ids: ['segment-b'],
+      quote_original: second,
+      quote_pl: null,
+      start_ms: null,
+      end_ms: null,
+      timestamp_precision: 'NONE',
+      timestamp_url: null,
+      quote_hash: digest(Buffer.from(second)),
+    },
+  ];
   const requests: number[] = [];
   const canonical = () => ({
     schema_version: '1.2',
@@ -49,11 +82,22 @@ test('reading verifies paged canonical bytes, preserves accepted text on failure
         qualifiers: ['negacja', 'tylko w projekcie testowym'],
         prediction_horizon: null,
         stance_polarity: null,
-        evidence_ids: ['evidence-a'],
+        evidence_ids: ['evidence-a', 'evidence-b'],
       },
     ],
     stance: [],
     predictions: [],
+    evidence,
+  });
+  await page.route('https://www.youtube-nocookie.com/**', async (route) => {
+    playerLoads++;
+    expect(new URL(route.request().url()).searchParams.has('autoplay')).toBe(
+      false,
+    );
+    await route.fulfill({
+      contentType: 'text/html',
+      body: '<!doctype html><title>Fixture player</title>',
+    });
   });
   await page.route(origin + '/**', async (route) => {
     const local = await fetch(
@@ -70,6 +114,42 @@ test('reading verifies paged canonical bytes, preserves accepted text on failure
     expect(route.request().method()).toBe('GET');
     if (url.pathname.endsWith('/auth/session'))
       return route.fulfill({ json: { authenticated: true } });
+    if (url.pathname.startsWith('/api/v1/evidence/')) {
+      const value = evidence.find((value) =>
+        url.pathname.endsWith('/' + value.evidence_id),
+      )!;
+      const start =
+        value.evidence_id === 'evidence-a' ? 0 : original.length + 5;
+      return route.fulfill({
+        json: {
+          ...value,
+          quote_original:
+            Buffer.byteLength(JSON.stringify(canonical())) > 32768
+              ? null
+              : value.quote_original,
+          run_id: 'run-reading',
+          item_id: 'item-reading',
+          source_start: start,
+          source_end: start + value.quote_original.length,
+          offset_unit: 'UTF16_CODE_UNIT',
+          source_url: badLink
+            ? 'javascript:alert(1)'
+            : 'https://www.youtube.com/watch?v=rUhllpnYWR8',
+          provenance: { provider_id: 'fixture' },
+          helper_available: false,
+          quote_transport:
+            Buffer.byteLength(JSON.stringify(canonical())) > 32768
+              ? 'PAGED_CANONICAL'
+              : 'INLINE_CANONICAL',
+          canonical_reference: {
+            artifact_id: 'canonical',
+            content_hash: digest(Buffer.from(JSON.stringify(canonical()))),
+            first_page:
+              '/api/v1/items/item-reading/canonical?run_id=run-reading&start=0',
+          },
+        },
+      });
+    }
     const bytes = Buffer.from(JSON.stringify(canonical())),
       count = Math.ceil(bytes.length / 32768),
       descriptor = {
@@ -135,6 +215,11 @@ test('reading verifies paged canonical bytes, preserves accepted text on failure
   ).toBeVisible();
   await expect(page.getByText(/^Zaakceptowana notatka/)).toBeVisible();
   expect(requests).toEqual([0, 4]);
+  await page.getByRole('button', { name: 'Źródło 1', exact: true }).click();
+  await expect(
+    page.getByRole('dialog').getByText(original, { exact: true }),
+  ).toBeVisible();
+  await page.getByRole('button', { name: 'Zamknij fragment źródła' }).click();
   await expect(
     page.getByText('Wypowiedź źródła', { exact: true }),
   ).toBeVisible();
@@ -171,6 +256,45 @@ test('reading verifies paged canonical bytes, preserves accepted text on failure
     path: '.local/gui/cp-4.5-reading-mobile.png',
     fullPage: true,
   });
+  const firstChip = page.getByRole('button', { name: 'Źródło 1', exact: true });
+  await firstChip.click();
+  const drawer = page.getByRole('dialog', { name: 'Fragment źródła' });
+  await expect(drawer.getByText(original, { exact: true })).toBeVisible();
+  await expect(
+    drawer.getByText(/Polski helper nie jest dostępny/),
+  ).toBeVisible();
+  await expect(
+    drawer.getByRole('link', { name: 'Otwórz fragment w źródle' }),
+  ).toHaveAttribute('href', evidence[0]!.timestamp_url!);
+  expect(playerLoads).toBe(0);
+  await page.keyboard.press('Shift+Tab');
+  expect(
+    await drawer.evaluate((node) => node.contains(document.activeElement)),
+  ).toBe(true);
+  await drawer.getByRole('button', { name: 'Wczytaj odtwarzacz' }).click();
+  await expect(drawer.locator('iframe')).toHaveCount(1);
+  await drawer.getByRole('button', { name: 'Zamknij fragment źródła' }).focus();
+  await page.keyboard.press('Escape');
+  await expect(drawer).toHaveCount(0);
+  await expect(firstChip).toBeFocused();
+  await page.getByRole('button', { name: 'Źródło 2', exact: true }).click();
+  await expect(drawer.getByText(second, { exact: true })).toBeVisible();
+  await expect(
+    drawer.getByRole('link', { name: 'Otwórz film — czas nieznany' }),
+  ).toHaveAttribute('href', 'https://www.youtube.com/watch?v=rUhllpnYWR8');
+  await expect(
+    drawer.getByText('Czas nieznany', { exact: true }),
+  ).toBeVisible();
+  await page.screenshot({
+    path: '.local/gui/cp-4.6-evidence-mobile.png',
+    fullPage: false,
+  });
+  await drawer.getByRole('button', { name: 'Zamknij fragment źródła' }).click();
+  badLink = true;
+  await firstChip.click();
+  await expect(drawer.getByRole('alert')).toBeVisible();
+  await expect(drawer.locator('a')).toHaveCount(0);
+  await drawer.getByRole('button', { name: 'Zamknij fragment źródła' }).click();
   corrupt = true;
   await page.reload();
   await expect(page.getByRole('alert')).toBeVisible();

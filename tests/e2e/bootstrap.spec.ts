@@ -3,7 +3,13 @@ test('same-origin Assets shell, health, API boundary', async ({
   page,
   request,
 }) => {
-  await page.goto('/');
+  const shell = await page.goto('/');
+  expect(shell!.headers()['content-security-policy']).toContain(
+    "script-src 'self'",
+  );
+  expect(shell!.headers()['content-security-policy']).toContain(
+    "frame-ancestors 'none'",
+  );
   await expect(
     page.getByRole('heading', { name: 'Bartosz Intelligence' }),
   ).toBeVisible();
