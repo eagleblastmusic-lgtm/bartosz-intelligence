@@ -3,6 +3,8 @@ import { QuotaSnapshots } from '../../packages/core/src/ai/quota-snapshots.js';
 import {
   analysisQualityScope,
   compileEconomy,
+  economyPromptOverhead,
+  economyChunkContextHash,
 } from '../../packages/core/src/ai/compiler.js';
 import { AnalysisValidation } from '../../packages/core/src/ai/validation.js';
 import { createExecutionContext } from 'cloudflare:test';
@@ -20,6 +22,7 @@ import {
 import { SourceRepository } from '../../packages/core/src/db/sources.js';
 import { ItemRepository } from '../../packages/core/src/db/items.js';
 import { AccessContext } from '../../packages/core/src/db/boundary.js';
+import type { Database } from '../../packages/core/src/db/boundary.js';
 import { JobStore } from '../../packages/core/src/jobs/store.js';
 import { sha256 } from '../../packages/core/src/auth/crypto.js';
 import {
@@ -50,6 +53,9 @@ import { IntelligenceLedger } from '../../packages/core/src/ai/enrichment/ledger
 import { normalizeTranscript } from '../../packages/core/src/transcript/normalize.js';
 import { RunRepository } from '../../packages/core/src/jobs/acceptance.js';
 import { AnalysisJobs } from '../../packages/core/src/ai/jobs.js';
+import { LongInputJobs } from '../../packages/core/src/ai/long-input/jobs.js';
+import { LongInputCompletion } from '../../packages/core/src/ai/long-input/completion.js';
+import { createChunkPlan } from '../../packages/core/src/ai/long-input/plan.js';
 import { ModelRegistry } from '../../packages/core/src/ai/models.js';
 import { PromptRegistry } from '../../packages/core/src/registry/store.js';
 import bundle from '../../config/registry/master-bundle.json';
@@ -473,6 +479,9 @@ it('local poller consumes durable caption backlog through the real Worker API an
 });
 it.each([
   'QUALITY_TEST',
+  'CHUNKED',
+  'CHUNK_COMPLETE',
+  'CHUNK_PRODUCTION',
   'PRODUCTION',
   'RATE_LIMITED',
   'TEMPORARY_FAILURE',
@@ -481,9 +490,14 @@ it.each([
   'verified source acceptance and %s analysis preserve source authority and fenced knowledge effects',
   async (scenario) => {
     const mode: 'PRODUCTION' | 'QUALITY_TEST' =
-      scenario === 'PRODUCTION' ? 'PRODUCTION' : 'QUALITY_TEST';
+      scenario === 'PRODUCTION' || scenario === 'CHUNK_PRODUCTION'
+        ? 'PRODUCTION'
+        : 'QUALITY_TEST';
     const { item, token, access, repository, owner } = await setup();
-    const sourceText = 'Original statement.',
+    const sourceText =
+        scenario === 'CHUNKED'
+          ? 'Original statement. '.repeat(40).trim()
+          : 'Original statement.',
       revision = await sha256(sourceText);
     const track = {
       track_id: 'native-en',
@@ -530,13 +544,14 @@ it.each([
       text: string,
       original: string | null,
     ) => {
+      const chunks = splitArtifactText(text);
       const artifact = await repository.begin(
         {
           item_id: item.item_id,
           kind,
           content_hash: await sha256(text),
           byte_size: new TextEncoder().encode(text).length,
-          chunk_count: 1,
+          chunk_count: chunks.length,
           schema_version: 'fixture:1',
           producer_version: original
             ? 'source-normalizer:1'
@@ -550,15 +565,19 @@ it.each([
         'FETCH_TRANSCRIPT',
         fixtureNow,
       );
-      await repository.writeChunk(
-        artifact.artifact_id,
-        0,
-        0,
-        new TextEncoder().encode(text),
-        token,
-        'FETCH_TRANSCRIPT',
-        fixtureNow,
-      );
+      let offset = 0;
+      for (const [index, chunk] of chunks.entries()) {
+        await repository.writeChunk(
+          artifact.artifact_id,
+          index,
+          offset,
+          chunk,
+          token,
+          'FETCH_TRANSCRIPT',
+          fixtureNow,
+        );
+        offset += chunk.length;
+      }
       return repository.verifyLocal(
         artifact.artifact_id,
         token,
@@ -581,6 +600,7 @@ it.each([
         },
       ],
       'CUE',
+      scenario === 'CHUNKED' ? 8 : 8192,
     );
     const normalized = await upload(
         'NORMALIZED',
@@ -667,7 +687,21 @@ it.each([
       task_types: ['ECONOMY'],
       runtimes: ['local'],
       structured_output: true,
-      context_tokens: 100000,
+      context_tokens:
+        scenario === 'CHUNKED'
+          ? economyPromptOverhead({
+              prompt: await registry.current(),
+              semantic_context: {
+                title: null,
+                author: null,
+                published_at: null,
+                source_language: 'en',
+              },
+              limits: { claims: 20 },
+            }) +
+            3000 +
+            128
+          : 100000,
       output_tokens: 8000,
       rank: 0,
       quality_approvals: [],
@@ -700,6 +734,17 @@ it.each([
           analysis_mode: 'ORDINARY',
         }),
       ];
+      if (scenario === 'CHUNK_PRODUCTION') {
+        for (const analysis_mode of ['ORDINARY', 'CHUNK'] as const)
+          profile.quality_approvals.push(
+            await analysisQualityScope(await registry.current(), profile, {
+              limits: settings.limits,
+              max_output_tokens: 3000,
+              source_language: selection.source!.language_code,
+              analysis_mode,
+            }),
+          );
+      }
       profile.revision = 2;
       await models.publish(profile, fixtureNow);
     }
@@ -725,6 +770,14 @@ it.each([
     expect(
       (await analysis.enqueue(accepted.run_id, settings, fixtureNow))!.job_id,
     ).toBe(aiJob.job_id);
+    const longParent =
+      scenario === 'QUALITY_TEST' || scenario.startsWith('CHUNK')
+        ? await analysis.enqueue(
+            accepted.run_id,
+            { ...settings, max_output_tokens: 3000 },
+            fixtureNow,
+          )
+        : null;
     await models.publish(
       { ...profile, revision: profile.revision + 1, model: 'different-model' },
       fixtureNow,
@@ -788,6 +841,451 @@ it.each([
         'SELECT count(*) AS n FROM quota_reservations',
       ).first('n'),
     ).toBe(0);
+    if (longParent) {
+      const parentToken = (await aiStore.lease(
+        longParent.job_id,
+        'ANALYZE',
+        fixtureNow,
+        'local',
+      ))!;
+      await aiStore.start(parentToken, 'ANALYZE', fixtureNow);
+      const parent = await workerJobs.load(parentToken, fixtureNow);
+      const snapshot = parent.snapshot;
+      const plan = await createChunkPlan({
+        manifest: sourceNormalized.manifest,
+        manifest_hash: map.content_hash!,
+        context_hash: await economyChunkContextHash({
+          manifest_hash: map.content_hash!,
+          prompt: snapshot.prompt,
+          profile: snapshot.profile,
+          profile_revision: parent.snapshot_hash,
+          max_output_tokens: snapshot.settings.max_output_tokens,
+          limits: snapshot.settings.limits,
+          semantic_context: snapshot.semantic_context!,
+        }),
+        context_tokens: snapshot.profile.context_tokens,
+        output_tokens: snapshot.settings.max_output_tokens,
+        prompt_overhead_tokens: economyPromptOverhead({
+          prompt: snapshot.prompt,
+          limits: snapshot.settings.limits,
+          semantic_context: snapshot.semantic_context!,
+        }),
+      });
+      const partsRepo = new ArtifactRepository(env.DB, aiAccess);
+      const text = JSON.stringify(plan.plan),
+        bytes = splitArtifactText(text);
+      const artifact = await partsRepo.begin(
+        {
+          item_id: item.item_id,
+          kind: 'NORMALIZED',
+          schema_version: 'chunk-plan:1',
+          producer_version: 'chunk-planner:1',
+          original_ref: source.artifact_id,
+          provenance: { parent_job_id: longParent.job_id },
+          content_hash: plan.plan_hash,
+          byte_size: new TextEncoder().encode(text).length,
+          chunk_count: bytes.length,
+        },
+        parentToken,
+        'ANALYZE',
+        fixtureNow,
+      );
+      let offset = 0;
+      for (const [index, data] of bytes.entries()) {
+        await partsRepo.writeChunk(
+          artifact.artifact_id,
+          index,
+          offset,
+          data,
+          parentToken,
+          'ANALYZE',
+          fixtureNow,
+        );
+        offset += data.length;
+      }
+      await partsRepo.verifyLocal(
+        artifact.artifact_id,
+        parentToken,
+        'ANALYZE',
+        fixtureNow,
+        'local',
+      );
+      const batchSizes: number[] = [];
+      const long = new LongInputJobs(
+        {
+          prepare: env.DB.prepare.bind(env.DB),
+          batch: (statements) => {
+            batchSizes.push(statements.length);
+            return (env.DB as Database).batch(statements);
+          },
+        },
+        aiAccess,
+      );
+      await expect(
+        long.create(
+          { ...parentToken, fencing_token: parentToken.fencing_token + 1 },
+          artifact.artifact_id,
+          fixtureNow,
+        ),
+      ).rejects.toThrow('STALE_FENCE');
+      expect(
+        await env.DB.prepare(
+          "SELECT count(*) AS n FROM config_versions WHERE config_id LIKE 'analysis-chunks-%'",
+        ).first('n'),
+      ).toBe(0);
+      let created = await long.create(
+        parentToken,
+        artifact.artifact_id,
+        fixtureNow,
+      );
+      if (scenario === 'CHUNKED') {
+        expect(plan.plan.chunks.length).toBeGreaterThan(8);
+        expect(created).toMatchObject({
+          state: 'RUNNING',
+          children_created: 8,
+          preparation_complete: false,
+        });
+        const partial = await long.status(parentToken.job_id);
+        expect(partial.parts.filter((p) => p.state !== 'MISSING')).toHaveLength(
+          8,
+        );
+        expect(partial.complete).toBe(false);
+        while (!created.preparation_complete)
+          created = await long.create(
+            parentToken,
+            artifact.artifact_id,
+            fixtureNow,
+          );
+        expect(Math.max(...batchSizes)).toBeLessThanOrEqual(19);
+      }
+      expect(created).toMatchObject({
+        state: 'DEFERRED',
+        expected_chunks: plan.plan.chunks.length,
+        preparation_complete: true,
+        children_created: plan.plan.chunks.length,
+        complete: false,
+      });
+      const status = await long.status(parentToken.job_id);
+      expect(status).toMatchObject({
+        complete: false,
+        accepted: false,
+        missing: plan.plan.chunks.map((c) => c.chunk_index),
+      });
+      const childNow = new Date(created.due_at);
+      const childIndex = scenario === 'CHUNKED' ? 1 : 0;
+      const childToken = (await aiStore.lease(
+        status.parts[childIndex]!.job_id!,
+        'ANALYZE',
+        childNow,
+        'local',
+      ))!;
+      await aiStore.start(childToken, 'ANALYZE', childNow);
+      const child = await workerJobs.prepareRun(childToken, childNow);
+      expect(child.snapshot.chunk).toMatchObject({
+        parent_job_id: parentToken.job_id,
+        plan_hash: plan.plan_hash,
+        chunk_index: childIndex,
+        parent_snapshot_hash: parent.snapshot_hash,
+      });
+      expect(child.snapshot.quality_scope).not.toBe(snapshot.quality_scope);
+      const compiledChild = await compileEconomy({
+        source_artifact_id: source.artifact_id,
+        source_text: sourceText,
+        manifest: sourceNormalized.manifest,
+        manifest_hash: map.content_hash!,
+        prompt: child.snapshot.prompt,
+        profile: child.snapshot.profile,
+        profile_revision: child.snapshot_hash,
+        semantic_context: child.snapshot.semantic_context!,
+        runtime: 'local',
+        request_id: child.run_id,
+        deadline: new Date(fixtureNow.getTime() + 300000).toISOString(),
+        mode: child.snapshot.settings.mode,
+        max_output_tokens: child.snapshot.settings.max_output_tokens,
+        limits: child.snapshot.settings.limits,
+        chunk: {
+          plan: plan.plan,
+          plan_hash: plan.plan_hash,
+          chunk_index: childIndex,
+          parent_snapshot_hash: parent.snapshot_hash,
+        },
+      });
+      expect(compiledChild.run_context.generation_settings.analysis_mode).toBe(
+        'CHUNK',
+      );
+      await workerJobs.bindContext(
+        childToken,
+        compiledChild.run_context,
+        compiledChild.context_hash,
+        await sha256(compiledChild.request.prompt),
+        childNow,
+      );
+      await expect(
+        long.create(parentToken, artifact.artifact_id, fixtureNow),
+      ).rejects.toThrow('STALE_FENCE');
+      expect(
+        await env.DB.prepare(
+          'SELECT count(*) AS n FROM quota_reservations',
+        ).first('n'),
+      ).toBe(0);
+      if (scenario.startsWith('CHUNK')) {
+        const daily = dailyQuotaWindow(childNow, 'America/Los_Angeles');
+        for (const bucket of ['RPM', 'RPD', 'INPUT_TPM'] as const) {
+          const available = bucket === 'INPUT_TPM' ? 50000 : 5;
+          await env.DB.prepare(
+            'INSERT INTO quota_snapshots VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)',
+          )
+            .bind(
+              'chunk-' + bucket,
+              'a',
+              'gemini',
+              profile.model,
+              bucket,
+              'tokens-or-requests',
+              available,
+              0,
+              available,
+              bucket === 'RPD'
+                ? daily.reset_at
+                : new Date(childNow.getTime() + 60000).toISOString(),
+              'America/Los_Angeles',
+              'dashboard',
+              childNow.toISOString(),
+              new Date(childNow.getTime() + 60000).toISOString(),
+              'actual',
+            )
+            .run();
+        }
+        const policy = JSON.stringify({ RPM: 1, RPD: 1, INPUT_TPM: 100 });
+        await env.DB.prepare('INSERT INTO config_versions VALUES(?,?,?,?,?,?)')
+          .bind(
+            'quota-reserve-gemini_free',
+            'a',
+            1,
+            policy,
+            await sha256(policy),
+            childNow.toISOString(),
+          )
+          .run();
+        const permit = await workerJobs.reserve(
+          childToken,
+          {
+            request_id: child.run_id,
+            input_tokens: compiledChild.request.estimated_input_tokens,
+          },
+          childNow,
+        );
+        await workerJobs.submit(
+          childToken,
+          permit.reservation_id,
+          await sha256(compiledChild.request.prompt),
+          childNow,
+        );
+        const raw = JSON.stringify({
+          summary_pl: [{ text_pl: 'Sekcja źródła.', segment_refs: ['s1'] }],
+          key_points: [],
+          entity_mentions: [],
+          tools: [],
+          claims: [
+            {
+              text_pl: 'Wypowiedź źródłowa.',
+              segment_refs: ['s1'],
+              entity_refs: [],
+              subject_ref: null,
+              attribution: 'SOURCE_SPEAKER',
+              qualifiers: [],
+            },
+          ],
+          stance: [],
+          predictions: [],
+          source_issues: [],
+        });
+        const responseArtifact = await partsRepo.begin(
+          {
+            item_id: item.item_id,
+            kind: 'ANALYSIS_CANDIDATE',
+            schema_version: 'provider-output:1',
+            producer_version: 'gemini-response:1:' + permit.reservation_id,
+            original_ref: null,
+            provenance: {
+              reservation_id: permit.reservation_id,
+              raw_output_present: true,
+              response: {
+                request_id: child.run_id,
+                status: 'OK',
+                actual_provider: 'gemini',
+                actual_model: profile.model,
+                finish_reason: 'completed',
+                usage: {
+                  input_tokens: compiledChild.request.estimated_input_tokens,
+                  output_tokens: 50,
+                  total_tokens:
+                    compiledChild.request.estimated_input_tokens + 50,
+                },
+                retry_after: null,
+              },
+            },
+            content_hash: await sha256(raw),
+            byte_size: new TextEncoder().encode(raw).length,
+            chunk_count: 1,
+          },
+          childToken,
+          'ANALYZE',
+          childNow,
+        );
+        await partsRepo.writeChunk(
+          responseArtifact.artifact_id,
+          0,
+          0,
+          new TextEncoder().encode(raw),
+          childToken,
+          'ANALYZE',
+          childNow,
+        );
+        await partsRepo.verifyLocal(
+          responseArtifact.artifact_id,
+          childToken,
+          'ANALYZE',
+          childNow,
+          'local',
+        );
+        const validator = new AnalysisValidation(env.DB, aiAccess);
+        const result = await validator.evaluate(
+          childToken,
+          permit.reservation_id,
+          responseArtifact.artifact_id,
+          childNow,
+          fixtureSecret,
+        );
+        expect(result).toMatchObject({
+          status: 'VALIDATED',
+          accepted: false,
+          chunk: { plan_hash: plan.plan_hash, chunk_index: childIndex },
+        });
+        const canonical = JSON.parse(
+          (
+            await partsRepo.readVerifiedText(
+              result.canonical_artifact_id!,
+              2 * 1024 * 1024,
+              childToken,
+              'ANALYZE',
+              childNow,
+            )
+          ).text,
+        );
+        const assignedId = plan.plan.chunks[childIndex]!.aliases[0]!.segment_id;
+        const assigned = sourceNormalized.manifest.anchors.find(
+          (a) => a.segment_id === assignedId,
+        )!;
+        expect(canonical.evidence[0]).toMatchObject({
+          segment_ids: [assignedId],
+          quote_original: sourceText.slice(
+            assigned.source_start,
+            assigned.source_end,
+          ),
+        });
+        await expect(
+          validator.finishQualityTest(
+            childToken,
+            permit.reservation_id,
+            responseArtifact.artifact_id,
+            childNow,
+            fixtureSecret,
+          ),
+        ).rejects.toThrow('QUALITY_TEST_NOT_FINISHABLE');
+        if (scenario === 'CHUNK_PRODUCTION')
+          await expect(
+            validator.complete(
+              childToken,
+              permit.reservation_id,
+              responseArtifact.artifact_id,
+              childNow,
+              fixtureSecret,
+            ),
+          ).rejects.toThrow('CHUNK_NOT_ACCEPTABLE');
+        await validator.finishChunk(
+          childToken,
+          permit.reservation_id,
+          responseArtifact.artifact_id,
+          childNow,
+          fixtureSecret,
+        );
+        await validator.finishChunk(
+          childToken,
+          permit.reservation_id,
+          responseArtifact.artifact_id,
+          childNow,
+          fixtureSecret,
+        );
+        const current = await long.status(parentToken.job_id);
+        expect(current.complete).toBe(scenario !== 'CHUNKED');
+        expect(current.missing).not.toContain(childIndex);
+        expect(current.parts[childIndex]!.completed).toBe(true);
+        expect(
+          await env.DB.prepare('SELECT count(*) AS n FROM observations').first(
+            'n',
+          ),
+        ).toBe(0);
+        expect(
+          await env.DB.prepare(
+            "SELECT count(*) AS n FROM analysis_runs WHERE state='ACCEPTED' AND job_id IN (SELECT job_id FROM jobs WHERE task_type='ANALYZE')",
+          ).first('n'),
+        ).toBe(0);
+        const parentNow = new Date(childNow.getTime() + 60000);
+        await sweep(env.DB, parentNow, () => true);
+        const resumeToken = (await aiStore.lease(
+          parentToken.job_id,
+          'ANALYZE',
+          parentNow,
+          'local',
+        ))!;
+        await aiStore.start(resumeToken, 'ANALYZE', parentNow);
+        const merger = new LongInputCompletion(env.DB, aiAccess);
+        await expect(
+          merger.complete(
+            { ...resumeToken, fencing_token: resumeToken.fencing_token + 1 },
+            parentNow,
+            fixtureSecret,
+          ),
+        ).rejects.toThrow('STALE_FENCE');
+        if (scenario === 'CHUNK_PRODUCTION') {
+          const pending = await workerJobs.prepareRun(resumeToken, parentNow);
+          await new RunRepository(env.DB, owner).requestSelection(
+            pending.run_id,
+            item.item_id,
+          );
+        }
+        const merged = await merger.complete(
+          resumeToken,
+          parentNow,
+          fixtureSecret,
+        );
+        expect(merged).toMatchObject({
+          accepted: scenario === 'CHUNK_PRODUCTION',
+          state: scenario === 'CHUNKED' ? 'DEFERRED' : 'SUCCEEDED',
+        });
+        if (scenario !== 'CHUNKED') {
+          const replay = await merger.complete(
+            resumeToken,
+            parentNow,
+            fixtureSecret,
+          );
+          expect(replay).toMatchObject({
+            accepted: scenario === 'CHUNK_PRODUCTION',
+            duplicate: true,
+            state: 'SUCCEEDED',
+          });
+          expect(
+            await env.DB.prepare(
+              'SELECT count(*) AS n FROM observations',
+            ).first('n'),
+          ).toBe(scenario === 'CHUNK_PRODUCTION' ? 1 : 0);
+        }
+        return;
+      }
+    }
+    if (scenario.startsWith('CHUNK'))
+      throw new Error('CHUNK_FIXTURE_PARENT_REQUIRED');
     await expect(
       workerJobs.reserve(
         aiToken,
@@ -1066,7 +1564,7 @@ it.each([
         item_id: item.item_id,
         response: {
           request_id: prepared.run_id,
-          status: scenario,
+          status: scenario as 'RATE_LIMITED' | 'TEMPORARY_FAILURE' | 'REFUSED',
           raw_output: null,
           actual_provider: 'gemini',
           actual_model: null,
@@ -1522,6 +2020,46 @@ it('artifact RPC/client resumes interrupted upload, verifies bounded chunks and 
     artifact,
     text,
   });
+  const scoped = new ArtifactRepository(
+    env.DB,
+    await AccessContext.worker(env.DB, await sha256(credential)),
+  );
+  expect(
+    await scoped.readVerifiedText(
+      artifact.artifact_id,
+      32 * 1024 * 1024,
+      token,
+      'FETCH_TRANSCRIPT',
+      new Date(),
+    ),
+  ).toEqual({ artifact, text });
+  await expect(
+    scoped.readVerifiedText(
+      artifact.artifact_id,
+      10,
+      token,
+      'FETCH_TRANSCRIPT',
+      new Date(),
+    ),
+  ).rejects.toThrow('VERIFIED_ARTIFACT_REQUIRED');
+  await expect(
+    scoped.readVerifiedText(
+      artifact.artifact_id,
+      0,
+      token,
+      'FETCH_TRANSCRIPT',
+      new Date(),
+    ),
+  ).rejects.toThrow('INVALID_ARTIFACT_READ_LIMIT');
+  await expect(
+    scoped.readVerifiedText(
+      artifact.artifact_id,
+      32 * 1024 * 1024,
+      { ...token, fencing_token: token.fencing_token + 1 },
+      'FETCH_TRANSCRIPT',
+      new Date(),
+    ),
+  ).rejects.toThrow('NOT_FOUND');
   expect((await client.upload(text, descriptor)).artifact_id).toBe(
     artifact.artifact_id,
   );

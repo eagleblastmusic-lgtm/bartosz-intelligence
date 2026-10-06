@@ -1,0 +1,30 @@
+{
+  "version": "stage03-live-attempt:1",
+  "recorded_at": "2026-10-06T12:29:00Z",
+  "deployment_version": "3b8c36c8-ff26-4972-90ae-cc168c112043",
+  "source_run_id": "transcript_39cfb0e1bcf555ab6cc5131d4908549af2713325a58858663832dddf0d55599a",
+  "job_id": "bff08262-0f44-4974-8ce2-5e622e051423",
+  "analysis_run_id": "analysis_2705f5a4677df1710d57216eb8ec132e95117cc2c80a4973f797f6572b03c376",
+  "attempt": 4,
+  "generation_submissions": 1,
+  "provider_status": "TEMPORARY_FAILURE",
+  "finish_reason": "HTTP_503:service_unavailable",
+  "raw_output_present": false,
+  "raw_byte_size": 0,
+  "raw_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "quota_reservation_state": "UNKNOWN",
+  "reservation_created_at": "2026-10-06T12:05:42.360Z",
+  "reservation_settled_at": "2026-10-06T12:05:46.737Z",
+  "quota_observation": "quota-fourth-2026-10-06.json",
+  "automatic_hidden_retries": 0,
+  "accepted_effects": 0,
+  "quality_result": "NOT_ASSESSED",
+  "human_pilot": "NOT_CLAIMED",
+  "paid_services_enabled": false,
+  "secret_values_recorded": false,
+  "cpu": {
+    "coverage": "NOT_OBSERVED: tail stopped receiving after deployment; no complete-path CPU qualification",
+    "result": "NOT_ASSESSED"
+  },
+  "recovery": "Four submissions do not exhaust the configured retry budget. Any later attempt requires its due time, a fresh actual quota observation and a valid immutable profile. The original profile eligibility expired at 2026-10-06T12:07:13Z; no automatic mutation or paid fallback."
+}

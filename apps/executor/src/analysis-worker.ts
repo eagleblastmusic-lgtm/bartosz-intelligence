@@ -4,6 +4,10 @@ import type {
 } from '../../../packages/contracts/src/jobs.js';
 import { WorkerRpc, WorkerRpcError } from './worker-rpc.js';
 import { executeLocalAnalysis } from './analysis-transport.js';
+import {
+  prepareLongAnalysis,
+  resumeChunkPreparation,
+} from './analysis-chunks.js';
 
 export class LocalAnalysisWorker {
   private rpc: WorkerRpc;
@@ -58,6 +62,35 @@ export class LocalAnalysisWorker {
           : (disposition?.state ?? 'DIAGNOSTIC_ONLY'),
       };
     } catch (error) {
+      if (error instanceof Error && error.message === 'CHUNKS_WAITING') {
+        const merged = (await this.rpc.request('analysis/chunks/complete', {
+          token: leased.token,
+        })) as {
+          accepted: boolean;
+          state: string;
+          preparation_required?: boolean;
+          plan_artifact_id?: string;
+          plan_hash?: string;
+        };
+        if (merged.preparation_required) {
+          if (!merged.plan_artifact_id || !merged.plan_hash)
+            throw new Error('CHUNK_PLAN_MISMATCH');
+          return resumeChunkPreparation(
+            this.rpc,
+            leased.token,
+            merged.plan_artifact_id,
+            merged.plan_hash,
+          );
+        }
+        return { accepted: merged.accepted, idle: false, state: merged.state };
+      }
+      if (error instanceof Error && error.message === 'LONG_INPUT_REQUIRED')
+        return prepareLongAnalysis({
+          origin: this.origin,
+          credential: this.credential,
+          token: leased.token,
+          transport: this.transport,
+        });
       // Missing/stale quota never reaches provider HTTP. Durable deferral allows
       // a later fresh owner observation to resume admission without a tight loop.
       if (

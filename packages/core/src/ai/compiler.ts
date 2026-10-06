@@ -6,6 +6,26 @@ import type { AIRequest, PipelineProfile } from '../../../contracts/src/ai.js';
 import { verifyChunkPlan, type ChunkPlan } from './long-input/plan.js';
 import { validator_schema_hashes } from '../registry/generated/validators.js';
 type Manifest = Awaited<ReturnType<typeof normalizeTranscript>>['manifest'];
+export function economyPromptOverhead(input: {
+  prompt: PromptSnapshot;
+  semantic_context: {
+    title: string | null;
+    author: string | null;
+    published_at: string | null;
+    source_language: string;
+  };
+  limits: Record<string, number>;
+}) {
+  return new TextEncoder().encode(
+    renderPrompt(input.prompt.text, {
+      wire_schema_json: JSON.stringify(input.prompt.wire.schema),
+      semantic_context_json: JSON.stringify(input.semantic_context),
+      limits_json: JSON.stringify(input.limits),
+      source_segments_with_aliases_json: '[]',
+      helper_segments_json_or_null: 'null',
+    }),
+  ).length;
+}
 export async function analysisQualityScope(
   prompt: PromptSnapshot,
   profile: PipelineProfile,
@@ -56,7 +76,12 @@ export async function compileEconomy(input: {
   mode: 'PRODUCTION' | 'QUALITY_TEST';
   max_output_tokens: number;
   limits: Record<string, number>;
-  chunk?: { plan: ChunkPlan; plan_hash: string; chunk_index: number };
+  chunk?: {
+    plan: ChunkPlan;
+    plan_hash: string;
+    chunk_index: number;
+    parent_snapshot_hash?: string;
+  };
 }) {
   if (
     !Number.isSafeInteger(input.max_output_tokens) ||
@@ -133,7 +158,12 @@ export async function compileEconomy(input: {
     const part = chunk.plan.chunks[chunk.chunk_index];
     if (
       !part ||
-      chunk.plan.context_hash !== (await economyChunkContextHash(input)) ||
+      chunk.plan.context_hash !==
+        (await economyChunkContextHash({
+          ...input,
+          profile_revision:
+            chunk.parent_snapshot_hash ?? input.profile_revision,
+        })) ||
       chunk.plan.output_tokens !== input.max_output_tokens ||
       chunk.plan.context_tokens !== input.profile.context_tokens
     )

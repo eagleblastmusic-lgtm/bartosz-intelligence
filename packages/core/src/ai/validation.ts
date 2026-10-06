@@ -4,7 +4,7 @@ import {
   type Database,
 } from '../db/boundary.js';
 import { ArtifactRepository } from '../artifacts/store.js';
-import { decode64, sha256 } from '../auth/crypto.js';
+import { sha256 } from '../auth/crypto.js';
 import { leasePredicate } from '../jobs/lease-guard.js';
 import type { LeaseToken } from '../../../contracts/src/jobs.js';
 import { AnalysisJobs } from './jobs.js';
@@ -15,6 +15,9 @@ import { enrichEconomy } from './enrichment/canonical.js';
 import { validateEconomyCandidate } from './repair/validate.js';
 import type { normalizeTranscript } from '../transcript/normalize.js';
 import { validator_schema_hashes } from '../registry/generated/validators.js';
+import { mergeChunkOutputs } from './long-input/merge.js';
+import type { ChunkPlan } from './long-input/plan.js';
+import { finalizeCandidateRun } from './candidate-finalization.js';
 export interface AnalysisValidationResult {
   version: 'analysis-validation:1';
   run_id: string;
@@ -27,6 +30,7 @@ export interface AnalysisValidationResult {
   canonical_hash: string | null;
   semantic_verification: 'NOT_ASSERTED';
   accepted: false;
+  chunk: { plan_hash: string; chunk_index: number } | null;
 }
 
 export class AnalysisValidation {
@@ -111,17 +115,55 @@ export class AnalysisValidation {
     now: Date,
     secret: string,
   ) {
+    return this.finishCandidate(
+      token,
+      reservationId,
+      candidateId,
+      now,
+      secret,
+      'QUALITY_TEST_COMPLETE',
+    );
+  }
+  async finishChunk(
+    token: LeaseToken,
+    reservationId: string,
+    candidateId: string,
+    now: Date,
+    secret: string,
+  ) {
+    return this.finishCandidate(
+      token,
+      reservationId,
+      candidateId,
+      now,
+      secret,
+      'CHUNK_CANDIDATE_COMPLETE',
+    );
+  }
+  private async finishCandidate(
+    token: LeaseToken,
+    reservationId: string,
+    candidateId: string,
+    now: Date,
+    secret: string,
+    reason: 'QUALITY_TEST_COMPLETE' | 'CHUNK_CANDIDATE_COMPLETE',
+  ) {
+    const version =
+      reason === 'QUALITY_TEST_COMPLETE'
+        ? 'quality-candidate:1'
+        : 'chunk-candidate:1';
     const started = Date.now();
     this.context.requireTask('ANALYZE');
     if (token.lease_owner !== this.context.actorId)
       throw new Error('STALE_FENCE');
     const prior = await this.db
       .prepare(
-        "SELECT r.run_id,r.outcome_json,r.candidate_hash FROM analysis_runs r JOIN jobs j ON j.owner_id=r.owner_id AND j.job_id=r.job_id JOIN job_attempts a ON a.owner_id=j.owner_id AND a.job_id=j.job_id JOIN worker_identities w ON w.owner_id=a.owner_id AND w.worker_id=a.executor_id WHERE r.owner_id=? AND j.job_id=? AND j.task_type='ANALYZE' AND j.state='SUCCEEDED' AND j.reason_code='QUALITY_TEST_COMPLETE' AND r.state='CANDIDATE' AND a.fencing_token=? AND w.worker_id=? AND w.credential_hash=? AND w.revoked_at IS NULL AND a.candidate_hash=r.candidate_hash",
+        "SELECT r.run_id,r.outcome_json,r.candidate_hash FROM analysis_runs r JOIN jobs j ON j.owner_id=r.owner_id AND j.job_id=r.job_id JOIN job_attempts a ON a.owner_id=j.owner_id AND a.job_id=j.job_id JOIN worker_identities w ON w.owner_id=a.owner_id AND w.worker_id=a.executor_id WHERE r.owner_id=? AND j.job_id=? AND j.task_type='ANALYZE' AND j.state='SUCCEEDED' AND j.reason_code=? AND r.state='CANDIDATE' AND a.fencing_token=? AND w.worker_id=? AND w.credential_hash=? AND w.revoked_at IS NULL AND a.candidate_hash=r.candidate_hash",
       )
       .bind(
         this.context.ownerId,
         token.job_id,
+        reason,
         token.fencing_token,
         this.context.actorId,
         this.context.credentialHash!,
@@ -139,7 +181,7 @@ export class AnalysisValidation {
       };
       if (
         (await sha256(prior.outcome_json)) !== prior.candidate_hash ||
-        outcome.version !== 'quality-candidate:1' ||
+        outcome.version !== version ||
         outcome.reservation_id !== reservationId ||
         outcome.validation.response_artifact_id !== candidateId ||
         outcome.validation.accepted !== false
@@ -159,79 +201,27 @@ export class AnalysisValidation {
       now,
       secret,
     );
-    if (validation.mode !== 'QUALITY_TEST' || validation.status !== 'VALIDATED')
+    if (
+      validation.status !== 'VALIDATED' ||
+      (reason === 'CHUNK_CANDIDATE_COMPLETE'
+        ? !validation.chunk
+        : validation.mode !== 'QUALITY_TEST' || !!validation.chunk)
+    )
       throw new Error('QUALITY_TEST_NOT_FINISHABLE');
     now = new Date(now.getTime() + Date.now() - started);
-    const guard = leasePredicate(
+    return finalizeCandidateRun(
+      this.db,
       this.context,
       token,
-      now.toISOString(),
-      'ANALYZE',
+      validation.run_id,
+      {
+        version,
+        validation,
+        reservation_id: reservationId,
+      },
+      reason,
+      now,
     );
-    const outcome = JSON.stringify({
-      version: 'quality-candidate:1',
-      validation,
-      reservation_id: reservationId,
-    });
-    const hash = await sha256(outcome),
-      nonce = crypto.randomUUID();
-    const active = `${guard.predicate} AND EXISTS(SELECT 1 FROM job_attempts WHERE owner_id=? AND job_id=? AND fencing_token=? AND commit_nonce=?)`;
-    const bindings = [
-      ...guard.bindings,
-      this.context.ownerId,
-      token.job_id,
-      token.fencing_token,
-      nonce,
-    ];
-    const result = await this.db.batch([
-      this.db
-        .prepare(
-          `UPDATE job_attempts SET commit_nonce=?,candidate_hash=?,finished_at=? WHERE owner_id=? AND job_id=? AND fencing_token=? AND commit_nonce IS NULL AND ${guard.predicate} AND EXISTS(SELECT 1 FROM analysis_runs WHERE owner_id=? AND run_id=? AND job_id=? AND state='CANDIDATE' AND candidate_hash IS NULL)`,
-        )
-        .bind(
-          nonce,
-          hash,
-          now.toISOString(),
-          this.context.ownerId,
-          token.job_id,
-          token.fencing_token,
-          ...guard.bindings,
-          this.context.ownerId,
-          validation.run_id,
-          token.job_id,
-        ),
-      this.db
-        .prepare(
-          `UPDATE analysis_runs SET candidate_hash=?,outcome_json=?,validation_outcome='DETERMINISTIC_CORE_CANDIDATE' WHERE owner_id=? AND job_id=? AND run_id=? AND state='CANDIDATE' AND ${active}`,
-        )
-        .bind(
-          hash,
-          outcome,
-          this.context.ownerId,
-          token.job_id,
-          validation.run_id,
-          ...bindings,
-        ),
-      this.db
-        .prepare(
-          `UPDATE jobs SET state='SUCCEEDED',reason_code='QUALITY_TEST_COMPLETE',result_candidate_id=?,updated_at=?,lease_owner=NULL,lease_until=NULL WHERE owner_id=? AND job_id=? AND state='RUNNING' AND ${active}`,
-        )
-        .bind(
-          validation.run_id,
-          now.toISOString(),
-          this.context.ownerId,
-          token.job_id,
-          ...bindings,
-        ),
-    ]);
-    if (result.some((row) => row.meta.changes !== 1))
-      throw new Error('STALE_FENCE');
-    return {
-      accepted: false,
-      run_id: validation.run_id,
-      state: 'SUCCEEDED',
-      candidate_status: 'VALIDATED',
-    };
   }
   private async process(
     token: LeaseToken,
@@ -251,6 +241,7 @@ export class AnalysisValidation {
       snapshot = prepared.snapshot;
     if (commit && snapshot.settings.mode !== 'PRODUCTION')
       throw new Error('QUALITY_TEST_NOT_ACCEPTABLE');
+    if (commit && snapshot.chunk) throw new Error('CHUNK_NOT_ACCEPTABLE');
     if (
       snapshot.prompt.wire.hash !==
         validator_schema_hashes['urn:bartosz:schema:economy-wire:1.0'] ||
@@ -342,28 +333,8 @@ export class AnalysisValidation {
         header.byte_size > max
       )
         throw new Error('INVALID_AI_VALIDATION_ARTIFACT');
-      const data = new Uint8Array(header.byte_size);
-      let offset = 0;
-      for (let i = 0; i < header.chunk_count; i++) {
-        const chunk = await repo.chunk(id, i, token, 'ANALYZE', current()),
-          bytes = chunk.body_base64
-            ? decode64(chunk.body_base64)
-            : new Uint8Array();
-        if (chunk.byte_start !== offset || offset + bytes.length > data.length)
-          throw new Error('ARTIFACT_RANGE_MISMATCH');
-        data.set(bytes, offset);
-        offset += bytes.length;
-      }
-      const text = new TextDecoder('utf-8', {
-        fatal: true,
-        ignoreBOM: true,
-      }).decode(data);
-      if (
-        offset !== data.length ||
-        (await sha256(text)) !== header.content_hash
-      )
-        throw new Error('ARTIFACT_CONTENT_HASH_MISMATCH');
-      return text;
+      return (await repo.readVerifiedText(id, max, token, 'ANALYZE', current()))
+        .text;
     };
     const raw = await read(candidateId, 'ANALYSIS_CANDIDATE', 2 * 1024 * 1024);
     let reason: string | null = null;
@@ -385,9 +356,35 @@ export class AnalysisValidation {
       ) as Awaited<ReturnType<typeof normalizeTranscript>>['manifest'];
       let checked: Awaited<ReturnType<typeof validateEconomyCandidate>> | null =
         null;
+      let globalRaw = raw;
       try {
+        if (snapshot.chunk) {
+          const stored = await repo.readVerifiedText(
+            snapshot.chunk.plan_artifact_id,
+            32 * 1024 * 1024,
+            token,
+            'ANALYZE',
+            current(),
+          );
+          if (stored.artifact.content_hash !== snapshot.chunk.plan_hash)
+            throw new Error('CHUNK_PLAN_MISMATCH');
+          const merged = await mergeChunkOutputs({
+            plan: JSON.parse(stored.text) as ChunkPlan,
+            plan_hash: snapshot.chunk.plan_hash,
+            manifest,
+            manifest_hash: snapshot.source.manifest_hash,
+            outputs: [
+              {
+                chunk_index: snapshot.chunk.chunk_index,
+                raw,
+                completion: 'OK',
+              },
+            ],
+          });
+          globalRaw = JSON.stringify(merged.wire);
+        }
         checked = await validateEconomyCandidate(
-          raw,
+          globalRaw,
           'OK',
           new Set(manifest.anchors.map((a) => a.alias)),
         );
@@ -420,7 +417,7 @@ export class AnalysisValidation {
           .bind(this.context.ownerId, snapshot.source.item_id)
           .first<{ canonical_url: string }>();
         enriched = await enrichEconomy({
-          raw,
+          raw: globalRaw,
           completion: 'OK',
           run_id: prepared.run_id,
           item_id: snapshot.source.item_id,
@@ -513,6 +510,12 @@ export class AnalysisValidation {
       canonical_hash: enriched?.canonical_hash ?? null,
       semantic_verification: 'NOT_ASSERTED',
       accepted: false,
+      chunk: snapshot.chunk
+        ? {
+            plan_hash: snapshot.chunk.plan_hash,
+            chunk_index: snapshot.chunk.chunk_index,
+          }
+        : null,
     };
     const payload = JSON.stringify(result),
       hash = await sha256(payload),

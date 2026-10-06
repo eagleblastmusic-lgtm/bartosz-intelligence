@@ -258,6 +258,48 @@ export class ArtifactRepository {
     if (!result) throw new Error('NOT_FOUND');
     return result;
   }
+  async readVerifiedText(
+    id: string,
+    maximumBytes: number,
+    token?: LeaseToken,
+    task?: TaskType,
+    now = new Date(),
+  ) {
+    if (
+      !Number.isSafeInteger(maximumBytes) ||
+      maximumBytes < 1 ||
+      maximumBytes > 32 * 1024 * 1024
+    )
+      throw new Error('INVALID_ARTIFACT_READ_LIMIT');
+    const started = Date.now(),
+      current = () => new Date(now.getTime() + Date.now() - started);
+    const artifact = await this.get(id, token, task, current());
+    if (artifact.state !== 'VERIFIED' || artifact.byte_size > maximumBytes)
+      throw new Error('VERIFIED_ARTIFACT_REQUIRED');
+    const bytes = new Uint8Array(artifact.byte_size);
+    let offset = 0;
+    for (let index = 0; index < artifact.chunk_count; index++) {
+      const chunk = await this.chunk(id, index, token, task, current());
+      const part = chunk.body_base64
+        ? decode64(chunk.body_base64)
+        : new Uint8Array();
+      if (chunk.byte_start !== offset || offset + part.length > bytes.length)
+        throw new Error('ARTIFACT_CHUNK_ORDER_INVALID');
+      bytes.set(part, offset);
+      offset += part.length;
+    }
+    if (
+      offset !== artifact.byte_size ||
+      (await nativeHashBytes(bytes)) !== artifact.content_hash
+    )
+      throw new Error('ARTIFACT_CONTENT_HASH_MISMATCH');
+    return {
+      artifact,
+      text: new TextDecoder('utf-8', { fatal: true, ignoreBOM: true }).decode(
+        bytes,
+      ),
+    };
+  }
   async writeChunk(
     id: string,
     index: number,

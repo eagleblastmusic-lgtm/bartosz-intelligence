@@ -19,6 +19,8 @@ type CompiledContext = Awaited<
 >['run_context'];
 import type { PipelineProfile } from '../../../contracts/src/ai.js';
 import type { LeaseToken } from '../../../contracts/src/jobs.js';
+import { ArtifactRepository } from '../artifacts/store.js';
+import type { ChunkPlan } from './long-input/plan.js';
 
 export interface AnalysisSettings {
   runtime: 'local' | 'cloud';
@@ -45,6 +47,13 @@ export interface AnalysisJobSnapshot {
   settings: AnalysisSettings;
   quality_scope: string;
   semantic_context?: CompiledContext['semantic_context'];
+  chunk?: {
+    parent_job_id: string;
+    parent_snapshot_hash: string;
+    plan_artifact_id: string;
+    plan_hash: string;
+    chunk_index: number;
+  };
 }
 
 // The durable job captures registry snapshots before any provider request. Workers
@@ -248,6 +257,31 @@ export class AnalysisJobs {
       !/^[a-f0-9]{64}$/.test(promptHash)
     )
       throw new Error('INVALID_AI_CONTEXT');
+    let chunk: CompiledContext['chunk'] = null;
+    if (snapshot.chunk) {
+      const stored = await new ArtifactRepository(
+        this.db,
+        this.context,
+      ).readVerifiedText(
+        snapshot.chunk.plan_artifact_id,
+        32 * 1024 * 1024,
+        token,
+        'ANALYZE',
+        now,
+      );
+      if (stored.artifact.content_hash !== snapshot.chunk.plan_hash)
+        throw new Error('CHUNK_PLAN_MISMATCH');
+      const part = (JSON.parse(stored.text) as ChunkPlan).chunks[
+        snapshot.chunk.chunk_index
+      ];
+      if (!part) throw new Error('CHUNK_PLAN_MISMATCH');
+      chunk = {
+        plan_hash: snapshot.chunk.plan_hash,
+        chunk_index: snapshot.chunk.chunk_index,
+        assigned_aliases: part.aliases,
+        primary_segment_ids: part.primary_segment_ids,
+      };
+    }
     const expected: CompiledContext = {
       semantic_context: snapshot.semantic_context ?? {
         title: null,
@@ -256,7 +290,7 @@ export class AnalysisJobs {
         source_language: snapshot.source.language_code,
       },
       source_artifact_id: snapshot.source.source_artifact_id,
-      chunk: null,
+      chunk,
       source_revision: snapshot.source.source_hash,
       source_manifest_hash: snapshot.source.manifest_hash,
       source_text_version: 'decoded-cue-text:1',
@@ -273,7 +307,7 @@ export class AnalysisJobs {
         limits: snapshot.settings.limits,
         max_output_tokens: snapshot.settings.max_output_tokens,
         source_language: snapshot.source.language_code,
-        analysis_mode: 'ORDINARY',
+        analysis_mode: snapshot.chunk ? 'CHUNK' : 'ORDINARY',
         thinking_level: 'low',
       },
       request_id: prepared.run_id,
@@ -591,16 +625,22 @@ export class AnalysisJobs {
         ),
       this.db
         .prepare(
-          `SELECT (r.input_snapshot_json=json_extract(q.payload_json,'$.snapshot.source') AND r.profile_snapshot_json=json_extract(q.payload_json,'$.snapshot.profile') AND r.prompt_snapshot_json=json_extract(q.payload_json,'$.snapshot.prompt')) AS matches FROM analysis_runs r JOIN jobs q ON q.owner_id=r.owner_id AND q.job_id=r.job_id WHERE r.owner_id=? AND r.job_id=? AND r.run_id=? AND ${guard.predicate}`,
+          `SELECT (r.input_snapshot_json=json_extract(q.payload_json,'$.snapshot.source') AND r.profile_snapshot_json=json_extract(q.payload_json,'$.snapshot.profile') AND r.prompt_snapshot_json=json_extract(q.payload_json,'$.snapshot.prompt')) AS matches, EXISTS(SELECT 1 FROM config_versions c WHERE c.owner_id=q.owner_id AND c.config_id='analysis-chunks-'||q.job_id AND c.revision=1) AS chunks_ready FROM analysis_runs r JOIN jobs q ON q.owner_id=r.owner_id AND q.job_id=r.job_id WHERE r.owner_id=? AND r.job_id=? AND r.run_id=? AND ${guard.predicate}`,
         )
         .bind(this.context.ownerId, token.job_id, runId, ...guard.bindings),
     ]);
     const run = results[1]?.results?.[0] as
       | {
           matches: number;
+          chunks_ready: number;
         }
       | undefined;
     if (run?.matches !== 1) throw new Error('ANALYSIS_RUN_SNAPSHOT_MISMATCH');
-    return { run_id: runId, snapshot, snapshot_hash };
+    return {
+      run_id: runId,
+      snapshot,
+      snapshot_hash,
+      chunk_plan_available: run?.chunks_ready === 1,
+    };
   }
 }

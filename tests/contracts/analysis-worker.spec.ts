@@ -1,5 +1,6 @@
 import { expect, it } from 'vitest';
 import { LocalAnalysisWorker } from '../../apps/executor/src/analysis-worker.js';
+import { resumeChunkPreparation } from '../../apps/executor/src/analysis-chunks.js';
 import {
   WorkerRpc,
   WorkerRpcError,
@@ -28,6 +29,54 @@ it('RPC retains only allowlisted quota categories and never a server body or cre
       expect(JSON.stringify(error)).not.toContain('private-secret');
     }
   }
+});
+it('interrupted chunk enqueue resumes through bounded control pages and stops on a stale response', async () => {
+  const token = {
+    job_id: 'parent',
+    lease_owner: 'worker',
+    fencing_token: 7,
+    lease_until: '2026-10-06T20:00:00Z',
+  };
+  const calls: string[] = [];
+  const rpc = {
+    request: async (route: string, input: Record<string, unknown>) => {
+      calls.push(route);
+      expect(input).toEqual({ token, plan_artifact_id: 'plan' });
+      return {
+        plan_hash: 'a'.repeat(64),
+        state: calls.length === 2 ? 'DEFERRED' : 'RUNNING',
+        preparation_complete: calls.length === 2,
+      };
+    },
+  };
+  expect(
+    await resumeChunkPreparation(rpc, token, 'plan', 'a'.repeat(64)),
+  ).toEqual({
+    accepted: false,
+    idle: false,
+    state: 'DEFERRED',
+    generation_requests: 0,
+  });
+  expect(calls).toEqual(['analysis/chunks/create', 'analysis/chunks/create']);
+  let attempts = 0;
+  await expect(
+    resumeChunkPreparation(
+      {
+        request: async () => {
+          attempts++;
+          throw new WorkerRpcError(
+            'EXECUTOR_RPC_FAILED',
+            'analysis/chunks/create',
+            403,
+          );
+        },
+      },
+      token,
+      'plan',
+      'a'.repeat(64),
+    ),
+  ).rejects.toThrow('EXECUTOR_RPC_FAILED');
+  expect(attempts).toBe(1);
 });
 
 it('local analysis polling requests only its capability and idle never reaches Gemini', async () => {

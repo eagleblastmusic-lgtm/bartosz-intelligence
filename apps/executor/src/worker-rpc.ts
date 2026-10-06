@@ -39,7 +39,7 @@ export class WorkerRpc {
     method: 'GET' | 'POST' = 'POST',
   ) {
     if (
-      !/^(?:lease|heartbeat|start|retry|defer|analysis\/(?:input|context|reserve|submit|response|validate|complete|quality-finish|disposition)|transcript\/(?:input|accept|outcome|admission)|artifacts\/(?:begin|write|read|verify-step))$/.test(
+      !/^(?:lease|heartbeat|start|retry|defer|analysis\/(?:input|context|reserve|submit|response|validate|complete|quality-finish|chunk-finish|chunks\/(?:create|status|complete)|disposition)|transcript\/(?:input|accept|outcome|admission)|artifacts\/(?:begin|write|read|verify-step))$/.test(
         path,
       )
     )

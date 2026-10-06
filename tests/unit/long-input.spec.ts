@@ -29,6 +29,46 @@ async function fixture() {
   });
   return { ...source, ...built };
 }
+it('prefix estimates equal exact serialized bytes across alias digit boundaries and Unicode', async () => {
+  const text = Array.from(
+    { length: 150 },
+    (_, i) => `Zdanie ${i} 😀 e\u0301 \\\"`,
+  ).join('\n');
+  const source = await normalizeTranscript(
+    await sha256(text),
+    text.split('\n').map((text, upstream_index) => ({
+      text,
+      upstream_index,
+      start_ms: null,
+      end_ms: null,
+      speaker_label: null,
+    })),
+    'NONE',
+  );
+  const built = await createChunkPlan({
+    ...source,
+    context_hash: 'a'.repeat(64),
+    context_tokens: 8000,
+    output_tokens: 50,
+    prompt_overhead_tokens: 100,
+  });
+  for (const part of built.plan.chunks) {
+    const bytes = new TextEncoder().encode(
+      JSON.stringify(
+        source.manifest.anchors
+          .slice(part.overlap_start, part.primary_end)
+          .map((a, i) => ({ segment_ref: `s${i + 1}`, text: a.text })),
+      ),
+    ).length;
+    expect(part.estimated_input_tokens).toBe(100 + bytes);
+  }
+  await verifyChunkPlan(
+    built.plan,
+    built.plan_hash,
+    source.manifest,
+    source.manifest_hash,
+  );
+});
 it('immutable bounded chunk plan covers every primary segment exactly once with explicit overlap', async () => {
   const input = await fixture();
   expect(input.plan.chunks.length).toBeGreaterThan(1);

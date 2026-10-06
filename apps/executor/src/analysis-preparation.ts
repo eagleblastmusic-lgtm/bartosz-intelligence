@@ -4,20 +4,21 @@ import type { LeaseToken } from '../../../packages/contracts/src/jobs.js';
 import type { AnalysisJobSnapshot } from '../../../packages/core/src/ai/jobs.js';
 import { compileEconomy } from '../../../packages/core/src/ai/compiler.js';
 import { sha256 } from '../../../packages/core/src/auth/crypto.js';
+import type { ChunkPlan } from '../../../packages/core/src/ai/long-input/plan.js';
 
 // Preparation is local and has no provider transport. ArtifactClient verifies
 // the complete source bytes; ordinary compilation cannot silently truncate them.
-export async function prepareAnalysis(
+export async function loadAnalysisSource(
   rpc: WorkerRpc,
   artifacts: Pick<ArtifactClient, 'readText'>,
   token: LeaseToken,
   runtime: 'local' | 'cloud',
-  now: Date,
 ) {
   const prepared = (await rpc.request('analysis/input', { token })) as {
     run_id: string;
     snapshot: AnalysisJobSnapshot;
     snapshot_hash: string;
+    chunk_plan_available?: boolean;
   };
   const snapshot = prepared.snapshot;
   if (
@@ -28,6 +29,8 @@ export async function prepareAnalysis(
     !/^analysis_[a-f0-9]{64}$/.test(prepared.run_id)
   )
     throw new Error('ANALYSIS_JOB_SNAPSHOT_MISMATCH');
+  if (prepared.chunk_plan_available && !snapshot.chunk)
+    throw new Error('CHUNKS_WAITING');
   const source = await artifacts.readText(snapshot.source.source_artifact_id);
   const map = await artifacts.readText(snapshot.source.segment_map_artifact_id);
   if (
@@ -41,6 +44,32 @@ export async function prepareAnalysis(
     map.artifact.producer_version !== 'source-normalizer:1'
   )
     throw new Error('ANALYSIS_SOURCE_ARTIFACT_MISMATCH');
+  return { prepared, snapshot, source, map };
+}
+export async function prepareAnalysis(
+  rpc: WorkerRpc,
+  artifacts: Pick<ArtifactClient, 'readText'>,
+  token: LeaseToken,
+  runtime: 'local' | 'cloud',
+  now: Date,
+) {
+  const { prepared, snapshot, source, map } = await loadAnalysisSource(
+    rpc,
+    artifacts,
+    token,
+    runtime,
+  );
+  const chunkPlan = snapshot.chunk
+    ? await artifacts.readText(snapshot.chunk.plan_artifact_id)
+    : null;
+  if (
+    chunkPlan &&
+    (chunkPlan.artifact.content_hash !== snapshot.chunk!.plan_hash ||
+      chunkPlan.artifact.kind !== 'NORMALIZED' ||
+      chunkPlan.artifact.schema_version !== 'chunk-plan:1' ||
+      chunkPlan.artifact.original_ref !== snapshot.source.source_artifact_id)
+  )
+    throw new Error('CHUNK_PLAN_MISMATCH');
   const compiled = await compileEconomy({
     source_artifact_id: source.artifact.artifact_id,
     source_text: source.text,
@@ -61,6 +90,14 @@ export async function prepareAnalysis(
     mode: snapshot.settings.mode,
     max_output_tokens: snapshot.settings.max_output_tokens,
     limits: snapshot.settings.limits,
+    chunk: chunkPlan
+      ? {
+          plan: JSON.parse(chunkPlan.text) as ChunkPlan,
+          plan_hash: snapshot.chunk!.plan_hash,
+          chunk_index: snapshot.chunk!.chunk_index,
+          parent_snapshot_hash: snapshot.chunk!.parent_snapshot_hash,
+        }
+      : undefined,
   });
   if (compiled.request.quality_scope !== snapshot.quality_scope)
     throw new Error('ANALYSIS_QUALITY_SCOPE_MISMATCH');

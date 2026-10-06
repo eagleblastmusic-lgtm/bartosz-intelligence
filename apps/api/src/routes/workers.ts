@@ -4,6 +4,8 @@ import { AnalysisDisposition } from '../../../../packages/core/src/ai/dispositio
 import type { compileEconomy } from '../../../../packages/core/src/ai/compiler.js';
 import { AnalysisResponses } from '../../../../packages/core/src/ai/responses.js';
 import { AnalysisValidation } from '../../../../packages/core/src/ai/validation.js';
+import { LongInputJobs } from '../../../../packages/core/src/ai/long-input/jobs.js';
+import { LongInputCompletion } from '../../../../packages/core/src/ai/long-input/completion.js';
 import { apiRouter, body, text } from './common.js';
 import { taskTypes } from '../../../../packages/contracts/src/jobs.js';
 import type {
@@ -205,6 +207,54 @@ workersApp.post('/analysis/quality-finish', async (c) => {
     throw new Error('AUTH_CONFIGURATION_REQUIRED');
   return c.json(
     await new AnalysisValidation(c.env.DB, access).finishQualityTest(
+      token(input.token, access.actorId),
+      text(input.reservation_id, 36),
+      text(input.artifact_id, 128),
+      new Date(),
+      c.env.SESSION_SIGNING_SECRET,
+    ),
+  );
+});
+workersApp.post('/analysis/chunks/create', async (c) => {
+  const input = await body(c, ['token', 'plan_artifact_id']),
+    access = c.get('access');
+  return c.json(
+    await new LongInputJobs(c.env.DB, access).create(
+      token(input.token, access.actorId),
+      text(input.plan_artifact_id, 128),
+      new Date(),
+    ),
+  );
+});
+workersApp.post('/analysis/chunks/status', async (c) => {
+  const input = await body(c, ['parent_job_id']),
+    access = c.get('access');
+  return c.json(
+    await new LongInputJobs(c.env.DB, access).status(
+      text(input.parent_job_id, 128),
+    ),
+  );
+});
+workersApp.post('/analysis/chunks/complete', async (c) => {
+  const input = await body(c, ['token']),
+    access = c.get('access');
+  if (!c.env.SESSION_SIGNING_SECRET)
+    throw new Error('AUTH_CONFIGURATION_REQUIRED');
+  return c.json(
+    await new LongInputCompletion(c.env.DB, access).complete(
+      token(input.token, access.actorId),
+      new Date(),
+      c.env.SESSION_SIGNING_SECRET,
+    ),
+  );
+});
+workersApp.post('/analysis/chunk-finish', async (c) => {
+  const input = await body(c, ['token', 'reservation_id', 'artifact_id']),
+    access = c.get('access');
+  if (!c.env.SESSION_SIGNING_SECRET)
+    throw new Error('AUTH_CONFIGURATION_REQUIRED');
+  return c.json(
+    await new AnalysisValidation(c.env.DB, access).finishChunk(
       token(input.token, access.actorId),
       text(input.reservation_id, 36),
       text(input.artifact_id, 128),

@@ -19,6 +19,10 @@ export class JobStore {
   async prepareEnqueue(
     input: JobInput,
     now: string,
+    precondition?: {
+      predicate: string;
+      bindings: readonly (string | number | null)[];
+    },
   ): Promise<{ statements: Statement[]; dedup_key: string }> {
     if (
       !taskTypes.includes(input.task_type) ||
@@ -33,7 +37,7 @@ export class JobStore {
         this.db
           .prepare(
             `INSERT INTO jobs(job_id,owner_id,item_id,source_id,task_type,input_revision,profile_revision,prompt_snapshot_id,routing_policy_version,wire_schema_version,canonical_schema_version,enrichment_version,explicit_run_nonce,dedup_key,state,due_at,priority,arrival_origin_at,origin_kind,payload_json,created_at,updated_at)
-        VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,'PENDING',?,?,?,?,?,?,?) ON CONFLICT(owner_id,dedup_key) DO NOTHING`,
+        SELECT ?,?,?,?,?,?,?,?,?,?,?,?,?,?,'PENDING',?,?,?,?,?,?,? WHERE ${precondition?.predicate ?? '1'} ON CONFLICT(owner_id,dedup_key) DO NOTHING`,
           )
           .bind(
             crypto.randomUUID(),
@@ -57,14 +61,20 @@ export class JobStore {
             JSON.stringify(input.payload),
             now,
             now,
+            ...(precondition?.bindings ?? []),
           ),
         this.db
           .prepare(
             `INSERT INTO outbox(event_id,owner_id,event_key,job_id,payload_json,due_at)
         SELECT ?,owner_id,'job:'||job_id||':0',job_id,json_object('job_id',job_id,'fencing_hint',NULL,'task_type',task_type),due_at
-        FROM jobs WHERE owner_id=? AND dedup_key=? AND task_type NOT IN ('DISCOVER','RECONCILE') ON CONFLICT(owner_id,event_key) DO NOTHING`,
+        FROM jobs WHERE owner_id=? AND dedup_key=? AND task_type NOT IN ('DISCOVER','RECONCILE') AND ${precondition?.predicate ?? '1'} ON CONFLICT(owner_id,event_key) DO NOTHING`,
           )
-          .bind(crypto.randomUUID(), this.context.ownerId, dedup),
+          .bind(
+            crypto.randomUUID(),
+            this.context.ownerId,
+            dedup,
+            ...(precondition?.bindings ?? []),
+          ),
       ],
     };
   }

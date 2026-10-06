@@ -1,0 +1,142 @@
+{
+  "version": "cp3.13-materials-receipt:1",
+  "recorded_at": "2026-10-06T12:53:50.703Z",
+  "package_sha256": "c990066df750566bea3d4e8ac1b892fbf9a48d7d336fb4477f5131d1a03e9f4c",
+  "films": [
+    {
+      "video_id": "uEztHu4NHrs",
+      "source_hash": "8b967ac776aba9ef41010c3c9703aa18b943736f772aba9e35de8e7b6b03041a",
+      "manifest_hash": "8cd5db9987140eb984a7a1e0cf126bf056f8cf5b1965e882968862bf1db12c7c"
+    },
+    {
+      "video_id": "jGwO_UgTS7I",
+      "source_hash": "87d291ea61107640b8d6775f90cbb2b50a03f2c4f86b871fdedecc60393dd9b1",
+      "manifest_hash": "6849128589b1b2ff58c56e262ccaa671059824f6d95a7ea012ec2b67d02f73d9"
+    },
+    {
+      "video_id": "JSaaq05o0ZQ",
+      "source_hash": "68f2371d48a248c67c1189300556a250fafdcbed04cfaab7baf59a22d3788e5f",
+      "manifest_hash": "d601eb6661c984c9d20ae6201912ff43de6fbdbd4af8b0eeaba71edb5b6dfc1e"
+    },
+    {
+      "video_id": "e0CHi3mDyko",
+      "source_hash": "a0ed54487a10e8c1a006b7707345ceaa74cb773d675034e3965168925c616e49",
+      "manifest_hash": "fef116b1f01e5d138e57d1f5af76462838257850ff67270cbd096fc45cff22d6"
+    },
+    {
+      "video_id": "t9wsy3gsI2U",
+      "source_hash": "587b3e2eb7ac0035b2a4d8ae800cb3660234804a8f106034770d2a8017f9fae7",
+      "manifest_hash": "cf72947a779dd4bc13bb44051956c9024108bcef10d7dc787822848f2fabc5a1"
+    },
+    {
+      "video_id": "RpSUk0YY6LA",
+      "source_hash": "6a3e81e969cd5064d728e42ace6dce30c85ceb76996ce589a34781982067e85c",
+      "manifest_hash": "680bbee576fe1d68db312b4f8e44baabe57e6448ba4c4c1e4e0bb1eda921f998"
+    },
+    {
+      "video_id": "ukzFI9rgwfU",
+      "source_hash": "a9482f28d4ae66046e2b5499f59a067c31aa8a50b61948ed15a0ea0b111c239b",
+      "manifest_hash": "e3f3922ded2277082d24dc55dfefafbf0183b67dfa93bcd61450ee75417d9da0"
+    },
+    {
+      "video_id": "lspUkroiYfs",
+      "source_hash": "0f16feeeb703f045632d096dcf2505e65e88c1c203c402787763ed051925e1bc",
+      "manifest_hash": "ddeae3692f0c3b3f2ef5e5fc4598fc61ddc48db49a7c6b38df056ad79911da24"
+    },
+    {
+      "video_id": "yoiTl_srtUs",
+      "source_hash": "c8735ce50ecb2923750763e9f0f37ae627e93f76be48d78554252a52f6ac58a2",
+      "manifest_hash": "fc180c953851bf4558652349e8912ac04f14746d8b9951288563505481f0aa01"
+    },
+    {
+      "video_id": "FYsIh53ttvw",
+      "source_hash": "104058ec951c00def3be1da157039a2c4528a824e3d268e03f83491920a31e90",
+      "manifest_hash": "7b55012db89c2a92cdf2a694351fb6a243d5d3b39574c2e21473842187719de6"
+    },
+    {
+      "video_id": "VhfS-G6PDLE",
+      "source_hash": "fbe7d41cf7bba36b339906ed198a0e39a3c7215de455001459be63bc5173e2e8",
+      "manifest_hash": "a4a8677f22029dfd9114e60ca062ac50bcdd6a9b12560ec1cc1f8d9958886658"
+    },
+    {
+      "video_id": "lqIUD3ovyIM",
+      "source_hash": "b6b0a5acbcdb55e8e39b42b4763eb8b6a67d9ba5b31c5d5ace47467f1144b538",
+      "manifest_hash": "0d773108fa98f9fff2ac9d807928e6d8afca8eb8dfafce15a59b0b070361d900"
+    }
+  ],
+  "source_candidates": [
+    {
+      "video_id": "uEztHu4NHrs",
+      "status": "SOURCE_READY"
+    },
+    {
+      "video_id": "KKNCiRWd_j0",
+      "status": "SOURCE_AUTHORITY_UNCONFIRMED"
+    },
+    {
+      "video_id": "jGwO_UgTS7I",
+      "status": "SOURCE_READY"
+    },
+    {
+      "video_id": "kDr-VsKjGeo",
+      "status": "SOURCE_AUTHORITY_UNCONFIRMED"
+    },
+    {
+      "video_id": "JSaaq05o0ZQ",
+      "status": "SOURCE_READY"
+    },
+    {
+      "video_id": "e0CHi3mDyko",
+      "status": "SOURCE_READY"
+    },
+    {
+      "video_id": "t9wsy3gsI2U",
+      "status": "SOURCE_READY"
+    },
+    {
+      "video_id": "RpSUk0YY6LA",
+      "status": "SOURCE_READY"
+    },
+    {
+      "video_id": "ukzFI9rgwfU",
+      "status": "SOURCE_READY"
+    },
+    {
+      "video_id": "lspUkroiYfs",
+      "status": "SOURCE_READY"
+    },
+    {
+      "video_id": "yoiTl_srtUs",
+      "status": "SOURCE_READY"
+    },
+    {
+      "video_id": "FYsIh53ttvw",
+      "status": "SOURCE_READY"
+    },
+    {
+      "video_id": "VhfS-G6PDLE",
+      "status": "SOURCE_READY"
+    },
+    {
+      "video_id": "lqIUD3ovyIM",
+      "status": "SOURCE_READY"
+    },
+    {
+      "video_id": "dpAIbWjlO6Y",
+      "status": "SOURCE_READY"
+    },
+    {
+      "video_id": "gdmuCVhzoAs",
+      "status": "SOURCE_AUTHORITY_UNCONFIRMED"
+    }
+  ],
+  "source_ready": true,
+  "actual_human_claims": 0,
+  "minimum_human_claims": 40,
+  "annotator_id": "OWNER_A",
+  "independent_review": "AWAITING_HUMAN_REVIEW",
+  "generation_requests": 0,
+  "quality_gate": "NOT_ASSESSED",
+  "paid_services_enabled": false,
+  "secret_values_recorded": false
+}

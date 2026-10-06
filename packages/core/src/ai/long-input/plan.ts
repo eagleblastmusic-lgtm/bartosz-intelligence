@@ -68,13 +68,27 @@ export async function createChunkPlan(input: {
     estimate_method: 'utf8-byte-upper-bound:1',
     chunks: [],
   };
-  const estimate = (start: number, end: number) =>
-    input.prompt_overhead_tokens +
-    bytes(
-      m.anchors
-        .slice(start, end)
-        .map((a, i) => ({ segment_ref: `s${i + 1}`, text: a.text })),
+  // Prefix byte counts preserve the exact JSON estimate without repeatedly
+  // serializing every growing prefix of a large source (quadratic work).
+  const rowBytes = [0],
+    aliasBytes = [0];
+  for (const [index, anchor] of m.anchors.entries()) {
+    rowBytes.push(
+      rowBytes[index]! + bytes({ segment_ref: 's1', text: anchor.text }),
     );
+    aliasBytes.push(aliasBytes[index]! + String(index + 1).length - 1);
+  }
+  const estimate = (start: number, end: number) => {
+    const count = end - start;
+    return (
+      input.prompt_overhead_tokens +
+      2 +
+      rowBytes[end]! -
+      rowBytes[start]! +
+      Math.max(0, count - 1) +
+      aliasBytes[count]!
+    );
+  };
   let cursor = 0;
   while (cursor < m.anchors.length) {
     let start = Math.max(0, cursor - overlap);

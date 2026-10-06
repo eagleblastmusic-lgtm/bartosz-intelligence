@@ -1,8 +1,10 @@
 import { readFileSync, writeFileSync, mkdirSync } from 'node:fs';
-import { resolve } from 'node:path';
+import { resolve, sep } from 'node:path';
 import { remoteDatabase } from './cloudflare.mjs';
 import { AccessContext } from '../../packages/core/src/db/boundary.js';
 import { sha256, randomToken } from '../../packages/core/src/auth/crypto.js';
+import { ArtifactRepository } from '../../packages/core/src/artifacts/store.js';
+import { renderAnnotationSheet } from '../gates/ai-pilot-annotation.js';
 import { PromptRegistry } from '../../packages/core/src/registry/store.js';
 import type { RegistryBundle } from '../../packages/core/src/registry/bundle.js';
 import { ModelRegistry } from '../../packages/core/src/ai/models.js';
@@ -216,6 +218,103 @@ if (mode === 'capabilities') {
           quality_approvals: 0,
           runtime: 'local',
           paid_services_enabled: false,
+          generation_requests: 0,
+        }) + '\n',
+      );
+    } else if (mode === 'export-source') {
+      const run = process.argv[3],
+        output = resolve(process.argv[4] ?? ''),
+        privateRoot = resolve('.local/ai-pilot');
+      if (
+        !run ||
+        !/^transcript_[a-f0-9]{64}$/.test(run) ||
+        !output.startsWith(privateRoot + sep)
+      )
+        throw new Error('PRIVATE_PILOT_SOURCE_PATH_REQUIRED');
+      const accepted = await db
+        .prepare(
+          "SELECT r.outcome_json,r.candidate_hash,i.external_id FROM analysis_runs r JOIN jobs j ON j.owner_id=r.owner_id AND j.job_id=r.job_id JOIN items i ON i.owner_id=r.owner_id AND i.item_id=r.item_id WHERE r.owner_id=? AND r.run_id=? AND r.state='ACCEPTED' AND j.task_type='FETCH_TRANSCRIPT' AND j.state='SUCCEEDED'",
+        )
+        .bind(owner.ownerId, run)
+        .first<{
+          outcome_json: string;
+          candidate_hash: string;
+          external_id: string;
+        }>();
+      if (
+        !accepted ||
+        (await sha256(accepted.outcome_json)) !== accepted.candidate_hash
+      )
+        throw new Error('VERIFIED_SOURCE_REQUIRED');
+      const source = JSON.parse(accepted.outcome_json) as {
+        source_artifact_id: string;
+        segment_map_artifact_id: string;
+        source_hash: string;
+        authority: { authority_confidence: string };
+      };
+      if (source.authority?.authority_confidence !== 'CONFIRMED')
+        throw new Error('SOURCE_AUTHORITY_REQUIRED');
+      const repository = new ArtifactRepository(db, owner);
+      const read = async (id: string) => {
+        const result = await repository.readVerifiedText(id, 32 * 1024 * 1024);
+        return { header: result.artifact, text: result.text };
+      };
+      const original = await read(source.source_artifact_id),
+        map = await read(source.segment_map_artifact_id);
+      if (
+        original.header.kind !== 'SOURCE_ORIGINAL' ||
+        original.header.content_hash !== source.source_hash ||
+        map.header.kind !== 'SEGMENT_MAP' ||
+        map.header.original_ref !== original.header.artifact_id ||
+        map.header.producer_version !== 'source-normalizer:1'
+      )
+        throw new Error('SOURCE_PAIR_MISMATCH');
+      const sheet = await renderAnnotationSheet({
+        video_id: accepted.external_id,
+        source_text: original.text,
+        manifest: JSON.parse(map.text),
+        manifest_hash: map.header.content_hash,
+      });
+      const priorSubmissions = await db
+        .prepare(
+          `SELECT count(*) AS n FROM quota_reservations q JOIN jobs j ON j.owner_id=q.owner_id AND j.job_id=q.job_id WHERE q.owner_id=? AND json_extract(j.payload_json,'$.snapshot.source.run_id')=? AND q.state IN ('SUBMITTED','UNKNOWN','SETTLED')`,
+        )
+        .bind(owner.ownerId, run)
+        .first<number>('n');
+      mkdirSync(output, { recursive: true });
+      writeFileSync(resolve(output, 'source.txt'), original.text, {
+        flag: 'wx',
+      });
+      writeFileSync(resolve(output, 'manifest.json'), map.text, { flag: 'wx' });
+      writeFileSync(resolve(output, 'annotations.html'), sheet, { flag: 'wx' });
+      writeFileSync(
+        resolve(output, 'source-receipt.json'),
+        JSON.stringify(
+          {
+            video_id: accepted.external_id,
+            source_run_id: run,
+            source_hash: source.source_hash,
+            manifest_hash: map.header.content_hash,
+            exported_at: new Date().toISOString(),
+            human_annotations: 'NOT_CREATED',
+            provider_requests: 0,
+            prior_provider_submissions: priorSubmissions ?? 0,
+            blind_pilot_eligibility:
+              priorSubmissions === 0
+                ? 'REQUIRES_PRE_REQUEST_FROZEN_ANNOTATIONS'
+                : 'NOT_BLIND_PRE_REQUEST_CORPUS',
+          },
+          null,
+          2,
+        ) + '\n',
+        { flag: 'wx' },
+      );
+      process.stdout.write(
+        JSON.stringify({
+          result: 'PRIVATE_SOURCE_EXPORTED',
+          output,
+          source_hash: source.source_hash,
+          manifest_hash: map.header.content_hash,
           generation_requests: 0,
         }) + '\n',
       );

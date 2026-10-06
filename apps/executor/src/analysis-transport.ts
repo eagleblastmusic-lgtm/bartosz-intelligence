@@ -183,9 +183,11 @@ export async function executeLocalAnalysis(input: {
     'status' in validation &&
     validation.status === 'VALIDATED'
       ? await rpc.request(
-          prepared.snapshot.settings.mode === 'PRODUCTION'
-            ? 'analysis/complete'
-            : 'analysis/quality-finish',
+          prepared.snapshot.chunk
+            ? 'analysis/chunk-finish'
+            : prepared.snapshot.settings.mode === 'PRODUCTION'
+              ? 'analysis/complete'
+              : 'analysis/quality-finish',
           {
             token: result.token,
             reservation_id: result.reservation_id,
