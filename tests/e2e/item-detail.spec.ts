@@ -1,5 +1,6 @@
 import { test, expect } from '@playwright/test';
 import { createHash } from 'node:crypto';
+import AxeBuilder from '@axe-core/playwright';
 test('reading verifies paged canonical bytes, preserves accepted text on failure and renders source attribution', async ({
   page,
 }) => {
@@ -257,9 +258,23 @@ test('reading verifies paged canonical bytes, preserves accepted text on failure
     fullPage: true,
   });
   const firstChip = page.getByRole('button', { name: 'Źródło 1', exact: true });
+  expect(
+    (
+      await new AxeBuilder({ page })
+        .withTags(['wcag2a', 'wcag2aa', 'wcag21aa'])
+        .analyze()
+    ).violations,
+  ).toEqual([]);
   await firstChip.click();
   const drawer = page.getByRole('dialog', { name: 'Fragment źródła' });
   await expect(drawer.getByText(original, { exact: true })).toBeVisible();
+  expect(
+    (
+      await new AxeBuilder({ page })
+        .withTags(['wcag2a', 'wcag2aa', 'wcag21aa'])
+        .analyze()
+    ).violations,
+  ).toEqual([]);
   await expect(
     drawer.getByText(/Polski helper nie jest dostępny/),
   ).toBeVisible();

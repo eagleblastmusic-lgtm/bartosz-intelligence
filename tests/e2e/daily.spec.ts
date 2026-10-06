@@ -3,6 +3,90 @@ import type {
   DailySnapshot,
   CalendarSnapshot,
 } from '../../packages/contracts/src/daily.js';
+test('undated publications use their separate endpoint across refresh and pagination and preserve filters', async ({
+  page,
+}) => {
+  const origin = 'https://undated.fixture.invalid',
+    requests: string[] = [];
+  await page.route(origin + '/**', async (route) => {
+    const url = new URL(route.request().url());
+    if (url.pathname.startsWith('/api/')) {
+      requests.push(url.pathname + url.search);
+      expect(route.request().method()).toBe('GET');
+      if (url.pathname.endsWith('/auth/session'))
+        return route.fulfill({ json: { authenticated: true } });
+      if (url.pathname.endsWith('/sources'))
+        return route.fulfill({
+          json: {
+            sources: [{ source_id: 'source-a', title: 'Kanał A' }],
+            next_cursor: null,
+          },
+        });
+      expect(url.pathname).toBe('/api/v1/daily/undated');
+      expect(url.searchParams.get('source_ids')).toBe('source-a');
+      expect(url.searchParams.has('date')).toBe(false);
+      expect(url.searchParams.has('timezone')).toBe(false);
+      const paged = url.searchParams.has('cursor');
+      return route.fulfill({
+        json: {
+          date: null,
+          timezone: 'Europe/Warsaw',
+          cut_seq: 1,
+          projection_revision: '1',
+          counts: { items: 2, ready: 0, pending: 2, blocked: 0, failed: 0 },
+          discovery_complete: false,
+          complete: false,
+          partial: true,
+          items: [
+            {
+              item_id: paged ? 'unknown-b' : 'unknown-a',
+              title: paged ? 'Drugi bez daty' : 'Pierwszy bez daty',
+              creator: 'Kanał A',
+              source_id: 'source-a',
+              published_at: null,
+              analysis_status: 'PENDING',
+              reason: null,
+              view: null,
+            },
+          ],
+          next_cursor: paged ? null : 'fixture-cursor',
+          source_coverage: [],
+          freshness: { sampled_at: '2026-10-06T12:00:00Z', status: 'CURRENT' },
+        },
+      });
+    }
+    const response = await fetch('http://127.0.0.1:8787' + url.pathname);
+    return route.fulfill({
+      status: response.status,
+      contentType: response.headers.get('content-type') ?? 'text/plain',
+      body: Buffer.from(await response.arrayBuffer()),
+    });
+  });
+  await page.goto(
+    origin + '/daily/undated?source_ids=source-a&density=compact',
+  );
+  await expect(
+    page.getByRole('heading', { name: 'Materiały bez ustalonej daty' }),
+  ).toBeVisible();
+  await expect(
+    page.getByText('Data nieustalona', { exact: false }),
+  ).toBeVisible();
+  await expect(page.getByRole('button', { name: 'Kalendarz' })).toHaveCount(0);
+  await page.getByRole('button', { name: 'Pokaż więcej' }).click();
+  await expect(
+    page.getByRole('link', { name: 'Drugi bez daty' }),
+  ).toBeVisible();
+  await page.getByRole('button', { name: 'Odśwież', exact: true }).click();
+  await expect(page.getByRole('link', { name: 'Drugi bez daty' })).toHaveCount(
+    0,
+  );
+  await expect(
+    page.getByRole('link', { name: 'Wróć do dzisiejszych publikacji' }),
+  ).toHaveAttribute('href', /source_ids=source-a&density=compact/);
+  expect(
+    requests.filter((path) => path.startsWith('/api/v1/daily/undated')),
+  ).toHaveLength(3);
+});
 test('day/filter URLs, calendar keyboard, delayed responses and retained refresh results', async ({
   page,
 }) => {

@@ -1,0 +1,555 @@
+{
+  "version": "gate-u:1",
+  "sampled_at": "2026-10-06T16:02:49.224Z",
+  "fixture": "SYNTHETIC_ISOLATED_10000",
+  "fixture_id": "3abbb725-762b-499a-8c84-2b50feb83e33",
+  "implementation": "actual built GUI and local Worker/D1, real owner-session middleware; no API fixtures",
+  "network": {
+    "latency_ms": 25,
+    "download_mbps": 10,
+    "method": "explicit proxy response delay plus byte delivery budget",
+    "server": "local workerd/D1",
+    "device": "local headless Chromium, DPR 1, no CPU throttle"
+  },
+  "manual_screen_reader": "NOT_RUN",
+  "manual_keyboard": "NOT_RUN",
+  "status": "INCONCLUSIVE",
+  "build_files": [
+    {
+      "path": "apps/web/dist/index.html",
+      "sha256": "bd482ff1c11214127c4f2c7898555fe10f8e00a1d139438d4e8b87ec2e68a359"
+    },
+    {
+      "path": "apps/web/dist/assets/index-C3cpqQO0.css",
+      "sha256": "6e6858f3a38093a56db04f566d0be7875bf9811e14a30943a9f028cfba3d34fe"
+    },
+    {
+      "path": "apps/web/dist/assets/index-Cc6BK-Js.js",
+      "sha256": "1df54198dccba3703425982f26f7518ab1582db5c7224bc6244bce3784994fc5"
+    }
+  ],
+  "query_inspection": {
+    "engine": "independent offline SQLite EXPLAIN of actual DailyProjection SQL; Worker latency measured separately",
+    "queries": 4,
+    "page_rows": 20,
+    "counts": {
+      "items": 10000,
+      "ready": 1666,
+      "pending": 8334,
+      "blocked": 1667,
+      "failed": 1667
+    },
+    "plans": [
+      ["SEARCH change_log USING COVERING INDEX change_owner_seq (owner_id=?)"],
+      [
+        "SEARCH i USING INDEX items_publication (owner_id=? AND published_at>? AND published_at<?)",
+        "LIST SUBQUERY 2",
+        "SCAN json_each VIRTUAL TABLE INDEX 1:",
+        "CREATE BLOOM FILTER",
+        "SEARCH m USING COVERING INDEX sqlite_autoindex_item_revisions_3 (owner_id=? AND item_id=? AND revision_id=?)",
+        "SEARCH c USING INDEX sqlite_autoindex_channels_1 (source_id=?) LEFT-JOIN",
+        "SEARCH s USING INDEX sqlite_autoindex_active_analysis_selections_1 (owner_id=? AND item_id=?) LEFT-JOIN",
+        "SEARCH r USING INDEX sqlite_autoindex_analysis_runs_2 (owner_id=? AND run_id=?) LEFT-JOIN",
+        "SEARCH j USING INDEX sqlite_autoindex_jobs_3 (owner_id=? AND job_id=?) LEFT-JOIN",
+        "CORRELATED SCALAR SUBQUERY 1",
+        "SEARCH q USING INDEX jobs_item_recent (owner_id=? AND item_id=?)"
+      ],
+      [
+        "SEARCH i USING INDEX items_publication (owner_id=? AND published_at>? AND published_at<?)",
+        "LIST SUBQUERY 2",
+        "SCAN json_each VIRTUAL TABLE INDEX 1:",
+        "CREATE BLOOM FILTER",
+        "SEARCH m USING INDEX sqlite_autoindex_item_revisions_3 (owner_id=? AND item_id=? AND revision_id=?)",
+        "SEARCH c USING INDEX sqlite_autoindex_channels_1 (source_id=?) LEFT-JOIN",
+        "SEARCH s USING INDEX sqlite_autoindex_active_analysis_selections_1 (owner_id=? AND item_id=?) LEFT-JOIN",
+        "SEARCH r USING INDEX sqlite_autoindex_analysis_runs_2 (owner_id=? AND run_id=?) LEFT-JOIN",
+        "SEARCH j USING INDEX sqlite_autoindex_jobs_3 (owner_id=? AND job_id=?) LEFT-JOIN",
+        "CORRELATED SCALAR SUBQUERY 1",
+        "SEARCH q USING INDEX jobs_item_recent (owner_id=? AND item_id=?)"
+      ],
+      [
+        "SEARCH s USING INDEX sqlite_autoindex_sources_3 (owner_id=?)",
+        "LIST SUBQUERY 3",
+        "SCAN json_each VIRTUAL TABLE INDEX 1:",
+        "CREATE BLOOM FILTER",
+        "SEARCH c USING INDEX sqlite_autoindex_channels_1 (source_id=?) LEFT-JOIN",
+        "CORRELATED SCALAR SUBQUERY 1",
+        "SEARCH d USING INDEX discovery_source_window (owner_id=? AND source_id=?)",
+        "CORRELATED SCALAR SUBQUERY 2",
+        "SEARCH d USING INDEX discovery_source_window (owner_id=? AND source_id=?)"
+      ]
+    ],
+    "rows_read": null,
+    "rows_read_status": "LOCAL_D1_RUNTIME_NOT_EXPOSED"
+  },
+  "phase": "MATRIX",
+  "performance": {
+    "first_useful_ms": 826.1331000000009,
+    "filter_trials_ms": [
+      245.76530000000093, 244.08970000000045, 245.7506999999987,
+      258.83550000000105, 247.83239999999932, 228.96840000000157,
+      214.15200000000004, 216.90469999999914, 231.8703000000005,
+      231.25900000000001, 237.79989999999998, 241.91579999999885,
+      229.32690000000002, 229.49219999999877, 217.64489999999932,
+      215.46890000000167, 247.72500000000036, 259.6147000000001,
+      248.6849000000002, 239.72760000000017
+    ],
+    "filter_p95_ms": 258.83550000000105,
+    "first_threshold_ms": 2000,
+    "filter_threshold_ms": 300,
+    "status": "PASS",
+    "cache": "first navigation cold browser, repeated filters warm runtime"
+  },
+  "matrix": [
+    {
+      "theme": "light",
+      "width": 360,
+      "reflow": true,
+      "violations": []
+    },
+    {
+      "theme": "light",
+      "width": 768,
+      "reflow": true,
+      "violations": []
+    },
+    {
+      "theme": "light",
+      "width": 1024,
+      "reflow": true,
+      "violations": []
+    },
+    {
+      "theme": "light",
+      "width": 1440,
+      "reflow": true,
+      "violations": []
+    },
+    {
+      "theme": "dark",
+      "width": 360,
+      "reflow": true,
+      "violations": []
+    },
+    {
+      "theme": "dark",
+      "width": 768,
+      "reflow": true,
+      "violations": []
+    },
+    {
+      "theme": "dark",
+      "width": 1024,
+      "reflow": true,
+      "violations": []
+    },
+    {
+      "theme": "dark",
+      "width": 1440,
+      "reflow": true,
+      "violations": []
+    }
+  ],
+  "additional_surfaces": [
+    {
+      "route": "channels",
+      "theme": "light",
+      "width": 360,
+      "reflow": true,
+      "violations": []
+    },
+    {
+      "route": "channels",
+      "theme": "light",
+      "width": 768,
+      "reflow": true,
+      "violations": []
+    },
+    {
+      "route": "channels",
+      "theme": "light",
+      "width": 1024,
+      "reflow": true,
+      "violations": []
+    },
+    {
+      "route": "channels",
+      "theme": "light",
+      "width": 1440,
+      "reflow": true,
+      "violations": []
+    },
+    {
+      "route": "channels",
+      "theme": "dark",
+      "width": 360,
+      "reflow": true,
+      "violations": []
+    },
+    {
+      "route": "channels",
+      "theme": "dark",
+      "width": 768,
+      "reflow": true,
+      "violations": []
+    },
+    {
+      "route": "channels",
+      "theme": "dark",
+      "width": 1024,
+      "reflow": true,
+      "violations": []
+    },
+    {
+      "route": "channels",
+      "theme": "dark",
+      "width": 1440,
+      "reflow": true,
+      "violations": []
+    },
+    {
+      "route": "system",
+      "theme": "light",
+      "width": 360,
+      "reflow": true,
+      "violations": []
+    },
+    {
+      "route": "system",
+      "theme": "light",
+      "width": 768,
+      "reflow": true,
+      "violations": []
+    },
+    {
+      "route": "system",
+      "theme": "light",
+      "width": 1024,
+      "reflow": true,
+      "violations": []
+    },
+    {
+      "route": "system",
+      "theme": "light",
+      "width": 1440,
+      "reflow": true,
+      "violations": []
+    },
+    {
+      "route": "system",
+      "theme": "dark",
+      "width": 360,
+      "reflow": true,
+      "violations": []
+    },
+    {
+      "route": "system",
+      "theme": "dark",
+      "width": 768,
+      "reflow": true,
+      "violations": []
+    },
+    {
+      "route": "system",
+      "theme": "dark",
+      "width": 1024,
+      "reflow": true,
+      "violations": []
+    },
+    {
+      "route": "system",
+      "theme": "dark",
+      "width": 1440,
+      "reflow": true,
+      "violations": []
+    }
+  ],
+  "calendar": {
+    "violations": [],
+    "focus_restored": true,
+    "important_targets_44px": true
+  },
+  "zoom_200_reflow": true,
+  "zoom_overflow_elements": [],
+  "read_traces": [
+    {
+      "path": "/daily/2026-10-05",
+      "status": 200,
+      "bytes": 403,
+      "elapsed_ms": 56.60740000000078
+    },
+    {
+      "path": "/assets/index-C3cpqQO0.css",
+      "status": 200,
+      "bytes": 10410,
+      "elapsed_ms": 45.01729999999952
+    },
+    {
+      "path": "/assets/index-Cc6BK-Js.js",
+      "status": 200,
+      "bytes": 276489,
+      "elapsed_ms": 277.5134999999991
+    },
+    {
+      "path": "/api/v1/auth/session",
+      "status": 200,
+      "bytes": 67,
+      "elapsed_ms": 150.02499999999964
+    },
+    {
+      "path": "/api/v1/sources",
+      "status": 200,
+      "bytes": 836,
+      "elapsed_ms": 57.34860000000117
+    },
+    {
+      "path": "/api/v1/daily",
+      "status": 200,
+      "bytes": 13930,
+      "elapsed_ms": 148.95709999999963
+    },
+    {
+      "path": "/api/v1/daily",
+      "status": 200,
+      "bytes": 12272,
+      "elapsed_ms": 103.42039999999906
+    },
+    {
+      "path": "/api/v1/daily",
+      "status": 200,
+      "bytes": 13930,
+      "elapsed_ms": 141.8187999999991
+    },
+    {
+      "path": "/api/v1/daily",
+      "status": 200,
+      "bytes": 12272,
+      "elapsed_ms": 124.7555999999986
+    },
+    {
+      "path": "/api/v1/daily",
+      "status": 200,
+      "bytes": 13930,
+      "elapsed_ms": 182.4881000000005
+    },
+    {
+      "path": "/api/v1/daily",
+      "status": 200,
+      "bytes": 12272,
+      "elapsed_ms": 106.23400000000038
+    },
+    {
+      "path": "/api/v1/daily",
+      "status": 200,
+      "bytes": 13930,
+      "elapsed_ms": 135.16300000000047
+    },
+    {
+      "path": "/api/v1/daily",
+      "status": 200,
+      "bytes": 12272,
+      "elapsed_ms": 103.66810000000078
+    },
+    {
+      "path": "/api/v1/daily",
+      "status": 200,
+      "bytes": 13930,
+      "elapsed_ms": 131.39869999999974
+    },
+    {
+      "path": "/api/v1/daily",
+      "status": 200,
+      "bytes": 12272,
+      "elapsed_ms": 104.29700000000048
+    },
+    {
+      "path": "/api/v1/daily",
+      "status": 200,
+      "bytes": 13930,
+      "elapsed_ms": 146.07480000000032
+    },
+    {
+      "path": "/api/v1/daily",
+      "status": 200,
+      "bytes": 12272,
+      "elapsed_ms": 100.1929999999993
+    },
+    {
+      "path": "/api/v1/daily",
+      "status": 200,
+      "bytes": 13930,
+      "elapsed_ms": 166.65749999999935
+    },
+    {
+      "path": "/api/v1/daily",
+      "status": 200,
+      "bytes": 12272,
+      "elapsed_ms": 93.57660000000033
+    },
+    {
+      "path": "/api/v1/daily",
+      "status": 200,
+      "bytes": 13930,
+      "elapsed_ms": 135.5641999999989
+    },
+    {
+      "path": "/api/v1/daily",
+      "status": 200,
+      "bytes": 12272,
+      "elapsed_ms": 90.4351999999999
+    },
+    {
+      "path": "/api/v1/daily",
+      "status": 200,
+      "bytes": 13930,
+      "elapsed_ms": 136.22929999999906
+    },
+    {
+      "path": "/api/v1/daily",
+      "status": 200,
+      "bytes": 12272,
+      "elapsed_ms": 111.51850000000013
+    },
+    {
+      "path": "/api/v1/daily",
+      "status": 200,
+      "bytes": 13930,
+      "elapsed_ms": 162.84970000000067
+    },
+    {
+      "path": "/api/v1/daily",
+      "status": 200,
+      "bytes": 12272,
+      "elapsed_ms": 103.54049999999916
+    },
+    {
+      "path": "/api/v1/daily",
+      "status": 200,
+      "bytes": 13930,
+      "elapsed_ms": 155.79470000000038
+    },
+    {
+      "path": "/channels",
+      "status": 200,
+      "bytes": 403,
+      "elapsed_ms": 48.14689999999973
+    },
+    {
+      "path": "/assets/index-C3cpqQO0.css",
+      "status": 200,
+      "bytes": 10410,
+      "elapsed_ms": 48.13220000000001
+    },
+    {
+      "path": "/assets/index-Cc6BK-Js.js",
+      "status": 200,
+      "bytes": 276489,
+      "elapsed_ms": 278.08740000000034
+    },
+    {
+      "path": "/api/v1/auth/session",
+      "status": 200,
+      "bytes": 67,
+      "elapsed_ms": 37.38010000000213
+    },
+    {
+      "path": "/api/v1/sources",
+      "status": 200,
+      "bytes": 836,
+      "elapsed_ms": 42.64760000000024
+    },
+    {
+      "path": "/api/v1/jobs",
+      "status": 200,
+      "bytes": 7964,
+      "elapsed_ms": 75.8627000000015
+    },
+    {
+      "path": "/system",
+      "status": 200,
+      "bytes": 403,
+      "elapsed_ms": 37.76619999999821
+    },
+    {
+      "path": "/assets/index-C3cpqQO0.css",
+      "status": 200,
+      "bytes": 10410,
+      "elapsed_ms": 50.403699999998935
+    },
+    {
+      "path": "/assets/index-Cc6BK-Js.js",
+      "status": 200,
+      "bytes": 276489,
+      "elapsed_ms": 266.869999999999
+    },
+    {
+      "path": "/api/v1/auth/session",
+      "status": 200,
+      "bytes": 67,
+      "elapsed_ms": 34.54750000000058
+    },
+    {
+      "path": "/api/v1/system/summary",
+      "status": 200,
+      "bytes": 4655,
+      "elapsed_ms": 160.71700000000055
+    },
+    {
+      "path": "/daily/2026-10-05",
+      "status": 200,
+      "bytes": 403,
+      "elapsed_ms": 41.31450000000041
+    },
+    {
+      "path": "/assets/index-C3cpqQO0.css",
+      "status": 200,
+      "bytes": 10410,
+      "elapsed_ms": 48.33759999999893
+    },
+    {
+      "path": "/assets/index-Cc6BK-Js.js",
+      "status": 200,
+      "bytes": 276489,
+      "elapsed_ms": 279.72390000000087
+    },
+    {
+      "path": "/api/v1/auth/session",
+      "status": 200,
+      "bytes": 67,
+      "elapsed_ms": 38.804400000000896
+    },
+    {
+      "path": "/api/v1/sources",
+      "status": 200,
+      "bytes": 836,
+      "elapsed_ms": 39.229700000003504
+    },
+    {
+      "path": "/api/v1/daily",
+      "status": 200,
+      "bytes": 13930,
+      "elapsed_ms": 177.7487000000001
+    },
+    {
+      "path": "/api/v1/daily/calendar",
+      "status": 200,
+      "bytes": 4341,
+      "elapsed_ms": 332.0169999999998
+    }
+  ],
+  "ai_requests": 0,
+  "automated_status": "PASS",
+  "backend_counters": {
+    "before": {
+      "usage_records": 0,
+      "jobs": 10000,
+      "change_events": 31668
+    },
+    "after": {
+      "usage_records": 0,
+      "jobs": 10000,
+      "change_events": 31668
+    },
+    "unchanged": true
+  }
+}

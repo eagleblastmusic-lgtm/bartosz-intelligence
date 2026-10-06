@@ -80,6 +80,7 @@ select {
   background: var(--surface);
 }
 button {
+  min-width: 44px;
   cursor: pointer;
   transition: background var(--motion);
 }
@@ -245,6 +246,8 @@ li {
 }
 .header-controls {
   display: flex;
+  flex-wrap: wrap;
+  max-width: 100%;
   align-items: center;
   gap: var(--s3);
 }
@@ -528,6 +531,8 @@ li {
 }
 .source-filters label {
   display: flex;
+  max-width: 100%;
+  overflow-wrap: anywhere;
   align-items: center;
   gap: var(--s2);
   min-height: 44px;
@@ -538,10 +543,18 @@ li {
 .source-filters input {
   width: 18px;
   height: 18px;
+  flex-shrink: 0;
 }
 .calendar {
   max-width: 420px;
   margin-top: var(--s3);
+}
+@media (max-width: 899px) {
+  .calendar {
+    width: calc(100% + 32px);
+    margin-inline: -16px;
+    padding: var(--s2);
+  }
 }
 .calendar-heading {
   display: flex;
@@ -606,9 +619,13 @@ li {
 }
 .density-control {
   display: flex;
+  flex-wrap: wrap;
   align-items: center;
   gap: var(--s2);
   margin-bottom: var(--s4);
+}
+select {
+  max-width: 100%;
 }
 .evidence-chips {
   display: flex;

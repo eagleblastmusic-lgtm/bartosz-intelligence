@@ -185,7 +185,7 @@ test('light and dark shell have measured AA token contrast, keyboard focus and n
         pair.ratio,
         `${theme} ${pair.fg}/${pair.bg}`,
       ).toBeGreaterThanOrEqual(pair.minimum);
-    for (const width of [1440, 1024, 768, 360]) {
+    for (const width of [1440, 1024, 768, 360, 180]) {
       await page.setViewportSize({ width, height: 900 });
       expect(
         await page.evaluate(

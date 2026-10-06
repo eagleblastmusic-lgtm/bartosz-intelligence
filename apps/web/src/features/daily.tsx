@@ -1,12 +1,13 @@
 import { useEffect, useRef, useState } from 'react';
 import type { DailySnapshot } from '../../../../packages/contracts/src/daily.js';
 import { api, errorMessage } from '../app/api.js';
-import { AppLink, navigate } from '../app/router.js';
+import { AppLink, navigate, today } from '../app/router.js';
 import { DayNavigator } from '../components/day-navigator.js';
 import { statusLabels, reasonLabel } from '../app/status.js';
 export function Daily({ route }: { route: string }) {
   const url = new URL(route, location.origin),
     date = url.pathname.slice('/daily/'.length),
+    undated = date === 'undated',
     sources = url.searchParams.get('source_ids') ?? '',
     key = date + ':' + sources,
     [stored, setStored] = useState<{ key: string; data: DailySnapshot } | null>(
@@ -59,13 +60,12 @@ export function Daily({ route }: { route: string }) {
     setLoading(true);
     setError('');
     const query = new URLSearchParams({
-      date,
-      timezone: 'Europe/Warsaw',
+      ...(undated ? {} : { date, timezone: 'Europe/Warsaw' }),
       limit: '20',
     });
     if (sources) query.set('source_ids', sources);
     api<DailySnapshot>(
-      '/daily?' + query,
+      (undated ? '/daily/undated?' : '/daily?') + query,
       undefined,
       undefined,
       controller.signal,
@@ -91,7 +91,7 @@ export function Daily({ route }: { route: string }) {
         if (!controller.signal.aborted) setLoading(false);
       });
     return () => controller.abort();
-  }, [key, date, sources, revision]);
+  }, [key, date, sources, revision, undated]);
   useEffect(() => {
     if (!result || loading) return;
     const controller = new AbortController();
@@ -100,13 +100,12 @@ export function Daily({ route }: { route: string }) {
       if (document.visibilityState !== 'visible' || checking) return;
       checking = true;
       const query = new URLSearchParams({
-        date,
-        timezone: 'Europe/Warsaw',
+        ...(undated ? {} : { date, timezone: 'Europe/Warsaw' }),
         limit: '20',
       });
       if (sources) query.set('source_ids', sources);
       api<DailySnapshot>(
-        '/daily?' + query,
+        (undated ? '/daily/undated?' : '/daily?') + query,
         undefined,
         undefined,
         controller.signal,
@@ -129,7 +128,7 @@ export function Daily({ route }: { route: string }) {
       controller.abort();
       window.clearInterval(timer);
     };
-  }, [result, loading, key, date, sources]);
+  }, [result, loading, key, date, sources, undated]);
   async function more() {
     if (!result?.next_cursor || paging) return;
     setPaging(true);
@@ -137,15 +136,14 @@ export function Daily({ route }: { route: string }) {
     const controller = new AbortController();
     pageRequest.current = controller;
     const query = new URLSearchParams({
-      date,
-      timezone: 'Europe/Warsaw',
+      ...(undated ? {} : { date, timezone: 'Europe/Warsaw' }),
       limit: '20',
       cursor: result.next_cursor,
     });
     if (sources) query.set('source_ids', sources);
     try {
       const data = await api<DailySnapshot>(
-        '/daily?' + query,
+        (undated ? '/daily/undated?' : '/daily?') + query,
         undefined,
         undefined,
         controller.signal,
@@ -171,8 +169,14 @@ export function Daily({ route }: { route: string }) {
       <div className="page-heading">
         <div>
           <p className="eyebrow">Dziennik</p>
-          <h1>Publikacje z {date}</h1>
-          <p className="muted">Według daty publikacji · Europe/Warsaw</p>
+          <h1>
+            {undated ? 'Materiały bez ustalonej daty' : 'Publikacje z ' + date}
+          </h1>
+          <p className="muted">
+            {undated
+              ? 'Nie przypisujemy ich do żadnego dnia publikacji.'
+              : 'Według daty publikacji · Europe/Warsaw'}
+          </p>
         </div>
         <button disabled={loading} onClick={() => setRevision((v) => v + 1)}>
           Odśwież
@@ -181,6 +185,15 @@ export function Daily({ route }: { route: string }) {
       {/^(20\d\d)-\d\d-\d\d$/.test(date) && !Number.isNaN(Date.parse(date)) && (
         <DayNavigator date={date} sources={sources} />
       )}
+      <p>
+        <AppLink
+          href={'/daily/' + (undated ? today() : 'undated') + url.search}
+        >
+          {undated
+            ? 'Wróć do dzisiejszych publikacji'
+            : 'Materiały bez ustalonej daty'}
+        </AppLink>
+      </p>
       <label className="density-control">
         Gęstość listy{' '}
         <select
@@ -278,7 +291,7 @@ export function Daily({ route }: { route: string }) {
               <strong>{result.counts.pending}</strong> oczekuje
             </span>
           </div>
-          {!result.discovery_complete && (
+          {!undated && !result.discovery_complete && (
             <p className="notice">
               Sprawdzenie dnia nieukończone. Kolejne publikacje mogą pojawić się
               po discovery.
@@ -287,9 +300,11 @@ export function Daily({ route }: { route: string }) {
           {result.items.length === 0 ? (
             <section className="empty-state">
               <h2>
-                {result.discovery_complete
-                  ? 'Tego dnia nie znaleziono publikacji'
-                  : 'Jeszcze nie ma publikacji'}
+                {undated
+                  ? 'Brak materiałów bez ustalonej daty'
+                  : result.discovery_complete
+                    ? 'Tego dnia nie znaleziono publikacji'
+                    : 'Jeszcze nie ma publikacji'}
               </h2>
               <p className="muted">
                 {result.source_coverage.length === 0
