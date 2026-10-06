@@ -12,6 +12,7 @@ import application from '../../config/application.json';
 import { issueSession } from '../../packages/core/src/auth/session.js';
 import { randomToken, sha256 } from '../../packages/core/src/auth/crypto.js';
 import { JobStore } from '../../packages/core/src/jobs/store.js';
+import { AccessContext } from '../../packages/core/src/db/boundary.js';
 import { SourceRepository } from '../../packages/core/src/db/sources.js';
 import type {
   JobInput,
@@ -19,6 +20,93 @@ import type {
 } from '../../packages/contracts/src/jobs.js';
 import { addSource } from '../../packages/core/src/sources/youtube/backfill.js';
 beforeEach(resetCore);
+it('System distinguishes task completion from accepted analysis and retains failed arrival age without fabricating capacity', async () => {
+  const owner = await fixtureOwner(),
+    headers = await ownerHeaders(),
+    store = new JobStore(env.DB, owner);
+  const completed = (await store.enqueue(
+    { ...base, task_type: 'DISCOVER', explicit_run_nonce: crypto.randomUUID() },
+    fixtureNow.toISOString(),
+  ))!;
+  const failed = (await store.enqueue(
+    {
+      ...base,
+      arrival_origin_at: '2026-10-01T00:00:00.000Z',
+      explicit_run_nonce: crypto.randomUUID(),
+    },
+    fixtureNow.toISOString(),
+  ))!;
+  const workerHeaders = await credential(['DISCOVER', 'FETCH_TRANSCRIPT']);
+  const workerStore = new JobStore(
+    env.DB,
+    await AccessContext.worker(
+      env.DB,
+      await sha256(workerHeaders.Authorization.slice(7)),
+    ),
+  );
+  const completedLease = (await workerStore.lease(
+    completed.job_id,
+    'DISCOVER',
+    fixtureNow,
+    'local',
+  ))!;
+  await workerStore.start(completedLease, 'DISCOVER', fixtureNow);
+  await env.DB.prepare(
+    "UPDATE jobs SET state='SUCCEEDED',lease_owner=NULL,lease_until=NULL WHERE job_id=?",
+  )
+    .bind(completed.job_id)
+    .run();
+  const failedLease = (await workerStore.lease(
+    failed.job_id,
+    'FETCH_TRANSCRIPT',
+    fixtureNow,
+    'local',
+  ))!;
+  await workerStore.start(failedLease, 'FETCH_TRANSCRIPT', fixtureNow);
+  await workerStore.disposition(
+    failedLease,
+    'FETCH_TRANSCRIPT',
+    'FAILED',
+    'NO_CAPTIONS',
+    fixtureNow.toISOString(),
+    fixtureNow,
+  );
+  const before = await env.DB.prepare(
+    'SELECT COUNT(*) n FROM change_log',
+  ).first();
+  const response = await request('/api/v1/system/summary', headers);
+  expect(response.status).toBe(200);
+  const data = (await response.json()) as {
+    capacity: {
+      accepted_count: number;
+      succeeded_jobs_count: number;
+      open_count: number;
+      oldest_open_arrival_origin_at: string;
+    };
+    capacity_metrics: { metrics: Record<string, { value: number | null }> };
+    job_reasons: { reason_code: string }[];
+    costs: { status: string };
+    transcript_coverage: { denominator: number };
+  };
+  expect(data.capacity).toMatchObject({
+    accepted_count: 0,
+    succeeded_jobs_count: 1,
+    open_count: 1,
+    oldest_open_arrival_origin_at: '2026-10-01T00:00:00.000Z',
+  });
+  expect(data.job_reasons[0]?.reason_code).toBe('NO_CAPTIONS');
+  expect(Object.keys(data.capacity_metrics.metrics)).toHaveLength(8);
+  for (const metric of Object.values(data.capacity_metrics.metrics))
+    expect(metric.value).toBeNull();
+  expect(data.costs.status).toBe('PAID_DISABLED');
+  expect(data.transcript_coverage.denominator).toBe(0);
+  expect(
+    await env.DB.prepare('SELECT COUNT(*) n FROM change_log').first(),
+  ).toEqual(before);
+  expect(
+    (await request('/api/v1/system/summary?arbitrary=1', headers)).status,
+  ).toBe(422);
+});
 const settings = {
   ...env,
   GOOGLE_OIDC_CLIENT_ID: 'fixture-client',

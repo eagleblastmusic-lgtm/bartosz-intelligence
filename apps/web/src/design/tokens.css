@@ -665,3 +665,9 @@ li {
     padding-bottom: calc(var(--s4) + env(safe-area-inset-bottom));
   }
 }
+.metric-pair {
+  display: contents;
+}
+.metric-pair dd small {
+  display: block;
+}

@@ -3,14 +3,7 @@ import type { DailySnapshot } from '../../../../packages/contracts/src/daily.js'
 import { api, errorMessage } from '../app/api.js';
 import { AppLink, navigate } from '../app/router.js';
 import { DayNavigator } from '../components/day-navigator.js';
-const statusLabels = {
-  READY: 'Gotowe',
-  PARTIAL: 'Częściowe',
-  PENDING: 'Oczekuje',
-  BLOCKED: 'Zablokowane',
-  FAILED: 'Błąd',
-  REVIEW_REQUIRED: 'Wymaga przeglądu',
-};
+import { statusLabels, reasonLabel } from '../app/status.js';
 export function Daily({ route }: { route: string }) {
   const url = new URL(route, location.origin),
     date = url.pathname.slice('/daily/'.length),
@@ -347,9 +340,9 @@ export function Daily({ route }: { route: string }) {
                     {!item.view && (
                       <p className="metadata">
                         {item.analysis_status === 'READY'
-                          ? 'Wynik przyjęty; podgląd niedostępny. Stan: '
-                          : 'Stan przetwarzania: '}
-                        {item.processing_state ?? 'oczekuje'}.
+                          ? 'Wynik przyjęty; podgląd jest dostępny w szczegółach.'
+                          : (reasonLabel(item.reason) ??
+                            'Analiza oczekuje na przetworzenie.')}
                       </p>
                     )}
                   </div>
