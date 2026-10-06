@@ -1,5 +1,6 @@
 import { ownerRouter, body, queryFields, text } from './common.js';
 import { JobStore } from '../../../../packages/core/src/jobs/store.js';
+import { RunRepository } from '../../../../packages/core/src/jobs/acceptance.js';
 import {
   AnalysisJobs,
   type AnalysisSettings,
@@ -14,6 +15,23 @@ import {
   pageLimit,
 } from '../../../../packages/core/src/db/cursor.js';
 export const jobsApp = ownerRouter();
+jobsApp.post('/analysis-selection', async (c) => {
+  const input = await body(c, ['run_id', 'item_id']),
+    access = c.get('access');
+  const runId = text(input.run_id, 128),
+    itemId = text(input.item_id, 128);
+  const allowed = await c.env.DB.prepare(
+    "SELECT 1 FROM analysis_runs r JOIN jobs j ON j.owner_id=r.owner_id AND j.job_id=r.job_id WHERE r.owner_id=? AND r.run_id=? AND r.item_id=? AND j.task_type='ANALYZE' AND json_extract(r.routing_snapshot_json,'$.settings.mode')='PRODUCTION'",
+  )
+    .bind(access.ownerId, runId, itemId)
+    .first();
+  if (!allowed) throw new Error('NOT_FOUND');
+  const revision = await new RunRepository(c.env.DB, access).requestSelection(
+    runId,
+    itemId,
+  );
+  return c.json({ selection_revision: revision });
+});
 jobsApp.post('/analysis', async (c) => {
   const input = await body(c, ['source_run_id', 'settings']);
   const settings = input.settings;

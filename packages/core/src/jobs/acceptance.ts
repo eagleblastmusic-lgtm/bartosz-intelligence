@@ -25,9 +25,9 @@ export class RunRepository {
     this.context.requireOwner();
     const result = await this.db
       .prepare(
-        `INSERT INTO active_analysis_selections(owner_id,item_id,requested_run_id,selection_revision)
-      SELECT owner_id,item_id,run_id,1 FROM analysis_runs WHERE owner_id=? AND item_id=? AND run_id=?
-      ON CONFLICT(owner_id,item_id) DO UPDATE SET requested_run_id=excluded.requested_run_id,selection_revision=selection_revision+1
+        `INSERT INTO active_analysis_selections(owner_id,item_id,requested_run_id,selection_revision,accepted_run_id)
+      SELECT owner_id,item_id,run_id,1,CASE WHEN state='ACCEPTED' THEN run_id ELSE NULL END FROM analysis_runs WHERE owner_id=? AND item_id=? AND run_id=?
+      ON CONFLICT(owner_id,item_id) DO UPDATE SET requested_run_id=excluded.requested_run_id,selection_revision=selection_revision+1,accepted_run_id=COALESCE(excluded.accepted_run_id,active_analysis_selections.accepted_run_id)
       RETURNING selection_revision`,
       )
       .bind(this.context.ownerId, itemId, runId)
@@ -47,6 +47,10 @@ export class RunRepository {
       guard: string,
       bindings: readonly (string | number | null)[],
     ) => Statement[],
+    precondition?: {
+      predicate: string;
+      bindings: readonly (string | number | null)[];
+    },
   ) {
     this.context.requireTask(task);
     if (
@@ -98,7 +102,7 @@ export class RunRepository {
         AND EXISTS(SELECT 1 FROM jobs j JOIN worker_identities w ON w.owner_id=j.owner_id AND w.worker_id=j.lease_owner
         WHERE j.owner_id=? AND j.job_id=? AND j.task_type=? AND j.state='RUNNING' AND j.lease_owner=? AND j.fencing_token=? AND j.lease_until>?
         AND w.revoked_at IS NULL AND w.credential_hash=?)
-        AND EXISTS(SELECT 1 FROM analysis_runs WHERE owner_id=? AND job_id=? AND run_id=? AND state='CANDIDATE')`,
+        AND EXISTS(SELECT 1 FROM analysis_runs WHERE owner_id=? AND job_id=? AND run_id=? AND state='CANDIDATE') AND (${precondition?.predicate ?? '1=1'})`,
         )
         .bind(
           nonce,
@@ -116,6 +120,7 @@ export class RunRepository {
           this.context.ownerId,
           token.job_id,
           runId,
+          ...(precondition?.bindings ?? []),
         ),
       this.db
         .prepare(

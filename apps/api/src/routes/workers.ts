@@ -181,6 +181,36 @@ workersApp.post('/analysis/validate', async (c) => {
     ),
   );
 });
+workersApp.post('/analysis/complete', async (c) => {
+  const input = await body(c, ['token', 'reservation_id', 'artifact_id']),
+    access = c.get('access');
+  if (!c.env.SESSION_SIGNING_SECRET)
+    throw new Error('AUTH_CONFIGURATION_REQUIRED');
+  return c.json(
+    await new AnalysisValidation(c.env.DB, access).complete(
+      token(input.token, access.actorId),
+      text(input.reservation_id, 36),
+      text(input.artifact_id, 128),
+      new Date(),
+      c.env.SESSION_SIGNING_SECRET,
+    ),
+  );
+});
+workersApp.post('/analysis/quality-finish', async (c) => {
+  const input = await body(c, ['token', 'reservation_id', 'artifact_id']),
+    access = c.get('access');
+  if (!c.env.SESSION_SIGNING_SECRET)
+    throw new Error('AUTH_CONFIGURATION_REQUIRED');
+  return c.json(
+    await new AnalysisValidation(c.env.DB, access).finishQualityTest(
+      token(input.token, access.actorId),
+      text(input.reservation_id, 36),
+      text(input.artifact_id, 128),
+      new Date(),
+      c.env.SESSION_SIGNING_SECRET,
+    ),
+  );
+});
 function diagnosticReservation(input: Record<string, unknown>) {
   return input.reservation_id === undefined
     ? null

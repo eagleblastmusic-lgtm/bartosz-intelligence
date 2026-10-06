@@ -1,6 +1,9 @@
 import { env } from 'cloudflare:workers';
 import { QuotaSnapshots } from '../../packages/core/src/ai/quota-snapshots.js';
-import { compileEconomy } from '../../packages/core/src/ai/compiler.js';
+import {
+  analysisQualityScope,
+  compileEconomy,
+} from '../../packages/core/src/ai/compiler.js';
 import { AnalysisValidation } from '../../packages/core/src/ai/validation.js';
 import { createExecutionContext } from 'cloudflare:test';
 import worker from '../../apps/api/src/index.js';
@@ -468,681 +471,544 @@ it('local poller consumes durable caption backlog through the real Worker API an
   });
   expect(providerCalls).toBe(2);
 });
-it('verified source acceptance binds original authority, all five representations and the current fence without creating AI knowledge', async () => {
-  const { item, token, access, repository, owner } = await setup();
-  const sourceText = 'Original statement.',
-    revision = await sha256(sourceText);
-  const track = {
-    track_id: 'native-en',
-    item_id: item.item_id,
-    language_code: 'en',
-    track_kind: 'MANUAL' as const,
-    is_generated: false,
-    is_translated: false,
-    source_language: null,
-    translation_source_track_id: null,
-    is_translatable: false,
-    translation_languages: [],
-    is_original: true,
-    extension: 'json3',
-    expires_at: new Date(fixtureNow.getTime() + 600000).toISOString(),
-  };
-  const selection = selectTranscriptLanguage(
-    {
-      status: 'OK',
-      failure_code: null,
+it.each(['QUALITY_TEST', 'PRODUCTION'] as const)(
+  'verified source acceptance and %s analysis preserve source authority and fenced knowledge effects',
+  async (mode) => {
+    const { item, token, access, repository, owner } = await setup();
+    const sourceText = 'Original statement.',
+      revision = await sha256(sourceText);
+    const track = {
+      track_id: 'native-en',
+      item_id: item.item_id,
+      language_code: 'en',
+      track_kind: 'MANUAL' as const,
+      is_generated: false,
+      is_translated: false,
+      source_language: null,
+      translation_source_track_id: null,
+      is_translatable: false,
+      translation_languages: [],
+      is_original: true,
+      extension: 'json3',
+      expires_at: new Date(fixtureNow.getTime() + 600000).toISOString(),
+    };
+    const selection = selectTranscriptLanguage(
+      {
+        status: 'OK',
+        failure_code: null,
+        provider_id: 'local_ytdlp',
+        provider_version: 'yt-dlp@2026.08.19+yt-dlp-ejs@0.8.0',
+        runtime_id: 'local',
+        tracks: [track],
+        video_language: 'en',
+        retrieved_at: fixtureNow.toISOString(),
+        request_id: 'source-test',
+      },
+      revision,
+    );
+    const provenance = {
       provider_id: 'local_ytdlp',
-      provider_version: 'yt-dlp@2026.08.19+yt-dlp-ejs@0.8.0',
-      runtime_id: 'local',
-      tracks: [track],
+      upstream_track_id: track.track_id,
+      language_code: 'en',
+      track_kind: 'MANUAL',
+      is_generated: false,
+      is_translated: false,
+      is_original: true,
       video_language: 'en',
-      retrieved_at: fixtureNow.toISOString(),
-      request_id: 'source-test',
-    },
-    revision,
-  );
-  const provenance = {
-    provider_id: 'local_ytdlp',
-    upstream_track_id: track.track_id,
-    language_code: 'en',
-    track_kind: 'MANUAL',
-    is_generated: false,
-    is_translated: false,
-    is_original: true,
-    video_language: 'en',
-    original_language: 'en',
-  };
-  const upload = async (
-    kind: ArtifactDescriptor['kind'],
-    text: string,
-    original: string | null,
-  ) => {
-    const artifact = await repository.begin(
-      {
-        item_id: item.item_id,
-        kind,
-        content_hash: await sha256(text),
-        byte_size: new TextEncoder().encode(text).length,
-        chunk_count: 1,
-        schema_version: 'fixture:1',
-        producer_version: original
-          ? 'source-normalizer:1'
-          : 'yt-dlp@2026.08.19+yt-dlp-ejs@0.8.0',
-        provenance: original
-          ? { ...provenance, source_revision: revision }
-          : provenance,
-        original_ref: original,
-      },
-      token,
-      'FETCH_TRANSCRIPT',
-      fixtureNow,
-    );
-    await repository.writeChunk(
-      artifact.artifact_id,
-      0,
-      0,
-      new TextEncoder().encode(text),
-      token,
-      'FETCH_TRANSCRIPT',
-      fixtureNow,
-    );
-    return repository.verifyLocal(
-      artifact.artifact_id,
-      token,
-      'FETCH_TRANSCRIPT',
-      fixtureNow,
-      'local',
-    );
-  };
-  const raw = await upload('RAW', '{"events":[]}', null),
-    source = await upload('SOURCE_ORIGINAL', sourceText, null);
-  const sourceNormalized = await normalizeTranscript(
-    revision,
-    [
-      {
-        upstream_index: 0,
-        text: sourceText,
-        start_ms: 0,
-        end_ms: 1500,
-        speaker_label: null,
-      },
-    ],
-    'CUE',
-  );
-  const normalized = await upload('NORMALIZED', sourceText, source.artifact_id),
-    map = await upload(
-      'SEGMENT_MAP',
-      JSON.stringify(sourceNormalized.manifest),
-      source.artifact_id,
-    ),
-    offsets = await upload('OFFSET_MAP', '[]', source.artifact_id);
-  const input: TranscriptSourceCompletion = {
-    raw_artifact_id: raw.artifact_id,
-    source_artifact_id: source.artifact_id,
-    normalized_artifact_id: normalized.artifact_id,
-    segment_map_artifact_id: map.artifact_id,
-    offset_map_artifact_id: offsets.artifact_id,
-    selection,
-    warnings: ['SOURCE_DURATION_OVERRUN', 'NO_TIMESTAMP'],
-  };
-  const acceptance = new TranscriptAcceptance(env.DB, access);
-  await expect(
-    acceptance.accept(
-      { ...input, warnings: ['UNKNOWN_SOURCE_WARNING'] },
-      token,
-      fixtureNow,
-    ),
-  ).rejects.toThrow('INVALID_SOURCE_COMPLETION');
-  await expect(
-    acceptance.accept(
-      { ...input, selection: { ...selection, authority_confidence: 'LOW' } },
-      token,
-      fixtureNow,
-    ),
-  ).rejects.toThrow('INVALID_SOURCE_COMPLETION');
-  await expect(
-    acceptance.accept(
-      { ...input, offset_map_artifact_id: map.artifact_id },
-      token,
-      fixtureNow,
-    ),
-  ).rejects.toThrow('INVALID_SOURCE_ARTIFACT_SET');
-  await expect(
-    acceptance.accept(
-      input,
-      { ...token, fencing_token: token.fencing_token + 1 },
-      fixtureNow,
-    ),
-  ).rejects.toThrow();
-  expect(
-    await env.DB.prepare(
-      "SELECT count(*) AS n FROM analysis_runs WHERE state='ACCEPTED'",
-    ).first('n'),
-  ).toBe(0);
-  const accepted = await acceptance.accept(input, token, fixtureNow);
-  expect(accepted.accepted).toBe(true);
-  expect(await acceptance.accept(input, token, fixtureNow)).toMatchObject({
-    accepted: true,
-    duplicate: true,
-    run_id: accepted.run_id,
-  });
-  expect(
-    await env.DB.prepare('SELECT state FROM jobs WHERE job_id=?')
-      .bind(token.job_id)
-      .first('state'),
-  ).toBe('SUCCEEDED');
-  expect(
-    await env.DB.prepare('SELECT count(*) AS n FROM observations').first('n'),
-  ).toBe(0);
-  const registry = new PromptRegistry(env.DB, owner);
-  await registry.importBundle(bundle, fixtureNow);
-  await registry.activate('ECONOMY_ANALYSIS_V1', 2, 0, fixtureNow);
-  const profile: PipelineProfile = {
-    profile_id: 'gemini_free',
-    revision: 1,
-    provider_id: 'gemini',
-    model: 'gemini-3.8-flash',
-    account_key: 'actual-registry-account',
-    free_eligible: true,
-    billing_enabled: false,
-    purposes: ['personal'],
-    regions: ['PL'],
-    task_types: ['ECONOMY'],
-    runtimes: ['local'],
-    structured_output: true,
-    context_tokens: 100000,
-    output_tokens: 8000,
-    rank: 0,
-    quality_approvals: [],
-    eligibility_expires_at: new Date(Date.now() + 3600000).toISOString(),
-  };
-  const models = new ModelRegistry(env.DB, owner);
-  await models.publish(profile, fixtureNow);
-  const settings = {
-    runtime: 'local' as const,
-    mode: 'QUALITY_TEST' as const,
-    purpose: 'personal',
-    region: 'PL',
-    max_output_tokens: 4000,
-    limits: { claims: 20 },
-  };
-  const analysis = new AnalysisJobs(env.DB, owner);
-  await expect(
-    analysis.enqueue(
-      accepted.run_id,
-      { ...settings, mode: 'PRODUCTION' },
-      fixtureNow,
-    ),
-  ).rejects.toThrow('ANALYSIS_PROFILE_QUALITY_SCOPE');
-  await expect(
-    new AnalysisJobs(env.DB, await fixtureOwner('b')).enqueue(
-      accepted.run_id,
-      settings,
-      fixtureNow,
-    ),
-  ).rejects.toThrow('ANALYSIS_SOURCE_NOT_ACCEPTED');
-  await expect(
-    new AnalysisJobs(env.DB, access).enqueue(
-      accepted.run_id,
-      settings,
-      fixtureNow,
-    ),
-  ).rejects.toThrow('FORBIDDEN');
-  const aiJob = (await analysis.enqueue(
-    accepted.run_id,
-    settings,
-    fixtureNow,
-  ))!;
-  expect(
-    (await analysis.enqueue(accepted.run_id, settings, fixtureNow))!.job_id,
-  ).toBe(aiJob.job_id);
-  await models.publish(
-    { ...profile, revision: 2, model: 'different-model' },
-    fixtureNow,
-  );
-  await registry.activate('ECONOMY_ANALYSIS_V1', 2, 1, fixtureNow);
-  const aiCredential = await sha256('q'.repeat(43));
-  await env.DB.prepare('INSERT INTO worker_identities VALUES(?,?,?,?,?,NULL)')
-    .bind(
-      'analysis-worker',
-      'a',
-      aiCredential,
-      '["ANALYZE"]',
-      fixtureNow.toISOString(),
-    )
-    .run();
-  const aiAccess = await AccessContext.worker(env.DB, aiCredential),
-    aiStore = new JobStore(env.DB, aiAccess);
-  const aiToken = (await aiStore.lease(
-    aiJob.job_id,
-    'ANALYZE',
-    fixtureNow,
-    'local',
-  ))!;
-  await aiStore.start(aiToken, 'ANALYZE', fixtureNow);
-  const workerJobs = new AnalysisJobs(env.DB, aiAccess);
-  const prepared = await workerJobs.prepareRun(aiToken, fixtureNow);
-  expect(prepared.snapshot.profile.account_key).toBe('actual-registry-account');
-  expect(prepared.snapshot.profile.revision).toBe(1);
-  expect(prepared.snapshot.prompt.generation).toBe(1);
-  expect(prepared.snapshot.source.source_artifact_id).toBe(source.artifact_id);
-  expect((await workerJobs.prepareRun(aiToken, fixtureNow)).run_id).toBe(
-    prepared.run_id,
-  );
-  await expect(
-    workerJobs.prepareRun(
-      { ...aiToken, fencing_token: aiToken.fencing_token + 1 },
-      fixtureNow,
-    ),
-  ).rejects.toThrow('STALE_FENCE');
-  expect(
-    await env.DB.prepare('SELECT state FROM analysis_runs WHERE run_id=?')
-      .bind(prepared.run_id)
-      .first('state'),
-  ).toBe('CANDIDATE');
-  expect(
-    await env.DB.prepare('SELECT count(*) AS n FROM quota_reservations').first(
-      'n',
-    ),
-  ).toBe(0);
-  await expect(
-    workerJobs.reserve(
-      aiToken,
-      { request_id: prepared.run_id, input_tokens: 100 },
-      fixtureNow,
-    ),
-  ).rejects.toThrow('ANALYSIS_CONTEXT_REQUIRED');
-  const compiled = await compileEconomy({
-    source_artifact_id: source.artifact_id,
-    source_text: sourceText,
-    manifest: sourceNormalized.manifest,
-    manifest_hash: map.content_hash!,
-    prompt: prepared.snapshot.prompt,
-    profile: prepared.snapshot.profile,
-    profile_revision: prepared.snapshot_hash,
-    semantic_context: prepared.snapshot.semantic_context!,
-    runtime: 'local',
-    request_id: prepared.run_id,
-    deadline: new Date(fixtureNow.getTime() + 300000).toISOString(),
-    mode: settings.mode,
-    max_output_tokens: settings.max_output_tokens,
-    limits: settings.limits,
-  });
-  const estimate = compiled.request.estimated_input_tokens;
-  const contextReceipt = await workerJobs.bindContext(
-    aiToken,
-    compiled.run_context,
-    compiled.context_hash,
-    await sha256(compiled.request.prompt),
-    fixtureNow,
-  );
-  expect(
-    await workerJobs.bindContext(
-      aiToken,
-      compiled.run_context,
-      compiled.context_hash,
-      await sha256(compiled.request.prompt),
-      fixtureNow,
-    ),
-  ).toEqual(contextReceipt);
-  await expect(
-    workerJobs.bindContext(
-      aiToken,
-      { ...compiled.run_context, runtime: 'cloud' },
-      compiled.context_hash,
-      await sha256(compiled.request.prompt),
-      fixtureNow,
-    ),
-  ).rejects.toThrow('INVALID_AI_CONTEXT');
-  await expect(
-    workerJobs.bindContext(
-      aiToken,
-      compiled.run_context,
-      compiled.context_hash,
-      await sha256('changed prompt'),
-      fixtureNow,
-    ),
-  ).rejects.toThrow('ANALYSIS_CONTEXT_CONFLICT');
-  await expect(
-    workerJobs.reserve(
-      aiToken,
-      { request_id: prepared.run_id, input_tokens: estimate - 1 },
-      fixtureNow,
-    ),
-  ).rejects.toThrow('INVALID_AI_TOKEN_ESTIMATE');
-  await expect(
-    workerJobs.reserve(
-      aiToken,
-      { request_id: prepared.run_id, input_tokens: estimate },
-      fixtureNow,
-    ),
-  ).rejects.toThrow('QUOTA_UNKNOWN_OR_STALE');
-  const daily = dailyQuotaWindow(fixtureNow, 'America/Los_Angeles');
-  for (const bucket of ['RPM', 'RPD', 'INPUT_TPM'] as const) {
-    const remaining = bucket === 'INPUT_TPM' ? 50000 : 2;
-    await env.DB.prepare(
-      'INSERT INTO quota_snapshots VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)',
-    )
-      .bind(
-        'actual-' + bucket,
-        'a',
-        'gemini',
-        profile.model,
-        bucket,
-        'tokens-or-requests',
-        remaining,
+      original_language: 'en',
+    };
+    const upload = async (
+      kind: ArtifactDescriptor['kind'],
+      text: string,
+      original: string | null,
+    ) => {
+      const artifact = await repository.begin(
+        {
+          item_id: item.item_id,
+          kind,
+          content_hash: await sha256(text),
+          byte_size: new TextEncoder().encode(text).length,
+          chunk_count: 1,
+          schema_version: 'fixture:1',
+          producer_version: original
+            ? 'source-normalizer:1'
+            : 'yt-dlp@2026.08.19+yt-dlp-ejs@0.8.0',
+          provenance: original
+            ? { ...provenance, source_revision: revision }
+            : provenance,
+          original_ref: original,
+        },
+        token,
+        'FETCH_TRANSCRIPT',
+        fixtureNow,
+      );
+      await repository.writeChunk(
+        artifact.artifact_id,
         0,
-        remaining,
-        bucket === 'RPD'
-          ? daily.reset_at
-          : new Date(fixtureNow.getTime() + 60000).toISOString(),
-        'America/Los_Angeles',
-        'dashboard',
+        0,
+        new TextEncoder().encode(text),
+        token,
+        'FETCH_TRANSCRIPT',
+        fixtureNow,
+      );
+      return repository.verifyLocal(
+        artifact.artifact_id,
+        token,
+        'FETCH_TRANSCRIPT',
+        fixtureNow,
+        'local',
+      );
+    };
+    const raw = await upload('RAW', '{"events":[]}', null),
+      source = await upload('SOURCE_ORIGINAL', sourceText, null);
+    const sourceNormalized = await normalizeTranscript(
+      revision,
+      [
+        {
+          upstream_index: 0,
+          text: sourceText,
+          start_ms: 0,
+          end_ms: 1500,
+          speaker_label: null,
+        },
+      ],
+      'CUE',
+    );
+    const normalized = await upload(
+        'NORMALIZED',
+        sourceText,
+        source.artifact_id,
+      ),
+      map = await upload(
+        'SEGMENT_MAP',
+        JSON.stringify(sourceNormalized.manifest),
+        source.artifact_id,
+      ),
+      offsets = await upload('OFFSET_MAP', '[]', source.artifact_id);
+    const input: TranscriptSourceCompletion = {
+      raw_artifact_id: raw.artifact_id,
+      source_artifact_id: source.artifact_id,
+      normalized_artifact_id: normalized.artifact_id,
+      segment_map_artifact_id: map.artifact_id,
+      offset_map_artifact_id: offsets.artifact_id,
+      selection,
+      warnings: ['SOURCE_DURATION_OVERRUN', 'NO_TIMESTAMP'],
+    };
+    const acceptance = new TranscriptAcceptance(env.DB, access);
+    await expect(
+      acceptance.accept(
+        { ...input, warnings: ['UNKNOWN_SOURCE_WARNING'] },
+        token,
+        fixtureNow,
+      ),
+    ).rejects.toThrow('INVALID_SOURCE_COMPLETION');
+    await expect(
+      acceptance.accept(
+        { ...input, selection: { ...selection, authority_confidence: 'LOW' } },
+        token,
+        fixtureNow,
+      ),
+    ).rejects.toThrow('INVALID_SOURCE_COMPLETION');
+    await expect(
+      acceptance.accept(
+        { ...input, offset_map_artifact_id: map.artifact_id },
+        token,
+        fixtureNow,
+      ),
+    ).rejects.toThrow('INVALID_SOURCE_ARTIFACT_SET');
+    await expect(
+      acceptance.accept(
+        input,
+        { ...token, fencing_token: token.fencing_token + 1 },
+        fixtureNow,
+      ),
+    ).rejects.toThrow();
+    expect(
+      await env.DB.prepare(
+        "SELECT count(*) AS n FROM analysis_runs WHERE state='ACCEPTED'",
+      ).first('n'),
+    ).toBe(0);
+    const accepted = await acceptance.accept(input, token, fixtureNow);
+    expect(accepted.accepted).toBe(true);
+    expect(await acceptance.accept(input, token, fixtureNow)).toMatchObject({
+      accepted: true,
+      duplicate: true,
+      run_id: accepted.run_id,
+    });
+    expect(
+      await env.DB.prepare('SELECT state FROM jobs WHERE job_id=?')
+        .bind(token.job_id)
+        .first('state'),
+    ).toBe('SUCCEEDED');
+    expect(
+      await env.DB.prepare('SELECT count(*) AS n FROM observations').first('n'),
+    ).toBe(0);
+    const registry = new PromptRegistry(env.DB, owner);
+    await registry.importBundle(bundle, fixtureNow);
+    await registry.activate('ECONOMY_ANALYSIS_V1', 2, 0, fixtureNow);
+    const profile: PipelineProfile = {
+      profile_id: 'gemini_free',
+      revision: 1,
+      provider_id: 'gemini',
+      model: 'gemini-3.8-flash',
+      account_key: 'actual-registry-account',
+      free_eligible: true,
+      billing_enabled: false,
+      purposes: ['personal'],
+      regions: ['PL'],
+      task_types: ['ECONOMY'],
+      runtimes: ['local'],
+      structured_output: true,
+      context_tokens: 100000,
+      output_tokens: 8000,
+      rank: 0,
+      quality_approvals: [],
+      eligibility_expires_at: new Date(Date.now() + 3600000).toISOString(),
+    };
+    const models = new ModelRegistry(env.DB, owner);
+    await models.publish(profile, fixtureNow);
+    const settings = {
+      runtime: 'local' as const,
+      mode,
+      purpose: 'personal',
+      region: 'PL',
+      max_output_tokens: 4000,
+      limits: { claims: 20 },
+    };
+    const analysis = new AnalysisJobs(env.DB, owner);
+    await expect(
+      analysis.enqueue(
+        accepted.run_id,
+        { ...settings, mode: 'PRODUCTION' },
+        fixtureNow,
+      ),
+    ).rejects.toThrow('ANALYSIS_PROFILE_QUALITY_SCOPE');
+    if (mode === 'PRODUCTION') {
+      profile.quality_approvals = [
+        await analysisQualityScope(await registry.current(), profile, {
+          limits: settings.limits,
+          max_output_tokens: settings.max_output_tokens,
+          source_language: selection.source!.language_code,
+          analysis_mode: 'ORDINARY',
+        }),
+      ];
+      profile.revision = 2;
+      await models.publish(profile, fixtureNow);
+    }
+    await expect(
+      new AnalysisJobs(env.DB, await fixtureOwner('b')).enqueue(
+        accepted.run_id,
+        settings,
+        fixtureNow,
+      ),
+    ).rejects.toThrow('ANALYSIS_SOURCE_NOT_ACCEPTED');
+    await expect(
+      new AnalysisJobs(env.DB, access).enqueue(
+        accepted.run_id,
+        settings,
+        fixtureNow,
+      ),
+    ).rejects.toThrow('FORBIDDEN');
+    const aiJob = (await analysis.enqueue(
+      accepted.run_id,
+      settings,
+      fixtureNow,
+    ))!;
+    expect(
+      (await analysis.enqueue(accepted.run_id, settings, fixtureNow))!.job_id,
+    ).toBe(aiJob.job_id);
+    await models.publish(
+      { ...profile, revision: profile.revision + 1, model: 'different-model' },
+      fixtureNow,
+    );
+    await registry.activate('ECONOMY_ANALYSIS_V1', 2, 1, fixtureNow);
+    const aiCredential = await sha256('q'.repeat(43));
+    await env.DB.prepare('INSERT INTO worker_identities VALUES(?,?,?,?,?,NULL)')
+      .bind(
+        'analysis-worker',
+        'a',
+        aiCredential,
+        '["ANALYZE"]',
         fixtureNow.toISOString(),
-        new Date(fixtureNow.getTime() + 60000).toISOString(),
-        'actual',
       )
       .run();
-  }
-  const reservePolicy = JSON.stringify({ RPM: 1, RPD: 1, INPUT_TPM: 100 });
-  await env.DB.prepare('INSERT INTO config_versions VALUES(?,?,?,?,?,?)')
-    .bind(
-      'quota-reserve-gemini_free',
-      'a',
-      1,
-      reservePolicy,
-      await sha256(reservePolicy),
-      fixtureNow.toISOString(),
-    )
-    .run();
-  const permit = await workerJobs.reserve(
-    aiToken,
-    { request_id: prepared.run_id, input_tokens: estimate },
-    fixtureNow,
-  );
-  expect(
-    await env.DB.prepare(
-      'SELECT account_key FROM quota_reservations WHERE reservation_id=?',
-    )
-      .bind(permit.reservation_id)
-      .first('account_key'),
-  ).toBe(profile.account_key);
-  await expect(
-    workerJobs.submit(
-      aiToken,
-      permit.reservation_id,
-      await sha256('changed prompt'),
+    const aiAccess = await AccessContext.worker(env.DB, aiCredential),
+      aiStore = new JobStore(env.DB, aiAccess);
+    const aiToken = (await aiStore.lease(
+      aiJob.job_id,
+      'ANALYZE',
       fixtureNow,
-    ),
-  ).rejects.toThrow('INVALID_AI_REQUEST_SCOPE');
-  expect(
-    await workerJobs.submit(
+      'local',
+    ))!;
+    await aiStore.start(aiToken, 'ANALYZE', fixtureNow);
+    const workerJobs = new AnalysisJobs(env.DB, aiAccess);
+    const prepared = await workerJobs.prepareRun(aiToken, fixtureNow);
+    expect(prepared.snapshot.profile.account_key).toBe(
+      'actual-registry-account',
+    );
+    expect(prepared.snapshot.profile.revision).toBe(profile.revision);
+    expect(prepared.snapshot.prompt.generation).toBe(1);
+    expect(prepared.snapshot.source.source_artifact_id).toBe(
+      source.artifact_id,
+    );
+    expect((await workerJobs.prepareRun(aiToken, fixtureNow)).run_id).toBe(
+      prepared.run_id,
+    );
+    await expect(
+      workerJobs.prepareRun(
+        { ...aiToken, fencing_token: aiToken.fencing_token + 1 },
+        fixtureNow,
+      ),
+    ).rejects.toThrow('STALE_FENCE');
+    expect(
+      await env.DB.prepare('SELECT state FROM analysis_runs WHERE run_id=?')
+        .bind(prepared.run_id)
+        .first('state'),
+    ).toBe('CANDIDATE');
+    expect(
+      await env.DB.prepare(
+        'SELECT count(*) AS n FROM quota_reservations',
+      ).first('n'),
+    ).toBe(0);
+    await expect(
+      workerJobs.reserve(
+        aiToken,
+        { request_id: prepared.run_id, input_tokens: 100 },
+        fixtureNow,
+      ),
+    ).rejects.toThrow('ANALYSIS_CONTEXT_REQUIRED');
+    const compiled = await compileEconomy({
+      source_artifact_id: source.artifact_id,
+      source_text: sourceText,
+      manifest: sourceNormalized.manifest,
+      manifest_hash: map.content_hash!,
+      prompt: prepared.snapshot.prompt,
+      profile: prepared.snapshot.profile,
+      profile_revision: prepared.snapshot_hash,
+      semantic_context: prepared.snapshot.semantic_context!,
+      runtime: 'local',
+      request_id: prepared.run_id,
+      deadline: new Date(fixtureNow.getTime() + 300000).toISOString(),
+      mode: settings.mode,
+      max_output_tokens: settings.max_output_tokens,
+      limits: settings.limits,
+    });
+    const estimate = compiled.request.estimated_input_tokens;
+    const contextReceipt = await workerJobs.bindContext(
       aiToken,
-      permit.reservation_id,
+      compiled.run_context,
+      compiled.context_hash,
       await sha256(compiled.request.prompt),
       fixtureNow,
-    ),
-  ).toEqual({ reservation_id: permit.reservation_id });
-  await expect(
-    workerJobs.submit(
-      aiToken,
-      permit.reservation_id,
-      await sha256(compiled.request.prompt),
-      fixtureNow,
-    ),
-  ).rejects.toThrow('RESERVATION_NOT_SUBMITTABLE');
-  await expect(
-    workerJobs.reserve(
-      aiToken,
-      { request_id: 'next-request', input_tokens: 100 },
-      fixtureNow,
-    ),
-  ).rejects.toThrow('INVALID_AI_REQUEST_SCOPE');
-  const observationTime = new Date(fixtureNow.getTime() + 1000);
-  await new QuotaSnapshots(env.DB, owner).record(
-    {
-      version: 'gemini-quota-observation:1',
-      project: 'different-google-project',
-      model: profile.model,
-      tier: 'FREE',
-      source: 'GOOGLE_CLOUD_QUOTA_CURRENT',
-      sampled_at: observationTime.toISOString(),
-      buckets: [
-        { bucket: 'RPM', limit: 5, used: 0 },
-        { bucket: 'RPD', limit: 20, used: 0 },
-        { bucket: 'INPUT_TPM', limit: 250000, used: 0 },
-      ],
-    },
-    observationTime,
-  );
-  await expect(
-    workerJobs.reserve(
+    );
+    expect(
+      await workerJobs.bindContext(
+        aiToken,
+        compiled.run_context,
+        compiled.context_hash,
+        await sha256(compiled.request.prompt),
+        fixtureNow,
+      ),
+    ).toEqual(contextReceipt);
+    await expect(
+      workerJobs.bindContext(
+        aiToken,
+        { ...compiled.run_context, runtime: 'cloud' },
+        compiled.context_hash,
+        await sha256(compiled.request.prompt),
+        fixtureNow,
+      ),
+    ).rejects.toThrow('INVALID_AI_CONTEXT');
+    await expect(
+      workerJobs.bindContext(
+        aiToken,
+        compiled.run_context,
+        compiled.context_hash,
+        await sha256('changed prompt'),
+        fixtureNow,
+      ),
+    ).rejects.toThrow('ANALYSIS_CONTEXT_CONFLICT');
+    await expect(
+      workerJobs.reserve(
+        aiToken,
+        { request_id: prepared.run_id, input_tokens: estimate - 1 },
+        fixtureNow,
+      ),
+    ).rejects.toThrow('INVALID_AI_TOKEN_ESTIMATE');
+    await expect(
+      workerJobs.reserve(
+        aiToken,
+        { request_id: prepared.run_id, input_tokens: estimate },
+        fixtureNow,
+      ),
+    ).rejects.toThrow('QUOTA_UNKNOWN_OR_STALE');
+    const daily = dailyQuotaWindow(fixtureNow, 'America/Los_Angeles');
+    for (const bucket of ['RPM', 'RPD', 'INPUT_TPM'] as const) {
+      const remaining = bucket === 'INPUT_TPM' ? 50000 : 2;
+      await env.DB.prepare(
+        'INSERT INTO quota_snapshots VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)',
+      )
+        .bind(
+          'actual-' + bucket,
+          'a',
+          'gemini',
+          profile.model,
+          bucket,
+          'tokens-or-requests',
+          remaining,
+          0,
+          remaining,
+          bucket === 'RPD'
+            ? daily.reset_at
+            : new Date(fixtureNow.getTime() + 60000).toISOString(),
+          'America/Los_Angeles',
+          'dashboard',
+          fixtureNow.toISOString(),
+          new Date(fixtureNow.getTime() + 60000).toISOString(),
+          'actual',
+        )
+        .run();
+    }
+    const reservePolicy = JSON.stringify({ RPM: 1, RPD: 1, INPUT_TPM: 100 });
+    await env.DB.prepare('INSERT INTO config_versions VALUES(?,?,?,?,?,?)')
+      .bind(
+        'quota-reserve-gemini_free',
+        'a',
+        1,
+        reservePolicy,
+        await sha256(reservePolicy),
+        fixtureNow.toISOString(),
+      )
+      .run();
+    const permit = await workerJobs.reserve(
       aiToken,
       { request_id: prepared.run_id, input_tokens: estimate },
-      observationTime,
-    ),
-  ).rejects.toThrow('QUOTA_ACCOUNT_MISMATCH');
-  await env.DB.prepare(
-    'UPDATE sources SET ai_processing_allowed=0 WHERE owner_id=?',
-  )
-    .bind('a')
-    .run();
-  await expect(workerJobs.load(aiToken, fixtureNow)).rejects.toThrow(
-    'ANALYSIS_SOURCE_PROCESSING_DENIED',
-  );
-  await env.DB.prepare(
-    'UPDATE sources SET ai_processing_allowed=1 WHERE owner_id=?',
-  )
-    .bind('a')
-    .run();
-  const rpcResponse = await worker.fetch(
-    new Request('https://fixture.invalid/internal/workers/analysis/input', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        Authorization: 'Bearer ' + 'z'.repeat(43),
+      fixtureNow,
+    );
+    expect(
+      await env.DB.prepare(
+        'SELECT account_key FROM quota_reservations WHERE reservation_id=?',
+      )
+        .bind(permit.reservation_id)
+        .first('account_key'),
+    ).toBe(profile.account_key);
+    await expect(
+      workerJobs.submit(
+        aiToken,
+        permit.reservation_id,
+        await sha256('changed prompt'),
+        fixtureNow,
+      ),
+    ).rejects.toThrow('INVALID_AI_REQUEST_SCOPE');
+    expect(
+      await workerJobs.submit(
+        aiToken,
+        permit.reservation_id,
+        await sha256(compiled.request.prompt),
+        fixtureNow,
+      ),
+    ).toEqual({ reservation_id: permit.reservation_id });
+    await expect(
+      workerJobs.submit(
+        aiToken,
+        permit.reservation_id,
+        await sha256(compiled.request.prompt),
+        fixtureNow,
+      ),
+    ).rejects.toThrow('RESERVATION_NOT_SUBMITTABLE');
+    await expect(
+      workerJobs.reserve(
+        aiToken,
+        { request_id: 'next-request', input_tokens: 100 },
+        fixtureNow,
+      ),
+    ).rejects.toThrow('INVALID_AI_REQUEST_SCOPE');
+    const observationTime = new Date(fixtureNow.getTime() + 1000);
+    await new QuotaSnapshots(env.DB, owner).record(
+      {
+        version: 'gemini-quota-observation:1',
+        project: 'different-google-project',
+        model: profile.model,
+        tier: 'FREE',
+        source: 'GOOGLE_CLOUD_QUOTA_CURRENT',
+        sampled_at: observationTime.toISOString(),
+        buckets: [
+          { bucket: 'RPM', limit: 5, used: 0 },
+          { bucket: 'RPD', limit: 20, used: 0 },
+          { bucket: 'INPUT_TPM', limit: 250000, used: 0 },
+        ],
       },
-      body: JSON.stringify({ token: aiToken }),
-    }),
-    { ...env, SESSION_SIGNING_SECRET: fixtureSecret },
-    createExecutionContext(),
-  );
-  expect(rpcResponse.status).toBe(401);
-  await env.DB.prepare('UPDATE jobs SET lease_until=? WHERE job_id=?')
-    .bind(new Date(Date.now() + 900000).toISOString(), aiToken.job_id)
-    .run();
-  const callInput = (input: unknown) =>
-    worker.fetch(
+      observationTime,
+    );
+    await expect(
+      workerJobs.reserve(
+        aiToken,
+        { request_id: prepared.run_id, input_tokens: estimate },
+        observationTime,
+      ),
+    ).rejects.toThrow('QUOTA_ACCOUNT_MISMATCH');
+    await env.DB.prepare(
+      'UPDATE sources SET ai_processing_allowed=0 WHERE owner_id=?',
+    )
+      .bind('a')
+      .run();
+    await expect(workerJobs.load(aiToken, fixtureNow)).rejects.toThrow(
+      'ANALYSIS_SOURCE_PROCESSING_DENIED',
+    );
+    await env.DB.prepare(
+      'UPDATE sources SET ai_processing_allowed=1 WHERE owner_id=?',
+    )
+      .bind('a')
+      .run();
+    const rpcResponse = await worker.fetch(
       new Request('https://fixture.invalid/internal/workers/analysis/input', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          Authorization: 'Bearer ' + 'q'.repeat(43),
+          Authorization: 'Bearer ' + 'z'.repeat(43),
         },
-        body: JSON.stringify(input),
+        body: JSON.stringify({ token: aiToken }),
       }),
       { ...env, SESSION_SIGNING_SECRET: fixtureSecret },
       createExecutionContext(),
     );
-  const inputResponse = await callInput({ token: aiToken });
-  expect(inputResponse.status).toBe(200);
-  expect(
-    ((await inputResponse.json()) as { snapshot: { profile: PipelineProfile } })
-      .snapshot.profile.revision,
-  ).toBe(1);
-  expect(
-    (await callInput({ token: aiToken, account_key: 'arbitrary-account' }))
-      .status,
-  ).toBe(422);
-  const analysisTransport: typeof fetch = async (input, init) =>
-    worker.fetch(
-      new Request(input, init),
-      { ...env, SESSION_SIGNING_SECRET: fixtureSecret },
-      createExecutionContext(),
-    );
-  const localPrepared = await prepareAnalysis(
-    new WorkerRpc('https://fixture.invalid', 'q'.repeat(43), analysisTransport),
-    new ArtifactClient(
-      'https://fixture.invalid',
-      'q'.repeat(43),
-      () => aiToken,
-      'ANALYZE',
-      analysisTransport,
-    ),
-    aiToken,
-    'local',
-    new Date(),
-  );
-  expect(localPrepared.request.prompt).toContain(sourceText);
-  expect(localPrepared.request.prompt).not.toContain(profile.account_key);
-  expect(localPrepared.request.request_id).toBe(prepared.run_id);
-  expect(localPrepared.manifest.anchors).toHaveLength(1);
-  expect(localPrepared.run_context.source_manifest_hash).toBe(map.content_hash);
-  const responseReceipt = (await retainAnalysisResponse({
-    origin: 'https://fixture.invalid',
-    credential: 'q'.repeat(43),
-    token: aiToken,
-    reservation_id: permit.reservation_id,
-    item_id: item.item_id,
-    response: {
-      request_id: prepared.run_id,
-      status: 'OK',
-      raw_output: JSON.stringify({
-        summary_pl: [
-          { text_pl: 'Autor przedstawia wypowiedź.', segment_refs: ['s1'] },
-        ],
-        key_points: [],
-        entity_mentions: [],
-        tools: [],
-        claims: [],
-        stance: [],
-        predictions: [],
-        source_issues: [],
-      }),
-      actual_provider: 'gemini',
-      actual_model: profile.model,
-      finish_reason: 'completed',
-      usage: { input_tokens: 100, output_tokens: 50, total_tokens: 150 },
-      retry_after: null,
-    },
-    transport: analysisTransport,
-  })) as { artifact_id: string };
-  const validation = new AnalysisValidation(env.DB, aiAccess);
-  const validated = await validation.evaluate(
-    aiToken,
-    permit.reservation_id,
-    responseReceipt.artifact_id,
-    new Date(),
-    fixtureSecret,
-  );
-  expect(validated).toMatchObject({
-    status: 'VALIDATED',
-    mode: 'QUALITY_TEST',
-    accepted: false,
-    semantic_verification: 'NOT_ASSERTED',
-  });
-  expect(
-    await new WorkerRpc(
-      'https://fixture.invalid',
-      'q'.repeat(43),
-      analysisTransport,
-    ).request('analysis/validate', {
-      token: aiToken,
-      reservation_id: permit.reservation_id,
-      artifact_id: responseReceipt.artifact_id,
-    }),
-  ).toEqual(validated);
-  expect(
-    await validation.evaluate(
-      aiToken,
-      permit.reservation_id,
-      responseReceipt.artifact_id,
-      new Date(),
-      fixtureSecret,
-    ),
-  ).toEqual(validated);
-  expect(
-    (
-      await new ArtifactClient(
-        'https://fixture.invalid',
-        'q'.repeat(43),
-        () => aiToken,
-        'ANALYZE',
-        analysisTransport,
-      ).readText(validated.canonical_artifact_id!)
-    ).artifact.state,
-  ).toBe('VERIFIED');
-  const canonicalCandidate = await new ArtifactClient(
-    'https://fixture.invalid',
-    'q'.repeat(43),
-    () => aiToken,
-    'ANALYZE',
-    analysisTransport,
-  ).readText(validated.canonical_artifact_id!);
-  expect(JSON.parse(canonicalCandidate.text).evidence[0]).toMatchObject({
-    quote_original: sourceText,
-    start_ms: 0,
-    end_ms: 1500,
-    timestamp_precision: 'CUE',
-  });
-  expect(
-    await env.DB.prepare('SELECT state FROM analysis_runs WHERE run_id=?')
-      .bind(prepared.run_id)
-      .first('state'),
-  ).toBe('CANDIDATE');
-  expect(
-    await env.DB.prepare('SELECT COUNT(*) n FROM observations').first('n'),
-  ).toBe(0);
-  for (const [raw_output, expected] of [
-    [
-      JSON.stringify({
-        summary_pl: [{ text_pl: 'Wypowiedź.', segment_refs: ['s1'] }],
-        key_points: [],
-        entity_mentions: [],
-        tools: [],
-        claims: [],
-        stance: [],
-        predictions: [],
-        source_issues: ['unclear speech'],
-      }),
-      'REVIEW_REQUIRED',
-    ],
-    ['{"summary_pl":[],"summary_pl":[]}', 'DUPLICATE_JSON_KEY'],
-  ]) {
-    const retained = (await retainAnalysisResponse({
-      origin: 'https://fixture.invalid',
-      credential: 'q'.repeat(43),
-      token: aiToken,
-      reservation_id: permit.reservation_id,
-      item_id: item.item_id,
-      response: {
-        request_id: prepared.run_id,
-        status: 'OK',
-        raw_output: raw_output!,
-        actual_provider: 'gemini',
-        actual_model: profile.model,
-        finish_reason: 'completed',
-        usage: { input_tokens: 100, output_tokens: 50, total_tokens: 150 },
-        retry_after: null,
-      },
-      transport: analysisTransport,
-    })) as { artifact_id: string };
+    expect(rpcResponse.status).toBe(401);
+    await env.DB.prepare('UPDATE jobs SET lease_until=? WHERE job_id=?')
+      .bind(new Date(Date.now() + 900000).toISOString(), aiToken.job_id)
+      .run();
+    const callInput = (input: unknown) =>
+      worker.fetch(
+        new Request('https://fixture.invalid/internal/workers/analysis/input', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: 'Bearer ' + 'q'.repeat(43),
+          },
+          body: JSON.stringify(input),
+        }),
+        { ...env, SESSION_SIGNING_SECRET: fixtureSecret },
+        createExecutionContext(),
+      );
+    const inputResponse = await callInput({ token: aiToken });
+    expect(inputResponse.status).toBe(200);
     expect(
-      await validation.evaluate(
-        aiToken,
-        permit.reservation_id,
-        retained.artifact_id,
-        new Date(),
-        fixtureSecret,
-      ),
-    ).toMatchObject({
-      accepted: false,
-      canonical_artifact_id: null,
-      reason: expected,
-    });
-  }
-  await expect(
-    prepareAnalysis(
+      (
+        (await inputResponse.json()) as {
+          snapshot: { profile: PipelineProfile };
+        }
+      ).snapshot.profile.revision,
+    ).toBe(profile.revision);
+    expect(
+      (await callInput({ token: aiToken, account_key: 'arbitrary-account' }))
+        .status,
+    ).toBe(422);
+    const analysisTransport: typeof fetch = async (input, init) =>
+      worker.fetch(
+        new Request(input, init),
+        { ...env, SESSION_SIGNING_SECRET: fixtureSecret },
+        createExecutionContext(),
+      );
+    const localPrepared = await prepareAnalysis(
       new WorkerRpc(
         'https://fixture.invalid',
         'q'.repeat(43),
@@ -1156,19 +1022,355 @@ it('verified source acceptance binds original authority, all five representation
         analysisTransport,
       ),
       aiToken,
-      'cloud',
+      'local',
       new Date(),
-    ),
-  ).rejects.toThrow('ANALYSIS_JOB_SNAPSHOT_MISMATCH');
-  await env.DB.prepare(
-    'UPDATE worker_identities SET revoked_at=? WHERE worker_id=?',
-  )
-    .bind(fixtureNow.toISOString(), 'analysis-worker')
-    .run();
-  await expect(workerJobs.load(aiToken, fixtureNow)).rejects.toThrow(
-    'STALE_FENCE',
-  );
-});
+    );
+    expect(localPrepared.request.prompt).toContain(sourceText);
+    expect(localPrepared.request.prompt).not.toContain(profile.account_key);
+    expect(localPrepared.request.request_id).toBe(prepared.run_id);
+    expect(localPrepared.manifest.anchors).toHaveLength(1);
+    expect(localPrepared.run_context.source_manifest_hash).toBe(
+      map.content_hash,
+    );
+    const responseReceipt = (await retainAnalysisResponse({
+      origin: 'https://fixture.invalid',
+      credential: 'q'.repeat(43),
+      token: aiToken,
+      reservation_id: permit.reservation_id,
+      item_id: item.item_id,
+      response: {
+        request_id: prepared.run_id,
+        status: 'OK',
+        raw_output: JSON.stringify({
+          summary_pl: [
+            { text_pl: 'Autor przedstawia wypowiedź.', segment_refs: ['s1'] },
+          ],
+          key_points: [],
+          entity_mentions: [],
+          tools: [],
+          claims: [
+            {
+              text_pl: 'Autor przedstawia wypowiedź.',
+              segment_refs: ['s1'],
+              entity_refs: [],
+              subject_ref: null,
+              attribution: 'SOURCE_SPEAKER',
+              qualifiers: [],
+            },
+          ],
+          stance: [],
+          predictions: [],
+          source_issues: [],
+        }),
+        actual_provider: 'gemini',
+        actual_model: profile.model,
+        finish_reason: 'completed',
+        usage: { input_tokens: 100, output_tokens: 50, total_tokens: 150 },
+        retry_after: null,
+      },
+      transport: analysisTransport,
+    })) as { artifact_id: string };
+    const validation = new AnalysisValidation(env.DB, aiAccess);
+    const validated = await validation.evaluate(
+      aiToken,
+      permit.reservation_id,
+      responseReceipt.artifact_id,
+      new Date(),
+      fixtureSecret,
+    );
+    expect(validated).toMatchObject({
+      status: 'VALIDATED',
+      mode,
+      accepted: false,
+      semantic_verification: 'NOT_ASSERTED',
+    });
+    expect(
+      await new WorkerRpc(
+        'https://fixture.invalid',
+        'q'.repeat(43),
+        analysisTransport,
+      ).request('analysis/validate', {
+        token: aiToken,
+        reservation_id: permit.reservation_id,
+        artifact_id: responseReceipt.artifact_id,
+      }),
+    ).toEqual(validated);
+    expect(
+      await validation.evaluate(
+        aiToken,
+        permit.reservation_id,
+        responseReceipt.artifact_id,
+        new Date(),
+        fixtureSecret,
+      ),
+    ).toEqual(validated);
+    expect(
+      (
+        await new ArtifactClient(
+          'https://fixture.invalid',
+          'q'.repeat(43),
+          () => aiToken,
+          'ANALYZE',
+          analysisTransport,
+        ).readText(validated.canonical_artifact_id!)
+      ).artifact.state,
+    ).toBe('VERIFIED');
+    const canonicalCandidate = await new ArtifactClient(
+      'https://fixture.invalid',
+      'q'.repeat(43),
+      () => aiToken,
+      'ANALYZE',
+      analysisTransport,
+    ).readText(validated.canonical_artifact_id!);
+    expect(JSON.parse(canonicalCandidate.text).evidence[0]).toMatchObject({
+      quote_original: sourceText,
+      start_ms: 0,
+      end_ms: 1500,
+      timestamp_precision: 'CUE',
+    });
+    expect(
+      await env.DB.prepare('SELECT state FROM analysis_runs WHERE run_id=?')
+        .bind(prepared.run_id)
+        .first('state'),
+    ).toBe('CANDIDATE');
+    expect(
+      await env.DB.prepare('SELECT COUNT(*) n FROM observations').first('n'),
+    ).toBe(0);
+    for (const [raw_output, expected] of [
+      [
+        JSON.stringify({
+          summary_pl: [{ text_pl: 'Wypowiedź.', segment_refs: ['s1'] }],
+          key_points: [],
+          entity_mentions: [],
+          tools: [],
+          claims: [],
+          stance: [],
+          predictions: [],
+          source_issues: ['unclear speech'],
+        }),
+        'REVIEW_REQUIRED',
+      ],
+      ['{"summary_pl":[],"summary_pl":[]}', 'DUPLICATE_JSON_KEY'],
+    ]) {
+      const retained = (await retainAnalysisResponse({
+        origin: 'https://fixture.invalid',
+        credential: 'q'.repeat(43),
+        token: aiToken,
+        reservation_id: permit.reservation_id,
+        item_id: item.item_id,
+        response: {
+          request_id: prepared.run_id,
+          status: 'OK',
+          raw_output: raw_output!,
+          actual_provider: 'gemini',
+          actual_model: profile.model,
+          finish_reason: 'completed',
+          usage: { input_tokens: 100, output_tokens: 50, total_tokens: 150 },
+          retry_after: null,
+        },
+        transport: analysisTransport,
+      })) as { artifact_id: string };
+      expect(
+        await validation.evaluate(
+          aiToken,
+          permit.reservation_id,
+          retained.artifact_id,
+          new Date(),
+          fixtureSecret,
+        ),
+      ).toMatchObject({
+        accepted: false,
+        canonical_artifact_id: null,
+        reason: expected,
+      });
+      if (mode === 'PRODUCTION')
+        await expect(
+          validation.complete(
+            aiToken,
+            permit.reservation_id,
+            retained.artifact_id,
+            new Date(),
+            fixtureSecret,
+          ),
+        ).rejects.toThrow('ANALYSIS_NOT_ACCEPTABLE');
+    }
+    await expect(
+      prepareAnalysis(
+        new WorkerRpc(
+          'https://fixture.invalid',
+          'q'.repeat(43),
+          analysisTransport,
+        ),
+        new ArtifactClient(
+          'https://fixture.invalid',
+          'q'.repeat(43),
+          () => aiToken,
+          'ANALYZE',
+          analysisTransport,
+        ),
+        aiToken,
+        'cloud',
+        new Date(),
+      ),
+    ).rejects.toThrow('ANALYSIS_JOB_SNAPSHOT_MISMATCH');
+    if (mode === 'QUALITY_TEST') {
+      await expect(
+        validation.complete(
+          aiToken,
+          permit.reservation_id,
+          responseReceipt.artifact_id,
+          new Date(),
+          fixtureSecret,
+        ),
+      ).rejects.toThrow('QUALITY_TEST_NOT_ACCEPTABLE');
+      const finished = await validation.finishQualityTest(
+        aiToken,
+        permit.reservation_id,
+        responseReceipt.artifact_id,
+        new Date(),
+        fixtureSecret,
+      );
+      expect(finished).toMatchObject({ accepted: false, state: 'SUCCEEDED' });
+      expect(
+        await validation.finishQualityTest(
+          aiToken,
+          permit.reservation_id,
+          responseReceipt.artifact_id,
+          new Date(),
+          fixtureSecret,
+        ),
+      ).toEqual(finished);
+      expect(
+        await env.DB.prepare('SELECT state FROM analysis_runs WHERE run_id=?')
+          .bind(prepared.run_id)
+          .first('state'),
+      ).toBe('CANDIDATE');
+      expect(
+        await env.DB.prepare('SELECT COUNT(*) n FROM observations').first('n'),
+      ).toBe(0);
+    } else {
+      await new RunRepository(env.DB, owner).requestSelection(
+        prepared.run_id,
+        item.item_id,
+      );
+      await expect(
+        validation.complete(
+          { ...aiToken, fencing_token: aiToken.fencing_token + 1 },
+          permit.reservation_id,
+          responseReceipt.artifact_id,
+          new Date(),
+          fixtureSecret,
+        ),
+      ).rejects.toThrow();
+      let revokedAtCommit = false;
+      const raced = new AnalysisValidation(
+        {
+          prepare: (sql) => env.DB.prepare(sql),
+          batch: async (statements) => {
+            if (statements.length > 6) {
+              revokedAtCommit = true;
+              await env.DB.prepare(
+                "UPDATE sources SET ai_processing_allowed=0 WHERE owner_id=? AND source_id=(SELECT source_id FROM items WHERE owner_id='a' AND item_id=?)",
+              )
+                .bind('a', item.item_id)
+                .run();
+            }
+            return env.DB.batch(statements as D1PreparedStatement[]);
+          },
+        },
+        aiAccess,
+      );
+      await expect(
+        raced.complete(
+          aiToken,
+          permit.reservation_id,
+          responseReceipt.artifact_id,
+          new Date(),
+          fixtureSecret,
+        ),
+      ).rejects.toThrow('STALE_FENCE');
+      expect(revokedAtCommit).toBe(true);
+      expect(
+        await env.DB.prepare('SELECT state FROM analysis_runs WHERE run_id=?')
+          .bind(prepared.run_id)
+          .first('state'),
+      ).toBe('CANDIDATE');
+      expect(
+        await env.DB.prepare('SELECT COUNT(*) n FROM observations').first('n'),
+      ).toBe(0);
+      await env.DB.prepare(
+        "UPDATE sources SET ai_processing_allowed=1 WHERE owner_id=? AND source_id=(SELECT source_id FROM items WHERE owner_id='a' AND item_id=?)",
+      )
+        .bind('a', item.item_id)
+        .run();
+      expect(
+        await validation.complete(
+          aiToken,
+          permit.reservation_id,
+          responseReceipt.artifact_id,
+          new Date(),
+          fixtureSecret,
+        ),
+      ).toMatchObject({ accepted: true, active: true, duplicate: false });
+      expect(
+        await validation.complete(
+          aiToken,
+          permit.reservation_id,
+          responseReceipt.artifact_id,
+          new Date(),
+          fixtureSecret,
+        ),
+      ).toMatchObject({ accepted: true, duplicate: true });
+      expect(
+        await env.DB.prepare('SELECT state FROM jobs WHERE job_id=?')
+          .bind(aiToken.job_id)
+          .first('state'),
+      ).toBe('SUCCEEDED');
+      expect(
+        await env.DB.prepare(
+          'SELECT accepted_run_id FROM active_analysis_selections WHERE owner_id=? AND item_id=?',
+        )
+          .bind('a', item.item_id)
+          .first('accepted_run_id'),
+      ).toBe(prepared.run_id);
+      expect(
+        await env.DB.prepare(
+          'SELECT COUNT(*) n FROM analysis_evidence WHERE run_id=?',
+        )
+          .bind(prepared.run_id)
+          .first('n'),
+      ).toBe(1);
+      expect(
+        await env.DB.prepare('SELECT COUNT(*) n FROM observations').first('n'),
+      ).toBe(1);
+    }
+    await env.DB.prepare(
+      'UPDATE worker_identities SET revoked_at=? WHERE worker_id=?',
+    )
+      .bind(fixtureNow.toISOString(), 'analysis-worker')
+      .run();
+    await expect(
+      mode === 'PRODUCTION'
+        ? validation.complete(
+            aiToken,
+            permit.reservation_id,
+            responseReceipt.artifact_id,
+            new Date(),
+            fixtureSecret,
+          )
+        : validation.finishQualityTest(
+            aiToken,
+            permit.reservation_id,
+            responseReceipt.artifact_id,
+            new Date(),
+            fixtureSecret,
+          ),
+    ).rejects.toThrow('STALE_FENCE');
+    await expect(workerJobs.load(aiToken, fixtureNow)).rejects.toThrow(
+      'STALE_FENCE',
+    );
+  },
+);
 it('artifact RPC/client resumes interrupted upload, verifies bounded chunks and restores literal UTF-8 including BOM', async () => {
   const { item, token } = await setup();
   const credential = 'c'.repeat(43);

@@ -129,7 +129,7 @@ export async function executePreparedAnalysis(input: {
 }
 
 // Source preparation and control RPC use the app origin; only the qualified
-// provider receives the API key. This function does not commit accepted effects.
+// provider receives the API key. Only qualified production requests may commit.
 export async function executeLocalAnalysis(input: {
   origin: string;
   credential: string;
@@ -177,5 +177,21 @@ export async function executeLocalAnalysis(input: {
         artifact_id: result.response_artifact_id,
       })
     : null;
-  return { ...prepared, ...result, validation };
+  const completion =
+    validation &&
+    typeof validation === 'object' &&
+    'status' in validation &&
+    validation.status === 'VALIDATED'
+      ? await rpc.request(
+          prepared.snapshot.settings.mode === 'PRODUCTION'
+            ? 'analysis/complete'
+            : 'analysis/quality-finish',
+          {
+            token: result.token,
+            reservation_id: result.reservation_id,
+            artifact_id: result.response_artifact_id,
+          },
+        )
+      : null;
+  return { ...prepared, ...result, validation, completion };
 }
