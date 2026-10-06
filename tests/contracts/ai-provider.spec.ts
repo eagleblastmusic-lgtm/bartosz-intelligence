@@ -145,6 +145,53 @@ it('paid/invalid permits never send, failures are redacted and never auto retry'
     ).toBe(status);
   }
 });
+it('retains bounded official error categories without error messages or hidden retries', async () => {
+  for (const [body, reason] of [
+    [
+      JSON.stringify({
+        error: {
+          code: 'service_unavailable',
+          message: 'secret fixture-private-key',
+        },
+      }),
+      'HTTP_503:service_unavailable',
+    ],
+    [
+      JSON.stringify({
+        error: { code: 'fixture-private-key', message: 'secret' },
+      }),
+      'HTTP_503',
+    ],
+    [
+      JSON.stringify({
+        error: { code: 'service_unavailable', message: 'x'.repeat(5000) },
+      }),
+      'HTTP_503',
+    ],
+    ['private invalid json', 'HTTP_503'],
+  ] as const) {
+    let calls = 0;
+    const adapter = new GeminiFreeProvider(
+      'fixture-private-key',
+      async () => {},
+      async () => {
+        calls++;
+        return new Response(body, { status: 503 });
+      },
+      () => now,
+    );
+    const result = await adapter.run(request, {
+      reservation_id: 'x',
+      request_id: request.request_id,
+    });
+    expect(result.finish_reason).toBe(reason);
+    expect(result.status).toBe('TEMPORARY_FAILURE');
+    expect(result.usage.input_tokens).toBeNull();
+    expect(calls).toBe(1);
+    expect(JSON.stringify(result)).not.toContain('fixture-private-key');
+    expect(JSON.stringify(result)).not.toContain('message');
+  }
+});
 it('daily Gemini LA windows follow DST while Cloudflare uses UTC', () => {
   for (const [instant, hours] of [
     ['2026-03-08T12:00:00Z', 23],

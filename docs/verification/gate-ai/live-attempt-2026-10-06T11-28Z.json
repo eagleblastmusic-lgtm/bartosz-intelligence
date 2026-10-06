@@ -1,0 +1,247 @@
+{
+  "version": "stage03-live-attempt:1",
+  "recorded_at": "2026-10-06T11:34:00Z",
+  "deployment_version": "41625287-32b4-46ee-bfe7-f51f7082a683",
+  "source_run_id": "transcript_39cfb0e1bcf555ab6cc5131d4908549af2713325a58858663832dddf0d55599a",
+  "job_id": "bff08262-0f44-4974-8ce2-5e622e051423",
+  "analysis_run_id": "analysis_727f95e29f115e510189bbad0e4a4e6f81affda4787ca06706db5686ac8fe202",
+  "attempt": 2,
+  "generation_submissions": 1,
+  "provider_status": "TEMPORARY_FAILURE",
+  "finish_reason": "HTTP_503",
+  "raw_output_present": false,
+  "raw_byte_size": 0,
+  "raw_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "quota_reservation_state": "UNKNOWN",
+  "reservation_created_at": "2026-10-06T11:28:30.676Z",
+  "reservation_settled_at": "2026-10-06T11:28:33.679Z",
+  "quota_observation": "quota-retest-2026-10-06.json",
+  "automatic_hidden_retries": 0,
+  "accepted_effects": 0,
+  "quality_result": "NOT_ASSESSED",
+  "human_pilot": "NOT_CLAIMED",
+  "paid_services_enabled": false,
+  "secret_values_recorded": false,
+  "cpu": {
+    "source": "Cloudflare Wrangler tail platform cpuTime",
+    "coverage": "INCOMPLETE: submit and response events were not delivered; no complete-path CPU qualification is asserted",
+    "criterion": {
+      "p95_max_ms": 8,
+      "max_exclusive_ms": 10
+    },
+    "observed_n": 26,
+    "observed_p95_ms": 9,
+    "observed_max_ms": 16,
+    "result": "FAIL",
+    "samples": [
+      {
+        "at": "2026-10-06T11:28:08.630Z",
+        "route": "/internal/workers/heartbeat",
+        "cpu_ms": 5,
+        "wall_ms": 81,
+        "outcome": "ok",
+        "status": 200
+      },
+      {
+        "at": "2026-10-06T11:28:08.786Z",
+        "route": "/internal/workers/lease",
+        "cpu_ms": 5,
+        "wall_ms": 164,
+        "outcome": "ok",
+        "status": 200
+      },
+      {
+        "at": "2026-10-06T11:28:08.888Z",
+        "route": "/internal/workers/start",
+        "cpu_ms": 2,
+        "wall_ms": 78,
+        "outcome": "ok",
+        "status": 200
+      },
+      {
+        "at": "2026-10-06T11:28:09.337Z",
+        "route": "/internal/workers/analysis/input",
+        "cpu_ms": 16,
+        "wall_ms": 341,
+        "outcome": "ok",
+        "status": 200
+      },
+      {
+        "at": "2026-10-06T11:28:09.417Z",
+        "route": "/internal/workers/artifacts/read",
+        "cpu_ms": 2,
+        "wall_ms": 69,
+        "outcome": "ok",
+        "status": 200
+      },
+      {
+        "at": "2026-10-06T11:28:09.540Z",
+        "route": "/internal/workers/artifacts/read",
+        "cpu_ms": 7,
+        "wall_ms": 106,
+        "outcome": "ok",
+        "status": 200
+      },
+      {
+        "at": "2026-10-06T11:28:09.672Z",
+        "route": "/internal/workers/artifacts/read",
+        "cpu_ms": 4,
+        "wall_ms": 104,
+        "outcome": "ok",
+        "status": 200
+      },
+      {
+        "at": "2026-10-06T11:28:09.769Z",
+        "route": "/internal/workers/artifacts/read",
+        "cpu_ms": 1,
+        "wall_ms": 70,
+        "outcome": "ok",
+        "status": 200
+      },
+      {
+        "at": "2026-10-06T11:28:09.912Z",
+        "route": "/internal/workers/artifacts/read",
+        "cpu_ms": 5,
+        "wall_ms": 114,
+        "outcome": "ok",
+        "status": 200
+      },
+      {
+        "at": "2026-10-06T11:28:10.045Z",
+        "route": "/internal/workers/artifacts/read",
+        "cpu_ms": 5,
+        "wall_ms": 104,
+        "outcome": "ok",
+        "status": 200
+      },
+      {
+        "at": "2026-10-06T11:28:10.189Z",
+        "route": "/internal/workers/artifacts/read",
+        "cpu_ms": 5,
+        "wall_ms": 119,
+        "outcome": "ok",
+        "status": 200
+      },
+      {
+        "at": "2026-10-06T11:28:10.323Z",
+        "route": "/internal/workers/artifacts/read",
+        "cpu_ms": 5,
+        "wall_ms": 107,
+        "outcome": "ok",
+        "status": 200
+      },
+      {
+        "at": "2026-10-06T11:28:16.663Z",
+        "route": "/internal/workers/artifacts/read",
+        "cpu_ms": 3,
+        "wall_ms": 103,
+        "outcome": "ok",
+        "status": 200
+      },
+      {
+        "at": "2026-10-06T11:28:17.633Z",
+        "route": "/internal/workers/artifacts/read",
+        "cpu_ms": 5,
+        "wall_ms": 115,
+        "outcome": "ok",
+        "status": 200
+      },
+      {
+        "at": "2026-10-06T11:28:18.630Z",
+        "route": "/internal/workers/artifacts/read",
+        "cpu_ms": 5,
+        "wall_ms": 102,
+        "outcome": "ok",
+        "status": 200
+      },
+      {
+        "at": "2026-10-06T11:28:19.641Z",
+        "route": "/internal/workers/artifacts/read",
+        "cpu_ms": 5,
+        "wall_ms": 114,
+        "outcome": "ok",
+        "status": 200
+      },
+      {
+        "at": "2026-10-06T11:28:20.656Z",
+        "route": "/internal/workers/artifacts/read",
+        "cpu_ms": 4,
+        "wall_ms": 122,
+        "outcome": "ok",
+        "status": 200
+      },
+      {
+        "at": "2026-10-06T11:28:21.655Z",
+        "route": "/internal/workers/artifacts/read",
+        "cpu_ms": 4,
+        "wall_ms": 115,
+        "outcome": "ok",
+        "status": 200
+      },
+      {
+        "at": "2026-10-06T11:28:22.671Z",
+        "route": "/internal/workers/artifacts/read",
+        "cpu_ms": 4,
+        "wall_ms": 118,
+        "outcome": "ok",
+        "status": 200
+      },
+      {
+        "at": "2026-10-06T11:28:23.620Z",
+        "route": "/internal/workers/artifacts/read",
+        "cpu_ms": 4,
+        "wall_ms": 126,
+        "outcome": "ok",
+        "status": 200
+      },
+      {
+        "at": "2026-10-06T11:28:24.675Z",
+        "route": "/internal/workers/artifacts/read",
+        "cpu_ms": 4,
+        "wall_ms": 111,
+        "outcome": "ok",
+        "status": 200
+      },
+      {
+        "at": "2026-10-06T11:28:26.142Z",
+        "route": "/internal/workers/analysis/context",
+        "cpu_ms": 6,
+        "wall_ms": 444,
+        "outcome": "ok",
+        "status": 200
+      },
+      {
+        "at": "2026-10-06T11:28:26.784Z",
+        "route": "/internal/workers/analysis/reserve",
+        "cpu_ms": 9,
+        "wall_ms": 568,
+        "outcome": "ok",
+        "status": 200
+      },
+      {
+        "at": "2026-10-06T11:28:28.569Z",
+        "route": "/internal/workers/heartbeat",
+        "cpu_ms": 2,
+        "wall_ms": 124,
+        "outcome": "ok",
+        "status": 200
+      },
+      {
+        "at": "2026-10-06T11:28:28.708Z",
+        "route": "/internal/workers/artifacts/begin",
+        "cpu_ms": 2,
+        "wall_ms": 115,
+        "outcome": "ok",
+        "status": 200
+      },
+      {
+        "at": "2026-10-06T11:28:30.102Z",
+        "route": "/internal/workers/analysis/disposition",
+        "cpu_ms": 7,
+        "wall_ms": 641,
+        "outcome": "ok",
+        "status": 200
+      }
+    ]
+  }
+}

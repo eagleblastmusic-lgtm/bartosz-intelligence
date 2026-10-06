@@ -572,41 +572,47 @@ export class AnalysisJobs {
           snapshot_hash,
         }),
       ));
-    await this.db
-      .prepare(
-        `INSERT INTO analysis_runs(run_id,owner_id,item_id,job_id,input_snapshot_json,profile_snapshot_json,prompt_snapshot_json,wire_schema_version,canonical_schema_version,enrichment_version,routing_snapshot_json,state,created_at) SELECT ?,owner_id,item_id,job_id,?,?,?,'economy-wire:1.0','intelligence-canonical:1.2','1.0',?,'CANDIDATE',? FROM jobs WHERE owner_id=? AND job_id=? AND ${guard.predicate} ON CONFLICT(run_id) DO NOTHING`,
-      )
-      .bind(
-        runId,
-        JSON.stringify(snapshot.source),
-        JSON.stringify(snapshot.profile),
-        JSON.stringify(snapshot.prompt),
-        JSON.stringify({
-          settings: snapshot.settings,
-          quality_scope: snapshot.quality_scope,
-          snapshot_hash,
-        }),
-        now.toISOString(),
-        this.context.ownerId,
-        token.job_id,
-        ...guard.bindings,
-      )
-      .run();
-    const run = await this.db
-      .prepare(
-        `SELECT input_snapshot_json,profile_snapshot_json,prompt_snapshot_json FROM analysis_runs WHERE owner_id=? AND job_id=? AND run_id=? AND ${guard.predicate}`,
-      )
-      .bind(this.context.ownerId, token.job_id, runId, ...guard.bindings)
-      .first<{
-        input_snapshot_json: string;
-        profile_snapshot_json: string;
-        prompt_snapshot_json: string;
-      }>();
+    const sourceJson = JSON.stringify(snapshot.source),
+      profileJson = JSON.stringify(snapshot.profile),
+      promptJson = JSON.stringify(snapshot.prompt);
+    const results = await this.db.batch([
+      this.db
+        .prepare(
+          `INSERT INTO analysis_runs(run_id,owner_id,item_id,job_id,input_snapshot_json,profile_snapshot_json,prompt_snapshot_json,wire_schema_version,canonical_schema_version,enrichment_version,routing_snapshot_json,state,created_at) SELECT ?,owner_id,item_id,job_id,?,?,?,'economy-wire:1.0','intelligence-canonical:1.2','1.0',?,'CANDIDATE',? FROM jobs WHERE owner_id=? AND job_id=? AND ${guard.predicate} ON CONFLICT(run_id) DO NOTHING`,
+        )
+        .bind(
+          runId,
+          sourceJson,
+          profileJson,
+          promptJson,
+          JSON.stringify({
+            settings: snapshot.settings,
+            quality_scope: snapshot.quality_scope,
+            snapshot_hash,
+          }),
+          now.toISOString(),
+          this.context.ownerId,
+          token.job_id,
+          ...guard.bindings,
+        ),
+      this.db
+        .prepare(
+          `SELECT input_snapshot_json,profile_snapshot_json,prompt_snapshot_json FROM analysis_runs WHERE owner_id=? AND job_id=? AND run_id=? AND ${guard.predicate}`,
+        )
+        .bind(this.context.ownerId, token.job_id, runId, ...guard.bindings),
+    ]);
+    const run = results[1]?.results?.[0] as
+      | {
+          input_snapshot_json: string;
+          profile_snapshot_json: string;
+          prompt_snapshot_json: string;
+        }
+      | undefined;
     if (
       !run ||
-      run.input_snapshot_json !== JSON.stringify(snapshot.source) ||
-      run.profile_snapshot_json !== JSON.stringify(snapshot.profile) ||
-      run.prompt_snapshot_json !== JSON.stringify(snapshot.prompt)
+      run.input_snapshot_json !== sourceJson ||
+      run.profile_snapshot_json !== profileJson ||
+      run.prompt_snapshot_json !== promptJson
     )
       throw new Error('ANALYSIS_RUN_SNAPSHOT_MISMATCH');
     return { run_id: runId, snapshot, snapshot_hash };

@@ -14,6 +14,57 @@ const count = (value: unknown) =>
   Number.isSafeInteger(value) && (value as number) >= 0
     ? (value as number)
     : null;
+async function providerErrorCode(response: Response): Promise<string | null> {
+  const reader = response.body?.getReader();
+  if (!reader) return null;
+  try {
+    const chunks: Uint8Array[] = [];
+    let size = 0;
+    while (true) {
+      const chunk = await reader.read();
+      if (chunk.done) break;
+      size += chunk.value.byteLength;
+      if (size > 4096) return null;
+      chunks.push(chunk.value);
+    }
+    const bytes = new Uint8Array(size);
+    let offset = 0;
+    for (const chunk of chunks) {
+      bytes.set(chunk, offset);
+      offset += chunk.byteLength;
+    }
+    const error = record(
+      record(
+        JSON.parse(
+          new TextDecoder('utf-8', { fatal: true, ignoreBOM: false }).decode(
+            bytes,
+          ),
+        ),
+      ).error,
+    );
+    // Only official fixed machine categories survive. Messages, details and
+    // arbitrary strings may contain echoed input or credentials and are dropped.
+    const allowed: Record<number, string[]> = {
+      400: ['invalid_request', 'failed_precondition', 'parameter_unknown'],
+      401: ['authentication'],
+      403: ['permission_denied'],
+      404: ['not_found', 'model_not_found'],
+      429: ['rate_limit_exceeded', 'quota_exceeded', 'too_many_requests'],
+      500: ['api_error'],
+      501: ['unimplemented'],
+      503: ['service_unavailable'],
+      504: ['deadline_exceeded'],
+    };
+    return typeof error.code === 'string' &&
+      allowed[response.status]?.includes(error.code)
+      ? error.code
+      : null;
+  } catch {
+    return null;
+  } finally {
+    await reader.cancel().catch(() => {});
+  }
+}
 export class GeminiFreeProvider implements AIProvider {
   readonly provider_id = 'gemini';
   constructor(
@@ -121,7 +172,7 @@ export class GeminiFreeProvider implements AIProvider {
           if (Number.isFinite(at) && at > this.clock().getTime())
             retryAfter = new Date(at).toISOString();
         }
-        await response.body?.cancel();
+        const code = await providerErrorCode(response);
         return {
           ...base,
           status:
@@ -132,7 +183,7 @@ export class GeminiFreeProvider implements AIProvider {
                 : response.status >= 500
                   ? 'TEMPORARY_FAILURE'
                   : 'INVALID_REQUEST',
-          finish_reason: `HTTP_${response.status}`,
+          finish_reason: `HTTP_${response.status}` + (code ? ':' + code : ''),
           retry_after: retryAfter,
         };
       }

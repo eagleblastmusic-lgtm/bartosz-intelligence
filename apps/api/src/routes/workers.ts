@@ -99,9 +99,10 @@ workersApp.post('/analysis/input', async (c) => {
     token(input.token, access.actorId),
     new Date(),
   );
-  if (new TextEncoder().encode(JSON.stringify(prepared)).length > 65536)
+  const serialized = JSON.stringify(prepared);
+  if (new TextEncoder().encode(serialized).length > 65536)
     throw new Error('ANALYSIS_SNAPSHOT_TOO_LARGE');
-  return c.json(prepared);
+  return c.body(serialized, 200, { 'Content-Type': 'application/json' });
 });
 workersApp.post('/analysis/context', async (c) => {
   const input = await body(c, [

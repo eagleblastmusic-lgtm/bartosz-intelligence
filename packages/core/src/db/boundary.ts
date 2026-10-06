@@ -6,7 +6,9 @@ export interface Statement {
 }
 export interface Database {
   prepare(sql: string): Statement;
-  batch(statements: Statement[]): Promise<{ meta: { changes: number } }[]>;
+  batch(
+    statements: Statement[],
+  ): Promise<{ meta: { changes: number }; results?: unknown[] }[]>;
 }
 
 const contexts = new WeakSet<object>();
