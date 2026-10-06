@@ -52,7 +52,12 @@ export interface ArtifactChunk {
   storage_ref: string;
   body_base64: string;
 }
-const hashBytes = (bytes: Uint8Array) => bytesToHex(incrementalSha256(bytes));
+const nativeHashBytes = async (bytes: Uint8Array) =>
+  bytesToHex(
+    new Uint8Array(
+      await crypto.subtle.digest('SHA-256', new Uint8Array(bytes)),
+    ),
+  );
 async function artifactManifestHash(
   header: ArtifactRow,
   offset: number,
@@ -276,7 +281,7 @@ export class ArtifactRepository {
       start + bytes.byteLength > header.byte_size
     )
       throw new Error('INVALID_ARTIFACT_CHUNK');
-    const hash = hashBytes(bytes),
+    const hash = await nativeHashBytes(bytes),
       body = bytes.length ? base64url(bytes) : '',
       guard = this.guard(token, task, now);
     await this.db
@@ -329,7 +334,7 @@ export class ArtifactRepository {
       : new Uint8Array();
     if (
       bytes.length !== row.byte_size ||
-      hashBytes(bytes) !== row.byte_hash ||
+      (await nativeHashBytes(bytes)) !== row.byte_hash ||
       row.storage_ref !== `d1:${id}/${index}`
     )
       throw new Error('ARTIFACT_CHUNK_CORRUPT');

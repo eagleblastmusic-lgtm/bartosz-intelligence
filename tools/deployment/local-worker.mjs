@@ -6,8 +6,13 @@ const owners = (
   await query('SELECT owner_id FROM owner_users WHERE allowlisted=1 LIMIT 2')
 )[0].results;
 if (owners.length !== 1) throw new Error('VERIFIED_OWNER_REQUIRED');
+const analysis = process.argv.includes('--analysis');
 const owner = owners[0].owner_id,
-  worker = 'local-transcript';
+  worker = analysis ? 'local-analysis' : 'local-transcript',
+  variable = analysis
+    ? 'LOCAL_AI_WORKER_CREDENTIAL'
+    : 'LOCAL_WORKER_CREDENTIAL',
+  scopes = analysis ? ['ANALYZE'] : ['FETCH_TRANSCRIPT'];
 const existing = (
   await query(
     'SELECT owner_id,credential_hash,scopes_json,revoked_at FROM worker_identities WHERE worker_id=?',
@@ -15,7 +20,7 @@ const existing = (
   )
 )[0].results;
 const credential =
-  process.env.LOCAL_WORKER_CREDENTIAL ?? randomBytes(32).toString('base64url');
+  process.env[variable] ?? randomBytes(32).toString('base64url');
 if (!/^[A-Za-z0-9_-]{43}$/.test(credential))
   throw new Error('LOCAL_CREDENTIAL_INVALID');
 if (existing.length) {
@@ -23,19 +28,17 @@ if (existing.length) {
   if (
     row.owner_id !== owner ||
     row.revoked_at ||
-    !process.env.LOCAL_WORKER_CREDENTIAL ||
+    !process.env[variable] ||
     row.credential_hash !== hash(credential) ||
-    row.scopes_json !== '["FETCH_TRANSCRIPT"]'
+    row.scopes_json !== JSON.stringify(scopes)
   )
     throw new Error('LOCAL_CREDENTIAL_RECOVERY_REQUIRED');
 } else {
   let local = readFileSync('.env', 'utf8');
-  if (/^LOCAL_WORKER_CREDENTIAL=/m.test(local))
-    local = local.replace(
-      /^LOCAL_WORKER_CREDENTIAL=.*$/m,
-      'LOCAL_WORKER_CREDENTIAL=' + credential,
-    );
-  else local += '\nLOCAL_WORKER_CREDENTIAL=' + credential + '\n';
+  const entry = new RegExp('^' + variable + '=.*$', 'm');
+  if (entry.test(local))
+    local = local.replace(entry, variable + '=' + credential);
+  else local += '\n' + variable + '=' + credential + '\n';
   // Recoverable private value is saved before its one-way identity hash.
   writeFileSync('.env', local, { mode: 0o600 });
   await query(
@@ -44,7 +47,7 @@ if (existing.length) {
       worker,
       owner,
       hash(credential),
-      '["FETCH_TRANSCRIPT"]',
+      JSON.stringify(scopes),
       new Date().toISOString(),
     ],
   );
@@ -53,7 +56,7 @@ console.log(
   JSON.stringify({
     local_worker_registered: true,
     runtime: 'local',
-    scopes: ['FETCH_TRANSCRIPT'],
+    scopes,
     credential_values_recorded: false,
   }),
 );

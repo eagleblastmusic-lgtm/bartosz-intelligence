@@ -1,9 +1,12 @@
+const formatters: Partial<
+  Record<'America/Los_Angeles' | 'UTC', Intl.DateTimeFormat>
+> = {};
 export function dailyQuotaWindow(
   now: Date,
   zone: 'America/Los_Angeles' | 'UTC',
 ) {
   if (!Number.isFinite(now.getTime())) throw new Error('INVALID_WINDOW_TIME');
-  const formatter = new Intl.DateTimeFormat('en-US', {
+  const formatter = (formatters[zone] ??= new Intl.DateTimeFormat('en-US', {
     timeZone: zone,
     year: 'numeric',
     month: '2-digit',
@@ -12,7 +15,7 @@ export function dailyQuotaWindow(
     minute: '2-digit',
     second: '2-digit',
     hourCycle: 'h23',
-  });
+  }));
   const parts = (instant: number) =>
     Object.fromEntries(
       formatter

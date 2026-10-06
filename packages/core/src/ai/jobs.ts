@@ -454,6 +454,7 @@ export class AnalysisJobs {
     )
       throw new Error('INVALID_RESERVATION');
     const buckets: AdmissionBucket[] = [];
+    const observations = new Map<string, GeminiQuotaObservation>();
     for (const bucket of ['RPM', 'RPD', 'INPUT_TPM'] as const) {
       const row = await this.db
         .prepare(
@@ -481,20 +482,24 @@ export class AnalysisJobs {
         row.snapshot_id,
       );
       if (observed) {
-        const receipt = await this.db
-          .prepare(
-            'SELECT payload_json,content_hash FROM config_versions WHERE owner_id=? AND config_id=? AND revision=1',
+        let observation = observations.get(observed[1]!);
+        if (!observation) {
+          const receipt = await this.db
+            .prepare(
+              'SELECT payload_json,content_hash FROM config_versions WHERE owner_id=? AND config_id=? AND revision=1',
+            )
+            .bind(this.context.ownerId, 'quota-observation-' + observed[1])
+            .first<{ payload_json: string; content_hash: string }>();
+          if (
+            !receipt ||
+            (await sha256(receipt.payload_json)) !== receipt.content_hash
           )
-          .bind(this.context.ownerId, 'quota-observation-' + observed[1])
-          .first<{ payload_json: string; content_hash: string }>();
-        if (
-          !receipt ||
-          (await sha256(receipt.payload_json)) !== receipt.content_hash
-        )
-          throw new Error('QUOTA_UNKNOWN_OR_STALE');
-        const observation = JSON.parse(
-          receipt.payload_json,
-        ) as GeminiQuotaObservation;
+            throw new Error('QUOTA_UNKNOWN_OR_STALE');
+          observation = JSON.parse(
+            receipt.payload_json,
+          ) as GeminiQuotaObservation;
+          observations.set(observed[1]!, observation);
+        }
         if (
           observation.project !== snapshot.profile.account_key ||
           observation.model !== snapshot.profile.model ||
