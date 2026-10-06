@@ -1,4 +1,5 @@
 import { env } from 'cloudflare:workers';
+import { QuotaSnapshots } from '../../packages/core/src/ai/quota-snapshots.js';
 import { createExecutionContext } from 'cloudflare:test';
 import worker from '../../apps/api/src/index.js';
 import { ArtifactClient } from '../../apps/executor/src/artifact-client.js';
@@ -756,6 +757,30 @@ it('verified source acceptance binds original authority, all five representation
       fixtureNow,
     ),
   ).rejects.toThrow('INVALID_AI_REQUEST_SCOPE');
+  const observationTime = new Date(fixtureNow.getTime() + 1000);
+  await new QuotaSnapshots(env.DB, owner).record(
+    {
+      version: 'gemini-quota-observation:1',
+      project: 'different-google-project',
+      model: profile.model,
+      tier: 'FREE',
+      source: 'GOOGLE_CLOUD_QUOTA_CURRENT',
+      sampled_at: observationTime.toISOString(),
+      buckets: [
+        { bucket: 'RPM', limit: 5, used: 0 },
+        { bucket: 'RPD', limit: 20, used: 0 },
+        { bucket: 'INPUT_TPM', limit: 250000, used: 0 },
+      ],
+    },
+    observationTime,
+  );
+  await expect(
+    workerJobs.reserve(
+      aiToken,
+      { request_id: prepared.run_id, input_tokens: 100 },
+      observationTime,
+    ),
+  ).rejects.toThrow('QUOTA_ACCOUNT_MISMATCH');
   await env.DB.prepare(
     'UPDATE sources SET ai_processing_allowed=0 WHERE owner_id=?',
   )

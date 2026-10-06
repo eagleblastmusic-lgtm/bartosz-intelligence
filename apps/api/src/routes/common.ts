@@ -43,6 +43,7 @@ export function apiRouter() {
         'QUOTA_UNKNOWN_OR_STALE',
         'QUOTA_POLICY_NOT_CONFIGURED',
         'QUOTA_ADMISSION_DENIED',
+        'QUOTA_ACCOUNT_MISMATCH',
       ].includes(raw);
     const invalid =
       raw.startsWith('INVALID_') ||

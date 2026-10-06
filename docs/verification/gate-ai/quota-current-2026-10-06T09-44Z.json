@@ -1,0 +1,36 @@
+{
+  "evidence_kind": "authenticated official Google Cloud Console read-only observation",
+  "recorded_at_utc": "2026-10-06T09:45:07Z",
+  "project": "bartosz-intelligence",
+  "service": "generativelanguage.googleapis.com",
+  "source_url": "https://console.cloud.google.com/apis/api/generativelanguage.googleapis.com/quotas?project=bartosz-intelligence",
+  "filter": "gemini-3.8-flash",
+  "column": "Obecne wykorzystanie",
+  "model": "gemini-3.8-flash",
+  "tier": "FREE",
+  "observations": [
+    {
+      "name": "GenerateContent free tier input token count limit per model per minute",
+      "bucket": "INPUT_TPM",
+      "limit": 250000,
+      "used": 0
+    },
+    {
+      "name": "Request limit per model per minute for a project in the free tier",
+      "bucket": "RPM",
+      "limit": 5,
+      "used": 0
+    },
+    {
+      "name": "Request limit per model per day for a project in the free tier",
+      "bucket": "RPD",
+      "limit": 20,
+      "used": 0
+    }
+  ],
+  "interpretation": "Zero was explicitly displayed in the current usage column for the exact model/free-tier rows; it was not inferred from no data or historical peak. Provider reporting latency and exact underlying sample instant were not exposed. This receipt is evidence of the observation, not a indefinitely fresh admission snapshot. Refresh before live submission and apply conservative shared reservations.",
+  "ai_studio_1_day_usage": "No data available; not treated as zero",
+  "billing_changed": false,
+  "generation_requests": 0,
+  "secret_values_recorded": false
+}

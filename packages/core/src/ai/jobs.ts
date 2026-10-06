@@ -12,6 +12,7 @@ import { selectPipeline } from './selector.js';
 import { analysisQualityScope } from './compiler.js';
 import { QuotaAdmission, type AdmissionBucket } from './admission.js';
 import { dailyQuotaWindow } from './windows.js';
+import type { GeminiQuotaObservation } from './quota-snapshots.js';
 import type { PipelineProfile } from '../../../contracts/src/ai.js';
 import type { LeaseToken } from '../../../contracts/src/jobs.js';
 
@@ -283,6 +284,31 @@ export class AnalysisJobs {
         row.remaining === null
       )
         throw new Error('QUOTA_UNKNOWN_OR_STALE');
+      const observed = /^quota_([a-f0-9]{64})_(?:RPM|RPD|INPUT_TPM)$/.exec(
+        row.snapshot_id,
+      );
+      if (observed) {
+        const receipt = await this.db
+          .prepare(
+            'SELECT payload_json,content_hash FROM config_versions WHERE owner_id=? AND config_id=? AND revision=1',
+          )
+          .bind(this.context.ownerId, 'quota-observation-' + observed[1])
+          .first<{ payload_json: string; content_hash: string }>();
+        if (
+          !receipt ||
+          (await sha256(receipt.payload_json)) !== receipt.content_hash
+        )
+          throw new Error('QUOTA_UNKNOWN_OR_STALE');
+        const observation = JSON.parse(
+          receipt.payload_json,
+        ) as GeminiQuotaObservation;
+        if (
+          observation.project !== snapshot.profile.account_key ||
+          observation.model !== snapshot.profile.model ||
+          observation.sampled_at !== row.sampled_at
+        )
+          throw new Error('QUOTA_ACCOUNT_MISMATCH');
+      }
       let window_start: string;
       if (bucket === 'RPD') {
         const window = dailyQuotaWindow(now, 'America/Los_Angeles');

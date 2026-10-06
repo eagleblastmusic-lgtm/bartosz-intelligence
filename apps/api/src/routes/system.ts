@@ -1,5 +1,18 @@
-import { ownerRouter } from './common.js';
+import { ownerRouter, body } from './common.js';
+import {
+  QuotaSnapshots,
+  type GeminiQuotaObservation,
+} from '../../../../packages/core/src/ai/quota-snapshots.js';
 export const systemApp = ownerRouter();
+systemApp.post('/quota-observations', async (c) => {
+  const input = await body(c, ['observation']);
+  return c.json(
+    await new QuotaSnapshots(c.env.DB, c.get('access')).record(
+      input.observation as GeminiQuotaObservation,
+      new Date(),
+    ),
+  );
+});
 systemApp.get('/summary', async (c) => {
   const owner = c.get('access').ownerId,
     now = new Date().toISOString();
