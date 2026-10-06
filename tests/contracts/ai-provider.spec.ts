@@ -3,6 +3,10 @@ import { GeminiFreeProvider } from '../../packages/core/src/ai/gemini.js';
 import { dailyQuotaWindow } from '../../packages/core/src/ai/windows.js';
 import type { AIRequest } from '../../packages/contracts/src/ai.js';
 import bundle from '../../config/registry/master-bundle.json';
+import {
+  compileSemanticProfile,
+  semanticModules,
+} from '../../packages/core/src/ai/semantic-profile.js';
 const now = new Date('2026-10-06T00:00:00Z');
 const request: AIRequest = {
   request_id: 'request',
@@ -37,6 +41,77 @@ const request: AIRequest = {
   mode: 'QUALITY_TEST',
   paid_services_enabled: false,
 };
+it.each(['FULL', 'CUSTOM'] as const)(
+  'sends only the compiled %s schema after its permit, preserving free-tier guards',
+  async (mode) => {
+    const semantic = await compileSemanticProfile(
+      {
+        mode,
+        modules: Object.fromEntries(
+          semanticModules.map((key) => [
+            key,
+            mode === 'FULL' || key === 'usage',
+          ]),
+        ),
+        translation: 'NONE',
+        history: false,
+        second_pass: null,
+        validation_pass: null,
+      },
+      bundle,
+    );
+    const events: string[] = [];
+    const provider = new GeminiFreeProvider(
+      'fixture',
+      async () => {
+        events.push('permit');
+      },
+      async (_target, options) => {
+        events.push('transport');
+        const body = JSON.parse(String(options?.body));
+        expect(Object.keys(body.response_format.schema.properties)).toEqual(
+          Object.keys(
+            semantic.wire.schema.properties as Record<string, unknown>,
+          ),
+        );
+        expect(body.store).toBe(false);
+        expect(body.tools).toBeUndefined();
+        return new Response(
+          JSON.stringify({
+            model: request.profile.model,
+            status: 'completed',
+            steps: [
+              { type: 'model_output', content: [{ type: 'text', text: '{}' }] },
+            ],
+          }),
+          { headers: { 'content-type': 'application/json' } },
+        );
+      },
+      () => now,
+    );
+    const scoped = {
+      ...request,
+      wire_schema: semantic.wire.schema,
+      profile: { ...request.profile, task_types: [mode] },
+    };
+    const permit = {
+      reservation_id: 'reserved',
+      request_id: request.request_id,
+    };
+    expect((await provider.run(scoped, permit)).status).toBe('OK');
+    expect(events).toEqual(['permit', 'transport']);
+    await expect(
+      provider.run({ ...scoped, mode: 'PRODUCTION' }, permit),
+    ).rejects.toThrow('AI_ADMISSION_DENIED');
+    await expect(
+      provider.run(
+        { ...scoped, profile: { ...scoped.profile, billing_enabled: true } },
+        permit,
+      ),
+    ).rejects.toThrow('PAID_OR_UNQUALIFIED_ROUTE_DENIED');
+    expect(events).toHaveLength(2);
+  },
+);
 it('one lean no-tools request consumes permit before transport and captures actual metadata', async () => {
   const events: string[] = [];
   const provider = new GeminiFreeProvider(

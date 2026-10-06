@@ -9,6 +9,7 @@ import { leasePredicate } from '../jobs/lease-guard.js';
 import { PromptRegistry, type PromptSnapshot } from '../registry/store.js';
 import {
   SemanticProfiles,
+  semanticPrompt,
   type SemanticProfileSnapshot,
 } from '../registry/semantic-profiles.js';
 import { ModelRegistry } from './models.js';
@@ -147,15 +148,16 @@ export class AnalysisJobs {
       throw new Error('INVALID_ANALYSIS_SETTINGS');
     const source = await this.source(sourceRunId);
     await this.requireSourceProcessing(source.item_id);
-    const prompt = await new PromptRegistry(this.db, this.context).current();
     const semanticProfile = await new SemanticProfiles(
       this.db,
       this.context,
     ).forItem(source.item_id, now);
+    const prompt = semanticProfile
+      ? semanticPrompt(semanticProfile)
+      : await new PromptRegistry(this.db, this.context).current();
     if (
       semanticProfile &&
-      (semanticProfile.compiled.config.mode !== 'ECONOMY' ||
-        semanticProfile.compiled.config.translation !== 'NONE' ||
+      (semanticProfile.compiled.config.translation !== 'NONE' ||
         semanticProfile.compiled.config.history ||
         semanticProfile.compiled.config.second_pass ||
         semanticProfile.compiled.config.validation_pass ||
@@ -183,7 +185,7 @@ export class AnalysisJobs {
       profile_id: 'gemini_free',
       purpose: settings.purpose,
       region: settings.region,
-      task_type: 'ECONOMY',
+      task_type: semanticProfile?.compiled.config.mode ?? 'ECONOMY',
       runtime: settings.runtime,
       mode: settings.mode,
       quality_scope: scope,
@@ -214,7 +216,7 @@ export class AnalysisJobs {
         profile_revision: hash,
         prompt_snapshot_id: prompt.prompt_hash,
         routing_policy_version: 'pipeline-selector:1',
-        wire_schema_version: 'economy-wire:1.0',
+        wire_schema_version: prompt.wire.id.replace('urn:bartosz:schema:', ''),
         canonical_schema_version: 'intelligence-canonical:1.2',
         enrichment_version: '1.0',
         explicit_run_nonce: '',
@@ -420,12 +422,18 @@ export class AnalysisJobs {
         JSON.stringify(semantic) !== JSON.stringify(snapshot.semantic_profile)
       )
         throw new Error('SEMANTIC_PROFILE_SNAPSHOT_HASH_MISMATCH');
+      if (
+        !semantic ||
+        JSON.stringify(semanticPrompt(semantic)) !==
+          JSON.stringify(snapshot.prompt)
+      )
+        throw new Error('INCOMPATIBLE_PROMPT_SNAPSHOT');
     }
     const selected = selectPipeline([snapshot.profile], {
       profile_id: 'gemini_free',
       purpose: snapshot.settings.purpose,
       region: snapshot.settings.region,
-      task_type: 'ECONOMY',
+      task_type: snapshot.semantic_profile?.compiled.config.mode ?? 'ECONOMY',
       runtime: snapshot.settings.runtime,
       mode: snapshot.settings.mode,
       quality_scope: snapshot.quality_scope,
@@ -640,7 +648,7 @@ export class AnalysisJobs {
     const results = await this.db.batch([
       this.db
         .prepare(
-          `INSERT INTO analysis_runs(run_id,owner_id,item_id,job_id,input_snapshot_json,profile_snapshot_json,prompt_snapshot_json,wire_schema_version,canonical_schema_version,enrichment_version,routing_snapshot_json,state,created_at) SELECT ?,owner_id,item_id,job_id,json_extract(payload_json,'$.snapshot.source'),json_extract(payload_json,'$.snapshot.profile'),json_extract(payload_json,'$.snapshot.prompt'),'economy-wire:1.0','intelligence-canonical:1.2','1.0',?,'CANDIDATE',? FROM jobs WHERE owner_id=? AND job_id=? AND ${guard.predicate} ON CONFLICT(run_id) DO NOTHING`,
+          `INSERT INTO analysis_runs(run_id,owner_id,item_id,job_id,input_snapshot_json,profile_snapshot_json,prompt_snapshot_json,wire_schema_version,canonical_schema_version,enrichment_version,routing_snapshot_json,state,created_at) SELECT ?,owner_id,item_id,job_id,json_extract(payload_json,'$.snapshot.source'),json_extract(payload_json,'$.snapshot.profile'),json_extract(payload_json,'$.snapshot.prompt'),wire_schema_version,'intelligence-canonical:1.2','1.0',?,'CANDIDATE',? FROM jobs WHERE owner_id=? AND job_id=? AND ${guard.predicate} ON CONFLICT(run_id) DO NOTHING`,
         )
         .bind(
           runId,

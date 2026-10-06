@@ -52,6 +52,7 @@ export async function prepareLongAnalysis(input: {
     context_tokens: snapshot.profile.context_tokens,
     output_tokens: snapshot.settings.max_output_tokens,
     prompt_overhead_tokens: economyPromptOverhead({
+      semantic_profile: snapshot.semantic_profile?.compiled,
       prompt: snapshot.prompt,
       semantic_context: semantic,
       limits: snapshot.settings.limits,

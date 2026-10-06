@@ -5,6 +5,7 @@ import type { normalizeTranscript } from '../transcript/normalize.js';
 import type { AIRequest, PipelineProfile } from '../../../contracts/src/ai.js';
 import { verifyChunkPlan, type ChunkPlan } from './long-input/plan.js';
 import { validator_schema_hashes } from '../registry/generated/validators.js';
+import type { MaterializedSemanticProfile } from '../registry/semantic-profiles.js';
 type Manifest = Awaited<ReturnType<typeof normalizeTranscript>>['manifest'];
 export function economyPromptOverhead(input: {
   prompt: PromptSnapshot;
@@ -15,6 +16,7 @@ export function economyPromptOverhead(input: {
     source_language: string;
   };
   limits: Record<string, number>;
+  semantic_profile?: MaterializedSemanticProfile;
 }) {
   return new TextEncoder().encode(
     renderPrompt(input.prompt.text, {
@@ -23,6 +25,15 @@ export function economyPromptOverhead(input: {
       limits_json: JSON.stringify(input.limits),
       source_segments_with_aliases_json: '[]',
       helper_segments_json_or_null: 'null',
+      ...(input.semantic_profile
+        ? {
+            module_config_json: JSON.stringify(
+              input.semantic_profile.config.modules,
+            ),
+            pass_mode: 'EXTRACT',
+            existing_candidate_wire_json_or_null: 'null',
+          }
+        : {}),
     }),
   ).length;
 }
@@ -56,7 +67,7 @@ export async function analysisQualityScope(
     }),
   );
 }
-export async function compileEconomy(input: {
+async function compileSource(input: {
   source_artifact_id: string;
   source_text: string;
   manifest: Manifest;
@@ -76,6 +87,7 @@ export async function compileEconomy(input: {
   mode: 'PRODUCTION' | 'QUALITY_TEST';
   max_output_tokens: number;
   limits: Record<string, number>;
+  semantic_profile?: MaterializedSemanticProfile;
   chunk?: {
     plan: ChunkPlan;
     plan_hash: string;
@@ -92,14 +104,28 @@ export async function compileEconomy(input: {
     )
   )
     throw new Error('INVALID_ANALYSIS_LIMITS');
+  const semantic = input.semantic_profile;
+  const semanticCompatible =
+    semantic &&
+    semantic.config.mode !== 'ECONOMY' &&
+    input.prompt.prompt_id === semantic.prompt.id &&
+    input.prompt.version === semantic.prompt.version &&
+    input.prompt.prompt_hash === semantic.prompt.hash &&
+    input.prompt.wire.id === semantic.wire.id &&
+    input.prompt.wire.hash === semantic.wire.hash &&
+    semantic.base_wire_hash ===
+      validator_schema_hashes['urn:bartosz:schema:full-wire:1.0'];
+  const economyCompatible =
+    !semantic &&
+    input.prompt.prompt_id === 'ECONOMY_ANALYSIS_V1' &&
+    input.prompt.version === 2 &&
+    input.prompt.wire.id === 'urn:bartosz:schema:economy-wire:1.0' &&
+    input.prompt.wire.hash ===
+      validator_schema_hashes['urn:bartosz:schema:economy-wire:1.0'];
   if (
-    input.prompt.prompt_id !== 'ECONOMY_ANALYSIS_V1' ||
-    input.prompt.version !== 2 ||
-    input.prompt.wire.id !== 'urn:bartosz:schema:economy-wire:1.0' ||
+    (!semanticCompatible && !economyCompatible) ||
     input.prompt.canonical.id !==
       'urn:bartosz:schema:intelligence-canonical:1.2' ||
-    input.prompt.wire.hash !==
-      validator_schema_hashes['urn:bartosz:schema:economy-wire:1.0'] ||
     input.prompt.canonical.hash !==
       validator_schema_hashes[
         'urn:bartosz:schema:intelligence-canonical:1.2'
@@ -181,6 +207,13 @@ export async function compileEconomy(input: {
       })),
     ),
     helper_segments_json_or_null: 'null',
+    ...(semantic
+      ? {
+          module_config_json: JSON.stringify(semantic.config.modules),
+          pass_mode: 'EXTRACT',
+          existing_candidate_wire_json_or_null: 'null',
+        }
+      : {}),
   });
   // UTF-8 byte count is a conservative token upper bound, explicitly estimated.
   // A too-large source routes to a full-coverage ChunkPlan instead of truncation.
@@ -243,6 +276,23 @@ export async function compileEconomy(input: {
     run_context: runContext,
     context_hash: await sha256(JSON.stringify(runContext)),
   };
+}
+export function compileEconomy(
+  input: Omit<Parameters<typeof compileSource>[0], 'semantic_profile'>,
+) {
+  return compileSource(input);
+}
+export function compileSemanticAnalysis(
+  input: Parameters<typeof compileSource>[0] & {
+    semantic_profile: MaterializedSemanticProfile;
+  },
+) {
+  if (input.semantic_profile.config.mode === 'ECONOMY') {
+    const { semantic_profile: unused, ...economy } = input;
+    void unused;
+    return compileEconomy(economy);
+  }
+  return compileSource(input);
 }
 export async function economyChunkContextHash(input: {
   manifest_hash: string;

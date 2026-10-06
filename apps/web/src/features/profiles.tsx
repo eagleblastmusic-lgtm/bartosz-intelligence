@@ -213,7 +213,7 @@ export function Profiles() {
     ? (JSON.parse(stored.config_json) as SemanticProfile)
     : null;
   const canAssign =
-    storedConfig?.mode === 'ECONOMY' &&
+    storedConfig &&
     storedConfig.translation === 'NONE' &&
     !storedConfig.history &&
     !storedConfig.second_pass &&
@@ -482,8 +482,8 @@ export function Profiles() {
         )}
         {stored && !canAssign && (
           <p className="notice">
-            Ten zakres jest zapisany do przygotowania. Aktywny wykonawca
-            obsługuje Economy bez dodatkowych przebiegów.
+            Dodatkowe opcje zapisano do przygotowania. Ich wykonanie nie jest
+            jeszcze dostępne.
           </p>
         )}
         <button

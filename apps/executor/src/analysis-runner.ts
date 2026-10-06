@@ -88,6 +88,7 @@ export async function executeRepair(
       result.response,
       compiled.reference,
       input.aliases,
+      input.semantic_profile,
     ),
   };
 }

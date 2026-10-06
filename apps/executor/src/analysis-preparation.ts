@@ -2,7 +2,10 @@ import { WorkerRpc } from './worker-rpc.js';
 import { ArtifactClient } from './artifact-client.js';
 import type { LeaseToken } from '../../../packages/contracts/src/jobs.js';
 import type { AnalysisJobSnapshot } from '../../../packages/core/src/ai/jobs.js';
-import { compileEconomy } from '../../../packages/core/src/ai/compiler.js';
+import {
+  compileEconomy,
+  compileSemanticAnalysis,
+} from '../../../packages/core/src/ai/compiler.js';
 import { sha256 } from '../../../packages/core/src/auth/crypto.js';
 import type { ChunkPlan } from '../../../packages/core/src/ai/long-input/plan.js';
 
@@ -70,7 +73,7 @@ export async function prepareAnalysis(
       chunkPlan.artifact.original_ref !== snapshot.source.source_artifact_id)
   )
     throw new Error('CHUNK_PLAN_MISMATCH');
-  const compiled = await compileEconomy({
+  const compilerInput = {
     source_artifact_id: source.artifact.artifact_id,
     source_text: source.text,
     manifest: JSON.parse(map.text),
@@ -98,7 +101,13 @@ export async function prepareAnalysis(
           parent_snapshot_hash: snapshot.chunk!.parent_snapshot_hash,
         }
       : undefined,
-  });
+  };
+  const compiled = snapshot.semantic_profile
+    ? await compileSemanticAnalysis({
+        ...compilerInput,
+        semantic_profile: snapshot.semantic_profile.compiled,
+      })
+    : await compileEconomy(compilerInput);
   if (compiled.request.quality_scope !== snapshot.quality_scope)
     throw new Error('ANALYSIS_QUALITY_SCOPE_MISMATCH');
   const receipt = (await rpc.request('analysis/context', {

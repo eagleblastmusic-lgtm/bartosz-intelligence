@@ -88,6 +88,7 @@ export class LongInputJobs {
       plan.chunks.length > 128 ||
       plan.prompt_overhead_tokens !==
         economyPromptOverhead({
+          semantic_profile: snapshot.semantic_profile?.compiled,
           prompt: snapshot.prompt,
           semantic_context: semantic,
           limits: snapshot.settings.limits,
@@ -125,7 +126,7 @@ export class LongInputJobs {
       profile_id: 'gemini_free',
       purpose: snapshot.settings.purpose,
       region: snapshot.settings.region,
-      task_type: 'ECONOMY',
+      task_type: snapshot.semantic_profile?.compiled.config.mode ?? 'ECONOMY',
       runtime: snapshot.settings.runtime,
       mode: snapshot.settings.mode,
       quality_scope: scope,

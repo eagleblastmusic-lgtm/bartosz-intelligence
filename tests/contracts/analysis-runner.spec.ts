@@ -1,6 +1,7 @@
 import { it, expect } from 'vitest';
 import {
   compileEconomy,
+  compileSemanticAnalysis,
   economyChunkContextHash,
 } from '../../packages/core/src/ai/compiler.js';
 import { createChunkPlan } from '../../packages/core/src/ai/long-input/plan.js';
@@ -20,6 +21,11 @@ import type {
   AIResponse,
 } from '../../packages/contracts/src/ai.js';
 import bundle from '../../config/registry/master-bundle.json';
+import {
+  compileSemanticProfile,
+  semanticModules,
+} from '../../packages/core/src/ai/semantic-profile.js';
+import { semanticPrompt } from '../../packages/core/src/registry/semantic-profiles.js';
 async function fixture() {
   const text = 'I did not adopt Tool X.',
     source = await normalizeTranscript(
@@ -95,6 +101,65 @@ async function fixture() {
     limits: { claims: 40 },
   };
 }
+it.each(['FULL', 'CUSTOM'] as const)(
+  'compiles %s from its pinned scope with an explicit extraction pass and no hidden provider switch',
+  async (mode) => {
+    const input = await fixture();
+    const semantic = await compileSemanticProfile(
+      {
+        mode,
+        modules: Object.fromEntries(
+          semanticModules.map((key) => [
+            key,
+            mode === 'FULL' || key === 'claims',
+          ]),
+        ),
+        translation: 'NONE',
+        history: false,
+        second_pass: null,
+        validation_pass: null,
+      },
+      bundle,
+    );
+    const prompt = semanticPrompt({
+      profile_id: 'semantic',
+      revision: 1,
+      name: 'Semantic',
+      compiled: semantic,
+    });
+    const economy = await compileEconomy(input);
+    const compiled = await compileSemanticAnalysis({
+      ...input,
+      prompt,
+      semantic_profile: semantic,
+    });
+    expect(compiled.request.runtime).toBe('local');
+    expect(compiled.request.profile.profile_id).toBe('gemini_free');
+    expect(compiled.request.paid_services_enabled).toBe(false);
+    expect(compiled.request.wire_schema).toEqual(semantic.wire.schema);
+    expect(compiled.run_context.prompt_snapshot).toEqual(prompt);
+    expect(compiled.request.quality_scope).not.toBe(
+      economy.request.quality_scope,
+    );
+    expect(compiled.request.prompt).toContain(input.source_text);
+    expect(compiled.request.prompt).not.toMatch(/\{\{[a-z_]+\}\}/);
+    if (mode === 'CUSTOM') {
+      expect(compiled.request.prompt).toContain('PASS_MODE: EXTRACT');
+      expect(compiled.request.prompt).toContain('EXISTING_CANDIDATE: null');
+      expect(
+        (compiled.request.wire_schema.properties as Record<string, unknown>)
+          .summary_pl,
+      ).toBeUndefined();
+    }
+    await expect(
+      compileSemanticAnalysis({
+        ...input,
+        prompt: { ...prompt, wire: input.prompt.wire },
+        semantic_profile: semantic,
+      }),
+    ).rejects.toThrow('INCOMPATIBLE_PROMPT_SNAPSHOT');
+  },
+);
 it('chunk compiler pins full original source but sends only assigned local aliases and a distinct quality scope', async () => {
   const input = await fixture();
   const cues = Array.from({ length: 200 }, (_, index) => ({
@@ -250,6 +315,74 @@ it('one admitted structural repair preserves content and cannot repair its envel
   ).rejects.toThrow('REPAIR_COST_NOT_ADMITTED');
   expect(reserves).toBe(2);
   const compiled = await compileStructuralRepair(input);
+  for (const mode of ['FULL', 'CUSTOM'] as const) {
+    const semantic = await compileSemanticProfile(
+      {
+        mode,
+        modules: Object.fromEntries(
+          semanticModules.map((key) => [
+            key,
+            mode === 'FULL' || key === 'claims',
+          ]),
+        ),
+        translation: 'NONE',
+        history: false,
+        second_pass: null,
+        validation_pass: null,
+      },
+      bundle,
+    );
+    const scopedWire = Object.fromEntries(
+      Object.keys(
+        semantic.wire.schema.properties as Record<string, unknown>,
+      ).map((key) => [key, key === 'summary_pl' ? wire.summary_pl : []]),
+    );
+    const scopedInput = {
+      ...input,
+      semantic_profile: semantic,
+      raw: JSON.stringify(scopedWire).slice(0, -1) + ',}',
+      main: { ...main, wire_schema: semantic.wire.schema },
+    };
+    const repair = await compileStructuralRepair(scopedInput);
+    expect(repair.request.prompt).toContain(
+      JSON.stringify(semantic.wire.schema),
+    );
+    expect(
+      (
+        await validateStructuralRepair(
+          {
+            ...response,
+            raw_output: JSON.stringify({
+              status: 'REPAIRED',
+              repaired_json: JSON.stringify(scopedWire),
+              issues: [],
+            }),
+          },
+          repair.reference,
+          input.aliases,
+          semantic,
+        )
+      ).value,
+    ).toEqual(scopedWire);
+    await expect(
+      compileStructuralRepair({ ...scopedInput, main }),
+    ).rejects.toThrow('REPAIR_SCHEMA_MISMATCH');
+    await expect(
+      validateStructuralRepair(
+        {
+          ...response,
+          raw_output: JSON.stringify({
+            status: 'REPAIRED',
+            repaired_json: JSON.stringify({ ...scopedWire, hidden: [] }),
+            issues: [],
+          }),
+        },
+        repair.reference,
+        input.aliases,
+        semantic,
+      ),
+    ).rejects.toThrow('REPAIRED_ANALYSIS_INVALID');
+  }
   expect(compiled.request.prompt).not.toContain('I did not adopt Tool X.');
   expect(compiled.request.wire_schema.$id).toBe(
     'urn:bartosz:schema:repair-wire:1.0',

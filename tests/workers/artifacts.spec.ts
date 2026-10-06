@@ -3,6 +3,7 @@ import { QuotaSnapshots } from '../../packages/core/src/ai/quota-snapshots.js';
 import {
   analysisQualityScope,
   compileEconomy,
+  compileSemanticAnalysis,
   economyPromptOverhead,
   economyChunkContextHash,
 } from '../../packages/core/src/ai/compiler.js';
@@ -54,12 +55,19 @@ import {
 } from '../../packages/core/src/ai/admission.js';
 import type { TaskType } from '../../packages/contracts/src/jobs.js';
 import { CandidateRepairAttempts } from '../../packages/core/src/ai/repair/attempts.js';
-import { enrichEconomy } from '../../packages/core/src/ai/enrichment/canonical.js';
+import {
+  enrichEconomy,
+  enrichSemantic,
+} from '../../packages/core/src/ai/enrichment/canonical.js';
+import { compileSemanticProfile } from '../../packages/core/src/ai/semantic-profile.js';
 import { IntelligenceLedger } from '../../packages/core/src/ai/enrichment/ledger.js';
 import { normalizeTranscript } from '../../packages/core/src/transcript/normalize.js';
 import { RunRepository } from '../../packages/core/src/jobs/acceptance.js';
 import { AnalysisJobs } from '../../packages/core/src/ai/jobs.js';
-import { SemanticProfiles } from '../../packages/core/src/registry/semantic-profiles.js';
+import {
+  SemanticProfiles,
+  semanticPrompt,
+} from '../../packages/core/src/registry/semantic-profiles.js';
 import {
   semanticModules,
   type SemanticProfile,
@@ -671,6 +679,7 @@ it.each([
   'CHUNK_LARGE',
   'CHUNK_COMPLETE',
   'CHUNK_PRODUCTION',
+  'CHUNK_FULL_PRODUCTION',
   'PRODUCTION',
   'RATE_LIMITED',
   'TEMPORARY_FAILURE',
@@ -678,8 +687,14 @@ it.each([
 ] as const)(
   'verified source acceptance and %s analysis preserve source authority and fenced knowledge effects',
   async (scenario) => {
+    const semanticMode =
+      scenario === 'CHUNK_FULL_PRODUCTION'
+        ? ('FULL' as const)
+        : ('ECONOMY' as const);
+    const chunkProduction =
+      scenario === 'CHUNK_PRODUCTION' || scenario === 'CHUNK_FULL_PRODUCTION';
     const mode: 'PRODUCTION' | 'QUALITY_TEST' =
-      scenario === 'PRODUCTION' || scenario === 'CHUNK_PRODUCTION'
+      scenario === 'PRODUCTION' || chunkProduction
         ? 'PRODUCTION'
         : 'QUALITY_TEST';
     const { item, token, access, repository, owner } = await setup();
@@ -875,7 +890,7 @@ it.each([
       billing_enabled: false,
       purposes: ['personal'],
       regions: ['PL'],
-      task_types: ['ECONOMY'],
+      task_types: [semanticMode],
       runtimes: ['local'],
       structured_output: true,
       context_tokens:
@@ -911,16 +926,19 @@ it.each([
     const analysis = new AnalysisJobs(env.DB, owner);
     const semanticRegistry = new SemanticProfiles(env.DB, owner);
     const semanticConfig: SemanticProfile = {
-      mode: 'ECONOMY',
+      mode: semanticMode,
       modules: Object.fromEntries(
-        semanticModules.map((key, i) => [key, i < 7]),
+        semanticModules.map((key, i) => [
+          key,
+          semanticMode === 'FULL' || i < 7,
+        ]),
       ) as SemanticProfile['modules'],
       translation: 'NONE',
       history: false,
       second_pass: null,
       validation_pass: null,
     };
-    await semanticRegistry.save(
+    const semanticSnapshot = await semanticRegistry.save(
       {
         profile_id: 'monitor',
         revision: 1,
@@ -952,22 +970,26 @@ it.each([
     ).rejects.toThrow('ANALYSIS_PROFILE_QUALITY_SCOPE');
     if (mode === 'PRODUCTION') {
       profile.quality_approvals = [
-        await analysisQualityScope(await registry.current(), profile, {
+        await analysisQualityScope(semanticPrompt(semanticSnapshot), profile, {
           limits: settings.limits,
           max_output_tokens: settings.max_output_tokens,
           source_language: selection.source!.language_code,
           analysis_mode: 'ORDINARY',
         }),
       ];
-      if (scenario === 'CHUNK_PRODUCTION') {
+      if (chunkProduction) {
         for (const analysis_mode of ['ORDINARY', 'CHUNK'] as const)
           profile.quality_approvals.push(
-            await analysisQualityScope(await registry.current(), profile, {
-              limits: settings.limits,
-              max_output_tokens: 3000,
-              source_language: selection.source!.language_code,
-              analysis_mode,
-            }),
+            await analysisQualityScope(
+              semanticPrompt(semanticSnapshot),
+              profile,
+              {
+                limits: settings.limits,
+                max_output_tokens: 3000,
+                source_language: selection.source!.language_code,
+                analysis_mode,
+              },
+            ),
           );
       }
       profile.revision = 2;
@@ -1115,6 +1137,7 @@ it.each([
         context_tokens: snapshot.profile.context_tokens,
         output_tokens: snapshot.settings.max_output_tokens,
         prompt_overhead_tokens: economyPromptOverhead({
+          semantic_profile: snapshot.semantic_profile?.compiled,
           prompt: snapshot.prompt,
           limits: snapshot.settings.limits,
           semantic_context: snapshot.semantic_context!,
@@ -1238,7 +1261,15 @@ it.each([
         parent_snapshot_hash: parent.snapshot_hash,
       });
       expect(child.snapshot.quality_scope).not.toBe(snapshot.quality_scope);
-      const compiledChild = await compileEconomy({
+      const compileChild =
+        semanticMode === 'FULL'
+          ? (input: Parameters<typeof compileEconomy>[0]) =>
+              compileSemanticAnalysis({
+                ...input,
+                semantic_profile: child.snapshot.semantic_profile!.compiled,
+              })
+          : compileEconomy;
+      const compiledChild = await compileChild({
         source_artifact_id: source.artifact_id,
         source_text: sourceText,
         manifest: sourceNormalized.manifest,
@@ -1349,6 +1380,14 @@ it.each([
           stance: [],
           predictions: [],
           source_issues: [],
+          ...(semanticMode === 'FULL'
+            ? {
+                usage: [],
+                recommendations: [],
+                uncertainties: [],
+                contradictions: [],
+              }
+            : {}),
         });
         const responseArtifact = await partsRepo.begin(
           {
@@ -1443,7 +1482,7 @@ it.each([
             fixtureSecret,
           ),
         ).rejects.toThrow('QUALITY_TEST_NOT_FINISHABLE');
-        if (scenario === 'CHUNK_PRODUCTION')
+        if (chunkProduction)
           await expect(
             validator.complete(
               childToken,
@@ -1500,7 +1539,7 @@ it.each([
             fixtureSecret,
           ),
         ).rejects.toThrow('STALE_FENCE');
-        if (scenario === 'CHUNK_PRODUCTION') {
+        if (chunkProduction) {
           const pending = await workerJobs.prepareRun(resumeToken, parentNow);
           await new RunRepository(env.DB, owner).requestSelection(
             pending.run_id,
@@ -1513,7 +1552,7 @@ it.each([
           fixtureSecret,
         );
         expect(merged).toMatchObject({
-          accepted: scenario === 'CHUNK_PRODUCTION',
+          accepted: chunkProduction,
           state:
             scenario === 'CHUNKED' || scenario === 'CHUNK_LARGE'
               ? 'DEFERRED'
@@ -1526,7 +1565,7 @@ it.each([
             fixtureSecret,
           );
           expect(replay).toMatchObject({
-            accepted: scenario === 'CHUNK_PRODUCTION',
+            accepted: chunkProduction,
             duplicate: true,
             state: 'SUCCEEDED',
           });
@@ -1534,7 +1573,7 @@ it.each([
             await env.DB.prepare(
               'SELECT count(*) AS n FROM observations',
             ).first('n'),
-          ).toBe(scenario === 'CHUNK_PRODUCTION' ? 1 : 0);
+          ).toBe(chunkProduction ? 1 : 0);
         }
         return;
       }
@@ -1548,7 +1587,15 @@ it.each([
         fixtureNow,
       ),
     ).rejects.toThrow('ANALYSIS_CONTEXT_REQUIRED');
-    const compiled = await compileEconomy({
+    const compileCurrent =
+      semanticMode === 'FULL'
+        ? (input: Parameters<typeof compileEconomy>[0]) =>
+            compileSemanticAnalysis({
+              ...input,
+              semantic_profile: prepared.snapshot.semantic_profile!.compiled,
+            })
+        : compileEconomy;
+    const compiled = await compileCurrent({
       source_artifact_id: source.artifact_id,
       source_text: sourceText,
       manifest: sourceNormalized.manifest,
@@ -2557,291 +2604,354 @@ it('bounded server verification resumes with authenticated SHA state and rejects
   );
   expect(replay.complete).toBe(chunks.length === 2);
 });
-it('canonical Ledger effects share the fenced acceptance batch, rollback on SQL failure and deduplicate redelivery', async () => {
-  const { owner, access, token, item, repository } = await setup('ANALYZE');
-  const text = 'I did not adopt Tool X.';
-  const hash = await sha256(text);
-  const artifact = await repository.begin(
-    {
-      item_id: item.item_id,
-      kind: 'SOURCE_ORIGINAL',
-      content_hash: hash,
-      byte_size: new TextEncoder().encode(text).length,
-      chunk_count: 1,
-      schema_version: 'source-text:1',
-      producer_version: 'fixture',
-      provenance: { fixture: true },
-      original_ref: null,
-    },
-    token,
-    'ANALYZE',
-    fixtureNow,
-  );
-  await repository.writeChunk(
-    artifact.artifact_id,
-    0,
-    0,
-    new TextEncoder().encode(text),
-    token,
-    'ANALYZE',
-    fixtureNow,
-  );
-  await repository.verifyLocal(
-    artifact.artifact_id,
-    token,
-    'ANALYZE',
-    fixtureNow,
-    'local',
-  );
-  const normalized = await normalizeTranscript(
-    hash,
-    [
+it.each(['ECONOMY', 'FULL'] as const)(
+  'canonical %s Ledger effects share the fenced acceptance batch, rollback on SQL failure and deduplicate redelivery',
+  async (semanticMode) => {
+    const { owner, access, token, item, repository } = await setup('ANALYZE');
+    const text = 'I did not adopt Tool X.';
+    const hash = await sha256(text);
+    const artifact = await repository.begin(
       {
-        upstream_index: 0,
-        text,
-        start_ms: 0,
-        end_ms: 2000,
-        speaker_label: null,
+        item_id: item.item_id,
+        kind: 'SOURCE_ORIGINAL',
+        content_hash: hash,
+        byte_size: new TextEncoder().encode(text).length,
+        chunk_count: 1,
+        schema_version: 'source-text:1',
+        producer_version: 'fixture',
+        provenance: { fixture: true },
+        original_ref: null,
       },
-    ],
-    'CUE',
-  );
-  const mapText = JSON.stringify(normalized.manifest);
-  const mapArtifact = await repository.begin(
-    {
+      token,
+      'ANALYZE',
+      fixtureNow,
+    );
+    await repository.writeChunk(
+      artifact.artifact_id,
+      0,
+      0,
+      new TextEncoder().encode(text),
+      token,
+      'ANALYZE',
+      fixtureNow,
+    );
+    await repository.verifyLocal(
+      artifact.artifact_id,
+      token,
+      'ANALYZE',
+      fixtureNow,
+      'local',
+    );
+    const normalized = await normalizeTranscript(
+      hash,
+      [
+        {
+          upstream_index: 0,
+          text,
+          start_ms: 0,
+          end_ms: 2000,
+          speaker_label: null,
+        },
+      ],
+      'CUE',
+    );
+    const mapText = JSON.stringify(normalized.manifest);
+    const mapArtifact = await repository.begin(
+      {
+        item_id: item.item_id,
+        kind: 'SEGMENT_MAP',
+        content_hash: normalized.manifest_hash,
+        byte_size: new TextEncoder().encode(mapText).length,
+        chunk_count: 1,
+        schema_version: 'segment-map:1',
+        producer_version: 'source-normalizer:1',
+        provenance: { fixture: true },
+        original_ref: artifact.artifact_id,
+      },
+      token,
+      'ANALYZE',
+      fixtureNow,
+    );
+    await repository.writeChunk(
+      mapArtifact.artifact_id,
+      0,
+      0,
+      new TextEncoder().encode(mapText),
+      token,
+      'ANALYZE',
+      fixtureNow,
+    );
+    await repository.verifyLocal(
+      mapArtifact.artifact_id,
+      token,
+      'ANALYZE',
+      fixtureNow,
+      'local',
+    );
+    const ledger = new IntelligenceLedger(env.DB, access);
+    const aliases = await ledger.aliases(token, fixtureNow);
+    const claim = {
+      text_pl: 'Autor nie wdrożył narzędzia.',
+      segment_refs: ['s1'],
+      subject_ref: null,
+      entity_refs: [0],
+      attribution: 'SOURCE_SPEAKER',
+      qualifiers: ['negacja'],
+    };
+    const enrichedInput = {
+      raw: JSON.stringify({
+        summary_pl: [{ text_pl: 'Próba narzędzia.', segment_refs: ['s1'] }],
+        key_points: [],
+        entity_mentions: [
+          { label: 'Tool X', entity_type: 'TOOL', segment_refs: ['s1'] },
+        ],
+        tools: [],
+        claims: [claim, claim],
+        stance: [],
+        predictions: [],
+        source_issues: [],
+        ...(semanticMode === 'FULL'
+          ? {
+              usage: [{ ...claim, target_ref: 0, stage: 'REJECTED' }],
+              recommendations: [],
+              uncertainties: [],
+              contradictions: [
+                {
+                  left: { module: 'claims', index: 0 },
+                  right: { module: 'usage', index: 0 },
+                  explanation_pl: 'Możliwa różnica zakresu wypowiedzi.',
+                  qualifiers: ['negacja'],
+                },
+              ],
+            }
+          : {}),
+      }),
+      completion: 'OK' as const,
+      run_id: 'ledger-run',
       item_id: item.item_id,
-      kind: 'SEGMENT_MAP',
-      content_hash: normalized.manifest_hash,
-      byte_size: new TextEncoder().encode(mapText).length,
-      chunk_count: 1,
-      schema_version: 'segment-map:1',
-      producer_version: 'source-normalizer:1',
-      provenance: { fixture: true },
-      original_ref: artifact.artifact_id,
-    },
-    token,
-    'ANALYZE',
-    fixtureNow,
-  );
-  await repository.writeChunk(
-    mapArtifact.artifact_id,
-    0,
-    0,
-    new TextEncoder().encode(mapText),
-    token,
-    'ANALYZE',
-    fixtureNow,
-  );
-  await repository.verifyLocal(
-    mapArtifact.artifact_id,
-    token,
-    'ANALYZE',
-    fixtureNow,
-    'local',
-  );
-  const ledger = new IntelligenceLedger(env.DB, access);
-  const aliases = await ledger.aliases(token, fixtureNow);
-  const claim = {
-    text_pl: 'Autor nie wdrożył narzędzia.',
-    segment_refs: ['s1'],
-    subject_ref: null,
-    entity_refs: [0],
-    attribution: 'SOURCE_SPEAKER',
-    qualifiers: ['negacja'],
-  };
-  const enriched = await enrichEconomy({
-    raw: JSON.stringify({
-      summary_pl: [{ text_pl: 'Próba narzędzia.', segment_refs: ['s1'] }],
-      key_points: [],
-      entity_mentions: [
-        { label: 'Tool X', entity_type: 'TOOL', segment_refs: ['s1'] },
-      ],
-      tools: [],
-      claims: [claim, claim],
-      stance: [],
-      predictions: [],
-      source_issues: [],
-    }),
-    completion: 'OK',
-    run_id: 'ledger-run',
-    item_id: item.item_id,
-    profile_id: 'ECONOMY',
-    profile_revision: 'fixture',
-    source: {
-      owner_id: 'a',
-      source_artifact_id: artifact.artifact_id,
-      ...normalized,
-      video_url: null,
-    },
-    approved_aliases: aliases,
-  });
-  const runs = new RunRepository(env.DB, access);
-  await runs.prepare('ledger-run', token.job_id, fixtureNow.toISOString());
-  const selection = await new RunRepository(env.DB, owner).requestSelection(
-    'ledger-run',
-    item.item_id,
-  );
-  const effects = await ledger.prepare(
-    enriched,
-    'ledger-run',
-    token,
-    fixtureNow,
-  );
-  await expect(
-    runs.complete(
-      { ...token, fencing_token: token.fencing_token + 1 },
-      'ANALYZE',
+      profile_id: 'ECONOMY',
+      profile_revision: 'fixture',
+      source: {
+        owner_id: 'a',
+        source_artifact_id: artifact.artifact_id,
+        ...normalized,
+        video_url: null,
+      },
+      approved_aliases: aliases,
+    };
+    const enriched =
+      semanticMode === 'ECONOMY'
+        ? await enrichEconomy(enrichedInput)
+        : await enrichSemantic(
+            enrichedInput,
+            await compileSemanticProfile(
+              {
+                mode: 'FULL',
+                modules: Object.fromEntries(
+                  semanticModules.map((key) => [key, true]),
+                ),
+                translation: 'NONE',
+                history: false,
+                second_pass: null,
+                validation_pass: null,
+              },
+              bundle,
+            ),
+          );
+    const runs = new RunRepository(env.DB, access);
+    await runs.prepare('ledger-run', token.job_id, fixtureNow.toISOString());
+    const selection = await new RunRepository(env.DB, owner).requestSelection(
       'ledger-run',
-      enriched.canonical_hash,
-      enriched.canonical,
-      selection,
-      fixtureNow,
-      effects,
-    ),
-  ).rejects.toThrow('STALE_FENCE');
-  expect(
-    await env.DB.prepare('SELECT COUNT(*) FROM observations').first('COUNT(*)'),
-  ).toBe(0);
-  await expect(
-    runs.complete(
+      item.item_id,
+    );
+    if (semanticMode === 'FULL') {
+      const malformed = structuredClone(enriched);
+      malformed.canonical.contradictions[0]!.relation_refs[0] =
+        'foreign-observation';
+      malformed.canonical_hash = await sha256(
+        JSON.stringify(malformed.canonical),
+      );
+      await expect(
+        ledger.prepare(malformed, 'ledger-run', token, fixtureNow),
+      ).rejects.toThrow('INVALID_RELATION_PROJECTION');
+    }
+    const effects = await ledger.prepare(
+      enriched,
+      'ledger-run',
       token,
-      'ANALYZE',
-      'ledger-run',
-      enriched.canonical_hash,
-      enriched.canonical,
-      selection,
       fixtureNow,
-      (guard, bindings) => [
-        ...effects(guard, bindings),
-        env.DB.prepare('INSERT INTO deliberately_missing_table VALUES(1)'),
-      ],
-    ),
-  ).rejects.toThrow();
-  expect(
-    await env.DB.prepare('SELECT COUNT(*) FROM observations').first('COUNT(*)'),
-  ).toBe(0);
-  expect(
-    await env.DB.prepare(
-      "SELECT state FROM analysis_runs WHERE run_id='ledger-run'",
-    ).first('state'),
-  ).toBe('CANDIDATE');
-  expect(
-    await env.DB.prepare(
-      "SELECT COUNT(*) FROM outbox WHERE event_key='accepted:ledger-run'",
-    ).first('COUNT(*)'),
-  ).toBe(0);
-  expect(
-    await runs.complete(
-      token,
-      'ANALYZE',
-      'ledger-run',
-      enriched.canonical_hash,
-      enriched.canonical,
-      selection,
-      fixtureNow,
-      effects,
-    ),
-  ).toMatchObject({ accepted: true, active: true, duplicate: false });
-  expect(
-    await runs.complete(
-      token,
-      'ANALYZE',
-      'ledger-run',
-      enriched.canonical_hash,
-      enriched.canonical,
-      selection,
-      fixtureNow,
-      effects,
-    ),
-  ).toMatchObject({ accepted: true, duplicate: true });
-  const rows = await new IntelligenceLedger(env.DB, owner).read('ledger-run');
-  expect(rows).toHaveLength(1);
-  expect(JSON.parse(String(rows[0]!.row_json))).toEqual(
-    enriched.canonical.claims[0],
-  );
-  expect(rows[0]!.row_hash).toBe(
-    await sha256(JSON.stringify(enriched.canonical.claims[0])),
-  );
-  expect(
-    await new IntelligenceLedger(env.DB, await fixtureOwner('b')).read(
-      'ledger-run',
-    ),
-  ).toEqual([]);
-  expect(
-    await env.DB.prepare('SELECT COUNT(*) FROM observation_evidence').first(
-      'COUNT(*)',
-    ),
-  ).toBe(1);
-  expect(
-    await env.DB.prepare('SELECT COUNT(*) FROM observation_entities').first(
-      'COUNT(*)',
-    ),
-  ).toBe(1);
-  expect(
-    await env.DB.prepare(
-      "SELECT COUNT(*) FROM outbox WHERE event_key='accepted:ledger-run'",
-    ).first('COUNT(*)'),
-  ).toBe(1);
-  await expect(env.DB.prepare('DELETE FROM evidence').run()).rejects.toThrow(
-    'IMMUTABLE_EVIDENCE',
-  );
-  await expect(
-    env.DB.prepare('INSERT INTO observation_entities VALUES(?,?,?,?)')
-      .bind(
-        'b',
-        enriched.observation_rows[0]!.observation_id,
-        enriched.entity_resolutions[0]!.entity_id,
-        'SUBJECT',
-      )
-      .run(),
-  ).rejects.toThrow();
-  const backup = new CoreBackup(env.DB, owner),
-    start = await backup.begin(),
-    chunks: BackupChunk[] = [];
-  for (const table of backupTables) {
-    let cursor: number | null = 0;
-    do {
-      const chunk = await backup.chunk(start.backup_id, table, cursor);
-      chunks.push(chunk);
-      cursor = chunk.next_cursor;
-    } while (cursor !== null);
-  }
-  const portable = { manifest: await backup.complete(start.backup_id), chunks };
-  await resetSchema();
-  await restoreCanonical(env.DB, portable, 'subject-a');
-  const restoredOwner = await fixtureOwner();
-  expect(
-    await new IntelligenceLedger(env.DB, restoredOwner).read('ledger-run'),
-  ).toEqual(rows);
-  const evidenceRow = await env.DB.prepare(
-    'SELECT source_hash,quote_hash,source_start,source_end FROM evidence WHERE owner_id=? AND evidence_id=?',
-  )
-    .bind('a', enriched.canonical.evidence[0]!.evidence_id)
-    .first<{
-      source_hash: string;
-      quote_hash: string;
-      source_start: number;
-      source_end: number;
-    }>();
-  const restoredSource = await new ArtifactRepository(
-    env.DB,
-    restoredOwner,
-  ).chunk(artifact.artifact_id, 0);
-  const restoredText = new TextDecoder().decode(
-    Uint8Array.from(
-      atob(
-        restoredSource.body_base64.replaceAll('-', '+').replaceAll('_', '/'),
+    );
+    await expect(
+      runs.complete(
+        { ...token, fencing_token: token.fencing_token + 1 },
+        'ANALYZE',
+        'ledger-run',
+        enriched.canonical_hash,
+        enriched.canonical,
+        selection,
+        fixtureNow,
+        effects,
       ),
-      (char) => char.charCodeAt(0),
-    ),
-  );
-  expect(await sha256(restoredText)).toBe(evidenceRow!.source_hash);
-  expect(
-    await sha256(
-      restoredText.slice(evidenceRow!.source_start, evidenceRow!.source_end),
-    ),
-  ).toBe(evidenceRow!.quote_hash);
-});
+    ).rejects.toThrow('STALE_FENCE');
+    expect(
+      await env.DB.prepare('SELECT COUNT(*) FROM observations').first(
+        'COUNT(*)',
+      ),
+    ).toBe(0);
+    await expect(
+      runs.complete(
+        token,
+        'ANALYZE',
+        'ledger-run',
+        enriched.canonical_hash,
+        enriched.canonical,
+        selection,
+        fixtureNow,
+        (guard, bindings) => [
+          ...effects(guard, bindings),
+          env.DB.prepare('INSERT INTO deliberately_missing_table VALUES(1)'),
+        ],
+      ),
+    ).rejects.toThrow();
+    expect(
+      await env.DB.prepare('SELECT COUNT(*) FROM observations').first(
+        'COUNT(*)',
+      ),
+    ).toBe(0);
+    expect(
+      await env.DB.prepare(
+        "SELECT state FROM analysis_runs WHERE run_id='ledger-run'",
+      ).first('state'),
+    ).toBe('CANDIDATE');
+    expect(
+      await env.DB.prepare(
+        "SELECT COUNT(*) FROM outbox WHERE event_key='accepted:ledger-run'",
+      ).first('COUNT(*)'),
+    ).toBe(0);
+    expect(
+      await runs.complete(
+        token,
+        'ANALYZE',
+        'ledger-run',
+        enriched.canonical_hash,
+        enriched.canonical,
+        selection,
+        fixtureNow,
+        effects,
+      ),
+    ).toMatchObject({ accepted: true, active: true, duplicate: false });
+    expect(
+      await runs.complete(
+        token,
+        'ANALYZE',
+        'ledger-run',
+        enriched.canonical_hash,
+        enriched.canonical,
+        selection,
+        fixtureNow,
+        effects,
+      ),
+    ).toMatchObject({ accepted: true, duplicate: true });
+    const rows = await new IntelligenceLedger(env.DB, owner).read('ledger-run');
+    expect(rows).toHaveLength(enriched.observation_rows.length);
+    const expectedRow = [...enriched.observation_rows].sort((a, b) =>
+      a.observation_id.localeCompare(b.observation_id),
+    )[0]!;
+    expect(JSON.parse(String(rows[0]!.row_json))).toEqual(expectedRow);
+    expect(rows[0]!.row_hash).toBe(await sha256(JSON.stringify(expectedRow)));
+    expect(
+      await new IntelligenceLedger(env.DB, await fixtureOwner('b')).read(
+        'ledger-run',
+      ),
+    ).toEqual([]);
+    expect(
+      await env.DB.prepare('SELECT COUNT(*) FROM observation_evidence').first(
+        'COUNT(*)',
+      ),
+    ).toBe(enriched.observation_rows.length);
+    expect(
+      await env.DB.prepare('SELECT COUNT(*) FROM observation_entities').first(
+        'COUNT(*)',
+      ),
+    ).toBe(
+      enriched.observation_rows.reduce(
+        (total, row) =>
+          total +
+          row.entity_refs.length +
+          Number(row.subject_ref !== null) +
+          Number(row.target_ref !== null),
+        0,
+      ),
+    );
+    expect(
+      await env.DB.prepare(
+        "SELECT COUNT(*) FROM outbox WHERE event_key='accepted:ledger-run'",
+      ).first('COUNT(*)'),
+    ).toBe(1);
+    await expect(env.DB.prepare('DELETE FROM evidence').run()).rejects.toThrow(
+      'IMMUTABLE_EVIDENCE',
+    );
+    await expect(
+      env.DB.prepare('INSERT INTO observation_entities VALUES(?,?,?,?)')
+        .bind(
+          'b',
+          enriched.observation_rows[0]!.observation_id,
+          enriched.entity_resolutions[0]!.entity_id,
+          'SUBJECT',
+        )
+        .run(),
+    ).rejects.toThrow();
+    const backup = new CoreBackup(env.DB, owner),
+      start = await backup.begin(),
+      chunks: BackupChunk[] = [];
+    for (const table of backupTables) {
+      let cursor: number | null = 0;
+      do {
+        const chunk = await backup.chunk(start.backup_id, table, cursor);
+        chunks.push(chunk);
+        cursor = chunk.next_cursor;
+      } while (cursor !== null);
+    }
+    const portable = {
+      manifest: await backup.complete(start.backup_id),
+      chunks,
+    };
+    await resetSchema();
+    await restoreCanonical(env.DB, portable, 'subject-a');
+    const restoredOwner = await fixtureOwner();
+    expect(
+      await new IntelligenceLedger(env.DB, restoredOwner).read('ledger-run'),
+    ).toEqual(rows);
+    const evidenceRow = await env.DB.prepare(
+      'SELECT source_hash,quote_hash,source_start,source_end FROM evidence WHERE owner_id=? AND evidence_id=?',
+    )
+      .bind('a', enriched.canonical.evidence[0]!.evidence_id)
+      .first<{
+        source_hash: string;
+        quote_hash: string;
+        source_start: number;
+        source_end: number;
+      }>();
+    const restoredSource = await new ArtifactRepository(
+      env.DB,
+      restoredOwner,
+    ).chunk(artifact.artifact_id, 0);
+    const restoredText = new TextDecoder().decode(
+      Uint8Array.from(
+        atob(
+          restoredSource.body_base64.replaceAll('-', '+').replaceAll('_', '/'),
+        ),
+        (char) => char.charCodeAt(0),
+      ),
+    );
+    expect(await sha256(restoredText)).toBe(evidenceRow!.source_hash);
+    expect(
+      await sha256(
+        restoredText.slice(evidenceRow!.source_start, evidenceRow!.source_end),
+      ),
+    ).toBe(evidenceRow!.quote_hash);
+  },
+);
 it('repair is admitted once per immutable candidate, never for unknown estimates or stale fences', async () => {
   const { owner, access, token, item, repository } = await setup('ANALYZE');
   const raw = '{"fixture":true,}';

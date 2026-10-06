@@ -102,7 +102,11 @@ it('applies explicit pending policy only to unpinned materials and keeps new-onl
     other.assign({ ...assignment, source_id: source.source_id }, 0, fixtureNow),
   ).rejects.toThrow('NOT_FOUND');
   await registry.save(
-    { ...input, profile_id: 'draft-only' },
+    {
+      ...input,
+      profile_id: 'draft-only',
+      config: { ...config, history: true },
+    },
     bundle,
     fixtureNow,
   );

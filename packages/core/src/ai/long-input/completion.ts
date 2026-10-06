@@ -13,7 +13,7 @@ import { RunRepository } from '../../jobs/acceptance.js';
 import { AnalysisJobs, type AnalysisJobSnapshot } from '../jobs.js';
 import { finalizeCandidateRun } from '../candidate-finalization.js';
 import { IntelligenceLedger } from '../enrichment/ledger.js';
-import { enrichEconomy } from '../enrichment/canonical.js';
+import { enrichEconomy, enrichSemantic } from '../enrichment/canonical.js';
 import { mergeChunkOutputs } from './merge.js';
 import { LongInputJobs } from './jobs.js';
 import type { ChunkPlan } from './plan.js';
@@ -223,6 +223,7 @@ export class LongInputCompletion {
       });
     }
     const merged = await mergeChunkOutputs({
+      semantic_profile: snapshot.semantic_profile?.compiled,
       plan: JSON.parse(planFile.text) as ChunkPlan,
       plan_hash: status.plan_hash,
       manifest,
@@ -235,12 +236,13 @@ export class LongInputCompletion {
       .prepare('SELECT canonical_url FROM items WHERE owner_id=? AND item_id=?')
       .bind(this.context.ownerId, snapshot.source.item_id)
       .first<{ canonical_url: string }>();
-    const enriched = await enrichEconomy({
+    const enrichmentInput = {
       raw: JSON.stringify(merged.wire),
-      completion: 'OK',
+      completion: 'OK' as const,
       run_id: prepared.run_id,
       item_id: snapshot.source.item_id,
-      profile_id: snapshot.profile.profile_id,
+      profile_id:
+        snapshot.semantic_profile?.profile_id ?? snapshot.profile.profile_id,
       profile_revision: prepared.snapshot_hash,
       source: {
         owner_id: this.context.ownerId,
@@ -255,7 +257,13 @@ export class LongInputCompletion {
         this.db,
         this.context,
       ).aliases(token, current()),
-    });
+    };
+    const enriched = snapshot.semantic_profile
+      ? await enrichSemantic(
+          enrichmentInput,
+          snapshot.semantic_profile.compiled,
+        )
+      : await enrichEconomy(enrichmentInput);
     await jobs.load(token, current());
     const canonicalText = JSON.stringify(enriched.canonical),
       pieces = splitArtifactText(canonicalText),
@@ -265,6 +273,7 @@ export class LongInputCompletion {
           parent_snapshot_hash: prepared.snapshot_hash,
           receipts,
           coverage: merged.coverage,
+          relational_coverage: merged.relational_coverage,
           sectional_summaries: merged.sectional_summaries,
         }),
       );
@@ -322,7 +331,13 @@ export class LongInputCompletion {
           ? 'intelligence-accepted:1'
           : 'quality-candidate:1',
       kind: 'CHUNK_MERGE',
-      view: acceptedView(enriched.canonical),
+      view: acceptedView(
+        enriched.canonical,
+        snapshot.semantic_profile?.compiled.config.mode !== 'ECONOMY' &&
+          snapshot.semantic_profile
+          ? merged.relational_coverage
+          : undefined,
+      ),
       run_id: prepared.run_id,
       source_run_id: snapshot.source.run_id,
       source_artifact_id: snapshot.source.source_artifact_id,

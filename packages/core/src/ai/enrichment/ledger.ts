@@ -55,6 +55,7 @@ export class IntelligenceLedger {
       'ANALYZE',
     );
     if (
+      value.source_pin.artifact_id !== value.canonical.source_artifact_id ||
       !validateCanonical(value.canonical) ||
       (await sha256(JSON.stringify(value.canonical))) !==
         value.canonical_hash ||
@@ -63,9 +64,64 @@ export class IntelligenceLedger {
           ...value.canonical.claims,
           ...value.canonical.stance,
           ...value.canonical.predictions,
+          ...value.canonical.usage,
+          ...value.canonical.recommendations,
+          ...value.canonical.uncertainties,
+          ...value.canonical.contradictions,
         ])
     )
       throw new Error('INVALID_LEDGER_PROJECTION');
+    const baseRows = [
+      ...value.canonical.claims,
+      ...value.canonical.stance,
+      ...value.canonical.predictions,
+      ...value.canonical.usage,
+      ...value.canonical.recommendations,
+      ...value.canonical.uncertainties,
+    ];
+    const byId = new Map(baseRows.map((row) => [row.observation_id, row]));
+    const sameSet = (left: readonly string[], right: readonly string[]) =>
+      JSON.stringify([...new Set(left)].sort()) ===
+      JSON.stringify([...new Set(right)].sort());
+    if (
+      new Set(value.observation_rows.map((row) => row.observation_id)).size !==
+      value.observation_rows.length
+    )
+      throw new Error('INVALID_LEDGER_PROJECTION');
+    for (const relation of value.canonical.contradictions) {
+      const left = byId.get(relation.relation_refs[0]!),
+        right = byId.get(relation.relation_refs[1]!);
+      if (
+        !left ||
+        !right ||
+        left.observation_id === right.observation_id ||
+        relation.relation_refs.length !== 2 ||
+        !left.evidence_ids.length ||
+        !right.evidence_ids.length ||
+        relation.kind !== 'CONTRADICTION' ||
+        relation.attribution !== 'UNCLEAR' ||
+        relation.epistemic_status !== 'SOURCE_INFERENCE' ||
+        !sameSet(relation.evidence_ids, [
+          ...left.evidence_ids,
+          ...right.evidence_ids,
+        ]) ||
+        !sameSet(
+          relation.entity_refs,
+          [
+            ...left.entity_refs,
+            left.subject_ref,
+            left.target_ref,
+            ...right.entity_refs,
+            right.subject_ref,
+            right.target_ref,
+          ].filter((id): id is string => id !== null),
+        ) ||
+        [...left.qualifiers, ...right.qualifiers].some(
+          (qualifier) => !relation.qualifiers.includes(qualifier),
+        )
+      )
+        throw new Error('INVALID_RELATION_PROJECTION');
+    }
     const source = await this.db
       .prepare(
         `SELECT a.artifact_id FROM artifacts a JOIN analysis_runs r ON r.owner_id=a.owner_id AND r.item_id=a.item_id WHERE a.owner_id=? AND a.artifact_id=? AND a.item_id=? AND a.kind='SOURCE_ORIGINAL' AND a.state='VERIFIED' AND a.content_hash=? AND EXISTS(SELECT 1 FROM artifacts m WHERE m.owner_id=a.owner_id AND m.item_id=a.item_id AND m.original_ref=a.artifact_id AND m.kind='SEGMENT_MAP' AND m.state='VERIFIED' AND m.producer_version='source-normalizer:1' AND m.content_hash=?) AND r.run_id=? AND r.job_id=? AND r.state='CANDIDATE' AND ${guard.predicate}`,
@@ -74,8 +130,8 @@ export class IntelligenceLedger {
         this.context.ownerId,
         value.canonical.source_artifact_id,
         value.canonical.item_id,
-        value.evidence_snapshots[0]?.canonical.source_hash ?? '',
-        value.evidence_snapshots[0]?.anchor_snapshot.manifest_hash ?? '',
+        value.source_pin.source_hash,
+        value.source_pin.manifest_hash,
         runId,
         token.job_id,
         ...guard.bindings,
@@ -124,10 +180,8 @@ export class IntelligenceLedger {
           JSON.stringify(row.canonical) ||
         row.canonical.source_artifact_id !==
           value.canonical.source_artifact_id ||
-        row.canonical.source_hash !==
-          value.evidence_snapshots[0]!.canonical.source_hash ||
-        row.anchor_snapshot.manifest_hash !==
-          value.evidence_snapshots[0]!.anchor_snapshot.manifest_hash ||
+        row.canonical.source_hash !== value.source_pin.source_hash ||
+        row.anchor_snapshot.manifest_hash !== value.source_pin.manifest_hash ||
         (await sha256(row.canonical.quote_original)) !==
           row.canonical.quote_hash
       )

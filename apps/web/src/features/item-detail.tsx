@@ -143,6 +143,10 @@ export function ItemDetail({ route }: { route: string }) {
       ['claims', 'Twierdzenia'],
       ['stance', 'Stanowiska'],
       ['predictions', 'Przewidywania'],
+      ['usage', 'Użycie'],
+      ['recommendations', 'Rekomendacje'],
+      ['uncertainties', 'Niepewności'],
+      ['contradictions', 'Możliwe sprzeczności'],
     ] as const;
   return (
     <>
@@ -225,6 +229,14 @@ export function ItemDetail({ route }: { route: string }) {
             </p>
           ) : (
             <article className="reading-pane">
+              {current.detail.view?.relational_coverage ===
+                'WITHIN_CHUNKS_ONLY' && (
+                <p className="notice">
+                  Zakres relacji jest częściowy: sprzeczności oceniono tylko
+                  wewnątrz poszczególnych fragmentów. Relacje między fragmentami
+                  nie zostały ocenione.
+                </p>
+              )}
               {canonical.source_issues.length > 0 && (
                 <p className="notice">
                   Ograniczenia źródła: {canonical.source_issues.join(' · ')}
@@ -267,7 +279,18 @@ export function ItemDetail({ route }: { route: string }) {
                 )}
               </section>
               <section>
-                <h2>Encje</h2>
+                <h2>
+                  {canonical.enabled_modules.includes('entities')
+                    ? 'Encje'
+                    : 'Encje referencyjne'}
+                </h2>
+                {!canonical.enabled_modules.includes('entities') &&
+                  canonical.entities.length > 0 && (
+                    <p className="metadata">
+                      Wzmianki potrzebne do odwołań wybranych rekordów. Moduł
+                      encji jest wyłączony.
+                    </p>
+                  )}
                 <ul className="entity-list">
                   {canonical.entities.map((entity) => (
                     <li key={entity.entity_id}>
@@ -325,13 +348,19 @@ export function ItemDetail({ route }: { route: string }) {
                     <p className="muted">Brak pozycji w wyniku.</p>
                   ) : (
                     canonical[kind].map((row) => (
-                      <div className="observation" key={row.observation_id}>
+                      <div
+                        className="observation"
+                        id={'observation-' + row.observation_id}
+                        key={row.observation_id}
+                      >
                         <p className="metadata">
-                          {row.attribution === 'SOURCE_SPEAKER'
-                            ? 'Wypowiedź źródła'
-                            : row.attribution === 'REPORTED_OTHER'
-                              ? 'Źródło relacjonuje cudzą wypowiedź'
-                              : 'Autorstwo wypowiedzi nieustalone'}
+                          {row.kind === 'CONTRADICTION'
+                            ? 'Możliwa sprzeczność — interpretacja analizy'
+                            : row.attribution === 'SOURCE_SPEAKER'
+                              ? 'Wypowiedź źródła'
+                              : row.attribution === 'REPORTED_OTHER'
+                                ? 'Źródło relacjonuje cudzą wypowiedź'
+                                : 'Autorstwo wypowiedzi nieustalone'}
                         </p>
                         <p>{row.content_pl}</p>
                         {row.qualifiers.length > 0 && (
@@ -344,6 +373,55 @@ export function ItemDetail({ route }: { route: string }) {
                         )}
                         {row.stance_polarity && (
                           <p>Stanowisko: {row.stance_polarity}</p>
+                        )}
+                        {row.usage_stage && (
+                          <p>
+                            Etap użycia:{' '}
+                            {(
+                              {
+                                TRIED: 'wypróbowano',
+                                USES: 'używa',
+                                ADOPTED: 'wdrożono',
+                                STOPPED: 'zaprzestano użycia',
+                                REJECTED: 'odrzucono',
+                                UNCLEAR: 'nieustalony',
+                              } as Record<string, string>
+                            )[row.usage_stage] ?? row.usage_stage}
+                          </p>
+                        )}
+                        {row.kind === 'CONTRADICTION' && (
+                          <div
+                            role="group"
+                            aria-label="Wypowiedzi porównywane w relacji"
+                          >
+                            {row.relation_refs.map((id, index) => {
+                              const side = modules
+                                .flatMap(([kind]) => canonical[kind])
+                                .find(
+                                  (candidate) =>
+                                    candidate.observation_id === id,
+                                );
+                              return side ? (
+                                <div key={id}>
+                                  <a href={'#observation-' + id}>
+                                    {index === 0
+                                      ? 'Pierwsza wypowiedź'
+                                      : 'Druga wypowiedź'}
+                                  </a>
+                                  <p>{side.content_pl}</p>
+                                  <EvidenceChips
+                                    ids={side.evidence_ids}
+                                    evidence={canonical.evidence}
+                                    runId={current.detail.selected_run_id!}
+                                  />
+                                </div>
+                              ) : (
+                                <p key={id} className="notice">
+                                  Wypowiedź niedostępna w tym wyniku.
+                                </p>
+                              );
+                            })}
+                          </div>
                         )}
                         <EvidenceChips
                           ids={row.evidence_ids}

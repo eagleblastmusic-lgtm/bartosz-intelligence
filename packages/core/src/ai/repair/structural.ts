@@ -3,7 +3,12 @@ import { renderPrompt } from '../../registry/bundle.js';
 import type { PromptSnapshot } from '../../registry/store.js';
 import type { AIRequest, AIResponse } from '../../../../contracts/src/ai.js';
 import { strictJson } from './strict-json.js';
-import { validateEconomyCandidate, validateRepairWire } from './validate.js';
+import {
+  validateEconomyCandidate,
+  validateSemanticCandidate,
+  validateRepairWire,
+} from './validate.js';
+import type { MaterializedSemanticProfile } from '../../registry/semantic-profiles.js';
 
 // This class has a complete, unambiguous semantic reference. Removing trailing
 // delimiters is intentionally outside DR1–DR4 and never accepts a main output.
@@ -53,6 +58,7 @@ export async function compileStructuralRepair(input: {
   request_id: string;
   deadline: string;
   aliases: ReadonlySet<string>;
+  semantic_profile?: MaterializedSemanticProfile;
   measurement: { error_class: 'TRAILING_COMMA'; evidence_hash: string } | null;
 }) {
   if (
@@ -67,11 +73,20 @@ export async function compileStructuralRepair(input: {
   )
     throw new Error('REPAIR_NOT_ADMITTED');
   const reference = trailingCommaReference(input.raw);
-  const checked = await validateEconomyCandidate(
-    reference,
-    'OK',
-    input.aliases,
-  );
+  if (
+    input.semantic_profile &&
+    (await sha256(JSON.stringify(input.main.wire_schema))) !==
+      input.semantic_profile.wire.hash
+  )
+    throw new Error('REPAIR_SCHEMA_MISMATCH');
+  const checked = input.semantic_profile
+    ? await validateSemanticCandidate(
+        reference,
+        'OK',
+        input.aliases,
+        input.semantic_profile,
+      )
+    : await validateEconomyCandidate(reference, 'OK', input.aliases);
   if (!checked.valid) throw new Error('SEMANTIC_ERROR_NOT_REPAIRABLE');
   const prompt = input.prompt;
   if (
@@ -143,6 +158,7 @@ export async function validateStructuralRepair(
   response: AIResponse,
   reference: string,
   aliases: ReadonlySet<string>,
+  semanticProfile?: MaterializedSemanticProfile,
 ) {
   if (response.status !== 'OK' || response.raw_output === null)
     throw new Error('REPAIR_RESPONSE_NOT_COMPLETE');
@@ -158,11 +174,14 @@ export async function validateStructuralRepair(
     typeof envelope.repaired_json !== 'string'
   )
     throw new Error('UNREPAIRABLE');
-  const checked = await validateEconomyCandidate(
-    envelope.repaired_json,
-    'OK',
-    aliases,
-  );
+  const checked = semanticProfile
+    ? await validateSemanticCandidate(
+        envelope.repaired_json,
+        'OK',
+        aliases,
+        semanticProfile,
+      )
+    : await validateEconomyCandidate(envelope.repaired_json, 'OK', aliases);
   if (!checked.valid) throw new Error('REPAIRED_ANALYSIS_INVALID');
   if (semanticTree(checked.value) !== semanticTree(strictJson(reference)))
     throw new Error('REPAIR_CHANGED_CONTENT');

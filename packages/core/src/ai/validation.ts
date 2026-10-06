@@ -11,8 +11,11 @@ import { AnalysisJobs } from './jobs.js';
 import { RunRepository } from '../jobs/acceptance.js';
 import { AnalysisResponses, type ResponseMetadata } from './responses.js';
 import { IntelligenceLedger } from './enrichment/ledger.js';
-import { enrichEconomy } from './enrichment/canonical.js';
-import { validateEconomyCandidate } from './repair/validate.js';
+import { enrichEconomy, enrichSemantic } from './enrichment/canonical.js';
+import {
+  validateEconomyCandidate,
+  validateSemanticCandidate,
+} from './repair/validate.js';
 import type { normalizeTranscript } from '../transcript/normalize.js';
 import { validator_schema_hashes } from '../registry/generated/validators.js';
 import { mergeChunkOutputs } from './long-input/merge.js';
@@ -245,7 +248,8 @@ export class AnalysisValidation {
     if (commit && snapshot.chunk) throw new Error('CHUNK_NOT_ACCEPTABLE');
     if (
       snapshot.prompt.wire.hash !==
-        validator_schema_hashes['urn:bartosz:schema:economy-wire:1.0'] ||
+        (snapshot.semantic_profile?.compiled.wire.hash ??
+          validator_schema_hashes['urn:bartosz:schema:economy-wire:1.0']) ||
       snapshot.prompt.canonical.hash !==
         validator_schema_hashes['urn:bartosz:schema:intelligence-canonical:1.2']
     )
@@ -370,6 +374,7 @@ export class AnalysisValidation {
           if (stored.artifact.content_hash !== snapshot.chunk.plan_hash)
             throw new Error('CHUNK_PLAN_MISMATCH');
           const merged = await mergeChunkOutputs({
+            semantic_profile: snapshot.semantic_profile?.compiled,
             plan: JSON.parse(stored.text) as ChunkPlan,
             plan_hash: snapshot.chunk.plan_hash,
             manifest,
@@ -384,11 +389,15 @@ export class AnalysisValidation {
           });
           globalRaw = JSON.stringify(merged.wire);
         }
-        checked = await validateEconomyCandidate(
-          globalRaw,
-          'OK',
-          new Set(manifest.anchors.map((a) => a.alias)),
-        );
+        const aliases = new Set(manifest.anchors.map((a) => a.alias));
+        checked = snapshot.semantic_profile
+          ? await validateSemanticCandidate(
+              globalRaw,
+              'OK',
+              aliases,
+              snapshot.semantic_profile.compiled,
+            )
+          : await validateEconomyCandidate(globalRaw, 'OK', aliases);
       } catch (error) {
         const categories = new Set([
           'JSON_TOO_LARGE',
@@ -417,12 +426,14 @@ export class AnalysisValidation {
           )
           .bind(this.context.ownerId, snapshot.source.item_id)
           .first<{ canonical_url: string }>();
-        enriched = await enrichEconomy({
+        const enrichmentInput = {
           raw: globalRaw,
-          completion: 'OK',
+          completion: 'OK' as const,
           run_id: prepared.run_id,
           item_id: snapshot.source.item_id,
-          profile_id: snapshot.profile.profile_id,
+          profile_id:
+            snapshot.semantic_profile?.profile_id ??
+            snapshot.profile.profile_id,
           profile_revision: prepared.snapshot_hash,
           source: {
             owner_id: this.context.ownerId,
@@ -437,7 +448,13 @@ export class AnalysisValidation {
             this.db,
             this.context,
           ).aliases(token, current()),
-        });
+        };
+        enriched = snapshot.semantic_profile
+          ? await enrichSemantic(
+              enrichmentInput,
+              snapshot.semantic_profile.compiled,
+            )
+          : await enrichEconomy(enrichmentInput);
       }
     }
     await jobs.load(token, current());

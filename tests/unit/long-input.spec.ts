@@ -6,6 +6,13 @@ import {
   verifyChunkPlan,
 } from '../../packages/core/src/ai/long-input/plan.js';
 import { mergeChunkOutputs } from '../../packages/core/src/ai/long-input/merge.js';
+import bundle from '../../config/registry/master-bundle.json';
+import {
+  compileSemanticProfile,
+  semanticModules,
+} from '../../packages/core/src/ai/semantic-profile.js';
+import { enrichSemantic } from '../../packages/core/src/ai/enrichment/canonical.js';
+import { acceptedView } from '../../packages/core/src/projections/accepted-view.js';
 async function fixture() {
   const cues = Array.from({ length: 12 }, (_, i) => ({
     upstream_index: i,
@@ -29,6 +36,134 @@ async function fixture() {
   });
   return { ...source, ...built };
 }
+it.each(['FULL', 'CUSTOM'] as const)(
+  'merges %s relation ends into global typed positions with explicit incomplete cross-chunk coverage',
+  async (mode) => {
+    const source = await fixture();
+    const profile = await compileSemanticProfile(
+      {
+        mode,
+        modules: Object.fromEntries(
+          semanticModules.map((key) => [
+            key,
+            mode === 'FULL' || ['claims', 'contradictions'].includes(key),
+          ]),
+        ),
+        translation: 'NONE',
+        history: false,
+        second_pass: null,
+        validation_pass: null,
+      },
+      bundle,
+    );
+    expect(source.plan.chunks.length).toBeGreaterThan(1);
+    const outputs = source.plan.chunks.map((chunk) => {
+      const alias = chunk.aliases.find(
+        (row) => row.segment_id === chunk.primary_segment_ids[0],
+      )!.alias;
+      const record = {
+        text_pl: `Fragment ${chunk.chunk_index} pierwszy`,
+        segment_refs: [alias],
+        entity_refs: [0],
+        subject_ref: null,
+        attribution: 'SOURCE_SPEAKER',
+        qualifiers: ['wyłącznie próba'],
+      };
+      const value = {
+        entity_mentions: [
+          { label: 'Tool X', entity_type: 'TOOL', segment_refs: [alias] },
+        ],
+        source_issues: [],
+        claims: [
+          record,
+          { ...record, text_pl: `Fragment ${chunk.chunk_index} drugi` },
+        ],
+        contradictions: [
+          {
+            left: { module: 'claims', index: 0 },
+            right: { module: 'claims', index: 1 },
+            explanation_pl: `Interpretacja ${chunk.chunk_index}`,
+            qualifiers: [],
+          },
+        ],
+        ...(mode === 'FULL'
+          ? {
+              summary_pl: [
+                {
+                  text_pl: `Sekcja ${chunk.chunk_index}`,
+                  segment_refs: [alias],
+                },
+              ],
+              key_points: [],
+              tools: [],
+              stance: [],
+              predictions: [],
+              usage: [],
+              recommendations: [],
+              uncertainties: [],
+            }
+          : {}),
+      };
+      return {
+        chunk_index: chunk.chunk_index,
+        raw: JSON.stringify(value),
+        completion: 'OK' as const,
+      };
+    });
+    const input = { ...source, semantic_profile: profile, outputs };
+    const merged = await mergeChunkOutputs(input);
+    expect(merged.coverage.complete).toBe(true);
+    expect(merged.relational_coverage).toBe('WITHIN_CHUNKS_ONLY');
+    expect(merged.additional_model_requests).toBe(0);
+    expect(merged.wire.claims).toHaveLength(outputs.length * 2);
+    expect(
+      merged.wire.contradictions.map(
+        (row) =>
+          (row as { left: { index: number }; right: { index: number } }).left
+            .index,
+      ),
+    ).toEqual(outputs.map((_, index) => index * 2));
+    expect(
+      merged.wire.contradictions.map(
+        (row) => (row as { right: { index: number } }).right.index,
+      ),
+    ).toEqual(outputs.map((_, index) => index * 2 + 1));
+    expect(
+      (await mergeChunkOutputs({ ...input, outputs: [...outputs].reverse() }))
+        .wire_hash,
+    ).toBe(merged.wire_hash);
+    const enriched = await enrichSemantic(
+      {
+        raw: JSON.stringify(merged.wire),
+        completion: 'OK',
+        run_id: 'merge',
+        item_id: 'item',
+        profile_id: 'scope',
+        profile_revision: 'pinned',
+        source: {
+          owner_id: 'owner',
+          source_artifact_id: 'source',
+          ...source,
+          video_url: null,
+        },
+        approved_aliases: [],
+      },
+      profile,
+    );
+    expect(
+      enriched.canonical.contradictions.every(
+        (row) =>
+          row.relation_refs.length === 2 &&
+          row.epistemic_status === 'SOURCE_INFERENCE',
+      ),
+    ).toBe(true);
+    expect(
+      acceptedView(enriched.canonical, merged.relational_coverage)
+        .coverage_complete,
+    ).toBe(false);
+    if (mode === 'CUSTOM') expect(merged.wire.summary_pl).toBeUndefined();
+  },
+);
 it('prefix estimates equal exact serialized bytes across alias digit boundaries and Unicode', async () => {
   const text = Array.from(
     { length: 150 },

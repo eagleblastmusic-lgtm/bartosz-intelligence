@@ -7,6 +7,7 @@ import { sha256 } from '../auth/crypto.js';
 import { compileSemanticProfile } from '../ai/semantic-profile.js';
 import type { RegistryBundle } from './bundle.js';
 import { PromptRegistry } from './store.js';
+import type { PromptSnapshot } from './store.js';
 
 export type MaterializedSemanticProfile = Awaited<
   ReturnType<typeof compileSemanticProfile>
@@ -24,6 +25,25 @@ export interface SemanticProfileAssignment {
   effective_from: string;
   apply_to_pending: boolean;
   reason: string;
+}
+export function semanticPrompt(
+  snapshot: SemanticProfileSnapshot,
+): PromptSnapshot {
+  const compiled = snapshot.compiled;
+  return {
+    prompt_id: compiled.prompt.id,
+    version: compiled.prompt.version,
+    prompt_hash: compiled.prompt.hash,
+    text: compiled.prompt.text,
+    wire: structuredClone(compiled.wire),
+    canonical: {
+      id: compiled.canonical.id,
+      hash: compiled.canonical.hash,
+      schema: structuredClone(compiled.canonical.schema),
+    },
+    enrichment_version: compiled.enrichment_version,
+    generation: snapshot.revision,
+  };
 }
 /** Semantic scope revisions are independent of ModelRegistry's provider revisions. */
 export class SemanticProfiles {
@@ -200,7 +220,6 @@ export class SemanticProfiles {
     // Only adapters that actually exist can be activated. Drafts remain editable.
     const config = snapshot.compiled.config;
     if (
-      config.mode !== 'ECONOMY' ||
       config.translation !== 'NONE' ||
       config.history ||
       config.second_pass ||

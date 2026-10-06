@@ -119,7 +119,14 @@ export class GeminiFreeProvider implements AIProvider {
       throw new Error('INVALID_AI_REQUEST');
     if (
       request.wire_schema.$id !== 'urn:bartosz:schema:economy-wire:1.0' &&
-      request.wire_schema.$id !== 'urn:bartosz:schema:repair-wire:1.0'
+      request.wire_schema.$id !== 'urn:bartosz:schema:repair-wire:1.0' &&
+      request.wire_schema.$id !== 'urn:bartosz:schema:full-wire:1.0' &&
+      !(
+        typeof request.wire_schema.$id === 'string' &&
+        /^urn:bartosz:schema:custom-wire:[a-f0-9]{64}:1\.0$/.test(
+          request.wire_schema.$id,
+        )
+      )
     )
       throw new Error('UNSUPPORTED_WIRE_SCHEMA');
     const body = {

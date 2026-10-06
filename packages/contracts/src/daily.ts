@@ -8,6 +8,7 @@ export interface DailyCounts {
   failed: number;
 }
 export interface AcceptedView {
+  relational_coverage?: 'SOURCE_SCOPE' | 'WITHIN_CHUNKS_ONLY';
   version: 'accepted-view:1';
   status: string;
   enabled_modules: string[];

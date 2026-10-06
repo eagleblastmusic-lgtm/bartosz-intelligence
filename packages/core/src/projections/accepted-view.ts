@@ -3,12 +3,16 @@ import type { enrichEconomy } from '../ai/enrichment/canonical.js';
 type Canonical = Awaited<ReturnType<typeof enrichEconomy>>['canonical'];
 // A bounded deterministic preview of the accepted canonical. Whole notes are
 // retained in order; no AI, word truncation, or new semantic ranking occurs.
-export function acceptedView(canonical: Canonical): AcceptedView {
+export function acceptedView(
+  canonical: Canonical,
+  relationalCoverage?: AcceptedView['relational_coverage'],
+): AcceptedView {
   return {
     version: 'accepted-view:1',
     status: canonical.status,
     enabled_modules: [...canonical.enabled_modules],
-    coverage_complete: true,
+    coverage_complete: relationalCoverage !== 'WITHIN_CHUNKS_ONLY',
+    ...(relationalCoverage ? { relational_coverage: relationalCoverage } : {}),
     summary_pl: canonical.summary_pl.slice(0, 1),
     key_points: canonical.key_points.slice(0, 3),
     entities: canonical.entities

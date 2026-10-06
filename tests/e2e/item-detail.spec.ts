@@ -9,6 +9,7 @@ test('reading verifies paged canonical bytes, preserves accepted text on failure
       createHash('sha256').update(value).digest('hex');
   let corrupt = false,
     disabled = false,
+    full = false,
     badLink = false,
     playerLoads = 0,
     corrections = 0;
@@ -61,17 +62,19 @@ test('reading verifies paged canonical bytes, preserves accepted text on failure
     profile_revision: '1',
     status: 'OK',
     source_issues: [],
-    enabled_modules: disabled
-      ? ['claims']
-      : [
-          'summary',
-          'key_points',
-          'entities',
-          'tools',
-          'claims',
-          'stance',
-          'predictions',
-        ],
+    enabled_modules: full
+      ? ['claims', 'usage', 'contradictions']
+      : disabled
+        ? ['claims']
+        : [
+            'summary',
+            'key_points',
+            'entities',
+            'tools',
+            'claims',
+            'stance',
+            'predictions',
+          ],
     summary_pl: disabled
       ? []
       : [
@@ -98,6 +101,41 @@ test('reading verifies paged canonical bytes, preserves accepted text on failure
     ],
     stance: [],
     predictions: [],
+    usage: full
+      ? [
+          {
+            observation_id: 'usage-b',
+            kind: 'USAGE',
+            content_pl: 'Później wypróbowano narzędzie.',
+            attribution: 'REPORTED_OTHER',
+            qualifiers: ['cudzy projekt'],
+            usage_stage: 'TRIED',
+            prediction_horizon: null,
+            stance_polarity: null,
+            evidence_ids: ['evidence-b'],
+            relation_refs: [],
+          },
+        ]
+      : [],
+    recommendations: [],
+    uncertainties: [],
+    contradictions: full
+      ? [
+          {
+            observation_id: 'relation-a',
+            kind: 'CONTRADICTION',
+            content_pl: 'Możliwe napięcie między wypowiedziami.',
+            attribution: 'UNCLEAR',
+            epistemic_status: 'SOURCE_INFERENCE',
+            qualifiers: [],
+            prediction_horizon: null,
+            stance_polarity: null,
+            usage_stage: null,
+            evidence_ids: ['evidence-a', 'evidence-b'],
+            relation_refs: ['claim-a', 'usage-b'],
+          },
+        ]
+      : [],
     evidence,
   });
   await page.route('https://www.youtube-nocookie.com/**', async (route) => {
@@ -200,7 +238,12 @@ test('reading verifies paged canonical bytes, preserves accepted text on failure
           reason: null,
           selected_run_id: 'run-reading',
           selection_revision: 1,
-          view: null,
+          view: full
+            ? {
+                relational_coverage: 'WITHIN_CHUNKS_ONLY',
+                coverage_complete: false,
+              }
+            : null,
           canonical: descriptor,
           semantic_verification: 'NOT_ASSERTED',
         },
@@ -373,4 +416,49 @@ test('reading verifies paged canonical bytes, preserves accepted text on failure
   await expect(page.getByText('Wypowiedź źródła', { exact: true })).toHaveCount(
     0,
   );
+  corrupt = false;
+  badLink = false;
+  full = true;
+  await page.reload();
+  await expect(
+    page.getByText('Możliwa sprzeczność — interpretacja analizy', {
+      exact: true,
+    }),
+  ).toBeVisible();
+  await expect(page.getByText(/Zakres relacji jest częściowy/)).toBeVisible();
+  await expect(page.getByText('Etap użycia: wypróbowano')).toBeVisible();
+  const sides = page.getByRole('group', {
+    name: 'Wypowiedzi porównywane w relacji',
+  });
+  await expect(
+    sides.getByRole('link', { name: 'Pierwsza wypowiedź' }),
+  ).toHaveAttribute('href', '#observation-claim-a');
+  await expect(
+    sides.getByRole('link', { name: 'Druga wypowiedź' }),
+  ).toHaveAttribute('href', '#observation-usage-b');
+  for (const [at, quote] of [
+    [0, original],
+    [1, second],
+  ] as const) {
+    await sides
+      .getByRole('button', { name: 'Źródło 1', exact: true })
+      .nth(at)
+      .click();
+    await expect(drawer.getByText(quote, { exact: true })).toBeVisible();
+    await drawer
+      .getByRole('button', { name: 'Zamknij fragment źródła' })
+      .click();
+  }
+  expect(
+    (
+      await new AxeBuilder({ page })
+        .withTags(['wcag2a', 'wcag2aa', 'wcag21aa'])
+        .analyze()
+    ).violations,
+  ).toEqual([]);
+  expect(
+    await page.evaluate(
+      () => document.documentElement.scrollWidth <= innerWidth,
+    ),
+  ).toBe(true);
 });

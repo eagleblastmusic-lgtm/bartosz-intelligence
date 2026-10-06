@@ -1,6 +1,10 @@
 import { sha256 } from '../../auth/crypto.js';
 import type { normalizeTranscript } from '../../transcript/normalize.js';
-import { validateEconomyCandidate } from '../repair/validate.js';
+import {
+  validateEconomyCandidate,
+  validateSemanticCandidate,
+} from '../repair/validate.js';
+import type { MaterializedSemanticProfile } from '../../registry/semantic-profiles.js';
 import { verifyChunkPlan, type ChunkPlan } from './plan.js';
 type Manifest = Awaited<ReturnType<typeof normalizeTranscript>>['manifest'];
 type Row = Record<string, unknown> & { segment_refs: string[] };
@@ -12,7 +16,11 @@ type WireModule =
   | 'claims'
   | 'stance'
   | 'predictions'
-  | 'source_issues';
+  | 'source_issues'
+  | 'usage'
+  | 'recommendations'
+  | 'uncertainties'
+  | 'contradictions';
 function exactIdentity(value: unknown): string {
   if (Array.isArray(value))
     return '[' + value.map(exactIdentity).join(',') + ']';
@@ -32,6 +40,7 @@ export async function mergeChunkOutputs(input: {
   plan_hash: string;
   manifest: Manifest;
   manifest_hash: string;
+  semantic_profile?: MaterializedSemanticProfile;
   outputs: {
     chunk_index: number;
     raw: string;
@@ -59,6 +68,10 @@ export async function mergeChunkOutputs(input: {
     stance: [],
     predictions: [],
     source_issues: [],
+    usage: [],
+    recommendations: [],
+    uncertainties: [],
+    contradictions: [],
   };
   const globalEntities = new Map<string, number>();
   const accepted: number[] = [],
@@ -68,7 +81,7 @@ export async function mergeChunkOutputs(input: {
       summary_start: number;
       summary_end: number;
     }[] = [];
-  const seen = new Map<string, Set<string>>();
+  const seen = new Map<string, Map<string, number>>();
   for (const chunk of input.plan.chunks) {
     const output = input.outputs.find(
       (o) => o.chunk_index === chunk.chunk_index,
@@ -80,11 +93,18 @@ export async function mergeChunkOutputs(input: {
     const aliases = new Map(
       chunk.aliases.map((a) => [a.alias, a.global_alias]),
     );
-    const validated = await validateEconomyCandidate(
-      output.raw,
-      output.completion,
-      new Set(aliases.keys()),
-    );
+    const validated = input.semantic_profile
+      ? await validateSemanticCandidate(
+          output.raw,
+          output.completion,
+          new Set(aliases.keys()),
+          input.semantic_profile,
+        )
+      : await validateEconomyCandidate(
+          output.raw,
+          output.completion,
+          new Set(aliases.keys()),
+        );
     if (!validated.valid) throw new Error(validated.reason!);
     const wire = validated.value as Record<string, Row[]>;
     const remap = (row: Row) => ({
@@ -112,6 +132,7 @@ export async function mergeChunkOutputs(input: {
       return entityMap[ref as number]!;
     };
     const summaryStart = merged.summary_pl!.length;
+    const localRecords = new Map<string, number[]>();
     for (const module of [
       'summary_pl',
       'key_points',
@@ -119,10 +140,15 @@ export async function mergeChunkOutputs(input: {
       'claims',
       'stance',
       'predictions',
+      'usage',
+      'recommendations',
+      'uncertainties',
     ] as const) {
-      const keys = seen.get(module) ?? new Set<string>();
+      const keys = seen.get(module) ?? new Map<string, number>();
       seen.set(module, keys);
-      for (const row of wire[module]!) {
+      const indexes: number[] = [];
+      localRecords.set(module, indexes);
+      for (const row of wire[module] ?? []) {
         const mapped: Record<string, unknown> = remap(row);
         if ('entity_refs' in mapped)
           mapped.entity_refs = (mapped.entity_refs as number[]).map(indexRef);
@@ -132,9 +158,31 @@ export async function mergeChunkOutputs(input: {
         // Keep sectional summaries in source order. Dedup other rows only by
         // exact content, refs, attribution, qualifiers and type fields.
         if (module === 'summary_pl' || !keys.has(identity)) {
+          keys.set(identity, merged[module]!.length);
           merged[module]!.push(mapped);
-          keys.add(identity);
         }
+        indexes.push(keys.get(identity)!);
+      }
+    }
+    const relationKeys =
+      seen.get('contradictions') ?? new Map<string, number>();
+    seen.set('contradictions', relationKeys);
+    for (const row of wire.contradictions ?? []) {
+      const mapEnd = (end: unknown) => {
+        const side = end as { module: string; index: number };
+        const index = localRecords.get(side.module)?.[side.index];
+        if (index === undefined) throw new Error('FOREIGN_RELATION_REF');
+        return { module: side.module, index };
+      };
+      const relation = {
+        ...row,
+        left: mapEnd(row.left),
+        right: mapEnd(row.right),
+      };
+      const identity = exactIdentity(relation);
+      if (!relationKeys.has(identity)) {
+        relationKeys.set(identity, merged.contradictions.length);
+        merged.contradictions.push(relation);
       }
     }
     sectional.push({
@@ -145,17 +193,45 @@ export async function mergeChunkOutputs(input: {
     accepted.push(chunk.chunk_index);
   }
   const complete = missing.length === 0;
+  const selectedWire = Object.fromEntries(
+    Object.entries(merged).filter(([key]) =>
+      input.semantic_profile
+        ? Object.hasOwn(
+            input.semantic_profile.wire.schema.properties as object,
+            key,
+          )
+        : ![
+            'usage',
+            'recommendations',
+            'uncertainties',
+            'contradictions',
+          ].includes(key),
+    ),
+  ) as Record<WireModule, unknown[]>;
   if (complete) {
-    const checked = await validateEconomyCandidate(
-      JSON.stringify(merged),
-      'OK',
-      new Set(input.manifest.anchors.map((a) => a.alias)),
-    );
+    const aliases = new Set(input.manifest.anchors.map((a) => a.alias));
+    const checked = input.semantic_profile
+      ? await validateSemanticCandidate(
+          JSON.stringify(selectedWire),
+          'OK',
+          aliases,
+          input.semantic_profile,
+        )
+      : await validateEconomyCandidate(
+          JSON.stringify(selectedWire),
+          'OK',
+          aliases,
+        );
     if (!checked.valid) throw new Error('MERGED_WIRE_INVALID');
   }
   return {
-    wire: merged,
-    wire_hash: await sha256(JSON.stringify(merged)),
+    wire: selectedWire,
+    wire_hash: await sha256(JSON.stringify(selectedWire)),
+    relational_coverage:
+      input.semantic_profile?.config.modules.contradictions &&
+      input.plan.chunks.length > 1
+        ? ('WITHIN_CHUNKS_ONLY' as const)
+        : ('SOURCE_SCOPE' as const),
     sectional_summaries: sectional,
     coverage: {
       plan_hash: input.plan_hash,
