@@ -39,7 +39,7 @@ import {
 } from '../../packages/core/src/backup/snapshot.js';
 import type { BackupChunk } from '../../packages/core/src/backup/snapshot.js';
 import { restoreCanonical } from '../../packages/core/src/backup/restore.js';
-import { applyMigrations } from '../../packages/core/src/db/migrations.js';
+import { resetSchema } from './core-fixture.js';
 import { RepresentationRepository } from '../../packages/core/src/transcript/representations.js';
 import { selectTranscriptLanguage } from '../../packages/core/src/transcript/language.js';
 import { TranscriptRecovery } from '../../packages/core/src/transcript/recovery.js';
@@ -59,6 +59,11 @@ import { IntelligenceLedger } from '../../packages/core/src/ai/enrichment/ledger
 import { normalizeTranscript } from '../../packages/core/src/transcript/normalize.js';
 import { RunRepository } from '../../packages/core/src/jobs/acceptance.js';
 import { AnalysisJobs } from '../../packages/core/src/ai/jobs.js';
+import { SemanticProfiles } from '../../packages/core/src/registry/semantic-profiles.js';
+import {
+  semanticModules,
+  type SemanticProfile,
+} from '../../packages/core/src/ai/semantic-profile.js';
 import { LongInputJobs } from '../../packages/core/src/ai/long-input/jobs.js';
 import { LongInputCompletion } from '../../packages/core/src/ai/long-input/completion.js';
 import { createChunkPlan } from '../../packages/core/src/ai/long-input/plan.js';
@@ -904,6 +909,40 @@ it.each([
       limits: { claims: 20 },
     };
     const analysis = new AnalysisJobs(env.DB, owner);
+    const semanticRegistry = new SemanticProfiles(env.DB, owner);
+    const semanticConfig: SemanticProfile = {
+      mode: 'ECONOMY',
+      modules: Object.fromEntries(
+        semanticModules.map((key, i) => [key, i < 7]),
+      ) as SemanticProfile['modules'],
+      translation: 'NONE',
+      history: false,
+      second_pass: null,
+      validation_pass: null,
+    };
+    await semanticRegistry.save(
+      {
+        profile_id: 'monitor',
+        revision: 1,
+        name: 'Monitor',
+        config: semanticConfig,
+        reason: 'First scope',
+      },
+      bundle,
+      fixtureNow,
+    );
+    await semanticRegistry.assign(
+      {
+        profile_id: 'monitor',
+        revision: 1,
+        source_id: null,
+        effective_from: fixtureNow.toISOString(),
+        apply_to_pending: true,
+        reason: 'Explicit pending scope',
+      },
+      0,
+      fixtureNow,
+    );
     await expect(
       analysis.enqueue(
         accepted.run_id,
@@ -953,6 +992,29 @@ it.each([
       settings,
       fixtureNow,
     ))!;
+    await semanticRegistry.save(
+      {
+        profile_id: 'monitor',
+        revision: 2,
+        name: 'Monitor updated',
+        config: semanticConfig,
+        reason: 'New immutable scope revision',
+      },
+      bundle,
+      fixtureNow,
+    );
+    await semanticRegistry.assign(
+      {
+        profile_id: 'monitor',
+        revision: 2,
+        source_id: null,
+        effective_from: fixtureNow.toISOString(),
+        apply_to_pending: true,
+        reason: 'New material scope',
+      },
+      1,
+      fixtureNow,
+    );
     expect(
       (await analysis.enqueue(accepted.run_id, settings, fixtureNow))!.job_id,
     ).toBe(aiJob.job_id);
@@ -990,6 +1052,7 @@ it.each([
     await aiStore.start(aiToken, 'ANALYZE', fixtureNow);
     const workerJobs = new AnalysisJobs(env.DB, aiAccess);
     const prepared = await workerJobs.prepareRun(aiToken, fixtureNow);
+    expect(prepared.snapshot.semantic_profile?.revision).toBe(1);
     expect(prepared.snapshot.profile.account_key).toBe(
       'actual-registry-account',
     );
@@ -2744,16 +2807,7 @@ it('canonical Ledger effects share the fenced acceptance batch, rollback on SQL 
     } while (cursor !== null);
   }
   const portable = { manifest: await backup.complete(start.backup_id), chunks };
-  const tables = (
-    await env.DB.prepare(
-      "SELECT name FROM sqlite_master WHERE type='table' AND name NOT LIKE 'sqlite_%' AND name NOT LIKE '_cf_%'",
-    ).all<{ name: string }>()
-  ).results;
-  await env.DB.batch([
-    env.DB.prepare('PRAGMA defer_foreign_keys=ON'),
-    ...tables.map((row) => env.DB.prepare(`DROP TABLE "${row.name}"`)),
-  ]);
-  await applyMigrations(env.DB, env.CORE_MIGRATIONS, fixtureNow.toISOString());
+  await resetSchema();
   await restoreCanonical(env.DB, portable, 'subject-a');
   const restoredOwner = await fixtureOwner();
   expect(
@@ -2876,16 +2930,7 @@ it('repair is admitted once per immutable candidate, never for unknown estimates
     } while (cursor !== null);
   }
   const portable = { manifest: await backup.complete(start.backup_id), chunks };
-  const tables = (
-    await env.DB.prepare(
-      "SELECT name FROM sqlite_master WHERE type='table' AND name NOT LIKE 'sqlite_%' AND name NOT LIKE '_cf_%'",
-    ).all<{ name: string }>()
-  ).results;
-  await env.DB.batch([
-    env.DB.prepare('PRAGMA defer_foreign_keys=ON'),
-    ...tables.map((row) => env.DB.prepare(`DROP TABLE "${row.name}"`)),
-  ]);
-  await applyMigrations(env.DB, env.CORE_MIGRATIONS, fixtureNow.toISOString());
+  await resetSchema();
   await restoreCanonical(env.DB, portable, 'subject-a');
   expect(
     await env.DB.prepare(
@@ -3435,16 +3480,7 @@ it('large Unicode cue is resumable, ordered/hash verified, immutable and portabl
     manifest: await backup.complete(start.backup_id),
     chunks: portableChunks,
   };
-  const tables = (
-    await env.DB.prepare(
-      "SELECT name FROM sqlite_master WHERE type='table' AND name NOT LIKE 'sqlite_%' AND name NOT LIKE '_cf_%'",
-    ).all<{ name: string }>()
-  ).results;
-  await env.DB.batch([
-    env.DB.prepare('PRAGMA defer_foreign_keys=ON'),
-    ...tables.map((row) => env.DB.prepare(`DROP TABLE "${row.name}"`)),
-  ]);
-  await applyMigrations(env.DB, env.CORE_MIGRATIONS, fixtureNow.toISOString());
+  await resetSchema();
   await restoreCanonical(env.DB, portable, 'subject-a');
   const restored = new ArtifactRepository(env.DB, await fixtureOwner());
   expect((await restored.get(artifact.artifact_id)).manifest_hash).toBe(

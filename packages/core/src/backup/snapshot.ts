@@ -19,6 +19,7 @@ export const backupTables = [
   'artifact_chunks',
   'transcript_representations',
   'prompt_versions',
+  'semantic_profile_versions',
   'model_registry',
   'quota_reservations',
   'usage_records',

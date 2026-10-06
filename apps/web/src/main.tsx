@@ -15,6 +15,7 @@ import { ItemDetail } from './features/item-detail.js';
 import { Ledger } from './features/ledger.js';
 import { Entities } from './features/entities.js';
 import { Search } from './features/search.js';
+import { Profiles } from './features/profiles.js';
 import './design/tokens.css';
 import { NavIcon } from './components/nav-icon.js';
 type Session = 'checking' | 'owner' | 'login' | 'setup' | 'denied' | 'error';
@@ -269,7 +270,12 @@ function App() {
           )}
           {section === 'daily' && <Daily route={route} />}
           {section === 'item' && <ItemDetail route={route} />}
-          {section === 'system' && <System />}
+          {section === 'system' &&
+            (route.startsWith('/system/profiles') ? (
+              <Profiles key={route} />
+            ) : (
+              <System />
+            ))}
           {section === 'ledger' && <Ledger route={route} />}
           {section === 'entities' && <Entities route={route} />}
           {section === 'search' && <Search route={route} />}

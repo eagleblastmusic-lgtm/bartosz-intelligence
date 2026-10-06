@@ -20,6 +20,89 @@ import type {
 } from '../../packages/contracts/src/jobs.js';
 import { addSource } from '../../packages/core/src/sources/youtube/backfill.js';
 beforeEach(resetCore);
+it('profile API protects previews and immutable versions without starting provider work', async () => {
+  const headers = await ownerHeaders();
+  const config = {
+    mode: 'CUSTOM',
+    modules: {
+      summary: true,
+      key_points: false,
+      entities: false,
+      tools: false,
+      claims: false,
+      stance: false,
+      predictions: false,
+      usage: false,
+      recommendations: false,
+      uncertainties: false,
+      contradictions: true,
+    },
+    translation: 'NONE',
+    history: false,
+    second_pass: null,
+    validation_pass: null,
+  };
+  expect((await request('/api/v1/profiles', {})).status).toBe(401);
+  const noCsrf: Record<string, string> = { ...headers };
+  delete noCsrf['X-CSRF-Token'];
+  expect(
+    (await request('/api/v1/profiles/preview', noCsrf, { config })).status,
+  ).toBe(403);
+  const preview = await request('/api/v1/profiles/preview', headers, {
+    config,
+  });
+  expect(preview.status).toBe(200);
+  expect(await preview.json()).toMatchObject({
+    config,
+    request_estimate: { minimum: 1, exact: false },
+  });
+  const input = {
+    profile_id: 'monitor',
+    revision: 1,
+    name: 'Monitoring',
+    config,
+    reason: 'Owner scope',
+  };
+  expect(
+    (
+      await request('/api/v1/profiles/versions', headers, {
+        ...input,
+        owner_id: 'b',
+      })
+    ).status,
+  ).toBe(422);
+  expect(
+    (await request('/api/v1/profiles/versions', headers, input)).status,
+  ).toBe(200);
+  expect(
+    (
+      await request('/api/v1/profiles/versions', headers, {
+        ...input,
+        name: 'Conflict',
+      })
+    ).status,
+  ).toBe(409);
+  expect(
+    (await request('/api/v1/profiles/monitor/1', await ownerHeaders('b')))
+      .status,
+  ).toBe(404);
+  expect(
+    await (await request('/api/v1/profiles', headers)).json(),
+  ).toMatchObject({
+    profiles: [{ name: 'Monitoring', revision: 1 }],
+    has_more: false,
+  });
+  expect(
+    (
+      await request('/api/v1/profiles/preview', headers, {
+        config: { ...config, translation: ['FULL', 'IMPORTANT_SEGMENTS'] },
+      })
+    ).status,
+  ).toBe(422);
+  expect(await env.DB.prepare('SELECT COUNT(*) n FROM jobs').first('n')).toBe(
+    0,
+  );
+});
 it('search API is private, validates literal queries and protects rebuild with CSRF', async () => {
   const headers = await ownerHeaders();
   expect((await request('/api/v1/search?q=hello', {})).status).toBe(401);

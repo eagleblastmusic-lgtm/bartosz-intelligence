@@ -48,10 +48,18 @@ export function apiRouter() {
       ].includes(raw);
     const invalid =
       raw.startsWith('INVALID_') ||
-      ['RESET_REQUIRED', 'UNEXPECTED_FIELD', 'PAYLOAD_TOO_LARGE'].includes(raw);
+      [
+        'RESET_REQUIRED',
+        'UNEXPECTED_FIELD',
+        'PAYLOAD_TOO_LARGE',
+        'EMPTY_SEMANTIC_PROFILE',
+        'PRESET_MODULE_SCOPE_MISMATCH',
+      ].includes(raw);
     const conflict = [
       'READ_SNAPSHOT_CHANGED',
       'REVISION_CONFLICT',
+      'SEMANTIC_PROFILE_REVISION_CONFLICT',
+      'IMMUTABLE_SEMANTIC_PROFILE_CONFLICT',
       'IDENTITY_UNDO_DEPENDENCY',
       'STALE_FENCE',
       'IDEMPOTENCY_CONFLICT',

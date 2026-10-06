@@ -6,7 +6,7 @@ import {
 } from '../../packages/core/src/auth/session.js';
 export const fixtureNow = new Date('2026-10-05T17:30:00.000Z');
 export const fixtureSecret = 'fixture-session-signing-key-32-bytes-minimum';
-export async function resetCore() {
+export async function resetSchema() {
   const views = (
     await env.DB.prepare(
       "SELECT name FROM sqlite_master WHERE type='view'",
@@ -33,6 +33,9 @@ export async function resetCore() {
     ),
   ]);
   await applyMigrations(env.DB, env.CORE_MIGRATIONS, fixtureNow.toISOString());
+}
+export async function resetCore() {
+  await resetSchema();
   await env.DB.batch(
     ['a', 'b'].map((owner) =>
       env.DB.prepare('INSERT INTO owner_users VALUES(?,?,?,?,?)').bind(

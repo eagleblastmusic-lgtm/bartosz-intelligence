@@ -104,6 +104,11 @@
       "name": "021_knowledge_search.sql",
       "depends_on": ["020_spaces_review_insights.sql"],
       "sha256": "e3e8a10448c9c1d28df9ae157627956cf2a8964662a66f21896370222901ba87"
+    },
+    {
+      "name": "022_semantic_profiles.sql",
+      "depends_on": ["021_knowledge_search.sql"],
+      "sha256": "553e752ce60ebe58e9b5776eb2ef2f228cc8983d21ddd46422660b5027b54eb1"
     }
   ],
   "version": 1

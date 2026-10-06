@@ -7,6 +7,10 @@ import { sha256 } from '../auth/crypto.js';
 import { JobStore } from '../jobs/store.js';
 import { leasePredicate } from '../jobs/lease-guard.js';
 import { PromptRegistry, type PromptSnapshot } from '../registry/store.js';
+import {
+  SemanticProfiles,
+  type SemanticProfileSnapshot,
+} from '../registry/semantic-profiles.js';
 import { ModelRegistry } from './models.js';
 import { selectPipeline } from './selector.js';
 import { analysisQualityScope } from './compiler.js';
@@ -44,6 +48,7 @@ export interface AnalysisJobSnapshot {
   source: SourceSnapshot;
   prompt: PromptSnapshot;
   profile: PipelineProfile;
+  semantic_profile?: SemanticProfileSnapshot;
   settings: AnalysisSettings;
   quality_scope: string;
   semantic_context?: CompiledContext['semantic_context'];
@@ -143,6 +148,21 @@ export class AnalysisJobs {
     const source = await this.source(sourceRunId);
     await this.requireSourceProcessing(source.item_id);
     const prompt = await new PromptRegistry(this.db, this.context).current();
+    const semanticProfile = await new SemanticProfiles(
+      this.db,
+      this.context,
+    ).forItem(source.item_id, now);
+    if (
+      semanticProfile &&
+      (semanticProfile.compiled.config.mode !== 'ECONOMY' ||
+        semanticProfile.compiled.config.translation !== 'NONE' ||
+        semanticProfile.compiled.config.history ||
+        semanticProfile.compiled.config.second_pass ||
+        semanticProfile.compiled.config.validation_pass ||
+        semanticProfile.compiled.prompt.hash !== prompt.prompt_hash ||
+        semanticProfile.compiled.wire.hash !== prompt.wire.hash)
+    )
+      throw new Error('CAPABILITY_NOT_AVAILABLE');
     const profile = await new ModelRegistry(this.db, this.context).latest(
       'gemini_free',
     );
@@ -179,6 +199,7 @@ export class AnalysisJobs {
       source,
       prompt,
       profile: selected.profile,
+      ...(semanticProfile ? { semantic_profile: semanticProfile } : {}),
       settings: normalized,
       quality_scope: scope,
       semantic_context: await this.semanticContext(source),
@@ -390,6 +411,16 @@ export class AnalysisJobs {
     );
     if (JSON.stringify(model) !== JSON.stringify(snapshot.profile))
       throw new Error('ANALYSIS_MODEL_SNAPSHOT_MISMATCH');
+    if (snapshot.semantic_profile) {
+      const semantic = await new SemanticProfiles(this.db, this.context).load(
+        snapshot.semantic_profile.profile_id,
+        snapshot.semantic_profile.revision,
+      );
+      if (
+        JSON.stringify(semantic) !== JSON.stringify(snapshot.semantic_profile)
+      )
+        throw new Error('SEMANTIC_PROFILE_SNAPSHOT_HASH_MISMATCH');
+    }
     const selected = selectPipeline([snapshot.profile], {
       profile_id: 'gemini_free',
       purpose: snapshot.settings.purpose,
@@ -617,6 +648,9 @@ export class AnalysisJobs {
             settings: snapshot.settings,
             quality_scope: snapshot.quality_scope,
             snapshot_hash,
+            ...(snapshot.semantic_profile
+              ? { semantic_profile: snapshot.semantic_profile }
+              : {}),
           }),
           now.toISOString(),
           this.context.ownerId,

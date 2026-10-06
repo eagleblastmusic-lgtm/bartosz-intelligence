@@ -208,7 +208,7 @@ export async function restoreCanonical(
   if (
     notifications.some(
       (row) =>
-        !/^projection_invalidate_(?:item|job|selection|source|scan|alias_decision|identity_event|correction|organization)_(?:insert|update)$/.test(
+        !/^projection_invalidate_(?:item|job|selection|source|scan|alias_decision|identity_event|correction|organization|semantic_profile)_(?:insert|update)$/.test(
           row.name,
         ),
     )

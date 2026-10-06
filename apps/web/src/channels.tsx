@@ -5,6 +5,7 @@ import { BackupDownload } from './backup.js';
 
 import { api, errorMessage } from './app/api.js';
 import { SourceProgress } from './components/source-progress.js';
+import { AppLink } from './app/router.js';
 
 type Source = {
   source_id: string;
@@ -250,6 +251,14 @@ export function Channels() {
         <ul>
           {sources.sources.map((source) => (
             <li key={source.source_id}>
+              <AppLink
+                href={
+                  '/system/profiles?source_id=' +
+                  encodeURIComponent(source.source_id)
+                }
+              >
+                Profil analizy: {source.title}
+              </AppLink>{' '}
               {source.title} · {source.enabled ? 'aktywny' : 'wyłączony'} ·
               ostatnie pełne okno:{' '}
               {source.last_complete_window_end ?? 'jeszcze nieukończone'}

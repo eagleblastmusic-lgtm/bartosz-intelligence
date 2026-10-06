@@ -3,6 +3,7 @@ import { api, errorMessage } from '../app/api.js';
 import type { SystemSummary as Summary } from '../../../../packages/contracts/src/system.js';
 import { capacityMetricNames } from '../../../../packages/contracts/src/capacity.js';
 import { statusLabel, reasonLabel } from '../app/status.js';
+import { AppLink } from '../app/router.js';
 const metricLabels = {
   arrival_rate: 'Nowe kwalifikowane materiały / dobę',
   service_rate: 'Trwała pojemność przetwarzania / dobę',
@@ -41,7 +42,12 @@ export function System() {
           <h1>System</h1>
           <p className="muted">Co pracuje, co oczekuje i kiedy wróci.</p>
         </div>
-        <button onClick={() => setRevision((v) => v + 1)}>Odśwież stan</button>
+        <div className="row-actions">
+          <AppLink href="/system/profiles">Profile analizy</AppLink>
+          <button onClick={() => setRevision((v) => v + 1)}>
+            Odśwież stan
+          </button>
+        </div>
       </div>
       {error && (
         <p className="notice error" role="alert">

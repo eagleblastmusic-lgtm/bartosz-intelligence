@@ -21,6 +21,12 @@ import { EntityIdentity } from '../../packages/core/src/knowledge/identity.js';
 import { KnowledgeCorrections } from '../../packages/core/src/knowledge/corrections.js';
 import { KnowledgeOrganization } from '../../packages/core/src/knowledge/organization.js';
 import { SearchIndex } from '../../packages/core/src/knowledge/search-index.js';
+import { SemanticProfiles } from '../../packages/core/src/registry/semantic-profiles.js';
+import {
+  semanticModules,
+  type SemanticProfile,
+} from '../../packages/core/src/ai/semantic-profile.js';
+import registryBundle from '../../config/registry/master-bundle.json';
 function database() {
   const sqlite = new DatabaseSync(':memory:');
   sqlite.exec('PRAGMA foreign_keys=ON');
@@ -57,6 +63,26 @@ it('independent canonical restore preserves cyclic revision refs/origins and inv
       source.db,
       'fixture-session',
       now.toISOString(),
+    );
+    await new SemanticProfiles(source.db, owner).save(
+      {
+        profile_id: 'restore-profile',
+        revision: 1,
+        name: 'Restore profile',
+        reason: 'Restore proof',
+        config: {
+          mode: 'CUSTOM',
+          modules: Object.fromEntries(
+            semanticModules.map((key) => [key, key === 'summary']),
+          ) as SemanticProfile['modules'],
+          translation: 'NONE',
+          history: false,
+          second_pass: null,
+          validation_pass: null,
+        },
+      },
+      registryBundle,
+      now,
     );
     const channel = (await new SourceRepository(source.db, owner).upsert(
       {
