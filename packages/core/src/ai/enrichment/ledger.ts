@@ -9,6 +9,7 @@ import { leasePredicate } from '../../jobs/lease-guard.js';
 import type { LeaseToken } from '../../../../contracts/src/jobs.js';
 import type { enrichEconomy } from './canonical.js';
 import type { ApprovedAlias } from './entities.js';
+import { effectiveAlias } from '../../knowledge/entities.js';
 import { validateCanonical } from '../repair/validate.js';
 type Enriched = Awaited<ReturnType<typeof enrichEconomy>>;
 export class IntelligenceLedger {
@@ -28,39 +29,11 @@ export class IntelligenceLedger {
     return (
       await this.db
         .prepare(
-          `SELECT a.owner_id,a.entity_id,e.entity_type,a.literal FROM entity_aliases a JOIN entities e ON e.owner_id=a.owner_id AND e.entity_id=a.entity_id WHERE a.owner_id=? AND ${guard.predicate}`,
+          `SELECT a.owner_id,a.entity_id,e.entity_type,a.literal,(SELECT d.language FROM entity_alias_decisions d WHERE d.owner_id=a.owner_id AND d.alias_id=a.alias_id ORDER BY d.revision DESC LIMIT 1) language FROM entity_aliases a JOIN entities e ON e.owner_id=a.owner_id AND e.entity_id=a.entity_id WHERE a.owner_id=? AND ${effectiveAlias} AND ${guard.predicate}`,
         )
         .bind(this.context.ownerId, ...guard.bindings)
         .all<ApprovedAlias>()
     ).results;
-  }
-  async approveAlias(entityId: string, literal: string, now: Date) {
-    this.context.requireOwner();
-    const normalized = literal.normalize('NFC').trim();
-    if (!normalized || new TextEncoder().encode(normalized).length > 1024)
-      throw new Error('INVALID_ALIAS');
-    const id = await sha256(
-      JSON.stringify({
-        owner: this.context.ownerId,
-        entity: entityId,
-        literal: normalized,
-      }),
-    );
-    const result = await this.db
-      .prepare(
-        `INSERT INTO entity_aliases(owner_id,alias_id,entity_id,literal,created_at) SELECT owner_id,?,entity_id,?,? FROM entities WHERE owner_id=? AND entity_id=? ON CONFLICT DO NOTHING`,
-      )
-      .bind(id, normalized, now.toISOString(), this.context.ownerId, entityId)
-      .run();
-    if (
-      !result.meta.changes &&
-      !(await this.db
-        .prepare('SELECT 1 FROM entity_aliases WHERE owner_id=? AND alias_id=?')
-        .bind(this.context.ownerId, id)
-        .first())
-    )
-      throw new Error('NOT_FOUND');
-    return id;
   }
   async read(runId: string) {
     this.context.requireOwner();

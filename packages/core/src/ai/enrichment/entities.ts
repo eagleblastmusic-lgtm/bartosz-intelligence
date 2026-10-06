@@ -6,6 +6,7 @@ export interface ApprovedAlias {
   entity_id: string;
   entity_type: EntityType;
   literal: string;
+  language?: string | null;
 }
 export async function resolveEntityMention(input: {
   owner_id: string;
@@ -14,6 +15,7 @@ export async function resolveEntityMention(input: {
   label: string;
   entity_type: EntityType;
   aliases: readonly ApprovedAlias[];
+  language?: string | null;
 }) {
   if (
     !input.owner_id ||
@@ -40,6 +42,8 @@ export async function resolveEntityMention(input: {
         (row) =>
           row.owner_id === input.owner_id &&
           row.entity_type === input.entity_type &&
+          (!row.language ||
+            row.language.toLowerCase() === input.language?.toLowerCase()) &&
           row.literal.normalize('NFC').trim() === literal,
       )
       .map((row) => row.entity_id),

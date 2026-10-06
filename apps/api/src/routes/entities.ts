@@ -1,0 +1,50 @@
+import { ownerRouter, body, text, queryFields } from './common.js';
+import { EntityKnowledge } from '../../../../packages/core/src/knowledge/entities.js';
+export const entitiesApp = ownerRouter();
+entitiesApp.get('/', async (c) => {
+  queryFields(c, ['limit', 'cursor']);
+  return c.json(
+    await new EntityKnowledge(c.env.DB, c.get('access')).list(
+      Number(c.req.query('limit') ?? 20),
+      c.env.SESSION_SIGNING_SECRET!,
+      new Date(),
+      c.req.query('cursor'),
+    ),
+  );
+});
+entitiesApp.get('/:id', async (c) => {
+  queryFields(c, []);
+  return c.json(
+    await new EntityKnowledge(c.env.DB, c.get('access')).detail(
+      text(c.req.param('id'), 128),
+    ),
+  );
+});
+entitiesApp.post('/:id/aliases', async (c) => {
+  const input = await body(c, [
+    'literal',
+    'action',
+    'reason',
+    'language',
+    'expected_revision',
+    'decision_id',
+  ]);
+  if (input.action !== 'APPROVE' && input.action !== 'REVOKE')
+    throw new Error('INVALID_ALIAS_DECISION');
+  if (!Number.isSafeInteger(input.expected_revision))
+    throw new Error('INVALID_REVISION');
+  return c.json(
+    await new EntityKnowledge(c.env.DB, c.get('access')).decide(
+      {
+        entity_id: text(c.req.param('id'), 128),
+        literal: text(input.literal, 1024),
+        action: input.action,
+        reason: text(input.reason, 2000),
+        language: input.language === null ? null : text(input.language, 35),
+        expected_revision: Number(input.expected_revision),
+        decision_id: text(input.decision_id, 36),
+      },
+      new Date(),
+    ),
+  );
+});

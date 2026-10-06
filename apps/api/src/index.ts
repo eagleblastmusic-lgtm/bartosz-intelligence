@@ -12,6 +12,7 @@ import { systemApp } from './routes/system.js';
 import { backupApp } from './routes/backup.js';
 import { dailyApp } from './routes/daily.js';
 import { ledgerApp } from './routes/ledger.js';
+import { entitiesApp } from './routes/entities.js';
 export type { Env } from './env.js';
 
 const buildVersion = '0.0.1';
@@ -26,6 +27,7 @@ app.route('/api/v1/system', systemApp);
 app.route('/api/v1/backup', backupApp);
 app.route('/api/v1/daily', dailyApp);
 app.route('/api/v1/ledger', ledgerApp);
+app.route('/api/v1/entities', entitiesApp);
 app.route('/internal/workers', workersApp);
 app.get('/health', (c) => {
   const bindings = {

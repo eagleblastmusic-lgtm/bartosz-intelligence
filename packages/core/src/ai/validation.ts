@@ -427,6 +427,7 @@ export class AnalysisValidation {
           source: {
             owner_id: this.context.ownerId,
             source_artifact_id: snapshot.source.source_artifact_id,
+            source_language: snapshot.source.language_code,
             source_text: sourceText,
             manifest,
             manifest_hash: snapshot.source.manifest_hash,

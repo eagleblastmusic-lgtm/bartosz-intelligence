@@ -15,6 +15,7 @@ export interface MappedHelper {
 }
 export interface EvidenceInput {
   owner_id: string;
+  source_language?: string | null;
   source_artifact_id: string;
   source_text: string;
   manifest: Manifest;

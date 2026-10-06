@@ -13,6 +13,7 @@ import { Daily } from './features/daily.js';
 import { System } from './features/system.js';
 import { ItemDetail } from './features/item-detail.js';
 import { Ledger } from './features/ledger.js';
+import { Entities } from './features/entities.js';
 import './design/tokens.css';
 import { NavIcon } from './components/nav-icon.js';
 type Session = 'checking' | 'owner' | 'login' | 'setup' | 'denied' | 'error';
@@ -73,7 +74,7 @@ function App() {
     document.title =
       (route.startsWith('/channels')
         ? 'Kanały'
-        : route.startsWith('/ledger')
+        : route.startsWith('/ledger') || route.startsWith('/entities')
           ? 'Wiedza'
           : route.startsWith('/system')
             ? 'System'
@@ -157,13 +158,15 @@ function App() {
     ? 'channels'
     : route.startsWith('/system')
       ? 'system'
-      : route.startsWith('/ledger')
-        ? 'ledger'
-        : route.startsWith('/items/')
-          ? 'item'
-          : route.startsWith('/daily/')
-            ? 'daily'
-            : 'unknown';
+      : route.startsWith('/entities')
+        ? 'entities'
+        : route.startsWith('/ledger')
+          ? 'ledger'
+          : route.startsWith('/items/')
+            ? 'item'
+            : route.startsWith('/daily/')
+              ? 'daily'
+              : 'unknown';
   return (
     <div className="app-shell">
       <a className="skip-link" href="#main-content">
@@ -193,6 +196,7 @@ function App() {
               aria-label={item.label}
               aria-current={
                 section === item.id ||
+                (section === 'entities' && item.id === 'ledger') ||
                 (section === 'item' && item.id === 'daily')
                   ? 'page'
                   : undefined
@@ -261,6 +265,7 @@ function App() {
           {section === 'item' && <ItemDetail route={route} />}
           {section === 'system' && <System />}
           {section === 'ledger' && <Ledger route={route} />}
+          {section === 'entities' && <Entities route={route} />}
           {section === 'unknown' && (
             <>
               <h1>Nie znaleziono widoku</h1>

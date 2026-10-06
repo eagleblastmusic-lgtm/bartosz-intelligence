@@ -16,6 +16,7 @@ import {
   verifyPortableBackup,
 } from '../../packages/core/src/backup/restore.js';
 import { sha256 } from '../../packages/core/src/auth/crypto.js';
+import { EntityKnowledge } from '../../packages/core/src/knowledge/entities.js';
 function database() {
   const sqlite = new DatabaseSync(':memory:');
   sqlite.exec('PRAGMA foreign_keys=ON');
@@ -168,6 +169,36 @@ it('independent canonical restore preserves cyclic revision refs/origins and inv
       selection,
       now,
     );
+    source.sqlite
+      .prepare('INSERT INTO entities VALUES(?,?,?,?,?,?)')
+      .run(
+        'a',
+        'alias-fixture',
+        'Claude',
+        'TOOL',
+        'UNRESOLVED_LITERAL',
+        now.toISOString(),
+      );
+    const aliasRepository = new EntityKnowledge(source.db, owner);
+    const approval = {
+      entity_id: 'alias-fixture',
+      literal: 'Claude',
+      reason: 'Confirmed by owner',
+      language: null,
+      action: 'APPROVE' as const,
+      expected_revision: 0,
+      decision_id: crypto.randomUUID(),
+    };
+    await aliasRepository.decide(approval, now);
+    await aliasRepository.decide(
+      {
+        ...approval,
+        action: 'REVOKE',
+        expected_revision: 1,
+        decision_id: crypto.randomUUID(),
+      },
+      now,
+    );
     const backup = new CoreBackup(source.db, owner),
       started = await backup.begin(),
       chunks = [];
@@ -204,6 +235,19 @@ it('independent canonical restore preserves cyclic revision refs/origins and inv
     expect(
       await restoreCanonical(target.db, portable, 'subject-a'),
     ).toMatchObject({ result: 'PASS' });
+    expect(
+      target.sqlite
+        .prepare('SELECT * FROM entity_alias_decisions ORDER BY revision')
+        .all(),
+    ).toEqual(
+      source.sqlite
+        .prepare('SELECT * FROM entity_alias_decisions ORDER BY revision')
+        .all(),
+    );
+    expect(
+      target.sqlite.prepare('SELECT literal FROM entity_aliases').get()!
+        .literal,
+    ).toBe('Claude');
     expect(
       target.sqlite.prepare('SELECT * FROM change_log ORDER BY seq').all(),
     ).toEqual(

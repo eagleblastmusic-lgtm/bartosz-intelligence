@@ -74,6 +74,11 @@
       "name": "015_projection_invalidation.sql",
       "depends_on": ["014_daily_projection_indexes.sql"],
       "sha256": "71c5d2b21b309896dc4df27ce486e0031da8c096978cda63f9feff91f34949be"
+    },
+    {
+      "name": "016_alias_decisions.sql",
+      "depends_on": ["015_projection_invalidation.sql"],
+      "sha256": "4f0a1872e7ba2b2e6fabdb017be535cdd98b51c05ff949e783f166f8f6b0cf92"
     }
   ],
   "version": 1

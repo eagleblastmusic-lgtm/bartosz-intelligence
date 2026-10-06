@@ -83,6 +83,7 @@ export async function enrichEconomy(input: {
         label: mention.label,
         entity_type: mention.entity_type,
         aliases: input.approved_aliases,
+        language: input.source.source_language,
       }),
     ),
   );

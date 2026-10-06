@@ -20,6 +20,55 @@ import type {
 } from '../../packages/contracts/src/jobs.js';
 import { addSource } from '../../packages/core/src/sources/youtube/backfill.js';
 beforeEach(resetCore);
+it('alias mutations require owner CSRF, preserve revision conflicts and reject unexpected fields', async () => {
+  const headers = await ownerHeaders();
+  await env.DB.prepare('INSERT INTO entities VALUES(?,?,?,?,?,?)')
+    .bind(
+      'a',
+      'alias-test',
+      'Claude',
+      'TOOL',
+      'UNRESOLVED_LITERAL',
+      fixtureNow.toISOString(),
+    )
+    .run();
+  const path = '/api/v1/entities/alias-test/aliases';
+  const input = {
+    literal: 'Claude',
+    reason: 'Confirmed by owner',
+    language: null,
+    action: 'APPROVE',
+    expected_revision: 0,
+    decision_id: crypto.randomUUID(),
+  };
+  const noCsrf: Record<string, string> = { ...headers };
+  delete noCsrf['X-CSRF-Token'];
+  expect((await request(path, noCsrf, input)).status).toBe(403);
+  expect((await request(path, await ownerHeaders('b'), input)).status).toBe(
+    404,
+  );
+  const approved = await request(path, headers, input);
+  expect(approved.status).toBe(200);
+  expect(await approved.json()).toMatchObject({
+    revision: 1,
+    duplicate: false,
+  });
+  expect(await (await request(path, headers, input)).json()).toMatchObject({
+    revision: 1,
+    duplicate: true,
+  });
+  expect(
+    (
+      await request(path, headers, {
+        ...input,
+        decision_id: crypto.randomUUID(),
+      })
+    ).status,
+  ).toBe(409);
+  expect(
+    (await request(path, headers, { ...input, secret: 'unexpected' })).status,
+  ).toBe(422);
+});
 it('capacity metadata endpoint authenticates and enforces PROJECT scope and strict bounded queries', async () => {
   const path = '/internal/workers/capacity-observation';
   expect((await request(path)).status).toBe(401);
@@ -202,6 +251,8 @@ it('owner routes require auth before domain reads and never fall through to HTML
   for (const path of [
     '/api/v1/items',
     '/api/v1/ledger',
+    '/api/v1/entities',
+    '/api/v1/entities/missing',
     '/api/v1/items/missing/detail',
     '/api/v1/items/missing/canonical?run_id=missing',
     '/api/v1/evidence/missing?run_id=missing',
