@@ -578,3 +578,35 @@ li {
 .update-notice {
   margin-bottom: var(--s4);
 }
+.reading-pane {
+  max-width: 760px;
+  margin-top: var(--s6);
+}
+.reading-pane section {
+  padding: var(--s4) 0;
+  border-top: 1px solid var(--border);
+}
+.observation {
+  padding: var(--s3) 0;
+}
+.entity-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--s3);
+  padding: 0;
+  list-style: none;
+}
+.entity-list li {
+  padding: var(--s2) var(--s3);
+  background: var(--subtle);
+  border-radius: 8px;
+}
+.daily-rows[data-density='compact'] .daily-row {
+  padding-block: var(--s2);
+}
+.density-control {
+  display: flex;
+  align-items: center;
+  gap: var(--s2);
+  margin-bottom: var(--s4);
+}

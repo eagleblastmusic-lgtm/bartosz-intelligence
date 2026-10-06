@@ -92,6 +92,8 @@ async function credential(scopes = ['FETCH_TRANSCRIPT']) {
 it('owner routes require auth before domain reads and never fall through to HTML', async () => {
   for (const path of [
     '/api/v1/items',
+    '/api/v1/items/missing/detail',
+    '/api/v1/items/missing/canonical?run_id=missing',
     '/api/v1/daily?date=2026-10-05',
     '/api/v1/daily/calendar?month=2026-10',
     '/api/v1/daily/undated',

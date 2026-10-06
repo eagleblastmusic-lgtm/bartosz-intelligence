@@ -119,14 +119,17 @@ test('onboarding preserves preview window/idempotency on retry and renders metad
   await save.click();
   await expect(page.getByRole('alert')).toContainText('TRANSIENT');
   await save.click();
-  await expect(page.getByRole('status')).toContainText('Monitoring zapisany');
+  const receipt = page
+    .getByRole('status')
+    .filter({ hasText: 'Monitoring zapisany' });
+  await expect(receipt).toBeVisible();
   await expect(page.getByText('DISCOVER · PENDING')).toBeVisible();
   await expect(
     page.getByText(
       'Discovery oczekuje na rozpoczęcie. Łączna liczba materiałów nieznana.',
     ),
   ).toBeVisible();
-  await expect(page.getByRole('status')).toContainText('source-fixture');
+  await expect(receipt).toContainText('source-fixture');
   expect(keys[0]).toBeTruthy();
   expect(keys[1]).toBe(keys[0]);
   expect(windows).toEqual([window, window]);

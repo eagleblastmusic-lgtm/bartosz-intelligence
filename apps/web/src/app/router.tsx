@@ -30,15 +30,28 @@ export function useRoute() {
 export function navigate(href: string, replace = false) {
   if (!href.startsWith('/') || href.startsWith('//'))
     throw new Error('INVALID_ROUTE');
+  const returning =
+    history.state?.biPrevious === href ? history.state.biPreviousScroll : 0;
+  const previous = location.pathname + location.search,
+    previousScroll = window.scrollY;
   history.replaceState(
     { ...history.state, biScroll: window.scrollY },
     '',
     location.href,
   );
   if (replace) history.replaceState({}, '', href);
-  else history.pushState({}, '', href);
+  else
+    history.pushState(
+      {
+        biPrevious: previous,
+        biPreviousScroll: previousScroll,
+        biScroll: returning,
+      },
+      '',
+      href,
+    );
   window.dispatchEvent(new Event(event));
-  window.scrollTo(0, 0);
+  window.scrollTo(0, returning);
 }
 export function AppLink({
   href,

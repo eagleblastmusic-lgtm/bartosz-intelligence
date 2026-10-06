@@ -300,6 +300,68 @@ export class ArtifactRepository {
       ),
     };
   }
+  async readOwnerPage(id: string, start: number, limit = 4) {
+    this.context.requireOwner();
+    if (
+      !Number.isSafeInteger(start) ||
+      start < 0 ||
+      !Number.isSafeInteger(limit) ||
+      limit < 1 ||
+      limit > 4
+    )
+      throw new Error('INVALID_ARTIFACT_READ_LIMIT');
+    const artifact = await this.get(id);
+    if (artifact.state !== 'VERIFIED' || start >= artifact.chunk_count)
+      throw new Error('VERIFIED_ARTIFACT_REQUIRED');
+    const chunks = (
+      await this.db
+        .prepare(
+          'SELECT * FROM artifact_chunks WHERE owner_id=? AND artifact_id=? AND chunk_index>=? AND chunk_index<? ORDER BY chunk_index',
+        )
+        .bind(
+          this.context.ownerId,
+          id,
+          start,
+          Math.min(start + limit, artifact.chunk_count),
+        )
+        .all<ArtifactChunk>()
+    ).results;
+    if (chunks.length !== Math.min(limit, artifact.chunk_count - start))
+      throw new Error('ARTIFACT_CHUNK_MISSING');
+    let offset = chunks[0]!.byte_start;
+    if (offset < 0 || (start === 0 && offset !== 0))
+      throw new Error('ARTIFACT_CHUNK_ORDER_INVALID');
+    for (let index = 0; index < chunks.length; index++) {
+      const chunk = chunks[index]!,
+        bytes = chunk.body_base64
+          ? decode64(chunk.body_base64)
+          : new Uint8Array();
+      if (
+        chunk.chunk_index !== start + index ||
+        chunk.byte_start !== offset ||
+        bytes.length !== chunk.byte_size ||
+        bytes.length > artifactChunkBytes ||
+        (await nativeHashBytes(bytes)) !== chunk.byte_hash ||
+        chunk.storage_ref !== `d1:${id}/${chunk.chunk_index}`
+      )
+        throw new Error('ARTIFACT_CHUNK_CORRUPT');
+      offset += bytes.length;
+    }
+    if (
+      offset > artifact.byte_size ||
+      (start + chunks.length === artifact.chunk_count &&
+        offset !== artifact.byte_size)
+    )
+      throw new Error('ARTIFACT_CHUNK_ORDER_INVALID');
+    return {
+      artifact,
+      chunks,
+      next_index:
+        start + chunks.length < artifact.chunk_count
+          ? start + chunks.length
+          : null,
+    };
+  }
   async writeChunk(
     id: string,
     index: number,

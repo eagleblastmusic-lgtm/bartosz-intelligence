@@ -188,6 +188,24 @@ export function Daily({ route }: { route: string }) {
       {/^(20\d\d)-\d\d-\d\d$/.test(date) && !Number.isNaN(Date.parse(date)) && (
         <DayNavigator date={date} sources={sources} />
       )}
+      <label className="density-control">
+        Gęstość listy{' '}
+        <select
+          value={
+            url.searchParams.get('density') === 'compact'
+              ? 'compact'
+              : 'comfortable'
+          }
+          onChange={(event) => {
+            const query = new URLSearchParams(url.searchParams);
+            query.set('density', event.target.value);
+            navigate('/daily/' + date + '?' + query);
+          }}
+        >
+          <option value="comfortable">Komfortowa</option>
+          <option value="compact">Kompaktowa</option>
+        </select>
+      </label>
       {(catalog.length > 0 || (result?.source_coverage.length ?? 0) > 0) && (
         <div className="source-filters" role="group" aria-label="Filtr kanałów">
           {(catalog.length ? catalog : result!.source_coverage).map(
@@ -214,7 +232,13 @@ export function Daily({ route }: { route: string }) {
             ),
           )}
           {sources && (
-            <button onClick={() => navigate('/daily/' + date)}>
+            <button
+              onClick={() => {
+                const query = new URLSearchParams(url.searchParams);
+                query.delete('source_ids');
+                navigate('/daily/' + date + (query.size ? '?' + query : ''));
+              }}
+            >
               Wszystkie kanały
             </button>
           )}
@@ -284,18 +308,28 @@ export function Daily({ route }: { route: string }) {
               </AppLink>
             </section>
           ) : (
-            <ul className="daily-rows">
+            <ul
+              className="daily-rows"
+              data-density={
+                url.searchParams.get('density') === 'compact'
+                  ? 'compact'
+                  : 'comfortable'
+              }
+            >
               {result.items.map((item) => (
                 <li className="daily-row" key={item.item_id}>
                   <div>
                     <h2>
-                      <a
-                        href={item.canonical_url}
-                        target="_blank"
-                        rel="noreferrer"
+                      <AppLink
+                        href={
+                          '/items/' +
+                          encodeURIComponent(item.item_id) +
+                          '?' +
+                          new URLSearchParams({ return: route })
+                        }
                       >
                         {item.title}
-                      </a>
+                      </AppLink>
                     </h2>
                     <p className="metadata">
                       {item.creator} ·{' '}

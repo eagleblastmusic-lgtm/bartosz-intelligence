@@ -19,7 +19,7 @@ export function DayNavigator({
     trigger = useRef<HTMLButtonElement>(null),
     grid = useRef<HTMLDivElement>(null);
   function go(value: string) {
-    const query = new URLSearchParams();
+    const query = new URLSearchParams(location.search);
     if (sources) query.set('source_ids', sources);
     navigate('/daily/' + value + (query.size ? '?' + query : ''));
     setOpen(false);

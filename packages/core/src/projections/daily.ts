@@ -6,6 +6,11 @@ import {
 import { decodeCursor, encodeCursor, pageLimit } from '../db/cursor.js';
 import { sha256 } from '../auth/crypto.js';
 import { localDayRange, monthDays } from './dates.js';
+import { ArtifactRepository } from '../artifacts/store.js';
+import type {
+  CanonicalDescriptor,
+  ItemDetail,
+} from '../../../contracts/src/item-detail.js';
 import type {
   AcceptedView,
   AnalysisReadiness,
@@ -143,6 +148,80 @@ export class DailyProjection {
         scan?.coverage === 'COMPLETE' && scan.completed_at
           ? scan.enumerated_count
           : null,
+    };
+  }
+  async canonicalDescriptor(
+    itemId: string,
+    runId: string,
+  ): Promise<CanonicalDescriptor> {
+    const run = await this.db
+      .prepare(
+        "SELECT outcome_json,candidate_hash FROM analysis_runs WHERE owner_id=? AND item_id=? AND run_id=? AND state='ACCEPTED'",
+      )
+      .bind(this.context.ownerId, itemId, runId)
+      .first<{ outcome_json: string; candidate_hash: string }>();
+    if (!run || (await sha256(run.outcome_json)) !== run.candidate_hash)
+      throw new Error('NOT_FOUND');
+    const outcome = JSON.parse(run.outcome_json) as {
+      version: string;
+      canonical_artifact_id: string;
+      canonical_hash: string;
+      source_artifact_id: string;
+    };
+    if (
+      outcome.version !== 'intelligence-accepted:1' ||
+      !outcome.canonical_artifact_id
+    )
+      throw new Error('NOT_FOUND');
+    const artifact = await new ArtifactRepository(this.db, this.context).get(
+      outcome.canonical_artifact_id,
+    );
+    if (
+      artifact.item_id !== itemId ||
+      artifact.kind !== 'ANALYSIS_CANDIDATE' ||
+      artifact.original_ref !== outcome.source_artifact_id ||
+      artifact.state !== 'VERIFIED' ||
+      artifact.schema_version !== 'intelligence-canonical:1.2' ||
+      artifact.content_hash !== outcome.canonical_hash ||
+      artifact.byte_size > 8 * 1024 * 1024
+    )
+      throw new Error('VERIFIED_ARTIFACT_REQUIRED');
+    return {
+      artifact_id: artifact.artifact_id,
+      content_hash: artifact.content_hash,
+      byte_size: artifact.byte_size,
+      chunk_count: artifact.chunk_count,
+      schema_version: artifact.schema_version,
+    };
+  }
+  async detail(itemId: string): Promise<ItemDetail> {
+    const row = await this.db
+      .prepare(
+        `SELECT i.item_id,i.canonical_url,i.published_at,m.metadata_json,COALESCE(c.title,'Źródło') creator,r.run_id,s.selection_revision,json_extract(r.outcome_json,'$.view') view_json,${readiness} readiness,j.state,j.reason_code ${joins} WHERE i.owner_id=? AND i.item_id=?`,
+      )
+      .bind(this.context.ownerId, itemId)
+      .first<ReadRow>();
+    if (!row) throw new Error('NOT_FOUND');
+    const metadata = JSON.parse(row.metadata_json) as { title: string };
+    return {
+      item_id: row.item_id,
+      title: metadata.title,
+      creator: row.creator,
+      canonical_url: row.canonical_url,
+      published_at: row.published_at,
+      analysis_status: row.readiness,
+      processing_state: row.state,
+      reason:
+        row.run_id && row.readiness === 'PARTIAL'
+          ? 'PARTIAL_COVERAGE'
+          : row.reason_code,
+      selected_run_id: row.run_id,
+      selection_revision: row.selection_revision,
+      view: row.view_json ? (JSON.parse(row.view_json) as AcceptedView) : null,
+      canonical: row.run_id
+        ? await this.canonicalDescriptor(itemId, row.run_id)
+        : null,
+      semantic_verification: 'NOT_ASSERTED',
     };
   }
   private sources(ids: readonly string[]) {

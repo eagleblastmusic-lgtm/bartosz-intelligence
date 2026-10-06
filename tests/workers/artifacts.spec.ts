@@ -41,6 +41,7 @@ import { applyMigrations } from '../../packages/core/src/db/migrations.js';
 import { RepresentationRepository } from '../../packages/core/src/transcript/representations.js';
 import { selectTranscriptLanguage } from '../../packages/core/src/transcript/language.js';
 import { TranscriptRecovery } from '../../packages/core/src/transcript/recovery.js';
+import { DailyProjection } from '../../packages/core/src/projections/daily.js';
 import { sweep } from '../../packages/core/src/jobs/recovery.js';
 import {
   QuotaAdmission,
@@ -1930,6 +1931,23 @@ it.each([
           .bind('a', item.item_id)
           .first('accepted_run_id'),
       ).toBe(prepared.run_id);
+      const detail = await new DailyProjection(env.DB, owner).detail(
+        item.item_id,
+      );
+      expect(detail.selected_run_id).toBe(prepared.run_id);
+      expect(detail.analysis_status).toBe('READY');
+      expect(detail.canonical?.content_hash).toBe(validated.canonical_hash);
+      const ownerPage = await new ArtifactRepository(
+        env.DB,
+        owner,
+      ).readOwnerPage(detail.canonical!.artifact_id, 0);
+      expect(ownerPage.chunks.length).toBeLessThanOrEqual(4);
+      expect(ownerPage.next_index).toBeNull();
+      await expect(
+        new DailyProjection(env.DB, await fixtureOwner('b')).detail(
+          item.item_id,
+        ),
+      ).rejects.toThrow('NOT_FOUND');
       expect(
         await env.DB.prepare(
           'SELECT COUNT(*) n FROM analysis_evidence WHERE run_id=?',
@@ -2029,6 +2047,19 @@ it('artifact RPC/client resumes interrupted upload, verifies bounded chunks and 
     artifact,
     text,
   });
+  const ownerPages = new ArtifactRepository(env.DB, await fixtureOwner());
+  expect(
+    (await ownerPages.readOwnerPage(artifact.artifact_id, 0)).chunks,
+  ).toHaveLength(4);
+  const pageOne = await ownerPages.readOwnerPage(artifact.artifact_id, 0, 2);
+  expect(pageOne.chunks).toHaveLength(2);
+  expect(pageOne.next_index).toBe(2);
+  expect(
+    (await ownerPages.readOwnerPage(artifact.artifact_id, 2, 2)).next_index,
+  ).toBeNull();
+  await expect(
+    ownerPages.readOwnerPage(artifact.artifact_id, 0, 5),
+  ).rejects.toThrow('INVALID_ARTIFACT_READ_LIMIT');
   const scoped = new ArtifactRepository(
     env.DB,
     await AccessContext.worker(env.DB, await sha256(credential)),
