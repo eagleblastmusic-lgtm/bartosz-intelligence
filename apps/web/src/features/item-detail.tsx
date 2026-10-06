@@ -7,6 +7,7 @@ import { AppLink, today } from '../app/router.js';
 import { EvidenceChips } from '../components/evidence-drawer.js';
 import { ItemOrganization } from '../components/item-organization.js';
 import { ItemOptional } from '../components/item-optional.js';
+import { ItemReprocess } from '../components/item-reprocess.js';
 type Canonical = Awaited<ReturnType<typeof enrichEconomy>>['canonical'];
 export async function readCanonical(
   detail: Detail,
@@ -148,6 +149,7 @@ export function ItemDetail({ route }: { route: string }) {
         </p>
       )}
       {current && <ItemOptional key={'optional-' + itemId} itemId={itemId} />}
+      {current && <ItemReprocess key={'reprocess-' + itemId} itemId={itemId} />}
       {current && (
         <>
           <a

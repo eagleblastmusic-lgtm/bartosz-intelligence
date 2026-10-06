@@ -14,7 +14,7 @@ import {
 } from '../registry/semantic-profiles.js';
 import { ModelRegistry } from './models.js';
 import { selectPipeline } from './selector.js';
-import { analysisQualityScope } from './compiler.js';
+import { analysisQualityScope, compileSemanticAnalysis } from './compiler.js';
 import { QuotaAdmission } from './admission.js';
 import { currentGeminiBuckets } from './quota-policy.js';
 import type { compileEconomy } from './compiler.js';
@@ -25,6 +25,12 @@ import type { PipelineProfile } from '../../../contracts/src/ai.js';
 import type { LeaseToken } from '../../../contracts/src/jobs.js';
 import { ArtifactRepository } from '../artifacts/store.js';
 import type { ChunkPlan } from './long-input/plan.js';
+import {
+  validateAdditionalPass,
+  type AdditionalPassSnapshot,
+} from './tasks/additional-pass.js';
+import { parseWithDeterministicRepair } from './repair/deterministic.js';
+import type { normalizeTranscript } from '../transcript/normalize.js';
 
 export interface AnalysisSettings {
   runtime: 'local' | 'cloud';
@@ -51,6 +57,7 @@ export interface AnalysisJobSnapshot {
   semantic_profile?: SemanticProfileSnapshot;
   settings: AnalysisSettings;
   quality_scope: string;
+  additional_pass?: AdditionalPassSnapshot;
   semantic_context?: CompiledContext['semantic_context'];
   chunk?: {
     parent_job_id: string;
@@ -59,6 +66,12 @@ export interface AnalysisJobSnapshot {
     plan_hash: string;
     chunk_index: number;
   };
+}
+export interface ExplicitAnalysisIntent {
+  nonce: string;
+  semantic_profile_id: string;
+  semantic_profile_revision: number;
+  pass: { mode: 'SECOND_PASS' | 'VALIDATE'; candidate_run_id: string } | null;
 }
 
 // The durable job captures registry snapshots before any provider request. Workers
@@ -133,7 +146,12 @@ export class AnalysisJobs {
     await this.requireSourceProcessing(source.item_id);
     return source;
   }
-  async enqueue(sourceRunId: string, settings: AnalysisSettings, now: Date) {
+  private async buildSnapshot(
+    sourceRunId: string,
+    settings: AnalysisSettings,
+    now: Date,
+    intent?: ExplicitAnalysisIntent,
+  ) {
     this.context.requireOwner();
     if (
       !['local', 'cloud'].includes(settings.runtime) ||
@@ -153,10 +171,23 @@ export class AnalysisJobs {
       throw new Error('INVALID_ANALYSIS_SETTINGS');
     const source = await this.source(sourceRunId);
     await this.requireSourceProcessing(source.item_id);
-    const semanticProfile = await new SemanticProfiles(
-      this.db,
-      this.context,
-    ).forItem(source.item_id, now);
+    const profiles = new SemanticProfiles(this.db, this.context);
+    if (
+      intent &&
+      (!/^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(
+        intent.nonce,
+      ) ||
+        !Number.isSafeInteger(intent.semantic_profile_revision) ||
+        intent.semantic_profile_revision < 1)
+    )
+      throw new Error('INVALID_EXPLICIT_ANALYSIS');
+    const semanticProfile = intent
+      ? await profiles.load(
+          intent.semantic_profile_id,
+          intent.semantic_profile_revision,
+        )
+      : await profiles.forItem(source.item_id, now);
+    if (intent && !semanticProfile) throw new Error('NOT_FOUND');
     const prompt = semanticProfile
       ? semanticPrompt(semanticProfile)
       : await new PromptRegistry(this.db, this.context).current();
@@ -164,8 +195,8 @@ export class AnalysisJobs {
       semanticProfile &&
       (semanticProfile.compiled.config.translation !== 'NONE' ||
         semanticProfile.compiled.config.history ||
-        semanticProfile.compiled.config.second_pass ||
-        semanticProfile.compiled.config.validation_pass ||
+        (!intent && semanticProfile.compiled.config.second_pass) ||
+        (!intent && semanticProfile.compiled.config.validation_pass) ||
         semanticProfile.compiled.prompt.hash !== prompt.prompt_hash ||
         semanticProfile.compiled.wire.hash !== prompt.wire.hash)
     )
@@ -180,11 +211,23 @@ export class AnalysisJobs {
         Object.entries(settings.limits).sort(([a], [b]) => a.localeCompare(b)),
       ),
     };
+    const additionalPass =
+      intent?.pass && semanticProfile
+        ? await this.additionalPass(source, semanticProfile, intent.pass)
+        : undefined;
     const scope = await analysisQualityScope(prompt, profile, {
       limits: normalized.limits,
       max_output_tokens: settings.max_output_tokens,
       source_language: source.language_code,
       analysis_mode: 'ORDINARY',
+      ...(additionalPass
+        ? {
+            additional_pass: {
+              mode: additionalPass.mode,
+              purpose: additionalPass.purpose,
+            },
+          }
+        : {}),
     });
     const selected = selectPipeline([profile], {
       profile_id: 'gemini_free',
@@ -209,10 +252,224 @@ export class AnalysisJobs {
       ...(semanticProfile ? { semantic_profile: semanticProfile } : {}),
       settings: normalized,
       quality_scope: scope,
+      ...(additionalPass ? { additional_pass: additionalPass } : {}),
       semantic_context: await this.semanticContext(source),
     };
+    return snapshot;
+  }
+  async enqueue(
+    sourceRunId: string,
+    settings: AnalysisSettings,
+    now: Date,
+    intent?: ExplicitAnalysisIntent,
+  ) {
+    const snapshot = await this.buildSnapshot(
+      sourceRunId,
+      settings,
+      now,
+      intent,
+    );
+    return this.queueSnapshot(snapshot, intent?.nonce ?? '', now);
+  }
+  async previewExplicit(
+    sourceRunId: string,
+    settings: AnalysisSettings,
+    intent: Omit<ExplicitAnalysisIntent, 'nonce'>,
+    now: Date,
+  ) {
+    const snapshot = await this.buildSnapshot(sourceRunId, settings, now, {
+      ...intent,
+      nonce: crypto.randomUUID(),
+    });
+    const repo = new ArtifactRepository(this.db, this.context),
+      original = await repo.readVerifiedText(
+        snapshot.source.source_artifact_id,
+        32 * 1024 * 1024,
+      ),
+      map = await repo.readVerifiedText(
+        snapshot.source.segment_map_artifact_id,
+        32 * 1024 * 1024,
+      );
+    if (
+      original.artifact.content_hash !== snapshot.source.source_hash ||
+      map.artifact.content_hash !== snapshot.source.manifest_hash
+    )
+      throw new Error('ANALYSIS_SOURCE_ARTIFACT_MISMATCH');
+    const compiled = await compileSemanticAnalysis({
+      source_artifact_id: snapshot.source.source_artifact_id,
+      source_text: original.text,
+      manifest: JSON.parse(map.text) as Awaited<
+        ReturnType<typeof normalizeTranscript>
+      >['manifest'],
+      manifest_hash: snapshot.source.manifest_hash,
+      prompt: snapshot.prompt,
+      profile: snapshot.profile,
+      profile_revision: await sha256(JSON.stringify(snapshot)),
+      semantic_context: snapshot.semantic_context!,
+      runtime: settings.runtime,
+      request_id: 'preview',
+      deadline: new Date(now.getTime() + 300000).toISOString(),
+      mode: settings.mode,
+      max_output_tokens: settings.max_output_tokens,
+      limits: settings.limits,
+      semantic_profile: snapshot.semantic_profile!.compiled,
+      ...(snapshot.additional_pass
+        ? { additional_pass: snapshot.additional_pass }
+        : {}),
+    });
+    if (compiled.request.quality_scope !== snapshot.quality_scope)
+      throw new Error('ANALYSIS_QUALITY_SCOPE_MISMATCH');
+    const value = {
+        version: 'explicit-analysis-preview:1',
+        prepared_at: now.toISOString(),
+        snapshot,
+      },
+      serialized = JSON.stringify(value),
+      hash = await sha256(serialized);
+    await this.db
+      .prepare(
+        'INSERT INTO config_versions(config_id,owner_id,revision,payload_json,content_hash,created_at) VALUES(?,?,1,?,?,?) ON CONFLICT DO NOTHING',
+      )
+      .bind(
+        'analysis-preview-' + hash,
+        this.context.ownerId,
+        serialized,
+        hash,
+        now.toISOString(),
+      )
+      .run();
+    return {
+      preview_hash: hash,
+      item_id: snapshot.source.item_id,
+      source_hash: snapshot.source.source_hash,
+      semantic_profile_id: snapshot.semantic_profile!.profile_id,
+      semantic_profile_revision: snapshot.semantic_profile!.revision,
+      pass: snapshot.additional_pass?.mode ?? 'REPROCESS',
+      candidate_run_id: snapshot.additional_pass?.candidate_run_id ?? null,
+      token_estimate: compiled.run_context.token_estimate,
+      quota_status: 'UNKNOWN' as const,
+      quota_remaining: null,
+      additional_model_requests: 1,
+      selection_effect: 'NONE_UNTIL_EXPLICIT_SELECTION' as const,
+    };
+  }
+  async confirmExplicit(previewHash: string, nonce: string, now: Date) {
+    this.context.requireOwner();
+    if (
+      !/^[0-9a-f]{64}$/.test(previewHash) ||
+      !/^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(
+        nonce,
+      )
+    )
+      throw new Error('INVALID_EXPLICIT_ANALYSIS');
+    const receipt = await this.db
+      .prepare(
+        'SELECT payload_json,content_hash,created_at FROM config_versions WHERE owner_id=? AND config_id=? AND revision=1',
+      )
+      .bind(this.context.ownerId, 'analysis-preview-' + previewHash)
+      .first<{
+        payload_json: string;
+        content_hash: string;
+        created_at: string;
+      }>();
+    if (
+      !receipt ||
+      receipt.content_hash !== previewHash ||
+      (await sha256(receipt.payload_json)) !== previewHash ||
+      Date.parse(receipt.created_at) > now.getTime() ||
+      now.getTime() - Date.parse(receipt.created_at) > 900000
+    )
+      throw new Error('READ_SNAPSHOT_CHANGED');
+    const value = JSON.parse(receipt.payload_json) as {
+        version: string;
+        prepared_at: string;
+        snapshot: AnalysisJobSnapshot;
+      },
+      snapshot = value.snapshot;
+    if (
+      value.version !== 'explicit-analysis-preview:1' ||
+      value.prepared_at !== receipt.created_at ||
+      !snapshot.semantic_profile
+    )
+      throw new Error('READ_SNAPSHOT_CHANGED');
+    const source = await this.sourceForOwner(snapshot.source.run_id),
+      profile = await new ModelRegistry(this.db, this.context).load(
+        snapshot.profile.profile_id,
+        snapshot.profile.revision,
+      ),
+      semantic = await new SemanticProfiles(this.db, this.context).load(
+        snapshot.semantic_profile.profile_id,
+        snapshot.semantic_profile.revision,
+      );
+    if (
+      JSON.stringify(source) !== JSON.stringify(snapshot.source) ||
+      JSON.stringify(profile) !== JSON.stringify(snapshot.profile) ||
+      JSON.stringify(semantic) !== JSON.stringify(snapshot.semantic_profile)
+    )
+      throw new Error('READ_SNAPSHOT_CHANGED');
+    if (
+      snapshot.additional_pass &&
+      JSON.stringify(
+        await this.additionalPass(
+          source,
+          snapshot.semantic_profile,
+          snapshot.additional_pass,
+        ),
+      ) !== JSON.stringify(snapshot.additional_pass)
+    )
+      throw new Error('READ_SNAPSHOT_CHANGED');
+    const selected = selectPipeline([snapshot.profile], {
+      profile_id: 'gemini_free',
+      purpose: snapshot.settings.purpose,
+      region: snapshot.settings.region,
+      task_type: snapshot.semantic_profile.compiled.config.mode,
+      runtime: snapshot.settings.runtime,
+      mode: snapshot.settings.mode,
+      quality_scope: snapshot.quality_scope,
+      input_tokens: 0,
+      output_tokens: snapshot.settings.max_output_tokens,
+      now,
+      paid_services_enabled: false,
+    });
+    if (!selected.profile)
+      throw new Error('ANALYSIS_PROFILE_' + selected.reason);
+    return this.queueSnapshot(snapshot, nonce, now);
+  }
+  private async queueSnapshot(
+    snapshot: AnalysisJobSnapshot,
+    nonce: string,
+    now: Date,
+  ) {
+    this.context.requireOwner();
+    const {
+      source,
+      prompt,
+      settings,
+      additional_pass: additionalPass,
+    } = snapshot;
     const hash = await sha256(JSON.stringify(snapshot));
-    return new JobStore(this.db, this.context).enqueue(
+    if (nonce) {
+      await this.db
+        .prepare(
+          'INSERT INTO config_versions(config_id,owner_id,revision,payload_json,content_hash,created_at) VALUES(?,?,1,?,?,?) ON CONFLICT DO NOTHING',
+        )
+        .bind(
+          'explicit-analysis-' + nonce,
+          this.context.ownerId,
+          JSON.stringify(snapshot),
+          hash,
+          now.toISOString(),
+        )
+        .run();
+      const prior = await this.db
+        .prepare(
+          'SELECT content_hash FROM config_versions WHERE owner_id=? AND config_id=? AND revision=1',
+        )
+        .bind(this.context.ownerId, 'explicit-analysis-' + nonce)
+        .first<{ content_hash: string }>();
+      if (prior?.content_hash !== hash) throw new Error('IDEMPOTENCY_CONFLICT');
+    }
+    const job = await new JobStore(this.db, this.context).enqueue(
       {
         item_id: source.item_id,
         source_id: null,
@@ -224,14 +481,85 @@ export class AnalysisJobs {
         wire_schema_version: prompt.wire.id.replace('urn:bartosz:schema:', ''),
         canonical_schema_version: 'intelligence-canonical:1.2',
         enrichment_version: '1.0',
-        explicit_run_nonce: '',
+        explicit_run_nonce: nonce,
         arrival_origin_at: now.toISOString(),
         origin_kind: 'MANUAL',
         payload: { snapshot },
-        priority: settings.mode === 'QUALITY_TEST' ? 20 : 60,
+        priority: settings.mode === 'QUALITY_TEST' || additionalPass ? 20 : 60,
         due_at: now.toISOString(),
       },
       now.toISOString(),
+    );
+    if (!job) throw new Error('NOT_FOUND');
+    return job;
+  }
+  private async additionalPass(
+    source: SourceSnapshot,
+    semantic: SemanticProfileSnapshot,
+    input: NonNullable<ExplicitAnalysisIntent['pass']>,
+  ) {
+    if (!['SECOND_PASS', 'VALIDATE'].includes(input.mode))
+      throw new Error('INVALID_ADDITIONAL_PASS');
+    const row = await this.db
+      .prepare(
+        "SELECT r.outcome_json,r.candidate_hash FROM analysis_runs r JOIN jobs j ON j.owner_id=r.owner_id AND j.job_id=r.job_id WHERE r.owner_id=? AND r.run_id=? AND r.item_id=? AND r.state='ACCEPTED' AND j.task_type='ANALYZE' AND json_extract(r.input_snapshot_json,'$.source_artifact_id')=? AND json_extract(r.input_snapshot_json,'$.manifest_hash')=? AND json_extract(r.prompt_snapshot_json,'$.wire.hash')=?",
+      )
+      .bind(
+        this.context.ownerId,
+        input.candidate_run_id,
+        source.item_id,
+        source.source_artifact_id,
+        source.manifest_hash,
+        semantic.compiled.wire.hash,
+      )
+      .first<{ outcome_json: string; candidate_hash: string }>();
+    if (!row || (await sha256(row.outcome_json)) !== row.candidate_hash)
+      throw new Error('ADDITIONAL_PASS_CANDIDATE_MISMATCH');
+    const outcome = JSON.parse(row.outcome_json) as {
+      version: string;
+      response_artifact_id?: string;
+    };
+    if (
+      outcome.version !== 'intelligence-accepted:1' ||
+      !outcome.response_artifact_id
+    )
+      throw new Error('ADDITIONAL_PASS_CANDIDATE_MISMATCH');
+    const repo = new ArtifactRepository(this.db, this.context),
+      raw = await repo.readVerifiedText(
+        outcome.response_artifact_id,
+        2 * 1024 * 1024,
+      ),
+      manifest = await repo.readVerifiedText(
+        source.segment_map_artifact_id,
+        32 * 1024 * 1024,
+      );
+    if (
+      raw.artifact.item_id !== source.item_id ||
+      raw.artifact.kind !== 'ANALYSIS_CANDIDATE' ||
+      manifest.artifact.content_hash !== source.manifest_hash
+    )
+      throw new Error('ADDITIONAL_PASS_CANDIDATE_MISMATCH');
+    const parsed = await parseWithDeterministicRepair(raw.text),
+      value = parsed.value as Record<string, unknown>;
+    const purpose =
+      input.mode === 'SECOND_PASS'
+        ? semantic.compiled.config.second_pass?.purpose
+        : semantic.compiled.config.validation_pass?.purpose;
+    if (!purpose) throw new Error('ADDITIONAL_PASS_PURPOSE_MISMATCH');
+    const pass: AdditionalPassSnapshot = {
+      mode: input.mode,
+      purpose,
+      candidate_run_id: input.candidate_run_id,
+      candidate_hash: await sha256(JSON.stringify(value)),
+      candidate_wire: value,
+    };
+    const map = JSON.parse(manifest.text) as Awaited<
+      ReturnType<typeof normalizeTranscript>
+    >['manifest'];
+    return validateAdditionalPass(
+      pass,
+      semantic.compiled,
+      new Set(map.anchors.map((a) => a.alias)),
     );
   }
   private async semanticContext(source: SourceSnapshot) {
@@ -311,6 +639,9 @@ export class AnalysisJobs {
       };
     }
     const expected: CompiledContext = {
+      ...(snapshot.additional_pass
+        ? { additional_pass: snapshot.additional_pass }
+        : {}),
       semantic_context: snapshot.semantic_context ?? {
         title: null,
         author: null,
@@ -336,6 +667,14 @@ export class AnalysisJobs {
         max_output_tokens: snapshot.settings.max_output_tokens,
         source_language: snapshot.source.language_code,
         analysis_mode: snapshot.chunk ? 'CHUNK' : 'ORDINARY',
+        ...(snapshot.additional_pass
+          ? {
+              additional_pass: {
+                mode: snapshot.additional_pass.mode,
+                purpose: snapshot.additional_pass.purpose,
+              },
+            }
+          : {}),
         thinking_level: 'low',
       },
       request_id: prepared.run_id,

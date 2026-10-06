@@ -46,6 +46,8 @@ export class LongInputJobs {
       current(),
     );
     const snapshot = prepared.snapshot;
+    if (snapshot.additional_pass)
+      throw new Error('ADDITIONAL_PASS_CHUNK_CONTEXT_REQUIRED');
     if (snapshot.chunk) throw new Error('CHUNK_CANNOT_CREATE_CHILDREN');
     const artifacts = new ArtifactRepository(this.db, this.context);
     const stored = await artifacts.readVerifiedText(

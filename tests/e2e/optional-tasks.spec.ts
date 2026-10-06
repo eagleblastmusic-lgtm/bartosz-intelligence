@@ -10,6 +10,8 @@ test('optional tasks require preview/confirm, reuse nonce after a lost reply and
   let reads = 0,
     confirms = 0;
   const intents: unknown[] = [];
+  const reprocessIntents: unknown[] = [];
+  let reprocessReads = 0;
   await page.context().addCookies([
     {
       name: '__Host-bi-csrf',
@@ -31,6 +33,68 @@ test('optional tasks require preview/confirm, reuse nonce after a lost reply and
   });
   await page.route('**/api/v1/**', async (route) => {
     const url = new URL(route.request().url());
+    if (url.pathname.includes('/reprocess/context/')) {
+      reprocessReads++;
+      return route.fulfill({
+        json: {
+          source_run_id: 'source-run',
+          candidate_run_id: 'accepted-run',
+          available: true,
+          settings: {
+            runtime: 'local',
+            mode: 'PRODUCTION',
+            purpose: 'personal',
+            region: 'PL',
+            max_output_tokens: 1000,
+            limits: { claims: 20 },
+          },
+          profiles: [
+            {
+              profile_id: 'custom',
+              revision: 1,
+              name: 'Custom',
+              mode: 'CUSTOM',
+              second_pass: true,
+              validation_pass: true,
+              optional_tasks: false,
+            },
+          ],
+          has_more: false,
+        },
+      });
+    }
+    if (url.pathname === '/api/v1/reprocess/preview') {
+      expect(route.request().postDataJSON()).toMatchObject({
+        source_run_id: 'source-run',
+        semantic_profile_id: 'custom',
+        semantic_profile_revision: 1,
+        pass: { mode: 'VALIDATE', candidate_run_id: 'accepted-run' },
+      });
+      return route.fulfill({
+        json: {
+          preview_hash: 'a'.repeat(64),
+          item_id: 'item',
+          pass: 'VALIDATE',
+          token_estimate: { input: 1200 },
+          quota_status: 'UNKNOWN',
+          quota_remaining: null,
+          additional_model_requests: 1,
+          selection_effect: 'NONE_UNTIL_EXPLICIT_SELECTION',
+        },
+      });
+    }
+    if (url.pathname === '/api/v1/reprocess/confirm') {
+      expect(route.request().headers()['x-csrf-token']).toBe('fixture-csrf');
+      reprocessIntents.push(route.request().postDataJSON());
+      return route.fulfill(
+        reprocessIntents.length === 1
+          ? { status: 503, json: { code: 'TEMPORARY_FAILURE' } }
+          : {
+              status: 201,
+              json: { job_id: 'additional-pass', state: 'PENDING' },
+            },
+      );
+    }
     if (url.pathname.endsWith('/auth/session'))
       return route.fulfill({ json: { authenticated: true } });
     if (url.pathname.endsWith('/detail'))
@@ -281,6 +345,36 @@ test('optional tasks require preview/confirm, reuse nonce after a lost reply and
   await expect(drawer.getByRole('alert')).toBeVisible();
   await drawer.getByRole('button', { name: 'Zamknij fragment źródła' }).click();
   await page.setViewportSize({ width: 360, height: 900 });
+  expect(reprocessReads).toBe(0);
+  await page
+    .getByRole('button', { name: 'Ponowna analiza', exact: true })
+    .click();
+  await page.getByLabel('Profil i wersja').selectOption('custom:1');
+  await page.getByLabel('Rodzaj zadania').selectOption('VALIDATE');
+  await expect(
+    page.getByRole('button', {
+      name: 'Potwierdź dodatkowe zadanie',
+      exact: true,
+    }),
+  ).toHaveCount(0);
+  await page
+    .getByRole('button', { name: 'Przygotuj podgląd ponownej analizy' })
+    .click();
+  await page
+    .getByRole('button', { name: 'Potwierdź dodatkowe zadanie', exact: true })
+    .click();
+  const reprocess = page.getByRole('region', {
+    name: 'Ponowna analiza',
+    exact: true,
+  });
+  await expect(reprocess.getByRole('alert')).toBeVisible();
+  await page
+    .getByRole('button', { name: 'Potwierdź dodatkowe zadanie', exact: true })
+    .click();
+  expect(reprocessIntents[1]).toEqual(reprocessIntents[0]);
+  await expect(reprocess.getByRole('status')).toContainText(
+    'wybór nowego wyniku wymaga osobnej decyzji',
+  );
   expect(
     (
       await new AxeBuilder({ page })

@@ -93,6 +93,9 @@ export async function prepareAnalysis(
     mode: snapshot.settings.mode,
     max_output_tokens: snapshot.settings.max_output_tokens,
     limits: snapshot.settings.limits,
+    ...(snapshot.additional_pass
+      ? { additional_pass: snapshot.additional_pass }
+      : {}),
     chunk: chunkPlan
       ? {
           plan: JSON.parse(chunkPlan.text) as ChunkPlan,

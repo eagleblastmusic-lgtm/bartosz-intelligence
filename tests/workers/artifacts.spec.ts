@@ -683,6 +683,7 @@ it.each([
   'CHUNK_PRODUCTION',
   'CHUNK_FULL_PRODUCTION',
   'OPTIONAL_TRANSLATION',
+  'CUSTOM_PRODUCTION',
   'PRODUCTION',
   'RATE_LIMITED',
   'TEMPORARY_FAILURE',
@@ -693,11 +694,15 @@ it.each([
     const semanticMode =
       scenario === 'CHUNK_FULL_PRODUCTION'
         ? ('FULL' as const)
-        : ('ECONOMY' as const);
+        : scenario === 'CUSTOM_PRODUCTION'
+          ? ('CUSTOM' as const)
+          : ('ECONOMY' as const);
     const chunkProduction =
       scenario === 'CHUNK_PRODUCTION' || scenario === 'CHUNK_FULL_PRODUCTION';
     const mode: 'PRODUCTION' | 'QUALITY_TEST' =
-      scenario === 'PRODUCTION' || chunkProduction
+      scenario === 'PRODUCTION' ||
+      scenario === 'CUSTOM_PRODUCTION' ||
+      chunkProduction
         ? 'PRODUCTION'
         : 'QUALITY_TEST';
     const { item, token, access, repository, owner } = await setup();
@@ -1607,7 +1612,7 @@ it.each([
       ),
     ).rejects.toThrow('ANALYSIS_CONTEXT_REQUIRED');
     const compileCurrent =
-      semanticMode === 'FULL'
+      semanticMode !== 'ECONOMY'
         ? (input: Parameters<typeof compileEconomy>[0]) =>
             compileSemanticAnalysis({
               ...input,
@@ -1876,7 +1881,11 @@ it.each([
     expect(localPrepared.run_context.source_manifest_hash).toBe(
       map.content_hash,
     );
-    if (scenario !== 'QUALITY_TEST' && scenario !== 'PRODUCTION') {
+    if (
+      scenario !== 'QUALITY_TEST' &&
+      scenario !== 'PRODUCTION' &&
+      scenario !== 'CUSTOM_PRODUCTION'
+    ) {
       const retained = (await retainAnalysisResponse({
         origin: 'https://fixture.invalid',
         credential: 'q'.repeat(43),
@@ -2343,6 +2352,138 @@ it.each([
       expect(
         await env.DB.prepare('SELECT COUNT(*) n FROM observations').first('n'),
       ).toBe(1);
+    }
+    if (scenario === 'CUSTOM_PRODUCTION') {
+      await semanticRegistry.save(
+        {
+          profile_id: 'monitor',
+          revision: 3,
+          name: 'Explicit passes',
+          config: {
+            ...semanticConfig,
+            second_pass: { purpose: 'Zbadaj negację.' },
+            validation_pass: { purpose: 'Sprawdź źródłowe odwołania.' },
+          },
+          reason: 'Independent pass request',
+        },
+        bundle,
+        fixtureNow,
+      );
+      const before = (
+        await env.DB.prepare('SELECT * FROM active_analysis_selections').all()
+      ).results;
+      for (const passMode of ['SECOND_PASS', 'VALIDATE'] as const) {
+        const intent = {
+          nonce: crypto.randomUUID(),
+          semantic_profile_id: 'monitor',
+          semantic_profile_revision: 3,
+          pass: { mode: passMode, candidate_run_id: prepared.run_id },
+        };
+        const quality = { ...settings, mode: 'QUALITY_TEST' as const };
+        const countBefore = await env.DB.prepare(
+          'SELECT count(*) AS n FROM jobs',
+        ).first('n');
+        const preview = await analysis.previewExplicit(
+          accepted.run_id,
+          quality,
+          intent,
+          fixtureNow,
+        );
+        expect(preview).toMatchObject({
+          pass: passMode,
+          quota_status: 'UNKNOWN',
+          quota_remaining: null,
+          selection_effect: 'NONE_UNTIL_EXPLICIT_SELECTION',
+        });
+        expect(
+          await env.DB.prepare('SELECT count(*) AS n FROM jobs').first('n'),
+        ).toBe(countBefore);
+        await expect(
+          new AnalysisJobs(env.DB, await fixtureOwner('b')).confirmExplicit(
+            preview.preview_hash,
+            intent.nonce,
+            fixtureNow,
+          ),
+        ).rejects.toThrow('READ_SNAPSHOT_CHANGED');
+        await expect(
+          analysis.confirmExplicit(
+            preview.preview_hash,
+            intent.nonce,
+            new Date(fixtureNow.getTime() + 900001),
+          ),
+        ).rejects.toThrow('READ_SNAPSHOT_CHANGED');
+        const passJob = await analysis.confirmExplicit(
+          preview.preview_hash,
+          intent.nonce,
+          fixtureNow,
+        );
+        expect(
+          (await analysis.enqueue(accepted.run_id, quality, fixtureNow, intent))
+            .job_id,
+        ).toBe(passJob.job_id);
+        await expect(
+          analysis.enqueue(
+            accepted.run_id,
+            { ...quality, max_output_tokens: quality.max_output_tokens + 1 },
+            fixtureNow,
+            intent,
+          ),
+        ).rejects.toThrow('IDEMPOTENCY_CONFLICT');
+        const passToken = (await new JobStore(env.DB, aiAccess).lease(
+          passJob.job_id!,
+          'ANALYZE',
+          fixtureNow,
+          'local',
+        ))!;
+        await new JobStore(env.DB, aiAccess).start(
+          passToken,
+          'ANALYZE',
+          fixtureNow,
+        );
+        const passPrepared = await workerJobs.prepareRun(passToken, fixtureNow);
+        const passCompiled = await compileSemanticAnalysis({
+          source_artifact_id: source.artifact_id,
+          source_text: sourceText,
+          manifest: sourceNormalized.manifest,
+          manifest_hash: map.content_hash!,
+          prompt: passPrepared.snapshot.prompt,
+          profile: passPrepared.snapshot.profile,
+          profile_revision: passPrepared.snapshot_hash,
+          semantic_context: passPrepared.snapshot.semantic_context!,
+          runtime: 'local',
+          request_id: passPrepared.run_id,
+          deadline: new Date(fixtureNow.getTime() + 300000).toISOString(),
+          mode: 'QUALITY_TEST',
+          max_output_tokens: quality.max_output_tokens,
+          limits: quality.limits,
+          semantic_profile: passPrepared.snapshot.semantic_profile!.compiled,
+          additional_pass: passPrepared.snapshot.additional_pass!,
+        });
+        expect(passCompiled.request.quality_scope).toBe(
+          passPrepared.snapshot.quality_scope,
+        );
+        expect(
+          await workerJobs.bindContext(
+            passToken,
+            passCompiled.run_context,
+            passCompiled.context_hash,
+            await sha256(passCompiled.request.prompt),
+            fixtureNow,
+          ),
+        ).toMatchObject({ run_id: passPrepared.run_id });
+        expect(
+          (
+            await env.DB.prepare(
+              'SELECT * FROM active_analysis_selections',
+            ).all()
+          ).results,
+        ).toEqual(before);
+        expect(
+          await env.DB.prepare('SELECT count(*) AS n FROM observations').first(
+            'n',
+          ),
+        ).toBe(1);
+      }
     }
     await env.DB.prepare(
       'UPDATE worker_identities SET revoked_at=? WHERE worker_id=?',

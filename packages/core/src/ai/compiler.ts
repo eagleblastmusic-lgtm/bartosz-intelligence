@@ -6,6 +6,10 @@ import type { AIRequest, PipelineProfile } from '../../../contracts/src/ai.js';
 import { verifyChunkPlan, type ChunkPlan } from './long-input/plan.js';
 import { validator_schema_hashes } from '../registry/generated/validators.js';
 import type { MaterializedSemanticProfile } from '../registry/semantic-profiles.js';
+import {
+  validateAdditionalPass,
+  type AdditionalPassSnapshot,
+} from './tasks/additional-pass.js';
 type Manifest = Awaited<ReturnType<typeof normalizeTranscript>>['manifest'];
 export function economyPromptOverhead(input: {
   prompt: PromptSnapshot;
@@ -17,11 +21,19 @@ export function economyPromptOverhead(input: {
   };
   limits: Record<string, number>;
   semantic_profile?: MaterializedSemanticProfile;
+  additional_pass?: AdditionalPassSnapshot;
 }) {
   return new TextEncoder().encode(
     renderPrompt(input.prompt.text, {
       wire_schema_json: JSON.stringify(input.prompt.wire.schema),
-      semantic_context_json: JSON.stringify(input.semantic_context),
+      semantic_context_json: JSON.stringify(
+        input.additional_pass
+          ? {
+              ...input.semantic_context,
+              additional_pass_purpose: input.additional_pass.purpose,
+            }
+          : input.semantic_context,
+      ),
       limits_json: JSON.stringify(input.limits),
       source_segments_with_aliases_json: '[]',
       helper_segments_json_or_null: 'null',
@@ -30,8 +42,10 @@ export function economyPromptOverhead(input: {
             module_config_json: JSON.stringify(
               input.semantic_profile.config.modules,
             ),
-            pass_mode: 'EXTRACT',
-            existing_candidate_wire_json_or_null: 'null',
+            pass_mode: input.additional_pass?.mode ?? 'EXTRACT',
+            existing_candidate_wire_json_or_null: input.additional_pass
+              ? JSON.stringify(input.additional_pass.candidate_wire)
+              : 'null',
           }
         : {}),
     }),
@@ -45,6 +59,7 @@ export async function analysisQualityScope(
     max_output_tokens: number;
     source_language: string;
     analysis_mode: 'ORDINARY' | 'CHUNK';
+    additional_pass?: { mode: 'SECOND_PASS' | 'VALIDATE'; purpose: string };
   },
 ) {
   return sha256(
@@ -88,6 +103,7 @@ async function compileSource(input: {
   max_output_tokens: number;
   limits: Record<string, number>;
   semantic_profile?: MaterializedSemanticProfile;
+  additional_pass?: AdditionalPassSnapshot;
   chunk?: {
     plan: ChunkPlan;
     plan_hash: string;
@@ -196,9 +212,23 @@ async function compileSource(input: {
       throw new Error('CHUNK_CONTEXT_MISMATCH');
     assigned = manifest.anchors.slice(part.overlap_start, part.primary_end);
   }
+  const pass = input.additional_pass;
+  if (pass) {
+    if (!semantic) throw new Error('INVALID_ADDITIONAL_PASS');
+    if (chunk) throw new Error('ADDITIONAL_PASS_CHUNK_CONTEXT_REQUIRED');
+    await validateAdditionalPass(
+      pass,
+      semantic,
+      new Set(assigned.map((a) => a.alias)),
+    );
+  }
   const text = renderPrompt(input.prompt.text, {
     wire_schema_json: JSON.stringify(input.prompt.wire.schema),
-    semantic_context_json: JSON.stringify(input.semantic_context),
+    semantic_context_json: JSON.stringify(
+      pass
+        ? { ...input.semantic_context, additional_pass_purpose: pass.purpose }
+        : input.semantic_context,
+    ),
     limits_json: JSON.stringify(input.limits),
     source_segments_with_aliases_json: JSON.stringify(
       assigned.map((anchor, index) => ({
@@ -210,8 +240,10 @@ async function compileSource(input: {
     ...(semantic
       ? {
           module_config_json: JSON.stringify(semantic.config.modules),
-          pass_mode: 'EXTRACT',
-          existing_candidate_wire_json_or_null: 'null',
+          pass_mode: pass?.mode ?? 'EXTRACT',
+          existing_candidate_wire_json_or_null: pass
+            ? JSON.stringify(pass.candidate_wire)
+            : 'null',
         }
       : {}),
   });
@@ -225,6 +257,9 @@ async function compileSource(input: {
     max_output_tokens: input.max_output_tokens,
     source_language: input.semantic_context.source_language,
     analysis_mode: chunk ? ('CHUNK' as const) : ('ORDINARY' as const),
+    ...(pass
+      ? { additional_pass: { mode: pass.mode, purpose: pass.purpose } }
+      : {}),
   };
   const scope = await analysisQualityScope(
     input.prompt,
@@ -245,6 +280,7 @@ async function compileSource(input: {
     paid_services_enabled: false,
   };
   const runContext = {
+    ...(pass ? { additional_pass: structuredClone(pass) } : {}),
     semantic_context: structuredClone(input.semantic_context),
     source_artifact_id: input.source_artifact_id,
     chunk: chunk

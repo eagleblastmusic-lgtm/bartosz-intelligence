@@ -4,7 +4,7 @@ export default defineConfig({
   workers: 1,
   use: { baseURL: 'http://127.0.0.1:8787', headless: true },
   webServer: {
-    command: 'pnpm dev:api',
+    command: 'pnpm --filter @bartosz/web build && pnpm dev:api',
     url: 'http://127.0.0.1:8787/health',
     reuseExistingServer: false,
     timeout: 60000,

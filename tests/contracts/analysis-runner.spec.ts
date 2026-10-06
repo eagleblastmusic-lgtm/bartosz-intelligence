@@ -160,6 +160,99 @@ it.each(['FULL', 'CUSTOM'] as const)(
     ).rejects.toThrow('INCOMPATIBLE_PROMPT_SNAPSHOT');
   },
 );
+it.each(['SECOND_PASS', 'VALIDATE'] as const)(
+  'compiles explicit Custom %s with same source aliases, purpose and candidate pins',
+  async (mode) => {
+    const input = await fixture(),
+      purpose = 'Sprawdź zachowanie negacji.';
+    const semantic = await compileSemanticProfile(
+      {
+        mode: 'CUSTOM',
+        modules: Object.fromEntries(
+          semanticModules.map((key) => [key, key === 'claims']),
+        ),
+        translation: 'NONE',
+        history: false,
+        second_pass: { purpose },
+        validation_pass: { purpose },
+      },
+      bundle,
+    );
+    const prompt = semanticPrompt({
+      profile_id: 'custom-pass',
+      revision: 1,
+      name: 'Custom',
+      compiled: semantic,
+    });
+    const candidate = {
+      entity_mentions: [],
+      source_issues: [],
+      claims: [
+        {
+          text_pl: 'Autor nie wdrożył narzędzia.',
+          segment_refs: ['s1'],
+          entity_refs: [],
+          subject_ref: null,
+          attribution: 'SOURCE_SPEAKER',
+          qualifiers: [],
+        },
+      ],
+    };
+    const pass = {
+      mode,
+      purpose,
+      candidate_run_id: 'immutable-prior-run',
+      candidate_hash: await sha256(JSON.stringify(candidate)),
+      candidate_wire: candidate,
+    };
+    const base = { ...input, prompt, semantic_profile: semantic };
+    const extraction = await compileSemanticAnalysis(base),
+      compiled = await compileSemanticAnalysis({
+        ...base,
+        additional_pass: pass,
+      });
+    expect(compiled.request.prompt).toContain('PASS_MODE: ' + mode);
+    expect(compiled.request.prompt).toContain(
+      'SOURCE: [{"segment_ref":"s1","text":"I did not adopt Tool X."}]',
+    );
+    expect(compiled.request.prompt).toContain(
+      'EXISTING_CANDIDATE: ' + JSON.stringify(candidate),
+    );
+    expect(compiled.request.prompt).toContain(purpose);
+    expect(compiled.run_context.additional_pass).toEqual(pass);
+    expect(compiled.request.quality_scope).not.toBe(
+      extraction.request.quality_scope,
+    );
+    expect(compiled.request.wire_schema).toEqual(
+      extraction.request.wire_schema,
+    );
+    expect(extraction.request.prompt).toContain('EXISTING_CANDIDATE: null');
+    await expect(
+      compileSemanticAnalysis({
+        ...base,
+        additional_pass: { ...pass, purpose: 'Inny cel' },
+      }),
+    ).rejects.toThrow('ADDITIONAL_PASS_PURPOSE_MISMATCH');
+    await expect(
+      compileSemanticAnalysis({
+        ...base,
+        additional_pass: { ...pass, candidate_hash: '0'.repeat(64) },
+      }),
+    ).rejects.toThrow('ADDITIONAL_PASS_CANDIDATE_MISMATCH');
+    const foreign = structuredClone(candidate);
+    foreign.claims[0]!.segment_refs = ['foreign'];
+    await expect(
+      compileSemanticAnalysis({
+        ...base,
+        additional_pass: {
+          ...pass,
+          candidate_wire: foreign,
+          candidate_hash: await sha256(JSON.stringify(foreign)),
+        },
+      }),
+    ).rejects.toThrow('INVALID_ADDITIONAL_PASS_CANDIDATE');
+  },
+);
 it('chunk compiler pins full original source but sends only assigned local aliases and a distinct quality scope', async () => {
   const input = await fixture();
   const cues = Array.from({ length: 200 }, (_, index) => ({
