@@ -205,6 +205,23 @@ it('independent canonical restore preserves cyclic revision refs/origins and inv
       await restoreCanonical(target.db, portable, 'subject-a'),
     ).toMatchObject({ result: 'PASS' });
     expect(
+      target.sqlite.prepare('SELECT * FROM change_log ORDER BY seq').all(),
+    ).toEqual(
+      source.sqlite.prepare('SELECT * FROM change_log ORDER BY seq').all(),
+    );
+    const triggers = target.sqlite
+      .prepare(
+        "SELECT name FROM sqlite_master WHERE type='trigger' AND name LIKE 'projection_invalidate_%' ORDER BY name",
+      )
+      .all();
+    expect(triggers).toEqual(
+      source.sqlite
+        .prepare(
+          "SELECT name FROM sqlite_master WHERE type='trigger' AND name LIKE 'projection_invalidate_%' ORDER BY name",
+        )
+        .all(),
+    );
+    expect(
       target.sqlite
         .prepare(
           'SELECT state,lease_owner,lease_until,fencing_token,arrival_origin_at,origin_kind FROM jobs WHERE job_id=?',

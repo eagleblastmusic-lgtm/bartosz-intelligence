@@ -329,7 +329,7 @@ export async function commitDiscoveryPage(
       ),
     db
       .prepare(
-        `UPDATE jobs SET state=?,reason_code=?,due_at=?,updated_at=?,lease_owner=NULL,lease_until=NULL WHERE owner_id=? AND job_id=? AND ${permit.predicate}`,
+        `UPDATE jobs SET state=?,reason_code=?,due_at=?,updated_at=?,lease_owner=NULL,lease_until=NULL WHERE owner_id=? AND job_id=? AND ${permit.predicate} RETURNING job_id`,
       )
       .bind(
         jobDone ? 'SUCCEEDED' : 'DEFERRED',
@@ -342,7 +342,7 @@ export async function commitDiscoveryPage(
       ),
   );
   const results = await db.batch(statements);
-  if (results[0]?.meta.changes !== 1 || results.at(-1)?.meta.changes !== 1) {
+  if (results[0]?.meta.changes !== 1 || results.at(-1)?.results?.length !== 1) {
     if (results.some((result) => result.meta.changes !== 0))
       throw new Error('DISCOVERY_COMMIT_INVARIANT_FAILED');
     throw new Error('STALE_FENCE');

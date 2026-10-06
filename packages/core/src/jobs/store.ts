@@ -112,11 +112,11 @@ export class JobStore {
       this.db
         .prepare(
           `UPDATE jobs SET state='PENDING',reason_code=NULL,due_at=?,updated_at=?,lease_owner=NULL,lease_until=NULL
-        WHERE owner_id=? AND job_id=? AND state='FAILED' AND EXISTS(SELECT 1 FROM audit_events WHERE event_id=?)`,
+        WHERE owner_id=? AND job_id=? AND state='FAILED' AND EXISTS(SELECT 1 FROM audit_events WHERE event_id=?) RETURNING job_id`,
         )
         .bind(now, now, this.context.ownerId, jobId, nonce),
     ]);
-    if (results[1]?.meta.changes !== 1) throw new Error('REPLAY_DENIED');
+    if (results[1]?.results?.length !== 1) throw new Error('REPLAY_DENIED');
   }
   async lease(
     jobId: string,
@@ -133,7 +133,7 @@ export class JobStore {
         .prepare(
           `UPDATE jobs SET state='LEASED',lease_owner=?,lease_until=?,fencing_token=fencing_token+1,attempt_count=attempt_count+1,updated_at=?
         WHERE owner_id=? AND job_id=? AND task_type=? AND state='PENDING' AND due_at<=?
-        AND EXISTS(SELECT 1 FROM worker_identities w WHERE w.owner_id=jobs.owner_id AND w.worker_id=? AND w.revoked_at IS NULL AND w.credential_hash=?)`,
+        AND EXISTS(SELECT 1 FROM worker_identities w WHERE w.owner_id=jobs.owner_id AND w.worker_id=? AND w.revoked_at IS NULL AND w.credential_hash=?) RETURNING job_id`,
         )
         .bind(
           this.context.actorId,
@@ -161,7 +161,7 @@ export class JobStore {
           until,
         ),
     ]);
-    if (results[0]?.meta.changes !== 1) return null;
+    if (results[0]?.results?.length !== 1) return null;
     const job = (await this.get(jobId))!;
     return {
       job_id: jobId,
@@ -177,7 +177,7 @@ export class JobStore {
     const result = await this.db
       .prepare(
         `UPDATE jobs SET state='RUNNING',updated_at=? WHERE owner_id=? AND job_id=? AND task_type=? AND state='LEASED' AND lease_owner=? AND fencing_token=? AND lease_until>?
-      AND EXISTS(SELECT 1 FROM worker_identities WHERE owner_id=? AND worker_id=? AND revoked_at IS NULL AND credential_hash=?)`,
+      AND EXISTS(SELECT 1 FROM worker_identities WHERE owner_id=? AND worker_id=? AND revoked_at IS NULL AND credential_hash=?) RETURNING job_id`,
       )
       .bind(
         now.toISOString(),
@@ -191,8 +191,8 @@ export class JobStore {
         this.context.actorId,
         this.context.credentialHash!,
       )
-      .run();
-    if (result.meta.changes !== 1) throw new Error('STALE_FENCE');
+      .first<{ job_id: string }>();
+    if (result?.job_id !== token.job_id) throw new Error('STALE_FENCE');
   }
   async heartbeat(
     token: LeaseToken,
@@ -244,7 +244,7 @@ export class JobStore {
         .prepare(
           `UPDATE job_attempts SET finished_at=?,error_code=? WHERE owner_id=? AND job_id=? AND fencing_token=?
         AND EXISTS(SELECT 1 FROM jobs WHERE owner_id=? AND job_id=? AND task_type=? AND state='RUNNING' AND lease_owner=? AND fencing_token=? AND lease_until>?)
-        AND EXISTS(SELECT 1 FROM worker_identities WHERE owner_id=? AND worker_id=? AND revoked_at IS NULL AND credential_hash=?)`,
+        AND EXISTS(SELECT 1 FROM worker_identities WHERE owner_id=? AND worker_id=? AND revoked_at IS NULL AND credential_hash=?) RETURNING job_id`,
         )
         .bind(
           now.toISOString(),
@@ -265,7 +265,7 @@ export class JobStore {
       this.db
         .prepare(
           `UPDATE jobs SET state=?,reason_code=?,due_at=?,updated_at=?,lease_owner=NULL,lease_until=NULL WHERE owner_id=? AND job_id=? AND task_type=? AND state='RUNNING' AND lease_owner=? AND fencing_token=? AND lease_until>?
-        AND EXISTS(SELECT 1 FROM worker_identities WHERE owner_id=? AND worker_id=? AND revoked_at IS NULL AND credential_hash=?)`,
+        AND EXISTS(SELECT 1 FROM worker_identities WHERE owner_id=? AND worker_id=? AND revoked_at IS NULL AND credential_hash=?) RETURNING job_id`,
         )
         .bind(
           state,
@@ -283,6 +283,6 @@ export class JobStore {
           this.context.credentialHash!,
         ),
     ]);
-    if (results[1]?.meta.changes !== 1) throw new Error('STALE_FENCE');
+    if (results[1]?.results?.length !== 1) throw new Error('STALE_FENCE');
   }
 }

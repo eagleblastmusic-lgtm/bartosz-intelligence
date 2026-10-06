@@ -18,6 +18,7 @@ import { validator_schema_hashes } from '../registry/generated/validators.js';
 import { mergeChunkOutputs } from './long-input/merge.js';
 import type { ChunkPlan } from './long-input/plan.js';
 import { finalizeCandidateRun } from './candidate-finalization.js';
+import { acceptedView } from '../projections/accepted-view.js';
 export interface AnalysisValidationResult {
   version: 'analysis-validation:1';
   run_id: string;
@@ -564,6 +565,7 @@ export class AnalysisValidation {
       .first<{ selection_revision: number }>();
     const outcome = {
       version: 'intelligence-accepted:1',
+      view: acceptedView(enriched.canonical),
       run_id: prepared.run_id,
       canonical_artifact_id: canonicalId,
       canonical_hash: enriched.canonical_hash,

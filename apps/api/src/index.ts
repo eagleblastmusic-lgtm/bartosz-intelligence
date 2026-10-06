@@ -9,6 +9,7 @@ import { jobsApp } from './routes/jobs.js';
 import { workersApp } from './routes/workers.js';
 import { systemApp } from './routes/system.js';
 import { backupApp } from './routes/backup.js';
+import { dailyApp } from './routes/daily.js';
 export type { Env } from './env.js';
 
 const buildVersion = '0.0.1';
@@ -20,6 +21,7 @@ app.route('/api/v1/items', itemsApp);
 app.route('/api/v1/jobs', jobsApp);
 app.route('/api/v1/system', systemApp);
 app.route('/api/v1/backup', backupApp);
+app.route('/api/v1/daily', dailyApp);
 app.route('/internal/workers', workersApp);
 app.get('/health', (c) => {
   const bindings = {

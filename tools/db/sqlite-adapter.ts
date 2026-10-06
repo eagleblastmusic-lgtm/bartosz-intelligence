@@ -17,7 +17,13 @@ export function sqliteAdapter(sqlite: DatabaseSync): Database {
       return { results: sqlite.prepare(sql).all(...values) as T[] };
     },
     async run() {
-      const result = sqlite.prepare(sql).run(...values);
+      const prepared = sqlite.prepare(sql);
+      if (prepared.columns().length) {
+        const results = prepared.all(...values);
+        const changes = sqlite.prepare('SELECT changes() n').get()!.n;
+        return { meta: { changes: Number(changes) }, results };
+      }
+      const result = prepared.run(...values);
       return { meta: { changes: Number(result.changes) } };
     },
   });

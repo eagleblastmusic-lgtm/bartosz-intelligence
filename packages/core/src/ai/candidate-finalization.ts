@@ -55,7 +55,7 @@ export async function finalizeCandidateRun(
       .bind(hash, outcome, context.ownerId, token.job_id, runId, ...bindings),
     db
       .prepare(
-        `UPDATE jobs SET state='SUCCEEDED',reason_code=?,result_candidate_id=?,updated_at=?,lease_owner=NULL,lease_until=NULL WHERE owner_id=? AND job_id=? AND state='RUNNING' AND ${active}`,
+        `UPDATE jobs SET state='SUCCEEDED',reason_code=?,result_candidate_id=?,updated_at=?,lease_owner=NULL,lease_until=NULL WHERE owner_id=? AND job_id=? AND state='RUNNING' AND ${active} RETURNING job_id`,
       )
       .bind(
         reason,
@@ -66,7 +66,11 @@ export async function finalizeCandidateRun(
         ...bindings,
       ),
   ]);
-  if (result.some((row) => row.meta.changes !== 1))
+  if (
+    result[0]?.meta.changes !== 1 ||
+    result[1]?.meta.changes !== 1 ||
+    result[2]?.results?.length !== 1
+  )
     throw new Error('STALE_FENCE');
   return {
     accepted: false,

@@ -195,21 +195,49 @@ export async function restoreCanonical(
         );
       }
   }
-  // Each transaction stays bounded; the isolated target is not activated halfway.
-  for (let offset = 0; offset < plans.length; offset += 40)
-    await db.batch(plans.slice(offset, offset + 40));
-  for (let offset = 0; offset < pointers.length; offset += 40)
-    await db.batch(
-      pointers
-        .slice(offset, offset + 40)
-        .map((pointer) =>
-          db
-            .prepare(
-              'UPDATE items SET current_revision_id=? WHERE owner_id=? AND item_id=?',
-            )
-            .bind(pointer.revision_id, pointer.owner_id, pointer.item_id),
+  // Only derived-view notifications are suspended in the verified empty,
+  // isolated target. Canonical replay must not manufacture new change events.
+  // Integrity, auth, immutable-content and backup-barrier triggers stay enabled.
+  const notifications = (
+    await db
+      .prepare(
+        "SELECT name,sql FROM sqlite_master WHERE type='trigger' AND name LIKE 'projection_invalidate_%' ORDER BY name",
+      )
+      .all<{ name: string; sql: string }>()
+  ).results;
+  if (
+    notifications.some(
+      (row) =>
+        !/^projection_invalidate_(?:item|job|selection|source|scan)_(?:insert|update)$/.test(
+          row.name,
         ),
+    )
+  )
+    throw new Error('RESTORE_NOTIFICATION_TRIGGER_MISMATCH');
+  if (notifications.length)
+    await db.batch(
+      notifications.map((row) => db.prepare(`DROP TRIGGER "${row.name}"`)),
     );
+  try {
+    // Each transaction stays bounded; the target is not activated halfway.
+    for (let offset = 0; offset < plans.length; offset += 40)
+      await db.batch(plans.slice(offset, offset + 40));
+    for (let offset = 0; offset < pointers.length; offset += 40)
+      await db.batch(
+        pointers
+          .slice(offset, offset + 40)
+          .map((pointer) =>
+            db
+              .prepare(
+                'UPDATE items SET current_revision_id=? WHERE owner_id=? AND item_id=?',
+              )
+              .bind(pointer.revision_id, pointer.owner_id, pointer.item_id),
+          ),
+      );
+  } finally {
+    if (notifications.length)
+      await db.batch(notifications.map((row) => db.prepare(row.sql)));
+  }
   for (const table of backupTables)
     if (
       (await db

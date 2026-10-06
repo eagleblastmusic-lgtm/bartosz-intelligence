@@ -19,6 +19,7 @@ import { LongInputJobs } from './jobs.js';
 import type { ChunkPlan } from './plan.js';
 import type { LeaseToken } from '../../../../contracts/src/jobs.js';
 import type { normalizeTranscript } from '../../transcript/normalize.js';
+import { acceptedView } from '../../projections/accepted-view.js';
 
 export class LongInputCompletion {
   constructor(
@@ -320,6 +321,7 @@ export class LongInputCompletion {
           ? 'intelligence-accepted:1'
           : 'quality-candidate:1',
       kind: 'CHUNK_MERGE',
+      view: acceptedView(enriched.canonical),
       run_id: prepared.run_id,
       source_run_id: snapshot.source.run_id,
       source_artifact_id: snapshot.source.source_artifact_id,

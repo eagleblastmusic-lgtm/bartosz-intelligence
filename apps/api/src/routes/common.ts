@@ -50,6 +50,7 @@ export function apiRouter() {
       raw.startsWith('INVALID_') ||
       ['RESET_REQUIRED', 'UNEXPECTED_FIELD', 'PAYLOAD_TOO_LARGE'].includes(raw);
     const conflict = [
+      'READ_SNAPSHOT_CHANGED',
       'STALE_FENCE',
       'IDEMPOTENCY_CONFLICT',
       'REPLAY_DENIED',

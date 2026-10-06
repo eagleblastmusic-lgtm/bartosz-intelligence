@@ -64,6 +64,16 @@
       "name": "013_intelligence_ledger.sql",
       "depends_on": ["012_candidate_repair.sql"],
       "sha256": "c98edd7e8d7caec291d8f9ab6da1ab8e41579feb6d6ece38e85b2e48a1f6a786"
+    },
+    {
+      "name": "014_daily_projection_indexes.sql",
+      "depends_on": ["013_intelligence_ledger.sql"],
+      "sha256": "a7a60d081591fb75b10dd9f2264778079e3ed2b6ab0d735cf2922c5e30b02111"
+    },
+    {
+      "name": "015_projection_invalidation.sql",
+      "depends_on": ["014_daily_projection_indexes.sql"],
+      "sha256": "71c5d2b21b309896dc4df27ce486e0031da8c096978cda63f9feff91f34949be"
     }
   ],
   "version": 1

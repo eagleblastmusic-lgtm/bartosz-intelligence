@@ -92,6 +92,9 @@ async function credential(scopes = ['FETCH_TRANSCRIPT']) {
 it('owner routes require auth before domain reads and never fall through to HTML', async () => {
   for (const path of [
     '/api/v1/items',
+    '/api/v1/daily?date=2026-10-05',
+    '/api/v1/daily/calendar?month=2026-10',
+    '/api/v1/daily/undated',
     '/api/v1/jobs',
     '/api/v1/sources',
     '/api/v1/system/summary',
@@ -104,6 +107,45 @@ it('owner routes require auth before domain reads and never fall through to HTML
   const response = await request('/internal/unknown');
   expect(response.status).toBe(404);
   expect(await response.json()).toEqual({ error: 'NOT_FOUND' });
+});
+it('Daily GET contracts reject invalid fields, worker auth and foreign cursors without creating work', async () => {
+  await fixtureOwner();
+  const headers = await ownerHeaders();
+  for (const path of [
+    '/api/v1/daily?date=2026-02-29',
+    '/api/v1/daily?date=2026-10-05&timezone=UTC',
+    '/api/v1/daily?date=2026-10-05&limit=51',
+    '/api/v1/daily?date=2026-10-05&date=2026-10-06',
+    '/api/v1/daily/calendar?month=2026-13',
+    '/api/v1/daily/calendar?month=2026-10&timezone=UTC',
+    '/api/v1/daily/undated?date=2026-10-05',
+  ])
+    expect((await request(path, headers)).status).toBe(422);
+  const before = await env.DB.prepare('SELECT COUNT(*) n FROM jobs').first('n');
+  for (const path of [
+    '/api/v1/daily?date=2026-10-05',
+    '/api/v1/daily/calendar?month=2026-10',
+    '/api/v1/daily/undated',
+  ]) {
+    const response = await request(path, headers);
+    expect(response.status).toBe(200);
+    expect(response.headers.get('Cache-Control')).toBe('no-store');
+    expect(response.headers.get('Content-Type')).toContain('application/json');
+  }
+  expect(
+    (
+      await request(
+        '/api/v1/daily?date=2026-10-05',
+        await credential(['ANALYZE']),
+      )
+    ).status,
+  ).toBe(401);
+  expect(await env.DB.prepare('SELECT COUNT(*) n FROM jobs').first('n')).toBe(
+    before,
+  );
+  expect(
+    await env.DB.prepare('SELECT COUNT(*) n FROM usage_records').first('n'),
+  ).toBe(0);
 });
 it('backup requires owner CSRF, rejects worker access, and remains closed before verification', async () => {
   await fixtureOwner();

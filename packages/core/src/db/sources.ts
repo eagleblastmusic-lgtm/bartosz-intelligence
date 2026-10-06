@@ -66,7 +66,7 @@ export class SourceRepository {
     const result = await this.db.batch([
       this.db
         .prepare(
-          'UPDATE sources SET enabled=0 WHERE owner_id=? AND source_id=?',
+          'UPDATE sources SET enabled=0 WHERE owner_id=? AND source_id=? RETURNING source_id',
         )
         .bind(this.context.ownerId, sourceId),
       this.db
@@ -82,6 +82,6 @@ export class SourceRepository {
           sourceId,
         ),
     ]);
-    if (result[0]?.meta.changes !== 1) throw new Error('NOT_FOUND');
+    if (result[0]?.results?.length !== 1) throw new Error('NOT_FOUND');
   }
 }

@@ -138,7 +138,7 @@ export class RunRepository {
       ...(effects?.(guard, bindings) ?? []),
       this.db
         .prepare(
-          `UPDATE active_analysis_selections SET accepted_run_id=? WHERE owner_id=? AND requested_run_id=? AND selection_revision=? AND ${guard}`,
+          `UPDATE active_analysis_selections SET accepted_run_id=? WHERE owner_id=? AND requested_run_id=? AND selection_revision=? AND ${guard} RETURNING item_id`,
         )
         .bind(
           runId,
@@ -193,18 +193,18 @@ export class RunRepository {
         ),
       this.db
         .prepare(
-          `UPDATE jobs SET state='SUCCEEDED',result_candidate_id=?,updated_at=?,lease_owner=NULL,lease_until=NULL WHERE owner_id=? AND job_id=? AND ${guard}`,
+          `UPDATE jobs SET state='SUCCEEDED',result_candidate_id=?,updated_at=?,lease_owner=NULL,lease_until=NULL WHERE owner_id=? AND job_id=? AND ${guard} RETURNING job_id`,
         )
         .bind(runId, commitAt, this.context.ownerId, token.job_id, ...bindings),
     ]);
     if (
       results[0]?.meta.changes === 1 &&
       results[1]?.meta.changes === 1 &&
-      results.at(-1)?.meta.changes === 1
+      results.at(-1)?.results?.length === 1
     )
       return {
         accepted: true,
-        active: results[results.length - 5]?.meta.changes === 1,
+        active: results[results.length - 5]?.results?.length === 1,
         duplicate: false,
       };
     if (results.some((r) => r.meta.changes !== 0))
