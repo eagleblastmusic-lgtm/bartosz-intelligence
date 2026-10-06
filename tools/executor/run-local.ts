@@ -1,11 +1,21 @@
 import { setTimeout as delay } from 'node:timers/promises';
 import { LocalTranscriptWorker } from '../../apps/executor/src/local-worker.js';
 import { WorkerRpcError } from '../../apps/executor/src/worker-rpc.js';
+import { LocalAnalysisWorker } from '../../apps/executor/src/analysis-worker.js';
+const analysis = process.argv.includes('--analysis');
 const origin = process.env.APP_ORIGIN,
-  credential = process.env.LOCAL_WORKER_CREDENTIAL;
+  credential = analysis
+    ? process.env.LOCAL_AI_WORKER_CREDENTIAL
+    : process.env.LOCAL_WORKER_CREDENTIAL;
 if (!origin || !credential)
   throw new Error('LOCAL_EXECUTOR_CONFIGURATION_REQUIRED');
-const worker = new LocalTranscriptWorker(origin, credential);
+const worker = analysis
+  ? new LocalAnalysisWorker(
+      origin,
+      credential,
+      process.env.GEMINI_API_KEY ?? '',
+    )
+  : new LocalTranscriptWorker(origin, credential);
 const once = process.argv.includes('--once');
 let stopped = false;
 process.on('SIGINT', () => {

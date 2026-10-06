@@ -112,6 +112,15 @@ export class GeminiFreeProvider implements AIProvider {
         this.transport,
       );
       if (!response.ok) {
+        const retry = response.headers.get('retry-after');
+        let retryAfter: string | null = null;
+        if (retry && retry.length <= 64) {
+          const at = /^\d{1,7}$/.test(retry)
+            ? this.clock().getTime() + Number(retry) * 1000
+            : Date.parse(retry);
+          if (Number.isFinite(at) && at > this.clock().getTime())
+            retryAfter = new Date(at).toISOString();
+        }
         await response.body?.cancel();
         return {
           ...base,
@@ -124,6 +133,7 @@ export class GeminiFreeProvider implements AIProvider {
                   ? 'TEMPORARY_FAILURE'
                   : 'INVALID_REQUEST',
           finish_reason: `HTTP_${response.status}`,
+          retry_after: retryAfter,
         };
       }
       if (!response.headers.get('content-type')?.includes('application/json')) {

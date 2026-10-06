@@ -159,3 +159,33 @@ it('daily Gemini LA windows follow DST while Cloudflare uses UTC', () => {
     '2026-10-07T00:00:00.000Z',
   );
 });
+it('rate limiting retains only a parsed Retry-After boundary without retrying', async () => {
+  for (const [header, expected] of [
+    ['120', new Date(now.getTime() + 120000).toISOString()],
+    ['private unknown', null],
+  ] as const) {
+    let calls = 0;
+    const provider = new GeminiFreeProvider(
+      'fixture',
+      async () => {},
+      async () => {
+        calls++;
+        return new Response('private error', {
+          status: 429,
+          headers: { 'Retry-After': header },
+        });
+      },
+      () => now,
+    );
+    const result = await provider.run(request, {
+      reservation_id: 'x',
+      request_id: 'request',
+    });
+    expect(result).toMatchObject({
+      status: 'RATE_LIMITED',
+      retry_after: expected,
+    });
+    expect(calls).toBe(1);
+    expect(JSON.stringify(result)).not.toContain('private');
+  }
+});

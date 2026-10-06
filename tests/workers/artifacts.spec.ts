@@ -471,9 +471,17 @@ it('local poller consumes durable caption backlog through the real Worker API an
   });
   expect(providerCalls).toBe(2);
 });
-it.each(['QUALITY_TEST', 'PRODUCTION'] as const)(
+it.each([
+  'QUALITY_TEST',
+  'PRODUCTION',
+  'RATE_LIMITED',
+  'TEMPORARY_FAILURE',
+  'REFUSED',
+] as const)(
   'verified source acceptance and %s analysis preserve source authority and fenced knowledge effects',
-  async (mode) => {
+  async (scenario) => {
+    const mode: 'PRODUCTION' | 'QUALITY_TEST' =
+      scenario === 'PRODUCTION' ? 'PRODUCTION' : 'QUALITY_TEST';
     const { item, token, access, repository, owner } = await setup();
     const sourceText = 'Original statement.',
       revision = await sha256(sourceText);
@@ -1032,6 +1040,71 @@ it.each(['QUALITY_TEST', 'PRODUCTION'] as const)(
     expect(localPrepared.run_context.source_manifest_hash).toBe(
       map.content_hash,
     );
+    if (scenario !== 'QUALITY_TEST' && scenario !== 'PRODUCTION') {
+      const retained = (await retainAnalysisResponse({
+        origin: 'https://fixture.invalid',
+        credential: 'q'.repeat(43),
+        token: aiToken,
+        reservation_id: permit.reservation_id,
+        item_id: item.item_id,
+        response: {
+          request_id: prepared.run_id,
+          status: scenario,
+          raw_output: null,
+          actual_provider: 'gemini',
+          actual_model: null,
+          finish_reason: 'fixture',
+          usage: {
+            input_tokens: null,
+            output_tokens: null,
+            total_tokens: null,
+          },
+          retry_after: null,
+        },
+        transport: analysisTransport,
+      })) as { artifact_id: string };
+      const receipt = (await new WorkerRpc(
+        'https://fixture.invalid',
+        'q'.repeat(43),
+        analysisTransport,
+      ).request('analysis/disposition', {
+        token: aiToken,
+        reservation_id: permit.reservation_id,
+        artifact_id: retained.artifact_id,
+      })) as { state: string; reason: string; due_at: string };
+      const expectedState =
+        scenario === 'RATE_LIMITED'
+          ? 'DEFERRED'
+          : scenario === 'TEMPORARY_FAILURE'
+            ? 'RETRY_WAIT'
+            : 'BLOCKED';
+      expect(receipt).toMatchObject({ accepted: false, state: expectedState });
+      expect(
+        await env.DB.prepare('SELECT state FROM jobs WHERE job_id=?')
+          .bind(aiToken.job_id)
+          .first('state'),
+      ).toBe(expectedState);
+      expect(
+        await env.DB.prepare('SELECT state FROM analysis_runs WHERE run_id=?')
+          .bind(prepared.run_id)
+          .first('state'),
+      ).toBe('CANDIDATE');
+      expect(
+        await env.DB.prepare('SELECT COUNT(*) n FROM observations').first('n'),
+      ).toBe(0);
+      expect(
+        await env.DB.prepare(
+          'SELECT state FROM quota_reservations WHERE reservation_id=?',
+        )
+          .bind(permit.reservation_id)
+          .first('state'),
+      ).toBe('UNKNOWN');
+      if (scenario === 'RATE_LIMITED') {
+        expect(receipt.reason).toBe('AI_RATE_LIMITED');
+        expect(Date.parse(receipt.due_at) - Date.now()).toBeGreaterThan(890000);
+      }
+      return;
+    }
     const responseReceipt = (await retainAnalysisResponse({
       origin: 'https://fixture.invalid',
       credential: 'q'.repeat(43),

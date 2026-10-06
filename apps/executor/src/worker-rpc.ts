@@ -4,6 +4,8 @@ export class WorkerRpcError extends Error {
     message: string,
     readonly route: string,
     readonly status: number,
+    readonly code:
+      'QUOTA_UNKNOWN_OR_STALE' | 'QUOTA_ADMISSION_DENIED' | null = null,
   ) {
     super(message);
   }
@@ -37,7 +39,7 @@ export class WorkerRpc {
     method: 'GET' | 'POST' = 'POST',
   ) {
     if (
-      !/^(?:lease|heartbeat|start|retry|defer|analysis\/(?:input|context|reserve|submit|response|validate|complete|quality-finish)|transcript\/(?:input|accept|outcome|admission)|artifacts\/(?:begin|write|read|verify-step))$/.test(
+      !/^(?:lease|heartbeat|start|retry|defer|analysis\/(?:input|context|reserve|submit|response|validate|complete|quality-finish|disposition)|transcript\/(?:input|accept|outcome|admission)|artifacts\/(?:begin|write|read|verify-step))$/.test(
         path,
       )
     )
@@ -66,7 +68,46 @@ export class WorkerRpc {
       this.transport,
     );
     if (!response.ok) {
-      await response.body?.cancel();
+      let code: WorkerRpcError['code'] = null;
+      const errorReader = response.body?.getReader();
+      if (errorReader) {
+        const parts: Uint8Array[] = [];
+        let size = 0;
+        try {
+          for (;;) {
+            const part = await errorReader.read();
+            if (part.done) break;
+            size += part.value.length;
+            if (size > 4096) {
+              await errorReader.cancel();
+              break;
+            }
+            parts.push(part.value);
+          }
+          if (size <= 4096) {
+            const bytes = new Uint8Array(size);
+            let at = 0;
+            for (const part of parts) {
+              bytes.set(part, at);
+              at += part.length;
+            }
+            const value = JSON.parse(
+              new TextDecoder('utf-8', {
+                fatal: true,
+                ignoreBOM: false,
+              }).decode(bytes),
+            ) as { code?: unknown };
+            if (
+              response.status === 503 &&
+              (value.code === 'QUOTA_UNKNOWN_OR_STALE' ||
+                value.code === 'QUOTA_ADMISSION_DENIED')
+            )
+              code = value.code;
+          }
+        } catch {
+          /* Response bodies are untrusted; retain no arbitrary text. */
+        }
+      }
       throw new WorkerRpcError(
         response.status === 401 || response.status === 403
           ? 'EXECUTOR_AUTH_DENIED'
@@ -75,6 +116,7 @@ export class WorkerRpc {
             : 'WORKER_RPC_FAILED',
         path,
         response.status,
+        code,
       );
     }
     const length = Number(response.headers.get('content-length') ?? 0);

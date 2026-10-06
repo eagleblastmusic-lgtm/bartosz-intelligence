@@ -193,5 +193,13 @@ export async function executeLocalAnalysis(input: {
           },
         )
       : null;
-  return { ...prepared, ...result, validation, completion };
+  const disposition =
+    !completion && !result.diagnostics.includes('STALE_LEASE_RESPONSE')
+      ? await rpc.request('analysis/disposition', {
+          token: result.token,
+          reservation_id: result.reservation_id,
+          artifact_id: result.response_artifact_id,
+        })
+      : null;
+  return { ...prepared, ...result, validation, completion, disposition };
 }

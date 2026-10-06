@@ -1,5 +1,6 @@
 import { controlTick } from '../control.js';
 import { AnalysisJobs } from '../../../../packages/core/src/ai/jobs.js';
+import { AnalysisDisposition } from '../../../../packages/core/src/ai/disposition.js';
 import type { compileEconomy } from '../../../../packages/core/src/ai/compiler.js';
 import { AnalysisResponses } from '../../../../packages/core/src/ai/responses.js';
 import { AnalysisValidation } from '../../../../packages/core/src/ai/validation.js';
@@ -203,6 +204,21 @@ workersApp.post('/analysis/quality-finish', async (c) => {
     throw new Error('AUTH_CONFIGURATION_REQUIRED');
   return c.json(
     await new AnalysisValidation(c.env.DB, access).finishQualityTest(
+      token(input.token, access.actorId),
+      text(input.reservation_id, 36),
+      text(input.artifact_id, 128),
+      new Date(),
+      c.env.SESSION_SIGNING_SECRET,
+    ),
+  );
+});
+workersApp.post('/analysis/disposition', async (c) => {
+  const input = await body(c, ['token', 'reservation_id', 'artifact_id']),
+    access = c.get('access');
+  if (!c.env.SESSION_SIGNING_SECRET)
+    throw new Error('AUTH_CONFIGURATION_REQUIRED');
+  return c.json(
+    await new AnalysisDisposition(c.env.DB, access).apply(
       token(input.token, access.actorId),
       text(input.reservation_id, 36),
       text(input.artifact_id, 128),
