@@ -19,19 +19,31 @@ export function apiRouter() {
     const raw = error.message.includes('BACKUP_MUTATION_PAUSED')
       ? 'BACKUP_BUSY'
       : error.message;
-    const forbidden = ['FORBIDDEN', 'CSRF_DENIED'].includes(raw);
-    const unavailable = [
-      'AUTH_CONFIGURATION_REQUIRED',
-      'PROVIDER_CONFIGURATION_REQUIRED',
-      'QUOTA',
-      'TRANSIENT',
-      'AUTH',
-      'PARSER',
-      'CAPABILITY_NOT_AVAILABLE',
-      'BACKUP_BUSY',
-      'BACKUP_PILOT_LIMIT',
-      'BACKUP_ROW_TOO_LARGE',
+    const forbidden = [
+      'FORBIDDEN',
+      'CSRF_DENIED',
+      'ANALYSIS_SOURCE_PROCESSING_DENIED',
     ].includes(raw);
+    const unavailable =
+      raw.startsWith('ANALYSIS_PROFILE_') ||
+      [
+        'AUTH_CONFIGURATION_REQUIRED',
+        'PROVIDER_CONFIGURATION_REQUIRED',
+        'QUOTA',
+        'TRANSIENT',
+        'AUTH',
+        'PARSER',
+        'CAPABILITY_NOT_AVAILABLE',
+        'BACKUP_BUSY',
+        'BACKUP_PILOT_LIMIT',
+        'BACKUP_ROW_TOO_LARGE',
+        'MODEL_NOT_CONFIGURED',
+        'PROMPT_NOT_CONFIGURED',
+        'ANALYSIS_SNAPSHOT_TOO_LARGE',
+        'QUOTA_UNKNOWN_OR_STALE',
+        'QUOTA_POLICY_NOT_CONFIGURED',
+        'QUOTA_ADMISSION_DENIED',
+      ].includes(raw);
     const invalid =
       raw.startsWith('INVALID_') ||
       ['RESET_REQUIRED', 'UNEXPECTED_FIELD', 'PAYLOAD_TOO_LARGE'].includes(raw);
@@ -42,6 +54,8 @@ export function apiRouter() {
       'BACKUP_EXPIRED_OR_CLOSED',
       'BACKUP_NOT_VERIFIED',
       'BACKUP_INCOMPLETE',
+      'ANALYSIS_SOURCE_NOT_ACCEPTED',
+      'ANALYSIS_SOURCE_AUTHORITY_REQUIRED',
     ].includes(raw);
     const unauthenticated = ['UNAUTHENTICATED', 'INVALID_ENCODING'].includes(
       raw,

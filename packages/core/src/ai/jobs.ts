@@ -1,0 +1,390 @@
+import {
+  assertContext,
+  type AccessContext,
+  type Database,
+} from '../db/boundary.js';
+import { sha256 } from '../auth/crypto.js';
+import { JobStore } from '../jobs/store.js';
+import { leasePredicate } from '../jobs/lease-guard.js';
+import { PromptRegistry, type PromptSnapshot } from '../registry/store.js';
+import { ModelRegistry } from './models.js';
+import { selectPipeline } from './selector.js';
+import { analysisQualityScope } from './compiler.js';
+import { QuotaAdmission, type AdmissionBucket } from './admission.js';
+import { dailyQuotaWindow } from './windows.js';
+import type { PipelineProfile } from '../../../contracts/src/ai.js';
+import type { LeaseToken } from '../../../contracts/src/jobs.js';
+
+export interface AnalysisSettings {
+  runtime: 'local' | 'cloud';
+  mode: 'PRODUCTION' | 'QUALITY_TEST';
+  purpose: string;
+  region: string;
+  max_output_tokens: number;
+  limits: Record<string, number>;
+}
+interface SourceSnapshot {
+  run_id: string;
+  item_id: string;
+  source_artifact_id: string;
+  segment_map_artifact_id: string;
+  source_hash: string;
+  manifest_hash: string;
+  language_code: string;
+}
+export interface AnalysisJobSnapshot {
+  version: 'analysis-job:1';
+  source: SourceSnapshot;
+  prompt: PromptSnapshot;
+  profile: PipelineProfile;
+  settings: AnalysisSettings;
+  quality_scope: string;
+}
+
+// The durable job captures registry snapshots before any provider request. Workers
+// receive references to source bytes, never caller-supplied account/model routing.
+export class AnalysisJobs {
+  constructor(
+    private db: Database,
+    private context: AccessContext,
+  ) {
+    assertContext(context);
+  }
+  private async requireSourceProcessing(itemId: string) {
+    const permitted = await this.db
+      .prepare(
+        `SELECT 1 FROM items i JOIN sources s ON s.owner_id=i.owner_id AND s.source_id=i.source_id WHERE i.owner_id=? AND i.item_id=? AND s.ai_processing_allowed=1 AND s.access_state='PUBLIC' AND i.availability='PUBLIC'`,
+      )
+      .bind(this.context.ownerId, itemId)
+      .first();
+    if (!permitted) throw new Error('ANALYSIS_SOURCE_PROCESSING_DENIED');
+  }
+  private async source(runId: string): Promise<SourceSnapshot> {
+    const row = await this.db
+      .prepare(
+        `SELECT r.item_id,r.outcome_json,r.candidate_hash FROM analysis_runs r JOIN jobs j ON j.owner_id=r.owner_id AND j.job_id=r.job_id WHERE r.owner_id=? AND r.run_id=? AND r.state='ACCEPTED' AND j.task_type='FETCH_TRANSCRIPT' AND j.state='SUCCEEDED'`,
+      )
+      .bind(this.context.ownerId, runId)
+      .first<{
+        item_id: string;
+        outcome_json: string;
+        candidate_hash: string;
+      }>();
+    if (!row || (await sha256(row.outcome_json)) !== row.candidate_hash)
+      throw new Error('ANALYSIS_SOURCE_NOT_ACCEPTED');
+    const outcome = JSON.parse(row.outcome_json) as {
+      version: string;
+      source_artifact_id: string;
+      segment_map_artifact_id: string;
+      source_hash: string;
+      authority: { language_code: string; authority_confidence: string };
+    };
+    if (
+      outcome.version !== 'transcript-source:1' ||
+      outcome.authority?.authority_confidence !== 'CONFIRMED'
+    )
+      throw new Error('ANALYSIS_SOURCE_AUTHORITY_REQUIRED');
+    const pair = await this.db
+      .prepare(
+        `SELECT m.content_hash AS manifest_hash FROM artifacts s JOIN artifacts m ON m.owner_id=s.owner_id AND m.item_id=s.item_id AND m.original_ref=s.artifact_id WHERE s.owner_id=? AND s.item_id=? AND s.artifact_id=? AND s.kind='SOURCE_ORIGINAL' AND s.state='VERIFIED' AND s.content_hash=? AND m.artifact_id=? AND m.kind='SEGMENT_MAP' AND m.state='VERIFIED' AND m.producer_version='source-normalizer:1'`,
+      )
+      .bind(
+        this.context.ownerId,
+        row.item_id,
+        outcome.source_artifact_id,
+        outcome.source_hash,
+        outcome.segment_map_artifact_id,
+      )
+      .first<{ manifest_hash: string }>();
+    if (!pair) throw new Error('ANALYSIS_SOURCE_ARTIFACT_MISMATCH');
+    return {
+      run_id: runId,
+      item_id: row.item_id,
+      source_artifact_id: outcome.source_artifact_id,
+      segment_map_artifact_id: outcome.segment_map_artifact_id,
+      source_hash: outcome.source_hash,
+      manifest_hash: pair.manifest_hash,
+      language_code: outcome.authority.language_code,
+    };
+  }
+  async enqueue(sourceRunId: string, settings: AnalysisSettings, now: Date) {
+    this.context.requireOwner();
+    if (
+      !['local', 'cloud'].includes(settings.runtime) ||
+      !['PRODUCTION', 'QUALITY_TEST'].includes(settings.mode) ||
+      !settings.purpose ||
+      !settings.region ||
+      !Number.isSafeInteger(settings.max_output_tokens) ||
+      settings.max_output_tokens < 1 ||
+      !settings.limits ||
+      typeof settings.limits !== 'object' ||
+      Array.isArray(settings.limits) ||
+      Object.keys(settings.limits).length > 64 ||
+      Object.values(settings.limits).some(
+        (v) => !Number.isSafeInteger(v) || v < 0,
+      )
+    )
+      throw new Error('INVALID_ANALYSIS_SETTINGS');
+    const source = await this.source(sourceRunId);
+    await this.requireSourceProcessing(source.item_id);
+    const prompt = await new PromptRegistry(this.db, this.context).current();
+    const profile = await new ModelRegistry(this.db, this.context).latest(
+      'gemini_free',
+    );
+    if (!profile) throw new Error('MODEL_NOT_CONFIGURED');
+    const normalized = {
+      ...settings,
+      limits: Object.fromEntries(
+        Object.entries(settings.limits).sort(([a], [b]) => a.localeCompare(b)),
+      ),
+    };
+    const scope = await analysisQualityScope(prompt, profile, {
+      limits: normalized.limits,
+      max_output_tokens: settings.max_output_tokens,
+      source_language: source.language_code,
+      analysis_mode: 'ORDINARY',
+    });
+    const selected = selectPipeline([profile], {
+      profile_id: 'gemini_free',
+      purpose: settings.purpose,
+      region: settings.region,
+      task_type: 'ECONOMY',
+      runtime: settings.runtime,
+      mode: settings.mode,
+      quality_scope: scope,
+      input_tokens: 0,
+      output_tokens: settings.max_output_tokens,
+      now,
+      paid_services_enabled: false,
+    });
+    if (!selected.profile)
+      throw new Error('ANALYSIS_PROFILE_' + selected.reason);
+    const snapshot: AnalysisJobSnapshot = {
+      version: 'analysis-job:1',
+      source,
+      prompt,
+      profile: selected.profile,
+      settings: normalized,
+      quality_scope: scope,
+    };
+    const hash = await sha256(JSON.stringify(snapshot));
+    return new JobStore(this.db, this.context).enqueue(
+      {
+        item_id: source.item_id,
+        source_id: null,
+        task_type: 'ANALYZE',
+        input_revision: source.source_hash,
+        profile_revision: hash,
+        prompt_snapshot_id: prompt.prompt_hash,
+        routing_policy_version: 'pipeline-selector:1',
+        wire_schema_version: 'economy-wire:1.0',
+        canonical_schema_version: 'intelligence-canonical:1.2',
+        enrichment_version: '1.0',
+        explicit_run_nonce: '',
+        arrival_origin_at: now.toISOString(),
+        origin_kind: 'MANUAL',
+        payload: { snapshot },
+        priority: settings.mode === 'QUALITY_TEST' ? 20 : 60,
+        due_at: now.toISOString(),
+      },
+      now.toISOString(),
+    );
+  }
+  async load(token: LeaseToken, now: Date) {
+    const guard = leasePredicate(
+      this.context,
+      token,
+      now.toISOString(),
+      'ANALYZE',
+    );
+    const row = await this.db
+      .prepare(
+        `SELECT payload_json,profile_revision FROM jobs WHERE owner_id=? AND job_id=? AND ${guard.predicate}`,
+      )
+      .bind(this.context.ownerId, token.job_id, ...guard.bindings)
+      .first<{ payload_json: string; profile_revision: string }>();
+    if (!row) throw new Error('STALE_FENCE');
+    const snapshot = (
+      JSON.parse(row.payload_json) as { snapshot: AnalysisJobSnapshot }
+    ).snapshot;
+    if (
+      !snapshot ||
+      snapshot.version !== 'analysis-job:1' ||
+      (await sha256(JSON.stringify(snapshot))) !== row.profile_revision
+    )
+      throw new Error('ANALYSIS_JOB_SNAPSHOT_MISMATCH');
+    if (
+      JSON.stringify(await this.source(snapshot.source.run_id)) !==
+      JSON.stringify(snapshot.source)
+    )
+      throw new Error('ANALYSIS_SOURCE_ARTIFACT_MISMATCH');
+    await this.requireSourceProcessing(snapshot.source.item_id);
+    const model = await new ModelRegistry(this.db, this.context).load(
+      snapshot.profile.profile_id,
+      snapshot.profile.revision,
+    );
+    if (JSON.stringify(model) !== JSON.stringify(snapshot.profile))
+      throw new Error('ANALYSIS_MODEL_SNAPSHOT_MISMATCH');
+    const selected = selectPipeline([snapshot.profile], {
+      profile_id: 'gemini_free',
+      purpose: snapshot.settings.purpose,
+      region: snapshot.settings.region,
+      task_type: 'ECONOMY',
+      runtime: snapshot.settings.runtime,
+      mode: snapshot.settings.mode,
+      quality_scope: snapshot.quality_scope,
+      input_tokens: 0,
+      output_tokens: snapshot.settings.max_output_tokens,
+      now,
+      paid_services_enabled: false,
+    });
+    if (!selected.profile)
+      throw new Error('ANALYSIS_PROFILE_' + selected.reason);
+    return { snapshot, snapshot_hash: row.profile_revision };
+  }
+  async reserve(
+    token: LeaseToken,
+    input: { request_id: string; input_tokens: number },
+    now: Date,
+  ) {
+    const { snapshot, run_id } = await this.prepareRun(token, now);
+    if (input.request_id !== run_id)
+      throw new Error('INVALID_AI_REQUEST_SCOPE');
+    if (
+      !input.request_id ||
+      input.request_id.length > 128 ||
+      !Number.isSafeInteger(input.input_tokens) ||
+      input.input_tokens < 1 ||
+      input.input_tokens + snapshot.settings.max_output_tokens >
+        snapshot.profile.context_tokens
+    )
+      throw new Error('INVALID_RESERVATION');
+    const buckets: AdmissionBucket[] = [];
+    for (const bucket of ['RPM', 'RPD', 'INPUT_TPM'] as const) {
+      const row = await this.db
+        .prepare(
+          `SELECT snapshot_id,remaining,reset_at,reset_zone,sampled_at,expires_at,source,confidence FROM quota_snapshots WHERE owner_id=? AND provider='gemini' AND model=? AND bucket=? ORDER BY sampled_at DESC,snapshot_id DESC LIMIT 1`,
+        )
+        .bind(this.context.ownerId, snapshot.profile.model, bucket)
+        .first<{
+          snapshot_id: string;
+          remaining: number | null;
+          reset_at: string;
+          reset_zone: string;
+          sampled_at: string;
+          expires_at: string;
+          source: string;
+          confidence: string;
+        }>();
+      if (
+        !row ||
+        !['api', 'dashboard'].includes(row.source) ||
+        row.confidence !== 'actual' ||
+        row.remaining === null
+      )
+        throw new Error('QUOTA_UNKNOWN_OR_STALE');
+      let window_start: string;
+      if (bucket === 'RPD') {
+        const window = dailyQuotaWindow(now, 'America/Los_Angeles');
+        if (
+          row.reset_zone !== window.reset_zone ||
+          row.reset_at !== window.reset_at
+        )
+          throw new Error('QUOTA_UNKNOWN_OR_STALE');
+        window_start = window.window_start;
+      } else {
+        const start = Date.parse(row.reset_at) - 60000;
+        if (!Number.isFinite(start)) throw new Error('QUOTA_UNKNOWN_OR_STALE');
+        window_start = new Date(start).toISOString();
+      }
+      buckets.push({ ...row, bucket, window_start, reserve: 0 });
+    }
+    const policy = await this.db
+      .prepare(
+        `SELECT payload_json,content_hash FROM config_versions WHERE owner_id=? AND config_id='quota-reserve-gemini_free' ORDER BY revision DESC LIMIT 1`,
+      )
+      .bind(this.context.ownerId)
+      .first<{ payload_json: string; content_hash: string }>();
+    if (!policy || (await sha256(policy.payload_json)) !== policy.content_hash)
+      throw new Error('QUOTA_POLICY_NOT_CONFIGURED');
+    const reserves = JSON.parse(policy.payload_json) as Record<string, number>;
+    if (
+      Object.keys(reserves).length !== 3 ||
+      buckets.some(
+        (b) =>
+          !Number.isSafeInteger(reserves[b.bucket]) || reserves[b.bucket]! < 0,
+      )
+    )
+      throw new Error('INVALID_QUOTA_POLICY');
+    for (const b of buckets) b.reserve = reserves[b.bucket]!;
+    return new QuotaAdmission(this.db, this.context).reserve(
+      {
+        request_id: input.request_id,
+        account_key: snapshot.profile.account_key,
+        model: snapshot.profile.model,
+        input_tokens: input.input_tokens,
+        buckets,
+        paid_services_enabled: false,
+      },
+      token,
+      now,
+    );
+  }
+  async prepareRun(token: LeaseToken, now: Date) {
+    const { snapshot, snapshot_hash } = await this.load(token, now);
+    const guard = leasePredicate(
+      this.context,
+      token,
+      now.toISOString(),
+      'ANALYZE',
+    );
+    const runId =
+      'analysis_' +
+      (await sha256(
+        JSON.stringify({
+          owner: this.context.ownerId,
+          job: token.job_id,
+          fence: token.fencing_token,
+          snapshot_hash,
+        }),
+      ));
+    await this.db
+      .prepare(
+        `INSERT INTO analysis_runs(run_id,owner_id,item_id,job_id,input_snapshot_json,profile_snapshot_json,prompt_snapshot_json,wire_schema_version,canonical_schema_version,enrichment_version,routing_snapshot_json,state,created_at) SELECT ?,owner_id,item_id,job_id,?,?,?,'economy-wire:1.0','intelligence-canonical:1.2','1.0',?,'CANDIDATE',? FROM jobs WHERE owner_id=? AND job_id=? AND ${guard.predicate} ON CONFLICT(run_id) DO NOTHING`,
+      )
+      .bind(
+        runId,
+        JSON.stringify(snapshot.source),
+        JSON.stringify(snapshot.profile),
+        JSON.stringify(snapshot.prompt),
+        JSON.stringify({
+          settings: snapshot.settings,
+          quality_scope: snapshot.quality_scope,
+          snapshot_hash,
+        }),
+        now.toISOString(),
+        this.context.ownerId,
+        token.job_id,
+        ...guard.bindings,
+      )
+      .run();
+    const run = await this.db
+      .prepare(
+        `SELECT input_snapshot_json,profile_snapshot_json,prompt_snapshot_json FROM analysis_runs WHERE owner_id=? AND job_id=? AND run_id=? AND ${guard.predicate}`,
+      )
+      .bind(this.context.ownerId, token.job_id, runId, ...guard.bindings)
+      .first<{
+        input_snapshot_json: string;
+        profile_snapshot_json: string;
+        prompt_snapshot_json: string;
+      }>();
+    if (
+      !run ||
+      run.input_snapshot_json !== JSON.stringify(snapshot.source) ||
+      run.profile_snapshot_json !== JSON.stringify(snapshot.profile) ||
+      run.prompt_snapshot_json !== JSON.stringify(snapshot.prompt)
+    )
+      throw new Error('ANALYSIS_RUN_SNAPSHOT_MISMATCH');
+    return { run_id: runId, snapshot, snapshot_hash };
+  }
+}

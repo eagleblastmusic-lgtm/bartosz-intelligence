@@ -1,6 +1,10 @@
 import { ownerRouter, body, queryFields, text } from './common.js';
 import { JobStore } from '../../../../packages/core/src/jobs/store.js';
 import {
+  AnalysisJobs,
+  type AnalysisSettings,
+} from '../../../../packages/core/src/ai/jobs.js';
+import {
   jobStates,
   taskTypes,
 } from '../../../../packages/contracts/src/jobs.js';
@@ -10,6 +14,33 @@ import {
   pageLimit,
 } from '../../../../packages/core/src/db/cursor.js';
 export const jobsApp = ownerRouter();
+jobsApp.post('/analysis', async (c) => {
+  const input = await body(c, ['source_run_id', 'settings']);
+  const settings = input.settings;
+  if (
+    !settings ||
+    typeof settings !== 'object' ||
+    Array.isArray(settings) ||
+    Object.keys(settings).some(
+      (key) =>
+        ![
+          'runtime',
+          'mode',
+          'purpose',
+          'region',
+          'max_output_tokens',
+          'limits',
+        ].includes(key),
+    )
+  )
+    throw new Error('INVALID_ANALYSIS_SETTINGS');
+  const job = await new AnalysisJobs(c.env.DB, c.get('access')).enqueue(
+    text(input.source_run_id, 128),
+    settings as AnalysisSettings,
+    new Date(),
+  );
+  return c.json({ job_id: job!.job_id, state: job!.state }, 201);
+});
 const columns =
   'job_id,item_id,source_id,task_type,state,reason_code,due_at,priority,attempt_count,lease_until,fencing_token,arrival_origin_at,origin_kind,created_at,updated_at';
 jobsApp.get('/', async (c) => {

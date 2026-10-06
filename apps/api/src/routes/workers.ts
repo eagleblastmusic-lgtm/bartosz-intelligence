@@ -1,4 +1,6 @@
 import { controlTick } from '../control.js';
+import { AnalysisJobs } from '../../../../packages/core/src/ai/jobs.js';
+import { QuotaAdmission } from '../../../../packages/core/src/ai/admission.js';
 import { apiRouter, body, text } from './common.js';
 import { taskTypes } from '../../../../packages/contracts/src/jobs.js';
 import type {
@@ -87,6 +89,45 @@ function artifactTask(value: unknown) {
     throw new Error('INVALID_ARTIFACT_TASK');
   return type;
 }
+workersApp.post('/analysis/input', async (c) => {
+  const input = await body(c, ['token']);
+  const access = c.get('access');
+  const prepared = await new AnalysisJobs(c.env.DB, access).prepareRun(
+    token(input.token, access.actorId),
+    new Date(),
+  );
+  if (new TextEncoder().encode(JSON.stringify(prepared)).length > 65536)
+    throw new Error('ANALYSIS_SNAPSHOT_TOO_LARGE');
+  return c.json(prepared);
+});
+workersApp.post('/analysis/reserve', async (c) => {
+  const input = await body(c, ['token', 'request_id', 'input_tokens']);
+  const access = c.get('access');
+  return c.json(
+    await new AnalysisJobs(c.env.DB, access).reserve(
+      token(input.token, access.actorId),
+      {
+        request_id: text(input.request_id, 128),
+        input_tokens: input.input_tokens as number,
+      },
+      new Date(),
+    ),
+  );
+});
+workersApp.post('/analysis/submit', async (c) => {
+  const input = await body(c, ['token', 'reservation_id']);
+  const access = c.get('access'),
+    lease = token(input.token, access.actorId),
+    now = new Date();
+  await new AnalysisJobs(c.env.DB, access).load(lease, now);
+  return c.json(
+    await new QuotaAdmission(c.env.DB, access).submit(
+      text(input.reservation_id, 128),
+      lease,
+      now,
+    ),
+  );
+});
 workersApp.post('/artifacts/begin', async (c) => {
   const input = await body(c, ['task_type', 'token', 'descriptor']),
     access = c.get('access');

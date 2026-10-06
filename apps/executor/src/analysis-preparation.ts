@@ -1,0 +1,73 @@
+import { WorkerRpc } from './worker-rpc.js';
+import { ArtifactClient } from './artifact-client.js';
+import type { LeaseToken } from '../../../packages/contracts/src/jobs.js';
+import type { AnalysisJobSnapshot } from '../../../packages/core/src/ai/jobs.js';
+import { compileEconomy } from '../../../packages/core/src/ai/compiler.js';
+import { sha256 } from '../../../packages/core/src/auth/crypto.js';
+
+// Preparation is local and has no provider transport. ArtifactClient verifies
+// the complete source bytes; ordinary compilation cannot silently truncate them.
+export async function prepareAnalysis(
+  rpc: WorkerRpc,
+  artifacts: Pick<ArtifactClient, 'readText'>,
+  token: LeaseToken,
+  runtime: 'local' | 'cloud',
+  now: Date,
+) {
+  const prepared = (await rpc.request('analysis/input', { token })) as {
+    run_id: string;
+    snapshot: AnalysisJobSnapshot;
+    snapshot_hash: string;
+  };
+  const snapshot = prepared.snapshot;
+  if (
+    !snapshot ||
+    snapshot.version !== 'analysis-job:1' ||
+    (await sha256(JSON.stringify(snapshot))) !== prepared.snapshot_hash ||
+    snapshot.settings.runtime !== runtime ||
+    !/^analysis_[a-f0-9]{64}$/.test(prepared.run_id)
+  )
+    throw new Error('ANALYSIS_JOB_SNAPSHOT_MISMATCH');
+  const source = await artifacts.readText(snapshot.source.source_artifact_id);
+  const map = await artifacts.readText(snapshot.source.segment_map_artifact_id);
+  if (
+    source.artifact.kind !== 'SOURCE_ORIGINAL' ||
+    source.artifact.item_id !== snapshot.source.item_id ||
+    source.artifact.content_hash !== snapshot.source.source_hash ||
+    map.artifact.kind !== 'SEGMENT_MAP' ||
+    map.artifact.item_id !== snapshot.source.item_id ||
+    map.artifact.original_ref !== source.artifact.artifact_id ||
+    map.artifact.content_hash !== snapshot.source.manifest_hash ||
+    map.artifact.producer_version !== 'source-normalizer:1'
+  )
+    throw new Error('ANALYSIS_SOURCE_ARTIFACT_MISMATCH');
+  const compiled = await compileEconomy({
+    source_artifact_id: source.artifact.artifact_id,
+    source_text: source.text,
+    manifest: JSON.parse(map.text),
+    manifest_hash: map.artifact.content_hash,
+    prompt: snapshot.prompt,
+    profile: snapshot.profile,
+    profile_revision: prepared.snapshot_hash,
+    semantic_context: {
+      title: null,
+      author: null,
+      published_at: null,
+      source_language: snapshot.source.language_code,
+    },
+    runtime,
+    request_id: prepared.run_id,
+    deadline: new Date(now.getTime() + 300000).toISOString(),
+    mode: snapshot.settings.mode,
+    max_output_tokens: snapshot.settings.max_output_tokens,
+    limits: snapshot.settings.limits,
+  });
+  if (compiled.request.quality_scope !== snapshot.quality_scope)
+    throw new Error('ANALYSIS_QUALITY_SCOPE_MISMATCH');
+  return {
+    ...prepared,
+    ...compiled,
+    source_text: source.text,
+    manifest: JSON.parse(map.text),
+  };
+}

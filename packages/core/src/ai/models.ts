@@ -50,13 +50,21 @@ export class ModelRegistry {
       .run();
   }
   async latest(profileId: string) {
+    return this.read(profileId, null);
+  }
+  async load(profileId: string, revision: number) {
+    if (!Number.isSafeInteger(revision) || revision < 1)
+      throw new Error('INVALID_MODEL_REVISION');
+    return this.read(profileId, revision);
+  }
+  private async read(profileId: string, revision: number | null) {
     if (this.context.kind === 'owner') this.context.requireOwner();
     else this.context.requireTask('ANALYZE');
     const row = await this.db
       .prepare(
-        'SELECT content_hash,snapshot_json FROM model_registry WHERE owner_id=? AND profile_id=? ORDER BY revision DESC LIMIT 1',
+        'SELECT content_hash,snapshot_json FROM model_registry WHERE owner_id=? AND profile_id=? AND (? IS NULL OR revision=?) ORDER BY revision DESC LIMIT 1',
       )
-      .bind(this.context.ownerId, profileId)
+      .bind(this.context.ownerId, profileId, revision, revision)
       .first<{ content_hash: string; snapshot_json: string }>();
     if (!row) return null;
     if ((await sha256(row.snapshot_json)) !== row.content_hash)
