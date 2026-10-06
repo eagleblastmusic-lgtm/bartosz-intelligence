@@ -1,297 +1,259 @@
 import { useEffect, useState } from 'react';
 import { createRoot } from 'react-dom/client';
-import type { SourceIdentity } from '../../../packages/contracts/src/discovery.js';
-import type { JobRecord } from '../../../packages/contracts/src/jobs.js';
-import { BackupDownload } from './backup.js';
-
-async function api<T>(path: string, input?: unknown, key?: string): Promise<T> {
-  const csrf = document.cookie
-    .split('; ')
-    .find((value) => value.startsWith('__Host-bi-csrf='))
-    ?.slice('__Host-bi-csrf='.length);
-  const response = await fetch('/api/v1' + path, {
-    method: input === undefined ? 'GET' : 'POST',
-    credentials: 'same-origin',
-    headers:
-      input === undefined
-        ? {}
-        : {
-            'Content-Type': 'application/json',
-            'X-CSRF-Token': csrf ?? '',
-            ...(key ? { 'Idempotency-Key': key } : {}),
-          },
-    body: input === undefined ? undefined : JSON.stringify(input),
-  });
-  const data = await response.json();
-  if (!response.ok)
-    throw new Error(
-      typeof data.code === 'string' ? data.code : 'REQUEST_FAILED',
-    );
-  return data as T;
-}
-type Source = {
-  source_id: string;
-  title: string;
-  enabled: number;
-  last_complete_window_end: string | null;
-};
-type Page<T, K extends string> = Record<K, T[]> & {
-  next_cursor: string | null;
-};
-type Preview = {
-  window: { window_start: string; window_end: string };
-  coverage: string;
-  enumerated_count: number;
-  unknown_publication_count: number;
-};
+import {
+  api,
+  ApiError,
+  clearPrivateRequests,
+  errorMessage,
+} from './app/api.js';
+import { AppLink, navigate, today, useRoute } from './app/router.js';
+import { applyTheme, savedTheme, type Theme } from './design/theme.js';
+import { Channels } from './channels.js';
+import { Daily } from './features/daily.js';
+import { System } from './features/system.js';
+import './design/tokens.css';
+import { NavIcon } from './components/nav-icon.js';
+type Session = 'checking' | 'owner' | 'login' | 'setup' | 'denied' | 'error';
 function App() {
-  const [auth, setAuth] = useState<'checking' | 'owner' | 'login' | 'setup'>(
-    'checking',
-  );
-  const [error, setError] = useState(''),
-    [busy, setBusy] = useState(false);
-  const [locator, setLocator] = useState('');
-  const [preview, setPreview] = useState<
-    | (Preview & { identity: SourceIdentity; locator: string; key: string })
-    | null
-  >(null);
-  const [sources, setSources] = useState<Page<Source, 'sources'>>({
-    sources: [],
-    next_cursor: null,
-  });
-  const [jobs, setJobs] = useState<Page<JobRecord, 'jobs'>>({
-    jobs: [],
-    next_cursor: null,
-  });
-  const [notice, setNotice] = useState('');
-  async function refresh() {
-    const [sourcePage, jobPage] = await Promise.all([
-      api<Page<Source, 'sources'>>('/sources?limit=20'),
-      api<Page<JobRecord, 'jobs'>>('/jobs?limit=20'),
-    ]);
-    setSources(sourcePage);
-    setJobs(jobPage);
-  }
+  const route = useRoute(),
+    [session, setSession] = useState<Session>('checking'),
+    [epoch, setEpoch] = useState(0),
+    [check, setCheck] = useState(0),
+    [theme, setTheme] = useState<Theme>(savedTheme),
+    [busy, setBusy] = useState(false),
+    [error, setError] = useState('');
   useEffect(() => {
-    let cancelled = false;
-    api<{ authenticated: boolean }>('/auth/session')
-      .then(async () => {
-        if (!cancelled) {
-          setAuth('owner');
-          await refresh().catch((error: Error) => setError(error.message));
-        }
-      })
-      .catch((error: Error) => {
-        if (!cancelled) {
-          setAuth(
-            error.message === 'AUTH_CONFIGURATION_REQUIRED' ? 'setup' : 'login',
-          );
-          if (
-            ![
-              'AUTH_CONFIGURATION_REQUIRED',
-              'UNAUTHENTICATED',
-              'FORBIDDEN',
-            ].includes(error.message)
-          )
-            setError(error.message);
-        }
-      });
+    applyTheme(theme);
+    const media = matchMedia('(prefers-color-scheme: dark)');
+    const change = () => applyTheme(theme);
+    media.addEventListener('change', change);
+    return () => media.removeEventListener('change', change);
+  }, [theme]);
+  useEffect(() => {
+    const expired = () => {
+      clearPrivateRequests();
+      setEpoch((value) => value + 1);
+      setSession('login');
+      setError('Sesja wygasła. Zaloguj się ponownie.');
+    };
+    window.addEventListener('bi-session-expired', expired);
     return () => {
-      cancelled = true;
+      window.removeEventListener('bi-session-expired', expired);
+      clearPrivateRequests();
     };
   }, []);
-  async function action(work: () => Promise<void>) {
+  useEffect(() => {
+    const controller = new AbortController();
+    api('/auth/session', undefined, undefined, controller.signal)
+      .then(() => setSession('owner'))
+      .catch((error) => {
+        if (controller.signal.aborted) return;
+        setSession(
+          error instanceof ApiError
+            ? error.code === 'AUTH_CONFIGURATION_REQUIRED'
+              ? 'setup'
+              : error.status === 401
+                ? 'login'
+                : error.status === 403
+                  ? 'denied'
+                  : 'error'
+            : 'error',
+        );
+      });
+    return () => controller.abort();
+  }, [check]);
+  useEffect(() => {
+    if (session !== 'owner') return;
+    if (location.pathname === '/') {
+      navigate('/daily/' + today(), true);
+      return;
+    }
+    document.title =
+      (route.startsWith('/channels')
+        ? 'Kanały'
+        : route.startsWith('/system')
+          ? 'System'
+          : 'Dziennik') + ' · Bartosz Intelligence';
+    const frame = requestAnimationFrame(() => {
+      document.getElementById('main-content')?.focus({ preventScroll: true });
+      if (typeof history.state?.biScroll === 'number')
+        window.scrollTo(0, history.state.biScroll);
+    });
+    return () => cancelAnimationFrame(frame);
+  }, [route, session]);
+  async function logout() {
     setBusy(true);
     setError('');
     try {
-      await work();
+      await api('/auth/logout', {});
+      clearPrivateRequests();
+      setSession('login');
+      setEpoch((value) => value + 1);
     } catch (error) {
-      setError(error instanceof Error ? error.message : 'REQUEST_FAILED');
+      if (!(error instanceof ApiError && error.status === 401))
+        setError(errorMessage(error));
     } finally {
       setBusy(false);
     }
   }
-  return (
-    <main>
-      <h1>Bartosz Intelligence</h1>
-      <p>Control plane · usługi płatne wyłączone</p>
-      {error && <p role="alert">Nie udało się wykonać operacji: {error}</p>}
-      {auth === 'checking' && <p role="status">Sprawdzanie sesji…</p>}
-      {auth === 'setup' && (
-        <p>
-          Wymagane ustanowienie właściciela przez prywatny launcher
-          administratora.
-        </p>
-      )}
-      {auth === 'login' && (
-        <a href="/api/v1/auth/login">Zaloguj się przez Google</a>
-      )}
-      {auth === 'owner' && (
-        <>
-          <button disabled={busy} onClick={() => void action(refresh)}>
-            Odśwież stan
-          </button>{' '}
-          <button
-            disabled={busy}
-            onClick={() =>
-              void action(async () => {
-                await api('/auth/logout', {});
-                setSources({ sources: [], next_cursor: null });
-                setJobs({ jobs: [], next_cursor: null });
-                setPreview(null);
-                setAuth('login');
-              })
-            }
-          >
-            Wyloguj
-          </button>
-          <section aria-labelledby="add-source">
-            <h2 id="add-source">Dodaj kanał YouTube</h2>
-            <form
-              onSubmit={(event) => {
-                event.preventDefault();
-                void action(async () => {
-                  const identity = await api<SourceIdentity>(
-                    '/sources/resolve',
-                    { locator },
-                  );
-                  const result = await api<Preview>(
-                    '/sources/backfill-preview',
-                    { locator, range: 30 },
-                  );
-                  setPreview({
-                    ...result,
-                    identity,
-                    locator,
-                    key: crypto.randomUUID(),
-                  });
-                  setNotice('');
-                });
-              }}
-            >
-              <label htmlFor="channel">Adres, @handle lub ID kanału</label>{' '}
-              <input
-                id="channel"
-                required
-                value={locator}
-                onChange={(event) => {
-                  setLocator(event.target.value);
-                  setPreview(null);
-                }}
-                disabled={busy}
-              />{' '}
-              <button disabled={busy} type="submit">
-                Sprawdź ostatnie 30 dni
-              </button>
-            </form>
-            {preview && (
-              <div>
-                <h3>{preview.identity.title}</h3>
-                <p>
-                  Okno: {preview.window.window_start} —{' '}
-                  {preview.window.window_end}
-                </p>
-                <p>
-                  Znaleziono {preview.enumerated_count} filmów. Pokrycie:{' '}
-                  {preview.coverage === 'COMPLETE'
-                    ? 'pełne'
-                    : 'częściowe; discovery sprawdzi pozostałe strony'}
-                  . Daty nieznane: {preview.unknown_publication_count}.
-                </p>
-                <button
-                  disabled={busy}
-                  onClick={() =>
-                    void action(async () => {
-                      await api(
-                        '/sources',
-                        {
-                          locator: preview.locator,
-                          window: preview.window,
-                          confirmed_channel_id: preview.identity.external_id,
-                        },
-                        preview.key,
-                      );
-                      setNotice(
-                        'Monitoring zapisany. Backfill jest w trwałej kolejce.',
-                      );
-                      setPreview(null);
-                      await refresh();
-                    })
-                  }
-                >
-                  Włącz monitoring i backfill 30 dni
-                </button>
-              </div>
-            )}
-            {notice && <p role="status">{notice}</p>}
-          </section>
-          <section aria-labelledby="sources">
-            <h2 id="sources">Monitorowane kanały</h2>
-            {sources.sources.length === 0 && <p>Brak kanałów.</p>}
-            <ul>
-              {sources.sources.map((source) => (
-                <li key={source.source_id}>
-                  {source.title} · {source.enabled ? 'aktywny' : 'wyłączony'} ·
-                  ostatnie pełne okno:{' '}
-                  {source.last_complete_window_end ?? 'jeszcze nieukończone'}
-                </li>
-              ))}
-            </ul>
-            {sources.next_cursor && (
-              <button
-                disabled={busy}
-                onClick={() =>
-                  void action(async () => {
-                    const next = await api<Page<Source, 'sources'>>(
-                      '/sources?limit=20&cursor=' +
-                        encodeURIComponent(sources.next_cursor!),
-                    );
-                    setSources({
-                      ...next,
-                      sources: [...sources.sources, ...next.sources],
-                    });
-                  })
-                }
-              >
-                Więcej kanałów
-              </button>
-            )}
-          </section>
-          <section aria-labelledby="jobs">
-            <h2 id="jobs">Trwałe zadania</h2>
-            <p>
-              Transcript wymaga local executora. Analiza AI zostanie
-              udostępniona po wdrożeniu pipeline.
+  if (session !== 'owner')
+    return (
+      <main className="auth-page">
+        <div className="brand">
+          Bartosz Intelligence<small>Twoje źródła. Wiedza z dowodami.</small>
+        </div>
+        <section>
+          <h1>Bartosz Intelligence</h1>
+          {error && (
+            <p role="alert" className="notice">
+              {error}
             </p>
-            <ul>
-              {jobs.jobs.map((job) => (
-                <li key={job.job_id}>
-                  {job.task_type} · {job.state}
-                  {job.reason_code ? ' · ' + job.reason_code : ''}
-                </li>
-              ))}
-            </ul>
-            {jobs.next_cursor && (
+          )}
+          {session === 'checking' && <p role="status">Sprawdzanie sesji…</p>}
+          {session === 'login' && (
+            <>
+              <p>
+                Zaloguj się, aby czytać materiały i zarządzać swoimi kanałami.
+              </p>
+              <a className="primary-link" href="/api/v1/auth/login">
+                Zaloguj się przez Google
+              </a>
+            </>
+          )}
+          {session === 'setup' && (
+            <p>
+              Wymagane ustanowienie właściciela przez prywatny launcher
+              administratora.
+            </p>
+          )}
+          {session === 'denied' && (
+            <p role="alert">
+              To konto nie ma dostępu do aplikacji właściciela.
+            </p>
+          )}
+          {session === 'error' && (
+            <>
+              <p role="alert">
+                Nie udało się sprawdzić sesji. Sprawdź połączenie.
+              </p>
               <button
-                disabled={busy}
-                onClick={() =>
-                  void action(async () => {
-                    const next = await api<Page<JobRecord, 'jobs'>>(
-                      '/jobs?limit=20&cursor=' +
-                        encodeURIComponent(jobs.next_cursor!),
-                    );
-                    setJobs({ ...next, jobs: [...jobs.jobs, ...next.jobs] });
-                  })
-                }
+                onClick={() => {
+                  setSession('checking');
+                  setCheck((value) => value + 1);
+                }}
               >
-                Więcej zadań
+                Spróbuj ponownie
               </button>
-            )}
-          </section>
-          <BackupDownload request={api} />
-        </>
-      )}
-    </main>
+            </>
+          )}
+        </section>
+      </main>
+    );
+  const section = route.startsWith('/channels')
+    ? 'channels'
+    : route.startsWith('/system')
+      ? 'system'
+      : route.startsWith('/daily/')
+        ? 'daily'
+        : 'unknown';
+  return (
+    <div className="app-shell">
+      <a className="skip-link" href="#main-content">
+        Przejdź do treści
+      </a>
+      <aside className="app-rail">
+        <div className="brand">
+          Bartosz
+          <br />
+          Intelligence<small>Research desk</small>
+        </div>
+        <nav className="rail-nav" aria-label="Główna nawigacja">
+          {[
+            {
+              id: 'daily',
+              href: '/daily/' + today(),
+              label: 'Dziennik',
+              symbol: '▤',
+            },
+            { id: 'channels', href: '/channels', label: 'Kanały', symbol: '◉' },
+            { id: 'system', href: '/system', label: 'System', symbol: '▦' },
+          ].map((item) => (
+            <AppLink
+              key={item.id}
+              href={item.href}
+              aria-label={item.label}
+              aria-current={section === item.id ? 'page' : undefined}
+            >
+              <span className="nav-symbol" aria-hidden="true">
+                <NavIcon kind={item.id} />
+              </span>
+              <span className="nav-label">{item.label}</span>
+            </AppLink>
+          ))}
+        </nav>
+        <div className="rail-foot metadata">
+          Przestrzeń właściciela
+          <br />
+          Strefa: Warszawa
+        </div>
+      </aside>
+      <div className="workspace">
+        <header className="app-header">
+          <span className="eyebrow">
+            {section === 'channels'
+              ? 'Twoje źródła'
+              : section === 'system'
+                ? 'Stan pracy'
+                : 'Publikacje i analizy'}
+          </span>
+          <div className="header-controls">
+            <label className="theme-label">
+              <span>Motyw</span>
+              <select
+                aria-label="Motyw"
+                value={theme}
+                onChange={(e) => setTheme(e.target.value as Theme)}
+              >
+                <option value="system">Systemowy</option>
+                <option value="light">Jasny</option>
+                <option value="dark">Ciemny</option>
+              </select>
+            </label>
+            <button disabled={busy} onClick={() => void logout()}>
+              Wyloguj
+            </button>
+          </div>
+        </header>
+        <main id="main-content" className="content" tabIndex={-1} key={epoch}>
+          {error && (
+            <p role="alert" className="notice error">
+              {error}
+            </p>
+          )}
+          {section === 'channels' && (
+            <>
+              <div className="page-heading">
+                <div>
+                  <h1>Kanały</h1>
+                  <p className="muted">
+                    Publiczne źródła, które chcesz śledzić.
+                  </p>
+                </div>
+              </div>
+              <Channels />
+            </>
+          )}
+          {section === 'daily' && <Daily route={route} />}
+          {section === 'system' && <System />}
+          {section === 'unknown' && (
+            <>
+              <h1>Nie znaleziono widoku</h1>
+              <AppLink href={'/daily/' + today()}>Wróć do Dziennika</AppLink>
+            </>
+          )}
+        </main>
+      </div>
+    </div>
   );
 }
 createRoot(document.getElementById('root')!).render(<App />);

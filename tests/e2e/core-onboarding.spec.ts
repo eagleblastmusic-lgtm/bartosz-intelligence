@@ -90,7 +90,7 @@ test('onboarding preserves preview window/idempotency on retry and renders metad
     else throw new Error('UNEXPECTED_FIXTURE_API_ROUTE');
     await route.fulfill({ json: data });
   });
-  await page.goto(fixtureOrigin + '/');
+  await page.goto(fixtureOrigin + '/channels');
   await page.getByLabel('Adres, @handle lub ID kanału').fill('@fixture');
   await page.getByRole('button', { name: 'Sprawdź ostatnie 30 dni' }).click();
   await expect(page.getByRole('heading', { name: title })).toBeVisible();
