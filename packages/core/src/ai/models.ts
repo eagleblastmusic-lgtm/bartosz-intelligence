@@ -9,6 +9,7 @@ export class ModelRegistry {
   constructor(
     private db: Database,
     private context: AccessContext,
+    private task: 'ANALYZE' | 'TRANSLATE' | 'HISTORICAL_COMPARE' = 'ANALYZE',
   ) {
     assertContext(context);
   }
@@ -59,7 +60,7 @@ export class ModelRegistry {
   }
   private async read(profileId: string, revision: number | null) {
     if (this.context.kind === 'owner') this.context.requireOwner();
-    else this.context.requireTask('ANALYZE');
+    else this.context.requireTask(this.task);
     const row = await this.db
       .prepare(
         'SELECT content_hash,snapshot_json FROM model_registry WHERE owner_id=? AND profile_id=? AND (? IS NULL OR revision=?) ORDER BY revision DESC LIMIT 1',

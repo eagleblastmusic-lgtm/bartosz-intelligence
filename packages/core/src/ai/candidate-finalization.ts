@@ -15,11 +15,17 @@ export async function finalizeCandidateRun(
   token: LeaseToken,
   runId: string,
   value: Record<string, unknown>,
-  reason: 'QUALITY_TEST_COMPLETE' | 'CHUNK_CANDIDATE_COMPLETE',
+  reason:
+    | 'QUALITY_TEST_COMPLETE'
+    | 'CHUNK_CANDIDATE_COMPLETE'
+    | 'OPTIONAL_PARTIAL_COMPLETE'
+    | 'OPTIONAL_INVALID_COMPLETE',
   now: Date,
+  task: 'ANALYZE' | 'TRANSLATE' | 'HISTORICAL_COMPARE' = 'ANALYZE',
 ) {
   assertContext(context);
-  const guard = leasePredicate(context, token, now.toISOString(), 'ANALYZE'),
+  const invalid = reason === 'OPTIONAL_INVALID_COMPLETE';
+  const guard = leasePredicate(context, token, now.toISOString(), task),
     outcome = JSON.stringify(value),
     hash = await sha256(outcome),
     nonce = crypto.randomUUID();
@@ -50,14 +56,23 @@ export async function finalizeCandidateRun(
       ),
     db
       .prepare(
-        `UPDATE analysis_runs SET candidate_hash=?,outcome_json=?,validation_outcome='DETERMINISTIC_CORE_CANDIDATE' WHERE owner_id=? AND job_id=? AND run_id=? AND state='CANDIDATE' AND ${active}`,
-      )
-      .bind(hash, outcome, context.ownerId, token.job_id, runId, ...bindings),
-    db
-      .prepare(
-        `UPDATE jobs SET state='SUCCEEDED',reason_code=?,result_candidate_id=?,updated_at=?,lease_owner=NULL,lease_until=NULL WHERE owner_id=? AND job_id=? AND state='RUNNING' AND ${active} RETURNING job_id`,
+        `UPDATE analysis_runs SET candidate_hash=?,outcome_json=?,validation_outcome=? WHERE owner_id=? AND job_id=? AND run_id=? AND state='CANDIDATE' AND ${active}`,
       )
       .bind(
+        hash,
+        outcome,
+        invalid ? 'DETERMINISTIC_CORE_INVALID' : 'DETERMINISTIC_CORE_CANDIDATE',
+        context.ownerId,
+        token.job_id,
+        runId,
+        ...bindings,
+      ),
+    db
+      .prepare(
+        `UPDATE jobs SET state=?,reason_code=?,result_candidate_id=?,updated_at=?,lease_owner=NULL,lease_until=NULL WHERE owner_id=? AND job_id=? AND state='RUNNING' AND ${active} RETURNING job_id`,
+      )
+      .bind(
+        invalid ? 'FAILED' : 'SUCCEEDED',
         reason,
         runId,
         now.toISOString(),
@@ -75,7 +90,7 @@ export async function finalizeCandidateRun(
   return {
     accepted: false,
     run_id: runId,
-    state: 'SUCCEEDED',
-    candidate_status: 'VALIDATED',
+    state: invalid ? 'FAILED' : 'SUCCEEDED',
+    candidate_status: invalid ? 'INVALID' : 'VALIDATED',
   };
 }

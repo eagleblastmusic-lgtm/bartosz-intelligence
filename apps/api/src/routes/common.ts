@@ -26,6 +26,7 @@ export function apiRouter() {
     ].includes(raw);
     const unavailable =
       raw.startsWith('ANALYSIS_PROFILE_') ||
+      raw.startsWith('OPTIONAL_PROFILE_') ||
       [
         'AUTH_CONFIGURATION_REQUIRED',
         'PROVIDER_CONFIGURATION_REQUIRED',

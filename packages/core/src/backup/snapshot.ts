@@ -25,6 +25,7 @@ export const backupTables = [
   'usage_records',
   'candidate_repair_attempts',
   'analysis_runs',
+  'optional_ai_results',
   'entities',
   'entity_aliases',
   'entity_alias_decisions',

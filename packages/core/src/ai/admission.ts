@@ -54,6 +54,7 @@ export class QuotaAdmission {
   constructor(
     private db: Database,
     private context: AccessContext,
+    private task: 'ANALYZE' | 'TRANSLATE' | 'HISTORICAL_COMPARE' = 'ANALYZE',
   ) {
     assertContext(context);
   }
@@ -76,7 +77,7 @@ export class QuotaAdmission {
         this.context,
         token,
         now.toISOString(),
-        'ANALYZE',
+        this.task,
       ),
       id = crypto.randomUUID();
     const conditions: string[] = [],
@@ -160,7 +161,7 @@ export class QuotaAdmission {
       this.context,
       token,
       now.toISOString(),
-      'ANALYZE',
+      this.task,
     );
     const result = await this.db
       .prepare(
@@ -180,7 +181,7 @@ export class QuotaAdmission {
     return { reservation_id: id };
   }
   async reconcile(id: string, response: AIResponse, now: Date) {
-    this.context.requireTask('ANALYZE');
+    this.context.requireTask(this.task);
     const usage = response.usage;
     if (
       response.token_usage_numeric_fields !== undefined &&

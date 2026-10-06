@@ -84,6 +84,60 @@ it('denied quota and ambiguous submit each prevent provider HTTP without hidden 
     );
   }
 });
+it.each(['TRANSLATE', 'HISTORICAL_COMPARE'] as const)(
+  'uses scoped optional admission/heartbeat for %s and retains exactly one response',
+  async (task) => {
+    const scoped = request();
+    scoped.profile.task_types = [task];
+    scoped.wire_schema = bundle.schemas.find(
+      (s) =>
+        s.id ===
+        `urn:bartosz:schema:${task === 'TRANSLATE' ? 'translation' : 'history'}-wire:1.0`,
+    )!.schema;
+    const events: string[] = [];
+    const result = await executePreparedAnalysis({
+      request: scoped,
+      task_type: task,
+      token,
+      key: 'fixture-secret',
+      clock: () => now,
+      rpc: {
+        request: async (path, input) => {
+          events.push(path);
+          expect(input.task_type).toBe(task);
+          return path === 'heartbeat'
+            ? { token }
+            : { reservation_id: reservation, request_id: scoped.request_id };
+        },
+      },
+      providerTransport: async (_url, options) => {
+        events.push('provider');
+        const body = JSON.parse(String(options?.body));
+        expect(body.tools).toBeUndefined();
+        expect(body.store).toBe(false);
+        return new Response(JSON.stringify(success), {
+          headers: { 'Content-Type': 'application/json' },
+        });
+      },
+      retain: async (_id, _token, response) => {
+        events.push('retained');
+        return {
+          request_id: response.request_id,
+          diagnostic_only: true,
+          artifact_id: 'candidate',
+        };
+      },
+    });
+    expect(result.eligible_for_validation).toBe(true);
+    expect(events).toEqual([
+      'optional/reserve',
+      'optional/submit',
+      'provider',
+      'heartbeat',
+      'retained',
+    ]);
+  },
+);
 it('retains one response through the existing receipt endpoint after a lost lease, with no accepted effect', async () => {
   const events: string[] = [];
   const result = await executePreparedAnalysis({

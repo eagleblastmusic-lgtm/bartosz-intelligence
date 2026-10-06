@@ -1,5 +1,7 @@
 import { env } from 'cloudflare:workers';
 import { QuotaSnapshots } from '../../packages/core/src/ai/quota-snapshots.js';
+import { verifyOptionalTranslation } from './optional-task-fixture.js';
+import { verifyOptionalHistory } from './optional-history-fixture.js';
 import {
   analysisQualityScope,
   compileEconomy,
@@ -680,6 +682,7 @@ it.each([
   'CHUNK_COMPLETE',
   'CHUNK_PRODUCTION',
   'CHUNK_FULL_PRODUCTION',
+  'OPTIONAL_TRANSLATION',
   'PRODUCTION',
   'RATE_LIMITED',
   'TEMPORARY_FAILURE',
@@ -915,6 +918,22 @@ it.each([
     };
     const models = new ModelRegistry(env.DB, owner);
     await models.publish(profile, fixtureNow);
+    if (scenario === 'OPTIONAL_TRANSLATION') {
+      await verifyOptionalTranslation(
+        env.DB,
+        owner,
+        item.item_id,
+        {
+          owner_id: 'a',
+          source_artifact_id: source.artifact_id,
+          ...sourceNormalized,
+          source_language: 'en',
+          video_url: null,
+        },
+        profile,
+      );
+      return;
+    }
     const settings = {
       runtime: 'local' as const,
       mode,
@@ -2922,6 +2941,12 @@ it.each(['ECONOMY', 'FULL'] as const)(
     expect(
       await new IntelligenceLedger(env.DB, restoredOwner).read('ledger-run'),
     ).toEqual(rows);
+    await verifyOptionalHistory(
+      env.DB,
+      restoredOwner,
+      item.item_id,
+      enriched.canonical,
+    );
     const evidenceRow = await env.DB.prepare(
       'SELECT source_hash,quote_hash,source_start,source_end FROM evidence WHERE owner_id=? AND evidence_id=?',
     )

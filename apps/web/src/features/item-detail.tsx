@@ -1,92 +1,35 @@
 import { useEffect, useState } from 'react';
-import type {
-  ItemDetail as Detail,
-  CanonicalPage,
-} from '../../../../packages/contracts/src/item-detail.js';
+import type { ItemDetail as Detail } from '../../../../packages/contracts/src/item-detail.js';
 import type { enrichEconomy } from '../../../../packages/core/src/ai/enrichment/canonical.js';
 import { api, errorMessage } from '../app/api.js';
+import { readPinnedJSON } from '../app/artifacts.js';
 import { AppLink, today } from '../app/router.js';
 import { EvidenceChips } from '../components/evidence-drawer.js';
 import { ItemOrganization } from '../components/item-organization.js';
+import { ItemOptional } from '../components/item-optional.js';
 type Canonical = Awaited<ReturnType<typeof enrichEconomy>>['canonical'];
-const decode = (value: string) =>
-  Uint8Array.from(atob(value.replaceAll('-', '+').replaceAll('_', '/')), (c) =>
-    c.charCodeAt(0),
-  );
-async function hash(bytes: Uint8Array) {
-  return [
-    ...new Uint8Array(
-      await crypto.subtle.digest('SHA-256', new Uint8Array(bytes)),
-    ),
-  ]
-    .map((value) => value.toString(16).padStart(2, '0'))
-    .join('');
-}
 export async function readCanonical(
   detail: Detail,
   signal: AbortSignal,
 ): Promise<Canonical | null> {
   if (!detail.canonical || !detail.selected_run_id) return null;
-  const descriptor = detail.canonical;
-  if (
-    !Number.isSafeInteger(descriptor.byte_size) ||
-    descriptor.byte_size < 1 ||
-    descriptor.byte_size > 8 * 1024 * 1024 ||
-    descriptor.chunk_count < 1 ||
-    descriptor.chunk_count > 1024
-  )
-    throw new Error('CANONICAL_DESCRIPTOR_INVALID');
-  const bytes = new Uint8Array(descriptor.byte_size);
-  let index = 0,
-    offset = 0;
-  do {
-    const page = await api<CanonicalPage>(
-      '/items/' +
-        encodeURIComponent(detail.item_id) +
-        '/canonical?' +
-        new URLSearchParams({
-          run_id: detail.selected_run_id,
-          start: String(index),
-        }),
-      undefined,
-      undefined,
-      signal,
-    );
-    if (
-      page.descriptor.artifact_id !== descriptor.artifact_id ||
-      page.descriptor.content_hash !== descriptor.content_hash ||
-      page.descriptor.byte_size !== descriptor.byte_size ||
-      page.descriptor.chunk_count !== descriptor.chunk_count ||
-      !page.chunks.length ||
-      page.chunks.length > 4
-    )
-      throw new Error('CANONICAL_DESCRIPTOR_CHANGED');
-    for (const chunk of page.chunks) {
-      const part = decode(chunk.body_base64);
-      if (
-        chunk.chunk_index !== index ||
-        chunk.byte_start !== offset ||
-        chunk.byte_size !== part.length ||
-        part.length > 32768 ||
-        offset + part.length > bytes.length ||
-        (await hash(part)) !== chunk.byte_hash
-      )
-        throw new Error('CANONICAL_CONTENT_INVALID');
-      bytes.set(part, offset);
-      offset += part.length;
-      index++;
-    }
-    if (page.next_index !== (index < descriptor.chunk_count ? index : null))
-      throw new Error('CANONICAL_PAGE_INVALID');
-  } while (index < descriptor.chunk_count);
-  if (
-    offset !== bytes.length ||
-    (await hash(bytes)) !== descriptor.content_hash
-  )
-    throw new Error('CANONICAL_CONTENT_INVALID');
-  const result = JSON.parse(
-    new TextDecoder('utf-8', { fatal: true, ignoreBOM: true }).decode(bytes),
-  ) as Canonical;
+  const result = (await readPinnedJSON(
+    detail.canonical,
+    (index, requestSignal) =>
+      api(
+        '/items/' +
+          encodeURIComponent(detail.item_id) +
+          '/canonical?' +
+          new URLSearchParams({
+            run_id: detail.selected_run_id!,
+            start: String(index),
+          }),
+        undefined,
+        undefined,
+        requestSignal,
+      ),
+    signal,
+  )) as Canonical;
   if (
     result.schema_version !== '1.2' ||
     result.item_id !== detail.item_id ||
@@ -204,6 +147,7 @@ export function ItemDetail({ route }: { route: string }) {
             : 'Pobieranie przyjętego wyniku…'}
         </p>
       )}
+      {current && <ItemOptional key={'optional-' + itemId} itemId={itemId} />}
       {current && (
         <>
           <a

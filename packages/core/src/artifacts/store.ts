@@ -120,15 +120,15 @@ export class ArtifactRepository {
   }
   private guard(token: LeaseToken, task: TaskType, now: Date) {
     if (this.diagnosticReservationId !== null) {
-      this.context.requireTask('ANALYZE');
+      this.context.requireTask(task);
       if (
-        task !== 'ANALYZE' ||
+        !['ANALYZE', 'TRANSLATE', 'HISTORICAL_COMPARE'].includes(task) ||
         token.lease_owner !== this.context.actorId ||
         !/^[a-f0-9-]{36}$/.test(this.diagnosticReservationId)
       )
         throw new Error('FORBIDDEN');
       return {
-        predicate: `EXISTS(SELECT 1 FROM quota_reservations r JOIN job_attempts a ON a.owner_id=r.owner_id AND a.job_id=r.job_id AND a.fencing_token=r.fencing_token JOIN worker_identities w ON w.owner_id=a.owner_id AND w.worker_id=a.executor_id WHERE r.owner_id=? AND r.reservation_id=? AND r.job_id=? AND r.fencing_token=? AND r.state IN ('SUBMITTED','SETTLED','UNKNOWN') AND a.executor_id=? AND w.credential_hash=? AND w.revoked_at IS NULL)`,
+        predicate: `EXISTS(SELECT 1 FROM quota_reservations r JOIN jobs q ON q.owner_id=r.owner_id AND q.job_id=r.job_id JOIN job_attempts a ON a.owner_id=r.owner_id AND a.job_id=r.job_id AND a.fencing_token=r.fencing_token JOIN worker_identities w ON w.owner_id=a.owner_id AND w.worker_id=a.executor_id WHERE r.owner_id=? AND r.reservation_id=? AND r.job_id=? AND r.fencing_token=? AND r.state IN ('SUBMITTED','SETTLED','UNKNOWN') AND a.executor_id=? AND w.credential_hash=? AND w.revoked_at IS NULL AND q.task_type=?)`,
         bindings: [
           this.context.ownerId,
           this.diagnosticReservationId,
@@ -136,6 +136,7 @@ export class ArtifactRepository {
           token.fencing_token,
           this.context.actorId,
           this.context.credentialHash!,
+          task,
         ],
       };
     }

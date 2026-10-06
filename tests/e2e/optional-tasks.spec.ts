@@ -1,0 +1,296 @@
+import { test, expect } from '@playwright/test';
+import { createHash } from 'node:crypto';
+import AxeBuilder from '@axe-core/playwright';
+test('optional tasks require preview/confirm, reuse nonce after a lost reply and read pinned helper/history safely', async ({
+  page,
+}) => {
+  const origin = 'https://optional.fixture.invalid';
+  const digest = (data: Buffer) =>
+    createHash('sha256').update(data).digest('hex');
+  let reads = 0,
+    confirms = 0;
+  const intents: unknown[] = [];
+  await page.context().addCookies([
+    {
+      name: '__Host-bi-csrf',
+      value: 'fixture-csrf',
+      url: origin,
+      secure: true,
+      sameSite: 'Lax',
+    },
+  ]);
+  await page.route(origin + '/**', async (route) => {
+    const local = await fetch(
+      'http://127.0.0.1:8787' + new URL(route.request().url()).pathname,
+    );
+    await route.fulfill({
+      status: local.status,
+      contentType: local.headers.get('content-type') ?? 'text/plain',
+      body: Buffer.from(await local.arrayBuffer()),
+    });
+  });
+  await page.route('**/api/v1/**', async (route) => {
+    const url = new URL(route.request().url());
+    if (url.pathname.endsWith('/auth/session'))
+      return route.fulfill({ json: { authenticated: true } });
+    if (url.pathname.endsWith('/detail'))
+      return route.fulfill({
+        json: {
+          item_id: 'item',
+          title: 'Materiał testowy',
+          creator: 'Autor',
+          canonical_url: 'https://www.youtube.com/watch?v=rUhllpnYWR8',
+          published_at: null,
+          analysis_status: 'PENDING',
+          processing_state: 'DEFERRED',
+          reason: null,
+          selected_run_id: null,
+          selection_revision: null,
+          view: null,
+          canonical: null,
+          semantic_verification: 'NOT_ASSERTED',
+        },
+      });
+    if (url.pathname.endsWith('/capabilities')) {
+      reads++;
+      return route.fulfill({
+        json: {
+          tasks: ['TRANSLATE', 'HISTORICAL_COMPARE'].map((task) => ({
+            task,
+            adapter_available: true,
+            preview_available: true,
+          })),
+        },
+      });
+    }
+    if (url.pathname.includes('/results/'))
+      return route.fulfill({
+        json: {
+          results: [
+            {
+              run_id: 'translation',
+              task_type: 'TRANSLATE',
+              created_at: '2026-10-05T00:00:00Z',
+            },
+            {
+              run_id: 'history',
+              task_type: 'HISTORICAL_COMPARE',
+              created_at: '2026-10-05T00:00:00Z',
+            },
+          ],
+        },
+      });
+    if (url.pathname.endsWith('/preview')) {
+      expect(route.request().postDataJSON()).toEqual({
+        item_id: 'item',
+        task: 'TRANSLATE',
+        scope: 'SELECTED_SEGMENTS',
+      });
+      return route.fulfill({
+        json: {
+          preview_hash: 'f'.repeat(64),
+          task: 'TRANSLATE',
+          item_id: 'item',
+          token_estimate: { input_tokens: 800, output_tokens: 1000 },
+          quota_status: 'UNKNOWN',
+          additional_model_requests: 1,
+          selection_effect: 'NONE',
+          source_scope: 'SELECTED_SEGMENTS',
+          scope_count: 1,
+        },
+      });
+    }
+    if (url.pathname.endsWith('/confirm')) {
+      expect(route.request().headers()['x-csrf-token']).toBe('fixture-csrf');
+      intents.push(route.request().postDataJSON());
+      confirms++;
+      return confirms === 1
+        ? route.fulfill({ status: 503, json: { code: 'TRANSIENT' } })
+        : route.fulfill({ json: { job_id: 'optional-job' } });
+    }
+    if (url.pathname.includes('/result/')) {
+      const translated = url.pathname.endsWith('/translation');
+      const canonical = translated
+        ? {
+            schema_version: '1.0',
+            status: 'OK',
+            source_artifact_id: 'source',
+            source_language: 'en',
+            target_language: 'pl',
+            scope: 'SELECTED_SEGMENTS',
+            translated_segments: [
+              {
+                source_segment_id: 'segment',
+                text_pl: '<img src=x onerror=alert(1)> Nie używano.',
+                issues: ['ASR_UNCERTAIN'],
+              },
+            ],
+            limitations_pl: [],
+          }
+        : {
+            schema_version: '1.0',
+            status: 'OK',
+            current_item_id: 'item',
+            compared_item_ids: ['prior'],
+            scope_note_pl: 'Ograniczony kontekst kanału.',
+            relations: [
+              {
+                local_id: 'relation',
+                relation_type: 'NOT_COMPARABLE',
+                current_observation_refs: ['current'],
+                prior_observation_refs: ['previous'],
+                current_evidence_refs: ['current-evidence'],
+                prior_evidence_refs: ['prior-evidence'],
+                explanation_pl: 'Brak wzmianki nie oznacza zmiany stanowiska.',
+                qualifiers: ['różny zakres'],
+              },
+            ],
+            limitations_pl: ['Nie cała historia.'],
+          };
+      const evidence = (id: string) => ({
+        evidence_id: id,
+        source_artifact_id: 'source',
+        source_hash: 'a'.repeat(64),
+        segment_ids: ['segment'],
+        quote_original: 'Original statement.',
+        quote_pl: null,
+        start_ms: null,
+        end_ms: null,
+        timestamp_precision: 'NONE',
+        timestamp_url: null,
+        quote_hash: 'b'.repeat(64),
+      });
+      const data = Buffer.from(JSON.stringify(canonical));
+      return route.fulfill({
+        json: {
+          run_id: translated ? 'translation' : 'history',
+          item_id: 'item',
+          context: translated
+            ? {
+                task: 'TRANSLATE',
+                source_artifact_id: 'source',
+                segments: [
+                  {
+                    source_segment_id: 'segment',
+                    start_ms: null,
+                    end_ms: null,
+                    timestamp_precision: 'NONE',
+                  },
+                ],
+              }
+            : {
+                task: 'HISTORICAL_COMPARE',
+                cut: '2026-10-05T00:00:00Z',
+                observations: [
+                  {
+                    observation_id: 'current',
+                    content_pl: 'Bieżąca wypowiedź.',
+                    item_id: 'item',
+                    run_id: 'current-run',
+                    evidence: [evidence('current-evidence')],
+                  },
+                  {
+                    observation_id: 'previous',
+                    content_pl: 'Poprzednia wypowiedź.',
+                    item_id: 'prior',
+                    run_id: 'prior-run',
+                    evidence: [evidence('prior-evidence')],
+                  },
+                ],
+              },
+          descriptor: {
+            artifact_id: 'canonical',
+            content_hash: digest(data),
+            byte_size: data.length,
+            chunk_count: 1,
+            schema_version: translated ? 'translation:1.0' : 'historical:1.0',
+          },
+          chunks: [
+            {
+              chunk_index: 0,
+              byte_start: 0,
+              byte_size: data.length,
+              byte_hash: digest(data),
+              body_base64: data.toString('base64url'),
+            },
+          ],
+          next_index: null,
+        },
+      });
+    }
+    if (url.pathname.startsWith('/api/v1/evidence/')) {
+      expect(url.pathname).toBe('/api/v1/evidence/prior-evidence');
+      expect(url.searchParams.get('run_id')).toBe('prior-run');
+      return route.fulfill({ status: 403, json: { code: 'FORBIDDEN' } });
+    }
+    throw new Error('UNEXPECTED_OPTIONAL_API');
+  });
+  await page.goto(origin + '/items/item');
+  await expect(
+    page.getByRole('heading', { name: 'Materiał testowy' }),
+  ).toBeVisible();
+  expect(reads).toBe(0);
+  await page.getByRole('button', { name: 'Tłumaczenie i historia' }).click();
+  await page.getByRole('button', { name: 'Przygotuj zakres i koszt' }).click();
+  await expect(page.getByText(/Bieżąca quota: nieznana/)).toBeVisible();
+  expect(confirms).toBe(0);
+  await page
+    .getByRole('button', { name: 'Potwierdź oddzielne zadanie' })
+    .click();
+  await expect(page.getByRole('alert')).toBeVisible();
+  await page
+    .getByRole('button', { name: 'Potwierdź oddzielne zadanie' })
+    .click();
+  await expect(
+    page.getByText(/Zadanie zapisano w trwałej kolejce/),
+  ).toBeVisible();
+  expect(intents[0]).toEqual(intents[1]);
+  await page.getByRole('button', { name: /Czytaj polski helper/ }).click();
+  const result = page.getByRole('article', {
+    name: 'Wynik zadania opcjonalnego',
+  });
+  await expect(
+    result.getByText('<img src=x onerror=alert(1)> Nie używano.', {
+      exact: true,
+    }),
+  ).toBeVisible();
+  await expect(
+    result.getByText('Czas nieznany', { exact: true }),
+  ).toBeVisible();
+  expect(await result.locator('img').count()).toBe(0);
+  await page
+    .getByRole('button', { name: /Czytaj porównanie historii/ })
+    .click();
+  await expect(
+    result.getByText('Bieżąca wypowiedź.', { exact: true }),
+  ).toBeVisible();
+  await expect(
+    result.getByText('Poprzednia wypowiedź.', { exact: true }),
+  ).toBeVisible();
+  await expect(
+    result.getByText(/interpretacja analizy: nieporównywalne/),
+  ).toBeVisible();
+  await expect(
+    result.getByRole('button', { name: 'Źródło 1', exact: true }),
+  ).toHaveCount(2);
+  await result
+    .getByRole('button', { name: 'Źródło 1', exact: true })
+    .nth(1)
+    .click();
+  const drawer = page.getByRole('dialog', { name: 'Fragment źródła' });
+  await expect(drawer.getByRole('alert')).toBeVisible();
+  await drawer.getByRole('button', { name: 'Zamknij fragment źródła' }).click();
+  await page.setViewportSize({ width: 360, height: 900 });
+  expect(
+    (
+      await new AxeBuilder({ page })
+        .withTags(['wcag2a', 'wcag2aa', 'wcag21aa'])
+        .analyze()
+    ).violations,
+  ).toEqual([]);
+  expect(
+    await page.evaluate(
+      () => document.documentElement.scrollWidth <= innerWidth,
+    ),
+  ).toBe(true);
+});

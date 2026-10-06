@@ -1,5 +1,10 @@
 import { controlTick } from '../control.js';
 import { AnalysisJobs } from '../../../../packages/core/src/ai/jobs.js';
+import {
+  OptionalAIJobs,
+  type OptionalTask,
+} from '../../../../packages/core/src/ai/tasks/jobs.js';
+import { sha256 } from '../../../../packages/core/src/auth/crypto.js';
 import { AnalysisDisposition } from '../../../../packages/core/src/ai/disposition.js';
 import type { compileEconomy } from '../../../../packages/core/src/ai/compiler.js';
 import { AnalysisResponses } from '../../../../packages/core/src/ai/responses.js';
@@ -52,6 +57,105 @@ function task(value: unknown): TaskType {
     throw new Error('INVALID_TASK');
   return value as TaskType;
 }
+function optionalTask(value: unknown): OptionalTask {
+  if (value !== 'TRANSLATE' && value !== 'HISTORICAL_COMPARE')
+    throw new Error('INVALID_TASK');
+  return value;
+}
+workersApp.post('/optional/input', async (c) => {
+  const input = await body(c, ['token', 'task_type']),
+    access = c.get('access');
+  return c.json(
+    await new OptionalAIJobs(c.env.DB, access).prepare(
+      token(input.token, access.actorId),
+      optionalTask(input.task_type),
+      new Date(),
+    ),
+  );
+});
+workersApp.post('/optional/reserve', async (c) => {
+  const input = await body(c, [
+      'token',
+      'task_type',
+      'request_id',
+      'input_tokens',
+    ]),
+    access = c.get('access'),
+    jobs = new OptionalAIJobs(c.env.DB, access),
+    lease = token(input.token, access.actorId),
+    task = optionalTask(input.task_type),
+    now = new Date();
+  const prepared = await jobs.prepare(lease, task, now);
+  if (
+    input.request_id !== prepared.run_id ||
+    input.input_tokens !== prepared.request.estimated_input_tokens
+  )
+    throw new Error('INVALID_AI_REQUEST_SCOPE');
+  return c.json(await jobs.reserve(lease, task, now));
+});
+workersApp.post('/optional/submit', async (c) => {
+  const input = await body(c, [
+      'token',
+      'task_type',
+      'reservation_id',
+      'request_prompt_hash',
+    ]),
+    access = c.get('access'),
+    jobs = new OptionalAIJobs(c.env.DB, access),
+    lease = token(input.token, access.actorId),
+    task = optionalTask(input.task_type),
+    now = new Date();
+  if (
+    input.request_prompt_hash !==
+    (await sha256((await jobs.prepare(lease, task, now)).request.prompt))
+  )
+    throw new Error('INVALID_AI_REQUEST_SCOPE');
+  return c.json(
+    await jobs.submit(lease, task, text(input.reservation_id, 36), now),
+  );
+});
+workersApp.post('/optional/response', async (c) => {
+  const input = await body(c, [
+      'token',
+      'task_type',
+      'reservation_id',
+      'artifact_id',
+    ]),
+    access = c.get('access');
+  return c.json(
+    await new AnalysisResponses(
+      c.env.DB,
+      access,
+      optionalTask(input.task_type),
+    ).record(
+      token(input.token, access.actorId),
+      text(input.reservation_id, 36),
+      text(input.artifact_id, 128),
+      new Date(),
+    ),
+  );
+});
+workersApp.post('/optional/complete', async (c) => {
+  const input = await body(c, [
+      'token',
+      'task_type',
+      'reservation_id',
+      'artifact_id',
+    ]),
+    access = c.get('access');
+  if (!c.env.SESSION_SIGNING_SECRET)
+    throw new Error('AUTH_CONFIGURATION_REQUIRED');
+  return c.json(
+    await new OptionalAIJobs(c.env.DB, access).complete(
+      token(input.token, access.actorId),
+      optionalTask(input.task_type),
+      text(input.reservation_id, 36),
+      text(input.artifact_id, 128),
+      new Date(),
+      c.env.SESSION_SIGNING_SECRET,
+    ),
+  );
+});
 workersApp.post('/search/step', async (c) => {
   await body(c, []);
   return c.json(

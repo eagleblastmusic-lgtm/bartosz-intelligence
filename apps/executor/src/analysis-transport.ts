@@ -23,10 +23,14 @@ export async function executePreparedAnalysis(input: {
   ) => Promise<unknown>;
   providerTransport?: typeof fetch;
   clock?: () => Date;
+  task_type?: 'TRANSLATE' | 'HISTORICAL_COMPARE';
 }) {
   if (input.request.runtime !== 'local')
     throw new Error('INVALID_EXECUTION_RUNTIME');
   let token = input.token;
+  const task = input.task_type ?? 'ANALYZE',
+    prefix = input.task_type ? 'optional' : 'analysis';
+  const taskFields = input.task_type ? { task_type: input.task_type } : {};
   let permit: { reservation_id: string; request_id: string } | null = null;
   let submissionAttempted = false,
     retained = false;
@@ -44,7 +48,8 @@ export async function executePreparedAnalysis(input: {
         throw new Error('INVALID_AI_REQUEST_SCOPE');
       // An ambiguous control-plane submit is never retried in this invocation.
       submissionAttempted = true;
-      const result = (await input.rpc.request('analysis/submit', {
+      const result = (await input.rpc.request(prefix + '/submit', {
+        ...taskFields,
         token,
         reservation_id: permit.reservation_id,
         request_prompt_hash: await sha256(input.request.prompt),
@@ -57,7 +62,8 @@ export async function executePreparedAnalysis(input: {
   );
   const result = await executeAnalysis(input.request, provider, {
     reserve: async (request) => {
-      const response = (await input.rpc.request('analysis/reserve', {
+      const response = (await input.rpc.request(prefix + '/reserve', {
+        ...taskFields,
         token,
         request_id: request.request_id,
         input_tokens: request.estimated_input_tokens,
@@ -73,7 +79,7 @@ export async function executePreparedAnalysis(input: {
     heartbeat: async () => {
       const response = (await input.rpc.request('heartbeat', {
         runtime: 'local',
-        task_type: 'ANALYZE',
+        task_type: task,
         token,
       })) as { token: LeaseToken | null };
       if (

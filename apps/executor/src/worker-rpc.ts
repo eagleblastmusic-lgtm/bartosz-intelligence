@@ -9,6 +9,8 @@ export class WorkerRpcError extends Error {
       | 'QUOTA_ADMISSION_DENIED'
       | 'ANALYSIS_PROFILE_ACCOUNT_PURPOSE_REGION'
       | 'ANALYSIS_PROFILE_QUALITY_SCOPE'
+      | 'OPTIONAL_PROFILE_ACCOUNT_PURPOSE_REGION'
+      | 'OPTIONAL_PROFILE_QUALITY_SCOPE'
       | null = null,
   ) {
     super(message);
@@ -43,7 +45,7 @@ export class WorkerRpc {
     method: 'GET' | 'POST' = 'POST',
   ) {
     if (
-      !/^(?:search\/step|lease|heartbeat|start|retry|defer|source-correction\/(?:input|complete)|analysis\/(?:input|context|reserve|submit|response|validate|complete|quality-finish|chunk-finish|chunks\/(?:create|status|complete)|disposition)|transcript\/(?:input|accept|outcome|admission)|artifacts\/(?:begin|write|read|verify-step))$/.test(
+      !/^(?:search\/step|lease|heartbeat|start|retry|defer|source-correction\/(?:input|complete)|optional\/(?:input|reserve|submit|response|complete)|analysis\/(?:input|context|reserve|submit|response|validate|complete|quality-finish|chunk-finish|chunks\/(?:create|status|complete)|disposition)|transcript\/(?:input|accept|outcome|admission)|artifacts\/(?:begin|write|read|verify-step))$/.test(
         path,
       )
     )
@@ -106,7 +108,9 @@ export class WorkerRpc {
               (value.code === 'QUOTA_UNKNOWN_OR_STALE' ||
                 value.code === 'QUOTA_ADMISSION_DENIED' ||
                 value.code === 'ANALYSIS_PROFILE_ACCOUNT_PURPOSE_REGION' ||
-                value.code === 'ANALYSIS_PROFILE_QUALITY_SCOPE')
+                value.code === 'ANALYSIS_PROFILE_QUALITY_SCOPE' ||
+                value.code === 'OPTIONAL_PROFILE_ACCOUNT_PURPOSE_REGION' ||
+                value.code === 'OPTIONAL_PROFILE_QUALITY_SCOPE')
             )
               code = value.code;
           }

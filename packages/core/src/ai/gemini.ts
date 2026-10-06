@@ -121,6 +121,8 @@ export class GeminiFreeProvider implements AIProvider {
       request.wire_schema.$id !== 'urn:bartosz:schema:economy-wire:1.0' &&
       request.wire_schema.$id !== 'urn:bartosz:schema:repair-wire:1.0' &&
       request.wire_schema.$id !== 'urn:bartosz:schema:full-wire:1.0' &&
+      request.wire_schema.$id !== 'urn:bartosz:schema:translation-wire:1.0' &&
+      request.wire_schema.$id !== 'urn:bartosz:schema:history-wire:1.0' &&
       !(
         typeof request.wire_schema.$id === 'string' &&
         /^urn:bartosz:schema:custom-wire:[a-f0-9]{64}:1\.0$/.test(

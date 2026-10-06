@@ -14,6 +14,7 @@ export class AnalysisResponses {
   constructor(
     private db: Database,
     private context: AccessContext,
+    private task: 'ANALYZE' | 'TRANSLATE' | 'HISTORICAL_COMPARE' = 'ANALYZE',
   ) {
     assertContext(context);
   }
@@ -23,12 +24,12 @@ export class AnalysisResponses {
     artifactId: string,
     now: Date,
   ) {
-    this.context.requireTask('ANALYZE');
+    this.context.requireTask(this.task);
     const artifact = await new ArtifactRepository(
       this.db,
       this.context,
       reservationId,
-    ).get(artifactId, token, 'ANALYZE', now);
+    ).get(artifactId, token, this.task, now);
     const provenance = JSON.parse(artifact.provenance_json) as {
       reservation_id: string;
       response: ResponseMetadata;
@@ -99,7 +100,7 @@ export class AnalysisResponses {
       (!provenance.raw_output_present && artifact.byte_size !== 0)
     )
       throw new Error('INVALID_AI_RESPONSE_RECEIPT');
-    await new QuotaAdmission(this.db, this.context).reconcile(
+    await new QuotaAdmission(this.db, this.context, this.task).reconcile(
       reservationId,
       { ...response, raw_output: null },
       now,

@@ -10,13 +10,14 @@ export async function retainAnalysisResponse(input: {
   item_id: string;
   response: AIResponse;
   transport?: typeof fetch;
+  task_type?: 'TRANSLATE' | 'HISTORICAL_COMPARE';
 }) {
   const { raw_output, ...response } = input.response;
   const artifacts = new ArtifactClient(
     input.origin,
     input.credential,
     () => input.token,
-    'ANALYZE',
+    input.task_type ?? 'ANALYZE',
     input.transport ?? fetch,
     input.reservation_id,
   );
@@ -36,7 +37,8 @@ export async function retainAnalysisResponse(input: {
     input.origin,
     input.credential,
     input.transport ?? fetch,
-  ).request('analysis/response', {
+  ).request((input.task_type ? 'optional' : 'analysis') + '/response', {
+    ...(input.task_type ? { task_type: input.task_type } : {}),
     token: input.token,
     reservation_id: input.reservation_id,
     artifact_id: artifact.artifact_id,
