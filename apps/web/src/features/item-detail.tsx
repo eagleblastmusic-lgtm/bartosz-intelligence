@@ -7,6 +7,7 @@ import type { enrichEconomy } from '../../../../packages/core/src/ai/enrichment/
 import { api, errorMessage } from '../app/api.js';
 import { AppLink, today } from '../app/router.js';
 import { EvidenceChips } from '../components/evidence-drawer.js';
+import { ItemOrganization } from '../components/item-organization.js';
 type Canonical = Awaited<ReturnType<typeof enrichEconomy>>['canonical'];
 const decode = (value: string) =>
   Uint8Array.from(atob(value.replaceAll('-', '+').replaceAll('_', '/')), (c) =>
@@ -173,6 +174,22 @@ export function ItemDetail({ route }: { route: string }) {
         <p role="alert" className="notice error">
           {error}
         </p>
+      )}
+      {current && (
+        <ItemOrganization
+          key={itemId}
+          itemId={itemId}
+          runId={current.detail.selected_run_id}
+          observations={
+            canonical
+              ? [
+                  ...canonical.claims,
+                  ...canonical.stance,
+                  ...canonical.predictions,
+                ]
+              : []
+          }
+        />
       )}
       {busy && (
         <p role="status">

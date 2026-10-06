@@ -19,6 +19,7 @@ import { sha256 } from '../../packages/core/src/auth/crypto.js';
 import { EntityKnowledge } from '../../packages/core/src/knowledge/entities.js';
 import { EntityIdentity } from '../../packages/core/src/knowledge/identity.js';
 import { KnowledgeCorrections } from '../../packages/core/src/knowledge/corrections.js';
+import { KnowledgeOrganization } from '../../packages/core/src/knowledge/organization.js';
 function database() {
   const sqlite = new DatabaseSync(':memory:');
   sqlite.exec('PRAGMA foreign_keys=ON');
@@ -242,6 +243,67 @@ it('independent canonical restore preserves cyclic revision refs/origins and inv
       },
       now,
     );
+    const organization = new KnowledgeOrganization(source.db, owner),
+      space_id = crypto.randomUUID();
+    await organization.space(
+      {
+        space_id,
+        name: 'Restore research',
+        active: true,
+        expected_revision: 0,
+        mutation_id: crypto.randomUUID(),
+      },
+      now,
+    );
+    await organization.membership(
+      {
+        item_id: item.item_id,
+        space_id,
+        active: true,
+        expected_revision: 0,
+        mutation_id: crypto.randomUUID(),
+      },
+      now,
+    );
+    await organization.review(
+      {
+        item_id: item.item_id,
+        action: 'SAVE',
+        reviewed_run_id: null,
+        expected_revision: 0,
+        mutation_id: crypto.randomUUID(),
+      },
+      now,
+    );
+    const observation = JSON.stringify({
+      observation_id: 'restore-note-observation',
+      kind: 'CLAIM',
+      content_pl: 'Restore relation fixture',
+    });
+    await source.db
+      .prepare('INSERT INTO observations VALUES(?,?,?,?,?,?,?)')
+      .bind(
+        'a',
+        'restore-note-observation',
+        'accepted-fixture-run',
+        'CLAIM',
+        observation,
+        await sha256(observation),
+        now.toISOString(),
+      )
+      .run();
+    await organization.insight(
+      {
+        item_id: item.item_id,
+        insight_id: crypto.randomUUID(),
+        text: 'Authored restore note',
+        active: true,
+        observation_ids: ['restore-note-observation'],
+        expected_revision: 0,
+        mutation_id: crypto.randomUUID(),
+      },
+      now,
+    );
     const backup = new CoreBackup(source.db, owner),
       started = await backup.begin(),
       chunks = [];
@@ -291,6 +353,12 @@ it('independent canonical restore preserves cyclic revision refs/origins and inv
       'entity_identity_events',
       'entity_identity_members',
       'correction_overlays',
+      'spaces',
+      'item_spaces',
+      'review_state',
+      'insights',
+      'insight_observations',
+      'organization_mutations',
     ])
       expect(
         target.sqlite

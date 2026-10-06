@@ -37,7 +37,11 @@ export function EvidenceChips({
   }
   return (
     <>
-      <div className="evidence-chips" aria-label="Fragmenty źródła">
+      <div
+        className="evidence-chips"
+        role="group"
+        aria-label="Fragmenty źródła"
+      >
         {ids.map((id, index) => (
           <button
             key={id}

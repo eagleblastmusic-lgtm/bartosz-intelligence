@@ -20,6 +20,54 @@ import type {
 } from '../../packages/contracts/src/jobs.js';
 import { addSource } from '../../packages/core/src/sources/youtube/backfill.js';
 beforeEach(resetCore);
+it('organization API keeps Spaces owner scoped and guards mutations with CSRF and revisions', async () => {
+  const headers = await ownerHeaders(),
+    space_id = crypto.randomUUID();
+  const input = {
+    space_id,
+    name: 'Research',
+    active: true,
+    expected_revision: 0,
+    mutation_id: crypto.randomUUID(),
+  };
+  const noCsrf: Record<string, string> = { ...headers };
+  delete noCsrf['X-CSRF-Token'];
+  expect(
+    (await request('/api/v1/organization/spaces', noCsrf, input)).status,
+  ).toBe(403);
+  expect(
+    (
+      await request('/api/v1/organization/spaces', headers, {
+        ...input,
+        owner_id: 'b',
+      })
+    ).status,
+  ).toBe(422);
+  expect(
+    (await request('/api/v1/organization/spaces', headers, input)).status,
+  ).toBe(200);
+  const replay = await request('/api/v1/organization/spaces', headers, input);
+  expect(replay.status).toBe(200);
+  expect(await replay.json()).toMatchObject({ duplicate: true });
+  expect(
+    (
+      await request('/api/v1/organization/spaces', headers, {
+        ...input,
+        name: 'Other',
+        mutation_id: crypto.randomUUID(),
+      })
+    ).status,
+  ).toBe(409);
+  const own = await request('/api/v1/organization/spaces', headers);
+  expect(await own.json()).toMatchObject({
+    spaces: [{ space_id, name: 'Research' }],
+  });
+  const foreign = await request(
+    '/api/v1/organization/spaces',
+    await ownerHeaders('b'),
+  );
+  expect(await foreign.json()).toMatchObject({ spaces: [] });
+});
 it('identity preview/confirmation requires owner CSRF and correction writes retain immutable source labels', async () => {
   const headers = await ownerHeaders();
   for (const id of ['identity-a', 'identity-b'])
@@ -344,6 +392,8 @@ it('owner routes require auth before domain reads and never fall through to HTML
     '/api/v1/sources',
     '/api/v1/sources/missing/progress',
     '/api/v1/system/summary',
+    '/api/v1/organization/spaces',
+    '/api/v1/organization/items/missing',
     '/api/v1/backup/missing/manifest',
   ]) {
     const response = await request(path);

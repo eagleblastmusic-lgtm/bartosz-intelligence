@@ -94,6 +94,11 @@
       "name": "019_source_correction_idempotency.sql",
       "depends_on": ["018_correction_overlays.sql"],
       "sha256": "d64fc3d615c88c7741e19ca13fef963f1f3b25a26990fb9fa2e7d6d877b08729"
+    },
+    {
+      "name": "020_spaces_review_insights.sql",
+      "depends_on": ["019_source_correction_idempotency.sql"],
+      "sha256": "81fe6695dd7bbb7714c7cf98f0095c5d460b073a74e47750c1410914e23a0a54"
     }
   ],
   "version": 1
