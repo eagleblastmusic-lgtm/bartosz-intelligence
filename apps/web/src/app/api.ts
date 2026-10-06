@@ -63,6 +63,13 @@ export async function api<T>(
 }
 export function errorMessage(error: unknown) {
   if (error instanceof ApiError) {
+    if (error.code === 'INVALID_WINDOW')
+      return 'Sprawdź zakres: początek musi poprzedzać koniec, a koniec nie może być w przyszłości.';
+    if (
+      error.code === 'INVALID_LOCATOR' ||
+      error.code === 'INVALID_SOURCE_INTENT'
+    )
+      return 'Podaj publiczny kanał YouTube: adres, @handle lub identyfikator kanału.';
     if (error.status === 409 && error.code === 'READ_SNAPSHOT_CHANGED')
       return 'Dane zmieniły się podczas przeglądania. Odśwież widok.';
     if (error.status === 403) return 'Brak dostępu do tej operacji.';

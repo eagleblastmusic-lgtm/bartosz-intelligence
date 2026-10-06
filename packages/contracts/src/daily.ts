@@ -81,3 +81,23 @@ export interface CalendarSnapshot {
   }[];
   freshness: { sampled_at: string; status: 'CURRENT' };
 }
+export interface SourceProgress {
+  source_id: string;
+  sampled_at: string;
+  counts: DailyCounts;
+  scan: null | {
+    scan_id: string;
+    job_id: string;
+    window_start: string;
+    window_end: string;
+    coverage: string;
+    enumerated_count: number;
+    pages_committed: number;
+    completed_at: string | null;
+    state: string;
+    reason_code: string | null;
+    due_at: string;
+  };
+  scheduled: number;
+  total: number | null;
+}

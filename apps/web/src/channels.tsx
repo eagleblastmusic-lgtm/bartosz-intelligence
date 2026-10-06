@@ -1,9 +1,10 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import type { SourceIdentity } from '../../../packages/contracts/src/discovery.js';
 import type { JobRecord } from '../../../packages/contracts/src/jobs.js';
 import { BackupDownload } from './backup.js';
 
 import { api, errorMessage } from './app/api.js';
+import { SourceProgress } from './components/source-progress.js';
 
 type Source = {
   source_id: string;
@@ -21,11 +22,21 @@ type Preview = {
   unknown_publication_count: number;
 };
 export function Channels() {
+  const actionLock = useRef(false);
   const [error, setError] = useState(''),
     [busy, setBusy] = useState(false);
   const [locator, setLocator] = useState('');
+  const [range, setRange] = useState('30'),
+    [start, setStart] = useState(''),
+    [end, setEnd] = useState(''),
+    [selectedSource, setSelectedSource] = useState<string | null>(null);
   const [preview, setPreview] = useState<
-    | (Preview & { identity: SourceIdentity; locator: string; key: string })
+    | (Preview & {
+        identity: SourceIdentity;
+        locator: string;
+        key: string;
+        label: string;
+      })
     | null
   >(null);
   const [sources, setSources] = useState<Page<Source, 'sources'>>({
@@ -55,6 +66,8 @@ export function Channels() {
     };
   }, []);
   async function action(work: () => Promise<void>) {
+    if (actionLock.current) return;
+    actionLock.current = true;
     setBusy(true);
     setError('');
     try {
@@ -62,6 +75,7 @@ export function Channels() {
     } catch (error) {
       setError(errorMessage(error));
     } finally {
+      actionLock.current = false;
       setBusy(false);
     }
   }
@@ -88,13 +102,29 @@ export function Channels() {
               });
               const result = await api<Preview>('/sources/backfill-preview', {
                 locator,
-                range: 30,
+                range: ['only-new', 'custom'].includes(range)
+                  ? range
+                  : Number(range),
+                ...(range === 'custom'
+                  ? {
+                      start: new Date(start + 'Z').toISOString(),
+                      end: new Date(end + 'Z').toISOString(),
+                    }
+                  : {}),
               });
               setPreview({
                 ...result,
                 identity,
                 locator,
                 key: crypto.randomUUID(),
+                label:
+                  range === '30'
+                    ? '30 dni'
+                    : range === 'only-new'
+                      ? 'od teraz'
+                      : range === 'custom'
+                        ? 'wybrany zakres'
+                        : range + ' dni',
               });
               setNotice('');
             });
@@ -111,8 +141,60 @@ export function Channels() {
             }}
             disabled={busy}
           />{' '}
+          <label htmlFor="backfill-range">Zakres</label>
+          <select
+            id="backfill-range"
+            value={range}
+            disabled={busy}
+            onChange={(event) => {
+              setRange(event.target.value);
+              setPreview(null);
+            }}
+          >
+            <option value="30">Ostatnie 30 dni</option>
+            <option value="7">Ostatnie 7 dni</option>
+            <option value="90">Ostatnie 90 dni</option>
+            <option value="only-new">Tylko nowe</option>
+            <option value="custom">Własny zakres</option>
+          </select>
+          {range === 'custom' && (
+            <>
+              <label>
+                Początek (UTC)
+                <input
+                  type="datetime-local"
+                  required
+                  value={start}
+                  disabled={busy}
+                  onChange={(event) => {
+                    setStart(event.target.value);
+                    setPreview(null);
+                  }}
+                />
+              </label>
+              <label>
+                Koniec (UTC)
+                <input
+                  type="datetime-local"
+                  required
+                  value={end}
+                  disabled={busy}
+                  onChange={(event) => {
+                    setEnd(event.target.value);
+                    setPreview(null);
+                  }}
+                />
+              </label>
+            </>
+          )}
+          <p className="metadata">
+            Profil: Economy · Gemini Free · usługi płatne wyłączone. Zakres nie
+            jest obietnicą pełnej historii ani dostępnej pojemności Free Tier.
+          </p>
           <button disabled={busy} type="submit">
-            Sprawdź ostatnie 30 dni
+            {range === '30'
+              ? 'Sprawdź ostatnie 30 dni'
+              : 'Sprawdź wybrany zakres'}
           </button>
         </form>
         {preview && (
@@ -132,7 +214,10 @@ export function Channels() {
               disabled={busy}
               onClick={() =>
                 void action(async () => {
-                  await api(
+                  const receipt = await api<{
+                    source_id: string;
+                    job_id: string;
+                  }>(
                     '/sources',
                     {
                       locator: preview.locator,
@@ -142,14 +227,18 @@ export function Channels() {
                     preview.key,
                   );
                   setNotice(
-                    'Monitoring zapisany. Backfill jest w trwałej kolejce.',
+                    'Monitoring zapisany. Backfill jest w trwałej kolejce. ID kanału: ' +
+                      receipt.source_id +
+                      ' · ID zadania: ' +
+                      receipt.job_id,
                   );
+                  setSelectedSource(receipt.source_id);
                   setPreview(null);
                   await refresh();
                 })
               }
             >
-              Włącz monitoring i backfill 30 dni
+              Włącz monitoring i backfill {preview.label}
             </button>
           </div>
         )}
@@ -164,9 +253,22 @@ export function Channels() {
               {source.title} · {source.enabled ? 'aktywny' : 'wyłączony'} ·
               ostatnie pełne okno:{' '}
               {source.last_complete_window_end ?? 'jeszcze nieukończone'}
+              <button
+                aria-expanded={selectedSource === source.source_id}
+                onClick={() =>
+                  setSelectedSource(
+                    selectedSource === source.source_id
+                      ? null
+                      : source.source_id,
+                  )
+                }
+              >
+                Postęp: {source.title}
+              </button>
             </li>
           ))}
         </ul>
+        {selectedSource && <SourceProgress sourceId={selectedSource} />}
         {sources.next_cursor && (
           <button
             disabled={busy}

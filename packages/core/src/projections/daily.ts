@@ -13,6 +13,7 @@ import type {
   DailyCounts,
   DailySnapshot,
   SourceCoverage,
+  SourceProgress,
 } from '../../../contracts/src/daily.js';
 
 interface ReadRow {
@@ -102,6 +103,47 @@ export class DailyProjection {
   ) {
     assertContext(context);
     context.requireOwner();
+  }
+  async sourceProgress(sourceId: string): Promise<SourceProgress> {
+    this.sources([sourceId]);
+    const owner = this.context.ownerId;
+    const rows = await this.db.batch([
+      this.db
+        .prepare(
+          'SELECT source_id FROM sources WHERE owner_id=? AND source_id=?',
+        )
+        .bind(owner, sourceId),
+      this.db
+        .prepare(
+          `WITH cohort AS (SELECT ${readiness} readiness ${joins} WHERE i.owner_id=? AND i.source_id=?) SELECT COUNT(*) items,COALESCE(SUM(readiness='READY'),0) ready,COALESCE(SUM(readiness='BLOCKED'),0) blocked,COALESCE(SUM(readiness='FAILED'),0) failed FROM cohort`,
+        )
+        .bind(owner, sourceId),
+      this.db
+        .prepare(
+          `SELECT d.scan_id,d.job_id,d.window_start,d.window_end,d.coverage,d.enumerated_count,d.pages_committed,d.completed_at,j.state,j.reason_code,j.due_at FROM discovery_scans d JOIN jobs j ON j.owner_id=d.owner_id AND j.job_id=d.job_id WHERE d.owner_id=? AND d.source_id=? ORDER BY d.started_at DESC,d.scan_id DESC LIMIT 1`,
+        )
+        .bind(owner, sourceId),
+      this.db
+        .prepare(
+          `SELECT COUNT(*) scheduled FROM discovery_scan_members m WHERE m.owner_id=? AND m.scan_id=(SELECT scan_id FROM discovery_scans WHERE owner_id=? AND source_id=? ORDER BY started_at DESC,scan_id DESC LIMIT 1) AND EXISTS(SELECT 1 FROM jobs q WHERE q.owner_id=m.owner_id AND q.item_id=m.item_id AND q.task_type='FETCH_TRANSCRIPT')`,
+        )
+        .bind(owner, owner, sourceId),
+    ]);
+    if (!rows[0]?.results?.length) throw new Error('NOT_FOUND');
+    const scan = (rows[2]?.results?.[0] as SourceProgress['scan']) ?? null;
+    return {
+      source_id: sourceId,
+      sampled_at: new Date().toISOString(),
+      counts: counts(rows[1]?.results?.[0] as Record<string, number>),
+      scan,
+      scheduled: Number(
+        (rows[3]?.results?.[0] as { scheduled: number }).scheduled,
+      ),
+      total:
+        scan?.coverage === 'COMPLETE' && scan.completed_at
+          ? scan.enumerated_count
+          : null,
+    };
   }
   private sources(ids: readonly string[]) {
     if (

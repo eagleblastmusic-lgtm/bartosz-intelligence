@@ -13,6 +13,7 @@ import {
   pageLimit,
 } from '../../../../packages/core/src/db/cursor.js';
 import type { Env } from '../env.js';
+import { DailyProjection } from '../../../../packages/core/src/projections/daily.js';
 export const sourcesApp = ownerRouter();
 function client(env: Env) {
   if (!env.YOUTUBE_API_KEY) throw new Error('PROVIDER_CONFIGURATION_REQUIRED');
@@ -95,6 +96,14 @@ sourcesApp.post('/:id/disable', async (c) => {
     c.get('correlation'),
   );
   return c.json({ enabled: false });
+});
+sourcesApp.get('/:id/progress', async (c) => {
+  queryFields(c, []);
+  return c.json(
+    await new DailyProjection(c.env.DB, c.get('access')).sourceProgress(
+      text(c.req.param('id'), 128),
+    ),
+  );
 });
 sourcesApp.get('/', async (c) => {
   queryFields(c, ['limit', 'cursor']);

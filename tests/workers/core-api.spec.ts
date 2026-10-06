@@ -97,6 +97,7 @@ it('owner routes require auth before domain reads and never fall through to HTML
     '/api/v1/daily/undated',
     '/api/v1/jobs',
     '/api/v1/sources',
+    '/api/v1/sources/missing/progress',
     '/api/v1/system/summary',
     '/api/v1/backup/missing/manifest',
   ]) {

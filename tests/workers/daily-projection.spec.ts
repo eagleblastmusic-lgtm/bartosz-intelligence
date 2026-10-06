@@ -16,6 +16,67 @@ const secret = 'fixture-daily-cursor-signing-32-byte-minimum';
 const date = '2026-10-05';
 const at = fixtureNow.toISOString();
 beforeEach(resetCore);
+it('source progress preserves partial/unknown totals and accepted readiness without scheduling work', async () => {
+  const owner = await fixtureOwner(),
+    id = await source(owner),
+    projection = new DailyProjection(env.DB, owner);
+  expect((await projection.sourceProgress(id)).total).toBeNull();
+  const first = await item(owner, id, 201),
+    second = await item(owner, id, 202);
+  await accept(owner, id, first);
+  await new JobStore(env.DB, owner).enqueue(
+    jobInput(second, id, 'FETCH_TRANSCRIPT'),
+    at,
+  );
+  const scanId = await scan(
+    owner,
+    id,
+    '2026-09-05T00:00:00Z',
+    '2026-10-05T00:00:00Z',
+    'PARTIAL',
+    '2026-10-05T00:00:00Z',
+    null,
+  );
+  await env.DB.prepare(
+    'INSERT INTO discovery_scan_members(owner_id,scan_id,item_id) VALUES(?,?,?)',
+  )
+    .bind(owner.ownerId, scanId, second)
+    .run();
+  await env.DB.prepare(
+    'UPDATE discovery_scans SET enumerated_count=2 WHERE scan_id=?',
+  )
+    .bind(scanId)
+    .run();
+  const before = await env.DB.prepare('SELECT COUNT(*) n FROM jobs').first<{
+    n: number;
+  }>();
+  const progress = await projection.sourceProgress(id);
+  expect(progress.total).toBeNull();
+  expect(progress.scheduled).toBe(1);
+  expect(progress.counts).toEqual({
+    items: 2,
+    ready: 1,
+    pending: 1,
+    blocked: 0,
+    failed: 0,
+  });
+  expect(progress.scan?.coverage).toBe('PARTIAL');
+  await env.DB.prepare(
+    "UPDATE discovery_scans SET coverage='COMPLETE',completed_at=? WHERE scan_id=?",
+  )
+    .bind(at, scanId)
+    .run();
+  expect((await projection.sourceProgress(id)).total).toBe(2);
+  expect(await env.DB.prepare('SELECT COUNT(*) n FROM jobs').first()).toEqual(
+    before,
+  );
+  await expect(projection.sourceProgress('unknown-source')).rejects.toThrow(
+    'NOT_FOUND',
+  );
+  await expect(
+    new DailyProjection(env.DB, await fixtureOwner('b')).sourceProgress(id),
+  ).rejects.toThrow('NOT_FOUND');
+});
 const view: AcceptedView = {
   version: 'accepted-view:1',
   status: 'OK',

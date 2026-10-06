@@ -4,6 +4,8 @@ test('onboarding preserves preview window/idempotency on retry and renders metad
   page,
 }) => {
   let saves = 0;
+  let previewError = '';
+  const ranges: unknown[] = [];
   const keys: string[] = [],
     windows: unknown[] = [];
   const window = {
@@ -40,14 +42,20 @@ test('onboarding preserves preview window/idempotency on retry and renders metad
     if (path === '/api/v1/auth/session') data = { authenticated: true };
     else if (path === '/api/v1/sources/resolve')
       data = { namespace: 'youtube', external_id: 'UC-fixture', title };
-    else if (path === '/api/v1/sources/backfill-preview')
+    else if (path === '/api/v1/sources/backfill-preview') {
+      ranges.push(request.postDataJSON().range);
+      if (previewError)
+        return route.fulfill({
+          status: previewError === 'INVALID_WINDOW' ? 422 : 503,
+          json: { code: previewError },
+        });
       data = {
         window,
         coverage: 'PARTIAL',
         enumerated_count: 3,
         unknown_publication_count: 1,
       };
-    else if (path === '/api/v1/sources' && request.method() === 'POST') {
+    } else if (path === '/api/v1/sources' && request.method() === 'POST') {
       saves++;
       keys.push(request.headers()['idempotency-key']!);
       windows.push(request.postDataJSON().window);
@@ -87,6 +95,15 @@ test('onboarding preserves preview window/idempotency on retry and renders metad
             : [],
         next_cursor: null,
       };
+    else if (path === '/api/v1/sources/source-fixture/progress')
+      data = {
+        source_id: 'source-fixture',
+        sampled_at: '2026-10-06T12:00:00Z',
+        counts: { items: 3, ready: 0, pending: 3, blocked: 0, failed: 0 },
+        scan: null,
+        scheduled: 0,
+        total: null,
+      };
     else throw new Error('UNEXPECTED_FIXTURE_API_ROUTE');
     await route.fulfill({ json: data });
   });
@@ -104,9 +121,32 @@ test('onboarding preserves preview window/idempotency on retry and renders metad
   await save.click();
   await expect(page.getByRole('status')).toContainText('Monitoring zapisany');
   await expect(page.getByText('DISCOVER · PENDING')).toBeVisible();
+  await expect(
+    page.getByText(
+      'Discovery oczekuje na rozpoczęcie. Łączna liczba materiałów nieznana.',
+    ),
+  ).toBeVisible();
+  await expect(page.getByRole('status')).toContainText('source-fixture');
   expect(keys[0]).toBeTruthy();
   expect(keys[1]).toBe(keys[0]);
   expect(windows).toEqual([window, window]);
+  expect(ranges).toEqual([30]);
+  previewError = 'QUOTA';
+  await page.getByLabel('Zakres', { exact: true }).selectOption('7');
+  await page.getByRole('button', { name: 'Sprawdź wybrany zakres' }).click();
+  await expect(page.getByRole('alert')).toContainText('QUOTA');
+  previewError = '';
+  await page.getByRole('button', { name: 'Sprawdź wybrany zakres' }).click();
+  await expect(
+    page.getByRole('button', { name: 'Włącz monitoring i backfill 7 dni' }),
+  ).toBeVisible();
+  previewError = 'INVALID_WINDOW';
+  await page.getByLabel('Zakres', { exact: true }).selectOption('custom');
+  await page.getByLabel('Początek (UTC)').fill('2026-10-07T12:00');
+  await page.getByLabel('Koniec (UTC)').fill('2026-10-06T12:00');
+  await page.getByRole('button', { name: 'Sprawdź wybrany zakres' }).click();
+  await expect(page.getByRole('alert')).toContainText('Sprawdź zakres');
+  expect(ranges).toEqual([30, 7, 7, 'custom']);
 });
 
 test('unauthenticated screen exposes login without private source data', async ({
