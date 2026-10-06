@@ -20,6 +20,86 @@ import type {
 } from '../../packages/contracts/src/jobs.js';
 import { addSource } from '../../packages/core/src/sources/youtube/backfill.js';
 beforeEach(resetCore);
+it('identity preview/confirmation requires owner CSRF and correction writes retain immutable source labels', async () => {
+  const headers = await ownerHeaders();
+  for (const id of ['identity-a', 'identity-b'])
+    await env.DB.prepare('INSERT INTO entities VALUES(?,?,?,?,?,?)')
+      .bind('a', id, id, 'TOOL', 'UNRESOLVED_LITERAL', fixtureNow.toISOString())
+      .run();
+  const input = {
+    action: 'MERGE',
+    source_entity_id: 'identity-a',
+    target_entity_id: 'identity-b',
+    reason: 'Owner confirmed identities',
+    parent_event_id: null,
+  };
+  const preview = await request(
+    '/api/v1/entities/identity-preview',
+    headers,
+    input,
+  );
+  expect(preview.status).toBe(200);
+  const proposal = await preview.json();
+  const noCsrf: Record<string, string> = { ...headers };
+  delete noCsrf['X-CSRF-Token'];
+  expect(
+    (await request('/api/v1/entities/identity-confirm', noCsrf, proposal))
+      .status,
+  ).toBe(403);
+  expect(
+    (
+      await request(
+        '/api/v1/entities/identity-confirm',
+        await ownerHeaders('b'),
+        proposal,
+      )
+    ).status,
+  ).toBe(404);
+  expect(
+    (await request('/api/v1/entities/identity-confirm', headers, proposal))
+      .status,
+  ).toBe(200);
+  const target = await request(
+    '/api/v1/corrections/ENTITY_LABEL/identity-a',
+    headers,
+  );
+  const metadata = (await target.json()) as {
+    target_hash: string;
+    original_value: string;
+  };
+  const correction = {
+    expected_revision: 0,
+    target_hash: metadata.target_hash,
+    old_value: metadata.original_value,
+    new_value: 'Authored interpretation',
+    action: 'APPLY',
+    reason: 'Owner annotation',
+    correction_id: crypto.randomUUID(),
+  };
+  expect(
+    (
+      await request(
+        '/api/v1/corrections/ENTITY_LABEL/identity-a',
+        noCsrf,
+        correction,
+      )
+    ).status,
+  ).toBe(403);
+  expect(
+    (
+      await request(
+        '/api/v1/corrections/ENTITY_LABEL/identity-a',
+        headers,
+        correction,
+      )
+    ).status,
+  ).toBe(200);
+  expect(
+    await env.DB.prepare(
+      "SELECT label FROM entities WHERE entity_id='identity-a'",
+    ).first('label'),
+  ).toBe('identity-a');
+});
 it('alias mutations require owner CSRF, preserve revision conflicts and reject unexpected fields', async () => {
   const headers = await ownerHeaders();
   await env.DB.prepare('INSERT INTO entities VALUES(?,?,?,?,?,?)')
@@ -253,6 +333,7 @@ it('owner routes require auth before domain reads and never fall through to HTML
     '/api/v1/ledger',
     '/api/v1/entities',
     '/api/v1/entities/missing',
+    '/api/v1/corrections/ENTITY_LABEL/missing',
     '/api/v1/items/missing/detail',
     '/api/v1/items/missing/canonical?run_id=missing',
     '/api/v1/evidence/missing?run_id=missing',

@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from 'react';
 import type { ObservationLedger } from '../../../../packages/core/src/knowledge/ledger.js';
 import { api, errorMessage } from '../app/api.js';
 import { AppLink, navigate } from '../app/router.js';
+import { CorrectionEditor } from '../components/correction-editor.js';
 type Snapshot = Awaited<ReturnType<ObservationLedger['page']>>;
 const labels: Record<string, string> = {
   CLAIM: 'Twierdzenie',
@@ -173,6 +174,15 @@ export function Ledger({ route }: { route: string }) {
                 'Status nieustalony'}
             </p>
             <h2>{String(row.observation.content_pl ?? '')}</h2>
+            {row.correction?.action === 'APPLY' && (
+              <aside className="notice">
+                <h3>Korekta właściciela</h3>
+                <p>{row.correction.new_value}</p>
+                <p className="metadata">
+                  {row.correction.reason} · autor: właściciel
+                </p>
+              </aside>
+            )}
             <p className="muted">
               {row.creator} ·{' '}
               {row.published_at
@@ -199,6 +209,11 @@ export function Ledger({ route }: { route: string }) {
             >
               Otwórz analizę i dowody: {row.title}
             </AppLink>
+            <CorrectionEditor
+              kind="OBSERVATION_TEXT"
+              id={row.observation_id}
+              changed={() => setRevision((value) => value + 1)}
+            />
           </article>
         ))}
       </div>

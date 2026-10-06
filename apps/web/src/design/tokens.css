@@ -66,13 +66,15 @@ a {
 }
 button,
 input,
-select {
+select,
+textarea {
   font: inherit;
   color: inherit;
 }
 button,
 input,
-select {
+select,
+textarea {
   min-height: 44px;
   border: 1px solid var(--border);
   border-radius: var(--radius);
@@ -702,6 +704,20 @@ select {
 .filter-bar select,
 .filter-bar input {
   max-width: 100%;
+}
+.correction-editor label {
+  display: flex;
+  flex-direction: column;
+  gap: var(--s2);
+  margin-bottom: var(--s3);
+}
+.correction-editor textarea {
+  width: 100%;
+  min-height: 120px;
+  resize: vertical;
+}
+.correction-editor {
+  overflow-wrap: anywhere;
 }
 .metric-pair dd small {
   display: block;

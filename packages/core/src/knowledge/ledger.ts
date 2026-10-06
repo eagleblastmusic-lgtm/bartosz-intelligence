@@ -6,6 +6,7 @@ import {
 import { decodeCursor, encodeCursor, pageLimit } from '../db/cursor.js';
 import { sha256 } from '../auth/crypto.js';
 import { localDayRange } from '../projections/dates.js';
+import { effectiveEntity } from './identity.js';
 
 export const observationKinds = [
   'CLAIM',
@@ -73,14 +74,15 @@ export class ObservationLedger {
         .bind(this.context.ownerId),
       this.db
         .prepare(
-          `SELECT o.observation_id,o.kind,o.row_json,o.row_hash,o.recorded_at,o.run_id,i.item_id,i.source_id,i.published_at,i.canonical_url,json_extract(m.metadata_json,'$.title') title,COALESCE(c.title,'Źródło') creator,s.selection_revision
+          `SELECT o.observation_id,o.kind,o.row_json,o.row_hash,o.recorded_at,o.run_id,i.item_id,i.source_id,i.published_at,i.canonical_url,json_extract(m.metadata_json,'$.title') title,COALESCE(c.title,'Źródło') creator,s.selection_revision,
+        (SELECT json_object('new_value',v.new_value,'reason',v.reason,'recorded_at',v.recorded_at,'revision',v.revision,'action',v.action) FROM correction_overlays v WHERE v.owner_id=o.owner_id AND v.target_kind='OBSERVATION_TEXT' AND v.target_id=o.observation_id ORDER BY v.revision DESC LIMIT 1) correction_json
         FROM observations o JOIN analysis_runs r ON r.owner_id=o.owner_id AND r.run_id=o.run_id AND r.state='ACCEPTED' AND json_extract(r.outcome_json,'$.version')='intelligence-accepted:1'
         JOIN items i ON i.owner_id=r.owner_id AND i.item_id=r.item_id
         JOIN active_analysis_selections s ON s.owner_id=i.owner_id AND s.item_id=i.item_id AND s.accepted_run_id=r.run_id
         JOIN item_revisions m ON m.owner_id=i.owner_id AND m.item_id=i.item_id AND m.revision_id=i.current_revision_id
         LEFT JOIN channels c ON c.owner_id=i.owner_id AND c.source_id=i.source_id
         WHERE o.owner_id=? AND (? IS NULL OR i.source_id=?) AND (? IS NULL OR o.kind=?)
-        AND (? IS NULL OR EXISTS(SELECT 1 FROM observation_entities e WHERE e.owner_id=o.owner_id AND e.observation_id=o.observation_id AND e.entity_id=?))
+        AND (? IS NULL OR EXISTS(SELECT 1 FROM observation_entities e WHERE e.owner_id=o.owner_id AND e.observation_id=o.observation_id AND ${effectiveEntity('e')}=(SELECT ${effectiveEntity('t')} FROM entities t WHERE t.owner_id=o.owner_id AND t.entity_id=?)))
         AND (? IS NULL OR json_extract(r.profile_snapshot_json,'$.profile_id')=?)
         AND (? IS NULL OR (i.published_at>=? AND i.published_at<?))
         AND (? IS NULL OR o.observation_id>?) ORDER BY o.observation_id LIMIT ?`,
@@ -120,19 +122,34 @@ export class ObservationLedger {
       title: string;
       creator: string;
       selection_revision: number;
+      correction_json: string | null;
     }[];
     const observations = await Promise.all(
-      rows.slice(0, limit).map(async ({ row_json, row_hash, ...metadata }) => {
-        if ((await sha256(row_json)) !== row_hash)
-          throw new Error('LEDGER_INTEGRITY_FAILED');
-        const row = JSON.parse(row_json) as Record<string, unknown>;
-        if (
-          row.observation_id !== metadata.observation_id ||
-          row.kind !== metadata.kind
-        )
-          throw new Error('LEDGER_INTEGRITY_FAILED');
-        return { ...metadata, observation: row };
-      }),
+      rows
+        .slice(0, limit)
+        .map(async ({ row_json, row_hash, correction_json, ...metadata }) => {
+          if ((await sha256(row_json)) !== row_hash)
+            throw new Error('LEDGER_INTEGRITY_FAILED');
+          const row = JSON.parse(row_json) as Record<string, unknown>;
+          if (
+            row.observation_id !== metadata.observation_id ||
+            row.kind !== metadata.kind
+          )
+            throw new Error('LEDGER_INTEGRITY_FAILED');
+          return {
+            ...metadata,
+            observation: row,
+            correction: correction_json
+              ? (JSON.parse(correction_json) as {
+                  new_value: string;
+                  reason: string;
+                  recorded_at: string;
+                  revision: number;
+                  action: 'APPLY' | 'REVERT';
+                })
+              : null,
+          };
+        }),
     );
     return {
       version: 'observation-ledger:1' as const,

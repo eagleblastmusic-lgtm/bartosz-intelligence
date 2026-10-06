@@ -106,6 +106,36 @@ function artifactTask(value: unknown) {
     throw new Error('INVALID_ARTIFACT_TASK');
   return type;
 }
+workersApp.post('/source-correction/input', async (c) => {
+  const input = await body(c, ['token']),
+    access = c.get('access');
+  const { SourceCorrectionJobs } =
+    await import('../../../../packages/core/src/transcript/correction-jobs.js');
+  return c.json(
+    await new SourceCorrectionJobs(c.env.DB, access).input(
+      token(input.token, access.actorId),
+      new Date(),
+    ),
+  );
+});
+workersApp.post('/source-correction/complete', async (c) => {
+  const input = await body(c, [
+      'token',
+      'source_artifact_id',
+      'segment_map_artifact_id',
+    ]),
+    access = c.get('access');
+  const { SourceCorrectionJobs } =
+    await import('../../../../packages/core/src/transcript/correction-jobs.js');
+  return c.json(
+    await new SourceCorrectionJobs(c.env.DB, access).complete(
+      token(input.token, access.actorId),
+      text(input.source_artifact_id, 128),
+      text(input.segment_map_artifact_id, 128),
+      new Date(),
+    ),
+  );
+});
 workersApp.post('/analysis/input', async (c) => {
   const input = await body(c, ['token']);
   const access = c.get('access');

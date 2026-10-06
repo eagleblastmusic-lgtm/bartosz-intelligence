@@ -5,6 +5,7 @@ import {
 } from '../db/boundary.js';
 import { sha256 } from '../auth/crypto.js';
 import { decodeCursor, encodeCursor, pageLimit } from '../db/cursor.js';
+import { effectiveEntity } from './identity.js';
 export const effectiveAlias = `COALESCE((SELECT d.action FROM entity_alias_decisions d WHERE d.owner_id=a.owner_id AND d.alias_id=a.alias_id ORDER BY d.revision DESC LIMIT 1),'APPROVE')='APPROVE'`;
 export class EntityKnowledge {
   constructor(
@@ -32,7 +33,7 @@ export class EntityKnowledge {
         .bind(this.context.ownerId),
       this.db
         .prepare(
-          `SELECT e.*,(SELECT COALESCE(MAX(revision),0) FROM entity_alias_decisions d WHERE d.owner_id=e.owner_id AND d.entity_id=e.entity_id) revision FROM entities e WHERE e.owner_id=? AND (? IS NULL OR e.entity_id>?) ORDER BY e.entity_id LIMIT ?`,
+          `SELECT e.*,${effectiveEntity('e')} effective_entity_id,(SELECT COALESCE(MAX(revision),0) FROM entity_alias_decisions d WHERE d.owner_id=e.owner_id AND d.entity_id=e.entity_id) revision FROM entities e WHERE e.owner_id=? AND (? IS NULL OR e.entity_id>?) ORDER BY e.entity_id LIMIT ?`,
         )
         .bind(
           this.context.ownerId,
@@ -50,6 +51,7 @@ export class EntityKnowledge {
       entity_type: string;
       resolution: string;
       revision: number;
+      effective_entity_id: string;
     }[];
     const entities = rows.slice(0, limit);
     return {
@@ -73,7 +75,9 @@ export class EntityKnowledge {
   async detail(id: string) {
     const results = await this.db.batch([
       this.db
-        .prepare('SELECT * FROM entities WHERE owner_id=? AND entity_id=?')
+        .prepare(
+          `SELECT e.*,${effectiveEntity('e')} effective_entity_id FROM entities e WHERE owner_id=? AND entity_id=?`,
+        )
         .bind(this.context.ownerId, id),
       this.db
         .prepare(
@@ -85,6 +89,11 @@ export class EntityKnowledge {
           'SELECT decision_id,alias_id,revision,action,normalized_literal,language,reason,authored_by,recorded_at FROM entity_alias_decisions WHERE owner_id=? AND entity_id=? ORDER BY revision DESC LIMIT 51',
         )
         .bind(this.context.ownerId, id),
+      this.db
+        .prepare(
+          'SELECT k.event_id,k.action,k.reason,k.recorded_at FROM entity_identity_events k WHERE k.owner_id=? AND EXISTS(SELECT 1 FROM entity_identity_members m WHERE m.owner_id=k.owner_id AND m.event_id=k.event_id AND m.entity_id=?) ORDER BY k.rowid DESC LIMIT 51',
+        )
+        .bind(this.context.ownerId, id),
     ]);
     const entity = results[0]!.results![0] as
       | {
@@ -93,6 +102,7 @@ export class EntityKnowledge {
           entity_type: string;
           resolution: string;
           created_at: string;
+          effective_entity_id: string;
         }
       | undefined;
     if (!entity) throw new Error('NOT_FOUND');
@@ -120,6 +130,15 @@ export class EntityKnowledge {
       aliases_has_more: results[1]!.results!.length > 50,
       history: history.slice(0, 50),
       history_has_more: history.length > 50,
+      identity_history: (
+        results[3]!.results! as {
+          event_id: string;
+          action: 'MERGE' | 'SPLIT' | 'UNDO';
+          reason: string;
+          recorded_at: string;
+        }[]
+      ).slice(0, 50),
+      identity_history_has_more: results[3]!.results!.length > 50,
     };
   }
   async decide(

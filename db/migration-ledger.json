@@ -79,6 +79,21 @@
       "name": "016_alias_decisions.sql",
       "depends_on": ["015_projection_invalidation.sql"],
       "sha256": "4f0a1872e7ba2b2e6fabdb017be535cdd98b51c05ff949e783f166f8f6b0cf92"
+    },
+    {
+      "name": "017_entity_identity_events.sql",
+      "depends_on": ["016_alias_decisions.sql"],
+      "sha256": "e9a66c4afafc17275c33aefa10f37d19a523b435589c5e74b58aa80e2382b6f0"
+    },
+    {
+      "name": "018_correction_overlays.sql",
+      "depends_on": ["017_entity_identity_events.sql"],
+      "sha256": "8377dab05b1555485a927fb5aabf2bbb79932756345a0368d159e72b5853abbf"
+    },
+    {
+      "name": "019_source_correction_idempotency.sql",
+      "depends_on": ["018_correction_overlays.sql"],
+      "sha256": "d64fc3d615c88c7741e19ca13fef963f1f3b25a26990fb9fa2e7d6d877b08729"
     }
   ],
   "version": 1

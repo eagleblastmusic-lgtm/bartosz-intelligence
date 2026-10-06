@@ -1,6 +1,76 @@
 import { ownerRouter, body, text, queryFields } from './common.js';
 import { EntityKnowledge } from '../../../../packages/core/src/knowledge/entities.js';
+import {
+  EntityIdentity,
+  type IdentityProposal,
+} from '../../../../packages/core/src/knowledge/identity.js';
 export const entitiesApp = ownerRouter();
+entitiesApp.post('/identity-preview', async (c) => {
+  const input = await body(c, [
+    'action',
+    'source_entity_id',
+    'target_entity_id',
+    'reason',
+    'parent_event_id',
+  ]);
+  const identity = new EntityIdentity(c.env.DB, c.get('access'));
+  if (input.action === 'UNDO')
+    return c.json(
+      await identity.undoPreview(
+        text(input.parent_event_id, 36),
+        text(input.reason, 2000),
+      ),
+    );
+  if (input.action !== 'MERGE' && input.action !== 'SPLIT')
+    throw new Error('INVALID_IDENTITY_CHANGE');
+  return c.json(
+    await identity.preview({
+      action: input.action,
+      source_entity_id: text(input.source_entity_id, 128),
+      target_entity_id: text(input.target_entity_id, 128),
+      reason: text(input.reason, 2000),
+    }),
+  );
+});
+entitiesApp.post('/identity-confirm', async (c) => {
+  const input = await body(c, [
+    'action',
+    'source_entity_id',
+    'target_entity_id',
+    'parent_event_id',
+    'reason',
+    'expected',
+    'mappings',
+    'event_id',
+    'impact',
+  ]);
+  if (
+    !['MERGE', 'SPLIT', 'UNDO'].includes(String(input.action)) ||
+    !Array.isArray(input.expected) ||
+    !Array.isArray(input.mappings) ||
+    input.expected.length > 128 ||
+    input.mappings.length > 128 ||
+    !input.expected.length ||
+    !input.mappings.length
+  )
+    throw new Error('INVALID_IDENTITY_CHANGE');
+  return c.json(
+    await new EntityIdentity(c.env.DB, c.get('access')).confirm(
+      {
+        ...input,
+        source_entity_id: text(input.source_entity_id, 128),
+        target_entity_id: text(input.target_entity_id, 128),
+        reason: text(input.reason, 2000),
+        event_id: text(input.event_id, 36),
+        parent_event_id:
+          input.parent_event_id === null
+            ? null
+            : text(input.parent_event_id, 36),
+      } as unknown as IdentityProposal,
+      new Date(),
+    ),
+  );
+});
 entitiesApp.get('/', async (c) => {
   queryFields(c, ['limit', 'cursor']);
   return c.json(

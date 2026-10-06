@@ -11,6 +11,8 @@ import { ItemRepository } from '../../packages/core/src/db/items.js';
 import { JobStore } from '../../packages/core/src/jobs/store.js';
 import { sha256 } from '../../packages/core/src/auth/crypto.js';
 import { ObservationLedger } from '../../packages/core/src/knowledge/ledger.js';
+import { EntityIdentity } from '../../packages/core/src/knowledge/identity.js';
+import { KnowledgeCorrections } from '../../packages/core/src/knowledge/corrections.js';
 beforeEach(resetCore);
 it('pages current immutable observation identities, pins filters/cuts, and keeps unselected candidates out', async () => {
   const owner = await fixtureOwner();
@@ -63,6 +65,10 @@ it('pages current immutable observation identities, pins filters/cuts, and keeps
     at,
   ))!;
   // Projection-only fixture; production acceptance equality is checked in artifacts.spec.ts.
+  for (const id of ['entity-a', 'entity-b'])
+    await env.DB.prepare('INSERT INTO entities VALUES(?,?,?,?,?,?)')
+      .bind('a', id, id, 'TOOL', 'UNRESOLVED_LITERAL', at)
+      .run();
   await env.DB.prepare(
     `INSERT INTO analysis_runs(run_id,owner_id,item_id,job_id,input_snapshot_json,profile_snapshot_json,routing_snapshot_json,state,outcome_json,created_at,accepted_at) VALUES('selected','a',?,?,'{}','{"profile_id":"economy"}','{}','ACCEPTED','{"version":"intelligence-accepted:1"}',?,?)`,
   )
@@ -88,7 +94,7 @@ it('pages current immutable observation identities, pins filters/cuts, and keeps
       temporal_text: null,
       qualifiers: ['condition'],
       evidence_ids: [],
-      entity_refs: [],
+      entity_refs: ['entity-a'],
     });
     await env.DB.prepare('INSERT INTO observations VALUES(?,?,?,?,?,?,?)')
       .bind(
@@ -100,6 +106,9 @@ it('pages current immutable observation identities, pins filters/cuts, and keeps
         await sha256(row),
         at,
       )
+      .run();
+    await env.DB.prepare('INSERT INTO observation_entities VALUES(?,?,?,?)')
+      .bind('a', id, 'entity-a', 'MENTION')
       .run();
   }
   const ledger = new ObservationLedger(env.DB, owner);
@@ -157,4 +166,76 @@ it('pages current immutable observation identities, pins filters/cuts, and keeps
       first.next_cursor!,
     ),
   ).rejects.toThrow('READ_SNAPSHOT_CHANGED');
+  const identity = new EntityIdentity(env.DB, owner);
+  const proposal = await identity.preview({
+    action: 'MERGE',
+    source_entity_id: 'entity-a',
+    target_entity_id: 'entity-b',
+    reason: 'Owner resolved literal identity',
+  });
+  expect(proposal.impact?.observations).toBe(53);
+  const rawBefore = (
+    await env.DB.prepare(
+      'SELECT observation_id,row_hash FROM observations ORDER BY observation_id',
+    ).all()
+  ).results;
+  await identity.confirm(proposal, fixtureNow);
+  expect(
+    (
+      await ledger.page(
+        { entity_id: 'entity-b' },
+        50,
+        fixtureSecret,
+        fixtureNow,
+      )
+    ).observations,
+  ).toHaveLength(50);
+  expect(
+    (
+      await ledger.page(
+        { entity_id: 'entity-a' },
+        50,
+        fixtureSecret,
+        fixtureNow,
+      )
+    ).observations,
+  ).toHaveLength(50);
+  expect(
+    (
+      await env.DB.prepare(
+        'SELECT observation_id,row_hash FROM observations ORDER BY observation_id',
+      ).all()
+    ).results,
+  ).toEqual(rawBefore);
+  const corrections = new KnowledgeCorrections(env.DB, owner);
+  const target = await corrections.read('OBSERVATION_TEXT', 'obs-000');
+  await corrections.apply(
+    {
+      target_kind: 'OBSERVATION_TEXT',
+      target_id: 'obs-000',
+      expected_revision: 0,
+      target_hash: target.target_hash,
+      old_value: target.original_value,
+      new_value: 'Owner interpretation only',
+      action: 'APPLY',
+      reason: 'Owner annotation',
+      correction_id: crypto.randomUUID(),
+    },
+    fixtureNow,
+  );
+  const corrected = (await ledger.page({}, 50, fixtureSecret, fixtureNow))
+    .observations[0]!;
+  expect(corrected.observation.content_pl).toBe('Reported statement');
+  expect(corrected.correction).toMatchObject({
+    new_value: 'Owner interpretation only',
+    action: 'APPLY',
+    reason: 'Owner annotation',
+  });
+  expect(
+    (
+      await env.DB.prepare(
+        'SELECT observation_id,row_hash FROM observations ORDER BY observation_id',
+      ).all()
+    ).results,
+  ).toEqual(rawBefore);
 });

@@ -17,6 +17,8 @@ import {
 } from '../../packages/core/src/backup/restore.js';
 import { sha256 } from '../../packages/core/src/auth/crypto.js';
 import { EntityKnowledge } from '../../packages/core/src/knowledge/entities.js';
+import { EntityIdentity } from '../../packages/core/src/knowledge/identity.js';
+import { KnowledgeCorrections } from '../../packages/core/src/knowledge/corrections.js';
 function database() {
   const sqlite = new DatabaseSync(':memory:');
   sqlite.exec('PRAGMA foreign_keys=ON');
@@ -199,6 +201,47 @@ it('independent canonical restore preserves cyclic revision refs/origins and inv
       },
       now,
     );
+    source.sqlite
+      .prepare('INSERT INTO entities VALUES(?,?,?,?,?,?)')
+      .run(
+        'a',
+        'alias-target',
+        'Other literal',
+        'TOOL',
+        'UNRESOLVED_LITERAL',
+        now.toISOString(),
+      );
+    const identities = new EntityIdentity(source.db, owner);
+    const merge = await identities.preview({
+      action: 'MERGE',
+      source_entity_id: 'alias-fixture',
+      target_entity_id: 'alias-target',
+      reason: 'Owner verified literal grouping',
+    });
+    await identities.confirm(merge, now);
+    await identities.confirm(
+      await identities.undoPreview(
+        merge.event_id,
+        'Restore original membership',
+      ),
+      now,
+    );
+    const corrections = new KnowledgeCorrections(source.db, owner);
+    const targetLabel = await corrections.read('ENTITY_LABEL', 'alias-target');
+    await corrections.apply(
+      {
+        target_kind: 'ENTITY_LABEL',
+        target_id: 'alias-target',
+        expected_revision: 0,
+        target_hash: targetLabel.target_hash,
+        old_value: targetLabel.original_value,
+        new_value: 'Owner label',
+        action: 'APPLY',
+        reason: 'Owner correction',
+        correction_id: crypto.randomUUID(),
+      },
+      now,
+    );
     const backup = new CoreBackup(source.db, owner),
       started = await backup.begin(),
       chunks = [];
@@ -244,6 +287,20 @@ it('independent canonical restore preserves cyclic revision refs/origins and inv
         .prepare('SELECT * FROM entity_alias_decisions ORDER BY revision')
         .all(),
     );
+    for (const table of [
+      'entity_identity_events',
+      'entity_identity_members',
+      'correction_overlays',
+    ])
+      expect(
+        target.sqlite
+          .prepare('SELECT * FROM ' + table + ' ORDER BY rowid')
+          .all(),
+      ).toEqual(
+        source.sqlite
+          .prepare('SELECT * FROM ' + table + ' ORDER BY rowid')
+          .all(),
+      );
     expect(
       target.sqlite.prepare('SELECT literal FROM entity_aliases').get()!
         .literal,

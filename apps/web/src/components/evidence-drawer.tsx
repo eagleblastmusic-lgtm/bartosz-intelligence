@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from 'react';
 import type { enrichEconomy } from '../../../../packages/core/src/ai/enrichment/canonical.js';
 import type { EvidenceRead } from '../../../../packages/contracts/src/evidence-read.js';
 import { api, errorMessage } from '../app/api.js';
+import { SourceCorrectionEditor } from './source-correction-editor.js';
 type Evidence = Awaited<
   ReturnType<typeof enrichEconomy>
 >['canonical']['evidence'][number];
@@ -183,6 +184,10 @@ function EvidenceDrawer({
           <blockquote className="original-quote">
             {evidence.quote_original}
           </blockquote>
+          <SourceCorrectionEditor
+            evidence={metadata}
+            quote={evidence.quote_original}
+          />
           <p className="muted">
             Polski helper nie jest dostępny. Oryginał pozostaje podstawą dowodu.
           </p>

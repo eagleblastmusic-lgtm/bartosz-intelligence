@@ -10,7 +10,17 @@ test('reading verifies paged canonical bytes, preserves accepted text on failure
   let corrupt = false,
     disabled = false,
     badLink = false,
-    playerLoads = 0;
+    playerLoads = 0,
+    corrections = 0;
+  await page.context().addCookies([
+    {
+      name: '__Host-bi-csrf',
+      value: 'fixture-csrf',
+      url: origin + '/',
+      secure: true,
+      sameSite: 'Lax',
+    },
+  ]);
   const original = '<img src=x onerror=alert(1)> Not adopted.',
     second = 'Still evaluating.\nNo commitment.',
     sourceHash = digest(Buffer.from(original + ' GAP ' + second));
@@ -112,6 +122,23 @@ test('reading verifies paged canonical bytes, preserves accepted text on failure
   });
   await page.route('**/api/v1/**', async (route) => {
     const url = new URL(route.request().url());
+    if (url.pathname === '/api/v1/corrections/source') {
+      expect(route.request().method()).toBe('POST');
+      expect(route.request().headers()['x-csrf-token']).toBe('fixture-csrf');
+      expect(route.request().postDataJSON()).toMatchObject({
+        patches: [
+          {
+            source_start: 0,
+            source_end: 4,
+            old_value: '<img',
+            new_value: 'Literal',
+          },
+        ],
+        reason: 'Owner checked spelling',
+      });
+      corrections++;
+      return route.fulfill({ json: { job_id: 'source-correction-job' } });
+    }
     expect(route.request().method()).toBe('GET');
     if (url.pathname.endsWith('/auth/session'))
       return route.fulfill({ json: { authenticated: true } });
@@ -282,6 +309,27 @@ test('reading verifies paged canonical bytes, preserves accepted text on failure
     drawer.getByRole('link', { name: 'Otwórz fragment w źródle' }),
   ).toHaveAttribute('href', evidence[0]!.timestamp_url!);
   expect(playerLoads).toBe(0);
+  await drawer.getByRole('button', { name: 'Korekta zapisu źródła' }).click();
+  await drawer.getByLabel('Fragment oryginalnego cytatu').fill('<img');
+  await drawer.getByLabel('Poprawiony zapis').fill('Literal');
+  await drawer
+    .getByLabel('Powód poprawienia zapisu')
+    .fill('Owner checked spelling');
+  await drawer
+    .getByRole('button', { name: 'Podgląd poprawienia źródła' })
+    .click();
+  expect(corrections).toBe(0);
+  await drawer
+    .getByRole('button', { name: 'Potwierdź poprawienie źródła' })
+    .click();
+  await expect(drawer.getByRole('status')).toContainText(
+    'source-correction-job',
+  );
+  expect(corrections).toBe(1);
+  await expect(drawer.locator('blockquote')).toHaveText(original);
+  await drawer
+    .getByRole('button', { name: 'Zamknij poprawianie źródła' })
+    .click();
   await page.keyboard.press('Shift+Tab');
   expect(
     await drawer.evaluate((node) => node.contains(document.activeElement)),

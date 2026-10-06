@@ -11,6 +11,8 @@ import { createExecutionContext } from 'cloudflare:test';
 import worker from '../../apps/api/src/index.js';
 import { ArtifactClient } from '../../apps/executor/src/artifact-client.js';
 import { LocalTranscriptWorker } from '../../apps/executor/src/local-worker.js';
+import { LocalSourceCorrectionWorker } from '../../apps/executor/src/source-correction-worker.js';
+import { SourceCorrectionJobs } from '../../packages/core/src/transcript/correction-jobs.js';
 import { YtdlpTranscriptProvider } from '../../apps/executor/src/providers/ytdlp.js';
 import { beforeEach, it, expect } from 'vitest';
 import {
@@ -480,6 +482,183 @@ it('local poller consumes durable caption backlog through the real Worker API an
     idle: true,
   });
   expect(providerCalls).toBe(2);
+  const sourceRun = await env.DB.prepare(
+    "SELECT run_id,outcome_json FROM analysis_runs WHERE job_id=? AND state='ACCEPTED'",
+  )
+    .bind(token.job_id)
+    .first<{ run_id: string; outcome_json: string }>();
+  const before = sourceRun!.outcome_json;
+  const owner = await fixtureOwner();
+  const corrections = new SourceCorrectionJobs(env.DB, owner);
+  const nonce = crypto.randomUUID();
+  const patches = [
+    {
+      source_start: 0,
+      source_end: 5,
+      old_value: 'Exact',
+      new_value: 'Corrected',
+    },
+  ];
+  const correctedJob = await corrections.enqueue(
+    sourceRun!.run_id,
+    patches,
+    'Owner corrected transcription',
+    nonce,
+    new Date(),
+  );
+  expect(
+    (await corrections.enqueue(
+      sourceRun!.run_id,
+      patches,
+      'Owner corrected transcription',
+      nonce,
+      new Date(),
+    ))!.job_id,
+  ).toBe(correctedJob!.job_id);
+  await expect(
+    corrections.enqueue(
+      sourceRun!.run_id,
+      patches,
+      'Changed reason',
+      nonce,
+      new Date(),
+    ),
+  ).rejects.toThrow('IDEMPOTENCY_CONFLICT');
+  await expect(
+    new SourceCorrectionJobs(env.DB, await fixtureOwner('b')).enqueue(
+      sourceRun!.run_id,
+      patches,
+      'Cross-owner',
+      crypto.randomUUID(),
+      new Date(),
+    ),
+  ).rejects.toThrow('ANALYSIS_SOURCE_NOT_ACCEPTED');
+  expect(
+    await env.DB.prepare('SELECT state FROM jobs WHERE job_id=?')
+      .bind(correctedJob!.job_id)
+      .first('state'),
+  ).toBe('PENDING');
+  const correctionCredential = 'c'.repeat(43);
+  await env.DB.prepare('INSERT INTO worker_identities VALUES(?,?,?,?,?,NULL)')
+    .bind(
+      'correction-worker',
+      'a',
+      await sha256(correctionCredential),
+      '["NORMALIZE"]',
+      new Date().toISOString(),
+    )
+    .run();
+  const correctionWorker = new LocalSourceCorrectionWorker(
+    'https://executor-fixture.invalid',
+    correctionCredential,
+    transport,
+  );
+  const correctionAccess = await AccessContext.worker(
+    env.DB,
+    await sha256(correctionCredential),
+  );
+  expect(
+    await new JobStore(env.DB, correctionAccess).lease(
+      correctedJob!.job_id,
+      'NORMALIZE',
+      new Date(),
+      'cloud',
+    ),
+  ).toBeNull();
+  expect(await correctionWorker.cycle()).toMatchObject({
+    accepted: true,
+    idle: false,
+  });
+  const correctionRun = await env.DB.prepare(
+    "SELECT outcome_json FROM analysis_runs WHERE job_id=? AND state='ACCEPTED'",
+  )
+    .bind(correctedJob!.job_id)
+    .first<string>('outcome_json');
+  const outcome = JSON.parse(correctionRun!);
+  expect(outcome).toMatchObject({
+    kind: 'CORRECTED_SOURCE',
+    original_hash: JSON.parse(before).source_hash,
+    authored_by: 'a',
+  });
+  const correctedMap = await new ArtifactRepository(
+    env.DB,
+    owner,
+  ).readVerifiedText(outcome.segment_map_artifact_id, 1024 * 1024);
+  expect(JSON.parse(correctedMap.text).coverage[0]).toMatchObject({
+    start_ms: 250,
+    end_ms: 70250,
+  });
+  expect(
+    await env.DB.prepare(
+      'SELECT outcome_json FROM analysis_runs WHERE run_id=?',
+    )
+      .bind(sourceRun!.run_id)
+      .first('outcome_json'),
+  ).toBe(before);
+  expect(
+    await env.DB.prepare('SELECT COUNT(*) n FROM observations').first('n'),
+  ).toBe(0);
+  expect(
+    await env.DB.prepare(
+      'SELECT COUNT(*) n FROM active_analysis_selections',
+    ).first('n'),
+  ).toBe(0);
+  expect(await correctionWorker.cycle()).toMatchObject({
+    accepted: false,
+    idle: true,
+  });
+  const badJob = await corrections.enqueue(
+    sourceRun!.run_id,
+    [{ ...patches[0]!, old_value: 'Wrong' }],
+    'Wrong source fragment',
+    crypto.randomUUID(),
+    new Date(),
+  );
+  expect(await correctionWorker.cycle()).toMatchObject({
+    accepted: false,
+    idle: false,
+    state: 'BLOCKED',
+  });
+  expect(
+    await env.DB.prepare('SELECT state FROM jobs WHERE job_id=?')
+      .bind(badJob!.job_id)
+      .first('state'),
+  ).toBe('BLOCKED');
+  expect(
+    await env.DB.prepare(
+      "SELECT COUNT(*) n FROM analysis_runs WHERE job_id=? AND state='ACCEPTED'",
+    )
+      .bind(badJob!.job_id)
+      .first('n'),
+  ).toBe(0);
+  const completedAttempt = await env.DB.prepare(
+    'SELECT fencing_token,executor_id FROM job_attempts WHERE job_id=? AND finished_at IS NOT NULL',
+  )
+    .bind(correctedJob!.job_id)
+    .first<{ fencing_token: number; executor_id: string }>();
+  const completedToken = {
+    job_id: correctedJob!.job_id,
+    lease_owner: completedAttempt!.executor_id,
+    fencing_token: completedAttempt!.fencing_token,
+    lease_until: new Date().toISOString(),
+  };
+  const workerCorrections = new SourceCorrectionJobs(env.DB, correctionAccess);
+  expect(
+    await workerCorrections.complete(
+      completedToken,
+      outcome.source_artifact_id,
+      outcome.segment_map_artifact_id,
+      new Date(),
+    ),
+  ).toMatchObject({ accepted: true, duplicate: true });
+  await expect(
+    workerCorrections.complete(
+      completedToken,
+      'wrong-artifact',
+      outcome.segment_map_artifact_id,
+      new Date(),
+    ),
+  ).rejects.toThrow('IDEMPOTENCY_CONFLICT');
 });
 it.each([
   'QUALITY_TEST',

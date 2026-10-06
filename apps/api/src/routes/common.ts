@@ -52,6 +52,7 @@ export function apiRouter() {
     const conflict = [
       'READ_SNAPSHOT_CHANGED',
       'REVISION_CONFLICT',
+      'IDENTITY_UNDO_DEPENDENCY',
       'STALE_FENCE',
       'IDEMPOTENCY_CONFLICT',
       'REPLAY_DENIED',
