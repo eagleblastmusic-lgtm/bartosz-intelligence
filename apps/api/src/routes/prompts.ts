@@ -5,6 +5,10 @@ import { PromptUsage } from '../../../../packages/core/src/registry/usage.js';
 import { PromptHistory } from '../../../../packages/core/src/registry/history.js';
 import { PromptLab } from '../../../../packages/core/src/registry/lab-store.js';
 import {
+  LabReviews,
+  type LabHumanReview,
+} from '../../../../packages/core/src/registry/lab-reviews.js';
+import {
   LabQuotaPolicies,
   type LabQuotaPolicy,
 } from '../../../../packages/core/src/registry/lab-quota.js';
@@ -12,6 +16,38 @@ import { ownerRouter, body, queryFields, text } from './common.js';
 import type { ApiEnvironment } from './common.js';
 import type { Context } from 'hono';
 export const promptsApp = ownerRouter();
+promptsApp.get('/lab/experiments/:hash/runs/:run/inspect', async (c) => {
+  queryFields(c, ['section', 'offset']);
+  return c.json(
+    await new LabReviews(c.env.DB, c.get('access')).inspect(
+      c.req.param('hash'),
+      c.req.param('run'),
+      (c.req.query('section') ?? 'CANONICAL') as 'CANONICAL' | 'SOURCE',
+      Number(c.req.query('offset') ?? 0),
+    ),
+  );
+});
+promptsApp.get('/lab/experiments/:hash/runs/:run/reviews', async (c) => {
+  queryFields(c, []);
+  return c.json(
+    await new LabReviews(c.env.DB, c.get('access')).history(
+      c.req.param('hash'),
+      c.req.param('run'),
+    ),
+  );
+});
+promptsApp.post('/lab/experiments/:hash/runs/:run/reviews', async (c) => {
+  const input = await body(c, ['review', 'expected_revision']);
+  return c.json(
+    await new LabReviews(c.env.DB, c.get('access')).record(
+      c.req.param('hash'),
+      c.req.param('run'),
+      input.review as LabHumanReview,
+      input.expected_revision as number,
+      new Date(),
+    ),
+  );
+});
 promptsApp.post('/lab/prepare', async (c) => {
   const input = await body(c, [
     'prompt_id',

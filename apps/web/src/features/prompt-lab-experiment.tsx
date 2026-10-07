@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { api, errorMessage } from '../app/api.js';
 import type { PromptLab } from '../../../../packages/core/src/registry/lab-store.js';
+import { PromptLabReview } from './prompt-lab-review.js';
 export type Experiment = Awaited<ReturnType<PromptLab['create']>>;
 type History = Awaited<ReturnType<PromptLab['get']>>;
 export function PromptLabExperiment({
@@ -113,20 +114,30 @@ export function PromptLabExperiment({
                 {trial.variant}/{trial.repeat}
               </button>
               {jobs.map((job) => (
-                <p key={job.job_id + (job.run_id ?? '')} className="metadata">
-                  Zadanie: {job.job_id} ·{' '}
-                  {job.reason_code ?? 'Oczekuje na przetwarzanie'}
-                  {job.run_id && (
-                    <>
-                      {' '}
-                      · Run: {job.run_id} ·{' '}
-                      {job.validation_outcome ?? job.run_state}
-                    </>
-                  )}
-                  {job.candidate_hash && (
-                    <> · Hash wyniku: {job.candidate_hash}</>
-                  )}
-                </p>
+                <div key={job.job_id + (job.run_id ?? '')}>
+                  <p className="metadata">
+                    Zadanie: {job.job_id} ·{' '}
+                    {job.reason_code ?? 'Oczekuje na przetwarzanie'}
+                    {job.run_id && (
+                      <>
+                        {' '}
+                        · Run: {job.run_id} ·{' '}
+                        {job.validation_outcome ?? job.run_state}
+                      </>
+                    )}
+                    {job.candidate_hash && (
+                      <> · Hash wyniku: {job.candidate_hash}</>
+                    )}
+                  </p>
+                  {job.run_id &&
+                    job.candidate_hash &&
+                    ['SUCCEEDED', 'FAILED'].includes(job.state) && (
+                      <PromptLabReview
+                        experimentHash={experiment.experiment_hash}
+                        runId={job.run_id}
+                      />
+                    )}
+                </div>
               ))}
             </li>
           );

@@ -163,6 +163,12 @@ li {
   min-width: 0;
   max-width: 100%;
 }
+.lab-inspection-text {
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  max-height: 32rem;
+  overflow: auto;
+}
 .eyebrow {
   font-size: var(--metadata);
   font-weight: 650;

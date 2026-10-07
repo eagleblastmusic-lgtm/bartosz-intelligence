@@ -11,6 +11,8 @@ test('Lab prepares controlled pairs without AI, explicitly submits with retry, p
     cancelled = false,
     budgetSaves = 0;
   const intents: unknown[] = [];
+  const reviewIntents: unknown[] = [];
+  let humanReviews: unknown[] = [];
   const experiment = {
     experiment_hash: hash,
     version: 'prompt-lab:1',
@@ -165,9 +167,12 @@ test('Lab prepares controlled pairs without AI, explicitly submits with retry, p
             ? [
                 {
                   job_id: 'lab-job',
-                  state: 'PENDING',
+                  state: 'SUCCEEDED',
                   case_index: 0,
-                  run_id: null,
+                  run_id: 'lab-run',
+                  candidate_hash: hash,
+                  validation_outcome: 'DETERMINISTIC_CORE_CANDIDATE',
+                  run_state: 'CANDIDATE',
                 },
               ]
             : [],
@@ -180,6 +185,57 @@ test('Lab prepares controlled pairs without AI, explicitly submits with retry, p
       if (submitted === 1) return route.abort('failed');
       return route.fulfill({
         json: { job_id: 'lab-job', already_queued: true },
+      });
+    }
+    if (path.endsWith('/inspect')) {
+      const source = url.searchParams.get('section') === 'SOURCE';
+      return route.fulfill({
+        json: {
+          run_id: 'lab-run',
+          candidate_hash: hash,
+          section: source ? 'SOURCE' : 'CANONICAL',
+          format: source ? 'ORIGINAL_TEXT' : 'JSON',
+          content_hash: hash,
+          text: source
+            ? 'I did not use Tool X at 12%.'
+            : '{"text":"<img src=x onerror=alert(1)>"}',
+          offset: 0,
+          end: 40,
+          total_code_units: 40,
+          next_offset: null,
+          reason_code: 'QUALITY_TEST_COMPLETE',
+        },
+      });
+    }
+    if (path.endsWith('/reviews')) {
+      if (request.method() === 'GET')
+        return route.fulfill({
+          json: {
+            reviews: humanReviews,
+            truncated: false,
+            quality_approval: 'NOT_GRANTED',
+          },
+        });
+      const input = request.postDataJSON();
+      reviewIntents.push(input);
+      expect(input).toMatchObject({
+        expected_revision: 0,
+        review: {
+          reviewer_id: 'FIXTURE_A',
+          role: 'PRIMARY',
+          blind_label: 'sample-17',
+          scores: [null, null, null, null],
+          supported: null,
+          important_claims_complete: null,
+          evidence_valid: null,
+          critical_errors: null,
+          notes: 'Synthetic review persistence check',
+        },
+      });
+      humanReviews = [{ revision: 1, hash, review: input.review }];
+      if (reviewIntents.length === 1) return route.abort('failed');
+      return route.fulfill({
+        json: { revision: 1, hash, quality_approval: 'NOT_GRANTED' },
       });
     }
     if (path.endsWith('/cancel')) {
@@ -247,6 +303,41 @@ test('Lab prepares controlled pairs without AI, explicitly submits with retry, p
   await comparison.getByRole('button', { name: 'Uruchom próbę A/1' }).click();
   await expect(comparison.getByRole('status')).toContainText('lab-job');
   expect(intents[0]).toEqual(intents[1]);
+  await comparison
+    .getByText('Wynik, źródło i oceny · lab-run', { exact: true })
+    .click();
+  const review = comparison
+    .getByText('Wynik, źródło i oceny · lab-run', { exact: true })
+    .locator('..');
+  await expect(review.locator('pre')).toContainText(
+    '<img src=x onerror=alert(1)>',
+  );
+  expect(await page.locator('img').count()).toBe(0);
+  await review.getByRole('button', { name: 'Pokaż przypięte źródło' }).click();
+  await expect(review.locator('pre')).toContainText(
+    'I did not use Tool X at 12%.',
+  );
+  await review.getByLabel('Identyfikator oceniającego').fill('FIXTURE_A');
+  await review.getByLabel('Etykieta próbki ze ślepej oceny').fill('sample-17');
+  await review
+    .getByLabel('Uwagi oceniającego')
+    .fill('Synthetic review persistence check');
+  await review.getByRole('button', { name: 'Przejrzyj zapis oceny' }).click();
+  expect(reviewIntents).toHaveLength(0);
+  await review
+    .getByRole('button', { name: 'Potwierdź zapis ręcznej oceny' })
+    .click();
+  await expect(review.getByRole('alert')).toBeVisible();
+  await review
+    .getByRole('button', { name: 'Potwierdź zapis ręcznej oceny' })
+    .click();
+  await expect(review.getByRole('status')).toContainText(
+    'Zapisano rewizję oceny 1',
+  );
+  expect(reviewIntents[0]).toEqual(reviewIntents[1]);
+  await expect(review).toContainText(
+    'Nie oceniono / Nie oceniono / Nie oceniono / Nie oceniono',
+  );
   await comparison
     .getByLabel('Powód anulowania eksperymentu')
     .fill('Stop synthetic trials');
