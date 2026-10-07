@@ -154,6 +154,11 @@
       "name": "031_export_desired_mode.sql",
       "depends_on": ["030_export_dirty_cursor.sql"],
       "sha256": "ad372edefcbb58b5b02bce9e7ae115484277e62155cf9c026f008ac60ccae285"
+    },
+    {
+      "name": "032_export_receipt_lookup.sql",
+      "depends_on": ["031_export_desired_mode.sql"],
+      "sha256": "fe6b1b96836e82397d8b8262852fafc766b4e0449e2d4a2d2da58c3ca89753bf"
     }
   ],
   "version": 1

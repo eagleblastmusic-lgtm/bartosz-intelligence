@@ -1,5 +1,6 @@
 import { ownerRouter, body, queryFields } from './common.js';
 import { unobservedCapacity } from '../../../../packages/core/src/projections/capacity.js';
+import { exportStatus } from '../../../../packages/core/src/export/status.js';
 import { sha256 } from '../../../../packages/core/src/auth/crypto.js';
 import type { PipelineProfile } from '../../../../packages/contracts/src/ai.js';
 import {
@@ -35,6 +36,7 @@ systemApp.get('/summary', async (c) => {
     prompts,
     scans,
     transcriptCoverage,
+    dailyExports,
   ] = await Promise.all([
     c.env.DB.prepare(
       `SELECT state,task_type,origin_kind,COUNT(*) AS count,MIN(arrival_origin_at) AS oldest_arrival_origin_at FROM jobs WHERE owner_id=? GROUP BY state,task_type,origin_kind`,
@@ -122,11 +124,13 @@ systemApp.get('/summary', async (c) => {
     )
       .bind(owner)
       .first(),
+    exportStatus(c.env.DB, c.get('access'), new Date(now)),
   ]);
   return c.json({
     sampled_at: now,
     paid_services_enabled: false,
     transcript_runtime: 'local',
+    daily_exports: dailyExports,
     ai_profile: 'gemini_free',
     pipeline_profiles: await Promise.all(
       models.results.map(async (row) => {

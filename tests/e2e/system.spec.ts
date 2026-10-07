@@ -1,5 +1,6 @@
 import { test, expect } from '@playwright/test';
 import { unobservedCapacity } from '../../packages/core/src/projections/capacity.js';
+import type { DailyExportStatus } from '../../packages/contracts/src/drive.js';
 
 test('System preserves unknown capacity, stale quota, failed age and incomplete usage without invoking AI', async ({
   page,
@@ -10,6 +11,7 @@ test('System preserves unknown capacity, stale quota, failed age and incomplete 
     paid_services_enabled: false,
     ai_profile: 'gemini_free',
     transcript_runtime: 'local',
+    daily_exports: undefined as DailyExportStatus | undefined,
     workers: [
       {
         worker_id: 'fixture',
@@ -101,6 +103,7 @@ test('System preserves unknown capacity, stale quota, failed age and incomplete 
   for (const row of await capacity.locator('dd').all())
     await expect(row).toContainText('Nieznane');
   await expect(page.getByText(/Gate C: NOT_RUN/)).toBeVisible();
+  await expect(page.getByText(/Stan eksportu nieodczytany/)).toBeVisible();
   await expect(page.getByRole('combobox', { name: 'Pipeline' })).toBeDisabled();
   await expect(page.getByRole('button', { name: /Ponów|Retry/ })).toHaveCount(
     0,
@@ -116,8 +119,43 @@ test('System preserves unknown capacity, stale quota, failed age and incomplete 
     fullPage: true,
   });
   summary.capacity_metrics.metrics.estimated_drain_time.status = 'NOT_DRAINING';
+  summary.daily_exports = {
+    automatic_updates_qualified: false,
+    truncated: true,
+    days: [
+      {
+        root_id: 'root',
+        date: '2026-10-05',
+        connection_id: 'connection',
+        desired_mode: 'FULL',
+        remote_mode: 'COMPACT',
+        settings_revision: 2,
+        desired_generation: 1,
+        exported_generation: 0,
+        dirty_seq: 3,
+        exported_seq: 1,
+        remote_revision: 1,
+        file_id: 'file',
+        rendered_revision: 2,
+        rendered_cut: 3,
+        rendered_bytes: 2048,
+        auth_state: 'CONNECTED',
+        root_state: 'VERIFIED',
+        last_verified_at: null,
+        retry_reason: 'EXPORT_CONFLICT',
+        queue_state: 'DUE',
+        due_at: null,
+      },
+    ],
+  };
   await page.getByRole('button', { name: 'Odśwież stan' }).click();
   await expect(page.getByText(/Zaległości nie maleją/)).toBeVisible();
+  await expect(
+    page.getByText(/Oczekujące zmiany w tym odczycie: 1. Konflikty: 1./),
+  ).toBeVisible();
+  await expect(page.getByText(/razem 2048 B/)).toBeVisible();
+  await expect(page.getByText(/lista jest niekompletna/)).toBeVisible();
+  await expect(page.getByText(/Briefing Bridge: NOT_RUN/)).toBeVisible();
   fail = true;
   await page.getByRole('button', { name: 'Odśwież stan' }).click();
   await expect(page.getByRole('alert')).toBeVisible();

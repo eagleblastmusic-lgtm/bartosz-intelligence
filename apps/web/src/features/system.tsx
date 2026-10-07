@@ -356,6 +356,69 @@ export function System() {
               {time(data.outbox?.oldest_due_at)}.
             </p>
           </section>
+          <section className="panel">
+            <h2>Eksport Daily</h2>
+            {data.daily_exports ? (
+              <>
+                <p>
+                  Automatyczne aktualizacje Drive: niezakwalifikowane. Odczyt
+                  obejmuje {data.daily_exports.days.length} ostatnich dni i
+                  folderów
+                  {data.daily_exports.truncated
+                    ? '; lista jest niekompletna'
+                    : ''}
+                  .
+                </p>
+                <p>
+                  Oczekujące zmiany w tym odczycie:{' '}
+                  {
+                    data.daily_exports.days.filter(
+                      (day) =>
+                        day.dirty_seq > day.exported_seq ||
+                        day.desired_generation > day.exported_generation ||
+                        day.remote_revision === 0,
+                    ).length
+                  }
+                  . Konflikty:{' '}
+                  {
+                    data.daily_exports.days.filter(
+                      (day) => day.retry_reason === 'EXPORT_CONFLICT',
+                    ).length
+                  }
+                  .
+                </p>
+                <p>
+                  Przygotowane pliki:{' '}
+                  {
+                    data.daily_exports.days.filter(
+                      (day) => day.rendered_bytes !== null,
+                    ).length
+                  }
+                  ; razem{' '}
+                  {data.daily_exports.days.reduce(
+                    (sum, day) => sum + (day.rendered_bytes ?? 0),
+                    0,
+                  )}{' '}
+                  B. Bajty dotyczą lokalnych artefaktów, a nie potwierdzonego
+                  przesłania do Drive.
+                </p>
+                <p>
+                  Estymacja tokenów, compaction i OVERSIZE wymagają odczytu
+                  metadanych konkretnych raportów; brak pomiaru nie oznacza
+                  zera. Briefing Bridge: NOT_RUN; brak potwierdzonego pełnego
+                  odczytu przez consumer.
+                </p>
+              </>
+            ) : (
+              <p>
+                Stan eksportu nieodczytany; brak danych nie oznacza zakończenia
+                kolejki.
+              </p>
+            )}
+            <AppLink href="/system/connections">
+              Statusy dni, tryb i połączenie Drive
+            </AppLink>
+          </section>
         </>
       )}
     </>

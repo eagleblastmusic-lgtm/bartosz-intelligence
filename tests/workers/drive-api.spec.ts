@@ -11,6 +11,34 @@ import { fixtureOwner, fixtureNow } from './core-fixture.js';
 import { DriveExportIdentity } from '../../packages/core/src/drive/identity.js';
 import { exportStatus } from '../../packages/core/src/export/status.js';
 beforeEach(resetCore);
+it('bounds status to fifty actual destinations and uses the covering receipt index', async () => {
+  const access = await fixtureOwner();
+  await env.DB.prepare(
+    `INSERT INTO drive_connections(owner_id,connection_id,account_subject,client_id,scopes_json,auth_state,root_id,root_state,revision,last_intent_hash,created_at,updated_at) VALUES('a','export','private-subject','client','[]','CONNECTED','root','VERIFIED',1,'receipt',?,?)`,
+  )
+    .bind(fixtureNow.toISOString(), fixtureNow.toISOString())
+    .run();
+  await env.DB.prepare(
+    `WITH RECURSIVE days(n) AS (SELECT 0 UNION ALL SELECT n+1 FROM days WHERE n<54) INSERT INTO export_state(owner_id,publication_date,destination_key,root_namespace,connection_id) SELECT 'a',date('2026-10-05','+'||n||' days'),'drive:root','root','export' FROM days`,
+  ).run();
+  const result = await exportStatus(env.DB, access, fixtureNow);
+  expect(result.days).toHaveLength(50);
+  expect(result.truncated).toBe(true);
+  expect(result.days[0]!.date).toBe('2026-11-28');
+  expect(
+    (await exportStatus(env.DB, await fixtureOwner('b'), fixtureNow)).days,
+  ).toHaveLength(0);
+  const plan = await env.DB.prepare(
+    `EXPLAIN QUERY PLAN SELECT MAX(updated_at) FROM drive_export_attempts WHERE owner_id=? AND reserved_remote_id=? AND state='VERIFIED'`,
+  )
+    .bind('a', 'reserved')
+    .all<{ detail: string }>();
+  expect(
+    plan.results.some((row) =>
+      row.detail.includes('COVERING INDEX drive_export_receipt_lookup'),
+    ),
+  ).toBe(true);
+});
 it('export status is owner scoped and readonly; mode intent requires CSRF, integer revision and keeps remote state honest', async () => {
   const access = await fixtureOwner(),
     h = await headers();
@@ -44,6 +72,21 @@ it('export status is owner scoped and readonly; mode intent requires CSRF, integ
     ],
   });
   expect(JSON.stringify(status)).not.toContain('private-subject');
+  const dashboard = await worker.fetch(
+    new Request(application.app_origin + '/api/v1/system/summary', {
+      headers: h,
+    }),
+    settings,
+    createExecutionContext(),
+  );
+  expect(dashboard.status).toBe(200);
+  expect(await dashboard.json()).toMatchObject({
+    daily_exports: {
+      automatic_updates_qualified: false,
+      days: [{ date: '2026-10-05', remote_revision: 0 }],
+    },
+    paid_services_enabled: false,
+  });
   expect(
     (await exportStatus(env.DB, await fixtureOwner('b'), new Date())).days,
   ).toEqual([]);

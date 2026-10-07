@@ -107,3 +107,11 @@ promise that a scheduler or automatic remote update is qualified. Automatic
 updates remain explicitly unqualified. Status reads do not renew tokens, create
 destinations, run AI, or export files. No credential/account-subject values are
 returned. The bounded list reports truncation after the latest fifty days.
+
+System reuses this owner projection and labels counters as the bounded snapshot,
+including truncation, pending destinations, conflicts and prepared byte totals.
+Prepared bytes do not prove upload. Missing report token/compaction telemetry and
+Bridge qualification remain explicit rather than displaying zero or READY.
+Migration 032 supplies a covering owner/reserved-ID/state/time index for receipt
+lookups, verified with SQLite's query plan; it does not establish production CPU
+qualification or make remote conditional updates safe.

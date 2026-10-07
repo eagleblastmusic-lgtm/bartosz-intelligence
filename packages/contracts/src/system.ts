@@ -1,9 +1,11 @@
 import type { CapacitySnapshot } from './capacity.js';
+import type { DailyExportStatus } from './drive.js';
 export interface SystemSummary {
   sampled_at: string;
   paid_services_enabled: false;
   ai_profile: string;
   transcript_runtime: string;
+  daily_exports?: DailyExportStatus;
   workers: {
     worker_id: string;
     availability: string;
