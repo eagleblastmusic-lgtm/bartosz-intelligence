@@ -1,4 +1,6 @@
 import { ownerRouter, body, queryFields, text } from './common.js';
+import type { ApiEnvironment } from './common.js';
+import type { Context } from 'hono';
 import { applicationOrigin, cookieValue } from '../auth.js';
 import type { Env } from '../env.js';
 import type { DriveStatus } from '../../../../packages/contracts/src/drive.js';
@@ -14,6 +16,7 @@ import {
   DriveFailure,
 } from '../../../../packages/core/src/drive/client.js';
 import { previewDriveRoot } from '../../../../packages/core/src/drive/root.js';
+import { createDriveRootCandidate } from '../../../../packages/core/src/drive/root-create.js';
 
 export const driveApp = ownerRouter();
 driveApp.post('/root/preview', async (c) => {
@@ -24,10 +27,75 @@ driveApp.post('/root/preview', async (c) => {
   ]);
   const connectionId = text(input.connection_id, 128),
     rootId = text(input.root_id, 200);
+  const { access, client, now, renewedRevision } = await rootClient(
+    c,
+    connectionId,
+    input.expected_revision,
+  );
+  try {
+    return c.json(
+      await previewDriveRoot(
+        c.env.DB,
+        access,
+        client,
+        {
+          connection_id: connectionId,
+          root_id: rootId,
+          expected_revision: renewedRevision,
+        },
+        now,
+      ),
+    );
+  } catch (error) {
+    return rootFailure(error);
+  }
+});
+driveApp.post('/root/create', async (c) => {
+  const input = await body(c, ['connection_id', 'name', 'expected_revision']);
+  const connectionId = text(input.connection_id, 128),
+    name = text(input.name, 256);
   if (
-    !Number.isSafeInteger(input.expected_revision) ||
-    Number(input.expected_revision) < 1
+    name !== name.trim() ||
+    /[\u0000-\u001f\u007f]/.test(name) ||
+    new TextEncoder().encode(name).length > 256
   )
+    throw new Error('INVALID_DRIVE_ROOT_CANDIDATE');
+  const { access, client, now, renewedRevision } = await rootClient(
+    c,
+    connectionId,
+    input.expected_revision,
+  );
+  try {
+    return c.json(
+      await createDriveRootCandidate(
+        c.env.DB,
+        access,
+        client,
+        {
+          connection_id: connectionId,
+          name,
+          expected_revision: renewedRevision,
+        },
+        now,
+      ),
+    );
+  } catch (error) {
+    return rootFailure(error);
+  }
+});
+function rootFailure(error: unknown): never {
+  if (error instanceof DriveFailure)
+    throw new DriveOAuthFailure(
+      error.category === 'AUTH' ? 'REFRESH_REJECTED' : 'ROOT_ACCESS',
+    );
+  throw error;
+}
+async function rootClient(
+  c: Context<ApiEnvironment>,
+  connectionId: string,
+  expectedRevision: unknown,
+) {
+  if (!Number.isSafeInteger(expectedRevision) || Number(expectedRevision) < 1)
     throw new Error('INVALID_DRIVE_ROOT_PREVIEW');
   const access = c.get('access');
   const revision = await c.env.DB.prepare(
@@ -36,8 +104,7 @@ driveApp.post('/root/preview', async (c) => {
     .bind(access.ownerId, connectionId)
     .first<number>('revision');
   if (revision === null) throw new Error('NOT_FOUND');
-  if (revision !== input.expected_revision)
-    throw new Error('REVISION_CONFLICT');
+  if (revision !== expectedRevision) throw new Error('REVISION_CONFLICT');
   const { config, wrapping } = await configuration(c.env);
   const now = new Date();
   const grant = await refreshDriveAccess(
@@ -56,28 +123,13 @@ driveApp.post('/root/preview', async (c) => {
   // Renewal advances exactly one revision. Another owner action invalidates
   // this preview rather than silently inspecting the changed connection.
   if (renewedRevision !== revision + 1) throw new Error('REVISION_CONFLICT');
-  try {
-    return c.json(
-      await previewDriveRoot(
-        c.env.DB,
-        access,
-        new DriveClient(grant.access_token),
-        {
-          connection_id: connectionId,
-          root_id: rootId,
-          expected_revision: renewedRevision,
-        },
-        now,
-      ),
-    );
-  } catch (error) {
-    if (error instanceof DriveFailure)
-      throw new DriveOAuthFailure(
-        error.category === 'AUTH' ? 'REFRESH_REJECTED' : 'ROOT_ACCESS',
-      );
-    throw error;
-  }
-});
+  return {
+    access,
+    client: new DriveClient(grant.access_token),
+    now,
+    renewedRevision,
+  };
+}
 async function configuration(env: Env) {
   if (
     !env.GOOGLE_DRIVE_CLIENT_ID ||

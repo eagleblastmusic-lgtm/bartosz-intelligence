@@ -139,6 +139,11 @@
       "name": "028_drive_export_attempts.sql",
       "depends_on": ["027_daily_export_artifacts.sql"],
       "sha256": "be1498634b0406fb30eb1fc44cd9fd77a79a7963a8cc3f62b76b88eb312ac9d4"
+    },
+    {
+      "name": "029_drive_root_candidates.sql",
+      "depends_on": ["028_drive_export_attempts.sql"],
+      "sha256": "45bedbe118bc8ba07d9fc258f36e5e67e5c9d34afdd5ab7d5fc7f1891c43f85b"
     }
   ],
   "version": 1

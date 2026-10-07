@@ -8,6 +8,21 @@ import application from '../../config/application.json';
 import type { Env } from '../../apps/api/src/env.js';
 import { base64url } from '../../packages/core/src/auth/crypto.js';
 beforeEach(resetCore);
+it('root create requires CSRF, owner connection and input revision before token renewal, and rejects malformed name', async () => {
+  const h = await headers(),
+    input = { connection_id: 'foreign', name: 'Daily', expected_revision: 1 };
+  expect((await request('/root/create', {}, input)).status).toBe(403);
+  expect((await request('/root/create', h, input)).status).toBe(404);
+  expect(
+    (await request('/root/create', h, { ...input, name: 'Daily\nFolder' }))
+      .status,
+  ).toBe(422);
+  expect(
+    await env.DB.prepare('SELECT COUNT(*) n FROM drive_root_candidates').first(
+      'n',
+    ),
+  ).toBe(0);
+});
 it('root preview requires CSRF, own connection and matching revision before renewal or remote inspection', async () => {
   const h = await headers(),
     input = {

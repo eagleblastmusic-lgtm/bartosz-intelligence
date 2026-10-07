@@ -72,6 +72,29 @@ test('Drive settings disclose unavailable export, preserve escaped private mappi
         },
       });
     }
+    if (path === '/api/v1/connections/drive/root/create') {
+      expect(route.request().postDataJSON()).toEqual({
+        connection_id: 'private-drive',
+        name: 'Daily',
+        expected_revision: 2,
+      });
+      status.connections[0]!.revision = 3;
+      return route.fulfill({
+        json: {
+          requested_root_id: 'created-private-root',
+          current_root_id: status.connections[0]!.root_id,
+          folder_name: 'Daily',
+          root_changed: true,
+          existing_mapping_count: 7,
+          storage: { usage_bytes: '123', limit_bytes: null },
+          export_ready: false,
+          folder_metadata_access: 'PASS',
+          child_create_read_update: 'NOT_RUN',
+          private_owner_only: true,
+          created_candidate: true,
+        },
+      });
+    }
     throw new Error('UNEXPECTED_DRIVE_SETTINGS_REQUEST');
   });
   await page.setViewportSize({ width: 360, height: 900 });
@@ -134,6 +157,19 @@ test('Drive settings disclose unavailable export, preserve escaped private mappi
     ),
   ).toBeVisible();
   expect(await page.locator('main img').count()).toBe(0);
+  expect((await new AxeBuilder({ page }).analyze()).violations).toEqual([]);
+  await page
+    .getByRole('button', { name: 'Utwórz prywatny folder', exact: true })
+    .click();
+  await expect(
+    page.getByText(
+      'Uprawnienia: wyłącznie właściciel. Folder czeka na pełną weryfikację zapisu.',
+      { exact: true },
+    ),
+  ).toBeVisible();
+  await expect(
+    page.getByLabel('Identyfikator wybranego folderu', { exact: true }),
+  ).toHaveValue('created-private-root');
   expect((await new AxeBuilder({ page }).analyze()).violations).toEqual([]);
   authenticated = false;
   await refresh.click();

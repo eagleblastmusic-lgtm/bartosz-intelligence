@@ -45,6 +45,7 @@ export const backupTables = [
   'organization_mutations',
   'active_analysis_selections',
   'drive_connections',
+  'drive_root_candidates',
   'daily_export_artifacts',
   'daily_export_chunks',
   'drive_export_attempts',

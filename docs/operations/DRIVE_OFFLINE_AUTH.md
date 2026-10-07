@@ -120,3 +120,12 @@ Values are never printed. PowerShell 7/icacls changes access rules without
 requesting Windows audit privileges. Real refresh-token recovery is a separate
 live check after authorization. The owner's declared consent status is saved
 with the connection; TESTING is never silently promoted to production.
+
+The owner can explicitly create a named private root candidate through
+`/connections/drive/root/create`. Its generated folder ID is persisted before
+the remote create. A timeout reconciles that ID, and another request with the
+same connection/name reuses it. Missing previously confirmed folders are not
+silently recreated. Permissions must expose exactly one active user owner;
+shared/public/domain access is rejected. The GUI shows the candidate and fills
+its ID for inspection. Creation does not mark the connection root VERIFIED or
+enable exports; actual child/update qualification remains required.

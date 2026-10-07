@@ -286,6 +286,71 @@ export class DriveClient {
       usage_bytes: typeof quota.usage === 'string' ? quota.usage : null,
     };
   }
+  async createFolder(input: {
+    reserved_id: string;
+    name: string;
+    app_properties: Record<string, string>;
+  }) {
+    requireDriveId(input.reserved_id);
+    if (
+      !input.name.trim() ||
+      input.name !== input.name.trim() ||
+      /[\u0000-\u001f\u007f]/.test(input.name) ||
+      new TextEncoder().encode(input.name).length > 256 ||
+      Object.keys(input.app_properties).length > 6 ||
+      Object.entries(input.app_properties).some(
+        ([key, value]) =>
+          !/^[a-z_]{1,40}$/.test(key) ||
+          typeof value !== 'string' ||
+          new TextEncoder().encode(key + value).length > 124,
+      )
+    )
+      throw new DriveFailure('FORMAT');
+    const result = file(
+      await this.json(
+        await this.request('files?fields=' + encodeURIComponent(fileFields), {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            id: input.reserved_id,
+            name: input.name,
+            mimeType: 'application/vnd.google-apps.folder',
+            appProperties: input.app_properties,
+          }),
+        }),
+      ),
+    );
+    if (
+      result.id !== input.reserved_id ||
+      result.mimeType !== 'application/vnd.google-apps.folder'
+    )
+      throw new DriveFailure('FORMAT');
+    return result;
+  }
+  async verifyPrivateFolder(id: string) {
+    const result = await this.json(
+      await this.request(
+        'files/' +
+          requireDriveId(id) +
+          '/permissions?pageSize=100&fields=' +
+          encodeURIComponent('nextPageToken,permissions(type,role,deleted)'),
+      ),
+    );
+    if (result.nextPageToken || !Array.isArray(result.permissions))
+      throw new DriveFailure('DENIED');
+    const active = result.permissions.filter((value: unknown) => {
+      if (!value || typeof value !== 'object' || Array.isArray(value))
+        throw new DriveFailure('FORMAT');
+      return (value as Record<string, unknown>).deleted !== true;
+    });
+    if (
+      active.length !== 1 ||
+      active[0]?.type !== 'user' ||
+      active[0]?.role !== 'owner'
+    )
+      throw new DriveFailure('DENIED');
+    return { private_owner_only: true as const };
+  }
   async updateMarkdown(): Promise<never> {
     // A version or check-before-write is not a CAS. Until a live upload-method
     // qualification proves the remote guard, no automatic update is issued.

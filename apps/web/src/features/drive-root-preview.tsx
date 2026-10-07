@@ -1,6 +1,10 @@
 import { useState } from 'react';
 import { api, errorMessage } from '../app/api.js';
 import type { DriveRootPreview as Preview } from '../../../../packages/core/src/drive/root.js';
+type RootPreview = Preview & {
+  created_candidate?: boolean;
+  private_owner_only?: boolean;
+};
 
 export function DriveRootPreview({
   connectionId,
@@ -14,7 +18,8 @@ export function DriveRootPreview({
   changed: () => void;
 }) {
   const [root, setRoot] = useState(''),
-    [preview, setPreview] = useState<Preview | null>(null),
+    [name, setName] = useState('Daily'),
+    [preview, setPreview] = useState<RootPreview | null>(null),
     [busy, setBusy] = useState(false),
     [error, setError] = useState('');
   return (
@@ -25,6 +30,43 @@ export function DriveRootPreview({
         identyfikatora nie nadaje nowych uprawnień Google. Ten krok pokazuje
         dostęp i wpływ zmiany, a nie uruchamia eksportu.
       </p>
+      <form
+        onSubmit={(event) => {
+          event.preventDefault();
+          setBusy(true);
+          setError('');
+          setPreview(null);
+          void api<RootPreview>('/connections/drive/root/create', {
+            connection_id: connectionId,
+            name: name.trim(),
+            expected_revision: revision,
+          })
+            .then((value) => {
+              setPreview(value);
+              setRoot(value.requested_root_id);
+              changed();
+            })
+            .catch((error) => setError(errorMessage(error)))
+            .finally(() => setBusy(false));
+        }}
+      >
+        <fieldset disabled={busy || !enabled}>
+          <label htmlFor={'root-name-' + connectionId}>
+            Nazwa nowego prywatnego folderu
+          </label>
+          <input
+            id={'root-name-' + connectionId}
+            value={name}
+            required
+            maxLength={100}
+            onChange={(event) => {
+              setName(event.target.value);
+              setPreview(null);
+            }}
+          />
+          <button type="submit">Utwórz prywatny folder</button>
+        </fieldset>
+      </form>
       <form
         onSubmit={(event) => {
           event.preventDefault();
@@ -72,11 +114,19 @@ export function DriveRootPreview({
       {preview && (
         <div className="notice" role="status">
           <p>Folder: {preview.folder_name}. Odczyt metadanych: potwierdzony.</p>
+          {preview.private_owner_only && (
+            <p>
+              Uprawnienia: wyłącznie właściciel. Folder czeka na pełną
+              weryfikację zapisu.
+            </p>
+          )}
           <p>
             Istniejące mapowania: {preview.existing_mapping_count}.{' '}
             {preview.root_changed
               ? 'Zmiana folderu wymaga przeglądu mapowań, aby nie tworzyć duplikatów.'
-              : 'Brak zmiany istniejącego folderu.'}
+              : preview.current_root_id === null
+                ? 'Nie wybrano jeszcze folderu do eksportu.'
+                : 'Brak zmiany istniejącego folderu.'}
           </p>
           <p>
             Poprzedni folder i identyfikatory plików pozostają zachowane.

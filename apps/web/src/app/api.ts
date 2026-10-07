@@ -63,6 +63,10 @@ export async function api<T>(
 }
 export function errorMessage(error: unknown) {
   if (error instanceof ApiError) {
+    if (error.code === 'DRIVE_ROOT_CREATE_AMBIGUOUS')
+      return 'Nie potwierdzono utworzenia folderu. Ponów z tą samą nazwą, aby sprawdzić zarezerwowane ID.';
+    if (error.code === 'DRIVE_ROOT_IDENTITY_CONFLICT')
+      return 'Folder zmienił się lub nie jest dostępny. Zachowano jego ID; sprawdź dostęp w Drive.';
     if (error.code === 'PROMPT_DEPRECATED')
       return 'Ta wersja promptu została wycofana z nowych użyć. Wybierz zgodną aktywną wersję.';
     if (error.code === 'REGISTRY_GENERATION_CONFLICT')
