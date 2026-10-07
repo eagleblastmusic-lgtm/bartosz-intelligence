@@ -91,7 +91,8 @@ export async function compileStructuralRepair(input: {
   const prompt = input.prompt;
   if (
     prompt.prompt_id !== 'JSON_REPAIR_V1' ||
-    prompt.version !== 2 ||
+    !Number.isSafeInteger(prompt.version) ||
+    prompt.version < 2 ||
     prompt.wire.id !== 'urn:bartosz:schema:repair-wire:1.0' ||
     prompt.canonical.id !== 'urn:bartosz:schema:repair-envelope:1.1' ||
     (await sha256(prompt.text)) !== prompt.prompt_hash ||

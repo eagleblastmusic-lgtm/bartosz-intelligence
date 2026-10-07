@@ -136,7 +136,8 @@ async function compileSource(input: {
   const economyCompatible =
     !semantic &&
     input.prompt.prompt_id === 'ECONOMY_ANALYSIS_V1' &&
-    input.prompt.version === 2 &&
+    Number.isSafeInteger(input.prompt.version) &&
+    input.prompt.version >= 2 &&
     input.prompt.wire.id === 'urn:bartosz:schema:economy-wire:1.0' &&
     input.prompt.wire.hash ===
       validator_schema_hashes['urn:bartosz:schema:economy-wire:1.0'];

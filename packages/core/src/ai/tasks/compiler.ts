@@ -34,7 +34,8 @@ async function compileOptional(
     task === 'TRANSLATE' ? 'FULL_TRANSLATION_V1' : 'HISTORICAL_COMPARE_V1';
   if (
     input.prompt.prompt_id !== family ||
-    input.prompt.version !== 2 ||
+    !Number.isSafeInteger(input.prompt.version) ||
+    input.prompt.version < 2 ||
     input.prompt.wire.id !== `urn:bartosz:schema:${wire}:1.0` ||
     input.prompt.canonical.id !== `urn:bartosz:schema:${canonical}:1.0` ||
     input.prompt.wire.hash !==

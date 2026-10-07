@@ -463,6 +463,32 @@ it.each(['TRANSLATE', 'HISTORICAL_COMPARE'] as const)(
     expect(result.request.prompt).not.toContain('original-');
     expect(result.additional_model_requests).toBe(1);
     expect(result.selection_effect).toBe('NONE');
+    const nextText = prompt.text + '\nRevised compatible wording.';
+    const nextPrompt = {
+      ...prompt,
+      version: 8,
+      generation: 2,
+      text: nextText,
+      prompt_hash: await sha256(nextText),
+    };
+    const newer = await compile({ ...input, prompt: nextPrompt });
+    expect(newer.prompt_snapshot.version).toBe(8);
+    expect(newer.request.quality_scope).not.toBe(result.request.quality_scope);
+    expect(result.prompt_snapshot.version).toBe(2);
+    await expect(
+      compile({
+        ...input,
+        prompt: nextPrompt,
+        mode: 'PRODUCTION',
+        profile: {
+          ...profile,
+          quality_approvals: [result.request.quality_scope],
+        },
+      }),
+    ).rejects.toThrow('OPTIONAL_PROFILE_QUALITY_SCOPE');
+    await expect(
+      compile({ ...input, prompt: { ...nextPrompt, version: 1 } }),
+    ).rejects.toThrow('INCOMPATIBLE_OPTIONAL_PROMPT');
     await expect(compile({ ...input, mode: 'PRODUCTION' })).rejects.toThrow(
       'OPTIONAL_PROFILE_QUALITY_SCOPE',
     );

@@ -101,6 +101,35 @@ async function fixture() {
     limits: { claims: 40 },
   };
 }
+it('compiles compatible prompt text revisions without changing schema or captured earlier context', async () => {
+  const input = await fixture();
+  const old = await compileEconomy({
+    ...input,
+    prompt: { ...input.prompt, version: 7 },
+  });
+  const text = input.prompt.text + '\nOwner wording revision.';
+  const prompt = {
+    ...input.prompt,
+    version: 8,
+    generation: 2,
+    text,
+    prompt_hash: await sha256(text),
+  };
+  const revised = await compileEconomy({ ...input, prompt });
+  expect(revised.run_context.prompt_snapshot.version).toBe(8);
+  expect(revised.request.wire_schema).toEqual(old.request.wire_schema);
+  expect(revised.request.quality_scope).not.toBe(old.request.quality_scope);
+  expect(old.run_context.prompt_snapshot.version).toBe(7);
+  await expect(
+    compileEconomy({ ...input, prompt: { ...prompt, version: 1 } }),
+  ).rejects.toThrow('INCOMPATIBLE_PROMPT_SNAPSHOT');
+  await expect(
+    compileEconomy({
+      ...input,
+      prompt: { ...prompt, wire: { ...prompt.wire, hash: '0'.repeat(64) } },
+    }),
+  ).rejects.toThrow('INCOMPATIBLE_PROMPT_SNAPSHOT');
+});
 it.each(['FULL', 'CUSTOM'] as const)(
   'compiles %s from its pinned scope with an explicit extraction pass and no hidden provider switch',
   async (mode) => {
