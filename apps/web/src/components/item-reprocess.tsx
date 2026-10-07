@@ -7,6 +7,12 @@ import type {
 type Preview = Awaited<ReturnType<AnalysisJobs['previewExplicit']>>;
 type Context = {
   source_run_id: string | null;
+  source_choices?: {
+    run_id: string;
+    role: string;
+    label: string;
+    reason?: string;
+  }[];
   candidate_run_id: string | null;
   available: boolean;
   settings: AnalysisSettings | null;
@@ -25,6 +31,7 @@ export function ItemReprocess({ itemId }: { itemId: string }) {
   const [open, setOpen] = useState(false),
     [context, setContext] = useState<Context | null>(null),
     [profile, setProfile] = useState(''),
+    [sourceRun, setSourceRun] = useState(''),
     [mode, setMode] = useState<'REPROCESS' | 'SECOND_PASS' | 'VALIDATE'>(
       'REPROCESS',
     ),
@@ -57,12 +64,18 @@ export function ItemReprocess({ itemId }: { itemId: string }) {
   const selected = context?.profiles.find(
     (p) => `${p.profile_id}:${p.revision}` === profile,
   );
+  const inputRun = sourceRun || context?.source_run_id;
+  const corrected =
+    context?.source_choices?.find((s) => s.run_id === inputRun)?.role ===
+    'CORRECTED_SOURCE';
   const supported =
+    // A candidate from a different source revision cannot be silently remapped.
     selected &&
     !selected.optional_tasks &&
     (mode === 'REPROCESS' ||
       Boolean(
         context?.candidate_run_id &&
+        !corrected &&
         (mode === 'SECOND_PASS'
           ? selected.second_pass
           : selected.validation_pass),
@@ -86,7 +99,7 @@ export function ItemReprocess({ itemId }: { itemId: string }) {
     reset();
     try {
       const value = await api<Preview>('/reprocess/preview', {
-        source_run_id: context.source_run_id,
+        source_run_id: inputRun,
         settings: context.settings,
         semantic_profile_id: selected.profile_id,
         semantic_profile_revision: selected.revision,
@@ -131,13 +144,40 @@ export function ItemReprocess({ itemId }: { itemId: string }) {
       {open && (
         <div>
           <p>
-            Jawne dodatkowe zadanie. Oryginalne źródło pozostaje podstawą
-            dowodów.
+            Zadanie używa jawnie wybranej reprezentacji źródła. Oryginalny zapis
+            jest zachowany.
           </p>
           {error && <p role="alert">{error}</p>}
           {message && <p role="status">{message}</p>}
           {context && (
             <>
+              {context.source_choices && (
+                <label>
+                  Reprezentacja źródła
+                  <select
+                    disabled={busy}
+                    value={inputRun ?? ''}
+                    onChange={(e) => {
+                      setSourceRun(e.target.value);
+                      setMode('REPROCESS');
+                      reset();
+                    }}
+                  >
+                    {context.source_choices.map((s) => (
+                      <option key={s.run_id} value={s.run_id}>
+                        {s.label}
+                      </option>
+                    ))}
+                  </select>
+                </label>
+              )}
+              {corrected && (
+                <p className="notice">
+                  Analiza i cytaty będą odnosiły się do poprawionej wersji.
+                  Oryginalny zapis i poprzednie wyniki pozostaną dostępne w
+                  historii.
+                </p>
+              )}
               <label>
                 Profil i wersja
                 <select
@@ -171,12 +211,14 @@ export function ItemReprocess({ itemId }: { itemId: string }) {
                   }}
                 >
                   <option value="REPROCESS">
-                    Ponownie zbadaj oryginalne źródło
+                    Ponownie zbadaj wybrane źródło
                   </option>
                   <option
                     value="SECOND_PASS"
                     disabled={
-                      !selected?.second_pass || !context.candidate_run_id
+                      corrected ||
+                      !selected?.second_pass ||
+                      !context.candidate_run_id
                     }
                   >
                     Dodatkowy cel Custom
@@ -184,7 +226,9 @@ export function ItemReprocess({ itemId }: { itemId: string }) {
                   <option
                     value="VALIDATE"
                     disabled={
-                      !selected?.validation_pass || !context.candidate_run_id
+                      corrected ||
+                      !selected?.validation_pass ||
+                      !context.candidate_run_id
                     }
                   >
                     Walidacja kandydata Custom

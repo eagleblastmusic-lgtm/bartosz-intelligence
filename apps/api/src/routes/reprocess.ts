@@ -30,10 +30,32 @@ reprocessApp.get('/context/:item', async (c) => {
   )
     .bind(access.ownerId, itemId)
     .first<{ accepted_run_id: string | null }>();
+  const corrected = await c.env.DB.prepare(
+    "SELECT r.run_id,r.accepted_at,json_extract(r.outcome_json,'$.reason') AS reason FROM analysis_runs r JOIN jobs j ON j.owner_id=r.owner_id AND j.job_id=r.job_id WHERE r.owner_id=? AND r.item_id=? AND r.state='ACCEPTED' AND j.task_type='NORMALIZE' AND j.state='SUCCEEDED' AND json_extract(r.outcome_json,'$.kind')='CORRECTED_SOURCE' ORDER BY r.accepted_at DESC,r.run_id LIMIT 20",
+  )
+    .bind(access.ownerId, itemId)
+    .all<{ run_id: string; accepted_at: string; reason: string }>();
   const model = await new ModelRegistry(c.env.DB, access).latest('gemini_free'),
     profiles = await new SemanticProfiles(c.env.DB, access).list();
   return c.json({
     source_run_id: source?.run_id ?? null,
+    source_choices: [
+      ...(source
+        ? [
+            {
+              run_id: source.run_id,
+              role: 'SOURCE_ORIGINAL',
+              label: 'Oryginalny zapis źródła',
+            },
+          ]
+        : []),
+      ...corrected.results.map((r) => ({
+        run_id: r.run_id,
+        role: 'CORRECTED_SOURCE',
+        label: 'Poprawka właściciela · ' + r.accepted_at,
+        reason: r.reason,
+      })),
+    ],
     candidate_run_id: selected?.accepted_run_id ?? null,
     available: Boolean(
       source &&

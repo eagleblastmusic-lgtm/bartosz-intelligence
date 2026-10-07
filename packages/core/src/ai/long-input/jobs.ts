@@ -122,6 +122,9 @@ export class LongInputJobs {
         max_output_tokens: snapshot.settings.max_output_tokens,
         source_language: snapshot.source.language_code,
         analysis_mode: 'CHUNK',
+        ...(snapshot.source.correction
+          ? { source_role: 'CORRECTED_SOURCE' as const }
+          : {}),
       },
     );
     const selected = selectPipeline([snapshot.profile], {

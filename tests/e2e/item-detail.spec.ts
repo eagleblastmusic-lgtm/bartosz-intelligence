@@ -8,6 +8,7 @@ test('reading verifies paged canonical bytes, preserves accepted text on failure
     digest = (value: Buffer) =>
       createHash('sha256').update(value).digest('hex');
   let corrupt = false,
+    corrected = false,
     disabled = false,
     full = false,
     badLink = false,
@@ -201,7 +202,10 @@ test('reading verifies paged canonical bytes, preserves accepted text on failure
           source_url: badLink
             ? 'javascript:alert(1)'
             : 'https://www.youtube.com/watch?v=rUhllpnYWR8',
-          provenance: { provider_id: 'fixture' },
+          provenance: {
+            provider_id: 'fixture',
+            ...(corrected ? { source_role: 'CORRECTED_SOURCE' } : {}),
+          },
           helper_available: false,
           quote_transport:
             Buffer.byteLength(JSON.stringify(canonical())) > 32768
@@ -436,6 +440,7 @@ test('reading verifies paged canonical bytes, preserves accepted text on failure
   await expect(
     sides.getByRole('link', { name: 'Druga wypowiedź' }),
   ).toHaveAttribute('href', '#observation-usage-b');
+  corrected = true;
   for (const [at, quote] of [
     [0, original],
     [1, second],
@@ -445,6 +450,9 @@ test('reading verifies paged canonical bytes, preserves accepted text on failure
       .nth(at)
       .click();
     await expect(drawer.getByText(quote, { exact: true })).toBeVisible();
+    await expect(
+      drawer.getByText('Skorygowany zapis źródła · poprawka właściciela'),
+    ).toBeVisible();
     await drawer
       .getByRole('button', { name: 'Zamknij fragment źródła' })
       .click();

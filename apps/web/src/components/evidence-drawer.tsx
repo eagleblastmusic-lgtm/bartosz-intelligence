@@ -184,7 +184,11 @@ function EvidenceDrawer({
         <p role="status">Sprawdzanie cytatu i kotwicy…</p>
       ) : (
         <>
-          <p className="metadata">Oryginalny cytat · dokładny zapis źródła</p>
+          <p className="metadata">
+            {metadata?.provenance.source_role === 'CORRECTED_SOURCE'
+              ? 'Skorygowany zapis źródła · poprawka właściciela'
+              : 'Oryginalny cytat · dokładny zapis źródła'}
+          </p>
           <blockquote className="original-quote">
             {evidence.quote_original}
           </blockquote>

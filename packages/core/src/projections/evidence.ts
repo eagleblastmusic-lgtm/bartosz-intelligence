@@ -6,6 +6,7 @@ import {
 import { sha256 } from '../auth/crypto.js';
 import { ArtifactRepository } from '../artifacts/store.js';
 import type { EvidenceRead } from '../../../contracts/src/evidence-read.js';
+import { acceptedCorrectedSource } from '../transcript/corrected-authority.js';
 export class EvidenceProjection {
   constructor(
     private db: Database,
@@ -39,6 +40,7 @@ export class EvidenceProjection {
       source_artifact_id: string;
       canonical_artifact_id: string;
       canonical_hash: string;
+      source_run_id: string;
     };
     if (
       outcome.version !== 'intelligence-accepted:1' ||
@@ -46,7 +48,21 @@ export class EvidenceProjection {
       outcome.source_artifact_id !== row.source_artifact_id ||
       row.source_hash !== row.content_hash ||
       row.artifact_state !== 'VERIFIED' ||
-      row.artifact_kind !== 'SOURCE_ORIGINAL'
+      !['SOURCE_ORIGINAL', 'NORMALIZED'].includes(row.artifact_kind)
+    )
+      throw new Error('NOT_FOUND');
+    const correction =
+      row.artifact_kind === 'NORMALIZED'
+        ? await acceptedCorrectedSource(
+            this.db,
+            this.context,
+            outcome.source_run_id,
+          )
+        : null;
+    if (
+      correction &&
+      (correction.source_artifact_id !== row.source_artifact_id ||
+        correction.source_hash !== row.source_hash)
     )
       throw new Error('NOT_FOUND');
     const anchor = JSON.parse(row.anchor_snapshot_json) as {
@@ -150,9 +166,16 @@ export class EvidenceProjection {
       timestamp_url: row.timestamp_url,
       source_url: source.href,
       provenance: Object.fromEntries(
-        Object.entries(
-          JSON.parse(row.provenance_json) as Record<string, unknown>,
-        ).filter(
+        Object.entries({
+          ...(JSON.parse(row.provenance_json) as Record<string, unknown>),
+          ...(correction
+            ? {
+                source_role: 'CORRECTED_SOURCE',
+                original_ref: correction.correction.original_ref,
+                original_hash: correction.correction.original_hash,
+              }
+            : {}),
+        }).filter(
           ([key, value]) =>
             [
               'provider_id',
@@ -165,6 +188,11 @@ export class EvidenceProjection {
               'is_translated',
               'adapter_version',
               'source_timestamp_fidelity',
+              'source_role',
+              'original_ref',
+              'original_hash',
+              'authored_by',
+              'reason',
             ].includes(key) &&
             (typeof value === 'string' || typeof value === 'boolean'),
         ),

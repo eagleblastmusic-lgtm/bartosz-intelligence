@@ -38,6 +38,18 @@ test('optional tasks require preview/confirm, reuse nonce after a lost reply and
       return route.fulfill({
         json: {
           source_run_id: 'source-run',
+          source_choices: [
+            {
+              run_id: 'source-run',
+              role: 'SOURCE_ORIGINAL',
+              label: 'Oryginalny zapis źródła',
+            },
+            {
+              run_id: 'corrected-run',
+              role: 'CORRECTED_SOURCE',
+              label: 'Poprawka właściciela',
+            },
+          ],
           candidate_run_id: 'accepted-run',
           available: true,
           settings: {
@@ -64,11 +76,15 @@ test('optional tasks require preview/confirm, reuse nonce after a lost reply and
       });
     }
     if (url.pathname === '/api/v1/reprocess/preview') {
+      const corrected =
+        route.request().postDataJSON().source_run_id === 'corrected-run';
       expect(route.request().postDataJSON()).toMatchObject({
-        source_run_id: 'source-run',
+        source_run_id: corrected ? 'corrected-run' : 'source-run',
         semantic_profile_id: 'custom',
         semantic_profile_revision: 1,
-        pass: { mode: 'VALIDATE', candidate_run_id: 'accepted-run' },
+        pass: corrected
+          ? null
+          : { mode: 'VALIDATE', candidate_run_id: 'accepted-run' },
       });
       return route.fulfill({
         json: {
@@ -375,6 +391,30 @@ test('optional tasks require preview/confirm, reuse nonce after a lost reply and
   await expect(reprocess.getByRole('status')).toContainText(
     'wybór nowego wyniku wymaga osobnej decyzji',
   );
+  await page.getByLabel('Reprezentacja źródła').selectOption('corrected-run');
+  await expect(page.getByLabel('Rodzaj zadania')).toHaveValue('REPROCESS');
+  await expect(
+    page.getByRole('option', { name: 'Walidacja kandydata Custom' }),
+  ).toHaveJSProperty('disabled', true);
+  await expect(
+    reprocess.getByText(/cytaty będą odnosiły się do poprawionej wersji/),
+  ).toBeVisible();
+  await page
+    .getByRole('button', { name: 'Przygotuj podgląd ponownej analizy' })
+    .click();
+  await expect(
+    page.getByRole('button', {
+      name: 'Potwierdź dodatkowe zadanie',
+      exact: true,
+    }),
+  ).toBeVisible();
+  await page.getByLabel('Reprezentacja źródła').selectOption('source-run');
+  await expect(
+    page.getByRole('button', {
+      name: 'Potwierdź dodatkowe zadanie',
+      exact: true,
+    }),
+  ).toHaveCount(0);
   expect(
     (
       await new AxeBuilder({ page })

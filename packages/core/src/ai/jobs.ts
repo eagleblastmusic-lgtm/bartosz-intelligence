@@ -31,6 +31,7 @@ import {
 } from './tasks/additional-pass.js';
 import { parseWithDeterministicRepair } from './repair/deterministic.js';
 import type { normalizeTranscript } from '../transcript/normalize.js';
+import { acceptedCorrectedSource } from '../transcript/corrected-authority.js';
 
 export interface AnalysisSettings {
   runtime: 'local' | 'cloud';
@@ -48,6 +49,11 @@ interface SourceSnapshot {
   source_hash: string;
   manifest_hash: string;
   language_code: string;
+  correction?: {
+    original_ref: string;
+    original_hash: string;
+    producer_version: 'owner-source-correction:1';
+  };
 }
 export interface AnalysisJobSnapshot {
   version: 'analysis-job:1';
@@ -103,7 +109,8 @@ export class AnalysisJobs {
         outcome_json: string;
         candidate_hash: string;
       }>();
-    if (!row || (await sha256(row.outcome_json)) !== row.candidate_hash)
+    if (!row) return acceptedCorrectedSource(this.db, this.context, runId);
+    if ((await sha256(row.outcome_json)) !== row.candidate_hash)
       throw new Error('ANALYSIS_SOURCE_NOT_ACCEPTED');
     const outcome = JSON.parse(row.outcome_json) as {
       version: string;
@@ -170,6 +177,8 @@ export class AnalysisJobs {
     )
       throw new Error('INVALID_ANALYSIS_SETTINGS');
     const source = await this.source(sourceRunId);
+    if (source.correction && !intent)
+      throw new Error('EXPLICIT_CORRECTED_SOURCE_REQUIRED');
     await this.requireSourceProcessing(source.item_id);
     const profiles = new SemanticProfiles(this.db, this.context);
     if (
@@ -220,6 +229,9 @@ export class AnalysisJobs {
       max_output_tokens: settings.max_output_tokens,
       source_language: source.language_code,
       analysis_mode: 'ORDINARY',
+      ...(source.correction
+        ? { source_role: 'CORRECTED_SOURCE' as const }
+        : {}),
       ...(additionalPass
         ? {
             additional_pass: {
@@ -298,6 +310,9 @@ export class AnalysisJobs {
     const compiled = await compileSemanticAnalysis({
       source_artifact_id: snapshot.source.source_artifact_id,
       source_text: original.text,
+      ...(snapshot.source.correction
+        ? { source_role: 'CORRECTED_SOURCE' as const }
+        : {}),
       manifest: JSON.parse(map.text) as Awaited<
         ReturnType<typeof normalizeTranscript>
       >['manifest'],
@@ -667,6 +682,9 @@ export class AnalysisJobs {
         max_output_tokens: snapshot.settings.max_output_tokens,
         source_language: snapshot.source.language_code,
         analysis_mode: snapshot.chunk ? 'CHUNK' : 'ORDINARY',
+        ...(snapshot.source.correction
+          ? { source_role: 'CORRECTED_SOURCE' as const }
+          : {}),
         ...(snapshot.additional_pass
           ? {
               additional_pass: {

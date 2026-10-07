@@ -349,7 +349,7 @@ export class AnalysisValidation {
     else {
       const sourceText = await read(
         snapshot.source.source_artifact_id,
-        'SOURCE_ORIGINAL',
+        snapshot.source.correction ? 'NORMALIZED' : 'SOURCE_ORIGINAL',
         4 * 1024 * 1024,
       );
       const manifest = JSON.parse(

@@ -37,14 +37,23 @@ export async function loadAnalysisSource(
   const source = await artifacts.readText(snapshot.source.source_artifact_id);
   const map = await artifacts.readText(snapshot.source.segment_map_artifact_id);
   if (
-    source.artifact.kind !== 'SOURCE_ORIGINAL' ||
+    source.artifact.kind !==
+      (snapshot.source.correction ? 'NORMALIZED' : 'SOURCE_ORIGINAL') ||
     source.artifact.item_id !== snapshot.source.item_id ||
     source.artifact.content_hash !== snapshot.source.source_hash ||
     map.artifact.kind !== 'SEGMENT_MAP' ||
     map.artifact.item_id !== snapshot.source.item_id ||
-    map.artifact.original_ref !== source.artifact.artifact_id ||
+    map.artifact.original_ref !==
+      (snapshot.source.correction?.original_ref ??
+        source.artifact.artifact_id) ||
     map.artifact.content_hash !== snapshot.source.manifest_hash ||
-    map.artifact.producer_version !== 'source-normalizer:1'
+    map.artifact.producer_version !==
+      (snapshot.source.correction?.producer_version ?? 'source-normalizer:1') ||
+    (snapshot.source.correction &&
+      (source.artifact.original_ref !==
+        snapshot.source.correction.original_ref ||
+        source.artifact.producer_version !==
+          snapshot.source.correction.producer_version))
   )
     throw new Error('ANALYSIS_SOURCE_ARTIFACT_MISMATCH');
   return { prepared, snapshot, source, map };
@@ -75,6 +84,9 @@ export async function prepareAnalysis(
     throw new Error('CHUNK_PLAN_MISMATCH');
   const compilerInput = {
     source_artifact_id: source.artifact.artifact_id,
+    ...(snapshot.source.correction
+      ? { source_role: 'CORRECTED_SOURCE' as const }
+      : {}),
     source_text: source.text,
     manifest: JSON.parse(map.text),
     manifest_hash: map.artifact.content_hash,

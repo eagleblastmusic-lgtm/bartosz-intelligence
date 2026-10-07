@@ -2,6 +2,7 @@ import { env } from 'cloudflare:workers';
 import { QuotaSnapshots } from '../../packages/core/src/ai/quota-snapshots.js';
 import { verifyOptionalTranslation } from './optional-task-fixture.js';
 import { verifyOptionalHistory } from './optional-history-fixture.js';
+import { verifyCorrectedInput } from './corrected-input-fixture.js';
 import {
   analysisQualityScope,
   compileEconomy,
@@ -622,6 +623,13 @@ it('local poller consumes durable caption backlog through the real Worker API an
     accepted: false,
     idle: true,
   });
+  await verifyCorrectedInput(
+    env.DB,
+    owner,
+    await fixtureOwner('b'),
+    correctedJob!.job_id,
+    transport,
+  );
   const badJob = await corrections.enqueue(
     sourceRun!.run_id,
     [{ ...patches[0]!, old_value: 'Wrong' }],
@@ -674,6 +682,45 @@ it('local poller consumes durable caption backlog through the real Worker API an
       new Date(),
     ),
   ).rejects.toThrow('IDEMPOTENCY_CONFLICT');
+  const acceptedAnalysis = await env.DB.prepare(
+    "SELECT r.run_id,e.evidence_id FROM analysis_runs r JOIN analysis_evidence e ON e.owner_id=r.owner_id AND e.run_id=r.run_id WHERE r.owner_id=? AND r.state='ACCEPTED' AND json_extract(r.outcome_json,'$.source_artifact_id')=?",
+  )
+    .bind(owner.ownerId, outcome.source_artifact_id)
+    .first<{ run_id: string; evidence_id: string }>();
+  const readBeforeRestore = await new EvidenceProjection(env.DB, owner).read(
+    acceptedAnalysis!.evidence_id,
+    acceptedAnalysis!.run_id,
+  );
+  const backup = new CoreBackup(env.DB, owner),
+    backupStart = await backup.begin(),
+    chunks: BackupChunk[] = [];
+  for (const table of backupTables) {
+    let cursor: number | null = 0;
+    do {
+      const chunk = await backup.chunk(backupStart.backup_id, table, cursor);
+      chunks.push(chunk);
+      cursor = chunk.next_cursor;
+    } while (cursor !== null);
+  }
+  const portable = {
+    manifest: await backup.complete(backupStart.backup_id),
+    chunks,
+  };
+  await resetSchema();
+  await restoreCanonical(env.DB, portable, 'subject-a');
+  expect(
+    await new EvidenceProjection(env.DB, await fixtureOwner()).read(
+      acceptedAnalysis!.evidence_id,
+      acceptedAnalysis!.run_id,
+    ),
+  ).toEqual(readBeforeRestore);
+  expect(
+    await env.DB.prepare(
+      'SELECT outcome_json FROM analysis_runs WHERE run_id=?',
+    )
+      .bind(sourceRun!.run_id)
+      .first('outcome_json'),
+  ).toBe(before);
 });
 it.each([
   'QUALITY_TEST',

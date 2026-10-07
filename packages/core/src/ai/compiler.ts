@@ -60,6 +60,7 @@ export async function analysisQualityScope(
     source_language: string;
     analysis_mode: 'ORDINARY' | 'CHUNK';
     additional_pass?: { mode: 'SECOND_PASS' | 'VALIDATE'; purpose: string };
+    source_role?: 'CORRECTED_SOURCE';
   },
 ) {
   return sha256(
@@ -84,6 +85,7 @@ export async function analysisQualityScope(
 }
 async function compileSource(input: {
   source_artifact_id: string;
+  source_role?: 'CORRECTED_SOURCE';
   source_text: string;
   manifest: Manifest;
   manifest_hash: string;
@@ -257,6 +259,7 @@ async function compileSource(input: {
     max_output_tokens: input.max_output_tokens,
     source_language: input.semantic_context.source_language,
     analysis_mode: chunk ? ('CHUNK' as const) : ('ORDINARY' as const),
+    ...(input.source_role ? { source_role: input.source_role } : {}),
     ...(pass
       ? { additional_pass: { mode: pass.mode, purpose: pass.purpose } }
       : {}),

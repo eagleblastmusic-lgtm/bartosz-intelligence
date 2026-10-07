@@ -12,6 +12,7 @@ import type { ApprovedAlias } from './entities.js';
 import { effectiveAlias } from '../../knowledge/entities.js';
 import { effectiveEntity } from '../../knowledge/identity.js';
 import { validateCanonical } from '../repair/validate.js';
+import { acceptedCorrectedSource } from '../../transcript/corrected-authority.js';
 type Enriched = Awaited<ReturnType<typeof enrichEconomy>>;
 export class IntelligenceLedger {
   constructor(
@@ -124,7 +125,7 @@ export class IntelligenceLedger {
     }
     const source = await this.db
       .prepare(
-        `SELECT a.artifact_id FROM artifacts a JOIN analysis_runs r ON r.owner_id=a.owner_id AND r.item_id=a.item_id WHERE a.owner_id=? AND a.artifact_id=? AND a.item_id=? AND a.kind='SOURCE_ORIGINAL' AND a.state='VERIFIED' AND a.content_hash=? AND EXISTS(SELECT 1 FROM artifacts m WHERE m.owner_id=a.owner_id AND m.item_id=a.item_id AND m.original_ref=a.artifact_id AND m.kind='SEGMENT_MAP' AND m.state='VERIFIED' AND m.producer_version='source-normalizer:1' AND m.content_hash=?) AND r.run_id=? AND r.job_id=? AND r.state='CANDIDATE' AND ${guard.predicate}`,
+        `SELECT a.artifact_id,a.kind,r.input_snapshot_json FROM artifacts a JOIN analysis_runs r ON r.owner_id=a.owner_id AND r.item_id=a.item_id WHERE a.owner_id=? AND a.artifact_id=? AND a.item_id=? AND a.state='VERIFIED' AND a.content_hash=? AND EXISTS(SELECT 1 FROM artifacts m WHERE m.owner_id=a.owner_id AND m.item_id=a.item_id AND m.kind='SEGMENT_MAP' AND m.state='VERIFIED' AND m.content_hash=? AND ((a.kind='SOURCE_ORIGINAL' AND m.original_ref=a.artifact_id AND m.producer_version='source-normalizer:1') OR (a.kind='NORMALIZED' AND a.producer_version='owner-source-correction:1' AND m.original_ref=a.original_ref AND m.producer_version=a.producer_version))) AND r.run_id=? AND r.job_id=? AND r.state='CANDIDATE' AND ${guard.predicate}`,
       )
       .bind(
         this.context.ownerId,
@@ -136,8 +137,32 @@ export class IntelligenceLedger {
         token.job_id,
         ...guard.bindings,
       )
-      .first();
+      .first<{
+        artifact_id: string;
+        kind: string;
+        input_snapshot_json: string;
+      }>();
     if (!source) throw new Error('LEDGER_SOURCE_OR_FENCE_MISMATCH');
+    if (source.kind === 'NORMALIZED') {
+      const snapshot = JSON.parse(source.input_snapshot_json) as {
+        run_id: string;
+        correction?: unknown;
+      };
+      if (!snapshot.correction)
+        throw new Error('LEDGER_SOURCE_OR_FENCE_MISMATCH');
+      const authority = await acceptedCorrectedSource(
+        this.db,
+        this.context,
+        snapshot.run_id,
+      );
+      if (
+        JSON.stringify(authority) !== JSON.stringify(snapshot) ||
+        authority.source_artifact_id !== value.canonical.source_artifact_id ||
+        authority.source_hash !== value.source_pin.source_hash ||
+        authority.manifest_hash !== value.source_pin.manifest_hash
+      )
+        throw new Error('LEDGER_SOURCE_OR_FENCE_MISMATCH');
+    }
     for (const entity of value.entity_resolutions)
       if (
         entity.resolution === 'APPROVED_ALIAS' &&
