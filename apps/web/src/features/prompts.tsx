@@ -6,6 +6,8 @@ import { PromptPublication } from './prompt-publication.js';
 import { PromptTestRun } from './prompt-test-run.js';
 import { PromptWithdrawal } from './prompt-withdrawal.js';
 import { PromptDiff } from './prompt-diff.js';
+import { PromptLabQuota } from './prompt-lab-quota.js';
+import { PromptLabHistory } from './prompt-lab-history.js';
 type Families = Awaited<ReturnType<PromptDrafts['families']>>;
 type Version = Awaited<ReturnType<PromptDrafts['version']>>;
 const names: Record<string, string> = {
@@ -151,6 +153,8 @@ export function Prompts() {
         </div>
         <AppLink href="/system">System</AppLink>
       </div>
+      <PromptLabQuota />
+      <PromptLabHistory />
       {error && (
         <p role="alert" className="notice error">
           {error}
@@ -246,6 +250,11 @@ export function Prompts() {
             <PromptTestRun
               key={'test:' + family + ':' + version}
               prompt={base}
+            />
+            <PromptTestRun
+              key={'lab:' + family + ':' + version}
+              prompt={base}
+              lab
             />
             {base.status === 'PUBLISHED' && (
               <PromptTestRun

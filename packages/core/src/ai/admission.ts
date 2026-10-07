@@ -7,6 +7,7 @@ import { leasePredicate } from '../jobs/lease-guard.js';
 import type { LeaseToken } from '../../../contracts/src/jobs.js';
 import type { AIResponse } from '../../../contracts/src/ai.js';
 import { validTokenAccounting } from './accounting.js';
+import { LabQuotaPolicies } from '../registry/lab-quota.js';
 export interface AdmissionBucket {
   snapshot_id: string;
   bucket: 'RPM' | 'RPD' | 'INPUT_TPM';
@@ -82,7 +83,73 @@ export class QuotaAdmission {
       id = crypto.randomUUID();
     const conditions: string[] = [],
       bindings: (string | number | null)[] = [];
-    for (const row of input.buckets) {
+    // Classification is read from the durable job, never a worker-supplied flag.
+    const classification = await this.db
+      .prepare(
+        "SELECT json_extract(payload_json,'$.snapshot.workload') workload,json_extract(payload_json,'$.snapshot.settings.mode') mode,priority FROM jobs WHERE owner_id=? AND job_id=?",
+      )
+      .bind(this.context.ownerId, token.job_id)
+      .first<{
+        workload: string | null;
+        mode: string | null;
+        priority: number;
+      }>();
+    let labPolicy: Awaited<ReturnType<LabQuotaPolicies['current']>> = null;
+    conditions.push(
+      "EXISTS(SELECT 1 FROM jobs WHERE owner_id=? AND job_id=? AND json_extract(payload_json,'$.snapshot.workload') IS ? AND json_extract(payload_json,'$.snapshot.settings.mode') IS ? AND priority=?)",
+    );
+    bindings.push(
+      this.context.ownerId,
+      token.job_id,
+      classification?.workload ?? null,
+      classification?.mode ?? null,
+      classification?.priority ?? -1,
+    );
+    if (classification?.workload === 'PROMPT_LAB') {
+      conditions.push(
+        "NOT EXISTS(SELECT 1 FROM config_versions c JOIN jobs j ON j.owner_id=c.owner_id WHERE j.owner_id=? AND j.job_id=? AND c.config_id='prompt-lab-cancel-'||json_extract(j.payload_json,'$.snapshot.lab_experiment_hash') AND c.revision=1)",
+      );
+      bindings.push(this.context.ownerId, token.job_id);
+      if (
+        classification.mode !== 'QUALITY_TEST' ||
+        classification.priority > 20
+      )
+        throw new Error('QUOTA_LAB_JOB_INVALID');
+      labPolicy = await new LabQuotaPolicies(this.db, this.context).current();
+      if (!labPolicy) throw new Error('QUOTA_LAB_POLICY_NOT_CONFIGURED');
+      if (
+        labPolicy.policy.account_key !== input.account_key ||
+        labPolicy.policy.model !== input.model
+      )
+        throw new Error('QUOTA_LAB_ACCOUNT_MISMATCH');
+      const daily = input.buckets.find((bucket) => bucket.bucket === 'RPD')!;
+      conditions.push(
+        "EXISTS(SELECT 1 FROM config_versions WHERE owner_id=? AND config_id='lab-quota-gemini_free' AND revision=? AND content_hash=? AND revision=(SELECT MAX(revision) FROM config_versions WHERE owner_id=? AND config_id='lab-quota-gemini_free')) AND 1+(SELECT COUNT(*) FROM quota_reservations r JOIN jobs j ON j.owner_id=r.owner_id AND j.job_id=r.job_id WHERE r.account_key=? AND r.provider='gemini' AND r.model=? AND r.state!='CANCELLED' AND r.created_at>=? AND json_extract(j.payload_json,'$.snapshot.workload')='PROMPT_LAB')<=?",
+      );
+      bindings.push(
+        this.context.ownerId,
+        labPolicy.revision,
+        labPolicy.hash,
+        this.context.ownerId,
+        input.account_key,
+        input.model,
+        daily.window_start,
+        labPolicy.policy.daily_requests,
+      );
+    }
+    const effectiveBuckets = input.buckets.map((row) => ({
+      ...row,
+      reserve: labPolicy
+        ? Math.max(row.reserve, labPolicy.policy.normal_headroom[row.bucket])
+        : row.reserve,
+      ...(labPolicy
+        ? {
+            lab_policy_hash: labPolicy.hash,
+            lab_policy_revision: labPolicy.revision,
+          }
+        : {}),
+    }));
+    for (const row of effectiveBuckets) {
       conditions.push(
         `EXISTS(SELECT 1 FROM quota_snapshots s WHERE s.owner_id=? AND s.snapshot_id=? AND s.provider='gemini' AND s.model=? AND s.bucket=? AND s.remaining=? AND s.reset_at=? AND s.sampled_at=? AND s.expires_at=? AND s.source IN ('api','dashboard') AND s.expires_at>? AND s.reset_at>?) AND ?+?+(SELECT COALESCE(SUM(${row.bucket === 'INPUT_TPM' ? 'charged_input_tokens' : '1'}),0) FROM quota_reservations r WHERE r.account_key=? AND r.provider='gemini' AND r.model=? AND r.state!='CANCELLED' AND r.created_at>=? AND (r.created_at>=? OR r.state IN ('RESERVED','SUBMITTED','UNKNOWN')))<=?`,
       );
@@ -118,7 +185,7 @@ export class QuotaAdmission {
         input.request_id,
         input.model,
         input.account_key,
-        JSON.stringify(input.buckets),
+        JSON.stringify(effectiveBuckets),
         input.input_tokens,
         input.input_tokens,
         now.toISOString(),
@@ -165,7 +232,7 @@ export class QuotaAdmission {
     );
     const result = await this.db
       .prepare(
-        `UPDATE quota_reservations SET state='SUBMITTED' WHERE owner_id=? AND reservation_id=? AND job_id=? AND fencing_token=? AND state='RESERVED' AND expires_at>? AND ${guard.predicate}`,
+        `UPDATE quota_reservations SET state='SUBMITTED' WHERE owner_id=? AND reservation_id=? AND job_id=? AND fencing_token=? AND state='RESERVED' AND expires_at>? AND ${guard.predicate} AND NOT EXISTS(SELECT 1 FROM jobs j JOIN config_versions c ON c.owner_id=j.owner_id AND c.config_id='prompt-lab-cancel-'||json_extract(j.payload_json,'$.snapshot.lab_experiment_hash') AND c.revision=1 WHERE j.owner_id=quota_reservations.owner_id AND j.job_id=quota_reservations.job_id AND json_extract(j.payload_json,'$.snapshot.workload')='PROMPT_LAB')`,
       )
       .bind(
         this.context.ownerId,

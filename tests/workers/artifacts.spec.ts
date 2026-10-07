@@ -6,6 +6,8 @@ import { verifyOptionalHistory } from './optional-history-fixture.js';
 import { PromptDrafts } from '../../packages/core/src/registry/draft.js';
 import { PromptTests } from '../../packages/core/src/registry/test.js';
 import { PromptUsage } from '../../packages/core/src/registry/usage.js';
+import { PromptLab } from '../../packages/core/src/registry/lab-store.js';
+import { LabQuotaPolicies } from '../../packages/core/src/registry/lab-quota.js';
 import { verifyCorrectedInput } from './corrected-input-fixture.js';
 import {
   analysisQualityScope,
@@ -2485,6 +2487,154 @@ it.each([
       );
       expect(finished).toMatchObject({ accepted: false, state: 'SUCCEEDED' });
       if (draftTestPreviewHash) {
+        await new LabQuotaPolicies(env.DB, owner).save(
+          {
+            version: 'lab-quota:1',
+            account_key: profile.account_key,
+            model: profile.model,
+            daily_requests: 1,
+            normal_headroom: { RPM: 1, RPD: 1, INPUT_TPM: 100 },
+          },
+          0,
+          'Synthetic Lab admission',
+          fixtureNow,
+        );
+        const baseline = await new PromptTests(env.DB, owner).preview(
+          {
+            prompt_id: semanticSnapshot.compiled.prompt.id,
+            version: 2,
+            source_run_id: accepted.run_id,
+            semantic_profile_id: 'monitor',
+            semantic_profile_revision: 1,
+            model_revision: profile.revision,
+            max_output_tokens: settings.max_output_tokens,
+            purpose: settings.purpose,
+            region: settings.region,
+            limits: settings.limits,
+          },
+          fixtureNow,
+        );
+        const draftReceipt = JSON.parse(
+          (await env.DB.prepare(
+            'SELECT payload_json FROM config_versions WHERE owner_id=? AND config_id=?',
+          )
+            .bind(owner.ownerId, 'analysis-preview-' + draftTestPreviewHash)
+            .first<string>('payload_json'))!,
+        ).snapshot;
+        const baselineReceipt = JSON.parse(
+          (await env.DB.prepare(
+            'SELECT payload_json FROM config_versions WHERE owner_id=? AND config_id=?',
+          )
+            .bind(owner.ownerId, 'analysis-preview-' + baseline.preview_hash)
+            .first<string>('payload_json'))!,
+        ).snapshot;
+        const variant = (id: 'A' | 'B', snapshot: typeof draftReceipt) => ({
+          id,
+          provider: profile.provider_id,
+          model: profile.model,
+          model_revision: profile.revision,
+          prompt_hash: snapshot.prompt.prompt_hash,
+          wire_hash: snapshot.prompt.wire.hash,
+          canonical_hash: snapshot.prompt.canonical.hash,
+          reasoning: 'low',
+          max_output_tokens: settings.max_output_tokens,
+          seed: null,
+        });
+        const lab = new PromptLab(env.DB, owner),
+          experiment = await lab.create(
+            {
+              controls: {
+                version: 'lab-controls:1',
+                mode: 'PROMPT_AB',
+                source_hashes: [draftReceipt.source.source_hash],
+                repeats: 1,
+                variants: [
+                  variant('A', baselineReceipt),
+                  variant('B', draftReceipt),
+                ],
+                confounders: ['SEED_UNAVAILABLE', 'PROVIDER_NONDETERMINISM'],
+              },
+              pairs: [
+                {
+                  source_hash: draftReceipt.source.source_hash,
+                  repeat: 1,
+                  a: { kind: 'ANALYSIS', hash: baseline.preview_hash },
+                  b: { kind: 'ANALYSIS', hash: draftTestPreviewHash },
+                },
+              ],
+              reason: 'Actual compiler fixtures, no provider approval',
+            },
+            fixtureNow,
+          );
+        const preparedPair = await lab.preparePair(
+          {
+            prompt_id: semanticSnapshot.compiled.prompt.id,
+            version: 2,
+            comparison_version: 3,
+            source_run_id: accepted.run_id,
+            semantic_profile_id: 'monitor',
+            semantic_profile_revision: 1,
+            model_revision: profile.revision,
+            max_output_tokens: settings.max_output_tokens,
+            purpose: settings.purpose,
+            region: settings.region,
+            limits: settings.limits,
+            repeats: 3,
+            reason: 'Synthetic convenience preparation',
+          },
+          fixtureNow,
+        );
+        expect(preparedPair.cases).toHaveLength(6);
+        expect(
+          preparedPair.controls.variants.map((row) => row.prompt_hash),
+        ).toEqual([
+          baselineReceipt.prompt.prompt_hash,
+          draftReceipt.prompt.prompt_hash,
+        ]);
+        const labJob = await lab.submit(
+          experiment.experiment_hash,
+          0,
+          fixtureNow,
+        );
+        expect(
+          (
+            await lab.submit(
+              experiment.experiment_hash,
+              0,
+              new Date(fixtureNow.getTime() + 900001),
+            )
+          ).job_id,
+        ).toBe(labJob.job_id);
+        expect((await lab.get(experiment.experiment_hash)).jobs).toEqual(
+          expect.arrayContaining([
+            expect.objectContaining({
+              job_id: labJob.job_id,
+              case_index: 0,
+              state: 'PENDING',
+            }),
+          ]),
+        );
+        const labToken = (await aiStore.lease(
+          labJob.job_id,
+          'ANALYZE',
+          fixtureNow,
+          'local',
+        ))!;
+        await aiStore.start(labToken, 'ANALYZE', fixtureNow);
+        expect(
+          (await new AnalysisJobs(env.DB, aiAccess).load(labToken, fixtureNow))
+            .snapshot,
+        ).toMatchObject({
+          workload: 'PROMPT_LAB',
+          lab_experiment_hash: experiment.experiment_hash,
+          lab_case_index: 0,
+          settings: { mode: 'QUALITY_TEST' },
+        });
+        await lab.cancel(
+          experiment.experiment_hash,
+          'Synthetic cancellation without provider calls',
+          fixtureNow,
+        );
         const queued = await analysis.confirmExplicit(
           draftTestPreviewHash,
           crypto.randomUUID(),

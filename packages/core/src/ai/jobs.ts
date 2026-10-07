@@ -58,6 +58,9 @@ interface SourceSnapshot {
 }
 export interface AnalysisJobSnapshot {
   version: 'analysis-job:1';
+  workload?: 'PROMPT_LAB';
+  lab_experiment_hash?: string;
+  lab_case_index?: number;
   source: SourceSnapshot;
   prompt: PromptSnapshot;
   profile: PipelineProfile;

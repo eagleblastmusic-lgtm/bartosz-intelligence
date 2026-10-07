@@ -66,7 +66,21 @@ export function errorMessage(error: unknown) {
     if (error.code === 'PROMPT_DEPRECATED')
       return 'Ta wersja promptu została wycofana z nowych użyć. Wybierz zgodną aktywną wersję.';
     if (error.code === 'REGISTRY_GENERATION_CONFLICT')
-      return 'Aktywny prompt zmienił się. Przygotuj nowy podgląd publikacji lub rollbacku.';
+      return 'Konfiguracja zmieniła się. Odśwież dane i przygotuj ponownie zmianę.';
+    if (error.code === 'QUOTA_LAB_POLICY_NOT_CONFIGURED')
+      return 'Najpierw skonfiguruj osobny budżet Prompt Lab.';
+    if (error.code === 'QUOTA_LAB_ACCOUNT_MISMATCH')
+      return 'Budżet Lab dotyczy innego projektu lub modelu. Sprawdź konfigurację budżetu.';
+    if (error.code === 'LAB_EXPERIMENT_CANCELLED')
+      return 'Eksperyment został anulowany. Nowe próby są zablokowane.';
+    if (
+      [
+        'LAB_PREVIEW_CONTROL_MISMATCH',
+        'LAB_INPUT_SNAPSHOT_MISMATCH',
+        'LAB_SOURCE_CONTROL_MISMATCH',
+      ].includes(error.code)
+    )
+      return 'Dane lub parametry prób różnią się. Przygotuj ponownie porównanie dla tej samej rewizji źródła i profilu.';
     if (error.code === 'PROMPT_QUALITY_APPROVAL_REQUIRED')
       return 'Brakuje aktualnej kwalifikacji jakości dla dokładnej wersji promptu i profilu modelu.';
     if (

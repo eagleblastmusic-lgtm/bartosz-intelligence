@@ -3,10 +3,118 @@ import { PromptTests } from '../../../../packages/core/src/registry/test.js';
 import { PromptPublications } from '../../../../packages/core/src/registry/publish.js';
 import { PromptUsage } from '../../../../packages/core/src/registry/usage.js';
 import { PromptHistory } from '../../../../packages/core/src/registry/history.js';
+import { PromptLab } from '../../../../packages/core/src/registry/lab-store.js';
+import {
+  LabQuotaPolicies,
+  type LabQuotaPolicy,
+} from '../../../../packages/core/src/registry/lab-quota.js';
 import { ownerRouter, body, queryFields, text } from './common.js';
 import type { ApiEnvironment } from './common.js';
 import type { Context } from 'hono';
 export const promptsApp = ownerRouter();
+promptsApp.post('/lab/prepare', async (c) => {
+  const input = await body(c, [
+    'prompt_id',
+    'version',
+    'comparison_version',
+    'source_run_id',
+    'semantic_profile_id',
+    'semantic_profile_revision',
+    'model_revision',
+    'max_output_tokens',
+    'purpose',
+    'region',
+    'limits',
+    'repeats',
+    'reason',
+  ]);
+  if (
+    !input.limits ||
+    typeof input.limits !== 'object' ||
+    Array.isArray(input.limits)
+  )
+    throw new Error('INVALID_PROMPT_TEST');
+  return c.json(
+    await new PromptLab(c.env.DB, c.get('access')).preparePair(
+      input as unknown as Parameters<PromptLab['preparePair']>[0],
+      new Date(),
+    ),
+  );
+});
+promptsApp.post('/lab/experiments', async (c) => {
+  const input = await body(c, ['controls', 'pairs', 'reason']);
+  return c.json(
+    await new PromptLab(c.env.DB, c.get('access')).create(
+      input as unknown as Parameters<PromptLab['create']>[0],
+      new Date(),
+    ),
+  );
+});
+promptsApp.get('/lab/experiments', async (c) => {
+  queryFields(c, ['before']);
+  return c.json(
+    await new PromptLab(c.env.DB, c.get('access')).list(
+      c.req.query('before') ?? null,
+    ),
+  );
+});
+promptsApp.get('/lab/experiments/:hash', async (c) => {
+  queryFields(c, []);
+  return c.json(
+    await new PromptLab(c.env.DB, c.get('access')).get(c.req.param('hash')),
+  );
+});
+promptsApp.post('/lab/experiments/:hash/submit', async (c) => {
+  const input = await body(c, ['case_index']);
+  return c.json(
+    await new PromptLab(c.env.DB, c.get('access')).submit(
+      c.req.param('hash'),
+      input.case_index as number,
+      new Date(),
+    ),
+  );
+});
+promptsApp.post('/lab/experiments/:hash/cancel', async (c) => {
+  const input = await body(c, ['reason']);
+  return c.json(
+    await new PromptLab(c.env.DB, c.get('access')).cancel(
+      c.req.param('hash'),
+      text(input.reason, 1000),
+      new Date(),
+    ),
+  );
+});
+promptsApp.get('/lab/quota', async (c) => {
+  queryFields(c, []);
+  return c.json(
+    await new LabQuotaPolicies(c.env.DB, c.get('access')).current(),
+  );
+});
+promptsApp.post('/lab/quota', async (c) => {
+  const input = await body(c, [
+    'account_key',
+    'model',
+    'daily_requests',
+    'normal_headroom',
+    'expected_revision',
+    'reason',
+  ]);
+  return c.json(
+    await new LabQuotaPolicies(c.env.DB, c.get('access')).save(
+      {
+        version: 'lab-quota:1',
+        account_key: text(input.account_key, 200),
+        model: text(input.model, 200),
+        daily_requests: input.daily_requests as number,
+        normal_headroom:
+          input.normal_headroom as LabQuotaPolicy['normal_headroom'],
+      },
+      input.expected_revision as number,
+      text(input.reason, 1000),
+      new Date(),
+    ),
+  );
+});
 promptsApp.post('/deprecate', async (c) => {
   const input = await body(c, [
     'prompt_id',

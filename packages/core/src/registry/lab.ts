@@ -22,6 +22,7 @@ export interface LabControls {
 export function validateLabControls(input: LabControls) {
   const hash = (value: string) => /^[a-f0-9]{64}$/.test(value);
   if (
+    !input ||
     input.version !== 'lab-controls:1' ||
     !['PROMPT_AB', 'MODEL_AB'].includes(input.mode) ||
     ![1, 3].includes(input.repeats) ||
@@ -39,6 +40,7 @@ export function validateLabControls(input: LabControls) {
   const [a, b] = input.variants;
   for (const [index, variant] of input.variants.entries()) {
     if (
+      !variant ||
       variant.id !== (index === 0 ? 'A' : 'B') ||
       variant.provider !== 'gemini' ||
       !variant.model ||

@@ -155,6 +155,14 @@ li {
   color: var(--muted);
   font-variant-numeric: tabular-nums;
 }
+.prompt-lab {
+  overflow-wrap: anywhere;
+}
+.prompt-lab input,
+.prompt-lab button {
+  min-width: 0;
+  max-width: 100%;
+}
 .eyebrow {
   font-size: var(--metadata);
   font-weight: 650;

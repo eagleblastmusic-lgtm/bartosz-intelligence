@@ -20,6 +20,53 @@ import type {
 } from '../../packages/contracts/src/jobs.js';
 import { addSource } from '../../packages/core/src/sources/youtube/backfill.js';
 beforeEach(resetCore);
+it('Lab quota API requires owner/CSRF and records immutable bounded policies without AI work', async () => {
+  const headers = await ownerHeaders(),
+    path = '/api/v1/prompts/lab/quota';
+  const input = {
+    account_key: 'fixture-project',
+    model: 'gemini-3.8-flash',
+    daily_requests: 1,
+    normal_headroom: { RPM: 1, RPD: 2, INPUT_TPM: 100 },
+    expected_revision: 0,
+    reason: 'Protect normal processing',
+  };
+  expect((await request(path)).status).toBe(401);
+  const noCsrf = { ...headers };
+  delete (noCsrf as Record<string, string>)['X-CSRF-Token'];
+  expect((await request(path, noCsrf, input)).status).toBe(403);
+  expect(
+    (await request(path, headers, { ...input, paid_services_enabled: true }))
+      .status,
+  ).toBe(422);
+  expect(
+    (
+      await request(path, headers, {
+        ...input,
+        normal_headroom: { RPM: 0, RPD: 2, INPUT_TPM: 100 },
+      })
+    ).status,
+  ).toBe(422);
+  const saved = await request(path, headers, input);
+  expect(saved.status).toBe(200);
+  const receipt = await saved.json();
+  expect(receipt).toMatchObject({ revision: 1, policy: { daily_requests: 1 } });
+  expect(await (await request(path, headers, input)).json()).toEqual(receipt);
+  expect(
+    await (await request(path, await ownerHeaders('b'))).json(),
+  ).toBeNull();
+  expect(
+    (await request(path, headers, { ...input, daily_requests: 3 })).status,
+  ).toBe(409);
+  expect(await env.DB.prepare('SELECT COUNT(*) n FROM jobs').first('n')).toBe(
+    0,
+  );
+  expect(
+    await env.DB.prepare('SELECT COUNT(*) n FROM quota_reservations').first(
+      'n',
+    ),
+  ).toBe(0);
+});
 it('profile API protects previews and immutable versions without starting provider work', async () => {
   const headers = await ownerHeaders();
   const config = {

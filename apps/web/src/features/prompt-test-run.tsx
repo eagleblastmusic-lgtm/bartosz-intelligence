@@ -4,6 +4,10 @@ import type { PromptDrafts } from '../../../../packages/core/src/registry/draft.
 import type { PromptTests } from '../../../../packages/core/src/registry/test.js';
 import type { AnalysisSettings } from '../../../../packages/core/src/ai/jobs.js';
 import type { ItemRepository } from '../../../../packages/core/src/db/items.js';
+import {
+  PromptLabExperiment,
+  type Experiment,
+} from './prompt-lab-experiment.js';
 type Version = Awaited<ReturnType<PromptDrafts['version']>>;
 type Preview = Awaited<ReturnType<PromptTests['preview']>>;
 type Items = Awaited<ReturnType<ItemRepository['list']>>;
@@ -23,9 +27,11 @@ type Context = {
 export function PromptTestRun({
   prompt,
   mode = 'QUALITY_TEST',
+  lab = false,
 }: {
   prompt: Version;
   mode?: 'QUALITY_TEST' | 'PRODUCTION';
+  lab?: boolean;
 }) {
   const [open, setOpen] = useState(false),
     [items, setItems] = useState<Items | null>(null),
@@ -41,6 +47,10 @@ export function PromptTestRun({
     [busy, setBusy] = useState(false),
     [error, setError] = useState(''),
     [message, setMessage] = useState('');
+  const [comparisonVersion, setComparisonVersion] = useState(''),
+    [repeats, setRepeats] = useState('1'),
+    [labReason, setLabReason] = useState(''),
+    [experiment, setExperiment] = useState<Experiment | null>(null);
   const analysisMode: Record<string, string> = {
     ECONOMY_ANALYSIS_V1: 'ECONOMY',
     FULL_ANALYSIS_V1: 'FULL',
@@ -89,6 +99,7 @@ export function PromptTestRun({
   }, [item]);
   function reset() {
     setPreview(null);
+    setExperiment(null);
     setMessage('');
   }
   async function next() {
@@ -134,22 +145,34 @@ export function PromptTestRun({
           throw new Error('INVALID_ANALYSIS_SETTINGS');
         parsedLimits = value as Record<string, number>;
       }
+      const input = {
+        prompt_id: prompt.prompt_id,
+        version: prompt.version,
+        source_run_id: source,
+        semantic_profile_id: selected?.profile_id ?? null,
+        semantic_profile_revision: selected?.revision ?? null,
+        model_revision: Number(model),
+        max_output_tokens: Number(output),
+        purpose: context.settings.purpose,
+        region: context.settings.region,
+        limits: parsedLimits,
+      };
+      if (lab) {
+        setExperiment(
+          await api<Experiment>('/prompts/lab/prepare', {
+            ...input,
+            comparison_version: Number(comparisonVersion),
+            repeats: Number(repeats),
+            reason: labReason,
+          }),
+        );
+        return;
+      }
       const result = await api<Preview>(
         mode === 'QUALITY_TEST'
           ? '/prompts/tests/preview'
           : '/prompts/apply/preview',
-        {
-          prompt_id: prompt.prompt_id,
-          version: prompt.version,
-          source_run_id: source,
-          semantic_profile_id: selected?.profile_id ?? null,
-          semantic_profile_revision: selected?.revision ?? null,
-          model_revision: Number(model),
-          max_output_tokens: Number(output),
-          purpose: context.settings.purpose,
-          region: context.settings.region,
-          limits: parsedLimits,
-        },
+        input,
       );
       setNonce(crypto.randomUUID());
       setPreview(result);
@@ -187,9 +210,11 @@ export function PromptTestRun({
   return (
     <details onToggle={(e) => setOpen(e.currentTarget.open)}>
       <summary>
-        {mode === 'QUALITY_TEST'
-          ? 'Przygotuj próbę jakości tej wersji'
-          : 'Zastosuj do wybranego materiału'}
+        {lab
+          ? 'Porównaj dwie wersje w Prompt Lab'
+          : mode === 'QUALITY_TEST'
+            ? 'Przygotuj próbę jakości tej wersji'
+            : 'Zastosuj do wybranego materiału'}
       </summary>
       {!supported ? (
         <p className="notice">
@@ -242,6 +267,59 @@ export function PromptTestRun({
           )}
           {context && (
             <>
+              {lab && (
+                <>
+                  <p>
+                    Wariant A: wersja {prompt.version}. Wybierz inną wersję tej
+                    samej rodziny jako wariant B.
+                  </p>
+                  <label>
+                    Wersja promptu B
+                    <input
+                      type="number"
+                      min={2}
+                      step={1}
+                      value={comparisonVersion}
+                      disabled={busy}
+                      onChange={(e) => {
+                        setComparisonVersion(e.target.value);
+                        reset();
+                      }}
+                    />
+                  </label>
+                  <label>
+                    Liczba powtórzeń każdego wariantu
+                    <select
+                      value={repeats}
+                      disabled={busy}
+                      onChange={(e) => {
+                        setRepeats(e.target.value);
+                        reset();
+                      }}
+                    >
+                      <option value="1">1</option>
+                      <option value="3">3</option>
+                    </select>
+                  </label>
+                  <label>
+                    Cel porównania
+                    <input
+                      value={labReason}
+                      maxLength={1000}
+                      disabled={busy}
+                      onChange={(e) => {
+                        setLabReason(e.target.value);
+                        reset();
+                      }}
+                    />
+                  </label>
+                  <p>
+                    Próby korzystają z osobnego budżetu Lab i aktualnej quota
+                    Free. Brak konfiguracji lub odczytu zatrzyma przetwarzanie.
+                    Przygotowanie porównania nie wysyła requestów AI.
+                  </p>
+                </>
+              )}
               {!context.available && (
                 <p className="notice">
                   Brak zaakceptowanego źródła lub ważnej kwalifikacji Free Tier.
@@ -355,13 +433,19 @@ export function PromptTestRun({
                   !source ||
                   Boolean(analysisMode[prompt.prompt_id] && !semantic) ||
                   Number(model) < 1 ||
-                  Number(output) < 1
+                  Number(output) < 1 ||
+                  (lab &&
+                    (!labReason.trim() ||
+                      Number(comparisonVersion) < 2 ||
+                      Number(comparisonVersion) === prompt.version))
                 }
                 onClick={() => void prepare()}
               >
-                {mode === 'QUALITY_TEST'
-                  ? 'Przygotuj podgląd próby'
-                  : 'Przygotuj podgląd ponownego przetworzenia'}
+                {lab
+                  ? 'Przygotuj porównanie A/B'
+                  : mode === 'QUALITY_TEST'
+                    ? 'Przygotuj podgląd próby'
+                    : 'Przygotuj podgląd ponownego przetworzenia'}
               </button>
             </>
           )}
@@ -394,6 +478,12 @@ export function PromptTestRun({
                   : 'Anuluj ponowne przetwarzanie'}
               </button>
             </div>
+          )}
+          {experiment && (
+            <PromptLabExperiment
+              key={experiment.experiment_hash}
+              experiment={experiment}
+            />
           )}
         </>
       )}

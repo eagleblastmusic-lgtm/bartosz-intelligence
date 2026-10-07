@@ -58,6 +58,9 @@ type TaskInput =
   | { task: 'HISTORICAL_COMPARE'; plan: HistoryPlan };
 export type OptionalTaskSnapshot = TaskInput & {
   version: 'optional-ai-job:1';
+  workload?: 'PROMPT_LAB';
+  lab_experiment_hash?: string;
+  lab_case_index?: number;
   item_id: string;
   prompt: PromptSnapshot;
   profile: PipelineProfile;
