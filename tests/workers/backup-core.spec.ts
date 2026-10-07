@@ -1,6 +1,11 @@
 import { env } from 'cloudflare:workers';
 import { beforeEach, it, expect } from 'vitest';
-import { resetCore, fixtureOwner, fixtureNow } from './core-fixture.js';
+import {
+  resetCore,
+  resetSchema,
+  fixtureOwner,
+  fixtureNow,
+} from './core-fixture.js';
 import {
   CoreBackup,
   backupTables,
@@ -9,7 +14,6 @@ import { SourceRepository } from '../../packages/core/src/db/sources.js';
 import { JobStore } from '../../packages/core/src/jobs/store.js';
 import { sha256 } from '../../packages/core/src/auth/crypto.js';
 import { restoreCanonical } from '../../packages/core/src/backup/restore.js';
-import { applyMigrations } from '../../packages/core/src/db/migrations.js';
 import type { BackupChunk } from '../../packages/core/src/backup/snapshot.js';
 beforeEach(resetCore);
 it('D1 mutation barrier freezes a consistent cut, rejects concurrent writer, hashes every chunk, and releases after verification', async () => {
@@ -82,16 +86,7 @@ it('D1 mutation barrier freezes a consistent cut, rejects concurrent writer, has
   ).toBeNull();
   await env.DB.prepare("UPDATE sources SET enabled=0 WHERE owner_id='a'").run();
   // Reinitialize only this disposable fixture, then restore the prior canonical cut.
-  const tables = (
-    await env.DB.prepare(
-      "SELECT name FROM sqlite_master WHERE type='table' AND name NOT LIKE 'sqlite_%' AND name NOT LIKE '_cf_%'",
-    ).all<{ name: string }>()
-  ).results;
-  await env.DB.batch([
-    env.DB.prepare('PRAGMA defer_foreign_keys=ON'),
-    ...tables.map((row) => env.DB.prepare(`DROP TABLE "${row.name}"`)),
-  ]);
-  await applyMigrations(env.DB, env.CORE_MIGRATIONS, new Date().toISOString());
+  await resetSchema();
   expect(
     await restoreCanonical(
       env.DB,
