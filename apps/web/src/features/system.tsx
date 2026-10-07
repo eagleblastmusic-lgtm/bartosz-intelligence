@@ -43,6 +43,7 @@ export function System() {
           <p className="muted">Co pracuje, co oczekuje i kiedy wróci.</p>
         </div>
         <div className="row-actions">
+          <AppLink href="/system/connections">Połączenia</AppLink>
           <AppLink href="/system/profiles">Profile analizy</AppLink>
           <AppLink href="/system/prompts">Prompt Studio</AppLink>
           <button onClick={() => setRevision((v) => v + 1)}>

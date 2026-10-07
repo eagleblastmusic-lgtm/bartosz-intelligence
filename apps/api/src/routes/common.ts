@@ -3,6 +3,7 @@ import type { Context } from 'hono';
 import type { Env } from '../env.js';
 import type { AccessContext } from '../../../../packages/core/src/db/boundary.js';
 import { ownerContext } from '../auth.js';
+import { DriveOAuthFailure } from '../../../../packages/core/src/drive/oauth.js';
 export type ApiEnvironment = {
   Bindings: Env;
   Variables: { access: AccessContext; correlation: string };
@@ -22,6 +23,7 @@ export function apiRouter() {
     const forbidden = [
       'FORBIDDEN',
       'CSRF_DENIED',
+      'DRIVE_AUTH_DENIED',
       'ANALYSIS_SOURCE_PROCESSING_DENIED',
     ].includes(raw);
     const unavailable =
@@ -29,6 +31,7 @@ export function apiRouter() {
       raw.startsWith('OPTIONAL_PROFILE_') ||
       [
         'AUTH_CONFIGURATION_REQUIRED',
+        'DRIVE_CONFIGURATION_REQUIRED',
         'PROVIDER_CONFIGURATION_REQUIRED',
         'QUOTA',
         'TRANSIENT',
@@ -120,6 +123,7 @@ export function apiRouter() {
             ? 'Request could not be completed.'
             : 'Request rejected.',
         correlation_id: c.get('correlation'),
+        ...(error instanceof DriveOAuthFailure ? { reason: error.reason } : {}),
       },
       status,
     );

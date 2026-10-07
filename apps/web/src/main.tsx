@@ -17,6 +17,7 @@ import { Entities } from './features/entities.js';
 import { Search } from './features/search.js';
 import { Profiles } from './features/profiles.js';
 import { Prompts } from './features/prompts.js';
+import { Connections } from './features/connections.js';
 import './design/tokens.css';
 import { NavIcon } from './components/nav-icon.js';
 type Session = 'checking' | 'owner' | 'login' | 'setup' | 'denied' | 'error';
@@ -272,7 +273,9 @@ function App() {
           {section === 'daily' && <Daily route={route} />}
           {section === 'item' && <ItemDetail route={route} />}
           {section === 'system' &&
-            (route.startsWith('/system/prompts') ? (
+            (route.startsWith('/system/connections') ? (
+              <Connections key={route} />
+            ) : route.startsWith('/system/prompts') ? (
               <Prompts key={route} />
             ) : route.startsWith('/system/profiles') ? (
               <Profiles key={route} />
