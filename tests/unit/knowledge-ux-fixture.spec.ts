@@ -1,11 +1,15 @@
 import { expect, it } from 'vitest';
 import { DatabaseSync } from 'node:sqlite';
-import { uxFixtureSql } from '../../tools/gates/ux-fixture.js';
+import { uxFixtureSql, uxSessionSecret } from '../../tools/gates/ux-fixture.js';
 import { sqliteAdapter } from '../../tools/db/sqlite-adapter.js';
 import { AccessContext } from '../../packages/core/src/db/boundary.js';
 import { sha256 } from '../../packages/core/src/auth/crypto.js';
 import { EvidenceProjection } from '../../packages/core/src/projections/evidence.js';
 import { ArtifactRepository } from '../../packages/core/src/artifacts/store.js';
+import {
+  captureDailyExport,
+  renderOwnerDaily,
+} from '../../packages/core/src/export/snapshot.js';
 
 it('seeds 10000 isolated items and a byte-exact synthetic source/Evidence path without provider requests', async () => {
   const fixture = await uxFixtureSql(10000, true),
@@ -44,6 +48,57 @@ it('seeds 10000 isolated items and a byte-exact synthetic source/Evidence path w
     expect(
       sqlite.prepare('SELECT COUNT(*) n FROM quota_reservations').get()!.n,
     ).toBe(0);
+    // Isolate the single fully verified synthetic result on another fixture
+    // publication day. Other UI-only run stubs must not masquerade as artifacts.
+    sqlite
+      .prepare(
+        "UPDATE items SET published_at='2026-10-07T10:00:00Z' WHERE item_id='ux-6'",
+      )
+      .run();
+    const exportInput = {
+      date: '2026-10-07',
+      app_origin: 'https://bartosz-intelligence.eagleblastmusic.workers.dev',
+      revision: 1,
+      mode: 'FULL' as const,
+    };
+    const captured = await captureDailyExport(
+      db,
+      owner,
+      exportInput,
+      uxSessionSecret,
+      new Date(),
+    );
+    expect(captured.selections).toHaveLength(1);
+    expect(captured.selections[0]!.canonical_hash).toBe(
+      await sha256(JSON.stringify(captured.selections[0]!.canonical)),
+    );
+    const report = await renderOwnerDaily(
+      db,
+      owner,
+      exportInput,
+      uxSessionSecret,
+      new Date(),
+    );
+    expect(report.item_ids).toEqual(['ux-6']);
+    expect(report.markdown).toContain('ITEM ux-6');
+    expect(report.markdown).toContain('### Evidence');
+    expect(report.markdown).toContain('Żółć 🧠.');
+    expect(() =>
+      sqlite
+        .prepare(
+          "UPDATE analysis_runs SET candidate_hash='tampered' WHERE run_id='run-ux-6'",
+        )
+        .run(),
+    ).toThrow('IMMUTABLE_ACCEPTED_RUN');
+    expect(
+      await renderOwnerDaily(
+        db,
+        owner,
+        exportInput,
+        uxSessionSecret,
+        new Date(),
+      ),
+    ).toEqual(report);
   } finally {
     sqlite.close();
   }

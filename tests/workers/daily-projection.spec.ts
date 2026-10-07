@@ -5,6 +5,10 @@ import { SourceRepository } from '../../packages/core/src/db/sources.js';
 import { ItemRepository } from '../../packages/core/src/db/items.js';
 import { JobStore } from '../../packages/core/src/jobs/store.js';
 import { DailyProjection } from '../../packages/core/src/projections/daily.js';
+import {
+  captureDailyExport,
+  renderOwnerDaily,
+} from '../../packages/core/src/export/snapshot.js';
 import { localDayRange } from '../../packages/core/src/projections/dates.js';
 import type {
   AccessContext,
@@ -16,6 +20,81 @@ const secret = 'fixture-daily-cursor-signing-32-byte-minimum';
 const date = '2026-10-05';
 const at = fixtureNow.toISOString();
 beforeEach(resetCore);
+it('whole-day export reads all keyset pages, preserves original publication day, excludes undated and foreign owner without scheduling AI', async () => {
+  const owner = await fixtureOwner(),
+    sourceId = await source(owner);
+  for (let n = 0; n < 53; n++) await item(owner, sourceId, n);
+  await item(owner, sourceId, 100, null);
+  const before = await env.DB.prepare('SELECT COUNT(*) n FROM jobs').first();
+  const input = {
+    date,
+    app_origin: 'https://bartosz-intelligence.eagleblastmusic.workers.dev',
+    revision: 1,
+  };
+  const captured = await captureDailyExport(
+    env.DB,
+    owner,
+    input,
+    secret,
+    fixtureNow,
+  );
+  expect(captured.snapshot.items).toHaveLength(53);
+  expect(captured.snapshot.next_cursor).toBeNull();
+  const report = await renderOwnerDaily(
+    env.DB,
+    owner,
+    input,
+    secret,
+    fixtureNow,
+  );
+  expect(report.item_ids).toHaveLength(53);
+  expect(report.partial).toBe(true);
+  expect(report.markdown).toContain('pending_count: 53');
+  const foreign = await renderOwnerDaily(
+    env.DB,
+    await fixtureOwner('b'),
+    input,
+    secret,
+    fixtureNow,
+  );
+  expect(foreign.item_ids).toEqual([]);
+  expect(await env.DB.prepare('SELECT COUNT(*) n FROM jobs').first()).toEqual(
+    before,
+  );
+});
+it('whole-day export fails closed when accepted-state cut changes after the final page', async () => {
+  const owner = await fixtureOwner(),
+    sourceId = await source(owner);
+  await item(owner, sourceId, 0);
+  let cuts = 0;
+  const changed: Database = {
+    batch: (statements) => env.DB.batch(statements as D1PreparedStatement[]),
+    prepare(sql) {
+      if (sql.startsWith('SELECT COALESCE(MAX(seq),0) cut_seq')) {
+        cuts++;
+        if (cuts === 2) {
+          // The second cut is read after paging and verified canonical reads.
+          // A different value represents a concurrent Core write.
+          return env.DB.prepare('SELECT 999999 cut_seq WHERE ? IS NOT NULL');
+        }
+      }
+      return env.DB.prepare(sql);
+    },
+  };
+  await expect(
+    captureDailyExport(
+      changed,
+      owner,
+      {
+        date,
+        app_origin: 'https://bartosz-intelligence.eagleblastmusic.workers.dev',
+        revision: 1,
+      },
+      secret,
+      fixtureNow,
+    ),
+  ).rejects.toThrow('READ_SNAPSHOT_CHANGED');
+});
 it('source progress preserves partial/unknown totals and accepted readiness without scheduling work', async () => {
   const owner = await fixtureOwner(),
     id = await source(owner),
