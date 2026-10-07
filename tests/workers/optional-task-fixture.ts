@@ -36,6 +36,8 @@ import {
 } from './core-fixture.js';
 import type { PipelineProfile } from '../../packages/contracts/src/ai.js';
 import type { PromptSnapshot } from '../../packages/core/src/registry/store.js';
+import { PromptDrafts } from '../../packages/core/src/registry/draft.js';
+import { PromptTests } from '../../packages/core/src/registry/test.js';
 
 export async function verifyOptionalTranslation(
   db: Database,
@@ -86,6 +88,25 @@ export async function verifyOptionalTranslation(
     },
   };
   const credentialHash = await sha256('optional-fixture');
+  const draft = await new PromptDrafts(db, owner).create(
+    {
+      prompt_id: prompt.prompt_id,
+      base_version: 2,
+      expected_latest_version: 2,
+      text: prompt.text + '\nSynthetic draft wording verification.',
+      reason: 'Fixture-only draft qualification',
+    },
+    fixtureNow,
+  );
+  snapshot = {
+    ...snapshot,
+    prompt: {
+      ...prompt,
+      version: 3,
+      text: draft.prompt_text,
+      prompt_hash: draft.prompt_hash,
+    },
+  };
   await db
     .prepare('INSERT INTO worker_identities VALUES(?,?,?,?,?,NULL)')
     .bind(
@@ -106,6 +127,8 @@ export async function verifyOptionalTranslation(
   let invalidRunId = '';
   let truncatedRunId = '';
   let requestIndex = 0;
+  let qualityRunId = '',
+    qualityScope = '';
   for (const mode of [
     'QUALITY_TEST',
     'PRODUCTION',
@@ -220,6 +243,7 @@ export async function verifyOptionalTranslation(
         .run();
       snapshot = {
         ...snapshot,
+        prompt,
         profile: approved,
         settings: { ...snapshot.settings, mode },
       };
@@ -306,6 +330,10 @@ export async function verifyOptionalTranslation(
       worker.prepare(token, 'HISTORICAL_COMPARE', requestNow),
     ).rejects.toThrow('FORBIDDEN');
     const prepared = await worker.prepare(token, 'TRANSLATE', requestNow);
+    if (mode === 'QUALITY_TEST') {
+      qualityRunId = prepared.run_id;
+      qualityScope = prepared.request.quality_scope;
+    }
     expect(
       (
         await worker.prepare(
@@ -595,6 +623,59 @@ export async function verifyOptionalTranslation(
       await db.prepare('SELECT count(*) AS n FROM observations').first('n'),
     ).toBe(0);
   }
+  const tests = new PromptTests(db, owner);
+  await expect(
+    tests.record(prompt.prompt_id, 2, qualityRunId, 7, fixtureNow),
+  ).rejects.toThrow('PROMPT_TEST_SCOPE_MISMATCH');
+  await expect(
+    tests.record(prompt.prompt_id, 3, qualityRunId, 7, fixtureNow),
+  ).rejects.toThrow('PROMPT_QUALITY_APPROVAL_REQUIRED');
+  await expect(
+    new PromptTests(db, await fixtureOwner('b')).record(
+      prompt.prompt_id,
+      3,
+      qualityRunId,
+      7,
+      fixtureNow,
+    ),
+  ).rejects.toThrow('NOT_FOUND');
+  const qualified = {
+    ...snapshot.profile,
+    revision: 8,
+    quality_approvals: [...snapshot.profile.quality_approvals, qualityScope],
+  };
+  // Scope approval belongs solely to this synthetic fixture, never production evidence.
+  await models.publish(qualified, fixtureNow);
+  const report = await tests.record(
+    prompt.prompt_id,
+    3,
+    qualityRunId,
+    8,
+    fixtureNow,
+  );
+  expect(report).toMatchObject({
+    prompt_state: 'TESTED',
+    report: {
+      run_id: qualityRunId,
+      prompt_version: 3,
+      quality_scope: qualityScope,
+      usage: { input_tokens: 100, output_tokens: 100, total_tokens: 200 },
+    },
+  });
+  expect(
+    (await tests.record(prompt.prompt_id, 3, qualityRunId, 8, fixtureNow))
+      .report_hash,
+  ).toBe(report.report_hash);
+  expect(
+    await db
+      .prepare(
+        "SELECT count(*) n FROM audit_events WHERE event_type='PROMPT_TEST_REPORT_RECORDED'",
+      )
+      .first('n'),
+  ).toBe(1);
+  expect(
+    (await new PromptDrafts(db, owner).version(prompt.prompt_id, 2)).status,
+  ).toBe('PUBLISHED');
   const rows = await db.prepare('SELECT * FROM optional_ai_results').all();
   await expect(
     db.prepare('DELETE FROM optional_ai_results').run(),

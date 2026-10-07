@@ -1,6 +1,24 @@
 import { PromptDrafts } from '../../../../packages/core/src/registry/draft.js';
+import { PromptTests } from '../../../../packages/core/src/registry/test.js';
 import { ownerRouter, body, queryFields, text } from './common.js';
 export const promptsApp = ownerRouter();
+promptsApp.post('/tests', async (c) => {
+  const input = await body(c, [
+    'prompt_id',
+    'version',
+    'run_id',
+    'model_revision',
+  ]);
+  return c.json(
+    await new PromptTests(c.env.DB, c.get('access')).record(
+      text(input.prompt_id, 80),
+      input.version as number,
+      text(input.run_id, 128),
+      input.model_revision as number,
+      new Date(),
+    ),
+  );
+});
 promptsApp.get('/', async (c) => {
   queryFields(c, []);
   return c.json(await new PromptDrafts(c.env.DB, c.get('access')).families());
