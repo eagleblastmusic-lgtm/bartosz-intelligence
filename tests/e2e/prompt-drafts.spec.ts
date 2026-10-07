@@ -24,6 +24,7 @@ test('Prompt Studio edits a new draft, preserves original text and retries a los
     },
   ];
   let writes = 0;
+  let historyLoaded = false;
   const intents: unknown[] = [];
   await page.context().addCookies([
     {
@@ -43,6 +44,11 @@ test('Prompt Studio edits a new draft, preserves original text and retries a los
           prompt_id: id,
           wire_schema_id: 'wire:1.0',
           canonical_schema_id: 'canonical:1.2',
+          active:
+            id === ids[0]
+              ? { version: 2, generation: 7, new_use_allowed: true }
+              : null,
+          next_before: id === ids[0] && !historyLoaded ? 2 : null,
           versions: versions
             .filter((v) => v.prompt_id === id)
             .slice()
@@ -73,6 +79,16 @@ test('Prompt Studio edits a new draft, preserves original text and retries a los
       }
       return route.fulfill({ json: draft });
     }
+    if (url.pathname.endsWith('/history')) {
+      expect(url.searchParams.get('before')).toBe('2');
+      historyLoaded = true;
+      return route.fulfill({
+        json: {
+          versions: [{ ...versions[0], version: 1, status: 'PUBLISHED' }],
+          next_before: null,
+        },
+      });
+    }
     if (url.pathname.endsWith('/tests')) return route.fulfill({ json: [] });
     if (url.pathname.startsWith('/api/v1/prompts/'))
       return route.fulfill({
@@ -96,6 +112,13 @@ test('Prompt Studio edits a new draft, preserves original text and retries a los
   await expect(
     page.getByLabel('Rodzina promptu').locator('option'),
   ).toHaveCount(6);
+  await expect(
+    page.getByText(/Aktywna wersja: 2 · Generacja: 7/),
+  ).toBeVisible();
+  await page.getByRole('button', { name: 'Pokaż starsze wersje' }).click();
+  await expect(page.getByLabel('Wersja bazowa').locator('option')).toHaveCount(
+    2,
+  );
   const save = page.getByRole('button', { name: 'Zapisz nową wersję draftu' });
   await expect(save).toBeDisabled();
   const draft =

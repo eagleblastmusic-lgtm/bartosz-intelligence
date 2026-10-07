@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { api, errorMessage } from '../app/api.js';
 import { AppLink } from '../app/router.js';
 import type { PromptDrafts } from '../../../../packages/core/src/registry/draft.js';
@@ -22,6 +22,7 @@ const states = {
   PUBLISHED: 'Opublikowana',
 };
 export function Prompts() {
+  const initialized = useRef(false);
   const [families, setFamilies] = useState<Families>([]),
     [family, setFamily] = useState('ECONOMY_ANALYSIS_V1'),
     [version, setVersion] = useState(2),
@@ -35,7 +36,19 @@ export function Prompts() {
   useEffect(() => {
     const controller = new AbortController();
     api<Families>('/prompts', undefined, undefined, controller.signal)
-      .then(setFamilies)
+      .then((rows) => {
+        if (controller.signal.aborted) return;
+        setFamilies(rows);
+        if (!initialized.current) {
+          initialized.current = true;
+          const initial = rows.find(
+            (row) => row.prompt_id === 'ECONOMY_ANALYSIS_V1',
+          );
+          setVersion(
+            initial?.active?.version ?? initial?.versions[0]?.version ?? 2,
+          );
+        }
+      })
       .catch((e) => {
         if (!controller.signal.aborted) setError(errorMessage(e));
       });
@@ -69,6 +82,37 @@ export function Prompts() {
   }, [family, version, revision]);
   const selected = families.find((f) => f.prompt_id === family);
   const latest = selected?.versions[0]?.version;
+  async function older() {
+    if (busy || !selected?.next_before) return;
+    setBusy(true);
+    setError('');
+    try {
+      const page = await api<{
+        versions: Families[number]['versions'];
+        next_before: number | null;
+      }>(
+        '/prompts/' +
+          encodeURIComponent(family) +
+          '/history?before=' +
+          selected.next_before,
+      );
+      setFamilies((rows) =>
+        rows.map((row) =>
+          row.prompt_id === family
+            ? {
+                ...row,
+                versions: [...row.versions, ...page.versions],
+                next_before: page.next_before,
+              }
+            : row,
+        ),
+      );
+    } catch (e) {
+      setError(errorMessage(e));
+    } finally {
+      setBusy(false);
+    }
+  }
   async function save() {
     if (busy || !base || latest === undefined) return;
     setBusy(true);
@@ -131,8 +175,10 @@ export function Prompts() {
               const id = e.target.value;
               setFamily(id);
               setVersion(
-                families.find((f) => f.prompt_id === id)?.versions[0]
-                  ?.version ?? 2,
+                families.find((f) => f.prompt_id === id)?.active?.version ??
+                  families.find((f) => f.prompt_id === id)?.versions[0]
+                    ?.version ??
+                  2,
               );
             }}
           >
@@ -150,6 +196,13 @@ export function Prompts() {
             disabled={busy}
             onChange={(e) => setVersion(Number(e.target.value))}
           >
+            {base &&
+              base.prompt_id === family &&
+              !selected?.versions.some((v) => v.version === base.version) && (
+                <option value={base.version}>
+                  {base.version} · {states[base.status]}
+                </option>
+              )}
             {selected?.versions.map((v) => (
               <option key={v.version} value={v.version}>
                 {v.version} · {states[v.status]}
@@ -162,6 +215,21 @@ export function Prompts() {
             Wire: {selected.wire_schema_id} · Canonical:{' '}
             {selected.canonical_schema_id}
           </p>
+        )}
+        {selected?.active && (
+          <p className="notice">
+            Aktywna wersja: {selected.active.version} · Generacja:{' '}
+            {selected.active.generation} ·{' '}
+            {selected.active.new_use_allowed
+              ? 'Nowe zadania dozwolone'
+              : 'Nowe zadania zablokowane — wersja wycofana'}
+            .
+          </p>
+        )}
+        {selected?.next_before && (
+          <button disabled={busy} onClick={() => void older()}>
+            Pokaż starsze wersje
+          </button>
         )}
         {!base && !error && <p role="status">Pobieranie wersji…</p>}
         {base && (

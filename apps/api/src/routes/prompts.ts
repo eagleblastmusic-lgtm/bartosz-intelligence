@@ -2,6 +2,7 @@ import { PromptDrafts } from '../../../../packages/core/src/registry/draft.js';
 import { PromptTests } from '../../../../packages/core/src/registry/test.js';
 import { PromptPublications } from '../../../../packages/core/src/registry/publish.js';
 import { PromptUsage } from '../../../../packages/core/src/registry/usage.js';
+import { PromptHistory } from '../../../../packages/core/src/registry/history.js';
 import { ownerRouter, body, queryFields, text } from './common.js';
 export const promptsApp = ownerRouter();
 promptsApp.post('/deprecate', async (c) => {
@@ -123,6 +124,17 @@ promptsApp.get('/:id/:version/tests', async (c) => {
     await new PromptTests(c.env.DB, c.get('access')).reports(
       c.req.param('id'),
       Number(c.req.param('version')),
+    ),
+  );
+});
+promptsApp.get('/:id/history', async (c) => {
+  queryFields(c, ['before']);
+  return c.json(
+    await new PromptHistory(c.env.DB, c.get('access')).page(
+      c.req.param('id'),
+      c.req.query('before') === undefined
+        ? null
+        : Number(c.req.query('before')),
     ),
   );
 });

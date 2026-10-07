@@ -7,6 +7,7 @@ import {
 import { familySchemas } from './bundle.js';
 import { validator_schema_hashes } from './generated/validators.js';
 import { PromptUsage } from './usage.js';
+import { PromptHistory } from './history.js';
 
 interface PromptVersion {
   prompt_id: string;
@@ -34,24 +35,17 @@ export class PromptDrafts {
   }
   async families() {
     this.context.requireOwner();
-    const rows = await this.db
-      .prepare(
-        'SELECT prompt_id,version,prompt_hash,status,created_at,bundle_json FROM prompt_versions WHERE owner_id=? ORDER BY prompt_id,version DESC',
-      )
-      .bind(this.context.ownerId)
-      .all<Omit<PromptVersion, 'prompt_text'>>();
-    return Object.entries(familySchemas).map(
-      ([prompt_id, [wire, canonical]]) => ({
-        prompt_id,
-        wire_schema_id: 'urn:bartosz:schema:' + wire,
-        canonical_schema_id: 'urn:bartosz:schema:' + canonical,
-        versions: rows.results
-          .filter((row) => row.prompt_id === prompt_id)
-          .map(({ bundle_json, ...row }) => ({
-            ...row,
-            compatibility: JSON.parse(bundle_json) as Record<string, unknown>,
-          })),
-      }),
+    const history = new PromptHistory(this.db, this.context);
+    return Promise.all(
+      Object.entries(familySchemas).map(
+        async ([prompt_id, [wire, canonical]]) => ({
+          prompt_id,
+          wire_schema_id: 'urn:bartosz:schema:' + wire,
+          canonical_schema_id: 'urn:bartosz:schema:' + canonical,
+          ...(await history.page(prompt_id)),
+          active: await history.active(prompt_id),
+        }),
+      ),
     );
   }
   async version(promptId: string, version: number) {
