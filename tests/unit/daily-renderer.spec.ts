@@ -17,6 +17,40 @@ import { materialReport } from '../../packages/core/src/export/material.js';
 
 const hash = (value: string) =>
   createHash('sha256').update(value).digest('hex');
+it('renders Warsaw time without relabelling UTC and associates FULL units with their canonical Evidence', async () => {
+  const input = await fixture(undefined, true);
+  input.mode = 'FULL';
+  const report = await renderDaily(input),
+    c = input.selections[0]!.canonical;
+  expect(report.markdown).toContain(
+    'Publikacja: 2026-10-07 11:00:00 Europe/Warsaw; źródłowy timestamp: 2026-10-07T09:00:00Z',
+  );
+  for (const row of [
+    ...c.summary_pl,
+    ...c.key_points,
+    ...c.tools,
+    ...c.entities,
+    ...c.claims,
+  ]) {
+    for (const id of row.evidence_ids)
+      expect(report.markdown).toContain(id.replaceAll('_', '\\_'));
+  }
+  expect(report.markdown).toContain('Evidence refs: ');
+  expect(report.markdown).toContain('Observation: ');
+  expect(report.markdown).toContain('Narzędzie: Tool X');
+  expect(report.markdown).toContain(
+    '#observation-' + c.claims[0]!.observation_id,
+  );
+  expect(report.markdown).not.toContain('#observation=');
+  expect(c.summary_pl[0]!.evidence_ids).not.toEqual(
+    c.summary_pl[1]!.evidence_ids,
+  );
+  const decoded = report.markdown.replaceAll('\\_', '_');
+  for (const row of c.summary_pl)
+    expect(decoded).toContain(
+      `Podsumowanie: ${row.text_pl}\n  Evidence refs: ${row.evidence_ids.join('; ')}`,
+    );
+});
 it('ignores only envelope bookkeeping while preserving mode, counts, warnings and source bytes', async () => {
   const input = await fixture();
   const first = await renderDaily(input);
@@ -45,7 +79,7 @@ it('ignores only envelope bookkeeping while preserving mode, counts, warnings an
     materialReport(next.markdown.replace(/revision=\d+/, 'revision=999')),
   ).toThrow('EXPORT_PROTOCOL_INVALID');
 });
-async function fixture(selected?: string[]) {
+async function fixture(selected?: string[], separateEvidence = false) {
   const profile = await compileSemanticProfile(
     {
       mode: selected ? 'CUSTOM' : 'FULL',
@@ -63,7 +97,10 @@ async function fixture(selected?: string[]) {
     bundle,
   );
   const source = await normalizeTranscript(
-    hash('I did not adopt Tool X; only 20% if tested.'),
+    hash(
+      'I did not adopt Tool X; only 20% if tested.' +
+        (separateEvidence ? '\nStill evaluating.' : ''),
+    ),
     [
       {
         upstream_index: 0,
@@ -72,6 +109,17 @@ async function fixture(selected?: string[]) {
         end_ms: null,
         speaker_label: null,
       },
+      ...(separateEvidence
+        ? [
+            {
+              upstream_index: 1,
+              text: 'Still evaluating.',
+              start_ms: null,
+              end_ms: null,
+              speaker_label: null,
+            },
+          ]
+        : []),
     ],
     'CUE',
   );
@@ -85,7 +133,10 @@ async function fixture(selected?: string[]) {
   };
   const wire: Record<string, unknown> = {
     summary_pl: ['Żółć 🧠 — nie wdrożył.', 'Druga pełna notatka.'].map(
-      (text_pl) => ({ text_pl, segment_refs: ['s1'] }),
+      (text_pl, index) => ({
+        text_pl,
+        segment_refs: [separateEvidence && index === 1 ? 's2' : 's1'],
+      }),
     ),
     key_points: [1, 2, 3, 4].map((n) => ({
       text_pl: `Pełny punkt ${n} z negacją: nie.`,

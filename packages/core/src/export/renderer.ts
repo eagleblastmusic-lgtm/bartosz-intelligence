@@ -5,7 +5,11 @@ import type {
 import type { enrichEconomy } from '../ai/enrichment/canonical.js';
 import { validateCanonical } from '../ai/repair/validate.js';
 import { sha256 } from '../auth/crypto.js';
-import { publicationDate, requireLocalDate } from '../projections/dates.js';
+import {
+  publicationDate,
+  publicationTimestamp,
+  requireLocalDate,
+} from '../projections/dates.js';
 
 type Canonical = Awaited<ReturnType<typeof enrichEconomy>>['canonical'];
 type TypedUnit = Canonical['claims'][number];
@@ -81,6 +85,11 @@ function metric(value: string) {
 function allUnits(c: Canonical) {
   return typedModules.flatMap((key) => c[key]);
 }
+function evidenceRefs(c: Canonical, ids: readonly string[]) {
+  if (ids.some((id) => !c.evidence.some((e) => e.evidence_id === id)))
+    throw new Error('EXPORT_EVIDENCE_MISSING');
+  return `Evidence refs: ${ids.map(text).join('; ') || 'brak'}`;
+}
 function renderTyped(
   unit: TypedUnit,
   c: Canonical,
@@ -91,6 +100,7 @@ function renderTyped(
   const lines = [
     `- ${text(unit.kind)}: ${text(unit.content_pl)}`,
     `  Atrybucja: ${text(unit.attribution)}; status epistemiczny: ${text(unit.epistemic_status)}.`,
+    `  Observation: ${text(unit.observation_id)}; ${evidenceRefs(c, unit.evidence_ids)}`,
   ];
   for (const key of [
     'subject_ref',
@@ -109,7 +119,7 @@ function renderTyped(
     lines.push(`  Podmiot: ${text(entity.label)} (${text(ref)})`);
   }
   lines.push(
-    `  ${link('Jednostka w aplikacji', appItem + '#observation=' + encodeURIComponent(unit.observation_id))}`,
+    `  ${link('Jednostka w aplikacji', appItem + '#observation-' + encodeURIComponent(unit.observation_id))}`,
   );
   if (unit.epistemic_status === 'SOURCE_INFERENCE')
     lines.push(
@@ -159,7 +169,7 @@ function block(
     `ITEM ${item.item_id}`,
     `## ${text(item.title)}`,
     `Twórca: ${text(item.creator)}`,
-    `Publikacja: ${text(item.published_at!)}; Europe/Warsaw`,
+    `Publikacja: ${publicationTimestamp(item.published_at!)}; źródłowy timestamp: ${text(item.published_at!)}`,
     `Czas trwania (sekundy): ${item.duration_seconds ?? 'null'}`,
     `Status: ${text(item.analysis_status)}`,
     link('Źródło', item.canonical_url) +
@@ -195,9 +205,14 @@ function block(
   const keptSummary = mode === 'FULL' ? summaries : summaries.slice(0, 1);
   const keptPoints =
     mode === 'FULL' ? points : points.slice(0, Math.max(1, 3 - level));
-  for (const row of keptSummary)
+  for (const row of keptSummary) {
     lines.push(`Podsumowanie: ${text(row.text_pl)}`);
-  for (const row of keptPoints) lines.push(`- Punkt: ${text(row.text_pl)}`);
+    if (mode === 'FULL') lines.push(`  ${evidenceRefs(c, row.evidence_ids)}`);
+  }
+  for (const row of keptPoints) {
+    lines.push(`- Punkt: ${text(row.text_pl)}`);
+    if (mode === 'FULL') lines.push(`  ${evidenceRefs(c, row.evidence_ids)}`);
+  }
   omitted +=
     summaries.length - keptSummary.length + points.length - keptPoints.length;
   const selectedTyped = typedModules.filter((key) =>
@@ -224,8 +239,19 @@ function block(
     lines.push(`Podmioty / narzędzia: ${keptLabels.map(text).join('; ')}`);
   omitted += entityLabels.length - keptLabels.length;
   if (c.enabled_modules.includes('tools') && (mode === 'FULL' || toolsOnly))
-    for (const tool of c.tools)
-      lines.push(`Kontekst narzędzia: ${text(tool.context_pl)}`);
+    for (const tool of c.tools) {
+      const entity = c.entities.find((e) => e.entity_id === tool.entity_ref);
+      if (!entity) throw new Error('EXPORT_ENTITY_MISSING');
+      lines.push(
+        `Kontekst narzędzia: ${text(tool.context_pl)}`,
+        `  Narzędzie: ${text(entity.label)} (${text(tool.entity_ref)}); ${evidenceRefs(c, tool.evidence_ids)}`,
+      );
+    }
+  if (mode === 'FULL' && c.enabled_modules.includes('entities'))
+    for (const entity of c.entities)
+      lines.push(
+        `Podmiot: ${text(entity.label)} (${text(entity.entity_id)}); ${evidenceRefs(c, entity.evidence_ids)}`,
+      );
   if (
     !summaries.length &&
     !points.length &&

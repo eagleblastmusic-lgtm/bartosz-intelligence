@@ -14,6 +14,14 @@ descending. Pending means all Items without complete analysis; blocked and faile
 are subsets. Partial analysis is not READY. Empty Custom collections and disabled
 summary/key points do not manufacture content.
 
+Publication metadata displays the converted Warsaw clock time and retains the
+source timestamp alongside it, including across DST boundaries. FULL summary,
+points, entities, tools and typed units retain explicit canonical Evidence IDs;
+tool contexts retain their entity identity. Missing Evidence references fail
+rendering. Observation links use the actual `#observation-<id>` Item anchor; the
+GUI focuses and scrolls to the unit after asynchronous canonical loading and on
+fragment navigation. These projections do not alter source timestamps or quotes.
+
 COMPACT retains the first complete summary, up to three complete key points and
 six existing entity/tool labels. Optional typed additions are off. When no summary
 or points exist, one complete selected typed unit is retained in canonical module

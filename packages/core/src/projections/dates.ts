@@ -24,15 +24,22 @@ export function requireLocalDate(date: string) {
     throw new Error('INVALID_DATE');
   return instant.getTime();
 }
-export function publicationDate(instant: string) {
+function publicationParts(instant: string) {
   if (!Number.isFinite(Date.parse(instant)))
     throw new Error('INVALID_PUBLICATION');
-  const p = Object.fromEntries(
+  return Object.fromEntries(
     formatter
       .formatToParts(new Date(instant))
       .map((part) => [part.type, part.value]),
   );
+}
+export function publicationDate(instant: string) {
+  const p = publicationParts(instant);
   return `${p.year}-${p.month}-${p.day}`;
+}
+export function publicationTimestamp(instant: string) {
+  const p = publicationParts(instant);
+  return `${p.year}-${p.month}-${p.day} ${p.hour}:${p.minute}:${p.second} Europe/Warsaw`;
 }
 function midnight(target: number) {
   let guess = target;

@@ -92,6 +92,20 @@ export function ItemDetail({ route }: { route: string }) {
       ['uncertainties', 'Niepewności'],
       ['contradictions', 'Możliwe sprzeczności'],
     ] as const;
+  useEffect(() => {
+    if (!canonical) return;
+    const focusObservation = () => {
+      const hash = location.hash;
+      if (!/^#observation-[A-Za-z0-9_-]{1,128}$/.test(hash)) return;
+      const node = document.getElementById(hash.slice(1));
+      if (!node) return;
+      node.focus({ preventScroll: true });
+      node.scrollIntoView({ block: 'start' });
+    };
+    focusObservation();
+    window.addEventListener('hashchange', focusObservation);
+    return () => window.removeEventListener('hashchange', focusObservation);
+  }, [canonical, itemId]);
   return (
     <>
       <AppLink href={back}>
@@ -297,6 +311,7 @@ export function ItemDetail({ route }: { route: string }) {
                       <div
                         className="observation"
                         id={'observation-' + row.observation_id}
+                        tabIndex={-1}
                         key={row.observation_id}
                       >
                         <p className="metadata">

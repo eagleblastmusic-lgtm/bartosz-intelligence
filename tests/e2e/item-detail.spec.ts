@@ -283,13 +283,14 @@ test('reading verifies paged canonical bytes, preserves accepted text on failure
   });
   await page.goto(
     origin +
-      '/items/item-reading?return=%2Fdaily%2F2026-10-05%3Fdensity%3Dcompact',
+      '/items/item-reading?return=%2Fdaily%2F2026-10-05%3Fdensity%3Dcompact#observation-claim-a',
   );
   await expect(
     page.getByRole('heading', { name: 'Źródłowa analiza narzędzia' }),
   ).toBeVisible();
   await expect(page.getByText(/^Zaakceptowana notatka/)).toBeVisible();
   expect(requests).toEqual([0, 4]);
+  await expect(page.locator('#observation-claim-a')).toBeFocused();
   await page.getByRole('button', { name: 'Źródło 1', exact: true }).click();
   await expect(
     page.getByRole('dialog').getByText(original, { exact: true }),
@@ -440,6 +441,8 @@ test('reading verifies paged canonical bytes, preserves accepted text on failure
   await expect(
     sides.getByRole('link', { name: 'Druga wypowiedź' }),
   ).toHaveAttribute('href', '#observation-usage-b');
+  await sides.getByRole('link', { name: 'Druga wypowiedź' }).click();
+  await expect(page.locator('#observation-usage-b')).toBeFocused();
   corrected = true;
   for (const [at, quote] of [
     [0, original],
