@@ -91,7 +91,12 @@ test('deep links, history, focus and logout clear private views and preserve onl
   await expect(
     page.getByRole('heading', { name: 'Kanały', exact: true }),
   ).toBeVisible();
-  await expect(page.getByText(/Prywatna nazwa kanału/)).toBeVisible();
+  await expect(
+    page.getByRole('link', {
+      name: 'Profil analizy: Prywatna nazwa kanału',
+      exact: true,
+    }),
+  ).toBeVisible();
   await page.getByRole('link', { name: 'System', exact: true }).click();
   await expect(
     page.getByRole('heading', { name: 'System', exact: true }),
@@ -121,7 +126,12 @@ test('401 on a domain read clears the private shell and does not turn into a set
 }) => {
   const origin = await fixture(page);
   await page.goto(origin + '/channels');
-  await expect(page.getByText(/Prywatna nazwa kanału/)).toBeVisible();
+  await expect(
+    page.getByRole('link', {
+      name: 'Profil analizy: Prywatna nazwa kanału',
+      exact: true,
+    }),
+  ).toBeVisible();
   await page.route('**/api/v1/system/summary', (route) =>
     route.fulfill({ status: 401, json: { code: 'UNAUTHENTICATED' } }),
   );
