@@ -63,6 +63,20 @@ export async function api<T>(
 }
 export function errorMessage(error: unknown) {
   if (error instanceof ApiError) {
+    if (error.code === 'REGISTRY_GENERATION_CONFLICT')
+      return 'Aktywny prompt zmienił się. Przygotuj nowy podgląd publikacji lub rollbacku.';
+    if (error.code === 'PROMPT_QUALITY_APPROVAL_REQUIRED')
+      return 'Brakuje aktualnej kwalifikacji jakości dla dokładnej wersji promptu i profilu modelu.';
+    if (
+      [
+        'PROMPT_TEST_NOT_VERIFIED',
+        'PROMPT_TEST_SCOPE_MISMATCH',
+        'PROMPT_TEST_USAGE_NOT_VERIFIED',
+      ].includes(error.code)
+    )
+      return 'Próba nie dostarcza kompletnego raportu dla tej wersji promptu. Sprawdź wynik, rzeczywiste zużycie i zakres jakości.';
+    if (error.code === 'INVALID_PROMPT_ROLLBACK')
+      return 'Rollback jest dostępny wyłącznie dla wcześniej aktywnej, zgodnej wersji.';
     if (error.code === 'REGISTRY_VERSION_CONFLICT')
       return 'Powstała nowsza wersja promptu. Sprawdź wersje przed zapisaniem kolejnego draftu.';
     if (error.code === 'INVALID_PROMPT_INPUTS')

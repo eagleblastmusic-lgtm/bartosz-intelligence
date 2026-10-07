@@ -9,6 +9,8 @@ import type { PipelineProfile } from '../../../contracts/src/ai.js';
 import type { PromptSnapshot } from './store.js';
 import { PromptDrafts } from './draft.js';
 import { validator_schema_hashes } from './generated/validators.js';
+import bundle from '../../../../config/registry/master-bundle.json';
+import { compileSemanticProfile } from '../ai/semantic-profile.js';
 
 /** A report links verified provider receipts and existing scope qualification.
  * Static validation alone never supplies semantic quality approval. */
@@ -18,6 +20,28 @@ export class PromptTests {
     private context: AccessContext,
   ) {
     assertContext(context);
+  }
+  async reports(promptId: string, version: number) {
+    this.context.requireOwner();
+    await new PromptDrafts(this.db, this.context).version(promptId, version);
+    const rows = await this.db
+      .prepare(
+        "SELECT payload_json,content_hash FROM config_versions WHERE owner_id=? AND config_id LIKE 'prompt-test-%' AND revision=1 AND json_extract(payload_json,'$.version')='prompt-test-report:1' AND json_extract(payload_json,'$.prompt_id')=? AND json_extract(payload_json,'$.prompt_version')=? ORDER BY created_at DESC,config_id DESC LIMIT 50",
+      )
+      .bind(this.context.ownerId, promptId, version)
+      .all<{ payload_json: string; content_hash: string }>();
+    return Promise.all(
+      rows.results.map(async (row) => {
+        if ((await sha256(row.payload_json)) !== row.content_hash)
+          throw new Error('REGISTRY_HASH_MISMATCH');
+        return {
+          report_hash: row.content_hash,
+          report: JSON.parse(row.payload_json) as Awaited<
+            ReturnType<PromptTests['record']>
+          >['report'],
+        };
+      }),
+    );
   }
   async record(
     promptId: string,
@@ -34,11 +58,12 @@ export class PromptTests {
     );
     const row = await this.db
       .prepare(
-        "SELECT r.prompt_snapshot_json,r.profile_snapshot_json,r.routing_snapshot_json,r.input_snapshot_json,r.outcome_json,r.candidate_hash,r.item_id,u.input_tokens,u.output_tokens,u.total_tokens,u.actual_model,u.reservation_id FROM analysis_runs r JOIN jobs j ON j.owner_id=r.owner_id AND j.job_id=r.job_id JOIN quota_reservations q ON q.owner_id=r.owner_id AND q.request_id=r.run_id AND q.job_id=j.job_id JOIN usage_records u ON u.owner_id=q.owner_id AND u.reservation_id=q.reservation_id WHERE r.owner_id=? AND r.run_id=? AND r.state='CANDIDATE' AND r.validation_outcome='DETERMINISTIC_CORE_CANDIDATE' AND j.state='SUCCEEDED' AND j.reason_code='QUALITY_TEST_COMPLETE'",
+        "SELECT j.payload_json,r.prompt_snapshot_json,r.profile_snapshot_json,r.routing_snapshot_json,r.input_snapshot_json,r.outcome_json,r.candidate_hash,r.item_id,u.input_tokens,u.output_tokens,u.total_tokens,u.actual_model,u.reservation_id FROM analysis_runs r JOIN jobs j ON j.owner_id=r.owner_id AND j.job_id=r.job_id JOIN quota_reservations q ON q.owner_id=r.owner_id AND q.request_id=r.run_id AND q.job_id=j.job_id JOIN usage_records u ON u.owner_id=q.owner_id AND u.reservation_id=q.reservation_id WHERE r.owner_id=? AND r.run_id=? AND r.state='CANDIDATE' AND r.validation_outcome='DETERMINISTIC_CORE_CANDIDATE' AND j.state='SUCCEEDED' AND j.reason_code='QUALITY_TEST_COMPLETE'",
       )
       .bind(this.context.ownerId, runId)
       .first<{
         prompt_snapshot_json: string;
+        payload_json: string;
         profile_snapshot_json: string;
         routing_snapshot_json: string;
         input_snapshot_json: string;
@@ -74,15 +99,28 @@ export class PromptTests {
         coverage?: { complete: boolean };
       };
     };
+    const semantic = (
+      JSON.parse(row.payload_json) as {
+        snapshot: { semantic_profile?: { compiled: { config: unknown } } };
+      }
+    ).snapshot.semantic_profile;
+    const materialized = semantic
+      ? await compileSemanticProfile(semantic.compiled.config, bundle)
+      : null;
+    const wireCompatible = materialized
+      ? materialized.prompt.id === promptId &&
+        materialized.wire.id === prompt.wire.id &&
+        materialized.wire.hash === prompt.wire.hash
+      : prompt.wire.id === draft.compatibility.wire_schema_id &&
+        prompt.wire.hash ===
+          (validator_schema_hashes as Record<string, string>)[prompt.wire.id];
     if (
       prompt.prompt_id !== promptId ||
       prompt.version !== version ||
       prompt.prompt_hash !== draft.prompt_hash ||
       prompt.text !== draft.prompt_text ||
-      prompt.wire.id !== draft.compatibility.wire_schema_id ||
+      !wireCompatible ||
       prompt.canonical.id !== draft.compatibility.canonical_schema_id ||
-      prompt.wire.hash !==
-        (validator_schema_hashes as Record<string, string>)[prompt.wire.id] ||
       prompt.canonical.hash !==
         (validator_schema_hashes as Record<string, string>)[
           prompt.canonical.id

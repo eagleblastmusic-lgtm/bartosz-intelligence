@@ -103,6 +103,7 @@ export class OptionalTaskPreparation {
       parent.snapshot.settings,
       now,
       parent.snapshot.chunk ? parent.snapshot.profile : undefined,
+      parent.snapshot.prompt,
     );
   }
   async translation(
@@ -292,6 +293,7 @@ export class OptionalTaskPreparation {
     settings: OptionalTaskSnapshot['settings'],
     now: Date,
     pinnedProfile?: OptionalTaskSnapshot['profile'],
+    pinnedPrompt?: OptionalTaskSnapshot['prompt'],
   ) {
     this.context.requireOwner();
     const profile =
@@ -303,11 +305,9 @@ export class OptionalTaskPreparation {
         ? 'FULL_TRANSLATION_V1'
         : 'HISTORICAL_COMPARE_V1';
     // Production preview uses a genuinely published template. Draft testing belongs to Lab.
-    const prompt = await new PromptRegistry(this.db, this.context).load(
-      family,
-      2,
-      1,
-    );
+    const prompt =
+      pinnedPrompt ??
+      (await new PromptRegistry(this.db, this.context).currentFamily(family));
     const scope = { ...prepared };
     Reflect.deleteProperty(scope, 'prepared_at');
     const snapshot: OptionalTaskSnapshot = {

@@ -722,7 +722,10 @@ it('local poller consumes durable caption backlog through the real Worker API an
       .bind(sourceRun!.run_id)
       .first('outcome_json'),
   ).toBe(before);
-});
+  // This compound functional scenario includes both local workers, correction
+  // provenance, accepted Evidence and portable backup/restore. Wall-clock timeout
+  // is a harness bound, not a CPU/performance acceptance criterion.
+}, 15000);
 it.each([
   'QUALITY_TEST',
   'CHUNKED',
@@ -1054,6 +1057,21 @@ it.each([
       0,
       fixtureNow,
     );
+    if (semanticMode !== 'ECONOMY') {
+      await expect(
+        analysis.enqueue(
+          accepted.run_id,
+          { ...settings, mode: 'PRODUCTION' },
+          fixtureNow,
+        ),
+      ).rejects.toThrow('PROMPT_NOT_CONFIGURED');
+      // Fixture-only published baseline. It supplies no real quality approval.
+      await env.DB.prepare(
+        "UPDATE prompt_versions SET status='PUBLISHED' WHERE owner_id='a' AND prompt_id=? AND version=2",
+      )
+        .bind(semanticSnapshot.compiled.prompt.id)
+        .run();
+    }
     await expect(
       analysis.enqueue(
         accepted.run_id,
@@ -1172,7 +1190,9 @@ it.each([
       'actual-registry-account',
     );
     expect(prepared.snapshot.profile.revision).toBe(profile.revision);
-    expect(prepared.snapshot.prompt.generation).toBe(1);
+    expect(prepared.snapshot.prompt.generation).toBe(
+      semanticMode === 'ECONOMY' ? 1 : 0,
+    );
     expect(prepared.snapshot.source.source_artifact_id).toBe(
       source.artifact_id,
     );

@@ -203,16 +203,32 @@ export class AnalysisJobs {
         )
       : await profiles.forItem(source.item_id, now);
     if (intent && !semanticProfile) throw new Error('NOT_FOUND');
-    const prompt = semanticProfile
-      ? semanticPrompt(semanticProfile)
-      : await new PromptRegistry(this.db, this.context).current();
+    const registry = new PromptRegistry(this.db, this.context);
+    let prompt: PromptSnapshot;
+    if (semanticProfile) {
+      try {
+        prompt = semanticPrompt(
+          semanticProfile,
+          await registry.currentFamily(semanticProfile.compiled.prompt.id),
+        );
+      } catch (error) {
+        // A quality experiment may intentionally target the immutable draft
+        // stored in its chosen semantic profile. Production requires publication.
+        if (
+          settings.mode !== 'QUALITY_TEST' ||
+          !(error instanceof Error) ||
+          error.message !== 'PROMPT_NOT_CONFIGURED'
+        )
+          throw error;
+        prompt = semanticPrompt(semanticProfile);
+      }
+    } else prompt = await registry.current();
     if (
       semanticProfile &&
       (semanticProfile.compiled.config.translation !== 'NONE' ||
         semanticProfile.compiled.config.history ||
         (!intent && semanticProfile.compiled.config.second_pass) ||
         (!intent && semanticProfile.compiled.config.validation_pass) ||
-        semanticProfile.compiled.prompt.hash !== prompt.prompt_hash ||
         semanticProfile.compiled.wire.hash !== prompt.wire.hash)
     )
       throw new Error('CAPABILITY_NOT_AVAILABLE');
@@ -928,9 +944,25 @@ export class AnalysisJobs {
         JSON.stringify(semantic) !== JSON.stringify(snapshot.semantic_profile)
       )
         throw new Error('SEMANTIC_PROFILE_SNAPSHOT_HASH_MISMATCH');
+      let registered: PromptSnapshot | undefined;
+      try {
+        registered = await new PromptRegistry(this.db, this.context).load(
+          snapshot.prompt.prompt_id,
+          snapshot.prompt.version,
+          snapshot.prompt.generation,
+        );
+      } catch (error) {
+        if (
+          snapshot.settings.mode !== 'QUALITY_TEST' ||
+          snapshot.prompt.prompt_hash !== semantic?.compiled.prompt.hash ||
+          !(error instanceof Error) ||
+          error.message !== 'PROMPT_NOT_AVAILABLE'
+        )
+          throw error;
+      }
       if (
         !semantic ||
-        JSON.stringify(semanticPrompt(semantic)) !==
+        JSON.stringify(semanticPrompt(semantic, registered ?? undefined)) !==
           JSON.stringify(snapshot.prompt)
       )
         throw new Error('INCOMPATIBLE_PROMPT_SNAPSHOT');

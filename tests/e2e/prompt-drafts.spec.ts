@@ -73,6 +73,7 @@ test('Prompt Studio edits a new draft, preserves original text and retries a los
       }
       return route.fulfill({ json: draft });
     }
+    if (url.pathname.endsWith('/tests')) return route.fulfill({ json: [] });
     if (url.pathname.startsWith('/api/v1/prompts/'))
       return route.fulfill({
         json: versions.find(

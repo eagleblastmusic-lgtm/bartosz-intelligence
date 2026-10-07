@@ -20,6 +20,10 @@ export interface PromptSnapshot {
   enrichment_version: '1.0';
   generation: number;
 }
+export const promptPointerKey = (family: string) =>
+  family === 'ECONOMY_ANALYSIS_V1'
+    ? 'active-economy-prompt'
+    : 'active-prompt-' + family;
 export class PromptRegistry {
   constructor(
     private db: Database,
@@ -140,11 +144,17 @@ export class PromptRegistry {
     else this.context.requireTask('ANALYZE');
     const row = await this.db
       .prepare(
-        "SELECT revision,payload_json FROM config_versions WHERE owner_id=? AND config_id='active-economy-prompt' ORDER BY revision DESC LIMIT 1",
+        "SELECT revision,payload_json,content_hash FROM config_versions WHERE owner_id=? AND config_id='active-economy-prompt' ORDER BY revision DESC LIMIT 1",
       )
       .bind(this.context.ownerId)
-      .first<{ revision: number; payload_json: string }>();
+      .first<{
+        revision: number;
+        payload_json: string;
+        content_hash: string;
+      }>();
     if (!row) throw new Error('PROMPT_NOT_CONFIGURED');
+    if ((await sha256(row.payload_json)) !== row.content_hash)
+      throw new Error('REGISTRY_HASH_MISMATCH');
     const pointer = JSON.parse(row.payload_json) as {
       prompt_id: string;
       version: number;
@@ -155,9 +165,51 @@ export class PromptRegistry {
       pointer.version,
       row.revision,
     );
-    if (snapshot.prompt_hash !== pointer.prompt_hash)
+    if (
+      pointer.prompt_id !== 'ECONOMY_ANALYSIS_V1' ||
+      snapshot.prompt_hash !== pointer.prompt_hash
+    )
       throw new Error('REGISTRY_HASH_MISMATCH');
     return snapshot;
+  }
+  async currentFamily(family: string) {
+    if (!familySchemas[family]) throw new Error('INVALID_PROMPT_FAMILY');
+    if (this.context.kind === 'owner') this.context.requireOwner();
+    else this.context.requireTask('ANALYZE');
+    const pointer = await this.db
+      .prepare(
+        'SELECT revision,payload_json,content_hash FROM config_versions WHERE owner_id=? AND config_id=? ORDER BY revision DESC LIMIT 1',
+      )
+      .bind(this.context.ownerId, promptPointerKey(family))
+      .first<{
+        revision: number;
+        payload_json: string;
+        content_hash: string;
+      }>();
+    if (pointer) {
+      if ((await sha256(pointer.payload_json)) !== pointer.content_hash)
+        throw new Error('REGISTRY_HASH_MISMATCH');
+      const value = JSON.parse(pointer.payload_json) as {
+        prompt_id: string;
+        version: number;
+        prompt_hash: string;
+      };
+      if (value.prompt_id !== family) throw new Error('REGISTRY_HASH_MISMATCH');
+      const snapshot = await this.load(family, value.version, pointer.revision);
+      if (snapshot.prompt_hash !== value.prompt_hash)
+        throw new Error('REGISTRY_HASH_MISMATCH');
+      return snapshot;
+    }
+    // Existing registries predate family pointers. Resolve only an actually
+    // published database version; never fall back to bundled prompt text.
+    const existing = await this.db
+      .prepare(
+        "SELECT version FROM prompt_versions WHERE owner_id=? AND prompt_id=? AND status='PUBLISHED' ORDER BY version DESC LIMIT 1",
+      )
+      .bind(this.context.ownerId, family)
+      .first<{ version: number }>();
+    if (!existing) throw new Error('PROMPT_NOT_CONFIGURED');
+    return this.load(family, existing.version, 0);
   }
   async load(
     promptId: string,

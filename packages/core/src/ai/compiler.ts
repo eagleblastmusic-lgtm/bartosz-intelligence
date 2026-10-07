@@ -127,8 +127,8 @@ async function compileSource(input: {
     semantic &&
     semantic.config.mode !== 'ECONOMY' &&
     input.prompt.prompt_id === semantic.prompt.id &&
-    input.prompt.version === semantic.prompt.version &&
-    input.prompt.prompt_hash === semantic.prompt.hash &&
+    Number.isSafeInteger(input.prompt.version) &&
+    input.prompt.version >= 2 &&
     input.prompt.wire.id === semantic.wire.id &&
     input.prompt.wire.hash === semantic.wire.hash &&
     semantic.base_wire_hash ===

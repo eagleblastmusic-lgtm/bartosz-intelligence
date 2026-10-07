@@ -28,8 +28,19 @@ export interface SemanticProfileAssignment {
 }
 export function semanticPrompt(
   snapshot: SemanticProfileSnapshot,
+  registered?: PromptSnapshot,
 ): PromptSnapshot {
   const compiled = snapshot.compiled;
+  if (registered) {
+    if (
+      registered.prompt_id !== compiled.prompt.id ||
+      registered.wire.hash !== compiled.base_wire_hash ||
+      registered.canonical.hash !== compiled.canonical.hash ||
+      registered.enrichment_version !== compiled.enrichment_version
+    )
+      throw new Error('INCOMPATIBLE_PROMPT_SNAPSHOT');
+    return { ...registered, wire: structuredClone(compiled.wire) };
+  }
   return {
     prompt_id: compiled.prompt.id,
     version: compiled.prompt.version,

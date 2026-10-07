@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { api, errorMessage } from '../app/api.js';
 import { AppLink } from '../app/router.js';
 import type { PromptDrafts } from '../../../../packages/core/src/registry/draft.js';
+import { PromptPublication } from './prompt-publication.js';
 type Families = Awaited<ReturnType<PromptDrafts['families']>>;
 type Version = Awaited<ReturnType<PromptDrafts['version']>>;
 const names: Record<string, string> = {
@@ -62,7 +63,7 @@ export function Prompts() {
         if (!controller.signal.aborted) setBusy(false);
       });
     return () => controller.abort();
-  }, [family, version]);
+  }, [family, version, revision]);
   const selected = families.find((f) => f.prompt_id === family);
   const latest = selected?.versions[0]?.version;
   async function save() {
@@ -166,6 +167,11 @@ export function Prompts() {
               Stan wersji {base.version}: {states[base.status]}.
             </p>
             <p className="metadata">Hash: {base.prompt_hash}</p>
+            <PromptPublication
+              key={family + ':' + version + ':' + revision}
+              prompt={base}
+              onChanged={() => setRevision((n) => n + 1)}
+            />
             <label>
               Treść nowego draftu
               <textarea

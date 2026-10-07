@@ -2,6 +2,7 @@ import { ownerRouter, body, text, queryFields } from './common.js';
 import { OptionalTaskPreparation } from '../../../../packages/core/src/ai/tasks/preparation.js';
 import { ModelRegistry } from '../../../../packages/core/src/ai/models.js';
 import { OptionalResultProjection } from '../../../../packages/core/src/projections/optional.js';
+import { PromptRegistry } from '../../../../packages/core/src/registry/store.js';
 export const optionalApp = ownerRouter();
 optionalApp.get('/result/:run', async (c) => {
   queryFields(c, ['start']);
@@ -16,11 +17,18 @@ optionalApp.get('/capabilities', async (c) => {
   queryFields(c, []);
   const access = c.get('access'),
     profile = await new ModelRegistry(c.env.DB, access).latest('gemini_free');
-  const prompts = await c.env.DB.prepare(
-    "SELECT prompt_id FROM prompt_versions WHERE owner_id=? AND version=2 AND status='PUBLISHED' AND prompt_id IN ('FULL_TRANSLATION_V1','HISTORICAL_COMPARE_V1')",
-  )
-    .bind(access.ownerId)
-    .all<{ prompt_id: string }>();
+  const registry = new PromptRegistry(c.env.DB, access);
+  const prompts = await Promise.all(
+    ['FULL_TRANSLATION_V1', 'HISTORICAL_COMPARE_V1'].map(async (id) => {
+      try {
+        return await registry.currentFamily(id);
+      } catch (error) {
+        if (error instanceof Error && error.message === 'PROMPT_NOT_CONFIGURED')
+          return null;
+        throw error;
+      }
+    }),
+  );
   const eligible = Boolean(
     profile?.profile_id === 'gemini_free' &&
     profile.free_eligible &&
@@ -36,9 +44,9 @@ optionalApp.get('/capabilities', async (c) => {
       preview_available:
         eligible &&
         Boolean(profile?.task_types.includes(task)) &&
-        prompts.results.some(
+        prompts.some(
           (p) =>
-            p.prompt_id ===
+            p?.prompt_id ===
             (task === 'TRANSLATE'
               ? 'FULL_TRANSLATION_V1'
               : 'HISTORICAL_COMPARE_V1'),

@@ -38,6 +38,8 @@ import type { PipelineProfile } from '../../packages/contracts/src/ai.js';
 import type { PromptSnapshot } from '../../packages/core/src/registry/store.js';
 import { PromptDrafts } from '../../packages/core/src/registry/draft.js';
 import { PromptTests } from '../../packages/core/src/registry/test.js';
+import { PromptPublications } from '../../packages/core/src/registry/publish.js';
+import { PromptRegistry } from '../../packages/core/src/registry/store.js';
 
 export async function verifyOptionalTranslation(
   db: Database,
@@ -676,6 +678,101 @@ export async function verifyOptionalTranslation(
   expect(
     (await new PromptDrafts(db, owner).version(prompt.prompt_id, 2)).status,
   ).toBe('PUBLISHED');
+  const publications = new PromptPublications(db, owner);
+  await expect(
+    publications.preview(
+      {
+        action: 'PUBLISH',
+        prompt_id: prompt.prompt_id,
+        version: 3,
+        report_hash: null,
+        reason: 'Fixture',
+      },
+      fixtureNow,
+    ),
+  ).rejects.toThrow('PROMPT_TEST_NOT_VERIFIED');
+  const input = {
+    action: 'PUBLISH' as const,
+    prompt_id: prompt.prompt_id,
+    version: 3,
+    report_hash: report.report_hash,
+    reason: 'Synthetic tested draft publication',
+  };
+  const publication = await publications.preview(input, fixtureNow),
+    stale = await publications.preview(
+      input,
+      new Date(fixtureNow.getTime() + 1),
+    );
+  expect(publication).toMatchObject({
+    expected_generation: 0,
+    new_model_requests: 0,
+    reprocess_jobs: 0,
+    selection_effect: 'NONE',
+  });
+  const publicationNonce = crypto.randomUUID();
+  expect(
+    await publications.confirm(
+      publication.preview_hash,
+      publicationNonce,
+      fixtureNow,
+    ),
+  ).toMatchObject({ generation: 1, version: 3, reprocess_jobs: 0 });
+  expect(
+    await publications.confirm(
+      publication.preview_hash,
+      publicationNonce,
+      fixtureNow,
+    ),
+  ).toMatchObject({ generation: 1 });
+  await expect(
+    publications.confirm(
+      stale.preview_hash,
+      crypto.randomUUID(),
+      new Date(fixtureNow.getTime() + 1),
+    ),
+  ).rejects.toThrow('REGISTRY_GENERATION_CONFLICT');
+  expect(
+    (await new PromptRegistry(db, owner).currentFamily(prompt.prompt_id))
+      .version,
+  ).toBe(3);
+  const lateRecovery = await new OptionalTaskPreparation(
+    db,
+    owner,
+  ).previewRecovery(invalidRunId, fixtureNow);
+  const recoveryReceipt = await db
+    .prepare(
+      'SELECT payload_json FROM config_versions WHERE owner_id=? AND config_id=? AND revision=1',
+    )
+    .bind(owner.ownerId, 'optional-preview-' + lateRecovery.preview_hash)
+    .first<string>('payload_json');
+  expect(JSON.parse(recoveryReceipt!).snapshot.prompt.version).toBe(2);
+  const rollback = await publications.preview(
+    {
+      action: 'ROLLBACK',
+      prompt_id: prompt.prompt_id,
+      version: 2,
+      report_hash: null,
+      reason: 'Synthetic compatible rollback',
+    },
+    fixtureNow,
+  );
+  await expect(
+    publications.confirm(rollback.preview_hash, publicationNonce, fixtureNow),
+  ).rejects.toThrow('IDEMPOTENCY_CONFLICT');
+  expect(
+    await publications.confirm(
+      rollback.preview_hash,
+      crypto.randomUUID(),
+      fixtureNow,
+    ),
+  ).toMatchObject({ generation: 2, version: 2 });
+  expect(
+    (await new PromptRegistry(db, owner).currentFamily(prompt.prompt_id))
+      .version,
+  ).toBe(2);
+  expect((await tests.reports(prompt.prompt_id, 3))[0]?.report_hash).toBe(
+    report.report_hash,
+  );
   const rows = await db.prepare('SELECT * FROM optional_ai_results').all();
   await expect(
     db.prepare('DELETE FROM optional_ai_results').run(),

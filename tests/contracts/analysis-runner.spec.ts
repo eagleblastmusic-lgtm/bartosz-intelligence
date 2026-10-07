@@ -172,6 +172,41 @@ it.each(['FULL', 'CUSTOM'] as const)(
     );
     expect(compiled.request.prompt).toContain(input.source_text);
     expect(compiled.request.prompt).not.toMatch(/\{\{[a-z_]+\}\}/);
+    const baseWire = bundle.schemas.find(
+      (row) => row.hash === semantic.base_wire_hash,
+    )!;
+    const versionEightText =
+      prompt.text + '\nRevision eight clarifies source fidelity.';
+    const published = semanticPrompt(
+      {
+        profile_id: 'semantic',
+        revision: 1,
+        name: 'Semantic',
+        compiled: semantic,
+      },
+      {
+        ...prompt,
+        version: 8,
+        generation: 9,
+        text: versionEightText,
+        prompt_hash: await sha256(versionEightText),
+        wire: { id: baseWire.id, hash: baseWire.hash, schema: baseWire.schema },
+      },
+    );
+    const revised = await compileSemanticAnalysis({
+      ...input,
+      prompt: published,
+      semantic_profile: semantic,
+    });
+    expect(revised.run_context.prompt_snapshot.version).toBe(8);
+    expect(revised.request.prompt).toContain(
+      'Revision eight clarifies source fidelity.',
+    );
+    expect(revised.request.wire_schema).toEqual(compiled.request.wire_schema);
+    expect(revised.request.quality_scope).not.toBe(
+      compiled.request.quality_scope,
+    );
+    expect(compiled.run_context.prompt_snapshot.version).toBe(2);
     if (mode === 'CUSTOM') {
       expect(compiled.request.prompt).toContain('PASS_MODE: EXTRACT');
       expect(compiled.request.prompt).toContain('EXISTING_CANDIDATE: null');
