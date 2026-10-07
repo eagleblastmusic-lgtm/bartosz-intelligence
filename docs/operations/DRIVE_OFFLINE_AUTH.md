@@ -53,3 +53,17 @@ owner validation, reconnect races, redirects/body bounds, renewal/revocation,
 mutation barrier and secret-free backup/restore. Live Drive authorization, renewal,
 Picker/root child create-read-update, remote update guards and Gate D-export remain
 NOT_RUN until their actual adapters, configuration and owner access are verified.
+
+The transport adapter uses fixed Google origins, denies redirects, bounds response
+bytes, reserves generated IDs and uploads raw `text/markdown` using multipart
+metadata/media. Callers must persist the reserved ID before create and reconcile
+ambiguity by that ID; the adapter does not retry or select a filename match.
+Provider failures expose only fixed categories and bounded Retry-After values.
+Bearer credentials are held in JavaScript private fields and omitted even from
+adapter serialization. Automatic update currently fails before transport with
+UNQUALIFIED_UPDATE: no If-Match support or remote atomicity is inferred from API
+version metadata. Live method qualification and durable export orchestration are
+still required. Official contracts:
+[generate IDs](https://developers.google.com/workspace/drive/api/reference/rest/v3/files/generateIds),
+[create](https://developers.google.com/workspace/drive/api/reference/rest/v3/files/create),
+[get](https://developers.google.com/workspace/drive/api/reference/rest/v3/files/get).
