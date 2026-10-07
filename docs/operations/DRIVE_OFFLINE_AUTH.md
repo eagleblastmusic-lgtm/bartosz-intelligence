@@ -86,5 +86,15 @@ replacement of reserved/file IDs or mutation of root/day mapping. Private
 appProperties bind owner hash, publication day and stable export key, rather than
 a filename lookup. Restore preserves both reserved/file IDs, clears leases and
 increments fences; recovered auth/root must be requalified before execution.
-These are local identity/recovery guarantees. Immutable rendered artifacts,
-remote create/reconcile orchestration and actual concurrency proof remain open.
+`DailyExportArtifacts` stores derived report bytes in immutable 32 KiB chunks,
+independently of transcript/Item artifacts. A revision cannot acquire different
+bytes or mode. Interrupted staging resumes under a current lease; readers reject
+unsealed, missing or corrupted chunks and verify the full SHA-256 before upload.
+The current artifact pointer cannot move backwards or be attached by a stale
+fence. Portable backup includes manifests, chunks and pointer; restore replays
+chunks before sealing manifests and preserves byte identity. The explicit 8 MiB
+storage admission ceiling rejects a larger report without truncation; this is
+separate from the Bridge token estimate/OVERSIZE classification.
+
+These are local identity/recovery guarantees. Remote create/reconcile
+orchestration and actual conditional-update concurrency proof remain open.

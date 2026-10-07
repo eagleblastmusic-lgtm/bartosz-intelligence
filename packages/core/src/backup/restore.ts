@@ -130,9 +130,20 @@ export async function restoreCanonical(
     ).results.map((row) => row.name);
   }
   const plans = [];
+  const exportSeals: { owner_id: string; artifact_id: string }[] = [];
   const pointers: { item_id: string; owner_id: string; revision_id: string }[] =
     [];
   for (const table of backupTables) {
+    if (table === 'export_state')
+      plans.push(
+        ...exportSeals.map((seal) =>
+          db
+            .prepare(
+              "UPDATE daily_export_artifacts SET state='SEALED' WHERE owner_id=? AND artifact_id=? AND state='STAGING'",
+            )
+            .bind(seal.owner_id, seal.artifact_id),
+        ),
+      );
     for (const chunk of input.chunks
       .filter((chunk) => chunk.table === table)
       .sort((a, b) => a.index - b.index))
@@ -166,6 +177,13 @@ export async function restoreCanonical(
           row.lease_owner = null;
           row.lease_until = null;
           row.fencing_token = Number(row.fencing_token) + 1;
+        }
+        if (table === 'daily_export_artifacts' && row.state === 'SEALED') {
+          exportSeals.push({
+            owner_id: String(row.owner_id),
+            artifact_id: String(row.artifact_id),
+          });
+          row.state = 'STAGING';
         }
         if (table === 'items' && typeof row.current_revision_id === 'string') {
           pointers.push({

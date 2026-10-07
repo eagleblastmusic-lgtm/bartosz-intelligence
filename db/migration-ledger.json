@@ -129,6 +129,11 @@
       "name": "026_drive_export_identity.sql",
       "depends_on": ["025_drive_offline_auth.sql"],
       "sha256": "4d479dc360e1ed166118f65754d074b96bf99b41585efad362b2bbfb756170ea"
+    },
+    {
+      "name": "027_daily_export_artifacts.sql",
+      "depends_on": ["026_drive_export_identity.sql"],
+      "sha256": "02840a7eb3a1d57ca8650bca23cf3457815cecc16dfb4cdee481068151fe2d4c"
     }
   ],
   "version": 1
