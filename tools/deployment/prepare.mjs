@@ -120,6 +120,12 @@ if (mode === 'migrate') {
     'GOOGLE_OIDC_OWNER_SUBJECT',
     'CONTROL_WORKER_CREDENTIAL',
     'LOCAL_WORKER_CREDENTIAL',
+    'GOOGLE_DRIVE_CLIENT_ID',
+    'GOOGLE_DRIVE_CLIENT_SECRET',
+    'DRIVE_WRAPPING_KEY_ID',
+    'DRIVE_WRAPPING_KEY',
+    'DRIVE_KEY_RECOVERY_READY',
+    'GOOGLE_DRIVE_OAUTH_PUBLISHING_STATUS',
   ])
     if (process.env[name]) secrets[name] = process.env[name];
   if (

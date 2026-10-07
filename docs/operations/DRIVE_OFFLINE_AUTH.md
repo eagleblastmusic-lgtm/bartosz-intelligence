@@ -96,5 +96,27 @@ chunks before sealing manifests and preserves byte identity. The explicit 8 MiB
 storage admission ceiling rejects a larger report without truncation; this is
 separate from the Bridge token estimate/OVERSIZE classification.
 
-These are local identity/recovery guarantees. Remote create/reconcile
-orchestration and actual conditional-update concurrency proof remain open.
+`DailyExportExecutor` persists a durable attempt before initial raw Markdown
+create. An ambiguous create gets one bounded GET of the reserved ID; a later
+attempt reuses that ID and the sealed bytes. Metadata/appProperties and a stable
+version across exact content readback are required before a fenced receipt can
+advance exported_seq. A newer dirty_seq remains pending. Unrelated files,
+missing committed files and changed remote bytes are preserved as conflicts.
+Existing different bytes never receive an automatic update while the selected
+remote conditional method is unqualified. Controlled local transport tests
+cover accepted/unaccepted timeouts and an old executor finishing after lease
+recovery; they do not qualify real Drive concurrency or production export.
+
+These are local identity/recovery guarantees. Actual conditional-update
+concurrency proof and live Drive qualification remain open.
+
+On Windows, `tools/deployment/drive-recovery.ts <absolute-private-directory>
+<TESTING|PRODUCTION|INTERNAL>` prepares the owner-selected directory outside the
+repository, grants DACL access only to the current owner and SYSTEM, rejects
+unexpected existing access/reparse points, and writes the recovery copy before
+local runtime configuration. Rerunning checks the same key and performs a
+synthetic AES-GCM recovery roundtrip; it never rotates the active key implicitly.
+Values are never printed. PowerShell 7/icacls changes access rules without
+requesting Windows audit privileges. Real refresh-token recovery is a separate
+live check after authorization. The owner's declared consent status is saved
+with the connection; TESTING is never silently promoted to production.

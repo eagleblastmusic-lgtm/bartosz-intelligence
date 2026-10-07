@@ -172,6 +172,7 @@ export interface DriveOAuthConfig {
   client_id: string;
   client_secret: string;
   app_origin: string;
+  publishing_status?: 'TESTING' | 'PRODUCTION' | 'INTERNAL';
 }
 export type DriveOAuthReason =
   | 'CONFIG'
@@ -202,7 +203,11 @@ function configRedirect(config: DriveOAuthConfig) {
       !config.client_id ||
       config.client_id.length > 256 ||
       !config.client_secret ||
-      config.client_secret.length > 4096
+      config.client_secret.length > 4096 ||
+      (config.publishing_status !== undefined &&
+        !['TESTING', 'PRODUCTION', 'INTERNAL'].includes(
+          config.publishing_status,
+        ))
     )
       failure('CONFIG');
     return origin.origin + driveCallbackPath;
@@ -450,8 +455,8 @@ export async function finishDriveAuthorization(
   const persisted = await db.batch([
     db
       .prepare(
-        `INSERT INTO drive_connections(owner_id,connection_id,account_subject,client_id,scopes_json,auth_state,revision,last_intent_hash,created_at,updated_at) SELECT ?,?,?,?,?,'CONNECTED',1,?,?,? WHERE ?=0 OR EXISTS(SELECT 1 FROM drive_connections WHERE owner_id=? AND connection_id=? AND revision=?)
-      ON CONFLICT(owner_id,connection_id) DO UPDATE SET scopes_json=excluded.scopes_json,auth_state='CONNECTED',root_state=CASE WHEN drive_connections.root_id IS NULL THEN 'UNSELECTED' ELSE 'VERIFY_REQUIRED' END,revision=drive_connections.revision+1,last_intent_hash=excluded.last_intent_hash,updated_at=excluded.updated_at,last_error=NULL
+        `INSERT INTO drive_connections(owner_id,connection_id,account_subject,client_id,scopes_json,auth_state,publishing_state,revision,last_intent_hash,created_at,updated_at) SELECT ?,?,?,?,?,'CONNECTED',?,1,?,?,? WHERE ?=0 OR EXISTS(SELECT 1 FROM drive_connections WHERE owner_id=? AND connection_id=? AND revision=?)
+      ON CONFLICT(owner_id,connection_id) DO UPDATE SET scopes_json=excluded.scopes_json,auth_state='CONNECTED',publishing_state=CASE WHEN excluded.publishing_state='UNKNOWN' THEN drive_connections.publishing_state ELSE excluded.publishing_state END,root_state=CASE WHEN drive_connections.root_id IS NULL THEN 'UNSELECTED' ELSE 'VERIFY_REQUIRED' END,revision=drive_connections.revision+1,last_intent_hash=excluded.last_intent_hash,updated_at=excluded.updated_at,last_error=NULL
       WHERE drive_connections.revision=? AND drive_connections.account_subject=excluded.account_subject AND drive_connections.client_id=excluded.client_id RETURNING revision`,
       )
       .bind(
@@ -460,6 +465,7 @@ export async function finishDriveAuthorization(
         account.subject,
         config.client_id,
         JSON.stringify(scopes),
+        config.publishing_status ?? 'UNKNOWN',
         stateHash,
         now.toISOString(),
         now.toISOString(),

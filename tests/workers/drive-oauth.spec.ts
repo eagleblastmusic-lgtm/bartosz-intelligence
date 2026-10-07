@@ -31,6 +31,40 @@ const config = {
   app_origin: 'https://bi.example',
 };
 beforeEach(resetCore);
+it('persists explicit Testing consent status without promoting an unknown or renewed grant to production', async () => {
+  const f = await flow(),
+    t = await tokenTransport(f.url);
+  await finishDriveAuthorization(
+    env.DB,
+    f.owner,
+    { ...config, publishing_status: 'TESTING' },
+    f.wrapping,
+    f.input,
+    fixtureNow,
+    t.fetcher,
+  );
+  expect(
+    await env.DB.prepare(
+      'SELECT publishing_state FROM drive_connections',
+    ).first('publishing_state'),
+  ).toBe('TESTING');
+  const reconnect = await flow(f.start.connection_id),
+    renewal = await tokenTransport(reconnect.url);
+  await finishDriveAuthorization(
+    env.DB,
+    reconnect.owner,
+    config,
+    reconnect.wrapping,
+    reconnect.input,
+    fixtureNow,
+    renewal.fetcher,
+  );
+  expect(
+    await env.DB.prepare(
+      'SELECT publishing_state FROM drive_connections',
+    ).first('publishing_state'),
+  ).toBe('TESTING');
+});
 it('renews an encrypted offline grant, preserves scopes when omitted and atomically stores a rotated refresh credential', async () => {
   const f = await flow(),
     t = await tokenTransport(f.url);

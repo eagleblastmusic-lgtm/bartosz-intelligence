@@ -98,6 +98,14 @@ async function configuration(env: Env) {
       client_id: env.GOOGLE_DRIVE_CLIENT_ID,
       client_secret: env.GOOGLE_DRIVE_CLIENT_SECRET,
       app_origin: applicationOrigin(env),
+      ...(['TESTING', 'PRODUCTION', 'INTERNAL'].includes(
+        env.GOOGLE_DRIVE_OAUTH_PUBLISHING_STATUS ?? '',
+      )
+        ? {
+            publishing_status: env.GOOGLE_DRIVE_OAUTH_PUBLISHING_STATUS as
+              'TESTING' | 'PRODUCTION' | 'INTERNAL',
+          }
+        : {}),
     },
     wrapping,
   };

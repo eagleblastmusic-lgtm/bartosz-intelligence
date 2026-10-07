@@ -47,6 +47,7 @@ export const backupTables = [
   'drive_connections',
   'daily_export_artifacts',
   'daily_export_chunks',
+  'drive_export_attempts',
   'export_state',
   'change_log',
   'source_requests',
