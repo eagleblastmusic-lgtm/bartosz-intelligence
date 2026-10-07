@@ -1630,6 +1630,141 @@ it.each([
               : 'SUCCEEDED',
         });
         if (scenario !== 'CHUNKED' && scenario !== 'CHUNK_LARGE') {
+          const parentRun = await env.DB.prepare(
+            'SELECT run_id,outcome_json FROM analysis_runs WHERE job_id=? ORDER BY created_at DESC,run_id DESC LIMIT 1',
+          )
+            .bind(resumeToken.job_id)
+            .first<{ run_id: string; outcome_json: string }>();
+          const parentOutcome = JSON.parse(parentRun!.outcome_json) as {
+            merged_wire_artifact_id: string;
+            merged_wire_hash: string;
+            context_hash: string;
+            additional_synthesis_requests: number;
+          };
+          const wireArtifact = await new ArtifactRepository(
+            env.DB,
+            owner,
+          ).readVerifiedText(
+            parentOutcome.merged_wire_artifact_id,
+            2 * 1024 * 1024,
+          );
+          expect(wireArtifact.artifact.content_hash).toBe(
+            parentOutcome.merged_wire_hash,
+          );
+          expect(wireArtifact.artifact.schema_version).toBe(
+            'semantic-wire-merge:1',
+          );
+          expect(
+            JSON.parse(wireArtifact.artifact.provenance_json),
+          ).toMatchObject({
+            context_hash: parentOutcome.context_hash,
+            source_hash: source.content_hash,
+          });
+          expect(parentOutcome.additional_synthesis_requests).toBe(0);
+          if (scenario === 'CHUNK_FULL_PRODUCTION') {
+            await models.publish(
+              {
+                ...profile,
+                revision: 4,
+                task_types: [...profile.task_types, 'CUSTOM'],
+              },
+              parentNow,
+            );
+            await semanticRegistry.save(
+              {
+                profile_id: 'monitor',
+                revision: 3,
+                name: 'Validate merged Full',
+                config: {
+                  ...semanticConfig,
+                  mode: 'CUSTOM',
+                  validation_pass: {
+                    purpose: 'Sprawdź połączone odwołania źródłowe.',
+                  },
+                },
+                reason: 'Explicit post-merge validation',
+              },
+              bundle,
+              parentNow,
+            );
+            const preview = await analysis.previewExplicit(
+              accepted.run_id,
+              { ...settings, mode: 'QUALITY_TEST' },
+              {
+                semantic_profile_id: 'monitor',
+                semantic_profile_revision: 3,
+                pass: { mode: 'VALIDATE', candidate_run_id: parentRun!.run_id },
+              },
+              parentNow,
+            );
+            expect(preview).toMatchObject({
+              pass: 'VALIDATE',
+              candidate_run_id: parentRun!.run_id,
+              additional_model_requests: 1,
+              selection_effect: 'NONE_UNTIL_EXPLICIT_SELECTION',
+            });
+            const count = await env.DB.prepare(
+              'SELECT count(*) AS n FROM observations',
+            ).first('n');
+            const passJob = await analysis.confirmExplicit(
+              preview.preview_hash,
+              crypto.randomUUID(),
+              parentNow,
+            );
+            const passSnapshot = JSON.parse(
+              (await env.DB.prepare(
+                'SELECT payload_json FROM jobs WHERE job_id=?',
+              )
+                .bind(passJob.job_id)
+                .first('payload_json')) as string,
+            ).snapshot;
+            expect(passSnapshot.additional_pass.candidate_hash).toBe(
+              parentOutcome.merged_wire_hash,
+            );
+            expect(passSnapshot.additional_pass.candidate_wire).toEqual(
+              JSON.parse(wireArtifact.text),
+            );
+            expect(
+              await env.DB.prepare(
+                'SELECT count(*) AS n FROM observations',
+              ).first('n'),
+            ).toBe(count);
+            await semanticRegistry.save(
+              {
+                profile_id: 'monitor',
+                revision: 4,
+                name: 'Incompatible subset',
+                config: {
+                  ...semanticConfig,
+                  mode: 'CUSTOM',
+                  modules: Object.fromEntries(
+                    semanticModules.map((key) => [key, key === 'summary']),
+                  ) as SemanticProfile['modules'],
+                  validation_pass: {
+                    purpose: 'Nie odrzucaj po cichu modułów kandydata.',
+                  },
+                },
+                reason: 'Reject foreign candidate scope',
+              },
+              bundle,
+              parentNow,
+            );
+            await expect(
+              analysis.previewExplicit(
+                accepted.run_id,
+                { ...settings, mode: 'QUALITY_TEST' },
+                {
+                  semantic_profile_id: 'monitor',
+                  semantic_profile_revision: 4,
+                  pass: {
+                    mode: 'VALIDATE',
+                    candidate_run_id: parentRun!.run_id,
+                  },
+                },
+                parentNow,
+              ),
+            ).rejects.toThrow('INVALID_ADDITIONAL_PASS_CANDIDATE');
+          }
           const replay = await merger.complete(
             resumeToken,
             parentNow,

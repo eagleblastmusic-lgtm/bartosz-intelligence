@@ -266,7 +266,6 @@ export class LongInputCompletion {
       : await enrichEconomy(enrichmentInput);
     await jobs.load(token, current());
     const canonicalText = JSON.stringify(enriched.canonical),
-      pieces = splitArtifactText(canonicalText),
       contextHash = await sha256(
         JSON.stringify({
           plan_hash: status.plan_hash,
@@ -277,54 +276,79 @@ export class LongInputCompletion {
           sectional_summaries: merged.sectional_summaries,
         }),
       );
-    const artifact = await repo.begin(
-      {
-        item_id: snapshot.source.item_id,
-        kind: 'ANALYSIS_CANDIDATE',
-        content_hash: enriched.canonical_hash,
-        byte_size: new TextEncoder().encode(canonicalText).length,
-        chunk_count: pieces.length,
-        schema_version: 'intelligence-canonical:1.2',
-        producer_version: 'core-chunk-merge:1:' + prepared.run_id,
-        original_ref: snapshot.source.source_artifact_id,
-        provenance: {
-          context_hash: contextHash,
-          plan_hash: status.plan_hash,
-          semantic_verification: 'NOT_ASSERTED',
+    const persist = async (
+      text: string,
+      hash: string,
+      schema: string,
+      producer: string,
+    ) => {
+      const pieces = splitArtifactText(text);
+      const artifact = await repo.begin(
+        {
+          item_id: snapshot.source.item_id,
+          kind: 'ANALYSIS_CANDIDATE',
+          content_hash: hash,
+          byte_size: new TextEncoder().encode(text).length,
+          chunk_count: pieces.length,
+          schema_version: schema,
+          producer_version: producer + prepared.run_id,
+          original_ref: snapshot.source.source_artifact_id,
+          provenance: {
+            context_hash: contextHash,
+            plan_hash: status.plan_hash,
+            source_hash: snapshot.source.source_hash,
+            wire_schema_hash: snapshot.prompt.wire.hash,
+            semantic_verification: 'NOT_ASSERTED',
+          },
         },
-      },
-      token,
-      'ANALYZE',
-      current(),
+        token,
+        'ANALYZE',
+        current(),
+      );
+      if (artifact.state !== 'VERIFIED') {
+        let offset = 0;
+        for (const [index, piece] of pieces.entries()) {
+          await repo.writeChunk(
+            artifact.artifact_id,
+            index,
+            offset,
+            piece,
+            token,
+            'ANALYZE',
+            current(),
+          );
+          offset += piece.length;
+        }
+        let proof: string | undefined;
+        for (;;) {
+          const step = await repo.verifyStep(
+            artifact.artifact_id,
+            token,
+            'ANALYZE',
+            current(),
+            secret,
+            proof,
+          );
+          if (step.complete) break;
+          proof = step.proof ?? undefined;
+        }
+      }
+      return artifact;
+    };
+    const artifact = await persist(
+      canonicalText,
+      enriched.canonical_hash,
+      'intelligence-canonical:1.2',
+      'core-chunk-merge:1:',
     );
-    if (artifact.state !== 'VERIFIED') {
-      let offset = 0;
-      for (const [index, piece] of pieces.entries()) {
-        await repo.writeChunk(
-          artifact.artifact_id,
-          index,
-          offset,
-          piece,
-          token,
-          'ANALYZE',
-          current(),
-        );
-        offset += piece.length;
-      }
-      let proof: string | undefined;
-      for (;;) {
-        const step = await repo.verifyStep(
-          artifact.artifact_id,
-          token,
-          'ANALYZE',
-          current(),
-          secret,
-          proof,
-        );
-        if (step.complete) break;
-        proof = step.proof ?? undefined;
-      }
-    }
+    const mergedWireText = JSON.stringify(merged.wire),
+      mergedWireHash = await sha256(mergedWireText);
+    const mergedWireArtifact = await persist(
+      mergedWireText,
+      mergedWireHash,
+      'semantic-wire-merge:1',
+      'core-chunk-wire:1:',
+    );
     const outcome = {
       version:
         snapshot.settings.mode === 'PRODUCTION'
@@ -343,6 +367,8 @@ export class LongInputCompletion {
       source_artifact_id: snapshot.source.source_artifact_id,
       canonical_artifact_id: artifact.artifact_id,
       canonical_hash: enriched.canonical_hash,
+      merged_wire_artifact_id: mergedWireArtifact.artifact_id,
+      merged_wire_hash: mergedWireHash,
       context_hash: contextHash,
       quality_scope: snapshot.quality_scope,
       child_receipts: receipts,

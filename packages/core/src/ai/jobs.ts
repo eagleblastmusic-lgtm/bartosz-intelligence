@@ -633,7 +633,7 @@ export class AnalysisJobs {
       throw new Error('INVALID_ADDITIONAL_PASS');
     const row = await this.db
       .prepare(
-        "SELECT r.outcome_json,r.candidate_hash FROM analysis_runs r JOIN jobs j ON j.owner_id=r.owner_id AND j.job_id=r.job_id WHERE r.owner_id=? AND r.run_id=? AND r.item_id=? AND r.state='ACCEPTED' AND j.task_type='ANALYZE' AND json_extract(r.input_snapshot_json,'$.source_artifact_id')=? AND json_extract(r.input_snapshot_json,'$.manifest_hash')=? AND json_extract(r.prompt_snapshot_json,'$.wire.hash')=?",
+        "SELECT r.outcome_json,r.candidate_hash,json_extract(r.prompt_snapshot_json,'$.wire.hash') AS candidate_wire_hash FROM analysis_runs r JOIN jobs j ON j.owner_id=r.owner_id AND j.job_id=r.job_id WHERE r.owner_id=? AND r.run_id=? AND r.item_id=? AND r.state='ACCEPTED' AND j.task_type='ANALYZE' AND json_extract(r.input_snapshot_json,'$.source_artifact_id')=? AND json_extract(r.input_snapshot_json,'$.manifest_hash')=?",
       )
       .bind(
         this.context.ownerId,
@@ -641,25 +641,35 @@ export class AnalysisJobs {
         source.item_id,
         source.source_artifact_id,
         source.manifest_hash,
-        semantic.compiled.wire.hash,
       )
-      .first<{ outcome_json: string; candidate_hash: string }>();
+      .first<{
+        outcome_json: string;
+        candidate_hash: string;
+        candidate_wire_hash: string;
+      }>();
     if (!row || (await sha256(row.outcome_json)) !== row.candidate_hash)
       throw new Error('ADDITIONAL_PASS_CANDIDATE_MISMATCH');
     const outcome = JSON.parse(row.outcome_json) as {
       version: string;
       response_artifact_id?: string;
+      kind?: string;
+      merged_wire_artifact_id?: string;
+      merged_wire_hash?: string;
+      context_hash?: string;
     };
+    const candidateArtifactId =
+      outcome.kind === 'CHUNK_MERGE'
+        ? outcome.merged_wire_artifact_id
+        : outcome.response_artifact_id;
     if (
-      outcome.version !== 'intelligence-accepted:1' ||
-      !outcome.response_artifact_id
+      outcome.kind !== 'CHUNK_MERGE' &&
+      row.candidate_wire_hash !== semantic.compiled.wire.hash
     )
       throw new Error('ADDITIONAL_PASS_CANDIDATE_MISMATCH');
+    if (outcome.version !== 'intelligence-accepted:1' || !candidateArtifactId)
+      throw new Error('ADDITIONAL_PASS_CANDIDATE_MISMATCH');
     const repo = new ArtifactRepository(this.db, this.context),
-      raw = await repo.readVerifiedText(
-        outcome.response_artifact_id,
-        2 * 1024 * 1024,
-      ),
+      raw = await repo.readVerifiedText(candidateArtifactId, 2 * 1024 * 1024),
       manifest = await repo.readVerifiedText(
         source.segment_map_artifact_id,
         32 * 1024 * 1024,
@@ -670,6 +680,24 @@ export class AnalysisJobs {
       manifest.artifact.content_hash !== source.manifest_hash
     )
       throw new Error('ADDITIONAL_PASS_CANDIDATE_MISMATCH');
+    if (outcome.kind === 'CHUNK_MERGE') {
+      const provenance = JSON.parse(raw.artifact.provenance_json) as {
+        context_hash?: string;
+        source_hash?: string;
+        wire_schema_hash?: string;
+      };
+      if (
+        raw.artifact.content_hash !== outcome.merged_wire_hash ||
+        raw.artifact.schema_version !== 'semantic-wire-merge:1' ||
+        raw.artifact.producer_version !==
+          'core-chunk-wire:1:' + input.candidate_run_id ||
+        raw.artifact.original_ref !== source.source_artifact_id ||
+        provenance.context_hash !== outcome.context_hash ||
+        provenance.source_hash !== source.source_hash ||
+        provenance.wire_schema_hash !== row.candidate_wire_hash
+      )
+        throw new Error('ADDITIONAL_PASS_CANDIDATE_MISMATCH');
+    }
     const parsed = await parseWithDeterministicRepair(raw.text),
       value = parsed.value as Record<string, unknown>;
     const purpose =
