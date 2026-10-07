@@ -53,6 +53,25 @@ test('Drive settings disclose unavailable export, preserve escaped private mappi
         json: authenticated ? status : { code: 'UNAUTHENTICATED' },
       });
     }
+    if (path === '/api/v1/connections/drive/root/preview') {
+      expect(route.request().postDataJSON()).toEqual({
+        connection_id: 'private-drive',
+        root_id: 'selected-folder',
+        expected_revision: 1,
+      });
+      status.connections[0]!.revision = 2;
+      return route.fulfill({
+        json: {
+          folder_name: '<img src=x> folder preview',
+          root_changed: true,
+          existing_mapping_count: 7,
+          storage: { usage_bytes: '123', limit_bytes: null },
+          export_ready: false,
+          folder_metadata_access: 'PASS',
+          child_create_read_update: 'NOT_RUN',
+        },
+      });
+    }
     throw new Error('UNEXPECTED_DRIVE_SETTINGS_REQUEST');
   });
   await page.setViewportSize({ width: 360, height: 900 });
@@ -89,6 +108,33 @@ test('Drive settings disclose unavailable export, preserve escaped private mappi
   await refresh.focus();
   await page.keyboard.press('Enter');
   await expect.poll(() => statusCalls).toBe(2);
+  status.configured = true;
+  status.connections[0]!.auth_state = 'CONNECTED';
+  status.connections[0]!.offline_credential_present = true;
+  await refresh.click();
+  await expect(
+    page.getByRole('button', { name: 'Sprawdź folder', exact: true }),
+  ).toBeEnabled();
+  await page
+    .getByLabel('Identyfikator wybranego folderu', { exact: true })
+    .fill('selected-folder');
+  await page
+    .getByRole('button', { name: 'Sprawdź folder', exact: true })
+    .click();
+  await expect(
+    page.getByText(
+      'Folder: <img src=x> folder preview. Odczyt metadanych: potwierdzony.',
+      { exact: true },
+    ),
+  ).toBeVisible();
+  await expect(
+    page.getByText(
+      'Próba zapisu, odczytu i aktualizacji pliku dziecka: nie wykonano. Eksport: niedostępny.',
+      { exact: true },
+    ),
+  ).toBeVisible();
+  expect(await page.locator('main img').count()).toBe(0);
+  expect((await new AxeBuilder({ page }).analyze()).violations).toEqual([]);
   authenticated = false;
   await refresh.click();
   await expect(

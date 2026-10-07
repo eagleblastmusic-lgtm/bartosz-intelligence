@@ -6,10 +6,78 @@ import {
   beginDriveAuthorization,
   finishDriveAuthorization,
   DriveOAuthFailure,
+  refreshDriveAccess,
 } from '../../../../packages/core/src/drive/oauth.js';
 import { importDriveWrappingKey } from '../../../../packages/core/src/drive/credentials.js';
+import {
+  DriveClient,
+  DriveFailure,
+} from '../../../../packages/core/src/drive/client.js';
+import { previewDriveRoot } from '../../../../packages/core/src/drive/root.js';
 
 export const driveApp = ownerRouter();
+driveApp.post('/root/preview', async (c) => {
+  const input = await body(c, [
+    'connection_id',
+    'root_id',
+    'expected_revision',
+  ]);
+  const connectionId = text(input.connection_id, 128),
+    rootId = text(input.root_id, 200);
+  if (
+    !Number.isSafeInteger(input.expected_revision) ||
+    Number(input.expected_revision) < 1
+  )
+    throw new Error('INVALID_DRIVE_ROOT_PREVIEW');
+  const access = c.get('access');
+  const revision = await c.env.DB.prepare(
+    'SELECT revision FROM drive_connections WHERE owner_id=? AND connection_id=?',
+  )
+    .bind(access.ownerId, connectionId)
+    .first<number>('revision');
+  if (revision === null) throw new Error('NOT_FOUND');
+  if (revision !== input.expected_revision)
+    throw new Error('REVISION_CONFLICT');
+  const { config, wrapping } = await configuration(c.env);
+  const now = new Date();
+  const grant = await refreshDriveAccess(
+    c.env.DB,
+    access,
+    config,
+    wrapping,
+    connectionId,
+    now,
+  );
+  const renewedRevision = await c.env.DB.prepare(
+    'SELECT revision FROM drive_connections WHERE owner_id=? AND connection_id=?',
+  )
+    .bind(access.ownerId, connectionId)
+    .first<number>('revision');
+  // Renewal advances exactly one revision. Another owner action invalidates
+  // this preview rather than silently inspecting the changed connection.
+  if (renewedRevision !== revision + 1) throw new Error('REVISION_CONFLICT');
+  try {
+    return c.json(
+      await previewDriveRoot(
+        c.env.DB,
+        access,
+        new DriveClient(grant.access_token),
+        {
+          connection_id: connectionId,
+          root_id: rootId,
+          expected_revision: renewedRevision,
+        },
+        now,
+      ),
+    );
+  } catch (error) {
+    if (error instanceof DriveFailure)
+      throw new DriveOAuthFailure(
+        error.category === 'AUTH' ? 'REFRESH_REJECTED' : 'ROOT_ACCESS',
+      );
+    throw error;
+  }
+});
 async function configuration(env: Env) {
   if (
     !env.GOOGLE_DRIVE_CLIENT_ID ||

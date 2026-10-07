@@ -183,6 +183,7 @@ export type DriveOAuthReason =
   | 'OWNER_ACCOUNT'
   | 'REFRESH_REQUIRED'
   | 'REFRESH_REJECTED'
+  | 'ROOT_ACCESS'
   | 'CONNECTION_CHANGED';
 export class DriveOAuthFailure extends Error {
   constructor(readonly reason: DriveOAuthReason) {

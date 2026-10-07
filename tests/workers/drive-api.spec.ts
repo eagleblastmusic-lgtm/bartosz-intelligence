@@ -8,6 +8,32 @@ import application from '../../config/application.json';
 import type { Env } from '../../apps/api/src/env.js';
 import { base64url } from '../../packages/core/src/auth/crypto.js';
 beforeEach(resetCore);
+it('root preview requires CSRF, own connection and matching revision before renewal or remote inspection', async () => {
+  const h = await headers(),
+    input = {
+      connection_id: 'foreign',
+      root_id: 'explicit-root',
+      expected_revision: 1,
+    };
+  expect((await request('/root/preview', {}, input)).status).toBe(403);
+  const noCsrf: Record<string, string> = { ...h };
+  delete noCsrf['X-CSRF-Token'];
+  expect((await request('/root/preview', noCsrf, input)).status).toBe(403);
+  expect((await request('/root/preview', h, input)).status).toBe(404);
+  expect(
+    (await request('/root/preview', h, { ...input, expected_revision: 0 }))
+      .status,
+  ).toBe(422);
+  await env.DB.prepare(
+    `INSERT INTO drive_connections(owner_id,connection_id,account_subject,client_id,scopes_json,auth_state,revision,last_intent_hash,created_at,updated_at) VALUES('a','own','subject-a','client','[]','CONNECTED',2,'receipt',?,?)`,
+  )
+    .bind(new Date().toISOString(), new Date().toISOString())
+    .run();
+  expect(
+    (await request('/root/preview', h, { ...input, connection_id: 'own' }))
+      .status,
+  ).toBe(409);
+});
 const settings: Env = {
   ...env,
   GOOGLE_OIDC_CLIENT_ID: 'fixture-owner-client',
