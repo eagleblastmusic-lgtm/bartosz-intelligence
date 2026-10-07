@@ -100,6 +100,10 @@ async function files(mode: SemanticProfile['mode'] = 'ECONOMY') {
     for (const key of Object.keys(wire))
       if (!['summary_pl', 'entity_mentions', 'source_issues'].includes(key))
         delete wire[key];
+  if (mode === 'CUSTOM')
+    wire.entity_mentions = [
+      { label: 'Tool X', entity_type: 'TOOL', segment_refs: ['s1'] },
+    ];
   const raw = JSON.stringify(wire);
   const candidate = write('candidate', raw);
   const input = {
@@ -179,14 +183,12 @@ async function files(mode: SemanticProfile['mode'] = 'ECONOMY') {
     provider_started_at: '2026-10-06T00:00:00Z',
     cases: ['NEGATION'],
     canonical_element_ids: canonicalPilotElements(enriched.canonical),
-    elements: [
-      {
-        element_id: 'summary_pl:0',
-        supported: true,
-        anchor_valid: true,
-        severe_hallucination: false,
-      },
-    ],
+    elements: canonicalPilotElements(enriched.canonical).map((element_id) => ({
+      element_id,
+      supported: true,
+      anchor_valid: true,
+      severe_hallucination: false,
+    })),
     important_claims: [
       { claim_id: 'c1', matched_element_ids: ['summary_pl:0'] },
     ],
@@ -302,6 +304,9 @@ it.each(['FULL', 'CUSTOM'] as const)(
 );
 it('rejects canonical modules outside Custom scope and additional passes without actual receipts', async () => {
   const { film, scope, enriched, write } = await files('CUSTOM');
+  expect(scope.semantic_profile!.modules.entities).toBe(false);
+  expect(enriched.canonical.entities).toHaveLength(1);
+  await expect(verifyPilotFiles(film, scope)).resolves.toBeUndefined();
   enriched.canonical.key_points = enriched.canonical.summary_pl;
   const changed = write('foreign-module', JSON.stringify(enriched.canonical));
   film.files!.canonical = changed.path;
@@ -313,6 +318,16 @@ it('rejects canonical modules outside Custom scope and additional passes without
   scope.semantic_profile!.second_pass = { purpose: 'Additional reasoning' };
   await expect(verifyPilotFiles(film, scope)).rejects.toThrow(
     'PILOT_PASS_RECEIPTS_REQUIRED',
+  );
+});
+it('requires canonical wire identity and enabled modules to match the frozen profile', async () => {
+  const { film, scope, enriched, write } = await files('FULL');
+  enriched.canonical.enabled_modules = ['summary'];
+  const changed = write('changed-scope', JSON.stringify(enriched.canonical));
+  film.files!.canonical = changed.path;
+  film.canonical_hash = changed.hash;
+  await expect(verifyPilotFiles(film, scope)).rejects.toThrow(
+    'PILOT_CANONICAL_SCOPE_MISMATCH',
   );
 });
 it('does not certify a claimed repair chain or a successful response without actual model identity', async () => {

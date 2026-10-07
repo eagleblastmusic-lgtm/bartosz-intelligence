@@ -205,9 +205,22 @@ export async function verifyPilotFiles(film: PilotFilm, scope: PilotScope) {
   )
     throw new Error('PILOT_OUTPUT_DENOMINATOR_CHANGED');
   if (!canonical || !validateCanonical(canonical)) return;
+  if (
+    canonical.wire_schema_id !== profile.wire.id ||
+    JSON.stringify(canonical.enabled_modules) !==
+      JSON.stringify(
+        semanticModules.filter((module) => profile.config.modules[module]),
+      )
+  )
+    throw new Error('PILOT_CANONICAL_SCOPE_MISMATCH');
   for (const module of semanticModules) {
     const key = module === 'summary' ? 'summary_pl' : module;
-    if (!profile.config.modules[module] && (canonical[key] as unknown[]).length)
+    // entity_mentions is structural even when the entities display module is disabled.
+    if (
+      module !== 'entities' &&
+      !profile.config.modules[module] &&
+      (canonical[key] as unknown[]).length
+    )
       throw new Error('PILOT_CANONICAL_SCOPE_MISMATCH');
   }
   const anchors = new Map(
