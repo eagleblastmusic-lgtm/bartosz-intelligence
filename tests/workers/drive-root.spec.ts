@@ -16,16 +16,18 @@ async function connection() {
 }
 function client(override = {}, quota = { usage: '10', limit: '100' }) {
   return new DriveClient('synthetic', async (target) =>
-    String(target).includes('/about?')
-      ? Response.json({ storageQuota: quota })
-      : Response.json({
-          id: 'new-root',
-          name: 'Wybrany folder',
-          mimeType: 'application/vnd.google-apps.folder',
-          trashed: false,
-          capabilities: { canAddChildren: true },
-          ...override,
-        }),
+    String(target).includes('/permissions?')
+      ? Response.json({ permissions: [{ type: 'user', role: 'owner' }] })
+      : String(target).includes('/about?')
+        ? Response.json({ storageQuota: quota })
+        : Response.json({
+            id: 'new-root',
+            name: 'Wybrany folder',
+            mimeType: 'application/vnd.google-apps.folder',
+            trashed: false,
+            capabilities: { canAddChildren: true },
+            ...override,
+          }),
   );
 }
 it('previews explicit folder and root-change mapping impact without qualifying exports, writing root or touching existing file identity', async () => {
@@ -113,6 +115,8 @@ it('rejects concurrent reconnect during remote folder inspection', async () => {
   await connection();
   const owner = await fixtureOwner();
   const changing = new DriveClient('synthetic', async (target) => {
+    if (String(target).includes('/permissions?'))
+      return Response.json({ permissions: [{ type: 'user', role: 'owner' }] });
     if (String(target).includes('/about?')) {
       await env.DB.prepare(
         "UPDATE drive_connections SET revision=2 WHERE owner_id='a'",

@@ -114,7 +114,6 @@ export async function createDriveRootCandidate(
     )
   )
     throw new Error('DRIVE_ROOT_IDENTITY_CONFLICT');
-  await client.verifyPrivateFolder(id);
   const preview = await previewDriveRoot(
     db,
     context,

@@ -18,6 +18,7 @@ export interface DriveRootPreview {
   mapping_action: 'PRESERVE_EXISTING';
   duplicate_risk: 'ROOT_CHANGE_REQUIRES_MAPPING_REVIEW' | 'UNCHANGED';
   folder_metadata_access: 'PASS';
+  private_owner_only: true;
   child_create_read_update: 'NOT_RUN';
   export_ready: false;
   storage: { limit_bytes: string | null; usage_bytes: string | null };
@@ -62,6 +63,7 @@ export async function previewDriveRoot(
     folder.capabilities?.canAddChildren !== true
   )
     throw new DriveFailure('DENIED');
+  await client.verifyPrivateFolder(input.root_id);
   const storage = await client.storage();
   if (
     storage.limit_bytes !== null &&
@@ -97,6 +99,7 @@ export async function previewDriveRoot(
       ? ('ROOT_CHANGE_REQUIRES_MAPPING_REVIEW' as const)
       : ('UNCHANGED' as const),
     folder_metadata_access: 'PASS' as const,
+    private_owner_only: true as const,
     child_create_read_update: 'NOT_RUN' as const,
     export_ready: false as const,
     storage,
