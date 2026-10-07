@@ -13,9 +13,38 @@ import {
   type DailyRenderInput,
 } from '../../packages/core/src/export/renderer.js';
 import type { DailyItemView } from '../../packages/contracts/src/daily.js';
+import { materialReport } from '../../packages/core/src/export/material.js';
 
 const hash = (value: string) =>
   createHash('sha256').update(value).digest('hex');
+it('ignores only envelope bookkeeping while preserving mode, counts, warnings and source bytes', async () => {
+  const input = await fixture();
+  const first = await renderDaily(input);
+  input.revision++;
+  input.snapshot.cut_seq++;
+  const next = await renderDaily(input);
+  expect(first.content_hash).not.toBe(next.content_hash);
+  expect(materialReport(first.markdown)).toBe(materialReport(next.markdown));
+  for (const changed of [
+    next.markdown.replace('export_mode: COMPACT', 'export_mode: FULL'),
+    next.markdown.replace(
+      'discovery_coverage: incomplete',
+      'discovery_coverage: complete',
+    ),
+    next.markdown.replace(
+      'bridge_size_state: WITHIN_ESTIMATE',
+      'bridge_size_state: OVERSIZE',
+    ),
+    next.markdown.replace('Żółć', 'Zmieniona treść'),
+    next.markdown.replace('item_count=4', 'item_count=5'),
+  ]) {
+    expect(changed).not.toBe(next.markdown);
+    expect(materialReport(changed)).not.toBe(materialReport(first.markdown));
+  }
+  expect(() =>
+    materialReport(next.markdown.replace(/revision=\d+/, 'revision=999')),
+  ).toThrow('EXPORT_PROTOCOL_INVALID');
+});
 async function fixture(selected?: string[]) {
   const profile = await compileSemanticProfile(
     {

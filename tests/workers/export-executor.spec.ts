@@ -11,7 +11,106 @@ import { DailyExportArtifacts } from '../../packages/core/src/export/artifacts.j
 import { DailyExportExecutor } from '../../packages/core/src/export/executor.js';
 import { renderOwnerDaily } from '../../packages/core/src/export/snapshot.js';
 import { DriveClient } from '../../packages/core/src/drive/client.js';
+import { sha256 } from '../../packages/core/src/auth/crypto.js';
 beforeEach(resetCore);
+it('acknowledges identical material without uploading or claiming a new remote revision', async () => {
+  const f = await fixture();
+  let exists = false,
+    writes = 0;
+  const client = new DriveClient('synthetic', async (target, init) => {
+    if (String(target).includes('generateIds'))
+      return Response.json({ ids: ['reserved'] });
+    if (init?.method === 'POST') {
+      exists = true;
+      writes++;
+      return Response.json(f.file);
+    }
+    if (init?.method === 'PATCH') throw new Error('UNEXPECTED_UPDATE');
+    if (!exists) return new Response(null, { status: 404 });
+    return String(target).includes('alt=media')
+      ? new Response(f.report.markdown)
+      : Response.json(f.file);
+  });
+  await f.executor.execute(f.lease, f.artifact, client, fixtureNow);
+  const report = await renderOwnerDaily(
+    env.DB,
+    f.owner,
+    { date: f.lease.date, app_origin: 'https://example.test', revision: 2 },
+    fixtureSecret,
+    fixtureNow,
+  );
+  // Synthetic cut metadata exercises acknowledgement versus later dirty work;
+  // the rendered day stays unchanged and no provider result is manufactured.
+  report.markdown = report.markdown.replace(
+    /^source_change_seq: \d+$/m,
+    'source_change_seq: 100',
+  );
+  report.source_change_seq = 100;
+  report.content_hash = await sha256(report.markdown);
+  report.byte_count = new TextEncoder().encode(report.markdown).length;
+  await env.DB.prepare(
+    "UPDATE export_state SET dirty_seq=101 WHERE owner_id='a'",
+  ).run();
+  const candidate = await new DailyExportArtifacts(env.DB, f.owner).save(
+    f.lease,
+    report,
+    fixtureNow,
+  );
+  const result = await f.executor.execute(
+    f.lease,
+    candidate,
+    client,
+    fixtureNow,
+  );
+  expect(result).toMatchObject({
+    disposition: 'NO_MATERIAL_CHANGE',
+    revision: 1,
+    content_hash: f.report.content_hash,
+  });
+  expect(writes).toBe(1);
+  expect(
+    await env.DB.prepare(
+      "SELECT revision,full_file_hash,exported_seq,dirty_seq FROM export_state WHERE owner_id='a'",
+    ).first(),
+  ).toMatchObject({
+    revision: 1,
+    full_file_hash: f.report.content_hash,
+    exported_seq: 100,
+    dirty_seq: 101,
+  });
+  expect(
+    await env.DB.prepare(
+      'SELECT state,reason,verified_hash FROM drive_export_attempts WHERE artifact_id=?',
+    )
+      .bind(candidate)
+      .first(),
+  ).toMatchObject({
+    state: 'PREPARED',
+    reason: 'NO_MATERIAL_CHANGE',
+    verified_hash: f.report.content_hash,
+  });
+  const full = await renderOwnerDaily(
+    env.DB,
+    f.owner,
+    {
+      date: f.lease.date,
+      app_origin: 'https://example.test',
+      revision: 3,
+      mode: 'FULL',
+    },
+    fixtureSecret,
+    fixtureNow,
+  );
+  const fullId = await new DailyExportArtifacts(env.DB, f.owner).save(
+    f.lease,
+    full,
+    fixtureNow,
+  );
+  await expect(
+    f.executor.execute(f.lease, fullId, client, fixtureNow),
+  ).rejects.toThrow('UNQUALIFIED_UPDATE');
+  expect(writes).toBe(1);
+});
 async function fixture() {
   const owner = await fixtureOwner();
   await env.DB.prepare(

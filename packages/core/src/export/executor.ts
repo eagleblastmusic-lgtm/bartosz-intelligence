@@ -7,6 +7,7 @@ import { DriveClient, DriveFailure, type DriveFile } from '../drive/client.js';
 import { DriveExportIdentity, type ExportLease } from '../drive/identity.js';
 import { DailyExportArtifacts } from './artifacts.js';
 import { sha256 } from '../auth/crypto.js';
+import { materialReport } from './material.js';
 
 // Initial create/reconcile only. Updating existing different bytes remains
 // fail-closed until the selected remote upload method has actual CAS proof.
@@ -48,13 +49,14 @@ export class DailyExportExecutor {
     const current = async () => {
       const row = await this.db
         .prepare(
-          `SELECT reserved_remote_id,file_id,full_file_hash FROM export_state WHERE ${guardSql}`,
+          `SELECT reserved_remote_id,file_id,full_file_hash,revision FROM export_state WHERE ${guardSql}`,
         )
         .bind(...guard)
         .first<{
           reserved_remote_id: string | null;
           file_id: string | null;
           full_file_hash: string | null;
+          revision: number;
         }>();
       if (!row) throw new Error('EXPORT_STALE_FENCE_OR_REVISION');
       return row;
@@ -164,8 +166,75 @@ export class DailyExportExecutor {
       if (afterRead.version !== file.version)
         throw new Error('EXPORT_CONFLICT');
       if (remoteHash !== manifest.content_hash) {
-        if (state.file_id && remoteHash === state.full_file_hash)
+        if (state.file_id && remoteHash === state.full_file_hash) {
+          const previous = await this.db
+            .prepare(
+              `SELECT artifact_id FROM daily_export_artifacts WHERE owner_id=? AND root_id=? AND publication_date=? AND revision=? AND content_hash=? AND state='SEALED'`,
+            )
+            .bind(
+              this.context.ownerId,
+              lease.root_id,
+              lease.date,
+              state.revision,
+              remoteHash,
+            )
+            .first<{ artifact_id: string }>();
+          if (previous) {
+            const bytes = new TextDecoder('utf-8', {
+              fatal: true,
+              ignoreBOM: true,
+            });
+            const old = await new DailyExportArtifacts(
+              this.db,
+              this.context,
+            ).read(previous.artifact_id);
+            if (
+              materialReport(bytes.decode(old.bytes)) ===
+              materialReport(bytes.decode(artifact.bytes))
+            ) {
+              // Readback above proves the original bytes/version still exist.
+              // Acknowledge coverage without claiming this candidate was uploaded.
+              const result = await this.db.batch([
+                this.db
+                  .prepare(
+                    `UPDATE export_state SET exported_seq=MAX(exported_seq,?) WHERE ${guardSql} AND revision=? AND full_file_hash=?`,
+                  )
+                  .bind(
+                    manifest.source_change_seq,
+                    ...guard,
+                    state.revision,
+                    remoteHash,
+                  ),
+                this.db
+                  .prepare(
+                    `UPDATE drive_export_attempts SET reason='NO_MATERIAL_CHANGE',remote_version=?,verified_hash=?,updated_at=? WHERE owner_id=? AND artifact_id=? AND fencing_token=? AND EXISTS(SELECT 1 FROM export_state WHERE ${guardSql} AND revision=? AND full_file_hash=? AND exported_seq>=?)`,
+                  )
+                  .bind(
+                    afterRead.version!,
+                    remoteHash,
+                    now.toISOString(),
+                    this.context.ownerId,
+                    artifactId,
+                    lease.fencing_token,
+                    ...guard,
+                    state.revision,
+                    remoteHash,
+                    manifest.source_change_seq,
+                  ),
+              ]);
+              if (result.some((row) => row.meta.changes !== 1))
+                throw new Error('EXPORT_STALE_FENCE_OR_REVISION');
+              return {
+                file_id: remoteId,
+                revision: state.revision,
+                content_hash: remoteHash,
+                remote_version: afterRead.version,
+                disposition: 'NO_MATERIAL_CHANGE' as const,
+              };
+            }
+          }
           throw new DriveFailure('UNQUALIFIED_UPDATE');
+        }
         throw new Error('EXPORT_CONFLICT');
       }
       await current();

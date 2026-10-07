@@ -66,5 +66,16 @@ wait, orders oldest dirty days first, and admits only connected/verified roots
 without an active lease. Explicit first exports include empty days. Older
 completion advances only exported_seq, preserving a newer dirty_seq. This is
 local queue correctness; executor availability accounting, scheduler wiring,
-material-change suppression, mode controls and live latency qualification are
+mode controls and live latency qualification are
 still required before claiming the complete CP-7.4 acceptance.
+
+Material comparison ignores only revision and source_change_seq in the trusted
+renderer envelope and the matching footer revision. Mode, all counts, coverage,
+compaction, size warnings, body hash and every source/body byte remain material.
+An unchanged candidate still requires metadata/media/metadata readback of the
+committed Drive file and an intact local sealed artifact. It advances coverage
+through the candidate cut while retaining the actual remote revision and hashes;
+later dirty events remain pending. The candidate attempt records
+`NO_MATERIAL_CHANGE` and stays PREPARED, rather than falsely recording its bytes
+as uploaded/VERIFIED. A material difference continues to fail closed with
+UNQUALIFIED_UPDATE until actual remote conditional updates are qualified.
