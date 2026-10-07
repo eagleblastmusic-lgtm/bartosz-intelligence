@@ -5,6 +5,7 @@ import { verifyMultipartTranslation } from './optional-translation-chunks-fixtur
 import { verifyOptionalHistory } from './optional-history-fixture.js';
 import { PromptDrafts } from '../../packages/core/src/registry/draft.js';
 import { PromptTests } from '../../packages/core/src/registry/test.js';
+import { PromptUsage } from '../../packages/core/src/registry/usage.js';
 import { verifyCorrectedInput } from './corrected-input-fixture.js';
 import {
   analysisQualityScope,
@@ -2454,6 +2455,28 @@ it.each([
         expect(pinned.snapshot.prompt.version).toBe(3);
         expect(pinned.snapshot.settings.mode).toBe('QUALITY_TEST');
         expect(pinned.snapshot.profile.revision).toBe(profile.revision);
+        await new PromptUsage(env.DB, owner).deprecate(
+          pinned.snapshot.prompt.prompt_id,
+          3,
+          pinned.snapshot.prompt.prompt_hash,
+          'Fixture withdrawal',
+          fixtureNow,
+        );
+        expect(
+          (
+            await new AnalysisJobs(env.DB, aiAccess).load(
+              draftToken,
+              fixtureNow,
+            )
+          ).snapshot.prompt.prompt_hash,
+        ).toBe(pinned.snapshot.prompt.prompt_hash);
+        await expect(
+          analysis.confirmExplicit(
+            draftTestPreviewHash,
+            crypto.randomUUID(),
+            fixtureNow,
+          ),
+        ).rejects.toThrow('PROMPT_DEPRECATED');
       }
       expect(
         await validation.finishQualityTest(

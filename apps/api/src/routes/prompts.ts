@@ -1,8 +1,26 @@
 import { PromptDrafts } from '../../../../packages/core/src/registry/draft.js';
 import { PromptTests } from '../../../../packages/core/src/registry/test.js';
 import { PromptPublications } from '../../../../packages/core/src/registry/publish.js';
+import { PromptUsage } from '../../../../packages/core/src/registry/usage.js';
 import { ownerRouter, body, queryFields, text } from './common.js';
 export const promptsApp = ownerRouter();
+promptsApp.post('/deprecate', async (c) => {
+  const input = await body(c, [
+    'prompt_id',
+    'version',
+    'expected_hash',
+    'reason',
+  ]);
+  return c.json(
+    await new PromptUsage(c.env.DB, c.get('access')).deprecate(
+      text(input.prompt_id, 80),
+      input.version as number,
+      text(input.expected_hash, 64),
+      text(input.reason, 1000),
+      new Date(),
+    ),
+  );
+});
 promptsApp.post('/tests/preview', async (c) => {
   const input = await body(c, [
     'prompt_id',

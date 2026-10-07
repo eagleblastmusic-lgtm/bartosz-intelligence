@@ -40,7 +40,8 @@ export function PromptTestRun({ prompt }: { prompt: Version }) {
     FULL_ANALYSIS_V1: 'FULL',
     ADVANCED_ANALYSIS_V1: 'CUSTOM',
   };
-  const supported = prompt.prompt_id !== 'JSON_REPAIR_V1';
+  const supported =
+    prompt.prompt_id !== 'JSON_REPAIR_V1' && !prompt.usage_restriction;
   useEffect(() => {
     if (!open || !supported) return;
     const controller = new AbortController();
@@ -173,9 +174,15 @@ export function PromptTestRun({ prompt }: { prompt: Version }) {
       <summary>Przygotuj próbę jakości tej wersji</summary>
       {!supported ? (
         <p className="notice">
-          Naprawa odpowiedzi wymaga rzeczywistego niepoprawnego kandydata i
-          kontrolowanej ścieżki repair. Samodzielna próba tego adaptera jest
-          niedostępna.
+          {prompt.usage_restriction ? (
+            'Ta wersja została wycofana z nowych użyć.'
+          ) : (
+            <>
+              Naprawa odpowiedzi wymaga rzeczywistego niepoprawnego kandydata i
+              kontrolowanej ścieżki repair. Samodzielna próba tego adaptera jest
+              niedostępna.
+            </>
+          )}
         </p>
       ) : (
         <>

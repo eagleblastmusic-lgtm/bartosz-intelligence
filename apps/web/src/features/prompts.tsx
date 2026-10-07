@@ -4,6 +4,8 @@ import { AppLink } from '../app/router.js';
 import type { PromptDrafts } from '../../../../packages/core/src/registry/draft.js';
 import { PromptPublication } from './prompt-publication.js';
 import { PromptTestRun } from './prompt-test-run.js';
+import { PromptWithdrawal } from './prompt-withdrawal.js';
+import { PromptDiff } from './prompt-diff.js';
 type Families = Awaited<ReturnType<PromptDrafts['families']>>;
 type Version = Awaited<ReturnType<PromptDrafts['version']>>;
 const names: Record<string, string> = {
@@ -168,6 +170,11 @@ export function Prompts() {
               Stan wersji {base.version}: {states[base.status]}.
             </p>
             <p className="metadata">Hash: {base.prompt_hash}</p>
+            <PromptWithdrawal
+              key={'withdraw:' + family + ':' + version + ':' + revision}
+              prompt={base}
+              onChanged={() => setRevision((n) => n + 1)}
+            />
             <PromptTestRun
               key={'test:' + family + ':' + version}
               prompt={base}
@@ -205,6 +212,7 @@ export function Prompts() {
                 {text}
               </pre>
             </details>
+            <PromptDiff base={base.prompt_text} draft={text} />
             <label>
               Powód zmiany
               <textarea

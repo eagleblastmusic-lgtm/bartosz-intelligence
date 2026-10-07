@@ -6,6 +6,7 @@ import {
 } from '../db/boundary.js';
 import { familySchemas } from './bundle.js';
 import { validator_schema_hashes } from './generated/validators.js';
+import { PromptUsage } from './usage.js';
 
 interface PromptVersion {
   prompt_id: string;
@@ -100,7 +101,15 @@ export class PromptDrafts {
       )
         throw new Error('INCOMPATIBLE_BUNDLE');
     }
-    return { ...row, required_inputs: inputs(row.prompt_text), compatibility };
+    return {
+      ...row,
+      required_inputs: inputs(row.prompt_text),
+      compatibility,
+      usage_restriction: await new PromptUsage(this.db, this.context).status(
+        promptId,
+        version,
+      ),
+    };
   }
   async create(
     input: {

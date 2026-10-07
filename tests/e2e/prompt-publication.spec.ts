@@ -9,6 +9,7 @@ test('publication requires review, preserves confirmation nonce after a lost res
   let status = 'TESTED',
     confirms = 0,
     previews = 0;
+  let withdrawn = false;
   const intents: unknown[] = [];
   await page.context().addCookies([
     {
@@ -45,6 +46,13 @@ test('publication requires review, preserves confirmation nonce after a lost res
           prompt_id: family,
           version: Number(url.pathname.split('/').at(-1)),
           status: url.pathname.endsWith('/8') ? status : 'PUBLISHED',
+          usage_restriction:
+            withdrawn && url.pathname.endsWith('/8')
+              ? {
+                  reason: 'Regressed prompt',
+                  created_at: '2026-10-07T12:00:00Z',
+                }
+              : null,
           prompt_hash: 'a'.repeat(64),
           prompt_text: 'Version eight {{source_text}}',
           required_inputs: ['source_text'],
@@ -94,6 +102,17 @@ test('publication requires review, preserves confirmation nonce after a lost res
       if (confirms === 1) return route.abort('failed');
       return route.fulfill({ json: { generation: 8, version: 8 } });
     }
+    if (url.pathname === '/api/v1/prompts/deprecate') {
+      expect(route.request().headers()['x-csrf-token']).toBe('fixture-csrf');
+      expect(route.request().postDataJSON()).toEqual({
+        prompt_id: family,
+        version: 8,
+        expected_hash: 'a'.repeat(64),
+        reason: 'Regressed prompt',
+      });
+      withdrawn = true;
+      return route.fulfill({ json: { receipt_hash: 'f'.repeat(64) } });
+    }
     if (url.pathname.startsWith('/api/'))
       throw new Error('UNEXPECTED_PUBLICATION_API');
     const local = await fetch('http://127.0.0.1:8787' + url.pathname);
@@ -132,6 +151,24 @@ test('publication requires review, preserves confirmation nonce after a lost res
   await expect(
     page.getByRole('button', { name: 'Potwierdź rollback' }),
   ).toHaveCount(0);
+  await page
+    .getByText('Wycofanie wersji z nowych użyć', { exact: true })
+    .click();
+  await page.getByLabel('Powód wycofania wersji').fill('Regressed prompt');
+  await page.getByRole('button', { name: 'Przygotuj wycofanie' }).click();
+  expect(withdrawn).toBe(false);
+  await page
+    .getByRole('button', { name: 'Potwierdź wycofanie wersji' })
+    .click();
+  await expect(
+    page.getByRole('button', { name: 'Przygotuj wycofanie' }),
+  ).toHaveCount(0);
+  await page
+    .getByText('Wycofanie wersji z nowych użyć', { exact: true })
+    .click();
+  await expect(
+    page.getByText(/Wersja 8 wycofana: Regressed prompt/),
+  ).toBeVisible();
   await page.setViewportSize({ width: 360, height: 900 });
   expect(
     (

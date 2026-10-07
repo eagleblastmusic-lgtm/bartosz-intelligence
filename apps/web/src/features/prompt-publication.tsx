@@ -184,14 +184,23 @@ export function PromptPublication({
       <div className="actions">
         <button
           disabled={
-            busy || prompt.status !== 'TESTED' || !reportHash || !reason.trim()
+            busy ||
+            prompt.status !== 'TESTED' ||
+            Boolean(prompt.usage_restriction) ||
+            !reportHash ||
+            !reason.trim()
           }
           onClick={() => void inspect('PUBLISH')}
         >
           Przygotuj publikację
         </button>
         <button
-          disabled={busy || prompt.status !== 'PUBLISHED' || !reason.trim()}
+          disabled={
+            busy ||
+            prompt.status !== 'PUBLISHED' ||
+            Boolean(prompt.usage_restriction) ||
+            !reason.trim()
+          }
           onClick={() => void inspect('ROLLBACK')}
         >
           Przygotuj rollback do tej wersji

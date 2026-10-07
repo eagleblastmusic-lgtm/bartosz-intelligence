@@ -7,6 +7,7 @@ import { sha256 } from '../auth/crypto.js';
 import { JobStore } from '../jobs/store.js';
 import { leasePredicate } from '../jobs/lease-guard.js';
 import { PromptRegistry, type PromptSnapshot } from '../registry/store.js';
+import { PromptUsage, promptUseGuard } from '../registry/usage.js';
 import {
   SemanticProfiles,
   semanticPrompt,
@@ -237,6 +238,10 @@ export class AnalysisJobs {
         prompt = semanticPrompt(semanticProfile);
       }
     } else prompt = await registry.current();
+    await new PromptUsage(this.db, this.context).requireNewUse(
+      prompt.prompt_id,
+      prompt.version,
+    );
     if (
       semanticProfile &&
       (semanticProfile.compiled.config.translation !== 'NONE' ||
@@ -605,7 +610,11 @@ export class AnalysisJobs {
     const store = new JobStore(this.db, this.context);
     let job;
     if (!snapshot.replaces_pending)
-      job = await store.enqueue(input, now.toISOString());
+      job = await store.enqueue(
+        input,
+        now.toISOString(),
+        promptUseGuard(this.context.ownerId, prompt.prompt_id, prompt.version),
+      );
     else {
       const replacement = snapshot.replaces_pending;
       if (!nonce || snapshot.chunk || snapshot.additional_pass)
@@ -620,6 +629,13 @@ export class AnalysisJobs {
           replacement.fencing_token,
         ],
       };
+      const usage = promptUseGuard(
+        this.context.ownerId,
+        prompt.prompt_id,
+        prompt.version,
+      );
+      guard.predicate += ' AND ' + usage.predicate;
+      guard.bindings.push(...usage.bindings);
       const prepared = await store.prepareEnqueue(
         input,
         now.toISOString(),
@@ -667,7 +683,13 @@ export class AnalysisJobs {
         if (!job) throw new Error('PENDING_JOB_CHANGED');
       }
     }
-    if (!job) throw new Error('NOT_FOUND');
+    if (!job) {
+      await new PromptUsage(this.db, this.context).requireNewUse(
+        prompt.prompt_id,
+        prompt.version,
+      );
+      throw new Error('NOT_FOUND');
+    }
     return job;
   }
   private async additionalPass(

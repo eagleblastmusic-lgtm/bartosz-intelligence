@@ -107,13 +107,18 @@ test('Prompt Studio edits a new draft, preserves original text and retries a los
   await expect(page.locator('pre').first()).toHaveText('Base {{source_text}}');
   await expect(page.locator('pre').last()).toHaveText(draft);
   await expect(page.locator('img')).toHaveCount(0);
+  await page.getByText('Zmiany linii w nowym drafcie', { exact: true }).click();
+  await expect(page.locator('ins')).toHaveText(
+    '<img src=x onerror=alert(1)> Owner instruction.',
+  );
+  await expect(page.locator('del')).toHaveCount(0);
   expect(writes).toBe(0);
   await save.click();
   await expect(page.getByRole('alert')).toBeVisible();
   await save.click();
-  await expect(page.getByRole('status')).toContainText(
-    'Zapisano nową wersję 3',
-  );
+  await expect(
+    page.getByRole('status').filter({ hasText: 'Zapisano nową wersję' }),
+  ).toContainText('Zapisano nową wersję 3');
   expect(intents[1]).toEqual(intents[0]);
   await expect(page.getByLabel('Wersja bazowa')).toHaveValue('3');
   await expect(page.getByLabel('Treść nowego draftu')).toHaveValue(draft);

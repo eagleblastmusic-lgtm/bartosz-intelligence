@@ -14,6 +14,7 @@ import { compileSemanticProfile } from '../ai/semantic-profile.js';
 import { AnalysisJobs } from '../ai/jobs.js';
 import { OptionalTaskPreparation } from '../ai/tasks/preparation.js';
 import { PromptRegistry } from './store.js';
+import { PromptUsage } from './usage.js';
 
 /** A report links verified provider receipts and existing scope qualification.
  * Static validation alone never supplies semantic quality approval. */
@@ -40,6 +41,10 @@ export class PromptTests {
     now: Date,
   ) {
     this.context.requireOwner();
+    await new PromptUsage(this.db, this.context).requireNewUse(
+      input.prompt_id,
+      input.version,
+    );
     if (!Number.isSafeInteger(input.model_revision) || input.model_revision < 1)
       throw new Error('INVALID_PROMPT_TEST');
     const settings = {

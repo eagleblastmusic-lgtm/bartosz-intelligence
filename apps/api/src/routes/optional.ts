@@ -23,7 +23,10 @@ optionalApp.get('/capabilities', async (c) => {
       try {
         return await registry.currentFamily(id);
       } catch (error) {
-        if (error instanceof Error && error.message === 'PROMPT_NOT_CONFIGURED')
+        if (
+          error instanceof Error &&
+          ['PROMPT_NOT_CONFIGURED', 'PROMPT_DEPRECATED'].includes(error.message)
+        )
           return null;
         throw error;
       }

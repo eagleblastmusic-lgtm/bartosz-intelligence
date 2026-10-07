@@ -4,6 +4,7 @@ import {
   type Database,
 } from '../../db/boundary.js';
 import { sha256 } from '../../auth/crypto.js';
+import { promptUseGuard } from '../../registry/usage.js';
 import { JobStore } from '../../jobs/store.js';
 import { leasePredicate } from '../../jobs/lease-guard.js';
 import { RunRepository } from '../../jobs/acceptance.js';
@@ -407,7 +408,15 @@ export class OptionalAIJobs {
         due_at: now.toISOString(),
       },
       now.toISOString(),
+      snapshot.task === 'TRANSLATE' && (snapshot.recovery || snapshot.chunk)
+        ? undefined
+        : promptUseGuard(
+            this.context.ownerId,
+            snapshot.prompt.prompt_id,
+            snapshot.prompt.version,
+          ),
     );
+    if (!job) throw new Error('PROMPT_DEPRECATED');
     return {
       ...job,
       token_estimate: preview.token_estimate,
@@ -492,8 +501,22 @@ export class OptionalAIJobs {
       now.toISOString(),
       {
         predicate:
-          'EXISTS(SELECT 1 FROM config_versions WHERE owner_id=? AND config_id=? AND revision=1 AND content_hash=?)',
-        bindings: [this.context.ownerId, 'optional-action-' + nonce, hash],
+          'EXISTS(SELECT 1 FROM config_versions WHERE owner_id=? AND config_id=? AND revision=1 AND content_hash=?) AND ' +
+          promptUseGuard(
+            this.context.ownerId,
+            snapshot.prompt.prompt_id,
+            snapshot.prompt.version,
+          ).predicate,
+        bindings: [
+          this.context.ownerId,
+          'optional-action-' + nonce,
+          hash,
+          ...promptUseGuard(
+            this.context.ownerId,
+            snapshot.prompt.prompt_id,
+            snapshot.prompt.version,
+          ).bindings,
+        ],
       },
     );
     await this.db.batch([

@@ -8,6 +8,7 @@ import { ModelRegistry } from '../ai/models.js';
 import { PromptDrafts } from './draft.js';
 import { PromptRegistry, promptPointerKey } from './store.js';
 import type { PromptTests } from './test.js';
+import { PromptUsage, promptUseKey } from './usage.js';
 type TestReport = Awaited<ReturnType<PromptTests['record']>>['report'];
 interface Publication {
   version: 'prompt-publication-preview:1';
@@ -95,6 +96,10 @@ export class PromptPublications {
         input.version,
       ),
       key = promptPointerKey(input.prompt_id);
+    await new PromptUsage(this.db, this.context).requireNewUse(
+      input.prompt_id,
+      input.version,
+    );
     const current = await this.db
       .prepare(
         'SELECT COALESCE(MAX(revision),0) generation FROM config_versions WHERE owner_id=? AND config_id=?',
@@ -136,6 +141,7 @@ export class PromptPublications {
     try {
       previous = await new PromptRegistry(this.db, this.context).currentFamily(
         input.prompt_id,
+        true,
       );
     } catch (error) {
       if (!(
@@ -222,6 +228,10 @@ export class PromptPublications {
     );
     if (target.prompt_hash !== value.prompt_hash)
       throw new Error('REGISTRY_HASH_MISMATCH');
+    await new PromptUsage(this.db, this.context).requireNewUse(
+      value.prompt_id,
+      value.prompt_version,
+    );
     if (value.action === 'PUBLISH') {
       if (
         !value.report_hash ||
@@ -268,7 +278,7 @@ export class PromptPublications {
         ),
       this.db
         .prepare(
-          'INSERT INTO config_versions SELECT ?,?,?,?, ?,? WHERE (SELECT COALESCE(MAX(revision),0) FROM config_versions WHERE owner_id=? AND config_id=?)=? AND EXISTS(SELECT 1 FROM config_versions WHERE owner_id=? AND config_id=? AND revision=1 AND content_hash=?) ON CONFLICT DO NOTHING',
+          'INSERT INTO config_versions SELECT ?,?,?,?, ?,? WHERE (SELECT COALESCE(MAX(revision),0) FROM config_versions WHERE owner_id=? AND config_id=?)=? AND EXISTS(SELECT 1 FROM config_versions WHERE owner_id=? AND config_id=? AND revision=1 AND content_hash=?) AND NOT EXISTS(SELECT 1 FROM config_versions WHERE owner_id=? AND config_id=? AND revision=1) ON CONFLICT DO NOTHING',
         )
         .bind(
           key,
@@ -283,6 +293,8 @@ export class PromptPublications {
           this.context.ownerId,
           'prompt-action-' + nonce,
           intentHash,
+          this.context.ownerId,
+          promptUseKey(value.prompt_id, value.prompt_version),
         ),
       this.db
         .prepare(

@@ -57,6 +57,7 @@ export function apiRouter() {
         'PRESET_MODULE_SCOPE_MISMATCH',
       ].includes(raw);
     const conflict = [
+      'PROMPT_DEPRECATED',
       'REGISTRY_VERSION_CONFLICT',
       'REGISTRY_GENERATION_CONFLICT',
       'PROMPT_QUALITY_APPROVAL_REQUIRED',

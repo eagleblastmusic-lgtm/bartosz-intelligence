@@ -63,6 +63,8 @@ export async function api<T>(
 }
 export function errorMessage(error: unknown) {
   if (error instanceof ApiError) {
+    if (error.code === 'PROMPT_DEPRECATED')
+      return 'Ta wersja promptu została wycofana z nowych użyć. Wybierz zgodną aktywną wersję.';
     if (error.code === 'REGISTRY_GENERATION_CONFLICT')
       return 'Aktywny prompt zmienił się. Przygotuj nowy podgląd publikacji lub rollbacku.';
     if (error.code === 'PROMPT_QUALITY_APPROVAL_REQUIRED')

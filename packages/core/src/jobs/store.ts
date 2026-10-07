@@ -78,8 +78,12 @@ export class JobStore {
       ],
     };
   }
-  async enqueue(input: JobInput, now: string) {
-    const prepared = await this.prepareEnqueue(input, now);
+  async enqueue(
+    input: JobInput,
+    now: string,
+    precondition?: Parameters<JobStore['prepareEnqueue']>[2],
+  ) {
+    const prepared = await this.prepareEnqueue(input, now, precondition);
     await this.db.batch(prepared.statements);
     return this.db
       .prepare('SELECT * FROM jobs WHERE owner_id=? AND dedup_key=?')

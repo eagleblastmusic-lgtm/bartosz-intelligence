@@ -4,6 +4,7 @@ import {
   type Database,
 } from '../db/boundary.js';
 import { sha256 } from '../auth/crypto.js';
+import { PromptUsage } from './usage.js';
 import {
   familySchemas,
   verifyRegistryBundle,
@@ -115,6 +116,10 @@ export class PromptRegistry {
     )
       throw new Error('INVALID_REGISTRY_POINTER');
     const snapshot = await this.load(promptId, version, expectedGeneration);
+    await new PromptUsage(this.db, this.context).requireNewUse(
+      promptId,
+      version,
+    );
     const payload = JSON.stringify({
         prompt_id: promptId,
         version,
@@ -123,7 +128,7 @@ export class PromptRegistry {
       hash = await sha256(payload);
     const result = await this.db
       .prepare(
-        `INSERT INTO config_versions(config_id,owner_id,revision,payload_json,content_hash,created_at) SELECT 'active-economy-prompt',?,?,?,?,? WHERE (SELECT COALESCE(MAX(revision),0) FROM config_versions WHERE owner_id=? AND config_id='active-economy-prompt')=?`,
+        `INSERT INTO config_versions(config_id,owner_id,revision,payload_json,content_hash,created_at) SELECT 'active-economy-prompt',?,?,?,?,? WHERE (SELECT COALESCE(MAX(revision),0) FROM config_versions WHERE owner_id=? AND config_id='active-economy-prompt')=? AND NOT EXISTS(SELECT 1 FROM config_versions WHERE owner_id=? AND config_id=? AND revision=1)`,
       )
       .bind(
         this.context.ownerId,
@@ -133,6 +138,8 @@ export class PromptRegistry {
         now.toISOString(),
         this.context.ownerId,
         expectedGeneration,
+        this.context.ownerId,
+        'prompt-disallowed-' + promptId + '-' + version,
       )
       .run();
     if (result.meta.changes !== 1)
@@ -170,12 +177,17 @@ export class PromptRegistry {
       snapshot.prompt_hash !== pointer.prompt_hash
     )
       throw new Error('REGISTRY_HASH_MISMATCH');
+    await new PromptUsage(this.db, this.context).requireNewUse(
+      snapshot.prompt_id,
+      snapshot.version,
+    );
     return snapshot;
   }
-  async currentFamily(family: string) {
+  async currentFamily(family: string, inspectDisallowed = false) {
     if (!familySchemas[family]) throw new Error('INVALID_PROMPT_FAMILY');
     if (this.context.kind === 'owner') this.context.requireOwner();
     else this.context.requireTask('ANALYZE');
+    if (inspectDisallowed) this.context.requireOwner();
     const pointer = await this.db
       .prepare(
         'SELECT revision,payload_json,content_hash FROM config_versions WHERE owner_id=? AND config_id=? ORDER BY revision DESC LIMIT 1',
@@ -198,6 +210,11 @@ export class PromptRegistry {
       const snapshot = await this.load(family, value.version, pointer.revision);
       if (snapshot.prompt_hash !== value.prompt_hash)
         throw new Error('REGISTRY_HASH_MISMATCH');
+      if (!inspectDisallowed)
+        await new PromptUsage(this.db, this.context).requireNewUse(
+          family,
+          snapshot.version,
+        );
       return snapshot;
     }
     // Existing registries predate family pointers. Resolve only an actually
@@ -209,6 +226,11 @@ export class PromptRegistry {
       .bind(this.context.ownerId, family)
       .first<{ version: number }>();
     if (!existing) throw new Error('PROMPT_NOT_CONFIGURED');
+    if (!inspectDisallowed)
+      await new PromptUsage(this.db, this.context).requireNewUse(
+        family,
+        existing.version,
+      );
     return this.load(family, existing.version, 0);
   }
   async load(
