@@ -2,6 +2,7 @@ import {
   assertContext,
   type AccessContext,
   type Database,
+  type Statement,
 } from '../db/boundary.js';
 import { sha256 } from '../auth/crypto.js';
 import { leasePredicate } from '../jobs/lease-guard.js';
@@ -22,6 +23,10 @@ export async function finalizeCandidateRun(
     | 'OPTIONAL_INVALID_COMPLETE',
   now: Date,
   task: 'ANALYZE' | 'TRANSLATE' | 'HISTORICAL_COMPARE' = 'ANALYZE',
+  effects?: (
+    guard: string,
+    bindings: readonly (string | number | null)[],
+  ) => Promise<Statement[]>,
 ) {
   assertContext(context);
   const invalid = reason === 'OPTIONAL_INVALID_COMPLETE';
@@ -67,6 +72,7 @@ export async function finalizeCandidateRun(
         runId,
         ...bindings,
       ),
+    ...((await effects?.(active, bindings)) ?? []),
     db
       .prepare(
         `UPDATE jobs SET state=?,reason_code=?,result_candidate_id=?,updated_at=?,lease_owner=NULL,lease_until=NULL WHERE owner_id=? AND job_id=? AND state='RUNNING' AND ${active} RETURNING job_id`,
@@ -84,7 +90,7 @@ export async function finalizeCandidateRun(
   if (
     result[0]?.meta.changes !== 1 ||
     result[1]?.meta.changes !== 1 ||
-    result[2]?.results?.length !== 1
+    result.at(-1)?.results?.length !== 1
   )
     throw new Error('STALE_FENCE');
   return {

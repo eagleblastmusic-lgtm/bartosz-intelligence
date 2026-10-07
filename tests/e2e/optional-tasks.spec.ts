@@ -207,22 +207,26 @@ test('optional tasks require preview/confirm, reuse nonce after a lost reply and
       });
     }
     if (url.pathname.endsWith('/preview')) {
-      expect(route.request().postDataJSON()).toEqual({
+      const input = route.request().postDataJSON();
+      expect(input).toEqual({
         item_id: 'item',
         task: 'TRANSLATE',
-        scope: 'SELECTED_SEGMENTS',
+        scope: input.scope === 'FULL' ? 'FULL' : 'SELECTED_SEGMENTS',
       });
       return route.fulfill({
         json: {
           preview_hash: 'f'.repeat(64),
           task: 'TRANSLATE',
           item_id: 'item',
-          token_estimate: { input_tokens: 800, output_tokens: 1000 },
+          token_estimate: {
+            input_tokens: input.scope === 'FULL' ? 4000 : 800,
+            output_tokens: input.scope === 'FULL' ? 5000 : 1000,
+          },
           quota_status: 'UNKNOWN',
-          additional_model_requests: 1,
+          additional_model_requests: input.scope === 'FULL' ? 5 : 1,
           selection_effect: 'NONE',
-          source_scope: 'SELECTED_SEGMENTS',
-          scope_count: 1,
+          source_scope: input.scope,
+          scope_count: input.scope === 'FULL' ? 10 : 1,
         },
       });
     }
@@ -384,6 +388,15 @@ test('optional tasks require preview/confirm, reuse nonce after a lost reply and
     .getByRole('button', { name: 'Potwierdź oddzielne zadanie' })
     .click();
   expect(intents[2]).toMatchObject({ preview_hash: 'e'.repeat(64) });
+  await page.getByLabel('Zakres tłumaczenia').selectOption('FULL');
+  await page.getByRole('button', { name: 'Przygotuj zakres i koszt' }).click();
+  await expect(page.getByText(/Oddzielne wywołania: 5/)).toBeVisible();
+  await expect(page.getByText(/łączny limit odpowiedzi: 5000/)).toBeVisible();
+  expect(confirms).toBe(3);
+  await page
+    .getByRole('button', { name: 'Potwierdź oddzielne zadanie' })
+    .click();
+  expect(confirms).toBe(4);
   await page.getByRole('button', { name: /Czytaj polski helper/ }).click();
   const result = page.getByRole('article', {
     name: 'Wynik zadania opcjonalnego',

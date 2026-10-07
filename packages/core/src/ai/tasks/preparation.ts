@@ -17,6 +17,10 @@ import { compileHistory, compileTranslation } from './compiler.js';
 import { loadTranslationRecovery } from './recovery-candidate.js';
 import { missingTranslationPlan } from './translation-recovery.js';
 import {
+  planTranslationChunks,
+  type TranslationChunkPolicy,
+} from './translation-chunks.js';
+import {
   OptionalAIJobs,
   type OptionalTaskSnapshot,
   type OptionalTask,
@@ -81,6 +85,7 @@ export class OptionalTaskPreparation {
       plan: await missingTranslationPlan(parent.plan, parent.mapped),
       glossary: parent.snapshot.glossary,
       selected_run_id: parent.snapshot.selected_run_id,
+      ...(parent.snapshot.chunk ? { chunk: parent.snapshot.chunk } : {}),
       recovery: {
         parent_run_id: runId,
         parent_outcome_hash: parent.outcome_hash,
@@ -97,6 +102,7 @@ export class OptionalTaskPreparation {
       await this.recovery(runId, now),
       parent.snapshot.settings,
       now,
+      parent.snapshot.chunk ? parent.snapshot.profile : undefined,
     );
   }
   async translation(
@@ -285,11 +291,12 @@ export class OptionalTaskPreparation {
       | Awaited<ReturnType<OptionalTaskPreparation['history']>>,
     settings: OptionalTaskSnapshot['settings'],
     now: Date,
+    pinnedProfile?: OptionalTaskSnapshot['profile'],
   ) {
     this.context.requireOwner();
-    const profile = await new ModelRegistry(this.db, this.context).latest(
-      'gemini_free',
-    );
+    const profile =
+      pinnedProfile ??
+      (await new ModelRegistry(this.db, this.context).latest('gemini_free'));
     if (!profile) throw new Error('MODEL_NOT_CONFIGURED');
     const family =
       prepared.task === 'TRANSLATE'
@@ -318,20 +325,61 @@ export class OptionalTaskPreparation {
       now,
       deadline: new Date(now.getTime() + 300000).toISOString(),
     };
+    const chunkPolicy: TranslationChunkPolicy = {
+      version: 'translation-chunk-policy:1',
+      max_source_bytes: Math.max(
+        1,
+        Math.min(
+          16000,
+          Math.floor(settings.max_output_tokens / 2),
+          Math.floor(profile.context_tokens / 2),
+        ),
+      ),
+      max_segments: Math.max(
+        1,
+        Math.min(100, Math.floor(settings.max_output_tokens / 128)),
+      ),
+      max_plan_bytes: 120000,
+      max_parts: 128,
+    };
+    const chunks =
+      snapshot.task === 'TRANSLATE' &&
+      !snapshot.recovery &&
+      !snapshot.chunk &&
+      settings.mode === 'PRODUCTION'
+        ? await planTranslationChunks(snapshot.plan, chunkPolicy)
+        : null;
+    const multipart = chunks && chunks.parts.length > 1 ? chunks : null;
     const compiled =
       snapshot.task === 'TRANSLATE'
         ? await compileTranslation({
             ...common,
-            plan: snapshot.plan,
+            plan: multipart?.parts[0] ?? snapshot.plan,
             glossary: snapshot.glossary,
           })
         : await compileHistory({ ...common, plan: snapshot.plan });
+    let inputTokens = compiled.token_estimate.input_tokens;
+    if (multipart && snapshot.task === 'TRANSLATE') {
+      for (const plan of multipart.parts.slice(1)) {
+        const part = await compileTranslation({
+          ...common,
+          plan,
+          glossary: snapshot.glossary,
+        });
+        inputTokens += part.token_estimate.input_tokens;
+      }
+    }
     const receipt = {
       version: 'optional-preview:1',
       prepared_at: now.toISOString(),
       snapshot,
+      ...(multipart
+        ? { chunk_policy: chunkPolicy, chunk_manifest_hash: multipart.hash }
+        : {}),
     };
     const serialized = JSON.stringify(receipt);
+    if (new TextEncoder().encode(serialized).length > 1500000)
+      throw new Error('TRANSLATION_GROUP_EXCEEDS_BUDGET');
     const hash = await sha256(serialized);
     await this.db
       .prepare(
@@ -350,10 +398,16 @@ export class OptionalTaskPreparation {
       task: snapshot.task,
       item_id: snapshot.item_id,
       profile_id: profile.profile_id,
-      token_estimate: compiled.token_estimate,
+      token_estimate: {
+        ...compiled.token_estimate,
+        input_tokens: inputTokens,
+        output_tokens:
+          compiled.token_estimate.output_tokens *
+          (multipart?.parts.length ?? 1),
+      },
       quota_remaining: null,
       quota_status: 'UNKNOWN' as const,
-      additional_model_requests: 1,
+      additional_model_requests: multipart?.parts.length ?? 1,
       selection_effect: 'NONE' as const,
       source_scope:
         snapshot.task === 'TRANSLATE'
@@ -389,12 +443,28 @@ export class OptionalTaskPreparation {
       version: string;
       prepared_at: string;
       snapshot: OptionalTaskSnapshot;
+      chunk_policy?: TranslationChunkPolicy;
+      chunk_manifest_hash?: string;
     };
     if (
       value.version !== 'optional-preview:1' ||
       value.prepared_at !== receipt.created_at
     )
       throw new Error('READ_SNAPSHOT_CHANGED');
+    if (value.chunk_policy) {
+      if (
+        value.snapshot.task !== 'TRANSLATE' ||
+        (await planTranslationChunks(value.snapshot.plan, value.chunk_policy))
+          .hash !== value.chunk_manifest_hash
+      )
+        throw new Error('READ_SNAPSHOT_CHANGED');
+      return new OptionalAIJobs(this.db, this.context).enqueueChunked(
+        value.snapshot,
+        value.chunk_policy,
+        nonce,
+        now,
+      );
+    }
     return new OptionalAIJobs(this.db, this.context).enqueue(
       value.snapshot,
       nonce,

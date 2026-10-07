@@ -205,9 +205,9 @@ export function ItemOptional({ itemId }: { itemId: string }) {
               </p>
               <p>
                 Oddzielne wywołania: {preview.additional_model_requests}.
-                Szacunek wejścia: {preview.token_estimate.input_tokens}; limit
-                odpowiedzi: {preview.token_estimate.output_tokens}. Bieżąca
-                quota: nieznana.
+                Szacunek wejścia: {preview.token_estimate.input_tokens}; łączny
+                limit odpowiedzi: {preview.token_estimate.output_tokens}.
+                Bieżąca quota: nieznana.
               </p>
               <p>
                 Potwierdzenie zapisuje zadanie; nie zmienia przyjętej analizy.

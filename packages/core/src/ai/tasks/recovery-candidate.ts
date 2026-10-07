@@ -59,6 +59,7 @@ export async function loadTranslationRecovery(
     version: string;
     task: string;
     mapped: TranslationPart['mapped'];
+    part_mapped?: TranslationPart['mapped'];
     reason?: string;
     plan_hash?: string;
   };
@@ -85,7 +86,7 @@ export async function loadTranslationRecovery(
     plan = parent.plan;
     generation = snapshot.recovery.generation;
   }
-  let mapped = outcome.mapped;
+  let mapped = snapshot.chunk ? outcome.part_mapped! : outcome.mapped;
   if (outcome.version === 'optional-invalid:1') {
     if (outcome.plan_hash !== snapshot.plan.hash || !outcome.reason)
       throw new Error('OPTIONAL_SNAPSHOT_MISMATCH');

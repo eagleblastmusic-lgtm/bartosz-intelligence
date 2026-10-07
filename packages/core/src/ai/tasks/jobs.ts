@@ -35,6 +35,15 @@ import {
   loadTranslationRecovery,
   type TranslationRecoveryRef,
 } from './recovery-candidate.js';
+import {
+  loadTranslationGroup,
+  type TranslationChunkRef,
+  type TranslationGroup,
+} from './translation-group.js';
+import {
+  planTranslationChunks,
+  type TranslationChunkPolicy,
+} from './translation-chunks.js';
 export type OptionalTask = 'TRANSLATE' | 'HISTORICAL_COMPARE';
 type TaskInput =
   | {
@@ -43,6 +52,7 @@ type TaskInput =
       glossary: { source: string; target: string }[];
       selected_run_id: string | null;
       recovery?: TranslationRecoveryRef;
+      chunk?: TranslationChunkRef;
     }
   | { task: 'HISTORICAL_COMPARE'; plan: HistoryPlan };
 export type OptionalTaskSnapshot = TaskInput & {
@@ -98,6 +108,8 @@ export class OptionalAIJobs {
     };
     await permitted(snapshot.item_id);
     if (snapshot.task === 'TRANSLATE') {
+      if (snapshot.chunk)
+        await loadTranslationGroup(this.db, this.context, snapshot);
       if (snapshot.recovery) {
         const parent = await loadTranslationRecovery(
           this.db,
@@ -112,6 +124,8 @@ export class OptionalAIJobs {
           snapshot.selected_run_id !== parent.snapshot.selected_run_id ||
           JSON.stringify(snapshot.glossary) !==
             JSON.stringify(parent.snapshot.glossary) ||
+          JSON.stringify(snapshot.chunk) !==
+            JSON.stringify(parent.snapshot.chunk) ||
           (await missingTranslationPlan(parent.plan, parent.mapped)).hash !==
             snapshot.plan.hash
         )
@@ -209,7 +223,8 @@ export class OptionalAIJobs {
       }
       if (
         plan.scope === 'SELECTED_SEGMENTS' ||
-        (snapshot.recovery && snapshot.selected_run_id !== null)
+        ((snapshot.recovery || snapshot.chunk) &&
+          snapshot.selected_run_id !== null)
       ) {
         if (!snapshot.selected_run_id)
           throw new Error('SELECTED_EVIDENCE_REQUIRED');
@@ -231,7 +246,7 @@ export class OptionalAIJobs {
         );
         if (plan.segments.some((s) => !selected.has(s.source_segment_id)))
           throw new Error('SELECTED_EVIDENCE_REQUIRED');
-      } else if (snapshot.selected_run_id !== null)
+      } else if (snapshot.selected_run_id !== null && !snapshot.chunk)
         throw new Error('INVALID_TRANSLATION_SCOPE');
     } else {
       const plan = snapshot.plan.snapshot;
@@ -399,6 +414,132 @@ export class OptionalAIJobs {
       selection_effect: 'NONE' as const,
     };
   }
+  private async chunkJob(
+    snapshot: Extract<OptionalTaskSnapshot, { task: 'TRANSLATE' }>,
+    nonce: string,
+    arrival: string,
+    now: Date,
+  ) {
+    return {
+      item_id: snapshot.item_id,
+      source_id: null,
+      task_type: 'TRANSLATE' as const,
+      input_revision: snapshot.plan.hash,
+      profile_revision: await sha256(JSON.stringify(snapshot)),
+      prompt_snapshot_id: snapshot.prompt.prompt_hash,
+      routing_policy_version: 'optional-selector:1',
+      wire_schema_version: snapshot.prompt.wire.id.replace(
+        'urn:bartosz:schema:',
+        '',
+      ),
+      canonical_schema_version: snapshot.prompt.canonical.id.replace(
+        'urn:bartosz:schema:',
+        '',
+      ),
+      enrichment_version: '1.0',
+      explicit_run_nonce: nonce,
+      arrival_origin_at: arrival,
+      origin_kind: 'MANUAL' as const,
+      payload: { snapshot },
+      priority: 20,
+      due_at: now.toISOString(),
+    };
+  }
+  async enqueueChunked(
+    snapshot: Extract<OptionalTaskSnapshot, { task: 'TRANSLATE' }>,
+    policy: TranslationChunkPolicy,
+    nonce: string,
+    now: Date,
+  ) {
+    this.context.requireOwner();
+    if (
+      !/^[a-f0-9-]{36}$/.test(nonce) ||
+      snapshot.chunk ||
+      snapshot.recovery ||
+      snapshot.settings.mode !== 'PRODUCTION'
+    )
+      throw new Error('INVALID_OPTIONAL_JOB');
+    await this.references(snapshot);
+    await this.pins(snapshot);
+    const chunks = await planTranslationChunks(snapshot.plan, policy);
+    if (chunks.parts.length < 2) throw new Error('INVALID_TRANSLATION_GROUP');
+    for (const plan of chunks.parts)
+      await this.compile({ ...snapshot, plan }, 'preview', now);
+    const group: TranslationGroup = {
+      version: 'translation-group:1',
+      owner_id: this.context.ownerId,
+      nonce,
+      root: snapshot,
+      policy,
+      manifest_hash: chunks.hash,
+    };
+    const serialized = JSON.stringify(group),
+      hash = await sha256(serialized);
+    if (new TextEncoder().encode(serialized).length > 1500000)
+      throw new Error('TRANSLATION_GROUP_EXCEEDS_BUDGET');
+    const first = {
+      ...snapshot,
+      plan: chunks.parts[0]!,
+      chunk: {
+        group_hash: hash,
+        index: 0,
+        previous_run_id: null,
+        previous_outcome_hash: null,
+      },
+    };
+    const prepared = await new JobStore(this.db, this.context).prepareEnqueue(
+      await this.chunkJob(first, nonce, now.toISOString(), now),
+      now.toISOString(),
+      {
+        predicate:
+          'EXISTS(SELECT 1 FROM config_versions WHERE owner_id=? AND config_id=? AND revision=1 AND content_hash=?)',
+        bindings: [this.context.ownerId, 'optional-action-' + nonce, hash],
+      },
+    );
+    await this.db.batch([
+      this.db
+        .prepare(
+          'INSERT INTO config_versions(config_id,owner_id,revision,payload_json,content_hash,created_at) VALUES(?,?,1,?,?,?) ON CONFLICT DO NOTHING',
+        )
+        .bind(
+          'optional-action-' + nonce,
+          this.context.ownerId,
+          serialized,
+          hash,
+          now.toISOString(),
+        ),
+      this.db
+        .prepare(
+          'INSERT INTO config_versions(config_id,owner_id,revision,payload_json,content_hash,created_at) VALUES(?,?,1,?,?,?) ON CONFLICT DO NOTHING',
+        )
+        .bind(
+          'translation-group-' + hash,
+          this.context.ownerId,
+          serialized,
+          hash,
+          now.toISOString(),
+        ),
+      ...prepared.statements,
+    ]);
+    const intent = await this.db
+      .prepare(
+        'SELECT content_hash FROM config_versions WHERE owner_id=? AND config_id=? AND revision=1',
+      )
+      .bind(this.context.ownerId, 'optional-action-' + nonce)
+      .first<string>('content_hash');
+    if (intent !== hash) throw new Error('IDEMPOTENCY_CONFLICT');
+    const job = await this.db
+      .prepare('SELECT job_id FROM jobs WHERE owner_id=? AND dedup_key=?')
+      .bind(this.context.ownerId, prepared.dedup_key)
+      .first<{ job_id: string }>();
+    if (!job) throw new Error('INVALID_TRANSLATION_GROUP');
+    return {
+      ...job,
+      group_hash: hash,
+      additional_model_requests: chunks.parts.length,
+      selection_effect: 'NONE' as const,
+    };
+  }
   async prepare(token: LeaseToken, task: OptionalTask, now: Date) {
     this.context.requireTask(task);
     const guard = leasePredicate(this.context, token, now.toISOString(), task);
@@ -440,7 +581,12 @@ export class OptionalAIJobs {
             snapshot.recovery.parent_run_id,
           )
         : null;
-    const resultPlan = recovery?.plan ?? snapshot.plan;
+    const group =
+      snapshot.task === 'TRANSLATE' && snapshot.chunk
+        ? await loadTranslationGroup(this.db, this.context, snapshot)
+        : null;
+    const resultPlan =
+      group?.group.root.plan ?? recovery?.plan ?? snapshot.plan;
     await this.db
       .prepare(
         `INSERT INTO analysis_runs(run_id,owner_id,item_id,job_id,input_snapshot_json,profile_snapshot_json,prompt_snapshot_json,wire_schema_version,canonical_schema_version,enrichment_version,routing_snapshot_json,state,created_at) SELECT ?,owner_id,item_id,job_id,?,?,?,wire_schema_version,canonical_schema_version,'1.0',?,'CANDIDATE',? FROM jobs WHERE owner_id=? AND job_id=? AND ${guard.predicate} ON CONFLICT(run_id) DO NOTHING`,
@@ -637,6 +783,14 @@ export class OptionalAIJobs {
       | Awaited<ReturnType<typeof mapTranslation>>
       | Awaited<ReturnType<typeof mapHistory>>
       | Awaited<ReturnType<typeof composeTranslations>>;
+    let translatedPart:
+      | Awaited<ReturnType<typeof mapTranslation>>
+      | Awaited<ReturnType<typeof composeTranslations>>
+      | null = null;
+    const group =
+      snapshot.task === 'TRANSLATE' && snapshot.chunk
+        ? await loadTranslationGroup(this.db, this.context, snapshot)
+        : null;
     try {
       mapped =
         snapshot.task === 'TRANSLATE'
@@ -654,6 +808,17 @@ export class OptionalAIJobs {
             plan: snapshot.plan,
             mapped: mapped as Awaited<ReturnType<typeof mapTranslation>>,
           },
+        ]);
+      }
+      if (
+        snapshot.task === 'TRANSLATE' &&
+        group &&
+        mapped.canonical.status === 'OK'
+      ) {
+        translatedPart = mapped as Awaited<ReturnType<typeof mapTranslation>>;
+        mapped = await composeTranslations(group.group.root.plan, [
+          ...(group.previous ? [group.previous] : []),
+          { plan: group.part, mapped: translatedPart },
         ]);
       }
     } catch (error) {
@@ -715,24 +880,67 @@ export class OptionalAIJobs {
       snapshot.settings.mode === 'QUALITY_TEST' ||
       ('coverage' in mapped && !mapped.coverage.complete) ||
       mapped.canonical.status === 'REFUSED'
-    )
+    ) {
+      const value = {
+        version: 'optional-candidate:1',
+        task,
+        mapped,
+        response_artifact_id: candidateId,
+        ...(group && translatedPart
+          ? {
+              part_mapped: translatedPart,
+              part_complete: translatedPart.coverage.complete,
+              chunk: snapshot.task === 'TRANSLATE' ? snapshot.chunk : null,
+            }
+          : {}),
+      };
+      const outcomeHash = await sha256(JSON.stringify(value));
       return finalizeCandidateRun(
         this.db,
         this.context,
         token,
         runId,
-        {
-          version: 'optional-candidate:1',
-          task,
-          mapped,
-          response_artifact_id: candidateId,
-        },
+        value,
         snapshot.settings.mode === 'QUALITY_TEST'
           ? 'QUALITY_TEST_COMPLETE'
           : 'OPTIONAL_PARTIAL_COMPLETE',
         current(),
         task,
+        group &&
+          translatedPart?.coverage.complete &&
+          snapshot.task === 'TRANSLATE' &&
+          snapshot.settings.mode === 'PRODUCTION'
+          ? async (guard, bindings) => {
+              const index = snapshot.chunk!.index + 1,
+                plan = group.chunks.parts[index];
+              if (!plan) throw new Error('INVALID_TRANSLATION_GROUP');
+              const next = {
+                ...group.group.root,
+                plan,
+                chunk: {
+                  group_hash: snapshot.chunk!.group_hash,
+                  index,
+                  previous_run_id: runId,
+                  previous_outcome_hash: outcomeHash,
+                },
+              };
+              const key = await sha256(
+                snapshot.chunk!.group_hash + ':' + index,
+              );
+              const nonce = `${key.slice(0, 8)}-${key.slice(8, 12)}-${key.slice(12, 16)}-${key.slice(16, 20)}-${key.slice(20, 32)}`;
+              const prepared = await new JobStore(
+                this.db,
+                this.context,
+              ).prepareEnqueue(
+                await this.chunkJob(next, nonce, group.created_at, current()),
+                current().toISOString(),
+                { predicate: guard, bindings },
+              );
+              return prepared.statements;
+            }
+          : undefined,
       );
+    }
     const write = async (
       text: string,
       kind: ArtifactKind,
@@ -758,6 +966,9 @@ export class OptionalAIJobs {
             request_plan_hash: snapshot.plan.hash,
             ...(snapshot.task === 'TRANSLATE' && snapshot.recovery
               ? { recovery: snapshot.recovery }
+              : {}),
+            ...(snapshot.task === 'TRANSLATE' && snapshot.chunk
+              ? { chunk: snapshot.chunk }
               : {}),
             response_artifact_id: candidateId,
             semantic_verification: 'NOT_ASSERTED',
@@ -847,6 +1058,9 @@ export class OptionalAIJobs {
             : 0,
       },
       semantic_verification: 'NOT_ASSERTED',
+      ...(snapshot.task === 'TRANSLATE' && snapshot.chunk
+        ? { chunk: snapshot.chunk, additional_synthesis_requests: 0 }
+        : {}),
     };
     return new RunRepository(this.db, this.context).complete(
       token,

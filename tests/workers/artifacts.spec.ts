@@ -1,6 +1,7 @@
 import { env } from 'cloudflare:workers';
 import { QuotaSnapshots } from '../../packages/core/src/ai/quota-snapshots.js';
 import { verifyOptionalTranslation } from './optional-task-fixture.js';
+import { verifyMultipartTranslation } from './optional-translation-chunks-fixture.js';
 import { verifyOptionalHistory } from './optional-history-fixture.js';
 import { verifyCorrectedInput } from './corrected-input-fixture.js';
 import {
@@ -730,6 +731,7 @@ it.each([
   'CHUNK_PRODUCTION',
   'CHUNK_FULL_PRODUCTION',
   'OPTIONAL_TRANSLATION',
+  'MULTIPART_TRANSLATION',
   'CUSTOM_PRODUCTION',
   'PRODUCTION',
   'RATE_LIMITED',
@@ -754,11 +756,16 @@ it.each([
         : 'QUALITY_TEST';
     const { item, token, access, repository, owner } = await setup();
     const sourceText =
-        scenario === 'CHUNK_LARGE'
-          ? 'Original statement. '.repeat(8000).trim()
-          : scenario === 'CHUNKED'
-            ? 'Original statement. '.repeat(40).trim()
-            : 'Original statement.',
+        scenario === 'MULTIPART_TRANSLATION'
+          ? Array.from(
+              { length: 10 },
+              (_, i) => `Original statement ${i}.`,
+            ).join('\n')
+          : scenario === 'CHUNK_LARGE'
+            ? 'Original statement. '.repeat(8000).trim()
+            : scenario === 'CHUNKED'
+              ? 'Original statement. '.repeat(40).trim()
+              : 'Original statement.',
       revision = await sha256(sourceText);
     const track = {
       track_id: 'native-en',
@@ -851,15 +858,23 @@ it.each([
       source = await upload('SOURCE_ORIGINAL', sourceText, null);
     const sourceNormalized = await normalizeTranscript(
       revision,
-      [
-        {
-          upstream_index: 0,
-          text: sourceText,
-          start_ms: 0,
-          end_ms: 1500,
-          speaker_label: null,
-        },
-      ],
+      scenario === 'MULTIPART_TRANSLATION'
+        ? sourceText.split('\n').map((text, i) => ({
+            upstream_index: i,
+            text,
+            start_ms: i * 2000,
+            end_ms: i * 2000 + 1500,
+            speaker_label: null,
+          }))
+        : [
+            {
+              upstream_index: 0,
+              text: sourceText,
+              start_ms: 0,
+              end_ms: 1500,
+              speaker_label: null,
+            },
+          ],
       'CUE',
       scenario === 'CHUNKED' ? 8 : 8192,
     );
@@ -970,8 +985,15 @@ it.each([
     };
     const models = new ModelRegistry(env.DB, owner);
     await models.publish(profile, fixtureNow);
-    if (scenario === 'OPTIONAL_TRANSLATION') {
-      await verifyOptionalTranslation(
+    if (
+      scenario === 'OPTIONAL_TRANSLATION' ||
+      scenario === 'MULTIPART_TRANSLATION'
+    ) {
+      await (
+        scenario === 'MULTIPART_TRANSLATION'
+          ? verifyMultipartTranslation
+          : verifyOptionalTranslation
+      )(
         env.DB,
         owner,
         item.item_id,
