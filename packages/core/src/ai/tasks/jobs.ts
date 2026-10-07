@@ -26,6 +26,14 @@ import { finalizeCandidateRun } from '../candidate-finalization.js';
 import { compileTranslation, compileHistory } from './compiler.js';
 import { mapTranslation, type TranslationPlan } from './translation.js';
 import { mapHistory, historyPlan, type HistoryPlan } from './history.js';
+import {
+  composeTranslations,
+  missingTranslationPlan,
+} from './translation-recovery.js';
+import {
+  loadTranslationRecovery,
+  type TranslationRecoveryRef,
+} from './recovery-candidate.js';
 export type OptionalTask = 'TRANSLATE' | 'HISTORICAL_COMPARE';
 type TaskInput =
   | {
@@ -33,6 +41,7 @@ type TaskInput =
       plan: TranslationPlan;
       glossary: { source: string; target: string }[];
       selected_run_id: string | null;
+      recovery?: TranslationRecoveryRef;
     }
   | { task: 'HISTORICAL_COMPARE'; plan: HistoryPlan };
 export type OptionalTaskSnapshot = TaskInput & {
@@ -88,6 +97,25 @@ export class OptionalAIJobs {
     };
     await permitted(snapshot.item_id);
     if (snapshot.task === 'TRANSLATE') {
+      if (snapshot.recovery) {
+        const parent = await loadTranslationRecovery(
+          this.db,
+          this.context,
+          snapshot.recovery.parent_run_id,
+        );
+        if (
+          parent.outcome_hash !== snapshot.recovery.parent_outcome_hash ||
+          snapshot.recovery.generation !== parent.generation + 1 ||
+          snapshot.recovery.generation > 3 ||
+          snapshot.item_id !== parent.snapshot.item_id ||
+          snapshot.selected_run_id !== parent.snapshot.selected_run_id ||
+          JSON.stringify(snapshot.glossary) !==
+            JSON.stringify(parent.snapshot.glossary) ||
+          (await missingTranslationPlan(parent.plan, parent.mapped)).hash !==
+            snapshot.plan.hash
+        )
+          throw new Error('OPTIONAL_SNAPSHOT_MISMATCH');
+      }
       const plan = snapshot.plan.snapshot;
       const pair = await this.db
         .prepare(
@@ -178,7 +206,10 @@ export class OptionalAIJobs {
           throw new Error('OPTIONAL_MANIFEST_MISMATCH');
         last = index;
       }
-      if (plan.scope === 'SELECTED_SEGMENTS') {
+      if (
+        plan.scope === 'SELECTED_SEGMENTS' ||
+        (snapshot.recovery && snapshot.selected_run_id !== null)
+      ) {
         if (!snapshot.selected_run_id)
           throw new Error('SELECTED_EVIDENCE_REQUIRED');
         const rows = await this.db
@@ -400,19 +431,32 @@ export class OptionalAIJobs {
         }),
       ));
     const compiled = await this.compile(snapshot, runId, now);
+    const recovery =
+      snapshot.task === 'TRANSLATE' && snapshot.recovery
+        ? await loadTranslationRecovery(
+            this.db,
+            this.context,
+            snapshot.recovery.parent_run_id,
+          )
+        : null;
+    const resultPlan = recovery?.plan ?? snapshot.plan;
     await this.db
       .prepare(
         `INSERT INTO analysis_runs(run_id,owner_id,item_id,job_id,input_snapshot_json,profile_snapshot_json,prompt_snapshot_json,wire_schema_version,canonical_schema_version,enrichment_version,routing_snapshot_json,state,created_at) SELECT ?,owner_id,item_id,job_id,?,?,?,wire_schema_version,canonical_schema_version,'1.0',?,'CANDIDATE',? FROM jobs WHERE owner_id=? AND job_id=? AND ${guard.predicate} ON CONFLICT(run_id) DO NOTHING`,
       )
       .bind(
         runId,
-        JSON.stringify(snapshot.plan),
+        JSON.stringify(resultPlan),
         JSON.stringify(snapshot.profile),
         JSON.stringify(snapshot.prompt),
         JSON.stringify({
           settings: snapshot.settings,
           quality_scope: compiled.request.quality_scope,
           snapshot_hash: row.profile_revision,
+          request_plan_hash: snapshot.plan.hash,
+          ...(snapshot.task === 'TRANSLATE' && snapshot.recovery
+            ? { recovery: snapshot.recovery }
+            : {}),
         }),
         now.toISOString(),
         this.context.ownerId,
@@ -581,12 +625,27 @@ export class OptionalAIJobs {
     };
     let mapped:
       | Awaited<ReturnType<typeof mapTranslation>>
-      | Awaited<ReturnType<typeof mapHistory>>;
+      | Awaited<ReturnType<typeof mapHistory>>
+      | Awaited<ReturnType<typeof composeTranslations>>;
     try {
       mapped =
         snapshot.task === 'TRANSLATE'
           ? await mapTranslation(snapshot.plan, response)
           : await mapHistory(snapshot.plan, response);
+      if (snapshot.task === 'TRANSLATE' && snapshot.recovery) {
+        const parent = await loadTranslationRecovery(
+          this.db,
+          this.context,
+          snapshot.recovery.parent_run_id,
+        );
+        mapped = await composeTranslations(parent.plan, [
+          { plan: parent.plan, mapped: parent.mapped },
+          {
+            plan: snapshot.plan,
+            mapped: mapped as Awaited<ReturnType<typeof mapTranslation>>,
+          },
+        ]);
+      }
     } catch (error) {
       // Only deterministic output failures are terminal. Internal plan/hash failures
       // must retain their original error for recovery instead of concealing a bug.
@@ -684,7 +743,11 @@ export class OptionalAIJobs {
           original_ref: original,
           provenance: {
             run_id: runId,
-            plan_hash: snapshot.plan.hash,
+            plan_hash: mapped.plan_hash,
+            request_plan_hash: snapshot.plan.hash,
+            ...(snapshot.task === 'TRANSLATE' && snapshot.recovery
+              ? { recovery: snapshot.recovery }
+              : {}),
             response_artifact_id: candidateId,
             semantic_verification: 'NOT_ASSERTED',
           },
@@ -754,7 +817,8 @@ export class OptionalAIJobs {
       version: 'optional-accepted:1',
       response_artifact_id: candidateId,
       task,
-      plan_hash: snapshot.plan.hash,
+      plan_hash: translated?.plan_hash ?? snapshot.plan.hash,
+      request_plan_hash: snapshot.plan.hash,
       canonical_artifact_id: canonicalId,
       canonical_hash: mapped.canonical_hash,
       helper_artifact_id: helperId,
@@ -791,7 +855,7 @@ export class OptionalAIJobs {
             snapshot.item_id,
             runId,
             task,
-            snapshot.plan.hash,
+            outcome.plan_hash,
             canonicalId,
             mapped.canonical_hash,
             helperId,

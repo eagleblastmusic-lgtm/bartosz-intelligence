@@ -13,6 +13,13 @@ type Capabilities = {
 };
 type Results = {
   results: { run_id: string; task_type: Task; created_at: string }[];
+  recoveries?: {
+    run_id: string;
+    generation: number;
+    expected: number | null;
+    translated: number | null;
+    reason_code?: string;
+  }[];
 };
 export function ItemOptional({ itemId }: { itemId: string }) {
   const [selectedRun, setSelectedRun] = useState<string | null>(null);
@@ -61,7 +68,7 @@ export function ItemOptional({ itemId }: { itemId: string }) {
       });
     return () => controller.abort();
   }, [open, itemId]);
-  async function prepare() {
+  async function prepare(recoveryRunId?: string) {
     if (busy) return;
     setBusy(true);
     setError('');
@@ -69,11 +76,16 @@ export function ItemOptional({ itemId }: { itemId: string }) {
     setPreview(null);
     intent.current = null;
     try {
-      const result = await api<Preview>('/optional/preview', {
-        item_id: itemId,
-        task,
-        scope: task === 'TRANSLATE' ? scope : null,
-      });
+      const result = await api<Preview>(
+        recoveryRunId ? '/optional/recovery/preview' : '/optional/preview',
+        recoveryRunId
+          ? { run_id: recoveryRunId }
+          : {
+              item_id: itemId,
+              task,
+              scope: task === 'TRANSLATE' ? scope : null,
+            },
+      );
       setPreview(result);
       intent.current = {
         preview_hash: result.preview_hash,
@@ -186,7 +198,9 @@ export function ItemOptional({ itemId }: { itemId: string }) {
                   ? 'całe źródło'
                   : preview.source_scope === 'SELECTED_SEGMENTS'
                     ? 'segmenty przyjętych dowodów'
-                    : 'ograniczona historia tego samego kanału'}{' '}
+                    : preview.source_scope === 'CHUNK'
+                      ? 'brakujące segmenty źródła'
+                      : 'ograniczona historia tego samego kanału'}{' '}
                 · liczba pozycji: {preview.scope_count}.
               </p>
               <p>
@@ -227,6 +241,27 @@ export function ItemOptional({ itemId }: { itemId: string }) {
                 : 'Czytaj porównanie historii'}{' '}
               · {new Date(result.created_at).toLocaleString('pl-PL')}
             </button>
+          ))}
+          {results?.recoveries?.map((recovery) => (
+            <div key={recovery.run_id} className="notice">
+              <p>
+                {recovery.reason_code === 'OPTIONAL_INVALID_COMPLETE'
+                  ? 'Niepoprawna odpowiedź została odrzucona. Ponowienie obejmie segmenty bez poprawnego tłumaczenia; historyczny błąd pozostanie zapisany.'
+                  : `Częściowe tłumaczenie: ${recovery.translated} z ${recovery.expected} segmentów. Poprawne fragmenty zostaną zachowane.`}{' '}
+                Ponowienia: {recovery.generation} z 3.
+              </p>
+              <button
+                disabled={
+                  busy ||
+                  recovery.generation >= 3 ||
+                  !capabilities?.tasks.find((t) => t.task === 'TRANSLATE')
+                    ?.preview_available
+                }
+                onClick={() => void prepare(recovery.run_id)}
+              >
+                Przygotuj ponowienie brakujących segmentów
+              </button>
+            </div>
           ))}
           {selectedRun && (
             <OptionalResult

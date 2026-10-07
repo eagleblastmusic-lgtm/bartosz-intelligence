@@ -146,6 +146,10 @@ test('optional tasks require preview/confirm, reuse nonce after a lost reply and
     if (url.pathname.includes('/results/'))
       return route.fulfill({
         json: {
+          recoveries: [
+            { run_id: 'partial', generation: 0, expected: 2, translated: 1 },
+            { run_id: 'exhausted', generation: 3, expected: 2, translated: 1 },
+          ],
           results: [
             {
               run_id: 'translation',
@@ -160,6 +164,23 @@ test('optional tasks require preview/confirm, reuse nonce after a lost reply and
           ],
         },
       });
+    if (url.pathname === '/api/v1/optional/recovery/preview') {
+      expect(route.request().postDataJSON()).toEqual({ run_id: 'partial' });
+      expect(route.request().headers()['x-csrf-token']).toBe('fixture-csrf');
+      return route.fulfill({
+        json: {
+          preview_hash: 'e'.repeat(64),
+          task: 'TRANSLATE',
+          item_id: 'item',
+          token_estimate: { input_tokens: 400, output_tokens: 1000 },
+          quota_status: 'UNKNOWN',
+          additional_model_requests: 1,
+          selection_effect: 'NONE',
+          source_scope: 'CHUNK',
+          scope_count: 1,
+        },
+      });
+    }
     if (url.pathname.endsWith('/preview')) {
       expect(route.request().postDataJSON()).toEqual({
         item_id: 'item',
@@ -325,6 +346,19 @@ test('optional tasks require preview/confirm, reuse nonce after a lost reply and
     page.getByText(/Zadanie zapisano w trwałej kolejce/),
   ).toBeVisible();
   expect(intents[0]).toEqual(intents[1]);
+  const recoverButtons = page.getByRole('button', {
+    name: 'Przygotuj ponowienie brakujących segmentów',
+  });
+  await expect(recoverButtons.nth(1)).toBeDisabled();
+  await recoverButtons.nth(0).click();
+  await expect(
+    page.getByText(/Zakres: brakujące segmenty źródła/),
+  ).toBeVisible();
+  expect(confirms).toBe(2);
+  await page
+    .getByRole('button', { name: 'Potwierdź oddzielne zadanie' })
+    .click();
+  expect(intents[2]).toMatchObject({ preview_hash: 'e'.repeat(64) });
   await page.getByRole('button', { name: /Czytaj polski helper/ }).click();
   const result = page.getByRole('article', {
     name: 'Wynik zadania opcjonalnego',

@@ -19,6 +19,10 @@ import {
 import type { PromptSnapshot } from '../../packages/core/src/registry/store.js';
 import type { PipelineProfile } from '../../packages/contracts/src/ai.js';
 import bundle from '../../config/registry/master-bundle.json';
+import {
+  missingTranslationPlan,
+  composeTranslations,
+} from '../../packages/core/src/ai/tasks/translation-recovery.js';
 async function fixture() {
   const text = 'I did not use Tool X at 12%.\nIf unclear, do not guess.';
   return {
@@ -48,6 +52,98 @@ async function fixture() {
     )),
   };
 }
+it('retries only missing original segments and composes complete helper without an extra model pass', async () => {
+  const source = await fixture(),
+    parent = await translationPlan(source, 'FULL');
+  const partial = await mapTranslation(parent, {
+    status: 'OK',
+    raw_output: JSON.stringify({
+      status: 'OK',
+      translated_segments: [
+        {
+          segment_ref: 's1',
+          text_pl: 'Nie użyłem narzędzia przy 12%.',
+          issues: [],
+        },
+      ],
+      limitations_pl: ['Drugi segment nie został zwrócony.'],
+    }),
+  });
+  const retry = await missingTranslationPlan(parent, partial);
+  expect(retry.snapshot.segments.map((s) => s.source_segment_id)).toEqual([
+    parent.snapshot.segments[1]!.source_segment_id,
+  ]);
+  expect(retry.snapshot.segments[0]).toMatchObject({
+    alias: 's1',
+    text: 'If unclear, do not guess.',
+    start_ms: null,
+    end_ms: null,
+  });
+  const recovered = await mapTranslation(retry, {
+    status: 'OK',
+    raw_output: JSON.stringify({
+      status: 'OK',
+      translated_segments: [
+        { segment_ref: 's1', text_pl: 'Gdy niejasne, nie zgaduj.', issues: [] },
+      ],
+      limitations_pl: ['Niejasne brzmienie źródła.'],
+    }),
+  });
+  const parts = [
+    { plan: parent, mapped: partial },
+    { plan: retry, mapped: recovered },
+  ];
+  const result = await composeTranslations(parent, parts);
+  expect(result.coverage).toMatchObject({
+    expected: 2,
+    translated: 2,
+    complete: true,
+    missing_segment_ids: [],
+  });
+  expect(result.canonical.scope).toBe('FULL');
+  expect(result.helper_text).toBe(
+    'Nie użyłem narzędzia przy 12%.\nGdy niejasne, nie zgaduj.',
+  );
+  expect(result.mappings.map((m) => [m.start_ms, m.end_ms])).toEqual([
+    [1000, 2000],
+    [null, null],
+  ]);
+  expect(result.repair_report.result).toBe('DETERMINISTIC_TRANSLATION_MERGE');
+  expect(
+    (await composeTranslations(parent, [...parts].reverse())).canonical_hash,
+  ).toBe(result.canonical_hash);
+  expect(
+    (await composeTranslations(parent, [...parts].reverse())).repair_report,
+  ).toEqual(result.repair_report);
+  const changedPart = structuredClone(parts[1]!);
+  changedPart.plan.snapshot.segments[0]!.start_ms = 123;
+  changedPart.plan.hash = await sha256(
+    JSON.stringify(changedPart.plan.snapshot),
+  );
+  changedPart.mapped.plan_hash = changedPart.plan.hash;
+  await expect(
+    composeTranslations(parent, [parts[0]!, changedPart]),
+  ).rejects.toThrow('TRANSLATION_RECOVERY_PART_MISMATCH');
+  await expect(
+    composeTranslations(parent, [parts[0]!, parts[0]!]),
+  ).rejects.toThrow('DUPLICATE_TRANSLATION_RECOVERY_SEGMENT');
+  await expect(
+    missingTranslationPlan(
+      parent,
+      await mapTranslation(parent, {
+        status: 'OK',
+        raw_output: JSON.stringify({
+          status: 'OK',
+          translated_segments: [
+            { segment_ref: 's1', text_pl: 'Jeden.', issues: [] },
+            { segment_ref: 's2', text_pl: 'Dwa.', issues: [] },
+          ],
+          limitations_pl: [],
+        }),
+      }),
+    ),
+  ).rejects.toThrow('TRANSLATION_RECOVERY_NOT_NEEDED');
+});
 const response = (segments: unknown[], status = 'OK') => ({
   status: 'OK' as const,
   raw_output: JSON.stringify({

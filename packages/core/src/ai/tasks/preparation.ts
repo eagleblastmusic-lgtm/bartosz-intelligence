@@ -14,6 +14,8 @@ import type { normalizeTranscript } from '../../transcript/normalize.js';
 import type { enrichEconomy } from '../enrichment/canonical.js';
 import { validateCanonical } from '../repair/validate.js';
 import { compileHistory, compileTranslation } from './compiler.js';
+import { loadTranslationRecovery } from './recovery-candidate.js';
+import { missingTranslationPlan } from './translation-recovery.js';
 import {
   OptionalAIJobs,
   type OptionalTaskSnapshot,
@@ -65,6 +67,35 @@ export class OptionalTaskPreparation {
         region: 'PL',
         max_output_tokens: Math.min(8000, profile.output_tokens),
       },
+      now,
+    );
+  }
+  async recovery(runId: string, now: Date) {
+    this.context.requireOwner();
+    const parent = await loadTranslationRecovery(this.db, this.context, runId);
+    if (parent.generation >= 3)
+      throw new Error('TRANSLATION_RECOVERY_EXHAUSTED');
+    return {
+      item_id: parent.snapshot.item_id,
+      task: 'TRANSLATE' as const,
+      plan: await missingTranslationPlan(parent.plan, parent.mapped),
+      glossary: parent.snapshot.glossary,
+      selected_run_id: parent.snapshot.selected_run_id,
+      recovery: {
+        parent_run_id: runId,
+        parent_outcome_hash: parent.outcome_hash,
+        generation: parent.generation + 1,
+      },
+      prepared_at: now.toISOString(),
+    };
+  }
+  async previewRecovery(runId: string, now: Date) {
+    const parent = await loadTranslationRecovery(this.db, this.context, runId);
+    if (parent.snapshot.settings.mode !== 'PRODUCTION')
+      throw new Error('TRANSLATION_RECOVERY_NOT_AVAILABLE');
+    return this.preview(
+      await this.recovery(runId, now),
+      parent.snapshot.settings,
       now,
     );
   }
@@ -250,6 +281,7 @@ export class OptionalTaskPreparation {
   async preview(
     prepared:
       | Awaited<ReturnType<OptionalTaskPreparation['translation']>>
+      | Awaited<ReturnType<OptionalTaskPreparation['recovery']>>
       | Awaited<ReturnType<OptionalTaskPreparation['history']>>,
     settings: OptionalTaskSnapshot['settings'],
     now: Date,

@@ -68,7 +68,7 @@ export async function verifyOptionalTranslation(
   await models.publish(profile, fixtureNow);
   const plan = await translationPlan(source, 'FULL');
   const ownerJobs = new OptionalAIJobs(db, owner);
-  let snapshot: OptionalTaskSnapshot = {
+  let snapshot: Extract<OptionalTaskSnapshot, { task: 'TRANSLATE' }> = {
     version: 'optional-ai-job:1',
     item_id: itemId,
     task: 'TRANSLATE',
@@ -102,12 +102,86 @@ export async function verifyOptionalTranslation(
   const selections = await db
     .prepare('SELECT * FROM active_analysis_selections')
     .all();
+  let partialRunId = '';
+  let invalidRunId = '';
+  let requestIndex = 0;
   for (const mode of [
     'QUALITY_TEST',
     'PRODUCTION',
     'INVALID',
     'PARTIAL',
+    'RECOVERY',
+    'INVALID_RECOVERY',
   ] as const) {
+    // Each synthetic request uses a separate minute; preserve the real 5 RPM admission rule.
+    const requestNow = new Date(fixtureNow.getTime() + requestIndex++ * 60000);
+    if (mode === 'RECOVERY' || mode === 'INVALID_RECOVERY') {
+      const parentRunId = mode === 'RECOVERY' ? partialRunId : invalidRunId;
+      const preparation = new OptionalTaskPreparation(db, owner);
+      await expect(
+        new OptionalTaskPreparation(db, await fixtureOwner('b')).recovery(
+          parentRunId,
+          requestNow,
+        ),
+      ).rejects.toThrow('TRANSLATION_RECOVERY_NOT_AVAILABLE');
+      const recovery = await preparation.recovery(parentRunId, requestNow);
+      expect(recovery.plan.snapshot.scope).toBe('CHUNK');
+      expect(
+        recovery.plan.snapshot.segments.map((s) => s.source_segment_id),
+      ).toEqual(plan.snapshot.segments.map((s) => s.source_segment_id));
+      const compiled = await compileTranslation({
+        ...snapshot.settings,
+        mode: 'QUALITY_TEST',
+        profile: snapshot.profile,
+        prompt,
+        plan: recovery.plan,
+        glossary: [],
+        request_id: 'recovery-scope',
+        now: requestNow,
+        deadline: new Date(requestNow.getTime() + 300000).toISOString(),
+      });
+      const approved = {
+        ...snapshot.profile,
+        revision: mode === 'RECOVERY' ? 5 : 6,
+        quality_approvals: [
+          ...snapshot.profile.quality_approvals,
+          compiled.request.quality_scope,
+        ],
+      };
+      await models.publish(approved, requestNow);
+      const preview = await preparation.previewRecovery(
+        parentRunId,
+        requestNow,
+      );
+      expect(preview).toMatchObject({
+        source_scope: 'CHUNK',
+        additional_model_requests: 1,
+        quota_status: 'UNKNOWN',
+        selection_effect: 'NONE',
+      });
+      const confirmed = await preparation.confirm(
+        preview.preview_hash,
+        crypto.randomUUID(),
+        requestNow,
+      );
+      const queued = await db
+        .prepare('SELECT payload_json FROM jobs WHERE job_id=?')
+        .bind(confirmed.job_id!)
+        .first<{ payload_json: string }>();
+      const recovered = (
+        JSON.parse(queued!.payload_json) as { snapshot: OptionalTaskSnapshot }
+      ).snapshot;
+      if (recovered.task !== 'TRANSLATE')
+        throw new Error('FIXTURE_TASK_MISMATCH');
+      snapshot = recovered;
+      await expect(
+        ownerJobs.enqueue(
+          { ...snapshot, recovery: { ...snapshot.recovery!, generation: 4 } },
+          crypto.randomUUID(),
+          requestNow,
+        ),
+      ).rejects.toThrow('OPTIONAL_SNAPSHOT_MISMATCH');
+    }
     if (mode === 'PRODUCTION') {
       const compiled = await compileTranslation({
         ...snapshot.settings,
@@ -117,15 +191,15 @@ export async function verifyOptionalTranslation(
         plan,
         glossary: [],
         request_id: 'scope',
-        now: fixtureNow,
-        deadline: new Date(fixtureNow.getTime() + 300000).toISOString(),
+        now: requestNow,
+        deadline: new Date(requestNow.getTime() + 300000).toISOString(),
       });
       const approved = {
         ...profile,
         revision: 4,
         quality_approvals: [compiled.request.quality_scope],
       };
-      await models.publish(approved, fixtureNow);
+      await models.publish(approved, requestNow);
       // Fixture-only lifecycle/quality approval, never a real provider qualification.
       await db
         .prepare(
@@ -144,14 +218,14 @@ export async function verifyOptionalTranslation(
           plan,
           glossary: [],
           selected_run_id: null,
-          prepared_at: fixtureNow.toISOString(),
+          prepared_at: requestNow.toISOString(),
         };
       const preview = await preparation.preview(
         preparedSource,
         snapshot.settings,
-        fixtureNow,
+        requestNow,
       );
-      const later = new Date(fixtureNow.getTime() + 900001);
+      const later = new Date(requestNow.getTime() + 900001);
       await expect(
         preparation.confirm(preview.preview_hash, crypto.randomUUID(), later),
       ).rejects.toThrow('READ_SNAPSHOT_CHANGED');
@@ -178,8 +252,8 @@ export async function verifyOptionalTranslation(
       ).toBe(confirmed.job_id);
     }
     const nonce = crypto.randomUUID(),
-      job = await ownerJobs.enqueue(snapshot, nonce, fixtureNow);
-    expect((await ownerJobs.enqueue(snapshot, nonce, fixtureNow)).job_id).toBe(
+      job = await ownerJobs.enqueue(snapshot, nonce, requestNow);
+    expect((await ownerJobs.enqueue(snapshot, nonce, requestNow)).job_id).toBe(
       job.job_id,
     );
     if (mode === 'QUALITY_TEST')
@@ -187,45 +261,49 @@ export async function verifyOptionalTranslation(
         ownerJobs.enqueue(
           { ...snapshot, glossary: [{ source: 'Literal', target: 'Literal' }] },
           nonce,
-          fixtureNow,
+          requestNow,
         ),
       ).rejects.toThrow('IDEMPOTENCY_CONFLICT');
     await expect(
       new OptionalAIJobs(db, await fixtureOwner('b')).enqueue(
         snapshot,
         crypto.randomUUID(),
-        fixtureNow,
+        requestNow,
       ),
     ).rejects.toThrow();
     const changed = structuredClone(snapshot);
     changed.plan.snapshot.segments[0]!.text = 'Changed source';
     changed.plan.hash = await sha256(JSON.stringify(changed.plan.snapshot));
     await expect(
-      ownerJobs.enqueue(changed, crypto.randomUUID(), fixtureNow),
-    ).rejects.toThrow('OPTIONAL_MANIFEST_MISMATCH');
+      ownerJobs.enqueue(changed, crypto.randomUUID(), requestNow),
+    ).rejects.toThrow(
+      mode === 'RECOVERY' || mode === 'INVALID_RECOVERY'
+        ? 'OPTIONAL_SNAPSHOT_MISMATCH'
+        : 'OPTIONAL_MANIFEST_MISMATCH',
+    );
     const token = (await store.lease(
       job.job_id!,
       'TRANSLATE',
-      fixtureNow,
+      requestNow,
       'local',
     ))!;
-    await store.start(token, 'TRANSLATE', fixtureNow);
+    await store.start(token, 'TRANSLATE', requestNow);
     await expect(
-      worker.prepare(token, 'HISTORICAL_COMPARE', fixtureNow),
+      worker.prepare(token, 'HISTORICAL_COMPARE', requestNow),
     ).rejects.toThrow('FORBIDDEN');
-    const prepared = await worker.prepare(token, 'TRANSLATE', fixtureNow);
+    const prepared = await worker.prepare(token, 'TRANSLATE', requestNow);
     expect(
       (
         await worker.prepare(
           token,
           'TRANSLATE',
-          new Date(fixtureNow.getTime() + 1000),
+          new Date(requestNow.getTime() + 1000),
         )
       ).request,
     ).toEqual(prepared.request);
     if (mode === 'QUALITY_TEST')
       await expect(
-        worker.reserve(token, 'TRANSLATE', fixtureNow),
+        worker.reserve(token, 'TRANSLATE', requestNow),
       ).rejects.toThrow('QUOTA_UNKNOWN_OR_STALE');
     await new QuotaSnapshots(db, owner).record(
       {
@@ -234,14 +312,14 @@ export async function verifyOptionalTranslation(
         model: profile.model,
         tier: 'FREE',
         source: 'GOOGLE_CLOUD_QUOTA_CURRENT',
-        sampled_at: fixtureNow.toISOString(),
+        sampled_at: requestNow.toISOString(),
         buckets: [
           { bucket: 'RPM', limit: 5, used: 0 },
           { bucket: 'RPD', limit: 20, used: 0 },
           { bucket: 'INPUT_TPM', limit: 250000, used: 0 },
         ],
       },
-      fixtureNow,
+      requestNow,
     );
     const policy = JSON.stringify({ RPM: 0, RPD: 0, INPUT_TPM: 0 });
     await db
@@ -254,16 +332,16 @@ export async function verifyOptionalTranslation(
         1,
         policy,
         await sha256(policy),
-        fixtureNow.toISOString(),
+        requestNow.toISOString(),
       )
       .run();
-    const permit = await worker.reserve(token, 'TRANSLATE', fixtureNow);
-    await worker.submit(token, 'TRANSLATE', permit.reservation_id, fixtureNow);
+    const permit = await worker.reserve(token, 'TRANSLATE', requestNow);
+    await worker.submit(token, 'TRANSLATE', permit.reservation_id, requestNow);
     const raw = JSON.stringify({
       status: 'OK',
       translated_segments: (mode === 'PARTIAL'
         ? []
-        : plan.snapshot.segments
+        : snapshot.plan.snapshot.segments
       ).map((s) => ({
         segment_ref: mode === 'INVALID' ? 'foreign' : s.alias,
         text_pl: 'Oryginalna wypowiedź.',
@@ -299,7 +377,7 @@ export async function verifyOptionalTranslation(
       },
       token,
       'TRANSLATE',
-      fixtureNow,
+      requestNow,
     );
     let offset = 0;
     for (const [i, part] of parts.entries()) {
@@ -310,7 +388,7 @@ export async function verifyOptionalTranslation(
         part,
         token,
         'TRANSLATE',
-        fixtureNow,
+        requestNow,
       );
       offset += part.length;
     }
@@ -318,7 +396,7 @@ export async function verifyOptionalTranslation(
       candidate.artifact_id,
       token,
       'TRANSLATE',
-      fixtureNow,
+      requestNow,
       'local',
     );
     await expect(
@@ -327,7 +405,7 @@ export async function verifyOptionalTranslation(
         'TRANSLATE',
         permit.reservation_id,
         candidate.artifact_id,
-        fixtureNow,
+        requestNow,
         fixtureSecret,
       ),
     ).rejects.toThrow('STALE_FENCE');
@@ -336,11 +414,36 @@ export async function verifyOptionalTranslation(
       'TRANSLATE',
       permit.reservation_id,
       candidate.artifact_id,
-      fixtureNow,
+      requestNow,
       fixtureSecret,
     );
-    expect(result.accepted).toBe(mode === 'PRODUCTION');
+    expect(result.accepted).toBe(
+      mode === 'PRODUCTION' ||
+        mode === 'RECOVERY' ||
+        mode === 'INVALID_RECOVERY',
+    );
+    if (mode === 'PARTIAL') partialRunId = prepared.run_id;
+    if (mode === 'RECOVERY' || mode === 'INVALID_RECOVERY') {
+      const accepted = await db
+        .prepare(
+          'SELECT outcome_json,input_snapshot_json FROM analysis_runs WHERE run_id=?',
+        )
+        .bind(prepared.run_id)
+        .first<{ outcome_json: string; input_snapshot_json: string }>();
+      expect(JSON.parse(accepted!.input_snapshot_json).hash).toBe(plan.hash);
+      expect(JSON.parse(accepted!.outcome_json)).toMatchObject({
+        plan_hash: plan.hash,
+        request_plan_hash: snapshot.plan.hash,
+        coverage: { complete: true },
+      });
+      const originalPartial = await db
+        .prepare('SELECT state FROM analysis_runs WHERE run_id=?')
+        .bind(partialRunId)
+        .first('state');
+      expect(originalPartial).toBe('CANDIDATE');
+    }
     if (mode === 'INVALID') {
+      invalidRunId = prepared.run_id;
       expect(result).toMatchObject({
         state: 'FAILED',
         candidate_status: 'INVALID',
@@ -366,7 +469,15 @@ export async function verifyOptionalTranslation(
       await db
         .prepare('SELECT count(*) AS n FROM optional_ai_results')
         .first('n'),
-    ).toBe(mode === 'QUALITY_TEST' ? 0 : 1);
+    ).toBe(
+      mode === 'QUALITY_TEST'
+        ? 0
+        : mode === 'RECOVERY'
+          ? 2
+          : mode === 'INVALID_RECOVERY'
+            ? 3
+            : 1,
+    );
     if (mode === 'PRODUCTION')
       expect(
         await worker.complete(
@@ -374,7 +485,7 @@ export async function verifyOptionalTranslation(
           'TRANSLATE',
           permit.reservation_id,
           candidate.artifact_id,
-          fixtureNow,
+          requestNow,
           fixtureSecret,
         ),
       ).toMatchObject({ accepted: true, duplicate: true, active: false });

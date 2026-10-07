@@ -2558,6 +2558,8 @@ it.each([
       'STALE_FENCE',
     );
   },
+  // Includes fenced provider tasks, deterministic recovery and a complete backup/restore.
+  15000,
 );
 it('artifact RPC/client resumes interrupted upload, verifies bounded chunks and restores literal UTF-8 including BOM', async () => {
   const { item, token } = await setup();

@@ -67,6 +67,15 @@ optionalApp.post('/preview', async (c) => {
     ),
   );
 });
+optionalApp.post('/recovery/preview', async (c) => {
+  const input = await body(c, ['run_id']);
+  return c.json(
+    await new OptionalTaskPreparation(
+      c.env.DB,
+      c.get('access'),
+    ).previewRecovery(text(input.run_id, 128), new Date()),
+  );
+});
 optionalApp.post('/confirm', async (c) => {
   const input = await body(c, ['preview_hash', 'nonce']);
   return c.json(
@@ -86,8 +95,14 @@ optionalApp.get('/results/:item', async (c) => {
   )
     .bind(access.ownerId, text(c.req.param('item'), 128))
     .all();
+  const recoveries = await c.env.DB.prepare(
+    `SELECT r.run_id,r.created_at,j.reason_code,COALESCE(json_extract(j.payload_json,'$.snapshot.recovery.generation'),0) AS generation,json_extract(r.outcome_json,'$.mapped.coverage.expected') AS expected,json_extract(r.outcome_json,'$.mapped.coverage.translated') AS translated FROM analysis_runs r JOIN jobs j ON j.owner_id=r.owner_id AND j.job_id=r.job_id WHERE r.owner_id=? AND r.item_id=? AND r.state='CANDIDATE' AND j.task_type='TRANSLATE' AND json_extract(j.payload_json,'$.snapshot.settings.mode')='PRODUCTION' AND ((j.state='SUCCEEDED' AND j.reason_code='OPTIONAL_PARTIAL_COMPLETE' AND json_extract(r.outcome_json,'$.version')='optional-candidate:1' AND json_extract(r.outcome_json,'$.mapped.canonical.status')='OK') OR (j.state='FAILED' AND j.reason_code='OPTIONAL_INVALID_COMPLETE' AND json_extract(r.outcome_json,'$.version')='optional-invalid:1')) ORDER BY r.created_at DESC,r.run_id LIMIT 20`,
+  )
+    .bind(access.ownerId, text(c.req.param('item'), 128))
+    .all();
   return c.json({
     results: rows.results,
+    recoveries: recoveries.results,
     limit: 20,
     semantic_verification: 'NOT_ASSERTED',
   });
