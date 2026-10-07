@@ -1,9 +1,22 @@
 import { it, expect, afterEach } from 'vitest';
-import { mkdirSync, mkdtempSync, writeFileSync, rmSync } from 'node:fs';
+import {
+  mkdirSync,
+  mkdtempSync,
+  readFileSync,
+  writeFileSync,
+  rmSync,
+} from 'node:fs';
 import { resolve, join } from 'node:path';
 import { createHash } from 'node:crypto';
 import { normalizeTranscript } from '../../packages/core/src/transcript/normalize.js';
 import { enrichEconomy } from '../../packages/core/src/ai/enrichment/canonical.js';
+import { enrichSemantic } from '../../packages/core/src/ai/enrichment/canonical.js';
+import registryBundle from '../../config/registry/master-bundle.json';
+import {
+  compileSemanticProfile,
+  semanticModules,
+  type SemanticProfile,
+} from '../../packages/core/src/ai/semantic-profile.js';
 import {
   verifyPilotFiles,
   canonicalPilotElements,
@@ -25,7 +38,21 @@ afterEach(() => {
     rmSync(directory, { recursive: true, force: true });
   }
 });
-async function files() {
+async function files(mode: SemanticProfile['mode'] = 'ECONOMY') {
+  const config: SemanticProfile = {
+    mode,
+    modules: Object.fromEntries(
+      semanticModules.map((key, index) => [
+        key,
+        mode === 'FULL' || (mode === 'CUSTOM' ? key === 'summary' : index < 7),
+      ]),
+    ) as SemanticProfile['modules'],
+    translation: 'NONE',
+    history: false,
+    second_pass: null,
+    validation_pass: null,
+  };
+  const profile = await compileSemanticProfile(config, registryBundle);
   mkdirSync(base, { recursive: true });
   const directory = mkdtempSync(join(base, 'case-'));
   directories.push(directory);
@@ -50,7 +77,7 @@ async function files() {
     'NONE',
   );
   const manifest = write('manifest', JSON.stringify(normalized.manifest));
-  const raw = JSON.stringify({
+  const wire: Record<string, unknown> = {
     summary_pl: [
       { text_pl: 'Autor nie wdrożył narzędzia.', segment_refs: ['s1'] },
     ],
@@ -61,11 +88,23 @@ async function files() {
     stance: [],
     predictions: [],
     source_issues: [],
-  });
+  };
+  if (mode === 'FULL')
+    Object.assign(wire, {
+      usage: [],
+      recommendations: [],
+      uncertainties: [],
+      contradictions: [],
+    });
+  if (mode === 'CUSTOM')
+    for (const key of Object.keys(wire))
+      if (!['summary_pl', 'entity_mentions', 'source_issues'].includes(key))
+        delete wire[key];
+  const raw = JSON.stringify(wire);
   const candidate = write('candidate', raw);
-  const enriched = await enrichEconomy({
+  const input = {
     raw,
-    completion: 'OK',
+    completion: 'OK' as const,
     run_id: 'run',
     item_id: 'item',
     profile_id: 'gemini_free',
@@ -79,7 +118,11 @@ async function files() {
       video_url: 'https://www.youtube.com/watch?v=fixture0001',
     },
     approved_aliases: [],
-  });
+  };
+  const enriched =
+    mode === 'ECONOMY'
+      ? await enrichEconomy(input)
+      : await enrichSemantic(input, profile);
   const canonical = write('canonical', JSON.stringify(enriched.canonical));
   const annotations = write(
     'annotations',
@@ -118,11 +161,12 @@ async function files() {
     provider: 'gemini',
     model: 'gemini-3.8-flash',
     prompt_hash: 'a'.repeat(64),
-    wire_hash: 'b'.repeat(64),
-    canonical_schema_hash: 'c'.repeat(64),
+    wire_hash: profile.wire.hash,
+    canonical_schema_hash: profile.canonical.hash,
     quality_scope: 'd'.repeat(64),
     enrichment_version: '1.0',
     normalizer_version: 'source-normalizer:1',
+    ...(mode === 'ECONOMY' ? {} : { semantic_profile: config }),
   };
   const film: PilotFilm = {
     video_id: 'fixture0001',
@@ -236,5 +280,54 @@ it('retains refusal with null candidate/canonical and frozen missed important cl
   film.important_claims = [];
   await expect(verifyPilotFiles(film, scope)).rejects.toThrow(
     'PILOT_ANNOTATIONS_CHANGED',
+  );
+});
+it.each(['FULL', 'CUSTOM'] as const)(
+  'verifies %s with the captured materialized schema, not Economy validation',
+  async (mode) => {
+    const { film, scope } = await files(mode);
+    await expect(verifyPilotFiles(film, scope)).resolves.toBeUndefined();
+    const withoutScope = { ...scope };
+    delete withoutScope.semantic_profile;
+    await expect(verifyPilotFiles(film, withoutScope)).rejects.toThrow(
+      'PILOT_SCHEMA_SCOPE_MISMATCH',
+    );
+    await expect(
+      verifyPilotFiles(film, {
+        ...scope,
+        canonical_schema_hash: 'f'.repeat(64),
+      }),
+    ).rejects.toThrow('PILOT_SCHEMA_SCOPE_MISMATCH');
+  },
+);
+it('rejects canonical modules outside Custom scope and additional passes without actual receipts', async () => {
+  const { film, scope, enriched, write } = await files('CUSTOM');
+  enriched.canonical.key_points = enriched.canonical.summary_pl;
+  const changed = write('foreign-module', JSON.stringify(enriched.canonical));
+  film.files!.canonical = changed.path;
+  film.canonical_hash = changed.hash;
+  film.canonical_element_ids = canonicalPilotElements(enriched.canonical);
+  await expect(verifyPilotFiles(film, scope)).rejects.toThrow(
+    'PILOT_CANONICAL_SCOPE_MISMATCH',
+  );
+  scope.semantic_profile!.second_pass = { purpose: 'Additional reasoning' };
+  await expect(verifyPilotFiles(film, scope)).rejects.toThrow(
+    'PILOT_PASS_RECEIPTS_REQUIRED',
+  );
+});
+it('does not certify a claimed repair chain or a successful response without actual model identity', async () => {
+  const { film, scope, write } = await files();
+  film.provider.ai_repairs = 1;
+  await expect(verifyPilotFiles(film, scope)).rejects.toThrow(
+    'PILOT_REPAIR_RECEIPTS_REQUIRED',
+  );
+  film.provider.ai_repairs = 0;
+  const response = JSON.parse(readFileSync(film.files!.response, 'utf8'));
+  response.actual_model = null;
+  const changed = write('unknown-model', JSON.stringify(response));
+  film.files!.response = changed.path;
+  film.provider.response_hash = changed.hash;
+  await expect(verifyPilotFiles(film, scope)).rejects.toThrow(
+    'PILOT_RESPONSE_MISMATCH',
   );
 });

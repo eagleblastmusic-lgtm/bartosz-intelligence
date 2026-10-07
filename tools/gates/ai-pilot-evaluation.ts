@@ -1,3 +1,4 @@
+import type { SemanticProfile } from '../../packages/core/src/ai/semantic-profile.js';
 export interface PilotScope {
   provider: string;
   model: string;
@@ -7,6 +8,7 @@ export interface PilotScope {
   enrichment_version: string;
   normalizer_version: string;
   quality_scope: string;
+  semantic_profile?: SemanticProfile;
 }
 export interface PilotFilm {
   files?: {

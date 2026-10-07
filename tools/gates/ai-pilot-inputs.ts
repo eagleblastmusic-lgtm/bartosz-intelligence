@@ -1,12 +1,17 @@
-import { readFileSync } from 'node:fs';
+import { readFileSync, statSync } from 'node:fs';
 import { createHash } from 'node:crypto';
 import type { PilotFilm, PilotScope } from './ai-pilot-evaluation.js';
 import type { AIResponse } from '../../packages/contracts/src/ai.js';
 import { strictJson } from '../../packages/core/src/ai/repair/strict-json.js';
 import {
   validateCanonical,
-  validateEconomyCandidate,
+  validateSemanticCandidate,
 } from '../../packages/core/src/ai/repair/validate.js';
+import registryBundle from '../../config/registry/master-bundle.json';
+import {
+  compileSemanticProfile,
+  semanticModules,
+} from '../../packages/core/src/ai/semantic-profile.js';
 import type { normalizeTranscript } from '../../packages/core/src/transcript/normalize.js';
 type Manifest = Awaited<ReturnType<typeof normalizeTranscript>>['manifest'];
 const hash = (text: string) => createHash('sha256').update(text).digest('hex');
@@ -32,6 +37,30 @@ export function canonicalPilotElements(canonical: Record<string, unknown>) {
 }
 export async function verifyPilotFiles(film: PilotFilm, scope: PilotScope) {
   if (!film.files) throw new Error('REAL_PILOT_FILES_REQUIRED');
+  // Legacy Stage 03 materials are Economy; other modes must capture their scope.
+  const profile = await compileSemanticProfile(
+    scope.semantic_profile ?? {
+      mode: 'ECONOMY',
+      modules: Object.fromEntries(
+        semanticModules.map((key, index) => [key, index < 7]),
+      ),
+      translation: 'NONE',
+      history: false,
+      second_pass: null,
+      validation_pass: null,
+    },
+    registryBundle,
+  );
+  if (
+    scope.wire_hash !== profile.wire.hash ||
+    scope.canonical_schema_hash !== profile.canonical.hash ||
+    scope.enrichment_version !== profile.enrichment_version
+  )
+    throw new Error('PILOT_SCHEMA_SCOPE_MISMATCH');
+  if (profile.config.second_pass || profile.config.validation_pass)
+    throw new Error('PILOT_PASS_RECEIPTS_REQUIRED');
+  if (film.provider.ai_repairs !== 0)
+    throw new Error('PILOT_REPAIR_RECEIPTS_REQUIRED');
   const read = (
     kind: keyof NonNullable<PilotFilm['files']>,
     expected: string | null,
@@ -42,6 +71,8 @@ export async function verifyPilotFiles(film: PilotFilm, scope: PilotScope) {
       return null;
     }
     if (!path) throw new Error('PILOT_OUTPUT_FILE_REQUIRED');
+    if (statSync(path).size > 8 * 1024 * 1024)
+      throw new Error('PILOT_FILE_TOO_LARGE');
     const text = readFileSync(path, 'utf8');
     if (hash(text) !== expected) throw new Error('PILOT_FILE_HASH_MISMATCH');
     return text;
@@ -79,6 +110,7 @@ export async function verifyPilotFiles(film: PilotFilm, scope: PilotScope) {
   if (
     response.request_id !== film.provider.request_id ||
     response.actual_provider !== scope.provider ||
+    (response.status === 'OK' && response.actual_model === null) ||
     (response.actual_model !== null && response.actual_model !== scope.model) ||
     response.raw_output !== candidate ||
     response.status !== film.provider.completion ||
@@ -134,7 +166,7 @@ export async function verifyPilotFiles(film: PilotFilm, scope: PilotScope) {
       /* Invalid actual output stays in the failure denominator. */
     }
     try {
-      const validated = await validateEconomyCandidate(
+      const validated = await validateSemanticCandidate(
         candidate,
         response.status === 'REFUSED'
           ? 'REFUSED'
@@ -142,6 +174,7 @@ export async function verifyPilotFiles(film: PilotFilm, scope: PilotScope) {
             ? 'OK'
             : 'INCOMPLETE',
         new Set(manifest.anchors.map((anchor) => anchor.alias)),
+        profile,
       );
       wireValid = validated.valid;
       repairs = validated.report.applied;
@@ -172,6 +205,11 @@ export async function verifyPilotFiles(film: PilotFilm, scope: PilotScope) {
   )
     throw new Error('PILOT_OUTPUT_DENOMINATOR_CHANGED');
   if (!canonical || !validateCanonical(canonical)) return;
+  for (const module of semanticModules) {
+    const key = module === 'summary' ? 'summary_pl' : module;
+    if (!profile.config.modules[module] && (canonical[key] as unknown[]).length)
+      throw new Error('PILOT_CANONICAL_SCOPE_MISMATCH');
+  }
   const anchors = new Map(
     manifest.anchors.map((anchor) => [anchor.segment_id, anchor]),
   );

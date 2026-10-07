@@ -1,4 +1,4 @@
-import { readFileSync, writeFileSync } from 'node:fs';
+import { readFileSync, statSync, writeFileSync } from 'node:fs';
 import { createHash } from 'node:crypto';
 import { evaluateAiPilot, type PilotReview } from './ai-pilot-evaluation.js';
 import { strictJson } from '../../packages/core/src/ai/repair/strict-json.js';
@@ -21,9 +21,13 @@ if (!input || !output) {
   let inputHash: string | null = null;
   let report: Record<string, unknown>;
   try {
+    if (statSync(input).size > 8 * 1024 * 1024)
+      throw new Error('PILOT_FILE_TOO_LARGE');
     const raw = readFileSync(input, 'utf8');
     inputHash = createHash('sha256').update(raw).digest('hex');
     const review = strictJson(raw) as unknown as PilotReview;
+    if (!Array.isArray(review.films) || review.films.length > 100)
+      throw new Error('INVALID_PILOT_CORPUS');
     for (const film of review.films) await verifyPilotFiles(film, review.scope);
     report = {
       ...evaluateAiPilot(review, level),
