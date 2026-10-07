@@ -119,6 +119,11 @@
       "name": "024_pending_analysis_replacement.sql",
       "depends_on": ["023_optional_ai_results.sql"],
       "sha256": "94a4d74915e645f89d3e67f9df995b151f03ef388fda5a469c5c8ce90ff9501d"
+    },
+    {
+      "name": "025_drive_offline_auth.sql",
+      "depends_on": ["024_pending_analysis_replacement.sql"],
+      "sha256": "1c87807b52813439ac520743342e807d1faf485c1f205bd791a601b14912b065"
     }
   ],
   "version": 1

@@ -153,6 +153,15 @@ export async function restoreCanonical(
           );
           row.revoked_at = restoredAt;
         }
+        if (table === 'drive_connections') {
+          // Offline credentials and wrapping recovery keys are deliberately
+          // outside this secret-free snapshot. Preserve mapping, require auth
+          // and a fresh root probe before any restored export can run.
+          row.auth_state = 'REAUTH_REQUIRED';
+          row.root_state =
+            row.root_id === null ? 'UNSELECTED' : 'VERIFY_REQUIRED';
+          row.last_error = 'PRIVATE_CREDENTIAL_RECOVERY_REQUIRED';
+        }
         if (table === 'items' && typeof row.current_revision_id === 'string') {
           pointers.push({
             item_id: String(row.item_id),
