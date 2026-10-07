@@ -19,6 +19,7 @@ import { searchApp } from './routes/search.js';
 import { profilesApp } from './routes/profiles.js';
 import { optionalApp } from './routes/optional.js';
 import { reprocessApp } from './routes/reprocess.js';
+import { promptsApp } from './routes/prompts.js';
 export type { Env } from './env.js';
 
 const buildVersion = '0.0.1';
@@ -40,6 +41,7 @@ app.route('/api/v1/search', searchApp);
 app.route('/api/v1/profiles', profilesApp);
 app.route('/api/v1/optional', optionalApp);
 app.route('/api/v1/reprocess', reprocessApp);
+app.route('/api/v1/prompts', promptsApp);
 app.route('/internal/workers', workersApp);
 app.get('/health', (c) => {
   const bindings = {

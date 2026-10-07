@@ -57,6 +57,8 @@ export function apiRouter() {
         'PRESET_MODULE_SCOPE_MISMATCH',
       ].includes(raw);
     const conflict = [
+      'REGISTRY_VERSION_CONFLICT',
+      'REGISTRY_GENERATION_CONFLICT',
       'READ_SNAPSHOT_CHANGED',
       'REVISION_CONFLICT',
       'SEMANTIC_PROFILE_REVISION_CONFLICT',

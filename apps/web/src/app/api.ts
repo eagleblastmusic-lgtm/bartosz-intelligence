@@ -63,6 +63,10 @@ export async function api<T>(
 }
 export function errorMessage(error: unknown) {
   if (error instanceof ApiError) {
+    if (error.code === 'REGISTRY_VERSION_CONFLICT')
+      return 'Powstała nowsza wersja promptu. Sprawdź wersje przed zapisaniem kolejnego draftu.';
+    if (error.code === 'INVALID_PROMPT_INPUTS')
+      return 'Zachowaj wszystkie wymagane wejścia promptu. Nie dodawaj nieobsługiwanych nazw.';
     if (error.code === 'INVALID_WINDOW')
       return 'Sprawdź zakres: początek musi poprzedzać koniec, a koniec nie może być w przyszłości.';
     if (

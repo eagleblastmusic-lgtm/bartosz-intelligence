@@ -44,6 +44,7 @@ export function System() {
         </div>
         <div className="row-actions">
           <AppLink href="/system/profiles">Profile analizy</AppLink>
+          <AppLink href="/system/prompts">Prompt Studio</AppLink>
           <button onClick={() => setRevision((v) => v + 1)}>
             Odśwież stan
           </button>
