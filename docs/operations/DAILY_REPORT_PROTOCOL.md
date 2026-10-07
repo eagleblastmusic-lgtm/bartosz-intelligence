@@ -52,3 +52,19 @@ arrays, FULL Evidence, hostile markers, deterministic bytes and a 504-Item
 oversized corpus. SQLite verifies the accepted synthetic canonical artifact and
 immutability path. These tests do not qualify Drive OAuth, remote conditional
 updates, Bridge, human semantic quality or production capacity.
+
+`ExportDirtyDays` replays owner-scoped change_log pages of at most 100 events.
+Late Item/job/selection changes target the original Warsaw publication day;
+publication correction targets old and new days. A qualified connection gets a
+durable destination for a new day. Source coverage, shared entity identity and
+corrections conservatively dirty existing reports. Organization filters and
+registry drafts do not dirty the unfiltered accepted report. Replay and cursor
+advance share a transaction for each event; the cursor is included in backup.
+
+The due query applies a ten-minute debounce and thirty-minute maximum wall-clock
+wait, orders oldest dirty days first, and admits only connected/verified roots
+without an active lease. Explicit first exports include empty days. Older
+completion advances only exported_seq, preserving a newer dirty_seq. This is
+local queue correctness; executor availability accounting, scheduler wiring,
+material-change suppression, mode controls and live latency qualification are
+still required before claiming the complete CP-7.4 acceptance.

@@ -50,6 +50,7 @@ export const backupTables = [
   'daily_export_chunks',
   'drive_export_attempts',
   'export_state',
+  'export_dirty_cursor',
   'change_log',
   'source_requests',
   'discovery_scans',

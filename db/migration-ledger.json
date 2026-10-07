@@ -144,6 +144,11 @@
       "name": "029_drive_root_candidates.sql",
       "depends_on": ["028_drive_export_attempts.sql"],
       "sha256": "45bedbe118bc8ba07d9fc258f36e5e67e5c9d34afdd5ab7d5fc7f1891c43f85b"
+    },
+    {
+      "name": "030_export_dirty_cursor.sql",
+      "depends_on": ["029_drive_root_candidates.sql"],
+      "sha256": "b0a57b1225ffd07cea10ac41b48382bb30f5cd05768c5c4f6bbf31560acad6bf"
     }
   ],
   "version": 1

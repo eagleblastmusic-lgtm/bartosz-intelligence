@@ -40,8 +40,11 @@ export class DriveExportIdentity {
     connectionId: string,
     root: string,
     date: string,
+    now: Date = new Date(),
   ): Promise<ExportIdentity> {
     const binding = this.bindings(root, date);
+    if (!Number.isFinite(now.getTime()))
+      throw new Error('INVALID_EXPORT_CLOCK');
     if (!/^[A-Za-z0-9_-]{1,128}$/.test(connectionId))
       throw new Error('INVALID_DRIVE_CONNECTION');
     // Only an actually qualified connection/root may create a destination.
@@ -56,9 +59,18 @@ export class DriveExportIdentity {
     const destination = 'drive:' + root;
     await this.db
       .prepare(
-        `INSERT INTO export_state(owner_id,publication_date,timezone,destination_key,root_namespace,connection_id,dirty_seq) SELECT ?,?,'Europe/Warsaw',?,?,?,COALESCE(MAX(seq),0) FROM change_log WHERE owner_id=? ON CONFLICT(owner_id,publication_date,timezone,destination_key) DO NOTHING`,
+        `INSERT INTO export_state(owner_id,publication_date,timezone,destination_key,root_namespace,connection_id,dirty_seq,first_dirty_at,last_material_event_at) SELECT ?,?,'Europe/Warsaw',?,?,?,COALESCE(MAX(seq),0),?,? FROM change_log WHERE owner_id=? ON CONFLICT(owner_id,publication_date,timezone,destination_key) DO NOTHING`,
       )
-      .bind(binding[0], date, destination, root, connectionId, binding[0])
+      .bind(
+        binding[0],
+        date,
+        destination,
+        root,
+        connectionId,
+        now.toISOString(),
+        now.toISOString(),
+        binding[0],
+      )
       .run();
     const identity = await this.get(root, date);
     if (identity.connection_id !== connectionId)
