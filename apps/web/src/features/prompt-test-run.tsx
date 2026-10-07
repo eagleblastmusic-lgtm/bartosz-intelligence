@@ -20,7 +20,13 @@ type Context = {
     optional_tasks: boolean;
   }[];
 };
-export function PromptTestRun({ prompt }: { prompt: Version }) {
+export function PromptTestRun({
+  prompt,
+  mode = 'QUALITY_TEST',
+}: {
+  prompt: Version;
+  mode?: 'QUALITY_TEST' | 'PRODUCTION';
+}) {
   const [open, setOpen] = useState(false),
     [items, setItems] = useState<Items | null>(null),
     [item, setItem] = useState(''),
@@ -41,7 +47,9 @@ export function PromptTestRun({ prompt }: { prompt: Version }) {
     ADVANCED_ANALYSIS_V1: 'CUSTOM',
   };
   const supported =
-    prompt.prompt_id !== 'JSON_REPAIR_V1' && !prompt.usage_restriction;
+    prompt.prompt_id !== 'JSON_REPAIR_V1' &&
+    !prompt.usage_restriction &&
+    (mode === 'QUALITY_TEST' || prompt.status === 'PUBLISHED');
   useEffect(() => {
     if (!open || !supported) return;
     const controller = new AbortController();
@@ -126,18 +134,23 @@ export function PromptTestRun({ prompt }: { prompt: Version }) {
           throw new Error('INVALID_ANALYSIS_SETTINGS');
         parsedLimits = value as Record<string, number>;
       }
-      const result = await api<Preview>('/prompts/tests/preview', {
-        prompt_id: prompt.prompt_id,
-        version: prompt.version,
-        source_run_id: source,
-        semantic_profile_id: selected?.profile_id ?? null,
-        semantic_profile_revision: selected?.revision ?? null,
-        model_revision: Number(model),
-        max_output_tokens: Number(output),
-        purpose: context.settings.purpose,
-        region: context.settings.region,
-        limits: parsedLimits,
-      });
+      const result = await api<Preview>(
+        mode === 'QUALITY_TEST'
+          ? '/prompts/tests/preview'
+          : '/prompts/apply/preview',
+        {
+          prompt_id: prompt.prompt_id,
+          version: prompt.version,
+          source_run_id: source,
+          semantic_profile_id: selected?.profile_id ?? null,
+          semantic_profile_revision: selected?.revision ?? null,
+          model_revision: Number(model),
+          max_output_tokens: Number(output),
+          purpose: context.settings.purpose,
+          region: context.settings.region,
+          limits: parsedLimits,
+        },
+      );
       setNonce(crypto.randomUUID());
       setPreview(result);
     } catch (e) {
@@ -158,7 +171,9 @@ export function PromptTestRun({ prompt }: { prompt: Version }) {
         { preview_hash: preview.preview_hash, nonce },
       );
       setMessage(
-        'Zapisano zadanie próby jakości: ' +
+        (mode === 'QUALITY_TEST'
+          ? 'Zapisano zadanie próby jakości: '
+          : 'Zapisano zadanie dla wybranego materiału: ') +
           result.job_id +
           '. Wynik nie zmienia wybranej analizy.',
       );
@@ -171,7 +186,11 @@ export function PromptTestRun({ prompt }: { prompt: Version }) {
   }
   return (
     <details onToggle={(e) => setOpen(e.currentTarget.open)}>
-      <summary>Przygotuj próbę jakości tej wersji</summary>
+      <summary>
+        {mode === 'QUALITY_TEST'
+          ? 'Przygotuj próbę jakości tej wersji'
+          : 'Zastosuj do wybranego materiału'}
+      </summary>
       {!supported ? (
         <p className="notice">
           {prompt.usage_restriction ? (
@@ -197,7 +216,9 @@ export function PromptTestRun({ prompt }: { prompt: Version }) {
             </p>
           )}
           <label>
-            Materiał do próby
+            {mode === 'QUALITY_TEST'
+              ? 'Materiał do próby'
+              : 'Materiał do ponownego przetworzenia'}
             <select
               value={item}
               disabled={busy}
@@ -338,7 +359,9 @@ export function PromptTestRun({ prompt }: { prompt: Version }) {
                 }
                 onClick={() => void prepare()}
               >
-                Przygotuj podgląd próby
+                {mode === 'QUALITY_TEST'
+                  ? 'Przygotuj podgląd próby'
+                  : 'Przygotuj podgląd ponownego przetworzenia'}
               </button>
             </>
           )}
@@ -361,10 +384,14 @@ export function PromptTestRun({ prompt }: { prompt: Version }) {
                 zadanie. Brak płatnego fallbacku.
               </p>
               <button disabled={busy} onClick={() => void confirm()}>
-                Potwierdź zadanie próby jakości
+                {mode === 'QUALITY_TEST'
+                  ? 'Potwierdź zadanie próby jakości'
+                  : 'Potwierdź zadanie dla wybranego materiału'}
               </button>
               <button disabled={busy} onClick={reset}>
-                Anuluj próbę
+                {mode === 'QUALITY_TEST'
+                  ? 'Anuluj próbę'
+                  : 'Anuluj ponowne przetwarzanie'}
               </button>
             </div>
           )}

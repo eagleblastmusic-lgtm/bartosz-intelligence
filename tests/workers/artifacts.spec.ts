@@ -1129,6 +1129,37 @@ it.each([
       fixtureNow,
     ))!;
     let draftTestPreviewHash = '';
+    if (scenario === 'PRODUCTION' || scenario === 'CUSTOM_PRODUCTION') {
+      const before = await env.DB.prepare('SELECT count(*) n FROM jobs').first(
+        'n',
+      );
+      const application = await new PromptTests(env.DB, owner).preview(
+        {
+          prompt_id: semanticSnapshot.compiled.prompt.id,
+          version: 2,
+          source_run_id: accepted.run_id,
+          semantic_profile_id: 'monitor',
+          semantic_profile_revision: 1,
+          model_revision: profile.revision,
+          max_output_tokens: settings.max_output_tokens,
+          purpose: settings.purpose,
+          region: settings.region,
+          limits: settings.limits,
+        },
+        fixtureNow,
+        'PRODUCTION',
+      );
+      expect(application).toMatchObject({
+        kind: 'ANALYSIS',
+        prompt_version: 2,
+        model_revision: profile.revision,
+        additional_model_requests: 1,
+        selection_effect: 'NONE_UNTIL_EXPLICIT_SELECTION',
+      });
+      expect(
+        await env.DB.prepare('SELECT count(*) n FROM jobs').first('n'),
+      ).toBe(before);
+    }
     if (scenario === 'QUALITY_TEST') {
       const family = semanticSnapshot.compiled.prompt.id;
       const draft = await new PromptDrafts(env.DB, owner).create(
@@ -1170,6 +1201,24 @@ it.each([
         quota_status: 'UNKNOWN',
       });
       draftTestPreviewHash = preview.preview_hash;
+      await expect(
+        new PromptTests(env.DB, owner).preview(
+          {
+            prompt_id: family,
+            version: 3,
+            source_run_id: accepted.run_id,
+            semantic_profile_id: 'monitor',
+            semantic_profile_revision: 1,
+            model_revision: profile.revision,
+            max_output_tokens: settings.max_output_tokens,
+            purpose: settings.purpose,
+            region: settings.region,
+            limits: settings.limits,
+          },
+          fixtureNow,
+          'PRODUCTION',
+        ),
+      ).rejects.toThrow('INVALID_UNPUBLISHED_PROMPT');
       expect(
         await env.DB.prepare('SELECT count(*) n FROM jobs').first('n'),
       ).toBe(jobsBefore);

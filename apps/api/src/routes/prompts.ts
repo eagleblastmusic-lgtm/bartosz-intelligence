@@ -4,6 +4,8 @@ import { PromptPublications } from '../../../../packages/core/src/registry/publi
 import { PromptUsage } from '../../../../packages/core/src/registry/usage.js';
 import { PromptHistory } from '../../../../packages/core/src/registry/history.js';
 import { ownerRouter, body, queryFields, text } from './common.js';
+import type { ApiEnvironment } from './common.js';
+import type { Context } from 'hono';
 export const promptsApp = ownerRouter();
 promptsApp.post('/deprecate', async (c) => {
   const input = await body(c, [
@@ -22,7 +24,10 @@ promptsApp.post('/deprecate', async (c) => {
     ),
   );
 });
-promptsApp.post('/tests/preview', async (c) => {
+async function previewRun(
+  c: Context<ApiEnvironment>,
+  mode: 'QUALITY_TEST' | 'PRODUCTION',
+) {
   const input = await body(c, [
     'prompt_id',
     'version',
@@ -60,9 +65,12 @@ promptsApp.post('/tests/preview', async (c) => {
         limits: input.limits as Record<string, number>,
       },
       new Date(),
+      mode,
     ),
   );
-});
+}
+promptsApp.post('/tests/preview', (c) => previewRun(c, 'QUALITY_TEST'));
+promptsApp.post('/apply/preview', (c) => previewRun(c, 'PRODUCTION'));
 promptsApp.post('/publication/preview', async (c) => {
   const input = await body(c, [
     'action',

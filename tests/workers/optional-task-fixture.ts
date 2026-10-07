@@ -763,6 +763,36 @@ export async function verifyOptionalTranslation(
     (await new PromptRegistry(db, owner).currentFamily(prompt.prompt_id))
       .version,
   ).toBe(3);
+  const application = await tests.preview(
+    {
+      prompt_id: prompt.prompt_id,
+      version: 3,
+      source_run_id: acceptedSource!,
+      semantic_profile_id: null,
+      semantic_profile_revision: null,
+      model_revision: 8,
+      max_output_tokens: 1000,
+      purpose: 'personal',
+      region: 'PL',
+      limits: {},
+    },
+    fixtureNow,
+    'PRODUCTION',
+  );
+  expect(application).toMatchObject({
+    kind: 'OPTIONAL',
+    prompt_version: 3,
+    model_revision: 8,
+    additional_model_requests: 1,
+    selection_effect: 'NONE',
+  });
+  const applicationReceipt = await db
+    .prepare(
+      'SELECT payload_json FROM config_versions WHERE owner_id=? AND config_id=? AND revision=1',
+    )
+    .bind(owner.ownerId, 'optional-preview-' + application.preview_hash)
+    .first<string>('payload_json');
+  expect(JSON.parse(applicationReceipt!).snapshot.prompt.version).toBe(3);
   const lateRecovery = await new OptionalTaskPreparation(
     db,
     owner,

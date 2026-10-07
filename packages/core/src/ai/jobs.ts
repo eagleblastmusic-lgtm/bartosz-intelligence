@@ -86,6 +86,7 @@ export interface ExplicitAnalysisIntent {
   semantic_profile_revision: number;
   pass: { mode: 'SECOND_PASS' | 'VALIDATE'; candidate_run_id: string } | null;
   test_prompt?: { prompt_id: string; version: number };
+  published_prompt?: { prompt_id: string; version: number };
   test_model_revision?: number;
 }
 
@@ -208,7 +209,23 @@ export class AnalysisJobs {
     if (intent && !semanticProfile) throw new Error('NOT_FOUND');
     const registry = new PromptRegistry(this.db, this.context);
     let prompt: PromptSnapshot;
-    if (intent?.test_prompt) {
+    if (intent?.published_prompt) {
+      if (
+        settings.mode !== 'PRODUCTION' ||
+        !semanticProfile ||
+        intent.pass ||
+        intent.test_prompt
+      )
+        throw new Error('INVALID_PROMPT_APPLICATION');
+      prompt = semanticPrompt(
+        semanticProfile,
+        await registry.load(
+          intent.published_prompt.prompt_id,
+          intent.published_prompt.version,
+          0,
+        ),
+      );
+    } else if (intent?.test_prompt) {
       if (settings.mode !== 'QUALITY_TEST' || !semanticProfile || intent.pass)
         throw new Error('INVALID_PROMPT_TEST');
       prompt = semanticPrompt(
@@ -254,7 +271,7 @@ export class AnalysisJobs {
     const models = new ModelRegistry(this.db, this.context);
     if (
       intent?.test_model_revision !== undefined &&
-      (settings.mode !== 'QUALITY_TEST' ||
+      ((settings.mode !== 'QUALITY_TEST' && !intent.published_prompt) ||
         !Number.isSafeInteger(intent.test_model_revision) ||
         intent.test_model_revision < 1)
     )

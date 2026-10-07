@@ -247,6 +247,13 @@ export function Prompts() {
               key={'test:' + family + ':' + version}
               prompt={base}
             />
+            {base.status === 'PUBLISHED' && (
+              <PromptTestRun
+                key={'apply:' + family + ':' + version}
+                prompt={base}
+                mode="PRODUCTION"
+              />
+            )}
             <PromptPublication
               key={family + ':' + version + ':' + revision}
               prompt={base}

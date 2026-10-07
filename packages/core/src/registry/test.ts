@@ -39,8 +39,21 @@ export class PromptTests {
       limits: Record<string, number>;
     },
     now: Date,
+    mode: 'QUALITY_TEST' | 'PRODUCTION' = 'QUALITY_TEST',
   ) {
     this.context.requireOwner();
+    if (!['QUALITY_TEST', 'PRODUCTION'].includes(mode))
+      throw new Error('INVALID_PROMPT_MODE');
+    if (
+      mode === 'PRODUCTION' &&
+      (
+        await new PromptDrafts(this.db, this.context).version(
+          input.prompt_id,
+          input.version,
+        )
+      ).status !== 'PUBLISHED'
+    )
+      throw new Error('INVALID_UNPUBLISHED_PROMPT');
     await new PromptUsage(this.db, this.context).requireNewUse(
       input.prompt_id,
       input.version,
@@ -49,7 +62,7 @@ export class PromptTests {
       throw new Error('INVALID_PROMPT_TEST');
     const settings = {
       runtime: 'local' as const,
-      mode: 'QUALITY_TEST' as const,
+      mode,
       purpose: input.purpose,
       region: input.region,
       max_output_tokens: input.max_output_tokens,
@@ -77,7 +90,19 @@ export class PromptTests {
           semantic_profile_id: input.semantic_profile_id,
           semantic_profile_revision: input.semantic_profile_revision,
           pass: null,
-          test_prompt: { prompt_id: input.prompt_id, version: input.version },
+          ...(mode === 'QUALITY_TEST'
+            ? {
+                test_prompt: {
+                  prompt_id: input.prompt_id,
+                  version: input.version,
+                },
+              }
+            : {
+                published_prompt: {
+                  prompt_id: input.prompt_id,
+                  version: input.version,
+                },
+              }),
           test_model_revision: input.model_revision,
         },
         now,
@@ -105,7 +130,7 @@ export class PromptTests {
       input.prompt_id,
       input.version,
       0,
-      'QUALITY_TEST',
+      mode,
     );
     const tasks = new OptionalTaskPreparation(this.db, this.context);
     const source = await new AnalysisJobs(this.db, this.context).sourceForOwner(
