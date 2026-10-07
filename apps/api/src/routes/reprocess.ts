@@ -37,7 +37,13 @@ reprocessApp.get('/context/:item', async (c) => {
     .all<{ run_id: string; accepted_at: string; reason: string }>();
   const model = await new ModelRegistry(c.env.DB, access).latest('gemini_free'),
     profiles = await new SemanticProfiles(c.env.DB, access).list();
+  const pending = await c.env.DB.prepare(
+    "SELECT j.job_id,j.profile_revision,json_extract(j.payload_json,'$.snapshot.semantic_profile.profile_id') AS profile_id,json_extract(j.payload_json,'$.snapshot.semantic_profile.revision') AS profile_version FROM jobs j WHERE j.owner_id=? AND j.item_id=? AND j.task_type='ANALYZE' AND j.state IN ('PENDING','DEFERRED','RETRY_WAIT') AND j.lease_owner IS NULL AND json_extract(j.payload_json,'$.snapshot.settings.mode')='PRODUCTION' AND json_extract(j.payload_json,'$.snapshot.chunk') IS NULL AND json_extract(j.payload_json,'$.snapshot.additional_pass') IS NULL AND NOT EXISTS(SELECT 1 FROM job_attempts a WHERE a.owner_id=j.owner_id AND a.job_id=j.job_id) ORDER BY j.created_at,j.job_id LIMIT 20",
+  )
+    .bind(access.ownerId, itemId)
+    .all();
   return c.json({
+    pending_jobs: pending.results,
     source_run_id: source?.run_id ?? null,
     source_choices: [
       ...(source
@@ -143,6 +149,23 @@ reprocessApp.post('/preview', async (c) => {
         semantic_profile_revision: Number(input.semantic_profile_revision),
         pass,
       },
+      new Date(),
+    ),
+  );
+});
+reprocessApp.post('/replacement/preview', async (c) => {
+  const input = await body(c, [
+    'job_id',
+    'semantic_profile_id',
+    'semantic_profile_revision',
+    'reason',
+  ]);
+  return c.json(
+    await new AnalysisJobs(c.env.DB, c.get('access')).previewReplacement(
+      text(input.job_id, 128),
+      text(input.semantic_profile_id, 128),
+      Number(input.semantic_profile_revision),
+      text(input.reason, 1000),
       new Date(),
     ),
   );

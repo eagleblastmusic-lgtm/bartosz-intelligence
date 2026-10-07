@@ -114,6 +114,11 @@
       "name": "023_optional_ai_results.sql",
       "depends_on": ["022_semantic_profiles.sql"],
       "sha256": "79912ecb42176f3165ed8362df51f71f52d7be2cae6203dc4f8e40d905f46fa9"
+    },
+    {
+      "name": "024_pending_analysis_replacement.sql",
+      "depends_on": ["023_optional_ai_results.sql"],
+      "sha256": "94a4d74915e645f89d3e67f9df995b151f03ef388fda5a469c5c8ce90ff9501d"
     }
   ],
   "version": 1

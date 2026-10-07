@@ -6,6 +6,11 @@ import type {
 } from '../../../../packages/core/src/ai/jobs.js';
 type Preview = Awaited<ReturnType<AnalysisJobs['previewExplicit']>>;
 type Context = {
+  pending_jobs?: {
+    job_id: string;
+    profile_id: string | null;
+    profile_version: number | null;
+  }[];
   source_run_id: string | null;
   source_choices?: {
     run_id: string;
@@ -32,9 +37,11 @@ export function ItemReprocess({ itemId }: { itemId: string }) {
     [context, setContext] = useState<Context | null>(null),
     [profile, setProfile] = useState(''),
     [sourceRun, setSourceRun] = useState(''),
-    [mode, setMode] = useState<'REPROCESS' | 'SECOND_PASS' | 'VALIDATE'>(
-      'REPROCESS',
-    ),
+    [pendingJob, setPendingJob] = useState(''),
+    [replacementReason, setReplacementReason] = useState(''),
+    [mode, setMode] = useState<
+      'REPROCESS' | 'SECOND_PASS' | 'VALIDATE' | 'REPLACE_PENDING'
+    >('REPROCESS'),
     [preview, setPreview] = useState<Preview | null>(null),
     [busy, setBusy] = useState(false),
     [error, setError] = useState(''),
@@ -73,7 +80,10 @@ export function ItemReprocess({ itemId }: { itemId: string }) {
     selected &&
     !selected.optional_tasks &&
     (mode === 'REPROCESS' ||
+      (mode === 'REPLACE_PENDING' &&
+        Boolean(pendingJob && replacementReason.trim())) ||
       Boolean(
+        (mode === 'SECOND_PASS' || mode === 'VALIDATE') &&
         context?.candidate_run_id &&
         !corrected &&
         (mode === 'SECOND_PASS'
@@ -98,16 +108,28 @@ export function ItemReprocess({ itemId }: { itemId: string }) {
     setError('');
     reset();
     try {
-      const value = await api<Preview>('/reprocess/preview', {
-        source_run_id: inputRun,
-        settings: context.settings,
-        semantic_profile_id: selected.profile_id,
-        semantic_profile_revision: selected.revision,
-        pass:
-          mode === 'REPROCESS'
-            ? null
-            : { mode, candidate_run_id: context.candidate_run_id },
-      });
+      const value = await api<Preview>(
+        mode === 'REPLACE_PENDING'
+          ? '/reprocess/replacement/preview'
+          : '/reprocess/preview',
+        mode === 'REPLACE_PENDING'
+          ? {
+              job_id: pendingJob,
+              semantic_profile_id: selected.profile_id,
+              semantic_profile_revision: selected.revision,
+              reason: replacementReason,
+            }
+          : {
+              source_run_id: inputRun,
+              settings: context.settings,
+              semantic_profile_id: selected.profile_id,
+              semantic_profile_revision: selected.revision,
+              pass:
+                mode === 'REPROCESS'
+                  ? null
+                  : { mode, candidate_run_id: context.candidate_run_id },
+            },
+      );
       setPreview(value);
       intent.current = {
         preview_hash: value.preview_hash,
@@ -155,7 +177,7 @@ export function ItemReprocess({ itemId }: { itemId: string }) {
                 <label>
                   Reprezentacja źródła
                   <select
-                    disabled={busy}
+                    disabled={busy || mode === 'REPLACE_PENDING'}
                     value={inputRun ?? ''}
                     onChange={(e) => {
                       setSourceRun(e.target.value);
@@ -214,6 +236,12 @@ export function ItemReprocess({ itemId }: { itemId: string }) {
                     Ponownie zbadaj wybrane źródło
                   </option>
                   <option
+                    value="REPLACE_PENDING"
+                    disabled={!context.pending_jobs?.length}
+                  >
+                    Zmień profil nierozpoczętej analizy
+                  </option>
+                  <option
                     value="SECOND_PASS"
                     disabled={
                       corrected ||
@@ -235,6 +263,47 @@ export function ItemReprocess({ itemId }: { itemId: string }) {
                   </option>
                 </select>
               </label>
+              {mode === 'REPLACE_PENDING' && (
+                <>
+                  <p className="notice">
+                    Zmiana zachowa źródło i ustawienia zadania. Potwierdzenie
+                    utworzy nowe zadanie i oznaczy poprzednie jako zastąpione.
+                    Executor może rozpocząć pracę w międzyczasie; wtedy zmiana
+                    zostanie odrzucona.
+                  </p>
+                  <label>
+                    Zadanie oczekujące
+                    <select
+                      value={pendingJob}
+                      disabled={busy}
+                      onChange={(e) => {
+                        setPendingJob(e.target.value);
+                        reset();
+                      }}
+                    >
+                      <option value="">Wybierz zadanie</option>
+                      {context.pending_jobs?.map((j) => (
+                        <option key={j.job_id} value={j.job_id}>
+                          {j.profile_id ?? 'Economy'} · wersja{' '}
+                          {j.profile_version ?? 'bazowa'} · {j.job_id}
+                        </option>
+                      ))}
+                    </select>
+                  </label>
+                  <label>
+                    Powód zmiany profilu
+                    <input
+                      value={replacementReason}
+                      disabled={busy}
+                      maxLength={1000}
+                      onChange={(e) => {
+                        setReplacementReason(e.target.value);
+                        reset();
+                      }}
+                    />
+                  </label>
+                </>
+              )}
               {!context.available && (
                 <p className="notice">
                   Źródło lub aktywny profil Gemini Free nie jest obecnie gotowy
@@ -262,6 +331,12 @@ export function ItemReprocess({ itemId }: { itemId: string }) {
                 żądaniem.
               </p>
               <p>Przyjęta analiza nie zostanie zastąpiona przez ten krok.</p>
+              {preview.replaces_job_id && (
+                <p>
+                  Poprzednie zadanie {preview.replaces_job_id} zostanie
+                  oznaczone jako zastąpione. Jego historia pozostanie dostępna.
+                </p>
+              )}
               <button
                 type="button"
                 disabled={busy}

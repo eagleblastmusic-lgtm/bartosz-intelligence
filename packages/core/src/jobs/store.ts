@@ -99,7 +99,7 @@ export class JobStore {
       this.db
         .prepare(
           `INSERT INTO audit_events(event_id,owner_id,actor_id,event_type,target_id,correlation_id,created_at)
-        SELECT ?,owner_id,?,'JOB_REPLAY',job_id,?,? FROM jobs WHERE owner_id=? AND job_id=? AND state='FAILED'`,
+        SELECT ?,owner_id,?,'JOB_REPLAY',job_id,?,? FROM jobs WHERE owner_id=? AND job_id=? AND state='FAILED' AND COALESCE(reason_code,'')<>'PROFILE_SUPERSEDED'`,
         )
         .bind(
           nonce,
@@ -112,7 +112,7 @@ export class JobStore {
       this.db
         .prepare(
           `UPDATE jobs SET state='PENDING',reason_code=NULL,due_at=?,updated_at=?,lease_owner=NULL,lease_until=NULL
-        WHERE owner_id=? AND job_id=? AND state='FAILED' AND EXISTS(SELECT 1 FROM audit_events WHERE event_id=?) RETURNING job_id`,
+        WHERE owner_id=? AND job_id=? AND state='FAILED' AND COALESCE(reason_code,'')<>'PROFILE_SUPERSEDED' AND EXISTS(SELECT 1 FROM audit_events WHERE event_id=?) RETURNING job_id`,
         )
         .bind(now, now, this.context.ownerId, jobId, nonce),
     ]);

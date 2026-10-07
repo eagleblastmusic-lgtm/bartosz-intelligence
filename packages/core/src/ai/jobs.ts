@@ -64,6 +64,12 @@ export interface AnalysisJobSnapshot {
   settings: AnalysisSettings;
   quality_scope: string;
   additional_pass?: AdditionalPassSnapshot;
+  replaces_pending?: {
+    job_id: string;
+    snapshot_hash: string;
+    fencing_token: number;
+    reason: string;
+  };
   semantic_context?: CompiledContext['semantic_context'];
   chunk?: {
     parent_job_id: string;
@@ -288,11 +294,13 @@ export class AnalysisJobs {
     settings: AnalysisSettings,
     intent: Omit<ExplicitAnalysisIntent, 'nonce'>,
     now: Date,
+    replacement?: AnalysisJobSnapshot['replaces_pending'],
   ) {
     const snapshot = await this.buildSnapshot(sourceRunId, settings, now, {
       ...intent,
       nonce: crypto.randomUUID(),
     });
+    if (replacement) snapshot.replaces_pending = replacement;
     const repo = new ArtifactRepository(this.db, this.context),
       original = await repo.readVerifiedText(
         snapshot.source.source_artifact_id,
@@ -361,12 +369,58 @@ export class AnalysisJobs {
       semantic_profile_revision: snapshot.semantic_profile!.revision,
       pass: snapshot.additional_pass?.mode ?? 'REPROCESS',
       candidate_run_id: snapshot.additional_pass?.candidate_run_id ?? null,
+      replaces_job_id: snapshot.replaces_pending?.job_id ?? null,
       token_estimate: compiled.run_context.token_estimate,
       quota_status: 'UNKNOWN' as const,
       quota_remaining: null,
       additional_model_requests: 1,
       selection_effect: 'NONE_UNTIL_EXPLICIT_SELECTION' as const,
     };
+  }
+  async previewReplacement(
+    jobId: string,
+    profileId: string,
+    revision: number,
+    reason: string,
+    now: Date,
+  ) {
+    this.context.requireOwner();
+    if (typeof reason !== 'string' || !reason.trim() || reason.length > 1000)
+      throw new Error('INVALID_REPLACEMENT_REASON');
+    const row = await this.db
+      .prepare(
+        "SELECT payload_json,profile_revision,fencing_token FROM jobs j WHERE owner_id=? AND job_id=? AND task_type='ANALYZE' AND state IN ('PENDING','DEFERRED','RETRY_WAIT') AND lease_owner IS NULL AND NOT EXISTS(SELECT 1 FROM job_attempts a WHERE a.owner_id=j.owner_id AND a.job_id=j.job_id)",
+      )
+      .bind(this.context.ownerId, jobId)
+      .first<{
+        payload_json: string;
+        profile_revision: string;
+        fencing_token: number;
+      }>();
+    if (!row) throw new Error('PENDING_JOB_NOT_REPLACEABLE');
+    const snapshot = (
+      JSON.parse(row.payload_json) as { snapshot: AnalysisJobSnapshot }
+    ).snapshot;
+    if ((await sha256(JSON.stringify(snapshot))) !== row.profile_revision)
+      throw new Error('ANALYSIS_SNAPSHOT_HASH_MISMATCH');
+    if (snapshot.chunk || snapshot.additional_pass)
+      throw new Error('PENDING_JOB_NOT_REPLACEABLE');
+    return this.previewExplicit(
+      snapshot.source.run_id,
+      snapshot.settings,
+      {
+        semantic_profile_id: profileId,
+        semantic_profile_revision: revision,
+        pass: null,
+      },
+      now,
+      {
+        job_id: jobId,
+        snapshot_hash: row.profile_revision,
+        fencing_token: row.fencing_token,
+        reason: reason.trim(),
+      },
+    );
   }
   async confirmExplicit(previewHash: string, nonce: string, now: Date) {
     this.context.requireOwner();
@@ -484,27 +538,89 @@ export class AnalysisJobs {
         .first<{ content_hash: string }>();
       if (prior?.content_hash !== hash) throw new Error('IDEMPOTENCY_CONFLICT');
     }
-    const job = await new JobStore(this.db, this.context).enqueue(
-      {
-        item_id: source.item_id,
-        source_id: null,
-        task_type: 'ANALYZE',
-        input_revision: source.source_hash,
-        profile_revision: hash,
-        prompt_snapshot_id: prompt.prompt_hash,
-        routing_policy_version: 'pipeline-selector:1',
-        wire_schema_version: prompt.wire.id.replace('urn:bartosz:schema:', ''),
-        canonical_schema_version: 'intelligence-canonical:1.2',
-        enrichment_version: '1.0',
-        explicit_run_nonce: nonce,
-        arrival_origin_at: now.toISOString(),
-        origin_kind: 'MANUAL',
-        payload: { snapshot },
-        priority: settings.mode === 'QUALITY_TEST' || additionalPass ? 20 : 60,
-        due_at: now.toISOString(),
-      },
-      now.toISOString(),
-    );
+    const input = {
+      item_id: source.item_id,
+      source_id: null,
+      task_type: 'ANALYZE' as const,
+      input_revision: source.source_hash,
+      profile_revision: hash,
+      prompt_snapshot_id: prompt.prompt_hash,
+      routing_policy_version: 'pipeline-selector:1',
+      wire_schema_version: prompt.wire.id.replace('urn:bartosz:schema:', ''),
+      canonical_schema_version: 'intelligence-canonical:1.2',
+      enrichment_version: '1.0',
+      explicit_run_nonce: nonce,
+      arrival_origin_at: now.toISOString(),
+      origin_kind: 'MANUAL' as const,
+      payload: { snapshot },
+      priority: settings.mode === 'QUALITY_TEST' || additionalPass ? 20 : 60,
+      due_at: now.toISOString(),
+    };
+    const store = new JobStore(this.db, this.context);
+    let job;
+    if (!snapshot.replaces_pending)
+      job = await store.enqueue(input, now.toISOString());
+    else {
+      const replacement = snapshot.replaces_pending;
+      if (!nonce || snapshot.chunk || snapshot.additional_pass)
+        throw new Error('PENDING_JOB_NOT_REPLACEABLE');
+      const guard = {
+        predicate:
+          "EXISTS(SELECT 1 FROM jobs old WHERE old.owner_id=? AND old.job_id=? AND old.task_type='ANALYZE' AND old.state IN ('PENDING','DEFERRED','RETRY_WAIT') AND old.lease_owner IS NULL AND old.profile_revision=? AND old.fencing_token=? AND NOT EXISTS(SELECT 1 FROM job_attempts a WHERE a.owner_id=old.owner_id AND a.job_id=old.job_id))",
+        bindings: [
+          this.context.ownerId,
+          replacement.job_id,
+          replacement.snapshot_hash,
+          replacement.fencing_token,
+        ],
+      };
+      const prepared = await store.prepareEnqueue(
+        input,
+        now.toISOString(),
+        guard,
+      );
+      job = await this.db
+        .prepare('SELECT * FROM jobs WHERE owner_id=? AND dedup_key=?')
+        .bind(this.context.ownerId, prepared.dedup_key)
+        .first<import('../../../contracts/src/jobs.js').JobRecord>();
+      if (!job) {
+        await this.db.batch([
+          ...prepared.statements,
+          this.db
+            .prepare(
+              `INSERT INTO audit_events(event_id,owner_id,actor_id,event_type,target_id,correlation_id,created_at) SELECT ?,?,?,'PENDING_ANALYSIS_REPLACED',?,?,? WHERE ${guard.predicate} AND EXISTS(SELECT 1 FROM jobs newer WHERE newer.owner_id=? AND newer.dedup_key=?) ON CONFLICT DO NOTHING`,
+            )
+            .bind(
+              nonce,
+              this.context.ownerId,
+              this.context.actorId,
+              replacement.job_id,
+              prepared.dedup_key,
+              now.toISOString(),
+              ...guard.bindings,
+              this.context.ownerId,
+              prepared.dedup_key,
+            ),
+          this.db
+            .prepare(
+              `UPDATE jobs SET state='FAILED',reason_code='PROFILE_SUPERSEDED',fencing_token=fencing_token+1,updated_at=? WHERE owner_id=? AND job_id=? AND ${guard.predicate} AND EXISTS(SELECT 1 FROM jobs newer WHERE newer.owner_id=? AND newer.dedup_key=? AND newer.state='PENDING')`,
+            )
+            .bind(
+              now.toISOString(),
+              this.context.ownerId,
+              replacement.job_id,
+              ...guard.bindings,
+              this.context.ownerId,
+              prepared.dedup_key,
+            ),
+        ]);
+        job = await this.db
+          .prepare('SELECT * FROM jobs WHERE owner_id=? AND dedup_key=?')
+          .bind(this.context.ownerId, prepared.dedup_key)
+          .first<import('../../../contracts/src/jobs.js').JobRecord>();
+        if (!job) throw new Error('PENDING_JOB_CHANGED');
+      }
+    }
     if (!job) throw new Error('NOT_FOUND');
     return job;
   }

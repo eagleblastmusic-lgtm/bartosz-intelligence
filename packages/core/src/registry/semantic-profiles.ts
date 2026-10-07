@@ -309,7 +309,7 @@ export class SemanticProfiles {
     if (item.pinned) {
       const job = await this.db
         .prepare(
-          "SELECT payload_json,profile_revision FROM jobs WHERE owner_id=? AND item_id=? AND task_type='ANALYZE' ORDER BY created_at DESC,job_id DESC LIMIT 1",
+          "SELECT payload_json,profile_revision FROM jobs WHERE owner_id=? AND item_id=? AND task_type='ANALYZE' AND COALESCE(reason_code,'')<>'PROFILE_SUPERSEDED' ORDER BY created_at DESC,job_id DESC LIMIT 1",
         )
         .bind(this.context.ownerId, itemId)
         .first<{ payload_json: string; profile_revision: string }>();

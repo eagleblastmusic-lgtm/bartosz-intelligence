@@ -2419,6 +2419,142 @@ it.each([
       const before = (
         await env.DB.prepare('SELECT * FROM active_analysis_selections').all()
       ).results;
+      const pendingIntent = {
+        nonce: crypto.randomUUID(),
+        semantic_profile_id: 'monitor',
+        semantic_profile_revision: 1,
+        pass: null,
+      };
+      const pending = await analysis.enqueue(
+        accepted.run_id,
+        { ...settings, mode: 'QUALITY_TEST' },
+        fixtureNow,
+        pendingIntent,
+      );
+      const pendingPayload = await env.DB.prepare(
+        'SELECT payload_json FROM jobs WHERE job_id=?',
+      )
+        .bind(pending.job_id)
+        .first('payload_json');
+      const replacementPreview = await analysis.previewReplacement(
+        pending.job_id,
+        'monitor',
+        3,
+        'Explicit pending profile update',
+        fixtureNow,
+      );
+      expect(replacementPreview).toMatchObject({
+        replaces_job_id: pending.job_id,
+        semantic_profile_revision: 3,
+        quota_status: 'UNKNOWN',
+      });
+      await expect(
+        new AnalysisJobs(env.DB, await fixtureOwner('b')).previewReplacement(
+          pending.job_id,
+          'monitor',
+          3,
+          'Foreign owner',
+          fixtureNow,
+        ),
+      ).rejects.toThrow('PENDING_JOB_NOT_REPLACEABLE');
+      const replacementNonce = crypto.randomUUID(),
+        replacement = await analysis.confirmExplicit(
+          replacementPreview.preview_hash,
+          replacementNonce,
+          fixtureNow,
+        );
+      expect(replacement.job_id).not.toBe(pending.job_id);
+      expect(
+        (
+          await analysis.confirmExplicit(
+            replacementPreview.preview_hash,
+            replacementNonce,
+            fixtureNow,
+          )
+        ).job_id,
+      ).toBe(replacement.job_id);
+      const superseded = await env.DB.prepare(
+        'SELECT state,reason_code,payload_json,fencing_token FROM jobs WHERE job_id=?',
+      )
+        .bind(pending.job_id)
+        .first<{
+          state: string;
+          reason_code: string;
+          payload_json: string;
+          fencing_token: number;
+        }>();
+      expect(superseded).toMatchObject({
+        state: 'FAILED',
+        reason_code: 'PROFILE_SUPERSEDED',
+        payload_json: pendingPayload,
+        fencing_token: pending.fencing_token + 1,
+      });
+      expect(
+        await new JobStore(env.DB, aiAccess).lease(
+          pending.job_id,
+          'ANALYZE',
+          fixtureNow,
+          'local',
+        ),
+      ).toBeNull();
+      await expect(
+        new JobStore(env.DB, owner).replay(
+          pending.job_id,
+          fixtureNow.toISOString(),
+          'superseded-replay-denied',
+        ),
+      ).rejects.toThrow('REPLAY_DENIED');
+      expect(
+        await env.DB.prepare('SELECT state FROM jobs WHERE job_id=?')
+          .bind(pending.job_id)
+          .first('state'),
+      ).toBe('FAILED');
+      await expect(
+        env.DB.prepare("UPDATE jobs SET state='PENDING' WHERE job_id=?")
+          .bind(pending.job_id)
+          .run(),
+      ).rejects.toThrow('ILLEGAL_JOB_TRANSITION');
+      const race = await analysis.enqueue(
+        accepted.run_id,
+        { ...settings, mode: 'QUALITY_TEST' },
+        fixtureNow,
+        { ...pendingIntent, nonce: crypto.randomUUID() },
+      );
+      const racePreview = await analysis.previewReplacement(
+        race.job_id,
+        'monitor',
+        3,
+        'Race test',
+        fixtureNow,
+      );
+      const raceToken = await new JobStore(env.DB, aiAccess).lease(
+        race.job_id,
+        'ANALYZE',
+        fixtureNow,
+        'local',
+      );
+      expect(raceToken).not.toBeNull();
+      await expect(
+        analysis.confirmExplicit(
+          racePreview.preview_hash,
+          crypto.randomUUID(),
+          fixtureNow,
+        ),
+      ).rejects.toThrow('PENDING_JOB_CHANGED');
+      expect(
+        await env.DB.prepare('SELECT state FROM jobs WHERE job_id=?')
+          .bind(race.job_id)
+          .first('state'),
+      ).toBe('LEASED');
+      await expect(
+        analysis.previewReplacement(
+          race.job_id,
+          'monitor',
+          3,
+          'Already leased',
+          fixtureNow,
+        ),
+      ).rejects.toThrow('PENDING_JOB_NOT_REPLACEABLE');
       for (const passMode of ['SECOND_PASS', 'VALIDATE'] as const) {
         const intent = {
           nonce: crypto.randomUUID(),
@@ -2557,6 +2693,45 @@ it.each([
     await expect(workerJobs.load(aiToken, fixtureNow)).rejects.toThrow(
       'STALE_FENCE',
     );
+    if (scenario === 'CUSTOM_PRODUCTION') {
+      const replacementRows = (
+        await env.DB.prepare(
+          "SELECT job_id,state,reason_code,fencing_token,payload_json FROM jobs WHERE reason_code='PROFILE_SUPERSEDED' OR json_type(payload_json,'$.snapshot.replaces_pending') IS NOT NULL ORDER BY job_id",
+        ).all()
+      ).results;
+      const backup = new CoreBackup(env.DB, owner),
+        start = await backup.begin(),
+        chunks: BackupChunk[] = [];
+      for (const table of backupTables) {
+        let cursor: number | null = 0;
+        do {
+          const chunk = await backup.chunk(start.backup_id, table, cursor);
+          chunks.push(chunk);
+          cursor = chunk.next_cursor;
+        } while (cursor !== null);
+      }
+      const portable = {
+        manifest: await backup.complete(start.backup_id),
+        chunks,
+      };
+      await resetSchema();
+      await restoreCanonical(env.DB, portable, 'subject-a');
+      expect(
+        (
+          await env.DB.prepare(
+            "SELECT job_id,state,reason_code,fencing_token,payload_json FROM jobs WHERE reason_code='PROFILE_SUPERSEDED' OR json_type(payload_json,'$.snapshot.replaces_pending') IS NOT NULL ORDER BY job_id",
+          ).all()
+        ).results,
+      ).toEqual(replacementRows);
+      for (const old of replacementRows.filter(
+        (r) => r.reason_code === 'PROFILE_SUPERSEDED',
+      ))
+        await expect(
+          env.DB.prepare("UPDATE jobs SET state='PENDING' WHERE job_id=?")
+            .bind(old.job_id)
+            .run(),
+        ).rejects.toThrow('ILLEGAL_JOB_TRANSITION');
+    }
   },
   // Includes fenced provider tasks, deterministic recovery and a complete backup/restore.
   15000,

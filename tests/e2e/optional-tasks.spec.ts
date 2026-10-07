@@ -38,6 +38,9 @@ test('optional tasks require preview/confirm, reuse nonce after a lost reply and
       return route.fulfill({
         json: {
           source_run_id: 'source-run',
+          pending_jobs: [
+            { job_id: 'pending-job', profile_id: 'old', profile_version: 1 },
+          ],
           source_choices: [
             {
               run_id: 'source-run',
@@ -72,6 +75,28 @@ test('optional tasks require preview/confirm, reuse nonce after a lost reply and
             },
           ],
           has_more: false,
+        },
+      });
+    }
+    if (url.pathname === '/api/v1/reprocess/replacement/preview') {
+      expect(route.request().postDataJSON()).toEqual({
+        job_id: 'pending-job',
+        semantic_profile_id: 'custom',
+        semantic_profile_revision: 1,
+        reason: 'Nowy zakres oczekującej analizy',
+      });
+      expect(route.request().headers()['x-csrf-token']).toBe('fixture-csrf');
+      return route.fulfill({
+        json: {
+          preview_hash: 'd'.repeat(64),
+          item_id: 'item',
+          pass: 'REPROCESS',
+          replaces_job_id: 'pending-job',
+          token_estimate: { input: 1200 },
+          quota_status: 'UNKNOWN',
+          quota_remaining: null,
+          additional_model_requests: 1,
+          selection_effect: 'NONE_UNTIL_EXPLICIT_SELECTION',
         },
       });
     }
@@ -449,6 +474,24 @@ test('optional tasks require preview/confirm, reuse nonce after a lost reply and
       exact: true,
     }),
   ).toHaveCount(0);
+  await page.getByLabel('Rodzaj zadania').selectOption('REPLACE_PENDING');
+  const prepareReplacement = page.getByRole('button', {
+    name: 'Przygotuj podgląd ponownej analizy',
+  });
+  await expect(prepareReplacement).toBeDisabled();
+  await page.getByLabel('Zadanie oczekujące').selectOption('pending-job');
+  await expect(prepareReplacement).toBeDisabled();
+  await page
+    .getByLabel('Powód zmiany profilu')
+    .fill('Nowy zakres oczekującej analizy');
+  await prepareReplacement.click();
+  await expect(
+    page.getByText(/Poprzednie zadanie pending-job zostanie oznaczone/),
+  ).toBeVisible();
+  await page
+    .getByRole('button', { name: 'Potwierdź dodatkowe zadanie', exact: true })
+    .click();
+  expect(reprocessIntents[2]).toMatchObject({ preview_hash: 'd'.repeat(64) });
   expect(
     (
       await new AxeBuilder({ page })

@@ -95,7 +95,7 @@ JOIN item_revisions m ON m.owner_id=i.owner_id AND m.item_id=i.item_id AND m.rev
 LEFT JOIN channels c ON c.owner_id=i.owner_id AND c.source_id=i.source_id
 LEFT JOIN active_analysis_selections s ON s.owner_id=i.owner_id AND s.item_id=i.item_id
 LEFT JOIN analysis_runs r ON r.owner_id=i.owner_id AND r.item_id=i.item_id AND r.run_id=s.accepted_run_id AND r.state='ACCEPTED' AND json_extract(r.outcome_json,'$.version')='intelligence-accepted:1'
-LEFT JOIN jobs j ON j.owner_id=i.owner_id AND j.job_id=(SELECT q.job_id FROM jobs q WHERE q.owner_id=i.owner_id AND q.item_id=i.item_id AND q.task_type IN ('ANALYZE','FETCH_TRANSCRIPT','NORMALIZE') AND (q.task_type!='ANALYZE' OR json_extract(q.payload_json,'$.snapshot.settings.mode')='PRODUCTION') AND json_type(q.payload_json,'$.snapshot.chunk') IS NULL ORDER BY q.created_at DESC,q.job_id DESC LIMIT 1)`;
+LEFT JOIN jobs j ON j.owner_id=i.owner_id AND j.job_id=(SELECT q.job_id FROM jobs q WHERE q.owner_id=i.owner_id AND q.item_id=i.item_id AND COALESCE(q.reason_code,'')<>'PROFILE_SUPERSEDED' AND q.task_type IN ('ANALYZE','FETCH_TRANSCRIPT','NORMALIZE') AND (q.task_type!='ANALYZE' OR json_extract(q.payload_json,'$.snapshot.settings.mode')='PRODUCTION') AND json_type(q.payload_json,'$.snapshot.chunk') IS NULL ORDER BY q.created_at DESC,q.job_id DESC LIMIT 1)`;
 const readiness = `CASE WHEN r.run_id IS NOT NULL THEN CASE WHEN json_extract(r.outcome_json,'$.view.coverage_complete')=0 OR json_extract(r.outcome_json,'$.view.status')='INSUFFICIENT_SOURCE' THEN 'PARTIAL' ELSE 'READY' END
 WHEN i.availability IN ('PRIVATE','DELETED') OR j.state='BLOCKED' THEN 'BLOCKED'
 WHEN j.state='FAILED' THEN 'FAILED'
