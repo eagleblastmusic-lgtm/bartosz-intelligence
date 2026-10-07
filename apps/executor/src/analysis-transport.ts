@@ -130,7 +130,8 @@ export async function executePreparedAnalysis(input: {
     reservation_id: permit!.reservation_id,
     token,
     diagnostics,
-    response_artifact_id: responseArtifactId,
+    // Assignment occurs inside the awaited retention callback; retain its declared union.
+    response_artifact_id: responseArtifactId as string | null,
   };
 }
 

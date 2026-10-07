@@ -16,6 +16,7 @@ import type { PromptSnapshot } from '../../registry/store.js';
 import type {
   PipelineProfile,
   AIRequest,
+  AIResponse,
 } from '../../../../contracts/src/ai.js';
 import type { LeaseToken } from '../../../../contracts/src/jobs.js';
 import { ModelRegistry } from '../models.js';
@@ -563,7 +564,7 @@ export class OptionalAIJobs {
       throw new Error('STALE_FENCE');
     const replay = await this.db
       .prepare(
-        `SELECT r.run_id,r.outcome_json,r.candidate_hash FROM analysis_runs r JOIN jobs j ON j.owner_id=r.owner_id AND j.job_id=r.job_id JOIN quota_reservations q ON q.owner_id=r.owner_id AND q.request_id=r.run_id WHERE r.owner_id=? AND r.job_id=? AND j.task_type=? AND r.state='ACCEPTED' AND q.reservation_id=? AND q.fencing_token=? AND EXISTS(SELECT 1 FROM worker_identities w WHERE w.owner_id=r.owner_id AND w.worker_id=? AND w.credential_hash=? AND w.revoked_at IS NULL)`,
+        `SELECT r.run_id,r.outcome_json,r.candidate_hash,r.state,j.state AS job_state FROM analysis_runs r JOIN jobs j ON j.owner_id=r.owner_id AND j.job_id=r.job_id JOIN quota_reservations q ON q.owner_id=r.owner_id AND q.request_id=r.run_id WHERE r.owner_id=? AND r.job_id=? AND j.task_type=? AND (r.state='ACCEPTED' OR (r.state='CANDIDATE' AND ((r.validation_outcome='DETERMINISTIC_CORE_CANDIDATE' AND j.state='SUCCEEDED' AND j.reason_code IN ('QUALITY_TEST_COMPLETE','OPTIONAL_PARTIAL_COMPLETE')) OR (r.validation_outcome='DETERMINISTIC_CORE_INVALID' AND j.state='FAILED' AND j.reason_code='OPTIONAL_INVALID_COMPLETE')))) AND q.reservation_id=? AND q.fencing_token=? AND EXISTS(SELECT 1 FROM worker_identities w WHERE w.owner_id=r.owner_id AND w.worker_id=? AND w.credential_hash=? AND w.revoked_at IS NULL)`,
       )
       .bind(
         this.context.ownerId,
@@ -578,6 +579,8 @@ export class OptionalAIJobs {
         run_id: string;
         outcome_json: string;
         candidate_hash: string;
+        state: string;
+        job_state: string;
       }>();
     if (replay) {
       if (
@@ -587,7 +590,14 @@ export class OptionalAIJobs {
       )
         throw new Error('INVALID_OPTIONAL_CANDIDATE');
       return {
-        accepted: true,
+        accepted: replay.state === 'ACCEPTED',
+        state: replay.job_state,
+        ...(replay.state === 'CANDIDATE'
+          ? {
+              candidate_status:
+                replay.job_state === 'FAILED' ? 'INVALID' : 'VALIDATED',
+            }
+          : {}),
         active: false,
         duplicate: true,
         run_id: replay.run_id,
@@ -610,7 +620,7 @@ export class OptionalAIJobs {
       current(),
     );
     const provenance = JSON.parse(candidate.artifact.provenance_json) as {
-      response: { request_id: string; status: 'OK' };
+      response: { request_id: string; status: AIResponse['status'] };
       raw_output_present: boolean;
     };
     if (
@@ -663,6 +673,7 @@ export class OptionalAIJobs {
         'INVALID_JSON_TOKEN',
         'TRAILING_JSON_CONTENT',
         'INVALID_TRANSLATION_WIRE',
+        'TRANSLATION_RESPONSE_NOT_COMPLETE',
         'FOREIGN_TRANSLATION_REF',
         'DUPLICATE_TRANSLATION_REF',
         'EMPTY_TRANSLATION_SEGMENT',

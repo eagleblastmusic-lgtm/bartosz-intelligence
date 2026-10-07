@@ -65,7 +65,14 @@ export class LocalOptionalAIWorker {
             transport: this.transport,
           }),
       });
-      if (!result.eligible_for_validation) {
+      const truncatedTranslation =
+        this.task === 'TRANSLATE' &&
+        result.response.status === 'INCOMPLETE' &&
+        result.response.raw_output !== null &&
+        typeof result.response_artifact_id === 'string' &&
+        result.response_artifact_id.length > 0 &&
+        result.diagnostics.length === 0;
+      if (!result.eligible_for_validation && !truncatedTranslation) {
         if (result.diagnostics.length)
           return { accepted: false, idle: false, state: 'DIAGNOSTIC_ONLY' };
         const status = result.response.status;

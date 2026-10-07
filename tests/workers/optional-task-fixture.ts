@@ -104,19 +104,31 @@ export async function verifyOptionalTranslation(
     .all();
   let partialRunId = '';
   let invalidRunId = '';
+  let truncatedRunId = '';
   let requestIndex = 0;
   for (const mode of [
     'QUALITY_TEST',
     'PRODUCTION',
     'INVALID',
+    'TRUNCATED',
     'PARTIAL',
     'RECOVERY',
     'INVALID_RECOVERY',
+    'TRUNCATED_RECOVERY',
   ] as const) {
     // Each synthetic request uses a separate minute; preserve the real 5 RPM admission rule.
     const requestNow = new Date(fixtureNow.getTime() + requestIndex++ * 60000);
-    if (mode === 'RECOVERY' || mode === 'INVALID_RECOVERY') {
-      const parentRunId = mode === 'RECOVERY' ? partialRunId : invalidRunId;
+    if (
+      mode === 'RECOVERY' ||
+      mode === 'INVALID_RECOVERY' ||
+      mode === 'TRUNCATED_RECOVERY'
+    ) {
+      const parentRunId =
+        mode === 'RECOVERY'
+          ? partialRunId
+          : mode === 'INVALID_RECOVERY'
+            ? invalidRunId
+            : truncatedRunId;
       const preparation = new OptionalTaskPreparation(db, owner);
       await expect(
         new OptionalTaskPreparation(db, await fixtureOwner('b')).recovery(
@@ -142,7 +154,7 @@ export async function verifyOptionalTranslation(
       });
       const approved = {
         ...snapshot.profile,
-        revision: mode === 'RECOVERY' ? 5 : 6,
+        revision: mode === 'RECOVERY' ? 5 : mode === 'INVALID_RECOVERY' ? 6 : 7,
         quality_approvals: [
           ...snapshot.profile.quality_approvals,
           compiled.request.quality_scope,
@@ -277,7 +289,9 @@ export async function verifyOptionalTranslation(
     await expect(
       ownerJobs.enqueue(changed, crypto.randomUUID(), requestNow),
     ).rejects.toThrow(
-      mode === 'RECOVERY' || mode === 'INVALID_RECOVERY'
+      mode === 'RECOVERY' ||
+        mode === 'INVALID_RECOVERY' ||
+        mode === 'TRUNCATED_RECOVERY'
         ? 'OPTIONAL_SNAPSHOT_MISMATCH'
         : 'OPTIONAL_MANIFEST_MISMATCH',
     );
@@ -337,18 +351,21 @@ export async function verifyOptionalTranslation(
       .run();
     const permit = await worker.reserve(token, 'TRANSLATE', requestNow);
     await worker.submit(token, 'TRANSLATE', permit.reservation_id, requestNow);
-    const raw = JSON.stringify({
-      status: 'OK',
-      translated_segments: (mode === 'PARTIAL'
-        ? []
-        : snapshot.plan.snapshot.segments
-      ).map((s) => ({
-        segment_ref: mode === 'INVALID' ? 'foreign' : s.alias,
-        text_pl: 'Oryginalna wypowiedź.',
-        issues: [],
-      })),
-      limitations_pl: [],
-    });
+    const raw =
+      mode === 'TRUNCATED'
+        ? '{"status":"OK","translated_segments":['
+        : JSON.stringify({
+            status: 'OK',
+            translated_segments: (mode === 'PARTIAL'
+              ? []
+              : snapshot.plan.snapshot.segments
+            ).map((s) => ({
+              segment_ref: mode === 'INVALID' ? 'foreign' : s.alias,
+              text_pl: 'Oryginalna wypowiedź.',
+              issues: [],
+            })),
+            limitations_pl: [],
+          });
     const repo = new ArtifactRepository(db, access, permit.reservation_id),
       parts = splitArtifactText(raw);
     const candidate = await repo.begin(
@@ -366,10 +383,11 @@ export async function verifyOptionalTranslation(
           raw_output_present: true,
           response: {
             request_id: prepared.run_id,
-            status: 'OK',
+            status: mode === 'TRUNCATED' ? 'INCOMPLETE' : 'OK',
             actual_provider: 'gemini',
             actual_model: profile.model,
-            finish_reason: 'completed',
+            finish_reason:
+              mode === 'TRUNCATED' ? 'max_output_tokens' : 'completed',
             usage: { input_tokens: 100, output_tokens: 100, total_tokens: 200 },
             retry_after: null,
           },
@@ -420,10 +438,15 @@ export async function verifyOptionalTranslation(
     expect(result.accepted).toBe(
       mode === 'PRODUCTION' ||
         mode === 'RECOVERY' ||
-        mode === 'INVALID_RECOVERY',
+        mode === 'INVALID_RECOVERY' ||
+        mode === 'TRUNCATED_RECOVERY',
     );
     if (mode === 'PARTIAL') partialRunId = prepared.run_id;
-    if (mode === 'RECOVERY' || mode === 'INVALID_RECOVERY') {
+    if (
+      mode === 'RECOVERY' ||
+      mode === 'INVALID_RECOVERY' ||
+      mode === 'TRUNCATED_RECOVERY'
+    ) {
       const accepted = await db
         .prepare(
           'SELECT outcome_json,input_snapshot_json FROM analysis_runs WHERE run_id=?',
@@ -442,8 +465,9 @@ export async function verifyOptionalTranslation(
         .first('state');
       expect(originalPartial).toBe('CANDIDATE');
     }
-    if (mode === 'INVALID') {
-      invalidRunId = prepared.run_id;
+    if (mode === 'INVALID' || mode === 'TRUNCATED') {
+      if (mode === 'INVALID') invalidRunId = prepared.run_id;
+      else truncatedRunId = prepared.run_id;
       expect(result).toMatchObject({
         state: 'FAILED',
         candidate_status: 'INVALID',
@@ -456,7 +480,10 @@ export async function verifyOptionalTranslation(
         .first<{ outcome_json: string }>();
       expect(JSON.parse(diagnostic!.outcome_json)).toMatchObject({
         version: 'optional-invalid:1',
-        reason: 'FOREIGN_TRANSLATION_REF',
+        reason:
+          mode === 'INVALID'
+            ? 'FOREIGN_TRANSLATION_REF'
+            : 'TRANSLATION_RESPONSE_NOT_COMPLETE',
         response_artifact_id: candidate.artifact_id,
       });
     }
@@ -476,19 +503,24 @@ export async function verifyOptionalTranslation(
           ? 2
           : mode === 'INVALID_RECOVERY'
             ? 3
-            : 1,
+            : mode === 'TRUNCATED_RECOVERY'
+              ? 4
+              : 1,
     );
-    if (mode === 'PRODUCTION')
-      expect(
-        await worker.complete(
-          token,
-          'TRANSLATE',
-          permit.reservation_id,
-          candidate.artifact_id,
-          requestNow,
-          fixtureSecret,
-        ),
-      ).toMatchObject({ accepted: true, duplicate: true, active: false });
+    expect(
+      await worker.complete(
+        token,
+        'TRANSLATE',
+        permit.reservation_id,
+        candidate.artifact_id,
+        requestNow,
+        fixtureSecret,
+      ),
+    ).toMatchObject({
+      accepted: result.accepted,
+      duplicate: true,
+      active: false,
+    });
     expect(
       (await db.prepare('SELECT * FROM active_analysis_selections').all())
         .results,
