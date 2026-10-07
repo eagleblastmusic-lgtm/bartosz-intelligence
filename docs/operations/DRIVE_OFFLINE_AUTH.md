@@ -75,3 +75,16 @@ unknown/unlimited capacity is not converted to zero. A root change previews
 existing mapping count and duplicate risk, preserves old file IDs and does not
 write or qualify the new root. Metadata access PASS remains distinct from actual
 child create/read/update NOT_RUN; the latter needs a durable probe and live proof.
+
+`DriveExportIdentity` persists a destination keyed by owner/root/publication date
+and Europe/Warsaw. COMPACT/FULL share this identity. Repeated initialization is
+idempotent; a connection/root must already be VERIFIED to acquire a destination
+or lease. A generated remote ID is durably reserved before create; retries reuse
+it, including after a fifteen-minute lease expires. Each new lease increments its
+fence. Stale reserve/release cannot affect the current worker. D1 guards prevent
+replacement of reserved/file IDs or mutation of root/day mapping. Private
+appProperties bind owner hash, publication day and stable export key, rather than
+a filename lookup. Restore preserves both reserved/file IDs, clears leases and
+increments fences; recovered auth/root must be requalified before execution.
+These are local identity/recovery guarantees. Immutable rendered artifacts,
+remote create/reconcile orchestration and actual concurrency proof remain open.

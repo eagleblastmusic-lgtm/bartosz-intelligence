@@ -162,6 +162,11 @@ export async function restoreCanonical(
             row.root_id === null ? 'UNSELECTED' : 'VERIFY_REQUIRED';
           row.last_error = 'PRIVATE_CREDENTIAL_RECOVERY_REQUIRED';
         }
+        if (table === 'export_state') {
+          row.lease_owner = null;
+          row.lease_until = null;
+          row.fencing_token = Number(row.fencing_token) + 1;
+        }
         if (table === 'items' && typeof row.current_revision_id === 'string') {
           pointers.push({
             item_id: String(row.item_id),

@@ -542,6 +542,11 @@ it('backs up only connection metadata and restores root mapping paused for separ
   await env.DB.prepare(
     "UPDATE drive_connections SET root_id='owner-root',root_state='VERIFIED' WHERE owner_id='a'",
   ).run();
+  await env.DB.prepare(
+    `INSERT INTO export_state(owner_id,publication_date,timezone,destination_key,root_namespace,connection_id,reserved_remote_id,file_id,lease_owner,lease_until,fencing_token) VALUES('a','2026-10-05','Europe/Warsaw','drive:owner-root','owner-root',?,'reserved-daily','reserved-daily','old-export-worker',?,8)`,
+  )
+    .bind(f.start.connection_id, new Date(Date.now() + 900000).toISOString())
+    .run();
   const backup = new CoreBackup(env.DB, f.owner),
     started = await backup.begin();
   await expect(
@@ -583,5 +588,16 @@ it('backs up only connection metadata and restores root mapping paused for separ
   ).toBe(0);
   expect(await env.DB.prepare('PRAGMA foreign_key_check').all()).toMatchObject({
     results: [],
+  });
+  expect(
+    await env.DB.prepare(
+      'SELECT reserved_remote_id,file_id,lease_owner,lease_until,fencing_token FROM export_state',
+    ).first(),
+  ).toEqual({
+    reserved_remote_id: 'reserved-daily',
+    file_id: 'reserved-daily',
+    lease_owner: null,
+    lease_until: null,
+    fencing_token: 9,
   });
 });
