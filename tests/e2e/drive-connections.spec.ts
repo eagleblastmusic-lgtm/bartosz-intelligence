@@ -1,6 +1,9 @@
 import { expect, test } from '@playwright/test';
 import AxeBuilder from '@axe-core/playwright';
-import type { DriveStatus } from '../../packages/contracts/src/drive.js';
+import type {
+  DriveStatus,
+  DailyExportStatus,
+} from '../../packages/contracts/src/drive.js';
 
 test('Drive settings disclose unavailable export, preserve escaped private mapping and clear data on session loss', async ({
   page,
@@ -18,6 +21,35 @@ test('Drive settings disclose unavailable export, preserve escaped private mappi
   });
   let authenticated = true,
     statusCalls = 0;
+  const exports: DailyExportStatus = {
+    automatic_updates_qualified: false,
+    truncated: false,
+    days: [
+      {
+        root_id: 'export-root',
+        date: '2026-10-05',
+        connection_id: 'private-drive',
+        desired_mode: 'COMPACT',
+        remote_mode: 'COMPACT',
+        settings_revision: 1,
+        desired_generation: 0,
+        exported_generation: 0,
+        dirty_seq: 3,
+        exported_seq: 1,
+        remote_revision: 1,
+        file_id: 'same-file',
+        rendered_revision: 2,
+        rendered_cut: 3,
+        rendered_bytes: 2048,
+        auth_state: 'REAUTH_REQUIRED',
+        root_state: 'VERIFIED',
+        last_verified_at: null,
+        retry_reason: 'DRIVE_UNQUALIFIED_UPDATE',
+        queue_state: 'AUTH_REQUIRED',
+        due_at: null,
+      },
+    ],
+  };
   const status: DriveStatus = {
     configured: false,
     export_capability: 'NOT_YET_VERIFIED',
@@ -39,6 +71,24 @@ test('Drive settings disclose unavailable export, preserve escaped private mappi
   };
   await page.route('**/api/v1/**', async (route) => {
     const path = new URL(route.request().url()).pathname;
+    if (path === '/api/v1/connections/drive/exports/status')
+      return route.fulfill({
+        status: authenticated ? 200 : 401,
+        json: authenticated ? exports : { code: 'UNAUTHENTICATED' },
+      });
+    if (path === '/api/v1/connections/drive/exports/mode') {
+      expect(route.request().postDataJSON()).toEqual({
+        root_id: 'export-root',
+        date: '2026-10-05',
+        mode: 'FULL',
+        expected_revision: 1,
+      });
+      exports.days[0]!.desired_mode = 'FULL';
+      exports.days[0]!.settings_revision = 2;
+      return route.fulfill({
+        json: { desired_mode: 'FULL', settings_revision: 2 },
+      });
+    }
     if (path === '/api/v1/auth/session')
       return route.fulfill({
         status: authenticated ? 200 : 401,
@@ -119,6 +169,16 @@ test('Drive settings disclose unavailable export, preserve escaped private mappi
     page.getByText('Eksport do Drive oczekuje', { exact: false }),
   ).toBeVisible();
   expect((await new AxeBuilder({ page }).analyze()).violations).toEqual([]);
+  await page
+    .getByLabel('Docelowy tryb dla 2026-10-05', { exact: true })
+    .selectOption('FULL');
+  await expect(
+    page.getByLabel('Docelowy tryb dla 2026-10-05', { exact: true }),
+  ).toHaveValue('FULL');
+  await expect(page.getByText('same-file', { exact: true })).toBeVisible();
+  await expect(
+    page.getByText('Tryb zapisany w Drive: COMPACT.', { exact: false }),
+  ).toBeVisible();
   expect(
     await page.evaluate(
       () => document.documentElement.scrollWidth <= innerWidth,

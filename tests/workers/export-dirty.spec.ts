@@ -1,4 +1,5 @@
 import { env } from 'cloudflare:workers';
+import { ExportSettings } from '../../packages/core/src/export/settings.js';
 import { beforeEach, expect, it } from 'vitest';
 import { resetCore, fixtureOwner, fixtureNow } from './core-fixture.js';
 import { ExportDirtyDays } from '../../packages/core/src/export/dirty.js';
@@ -58,6 +59,22 @@ async function event(component: string, target: string, type: string) {
 }
 const later = (minutes: number) =>
   new Date(fixtureNow.getTime() + minutes * 60000);
+it('preserves the oldest mode intent when a later source event restarts debounce', async () => {
+  const f = await fixture();
+  await new ExportSettings(env.DB, f.owner).mode(
+    'root',
+    '2026-10-05',
+    'FULL',
+    1,
+    fixtureNow,
+  );
+  await event('selection', f.item.item_id, 'SELECTION_CHANGED');
+  await f.queue.sync(later(27));
+  expect(await f.queue.due(later(29))).toEqual([]);
+  expect((await f.queue.due(later(30))).map((row) => row.date)).toEqual([
+    '2026-10-05',
+  ]);
+});
 it('queues an explicit empty-day first export even when its source sequence is already acknowledged', async () => {
   const f = await fixture();
   const identity = new DriveExportIdentity(env.DB, f.owner);

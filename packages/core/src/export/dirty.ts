@@ -109,7 +109,7 @@ export class ExportDirtyDays {
         statements.push(
           this.db
             .prepare(
-              `UPDATE export_state SET dirty_seq=MAX(dirty_seq,?),first_dirty_at=CASE WHEN first_dirty_at IS NULL OR dirty_seq<=exported_seq THEN ? ELSE first_dirty_at END,last_material_event_at=? WHERE owner_id=? AND destination_key GLOB 'drive:*' ${global ? '' : 'AND publication_date IN (' + dates.map(() => '?').join(',') + ')'}`,
+              `UPDATE export_state SET dirty_seq=MAX(dirty_seq,?),first_dirty_at=CASE WHEN first_dirty_at IS NULL OR (dirty_seq<=exported_seq AND desired_generation<=exported_generation) THEN ? ELSE first_dirty_at END,last_material_event_at=? WHERE owner_id=? AND destination_key GLOB 'drive:*' ${global ? '' : 'AND publication_date IN (' + dates.map(() => '?').join(',') + ')'}`,
             )
             .bind(
               change.seq,
@@ -143,7 +143,7 @@ export class ExportDirtyDays {
     return (
       await this.db
         .prepare(
-          `SELECT root_namespace root_id,publication_date date,dirty_seq,exported_seq,first_dirty_at,last_material_event_at FROM export_state e WHERE owner_id=? AND destination_key GLOB 'drive:*' AND (dirty_seq>exported_seq OR revision=0) AND (lease_owner IS NULL OR lease_until<=?) AND (last_material_event_at<=? OR first_dirty_at<=?) AND EXISTS(SELECT 1 FROM drive_connections c WHERE c.owner_id=e.owner_id AND c.connection_id=e.connection_id AND c.auth_state='CONNECTED' AND c.root_state='VERIFIED' AND c.root_id=e.root_namespace) ORDER BY first_dirty_at,publication_date,root_namespace LIMIT 20`,
+          `SELECT root_namespace root_id,publication_date date,dirty_seq,exported_seq,first_dirty_at,last_material_event_at FROM export_state e WHERE owner_id=? AND destination_key GLOB 'drive:*' AND (dirty_seq>exported_seq OR revision=0 OR desired_generation>exported_generation) AND (lease_owner IS NULL OR lease_until<=?) AND (last_material_event_at<=? OR first_dirty_at<=?) AND EXISTS(SELECT 1 FROM drive_connections c WHERE c.owner_id=e.owner_id AND c.connection_id=e.connection_id AND c.auth_state='CONNECTED' AND c.root_state='VERIFIED' AND c.root_id=e.root_namespace) ORDER BY first_dirty_at,publication_date,root_namespace LIMIT 20`,
         )
         .bind(this.context.ownerId, now.toISOString(), debounce, maximum)
         .all<{

@@ -17,8 +17,31 @@ import {
 } from '../../../../packages/core/src/drive/client.js';
 import { previewDriveRoot } from '../../../../packages/core/src/drive/root.js';
 import { createDriveRootCandidate } from '../../../../packages/core/src/drive/root-create.js';
+import { exportStatus } from '../../../../packages/core/src/export/status.js';
+import { ExportSettings } from '../../../../packages/core/src/export/settings.js';
 
 export const driveApp = ownerRouter();
+driveApp.get('/exports/status', async (c) => {
+  queryFields(c, []);
+  return c.json(await exportStatus(c.env.DB, c.get('access'), new Date()));
+});
+driveApp.post('/exports/mode', async (c) => {
+  const input = await body(c, ['root_id', 'date', 'mode', 'expected_revision']);
+  if (
+    (input.mode !== 'COMPACT' && input.mode !== 'FULL') ||
+    !Number.isSafeInteger(input.expected_revision)
+  )
+    throw new Error('INVALID_EXPORT_SETTINGS');
+  return c.json(
+    await new ExportSettings(c.env.DB, c.get('access')).mode(
+      text(input.root_id, 200),
+      text(input.date, 10),
+      input.mode,
+      input.expected_revision as number,
+      new Date(),
+    ),
+  );
+});
 driveApp.post('/root/preview', async (c) => {
   const input = await body(c, [
     'connection_id',

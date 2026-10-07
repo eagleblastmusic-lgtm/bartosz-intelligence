@@ -44,8 +44,9 @@ export class DailyExportExecutor {
       lease.fencing_token,
       now.toISOString(),
       artifactId,
+      manifest.mode,
     ];
-    const guardSql = `owner_id=? AND root_namespace=? AND publication_date=? AND destination_key GLOB 'drive:*' AND lease_owner=? AND fencing_token=? AND lease_until>? AND rendered_artifact_id=? AND EXISTS(SELECT 1 FROM drive_connections c WHERE c.owner_id=export_state.owner_id AND c.connection_id=export_state.connection_id AND c.root_id=export_state.root_namespace AND c.root_state='VERIFIED' AND c.auth_state='CONNECTED')`;
+    const guardSql = `owner_id=? AND root_namespace=? AND publication_date=? AND destination_key GLOB 'drive:*' AND lease_owner=? AND fencing_token=? AND lease_until>? AND rendered_artifact_id=? AND COALESCE(desired_mode,mode)=? AND EXISTS(SELECT 1 FROM drive_connections c WHERE c.owner_id=export_state.owner_id AND c.connection_id=export_state.connection_id AND c.root_id=export_state.root_namespace AND c.root_state='VERIFIED' AND c.auth_state='CONNECTED')`;
     const current = async () => {
       const row = await this.db
         .prepare(
@@ -197,7 +198,7 @@ export class DailyExportExecutor {
               const result = await this.db.batch([
                 this.db
                   .prepare(
-                    `UPDATE export_state SET exported_seq=MAX(exported_seq,?) WHERE ${guardSql} AND revision=? AND full_file_hash=?`,
+                    `UPDATE export_state SET exported_seq=MAX(exported_seq,?),exported_generation=desired_generation WHERE ${guardSql} AND revision=? AND full_file_hash=?`,
                   )
                   .bind(
                     manifest.source_change_seq,
@@ -241,7 +242,7 @@ export class DailyExportExecutor {
       const result = await this.db.batch([
         this.db
           .prepare(
-            `UPDATE export_state SET file_id=?,body_hash=?,full_file_hash=?,exported_seq=?,revision=?,mode=? WHERE ${guardSql}`,
+            `UPDATE export_state SET file_id=?,body_hash=?,full_file_hash=?,exported_seq=MAX(exported_seq,?),exported_generation=desired_generation,revision=?,mode=? WHERE ${guardSql}`,
           )
           .bind(
             remoteId,

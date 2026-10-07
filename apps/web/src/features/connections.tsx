@@ -3,6 +3,7 @@ import { api, errorMessage } from '../app/api.js';
 import { AppLink } from '../app/router.js';
 import type { DriveStatus } from '../../../../packages/contracts/src/drive.js';
 import { DriveRootPreview } from './drive-root-preview.js';
+import { DailyExports } from './daily-exports.js';
 export function Connections() {
   const [data, setData] = useState<DriveStatus | null>(null),
     [error, setError] = useState(''),
@@ -168,6 +169,7 @@ export function Connections() {
           </p>
         </section>
       )}
+      <DailyExports />
     </>
   );
 }

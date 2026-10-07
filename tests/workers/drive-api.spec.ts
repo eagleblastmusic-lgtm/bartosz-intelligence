@@ -7,7 +7,73 @@ import { issueSession } from '../../packages/core/src/auth/session.js';
 import application from '../../config/application.json';
 import type { Env } from '../../apps/api/src/env.js';
 import { base64url } from '../../packages/core/src/auth/crypto.js';
+import { fixtureOwner, fixtureNow } from './core-fixture.js';
+import { DriveExportIdentity } from '../../packages/core/src/drive/identity.js';
+import { exportStatus } from '../../packages/core/src/export/status.js';
 beforeEach(resetCore);
+it('export status is owner scoped and readonly; mode intent requires CSRF, integer revision and keeps remote state honest', async () => {
+  const access = await fixtureOwner(),
+    h = await headers();
+  await env.DB.prepare(
+    `INSERT INTO drive_connections(owner_id,connection_id,account_subject,client_id,scopes_json,auth_state,root_id,root_state,revision,last_intent_hash,created_at,updated_at) VALUES('a','export','private-subject','client','[]','CONNECTED','root','VERIFIED',1,'receipt',?,?)`,
+  )
+    .bind(fixtureNow.toISOString(), fixtureNow.toISOString())
+    .run();
+  await new DriveExportIdentity(env.DB, access).ensure(
+    'export',
+    'root',
+    '2026-10-05',
+    fixtureNow,
+  );
+  expect((await request('/exports/status')).status).toBe(401);
+  const response = await request('/exports/status', h),
+    status = (await response.json()) as Awaited<
+      ReturnType<typeof exportStatus>
+    >;
+  expect(response.headers.get('Cache-Control')).toBe('no-store');
+  expect(status).toMatchObject({
+    automatic_updates_qualified: false,
+    days: [
+      {
+        desired_mode: 'COMPACT',
+        remote_revision: 0,
+        rendered_revision: null,
+        file_id: null,
+        queue_state: 'DUE',
+      },
+    ],
+  });
+  expect(JSON.stringify(status)).not.toContain('private-subject');
+  expect(
+    (await exportStatus(env.DB, await fixtureOwner('b'), new Date())).days,
+  ).toEqual([]);
+  const input = {
+    root_id: 'root',
+    date: '2026-10-05',
+    mode: 'FULL',
+    expected_revision: 1,
+  };
+  expect((await request('/exports/mode', {}, input)).status).toBe(403);
+  expect(
+    (await request('/exports/mode', h, { ...input, expected_revision: '1' }))
+      .status,
+  ).toBe(422);
+  expect((await request('/exports/mode', h, input)).status).toBe(200);
+  expect((await request('/exports/mode', h, input)).status).toBe(409);
+  expect(await (await request('/exports/status', h)).json()).toMatchObject({
+    days: [
+      {
+        desired_mode: 'FULL',
+        remote_mode: 'COMPACT',
+        desired_generation: 1,
+        exported_generation: 0,
+        remote_revision: 0,
+        file_id: null,
+        queue_state: 'WAITING',
+      },
+    ],
+  });
+});
 it('root create requires CSRF, owner connection and input revision before token renewal, and rejects malformed name', async () => {
   const h = await headers(),
     input = { connection_id: 'foreign', name: 'Daily', expected_revision: 1 };

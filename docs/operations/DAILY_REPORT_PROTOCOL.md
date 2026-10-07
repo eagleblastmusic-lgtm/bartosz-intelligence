@@ -65,8 +65,8 @@ The due query applies a ten-minute debounce and thirty-minute maximum wall-clock
 wait, orders oldest dirty days first, and admits only connected/verified roots
 without an active lease. Explicit first exports include empty days. Older
 completion advances only exported_seq, preserving a newer dirty_seq. This is
-local queue correctness; executor availability accounting, scheduler wiring,
-mode controls and live latency qualification are
+local queue correctness; executor availability accounting, scheduler wiring
+and live latency qualification are
 still required before claiming the complete CP-7.4 acceptance.
 
 Material comparison ignores only revision and source_change_seq in the trusted
@@ -79,3 +79,23 @@ later dirty events remain pending. The candidate attempt records
 `NO_MATERIAL_CHANGE` and stays PREPARED, rather than falsely recording its bytes
 as uploaded/VERIFIED. A material difference continues to fail closed with
 UNQUALIFIED_UPDATE until actual remote conditional updates are qualified.
+
+Mode intent is separate from the mode and revision actually written to Drive.
+Owner API `/connections/drive/exports/mode` requires CSRF and an integer settings
+revision. A change increments a desired generation, preserves the reserved/file
+identity, and invalidates the old lease/fence. Repeating the same mode at the
+current settings revision is a no-op. The generation keeps a mode change queued
+even when source_change_seq is unchanged; later source events preserve its oldest
+dirty time. Completion acknowledges the generation only under the matching
+desired mode and current fence. Switching back to unchanged material can use the
+readback path above without creating another remote revision.
+
+Owner-only, no-store `/connections/drive/exports/status` and the Connections
+screen distinguish desired mode/generation, rendered revision/cut/byte count,
+actual remote revision/mode/file ID, acknowledged/pending sequences, authorization,
+root readiness, last verified receipt, fixed retry reason and queue deadline.
+The deadline currently uses wall-clock debounce; DUE is queue readiness, not a
+promise that a scheduler or automatic remote update is qualified. Automatic
+updates remain explicitly unqualified. Status reads do not renew tokens, create
+destinations, run AI, or export files. No credential/account-subject values are
+returned. The bounded list reports truncation after the latest fifty days.

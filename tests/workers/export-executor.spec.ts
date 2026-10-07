@@ -12,6 +12,7 @@ import { DailyExportExecutor } from '../../packages/core/src/export/executor.js'
 import { renderOwnerDaily } from '../../packages/core/src/export/snapshot.js';
 import { DriveClient } from '../../packages/core/src/drive/client.js';
 import { sha256 } from '../../packages/core/src/auth/crypto.js';
+import { ExportSettings } from '../../packages/core/src/export/settings.js';
 beforeEach(resetCore);
 it('acknowledges identical material without uploading or claiming a new remote revision', async () => {
   const f = await fixture();
@@ -101,15 +102,67 @@ it('acknowledges identical material without uploading or claiming a new remote r
     fixtureSecret,
     fixtureNow,
   );
+  await new ExportSettings(env.DB, f.owner).mode(
+    'root',
+    f.lease.date,
+    'FULL',
+    1,
+    fixtureNow,
+  );
+  const fullLease = await f.identity.claim(
+    'root',
+    f.lease.date,
+    'full',
+    fixtureNow,
+  );
   const fullId = await new DailyExportArtifacts(env.DB, f.owner).save(
-    f.lease,
+    fullLease,
     full,
     fixtureNow,
   );
   await expect(
-    f.executor.execute(f.lease, fullId, client, fixtureNow),
+    f.executor.execute(fullLease, fullId, client, fixtureNow),
   ).rejects.toThrow('UNQUALIFIED_UPDATE');
   expect(writes).toBe(1);
+});
+it('mode settings preserve the file mapping, invalidate old workers and queue changes even at the same source cut', async () => {
+  const f = await fixture();
+  const settings = new ExportSettings(env.DB, f.owner);
+  await f.identity.reserve(f.lease, 'reserved', fixtureNow);
+  expect(
+    await settings.mode('root', f.lease.date, 'COMPACT', 1, fixtureNow),
+  ).toMatchObject({ settings_revision: 1 });
+  expect(
+    await settings.mode('root', f.lease.date, 'FULL', 1, fixtureNow),
+  ).toMatchObject({ settings_revision: 2, desired_mode: 'FULL' });
+  await expect(
+    settings.mode('root', f.lease.date, 'COMPACT', 1, fixtureNow),
+  ).rejects.toThrow('REVISION_CONFLICT');
+  let requests = 0;
+  const client = new DriveClient('synthetic', async () => {
+    requests++;
+    throw new Error('UNEXPECTED_HTTP');
+  });
+  await expect(
+    f.executor.execute(f.lease, f.artifact, client, fixtureNow),
+  ).rejects.toThrow('EXPORT_STALE_FENCE_OR_REVISION');
+  expect(requests).toBe(0);
+  await settings.mode('root', f.lease.date, 'COMPACT', 2, fixtureNow);
+  expect(
+    await env.DB.prepare(
+      "SELECT mode,desired_mode,desired_generation,exported_generation,reserved_remote_id,revision FROM export_state WHERE owner_id='a'",
+    ).first(),
+  ).toMatchObject({
+    mode: 'COMPACT',
+    desired_mode: 'COMPACT',
+    desired_generation: 2,
+    exported_generation: 0,
+    reserved_remote_id: 'reserved',
+    revision: 0,
+  });
+  await expect(
+    settings.mode('root', '2026-10-06', 'FULL', 1, fixtureNow),
+  ).rejects.toThrow('NOT_FOUND');
 });
 async function fixture() {
   const owner = await fixtureOwner();
