@@ -67,3 +67,11 @@ still required. Official contracts:
 [generate IDs](https://developers.google.com/workspace/drive/api/reference/rest/v3/files/generateIds),
 [create](https://developers.google.com/workspace/drive/api/reference/rest/v3/files/create),
 [get](https://developers.google.com/workspace/drive/api/reference/rest/v3/files/get).
+
+`previewDriveRoot` accepts an explicitly selected accessible folder ID and checks
+owner connection revision before and after remote inspection. A folder must be
+untrashed with known canAddChildren capability. Actual account storage is checked;
+unknown/unlimited capacity is not converted to zero. A root change previews
+existing mapping count and duplicate risk, preserves old file IDs and does not
+write or qualify the new root. Metadata access PASS remains distinct from actual
+child create/read/update NOT_RUN; the latter needs a durable probe and live proof.
