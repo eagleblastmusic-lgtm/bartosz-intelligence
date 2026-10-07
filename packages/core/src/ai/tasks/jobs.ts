@@ -878,6 +878,30 @@ export class OptionalAIJobs {
             ...bindings,
           ),
       ],
+      {
+        // Recheck all contributing sources inside the acceptance transaction. A
+        // successful prepare is insufficient if privacy changes while artifacts
+        // are being retained or verified.
+        predicate: `NOT EXISTS(SELECT 1 FROM json_each(?) requested WHERE NOT EXISTS(SELECT 1 FROM items i JOIN sources s ON s.owner_id=i.owner_id AND s.source_id=i.source_id WHERE i.owner_id=? AND i.item_id=requested.value AND i.availability='PUBLIC' AND s.access_state='PUBLIC' AND s.ai_processing_allowed=1))`,
+        bindings: [
+          JSON.stringify(
+            snapshot.task === 'TRANSLATE'
+              ? [snapshot.item_id]
+              : [
+                  ...new Set([
+                    snapshot.item_id,
+                    ...snapshot.plan.snapshot.current.observations.map(
+                      (r) => r.item_id,
+                    ),
+                    ...snapshot.plan.snapshot.prior.observations.map(
+                      (r) => r.item_id,
+                    ),
+                  ]),
+                ],
+          ),
+          this.context.ownerId,
+        ],
+      },
     );
   }
 }

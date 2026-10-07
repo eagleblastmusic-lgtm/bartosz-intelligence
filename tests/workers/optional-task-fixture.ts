@@ -427,6 +427,72 @@ export async function verifyOptionalTranslation(
         fixtureSecret,
       ),
     ).rejects.toThrow('STALE_FENCE');
+    if (mode === 'PRODUCTION') {
+      // Revoke only after prepare/retention, immediately before atomic acceptance.
+      // Reusing the same receipt afterwards must not consume another AI request.
+      for (const change of [
+        {
+          deny: "UPDATE sources SET ai_processing_allowed=0 WHERE owner_id='a'",
+          restore:
+            "UPDATE sources SET ai_processing_allowed=1 WHERE owner_id='a'",
+        },
+        {
+          deny: "UPDATE items SET availability='PRIVATE' WHERE owner_id='a'",
+          restore: "UPDATE items SET availability='PUBLIC' WHERE owner_id='a'",
+        },
+        {
+          deny: "UPDATE sources SET access_state='RESTRICTED' WHERE owner_id='a'",
+          restore:
+            "UPDATE sources SET access_state='PUBLIC' WHERE owner_id='a'",
+        },
+      ]) {
+        let raced = false;
+        const blocked = new OptionalAIJobs(
+          {
+            prepare: (sql) => db.prepare(sql),
+            batch: async (statements) => {
+              if (statements.length > 6) {
+                raced = true;
+                await db.prepare(change.deny).run();
+              }
+              return db.batch(statements);
+            },
+          },
+          access,
+        );
+        await expect(
+          blocked.complete(
+            token,
+            'TRANSLATE',
+            permit.reservation_id,
+            candidate.artifact_id,
+            requestNow,
+            fixtureSecret,
+          ),
+        ).rejects.toThrow('STALE_FENCE');
+        expect(raced).toBe(true);
+        expect(
+          await db
+            .prepare('SELECT state FROM analysis_runs WHERE run_id=?')
+            .bind(prepared.run_id)
+            .first('state'),
+        ).toBe('CANDIDATE');
+        expect(
+          await db
+            .prepare('SELECT count(*) n FROM optional_ai_results')
+            .first('n'),
+        ).toBe(0);
+        expect(
+          await db
+            .prepare(
+              'SELECT commit_nonce FROM job_attempts WHERE job_id=? AND fencing_token=?',
+            )
+            .bind(token.job_id, token.fencing_token)
+            .first('commit_nonce'),
+        ).toBeNull();
+        await db.prepare(change.restore).run();
+      }
+    }
     const result = await worker.complete(
       token,
       'TRANSLATE',
