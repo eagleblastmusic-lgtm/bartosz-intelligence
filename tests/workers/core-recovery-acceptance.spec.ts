@@ -1,6 +1,11 @@
 import { env } from 'cloudflare:workers';
 import { beforeEach, it, expect } from 'vitest';
-import { resetCore, fixtureOwner, fixtureNow } from './core-fixture.js';
+import {
+  resetCore,
+  resetSchema,
+  fixtureOwner,
+  fixtureNow,
+} from './core-fixture.js';
 import { AccessContext } from '../../packages/core/src/db/boundary.js';
 import type { Database } from '../../packages/core/src/db/boundary.js';
 import {
@@ -21,7 +26,6 @@ import {
 } from '../../packages/core/src/backup/snapshot.js';
 import type { BackupChunk } from '../../packages/core/src/backup/snapshot.js';
 import { restoreCanonical } from '../../packages/core/src/backup/restore.js';
-import { applyMigrations } from '../../packages/core/src/db/migrations.js';
 import type { ItemMetadata } from '../../packages/contracts/src/discovery.js';
 beforeEach(resetCore);
 it('combined D1 recovery: duplicate discovery, DB rollback, expired transport/lease, stale fence, accepted effect and canonical restore', async () => {
@@ -247,16 +251,7 @@ it('combined D1 recovery: duplicate discovery, DB rollback, expired transport/le
   }
   const portable = { manifest: await backup.complete(begun.backup_id), chunks };
   // Replace only the disposable test database, using the real migration/restore path.
-  const tables = (
-    await env.DB.prepare(
-      "SELECT name FROM sqlite_master WHERE type='table' AND name NOT LIKE 'sqlite_%' AND name NOT LIKE '_cf_%'",
-    ).all<{ name: string }>()
-  ).results;
-  await env.DB.batch([
-    env.DB.prepare('PRAGMA defer_foreign_keys=ON'),
-    ...tables.map((row) => env.DB.prepare(`DROP TABLE "${row.name}"`)),
-  ]);
-  await applyMigrations(env.DB, env.CORE_MIGRATIONS, new Date().toISOString());
+  await resetSchema();
   await restoreCanonical(env.DB, portable, 'subject-a');
   expect(
     (
