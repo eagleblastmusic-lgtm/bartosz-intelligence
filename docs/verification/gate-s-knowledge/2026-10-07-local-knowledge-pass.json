@@ -1,0 +1,706 @@
+{
+  "version": "gate-s-local:1",
+  "scope": "knowledge",
+  "sampled_at": "2026-10-07T16:36:09.472Z",
+  "fixture": "SYNTHETIC_ISOLATED_10000_ITEMS",
+  "runtime": "actual local workerd/D1 and built GUI",
+  "production_d1": "NOT_RUN",
+  "ai_requests": 0,
+  "manual_screen_reader": "NOT_RUN",
+  "provider_quality": "NOT_RUN",
+  "status": "INCONCLUSIVE",
+  "query_inspection": {
+    "engine": "actual local D1 EXPLAIN of KnowledgeSearch SQL",
+    "queries": 5,
+    "page_rows": 20,
+    "no_count_per_query": true,
+    "plans": [
+      [
+        "SEARCH search_index_state USING INDEX sqlite_autoindex_search_index_state_1 (owner_id=?)"
+      ],
+      [
+        "SEARCH change_log USING COVERING INDEX change_owner_seq (owner_id=?)"
+      ],
+      [
+        "SCAN knowledge_fts VIRTUAL TABLE INDEX 64:M1>",
+        "SEARCH d USING INTEGER PRIMARY KEY (rowid=?)",
+        "CORRELATED SCALAR SUBQUERY 1",
+        "SEARCH m USING COVERING INDEX sqlite_autoindex_item_revisions_3 (owner_id=?)",
+        "SEARCH i USING INDEX sqlite_autoindex_items_3 (owner_id=? AND item_id=?)",
+        "CORRELATED SCALAR SUBQUERY 2",
+        "SEARCH o USING COVERING INDEX observations_run_kind (owner_id=?)",
+        "SEARCH r USING INDEX sqlite_autoindex_analysis_runs_2 (owner_id=? AND run_id=?)",
+        "SEARCH s USING INDEX sqlite_autoindex_active_analysis_selections_1 (owner_id=? AND item_id=?)",
+        "CORRELATED SCALAR SUBQUERY 3",
+        "SEARCH n USING INDEX search_insight_cursor (owner_id=?)",
+        "CORRELATED SCALAR SUBQUERY 4",
+        "SEARCH e USING COVERING INDEX search_entity_cursor (owner_id=?)",
+        "CORRELATED SCALAR SUBQUERY 5",
+        "SEARCH a USING COVERING INDEX sqlite_autoindex_entity_aliases_1 (owner_id=?)",
+        "CORRELATED SCALAR SUBQUERY 25",
+        "SEARCH d USING INDEX alias_decision_latest (owner_id=? AND alias_id=?)",
+        "CORRELATED SCALAR SUBQUERY 6",
+        "SEARCH r USING INDEX search_summary_cursor (owner_id=?)",
+        "SEARCH s USING INDEX sqlite_autoindex_active_analysis_selections_1 (owner_id=? AND item_id=?)",
+        "SCAN j VIRTUAL TABLE INDEX 3:",
+        "CORRELATED SCALAR SUBQUERY 7",
+        "SEARCH p USING INDEX sqlite_autoindex_spaces_1 (owner_id=? AND space_id=?)",
+        "SEARCH x USING INDEX sqlite_autoindex_item_spaces_1 (owner_id=? AND item_id=? AND space_id=?)",
+        "CORRELATED SCALAR SUBQUERY 11",
+        "SEARCH e USING COVERING INDEX sqlite_autoindex_entities_1 (owner_id=? AND entity_id=?)",
+        "CORRELATED SCALAR SUBQUERY 8",
+        "SEARCH x USING INDEX identity_member_latest (owner_id=? AND entity_id=?)",
+        "CORRELATED SCALAR SUBQUERY 10",
+        "SEARCH t USING COVERING INDEX sqlite_autoindex_entities_1 (owner_id=? AND entity_id=?)",
+        "CORRELATED SCALAR SUBQUERY 9",
+        "SEARCH x USING INDEX identity_member_latest (owner_id=? AND entity_id=?)",
+        "CORRELATED SCALAR SUBQUERY 15",
+        "SEARCH e USING COVERING INDEX sqlite_autoindex_observation_entities_1 (owner_id=? AND observation_id=?)",
+        "CORRELATED SCALAR SUBQUERY 12",
+        "SEARCH x USING INDEX identity_member_latest (owner_id=? AND entity_id=?)",
+        "CORRELATED SCALAR SUBQUERY 14",
+        "SEARCH t USING COVERING INDEX sqlite_autoindex_entities_1 (owner_id=? AND entity_id=?)",
+        "CORRELATED SCALAR SUBQUERY 13",
+        "SEARCH x USING INDEX identity_member_latest (owner_id=? AND entity_id=?)",
+        "SEARCH i USING INDEX sqlite_autoindex_items_3 (owner_id=? AND item_id=?) LEFT-JOIN",
+        "SEARCH m USING INDEX sqlite_autoindex_item_revisions_3 (owner_id=? AND item_id=? AND revision_id=?) LEFT-JOIN"
+      ],
+      [
+        "SEARCH search_index_state USING INDEX sqlite_autoindex_search_index_state_1 (owner_id=?)"
+      ],
+      [
+        "SEARCH change_log USING COVERING INDEX change_owner_seq (owner_id=?)"
+      ]
+    ],
+    "rows_read": null,
+    "rows_read_status": "NOT_EXPOSED_BY_LOCAL_RUNTIME"
+  },
+  "requests": [
+    {
+      "path": "/search",
+      "status": 200,
+      "elapsed_ms": 48.873300000006566
+    },
+    {
+      "path": "/assets/index-IVykiFMu.css",
+      "status": 200,
+      "elapsed_ms": 49.28530000000319
+    },
+    {
+      "path": "/assets/index-D1yuDyzx.js",
+      "status": 200,
+      "elapsed_ms": 357.645199999999
+    },
+    {
+      "path": "/api/v1/auth/session",
+      "status": 200,
+      "elapsed_ms": 187.8292999999976
+    },
+    {
+      "path": "/api/v1/search",
+      "status": 200,
+      "elapsed_ms": 73.17939999999362
+    },
+    {
+      "path": "/api/v1/search",
+      "status": 200,
+      "elapsed_ms": 59.967100000001665
+    },
+    {
+      "path": "/api/v1/search",
+      "status": 200,
+      "elapsed_ms": 56.339700000004086
+    },
+    {
+      "path": "/api/v1/search",
+      "status": 200,
+      "elapsed_ms": 60.2187000000049
+    },
+    {
+      "path": "/api/v1/search",
+      "status": 200,
+      "elapsed_ms": 60.9974000000002
+    },
+    {
+      "path": "/api/v1/search",
+      "status": 200,
+      "elapsed_ms": 63.76640000000043
+    },
+    {
+      "path": "/api/v1/search",
+      "status": 200,
+      "elapsed_ms": 65.36480000000302
+    },
+    {
+      "path": "/search",
+      "status": 200,
+      "elapsed_ms": 41.44260000000213
+    },
+    {
+      "path": "/assets/index-IVykiFMu.css",
+      "status": 200,
+      "elapsed_ms": 57.528900000004796
+    },
+    {
+      "path": "/assets/index-D1yuDyzx.js",
+      "status": 200,
+      "elapsed_ms": 353.825499999999
+    },
+    {
+      "path": "/api/v1/auth/session",
+      "status": 200,
+      "elapsed_ms": 37.80540000000474
+    },
+    {
+      "path": "/api/v1/search",
+      "status": 200,
+      "elapsed_ms": 69.29839999999967
+    },
+    {
+      "path": "/ledger",
+      "status": 200,
+      "elapsed_ms": 45.86220000000321
+    },
+    {
+      "path": "/assets/index-IVykiFMu.css",
+      "status": 200,
+      "elapsed_ms": 63.27060000000347
+    },
+    {
+      "path": "/assets/index-D1yuDyzx.js",
+      "status": 200,
+      "elapsed_ms": 342.3894
+    },
+    {
+      "path": "/api/v1/auth/session",
+      "status": 200,
+      "elapsed_ms": 36.235099999998056
+    },
+    {
+      "path": "/api/v1/sources",
+      "status": 200,
+      "elapsed_ms": 50.190199999997276
+    },
+    {
+      "path": "/api/v1/ledger",
+      "status": 200,
+      "elapsed_ms": 53.40090000000055
+    },
+    {
+      "path": "/entities",
+      "status": 200,
+      "elapsed_ms": 40.81910000000062
+    },
+    {
+      "path": "/assets/index-IVykiFMu.css",
+      "status": 200,
+      "elapsed_ms": 66.03600000000006
+    },
+    {
+      "path": "/assets/index-D1yuDyzx.js",
+      "status": 200,
+      "elapsed_ms": 344.879399999998
+    },
+    {
+      "path": "/api/v1/auth/session",
+      "status": 200,
+      "elapsed_ms": 38.40799999999581
+    },
+    {
+      "path": "/api/v1/entities",
+      "status": 200,
+      "elapsed_ms": 42.24799999999959
+    },
+    {
+      "path": "/items/ux-6",
+      "status": 200,
+      "elapsed_ms": 33.51170000000275
+    },
+    {
+      "path": "/assets/index-IVykiFMu.css",
+      "status": 200,
+      "elapsed_ms": 66.0106999999989
+    },
+    {
+      "path": "/assets/index-D1yuDyzx.js",
+      "status": 200,
+      "elapsed_ms": 344.8841000000102
+    },
+    {
+      "path": "/api/v1/auth/session",
+      "status": 200,
+      "elapsed_ms": 48.42480000000796
+    },
+    {
+      "path": "/api/v1/items/ux-6/detail",
+      "status": 200,
+      "elapsed_ms": 55.8689999999915
+    },
+    {
+      "path": "/api/v1/items/ux-6/canonical",
+      "status": 200,
+      "elapsed_ms": 54.15559999999823
+    },
+    {
+      "path": "/system/profiles",
+      "status": 200,
+      "elapsed_ms": 35.66139999999723
+    },
+    {
+      "path": "/assets/index-IVykiFMu.css",
+      "status": 200,
+      "elapsed_ms": 48.73570000000473
+    },
+    {
+      "path": "/assets/index-D1yuDyzx.js",
+      "status": 200,
+      "elapsed_ms": 348.61149999999907
+    },
+    {
+      "path": "/api/v1/auth/session",
+      "status": 200,
+      "elapsed_ms": 49.143599999995786
+    },
+    {
+      "path": "/api/v1/profiles",
+      "status": 200,
+      "elapsed_ms": 40.473199999993085
+    },
+    {
+      "path": "/system/prompts",
+      "status": 200,
+      "elapsed_ms": 42.297200000000885
+    },
+    {
+      "path": "/assets/index-IVykiFMu.css",
+      "status": 200,
+      "elapsed_ms": 47.133800000010524
+    },
+    {
+      "path": "/assets/index-D1yuDyzx.js",
+      "status": 200,
+      "elapsed_ms": 360.42209999999614
+    },
+    {
+      "path": "/api/v1/auth/session",
+      "status": 200,
+      "elapsed_ms": 42.74770000000717
+    },
+    {
+      "path": "/api/v1/prompts",
+      "status": 200,
+      "elapsed_ms": 113.55719999999565
+    },
+    {
+      "path": "/api/v1/prompts/ECONOMY_ANALYSIS_V1/2",
+      "status": 200,
+      "elapsed_ms": 144.0469000000012
+    },
+    {
+      "path": "/api/v1/prompts/ECONOMY_ANALYSIS_V1/2/tests",
+      "status": 200,
+      "elapsed_ms": 62.511599999998
+    },
+    {
+      "path": "/api/v1/prompts/lab/quota",
+      "status": 200,
+      "elapsed_ms": 36.798500000004424
+    },
+    {
+      "path": "/api/v1/prompts/lab/experiments",
+      "status": 200,
+      "elapsed_ms": 55.54330000000482
+    },
+    {
+      "path": "/items/ux-6",
+      "status": 200,
+      "elapsed_ms": 37.52270000000135
+    },
+    {
+      "path": "/assets/index-IVykiFMu.css",
+      "status": 200,
+      "elapsed_ms": 46.205099999991944
+    },
+    {
+      "path": "/assets/index-D1yuDyzx.js",
+      "status": 200,
+      "elapsed_ms": 356.0408999999927
+    },
+    {
+      "path": "/api/v1/auth/session",
+      "status": 200,
+      "elapsed_ms": 35.840299999996205
+    },
+    {
+      "path": "/api/v1/items/ux-6/detail",
+      "status": 200,
+      "elapsed_ms": 55.08999999999651
+    },
+    {
+      "path": "/api/v1/items/ux-6/canonical",
+      "status": 200,
+      "elapsed_ms": 58.75069999998959
+    },
+    {
+      "path": "/api/v1/evidence/ev_9a05d3b8f5fe7c007c96afda9158e5ddebdc5ebb0970f009c3b62a647154c829",
+      "status": 200,
+      "elapsed_ms": 59.61659999999392
+    }
+  ],
+  "matrix": [
+    {
+      "route": "/search?q=publikacja",
+      "width": 360,
+      "theme": "light",
+      "reflow": true,
+      "violations": []
+    },
+    {
+      "route": "/search?q=publikacja",
+      "width": 768,
+      "theme": "light",
+      "reflow": true,
+      "violations": []
+    },
+    {
+      "route": "/search?q=publikacja",
+      "width": 1024,
+      "theme": "light",
+      "reflow": true,
+      "violations": []
+    },
+    {
+      "route": "/search?q=publikacja",
+      "width": 1440,
+      "theme": "light",
+      "reflow": true,
+      "violations": []
+    },
+    {
+      "route": "/search?q=publikacja",
+      "width": 360,
+      "theme": "dark",
+      "reflow": true,
+      "violations": []
+    },
+    {
+      "route": "/search?q=publikacja",
+      "width": 768,
+      "theme": "dark",
+      "reflow": true,
+      "violations": []
+    },
+    {
+      "route": "/search?q=publikacja",
+      "width": 1024,
+      "theme": "dark",
+      "reflow": true,
+      "violations": []
+    },
+    {
+      "route": "/search?q=publikacja",
+      "width": 1440,
+      "theme": "dark",
+      "reflow": true,
+      "violations": []
+    },
+    {
+      "route": "/ledger",
+      "width": 360,
+      "theme": "light",
+      "reflow": true,
+      "violations": []
+    },
+    {
+      "route": "/ledger",
+      "width": 768,
+      "theme": "light",
+      "reflow": true,
+      "violations": []
+    },
+    {
+      "route": "/ledger",
+      "width": 1024,
+      "theme": "light",
+      "reflow": true,
+      "violations": []
+    },
+    {
+      "route": "/ledger",
+      "width": 1440,
+      "theme": "light",
+      "reflow": true,
+      "violations": []
+    },
+    {
+      "route": "/ledger",
+      "width": 360,
+      "theme": "dark",
+      "reflow": true,
+      "violations": []
+    },
+    {
+      "route": "/ledger",
+      "width": 768,
+      "theme": "dark",
+      "reflow": true,
+      "violations": []
+    },
+    {
+      "route": "/ledger",
+      "width": 1024,
+      "theme": "dark",
+      "reflow": true,
+      "violations": []
+    },
+    {
+      "route": "/ledger",
+      "width": 1440,
+      "theme": "dark",
+      "reflow": true,
+      "violations": []
+    },
+    {
+      "route": "/entities",
+      "width": 360,
+      "theme": "light",
+      "reflow": true,
+      "violations": []
+    },
+    {
+      "route": "/entities",
+      "width": 768,
+      "theme": "light",
+      "reflow": true,
+      "violations": []
+    },
+    {
+      "route": "/entities",
+      "width": 1024,
+      "theme": "light",
+      "reflow": true,
+      "violations": []
+    },
+    {
+      "route": "/entities",
+      "width": 1440,
+      "theme": "light",
+      "reflow": true,
+      "violations": []
+    },
+    {
+      "route": "/entities",
+      "width": 360,
+      "theme": "dark",
+      "reflow": true,
+      "violations": []
+    },
+    {
+      "route": "/entities",
+      "width": 768,
+      "theme": "dark",
+      "reflow": true,
+      "violations": []
+    },
+    {
+      "route": "/entities",
+      "width": 1024,
+      "theme": "dark",
+      "reflow": true,
+      "violations": []
+    },
+    {
+      "route": "/entities",
+      "width": 1440,
+      "theme": "dark",
+      "reflow": true,
+      "violations": []
+    },
+    {
+      "route": "/items/ux-6",
+      "width": 360,
+      "theme": "light",
+      "reflow": true,
+      "violations": []
+    },
+    {
+      "route": "/items/ux-6",
+      "width": 768,
+      "theme": "light",
+      "reflow": true,
+      "violations": []
+    },
+    {
+      "route": "/items/ux-6",
+      "width": 1024,
+      "theme": "light",
+      "reflow": true,
+      "violations": []
+    },
+    {
+      "route": "/items/ux-6",
+      "width": 1440,
+      "theme": "light",
+      "reflow": true,
+      "violations": []
+    },
+    {
+      "route": "/items/ux-6",
+      "width": 360,
+      "theme": "dark",
+      "reflow": true,
+      "violations": []
+    },
+    {
+      "route": "/items/ux-6",
+      "width": 768,
+      "theme": "dark",
+      "reflow": true,
+      "violations": []
+    },
+    {
+      "route": "/items/ux-6",
+      "width": 1024,
+      "theme": "dark",
+      "reflow": true,
+      "violations": []
+    },
+    {
+      "route": "/items/ux-6",
+      "width": 1440,
+      "theme": "dark",
+      "reflow": true,
+      "violations": []
+    },
+    {
+      "route": "/system/profiles",
+      "width": 360,
+      "theme": "light",
+      "reflow": true,
+      "violations": []
+    },
+    {
+      "route": "/system/profiles",
+      "width": 768,
+      "theme": "light",
+      "reflow": true,
+      "violations": []
+    },
+    {
+      "route": "/system/profiles",
+      "width": 1024,
+      "theme": "light",
+      "reflow": true,
+      "violations": []
+    },
+    {
+      "route": "/system/profiles",
+      "width": 1440,
+      "theme": "light",
+      "reflow": true,
+      "violations": []
+    },
+    {
+      "route": "/system/profiles",
+      "width": 360,
+      "theme": "dark",
+      "reflow": true,
+      "violations": []
+    },
+    {
+      "route": "/system/profiles",
+      "width": 768,
+      "theme": "dark",
+      "reflow": true,
+      "violations": []
+    },
+    {
+      "route": "/system/profiles",
+      "width": 1024,
+      "theme": "dark",
+      "reflow": true,
+      "violations": []
+    },
+    {
+      "route": "/system/profiles",
+      "width": 1440,
+      "theme": "dark",
+      "reflow": true,
+      "violations": []
+    },
+    {
+      "route": "/system/prompts",
+      "width": 360,
+      "theme": "light",
+      "reflow": true,
+      "violations": []
+    },
+    {
+      "route": "/system/prompts",
+      "width": 768,
+      "theme": "light",
+      "reflow": true,
+      "violations": []
+    },
+    {
+      "route": "/system/prompts",
+      "width": 1024,
+      "theme": "light",
+      "reflow": true,
+      "violations": []
+    },
+    {
+      "route": "/system/prompts",
+      "width": 1440,
+      "theme": "light",
+      "reflow": true,
+      "violations": []
+    },
+    {
+      "route": "/system/prompts",
+      "width": 360,
+      "theme": "dark",
+      "reflow": true,
+      "violations": []
+    },
+    {
+      "route": "/system/prompts",
+      "width": 768,
+      "theme": "dark",
+      "reflow": true,
+      "violations": []
+    },
+    {
+      "route": "/system/prompts",
+      "width": 1024,
+      "theme": "dark",
+      "reflow": true,
+      "violations": []
+    },
+    {
+      "route": "/system/prompts",
+      "width": 1440,
+      "theme": "dark",
+      "reflow": true,
+      "violations": []
+    }
+  ],
+  "search_render_ms": [
+    91.02660000000469,
+    93.05049999999756,
+    93.42599999999948,
+    95.47019999999611,
+    109.73769999999786
+  ],
+  "p95_search_render_ms": 109.73769999999786,
+  "evidence": {
+    "keyboard_open_close_focus": true,
+    "original_quote_verified": true,
+    "timestamp": "NONE_NO_FABRICATED_TIME",
+    "violations": []
+  },
+  "target_ms": 300,
+  "axe_violations": [],
+  "mobile_overflow": false,
+  "local_acceptance": "PASS"
+}

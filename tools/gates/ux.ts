@@ -13,6 +13,10 @@ const arg = (name: string) => {
   const index = process.argv.indexOf(name);
   return index < 0 ? undefined : process.argv[index + 1];
 };
+if (arg('--scope') === 'knowledge' && arg('--items') === '10000') {
+  await import('./search.js');
+  process.exit(process.exitCode ?? 0);
+}
 if (arg('--scope') !== 'v1a' || arg('--items') !== '10000')
   throw new Error('UX_SCOPE_REQUIRED');
 const output = resolve(arg('--output') || '.local/gate-u-v1a');

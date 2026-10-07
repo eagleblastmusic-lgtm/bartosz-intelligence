@@ -1,0 +1,306 @@
+{
+  "version": "gate-s-local:1",
+  "scope": "knowledge",
+  "sampled_at": "2026-10-07T16:26:23.647Z",
+  "fixture": "SYNTHETIC_ISOLATED_10000_ITEMS",
+  "runtime": "actual local workerd/D1 and built GUI",
+  "production_d1": "NOT_RUN",
+  "ai_requests": 0,
+  "manual_screen_reader": "NOT_RUN",
+  "provider_quality": "NOT_RUN",
+  "status": "INCONCLUSIVE",
+  "query_inspection": {
+    "engine": "actual local D1 EXPLAIN of KnowledgeSearch SQL",
+    "queries": 5,
+    "page_rows": 20,
+    "no_count_per_query": true,
+    "plans": [
+      [
+        "SEARCH search_index_state USING INDEX sqlite_autoindex_search_index_state_1 (owner_id=?)"
+      ],
+      [
+        "SEARCH change_log USING COVERING INDEX change_owner_seq (owner_id=?)"
+      ],
+      [
+        "SCAN knowledge_fts VIRTUAL TABLE INDEX 64:M1>",
+        "SEARCH d USING INTEGER PRIMARY KEY (rowid=?)",
+        "CORRELATED SCALAR SUBQUERY 1",
+        "SEARCH m USING COVERING INDEX sqlite_autoindex_item_revisions_3 (owner_id=?)",
+        "SEARCH i USING INDEX sqlite_autoindex_items_3 (owner_id=? AND item_id=?)",
+        "CORRELATED SCALAR SUBQUERY 2",
+        "SEARCH o USING COVERING INDEX observations_run_kind (owner_id=?)",
+        "SEARCH r USING INDEX sqlite_autoindex_analysis_runs_2 (owner_id=? AND run_id=?)",
+        "SEARCH s USING INDEX sqlite_autoindex_active_analysis_selections_1 (owner_id=? AND item_id=?)",
+        "CORRELATED SCALAR SUBQUERY 3",
+        "SEARCH n USING INDEX search_insight_cursor (owner_id=?)",
+        "CORRELATED SCALAR SUBQUERY 4",
+        "SEARCH e USING COVERING INDEX search_entity_cursor (owner_id=?)",
+        "CORRELATED SCALAR SUBQUERY 5",
+        "SEARCH a USING COVERING INDEX sqlite_autoindex_entity_aliases_1 (owner_id=?)",
+        "CORRELATED SCALAR SUBQUERY 25",
+        "SEARCH d USING INDEX alias_decision_latest (owner_id=? AND alias_id=?)",
+        "CORRELATED SCALAR SUBQUERY 6",
+        "SEARCH r USING INDEX search_summary_cursor (owner_id=?)",
+        "SEARCH s USING INDEX sqlite_autoindex_active_analysis_selections_1 (owner_id=? AND item_id=?)",
+        "SCAN j VIRTUAL TABLE INDEX 3:",
+        "CORRELATED SCALAR SUBQUERY 7",
+        "SEARCH p USING INDEX sqlite_autoindex_spaces_1 (owner_id=? AND space_id=?)",
+        "SEARCH x USING INDEX sqlite_autoindex_item_spaces_1 (owner_id=? AND item_id=? AND space_id=?)",
+        "CORRELATED SCALAR SUBQUERY 11",
+        "SEARCH e USING COVERING INDEX sqlite_autoindex_entities_1 (owner_id=? AND entity_id=?)",
+        "CORRELATED SCALAR SUBQUERY 8",
+        "SEARCH x USING INDEX identity_member_latest (owner_id=? AND entity_id=?)",
+        "CORRELATED SCALAR SUBQUERY 10",
+        "SEARCH t USING COVERING INDEX sqlite_autoindex_entities_1 (owner_id=? AND entity_id=?)",
+        "CORRELATED SCALAR SUBQUERY 9",
+        "SEARCH x USING INDEX identity_member_latest (owner_id=? AND entity_id=?)",
+        "CORRELATED SCALAR SUBQUERY 15",
+        "SEARCH e USING COVERING INDEX sqlite_autoindex_observation_entities_1 (owner_id=? AND observation_id=?)",
+        "CORRELATED SCALAR SUBQUERY 12",
+        "SEARCH x USING INDEX identity_member_latest (owner_id=? AND entity_id=?)",
+        "CORRELATED SCALAR SUBQUERY 14",
+        "SEARCH t USING COVERING INDEX sqlite_autoindex_entities_1 (owner_id=? AND entity_id=?)",
+        "CORRELATED SCALAR SUBQUERY 13",
+        "SEARCH x USING INDEX identity_member_latest (owner_id=? AND entity_id=?)",
+        "SEARCH i USING INDEX sqlite_autoindex_items_3 (owner_id=? AND item_id=?) LEFT-JOIN",
+        "SEARCH m USING INDEX sqlite_autoindex_item_revisions_3 (owner_id=? AND item_id=? AND revision_id=?) LEFT-JOIN"
+      ],
+      [
+        "SEARCH search_index_state USING INDEX sqlite_autoindex_search_index_state_1 (owner_id=?)"
+      ],
+      [
+        "SEARCH change_log USING COVERING INDEX change_owner_seq (owner_id=?)"
+      ]
+    ],
+    "rows_read": null,
+    "rows_read_status": "NOT_EXPOSED_BY_LOCAL_RUNTIME"
+  },
+  "requests": [
+    {
+      "path": "/search",
+      "status": 200,
+      "elapsed_ms": 54.010699999998906
+    },
+    {
+      "path": "/assets/index-IVykiFMu.css",
+      "status": 200,
+      "elapsed_ms": 45.58039999999892
+    },
+    {
+      "path": "/assets/index-D1yuDyzx.js",
+      "status": 200,
+      "elapsed_ms": 357.1869000000006
+    },
+    {
+      "path": "/api/v1/auth/session",
+      "status": 200,
+      "elapsed_ms": 226.37109999999666
+    },
+    {
+      "path": "/api/v1/search",
+      "status": 200,
+      "elapsed_ms": 73.30780000000232
+    },
+    {
+      "path": "/api/v1/search",
+      "status": 200,
+      "elapsed_ms": 68.74180000000342
+    },
+    {
+      "path": "/api/v1/search",
+      "status": 200,
+      "elapsed_ms": 79.75089999999909
+    },
+    {
+      "path": "/api/v1/search",
+      "status": 200,
+      "elapsed_ms": 72.85259999999835
+    },
+    {
+      "path": "/api/v1/search",
+      "status": 200,
+      "elapsed_ms": 64.11280000000261
+    },
+    {
+      "path": "/api/v1/search",
+      "status": 200,
+      "elapsed_ms": 67.284799999994
+    },
+    {
+      "path": "/api/v1/search",
+      "status": 200,
+      "elapsed_ms": 63.75539999999455
+    },
+    {
+      "path": "/search",
+      "status": 200,
+      "elapsed_ms": 40.213899999987916
+    },
+    {
+      "path": "/assets/index-IVykiFMu.css",
+      "status": 200,
+      "elapsed_ms": 63.82529999999679
+    },
+    {
+      "path": "/assets/index-D1yuDyzx.js",
+      "status": 200,
+      "elapsed_ms": 342.116200000004
+    },
+    {
+      "path": "/api/v1/auth/session",
+      "status": 200,
+      "elapsed_ms": 40.0740000000078
+    },
+    {
+      "path": "/api/v1/search",
+      "status": 200,
+      "elapsed_ms": 67.80359999999928
+    },
+    {
+      "path": "/ledger",
+      "status": 200,
+      "elapsed_ms": 36.67369999999937
+    },
+    {
+      "path": "/assets/index-IVykiFMu.css",
+      "status": 200,
+      "elapsed_ms": 49.61230000000796
+    },
+    {
+      "path": "/assets/index-D1yuDyzx.js",
+      "status": 200,
+      "elapsed_ms": 344.5865000000049
+    },
+    {
+      "path": "/api/v1/auth/session",
+      "status": 200,
+      "elapsed_ms": 37.92280000000028
+    },
+    {
+      "path": "/api/v1/sources",
+      "status": 200,
+      "elapsed_ms": 50.32730000000447
+    },
+    {
+      "path": "/api/v1/ledger",
+      "status": 200,
+      "elapsed_ms": 51.12870000000112
+    },
+    {
+      "path": "/entities",
+      "status": 200,
+      "elapsed_ms": 36.42960000000312
+    },
+    {
+      "path": "/assets/index-IVykiFMu.css",
+      "status": 200,
+      "elapsed_ms": 65.64949999999953
+    },
+    {
+      "path": "/assets/index-D1yuDyzx.js",
+      "status": 200,
+      "elapsed_ms": 346.3399000000063
+    },
+    {
+      "path": "/api/v1/auth/session",
+      "status": 200,
+      "elapsed_ms": 32.86339999998745
+    },
+    {
+      "path": "/api/v1/entities",
+      "status": 200,
+      "elapsed_ms": 45.633600000001024
+    },
+    {
+      "path": "/items/ux-6",
+      "status": 200,
+      "elapsed_ms": 35.493699999991804
+    },
+    {
+      "path": "/assets/index-IVykiFMu.css",
+      "status": 200,
+      "elapsed_ms": 67.16130000000703
+    },
+    {
+      "path": "/assets/index-D1yuDyzx.js",
+      "status": 200,
+      "elapsed_ms": 347.39620000000286
+    },
+    {
+      "path": "/api/v1/auth/session",
+      "status": 200,
+      "elapsed_ms": 39.195999999996275
+    },
+    {
+      "path": "/api/v1/items/ux-6/detail",
+      "status": 200,
+      "elapsed_ms": 55.94990000000689
+    },
+    {
+      "path": "/api/v1/items/ux-6/canonical",
+      "status": 200,
+      "elapsed_ms": 58.41239999998652
+    },
+    {
+      "path": "/system/profiles",
+      "status": 200,
+      "elapsed_ms": 41.836999999999534
+    },
+    {
+      "path": "/assets/index-IVykiFMu.css",
+      "status": 200,
+      "elapsed_ms": 51.45650000000023
+    },
+    {
+      "path": "/assets/index-D1yuDyzx.js",
+      "status": 200,
+      "elapsed_ms": 349.2807999999932
+    },
+    {
+      "path": "/api/v1/auth/session",
+      "status": 200,
+      "elapsed_ms": 42.208500000007916
+    },
+    {
+      "path": "/api/v1/profiles",
+      "status": 200,
+      "elapsed_ms": 40.15780000000086
+    },
+    {
+      "path": "/system/prompts",
+      "status": 200,
+      "elapsed_ms": 43.265199999994365
+    },
+    {
+      "path": "/assets/index-IVykiFMu.css",
+      "status": 200,
+      "elapsed_ms": 64.18649999999616
+    },
+    {
+      "path": "/assets/index-D1yuDyzx.js",
+      "status": 200,
+      "elapsed_ms": 344.8698000000004
+    },
+    {
+      "path": "/api/v1/auth/session",
+      "status": 200,
+      "elapsed_ms": 48.829100000002654
+    },
+    {
+      "path": "/api/v1/prompts",
+      "status": 200,
+      "elapsed_ms": 102.81269999999495
+    },
+    {
+      "path": "/api/v1/prompts/ECONOMY_ANALYSIS_V1/2",
+      "status": 200,
+      "elapsed_ms": 134.3972999999969
+    },
+    {
+      "path": "/api/v1/prompts/ECONOMY_ANALYSIS_V1/2/tests",
+      "status": 200,
+      "elapsed_ms": 53.22840000000724
+    }
+  ],
+  "failure": "locator.waitFor: Timeout 30000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('textarea').first() to be visible\u001b[22m\n\u001b[2m    60 × locator resolved to hidden <textarea rows=\"2\" maxlength=\"1000\"></textarea>\u001b[22m\n"
+}

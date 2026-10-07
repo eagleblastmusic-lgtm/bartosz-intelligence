@@ -1,0 +1,596 @@
+{
+  "version": "gate-s-local:1",
+  "scope": "knowledge",
+  "sampled_at": "2026-10-07T16:33:15.002Z",
+  "fixture": "SYNTHETIC_ISOLATED_10000_ITEMS",
+  "runtime": "actual local workerd/D1 and built GUI",
+  "production_d1": "NOT_RUN",
+  "ai_requests": 0,
+  "manual_screen_reader": "NOT_RUN",
+  "provider_quality": "NOT_RUN",
+  "status": "INCONCLUSIVE",
+  "query_inspection": {
+    "engine": "actual local D1 EXPLAIN of KnowledgeSearch SQL",
+    "queries": 5,
+    "page_rows": 20,
+    "no_count_per_query": true,
+    "plans": [
+      [
+        "SEARCH search_index_state USING INDEX sqlite_autoindex_search_index_state_1 (owner_id=?)"
+      ],
+      [
+        "SEARCH change_log USING COVERING INDEX change_owner_seq (owner_id=?)"
+      ],
+      [
+        "SCAN knowledge_fts VIRTUAL TABLE INDEX 64:M1>",
+        "SEARCH d USING INTEGER PRIMARY KEY (rowid=?)",
+        "CORRELATED SCALAR SUBQUERY 1",
+        "SEARCH m USING COVERING INDEX sqlite_autoindex_item_revisions_3 (owner_id=?)",
+        "SEARCH i USING INDEX sqlite_autoindex_items_3 (owner_id=? AND item_id=?)",
+        "CORRELATED SCALAR SUBQUERY 2",
+        "SEARCH o USING COVERING INDEX observations_run_kind (owner_id=?)",
+        "SEARCH r USING INDEX sqlite_autoindex_analysis_runs_2 (owner_id=? AND run_id=?)",
+        "SEARCH s USING INDEX sqlite_autoindex_active_analysis_selections_1 (owner_id=? AND item_id=?)",
+        "CORRELATED SCALAR SUBQUERY 3",
+        "SEARCH n USING INDEX search_insight_cursor (owner_id=?)",
+        "CORRELATED SCALAR SUBQUERY 4",
+        "SEARCH e USING COVERING INDEX search_entity_cursor (owner_id=?)",
+        "CORRELATED SCALAR SUBQUERY 5",
+        "SEARCH a USING COVERING INDEX sqlite_autoindex_entity_aliases_1 (owner_id=?)",
+        "CORRELATED SCALAR SUBQUERY 25",
+        "SEARCH d USING INDEX alias_decision_latest (owner_id=? AND alias_id=?)",
+        "CORRELATED SCALAR SUBQUERY 6",
+        "SEARCH r USING INDEX search_summary_cursor (owner_id=?)",
+        "SEARCH s USING INDEX sqlite_autoindex_active_analysis_selections_1 (owner_id=? AND item_id=?)",
+        "SCAN j VIRTUAL TABLE INDEX 3:",
+        "CORRELATED SCALAR SUBQUERY 7",
+        "SEARCH p USING INDEX sqlite_autoindex_spaces_1 (owner_id=? AND space_id=?)",
+        "SEARCH x USING INDEX sqlite_autoindex_item_spaces_1 (owner_id=? AND item_id=? AND space_id=?)",
+        "CORRELATED SCALAR SUBQUERY 11",
+        "SEARCH e USING COVERING INDEX sqlite_autoindex_entities_1 (owner_id=? AND entity_id=?)",
+        "CORRELATED SCALAR SUBQUERY 8",
+        "SEARCH x USING INDEX identity_member_latest (owner_id=? AND entity_id=?)",
+        "CORRELATED SCALAR SUBQUERY 10",
+        "SEARCH t USING COVERING INDEX sqlite_autoindex_entities_1 (owner_id=? AND entity_id=?)",
+        "CORRELATED SCALAR SUBQUERY 9",
+        "SEARCH x USING INDEX identity_member_latest (owner_id=? AND entity_id=?)",
+        "CORRELATED SCALAR SUBQUERY 15",
+        "SEARCH e USING COVERING INDEX sqlite_autoindex_observation_entities_1 (owner_id=? AND observation_id=?)",
+        "CORRELATED SCALAR SUBQUERY 12",
+        "SEARCH x USING INDEX identity_member_latest (owner_id=? AND entity_id=?)",
+        "CORRELATED SCALAR SUBQUERY 14",
+        "SEARCH t USING COVERING INDEX sqlite_autoindex_entities_1 (owner_id=? AND entity_id=?)",
+        "CORRELATED SCALAR SUBQUERY 13",
+        "SEARCH x USING INDEX identity_member_latest (owner_id=? AND entity_id=?)",
+        "SEARCH i USING INDEX sqlite_autoindex_items_3 (owner_id=? AND item_id=?) LEFT-JOIN",
+        "SEARCH m USING INDEX sqlite_autoindex_item_revisions_3 (owner_id=? AND item_id=? AND revision_id=?) LEFT-JOIN"
+      ],
+      [
+        "SEARCH search_index_state USING INDEX sqlite_autoindex_search_index_state_1 (owner_id=?)"
+      ],
+      [
+        "SEARCH change_log USING COVERING INDEX change_owner_seq (owner_id=?)"
+      ]
+    ],
+    "rows_read": null,
+    "rows_read_status": "NOT_EXPOSED_BY_LOCAL_RUNTIME"
+  },
+  "requests": [
+    {
+      "path": "/search",
+      "status": 200,
+      "elapsed_ms": 44.889799999997194
+    },
+    {
+      "path": "/assets/index-IVykiFMu.css",
+      "status": 200,
+      "elapsed_ms": 48.89630000000034
+    },
+    {
+      "path": "/assets/index-D1yuDyzx.js",
+      "status": 200,
+      "elapsed_ms": 345.53289999999834
+    },
+    {
+      "path": "/api/v1/auth/session",
+      "status": 200,
+      "elapsed_ms": 208.17440000000352
+    },
+    {
+      "path": "/api/v1/search",
+      "status": 200,
+      "elapsed_ms": 65.95209999999497
+    },
+    {
+      "path": "/api/v1/search",
+      "status": 200,
+      "elapsed_ms": 65.73990000000049
+    },
+    {
+      "path": "/api/v1/search",
+      "status": 200,
+      "elapsed_ms": 60.109199999998964
+    },
+    {
+      "path": "/api/v1/search",
+      "status": 200,
+      "elapsed_ms": 60.08030000000144
+    },
+    {
+      "path": "/api/v1/search",
+      "status": 200,
+      "elapsed_ms": 61.6900999999998
+    },
+    {
+      "path": "/api/v1/search",
+      "status": 200,
+      "elapsed_ms": 63.673900000001595
+    },
+    {
+      "path": "/api/v1/search",
+      "status": 200,
+      "elapsed_ms": 60.43909999999596
+    },
+    {
+      "path": "/search",
+      "status": 200,
+      "elapsed_ms": 40.26959999999963
+    },
+    {
+      "path": "/assets/index-IVykiFMu.css",
+      "status": 200,
+      "elapsed_ms": 53.74590000000171
+    },
+    {
+      "path": "/assets/index-D1yuDyzx.js",
+      "status": 200,
+      "elapsed_ms": 349.34150000000227
+    },
+    {
+      "path": "/api/v1/auth/session",
+      "status": 200,
+      "elapsed_ms": 38.06549999999697
+    },
+    {
+      "path": "/api/v1/search",
+      "status": 200,
+      "elapsed_ms": 69.00769999999466
+    },
+    {
+      "path": "/ledger",
+      "status": 200,
+      "elapsed_ms": 35.929400000000896
+    },
+    {
+      "path": "/assets/index-IVykiFMu.css",
+      "status": 200,
+      "elapsed_ms": 64.19349999999395
+    },
+    {
+      "path": "/assets/index-D1yuDyzx.js",
+      "status": 200,
+      "elapsed_ms": 342.4907999999996
+    },
+    {
+      "path": "/api/v1/auth/session",
+      "status": 200,
+      "elapsed_ms": 50.82510000000184
+    },
+    {
+      "path": "/api/v1/sources",
+      "status": 200,
+      "elapsed_ms": 53.31109999999899
+    },
+    {
+      "path": "/api/v1/ledger",
+      "status": 200,
+      "elapsed_ms": 67.69629999999597
+    },
+    {
+      "path": "/entities",
+      "status": 200,
+      "elapsed_ms": 37.06790000000183
+    },
+    {
+      "path": "/assets/index-IVykiFMu.css",
+      "status": 200,
+      "elapsed_ms": 65.93149999999878
+    },
+    {
+      "path": "/assets/index-D1yuDyzx.js",
+      "status": 200,
+      "elapsed_ms": 346.5198999999993
+    },
+    {
+      "path": "/api/v1/auth/session",
+      "status": 200,
+      "elapsed_ms": 42.50830000000133
+    },
+    {
+      "path": "/api/v1/entities",
+      "status": 200,
+      "elapsed_ms": 44.207799999996496
+    },
+    {
+      "path": "/items/ux-6",
+      "status": 200,
+      "elapsed_ms": 36.089599999999336
+    },
+    {
+      "path": "/assets/index-IVykiFMu.css",
+      "status": 200,
+      "elapsed_ms": 65.12170000000333
+    },
+    {
+      "path": "/assets/index-D1yuDyzx.js",
+      "status": 200,
+      "elapsed_ms": 343.22929999999906
+    },
+    {
+      "path": "/api/v1/auth/session",
+      "status": 200,
+      "elapsed_ms": 35.798199999990175
+    },
+    {
+      "path": "/api/v1/items/ux-6/detail",
+      "status": 200,
+      "elapsed_ms": 52.03759999999602
+    },
+    {
+      "path": "/api/v1/items/ux-6/canonical",
+      "status": 200,
+      "elapsed_ms": 55.16669999998703
+    },
+    {
+      "path": "/system/profiles",
+      "status": 200,
+      "elapsed_ms": 41.770999999993364
+    },
+    {
+      "path": "/assets/index-IVykiFMu.css",
+      "status": 200,
+      "elapsed_ms": 51.3183999999892
+    },
+    {
+      "path": "/assets/index-D1yuDyzx.js",
+      "status": 200,
+      "elapsed_ms": 344.83360000001267
+    },
+    {
+      "path": "/api/v1/auth/session",
+      "status": 200,
+      "elapsed_ms": 50.78970000000845
+    },
+    {
+      "path": "/api/v1/profiles",
+      "status": 200,
+      "elapsed_ms": 38.30139999999665
+    },
+    {
+      "path": "/system/prompts",
+      "status": 200,
+      "elapsed_ms": 48.9774000000034
+    },
+    {
+      "path": "/assets/index-IVykiFMu.css",
+      "status": 200,
+      "elapsed_ms": 45.13179999998829
+    },
+    {
+      "path": "/assets/index-D1yuDyzx.js",
+      "status": 200,
+      "elapsed_ms": 354.6070999999938
+    },
+    {
+      "path": "/api/v1/auth/session",
+      "status": 200,
+      "elapsed_ms": 41.95550000001094
+    },
+    {
+      "path": "/api/v1/prompts",
+      "status": 200,
+      "elapsed_ms": 121.48270000000775
+    },
+    {
+      "path": "/api/v1/prompts/ECONOMY_ANALYSIS_V1/2",
+      "status": 200,
+      "elapsed_ms": 153.08819999999832
+    },
+    {
+      "path": "/api/v1/prompts/ECONOMY_ANALYSIS_V1/2/tests",
+      "status": 200,
+      "elapsed_ms": 66.05439999999362
+    }
+  ],
+  "matrix": [
+    {
+      "route": "/search?q=publikacja",
+      "width": 360,
+      "theme": "light",
+      "reflow": true,
+      "violations": []
+    },
+    {
+      "route": "/search?q=publikacja",
+      "width": 768,
+      "theme": "light",
+      "reflow": true,
+      "violations": []
+    },
+    {
+      "route": "/search?q=publikacja",
+      "width": 1024,
+      "theme": "light",
+      "reflow": true,
+      "violations": []
+    },
+    {
+      "route": "/search?q=publikacja",
+      "width": 1440,
+      "theme": "light",
+      "reflow": true,
+      "violations": []
+    },
+    {
+      "route": "/search?q=publikacja",
+      "width": 360,
+      "theme": "dark",
+      "reflow": true,
+      "violations": []
+    },
+    {
+      "route": "/search?q=publikacja",
+      "width": 768,
+      "theme": "dark",
+      "reflow": true,
+      "violations": []
+    },
+    {
+      "route": "/search?q=publikacja",
+      "width": 1024,
+      "theme": "dark",
+      "reflow": true,
+      "violations": []
+    },
+    {
+      "route": "/search?q=publikacja",
+      "width": 1440,
+      "theme": "dark",
+      "reflow": true,
+      "violations": []
+    },
+    {
+      "route": "/ledger",
+      "width": 360,
+      "theme": "light",
+      "reflow": true,
+      "violations": []
+    },
+    {
+      "route": "/ledger",
+      "width": 768,
+      "theme": "light",
+      "reflow": true,
+      "violations": []
+    },
+    {
+      "route": "/ledger",
+      "width": 1024,
+      "theme": "light",
+      "reflow": true,
+      "violations": []
+    },
+    {
+      "route": "/ledger",
+      "width": 1440,
+      "theme": "light",
+      "reflow": true,
+      "violations": []
+    },
+    {
+      "route": "/ledger",
+      "width": 360,
+      "theme": "dark",
+      "reflow": true,
+      "violations": []
+    },
+    {
+      "route": "/ledger",
+      "width": 768,
+      "theme": "dark",
+      "reflow": true,
+      "violations": []
+    },
+    {
+      "route": "/ledger",
+      "width": 1024,
+      "theme": "dark",
+      "reflow": true,
+      "violations": []
+    },
+    {
+      "route": "/ledger",
+      "width": 1440,
+      "theme": "dark",
+      "reflow": true,
+      "violations": []
+    },
+    {
+      "route": "/entities",
+      "width": 360,
+      "theme": "light",
+      "reflow": true,
+      "violations": []
+    },
+    {
+      "route": "/entities",
+      "width": 768,
+      "theme": "light",
+      "reflow": true,
+      "violations": []
+    },
+    {
+      "route": "/entities",
+      "width": 1024,
+      "theme": "light",
+      "reflow": true,
+      "violations": []
+    },
+    {
+      "route": "/entities",
+      "width": 1440,
+      "theme": "light",
+      "reflow": true,
+      "violations": []
+    },
+    {
+      "route": "/entities",
+      "width": 360,
+      "theme": "dark",
+      "reflow": true,
+      "violations": []
+    },
+    {
+      "route": "/entities",
+      "width": 768,
+      "theme": "dark",
+      "reflow": true,
+      "violations": []
+    },
+    {
+      "route": "/entities",
+      "width": 1024,
+      "theme": "dark",
+      "reflow": true,
+      "violations": []
+    },
+    {
+      "route": "/entities",
+      "width": 1440,
+      "theme": "dark",
+      "reflow": true,
+      "violations": []
+    },
+    {
+      "route": "/items/ux-6",
+      "width": 360,
+      "theme": "light",
+      "reflow": true,
+      "violations": []
+    },
+    {
+      "route": "/items/ux-6",
+      "width": 768,
+      "theme": "light",
+      "reflow": true,
+      "violations": []
+    },
+    {
+      "route": "/items/ux-6",
+      "width": 1024,
+      "theme": "light",
+      "reflow": true,
+      "violations": []
+    },
+    {
+      "route": "/items/ux-6",
+      "width": 1440,
+      "theme": "light",
+      "reflow": true,
+      "violations": []
+    },
+    {
+      "route": "/items/ux-6",
+      "width": 360,
+      "theme": "dark",
+      "reflow": true,
+      "violations": []
+    },
+    {
+      "route": "/items/ux-6",
+      "width": 768,
+      "theme": "dark",
+      "reflow": true,
+      "violations": []
+    },
+    {
+      "route": "/items/ux-6",
+      "width": 1024,
+      "theme": "dark",
+      "reflow": true,
+      "violations": []
+    },
+    {
+      "route": "/items/ux-6",
+      "width": 1440,
+      "theme": "dark",
+      "reflow": true,
+      "violations": []
+    },
+    {
+      "route": "/system/profiles",
+      "width": 360,
+      "theme": "light",
+      "reflow": true,
+      "violations": []
+    },
+    {
+      "route": "/system/profiles",
+      "width": 768,
+      "theme": "light",
+      "reflow": true,
+      "violations": []
+    },
+    {
+      "route": "/system/profiles",
+      "width": 1024,
+      "theme": "light",
+      "reflow": true,
+      "violations": []
+    },
+    {
+      "route": "/system/profiles",
+      "width": 1440,
+      "theme": "light",
+      "reflow": true,
+      "violations": []
+    },
+    {
+      "route": "/system/profiles",
+      "width": 360,
+      "theme": "dark",
+      "reflow": true,
+      "violations": []
+    },
+    {
+      "route": "/system/profiles",
+      "width": 768,
+      "theme": "dark",
+      "reflow": true,
+      "violations": []
+    },
+    {
+      "route": "/system/profiles",
+      "width": 1024,
+      "theme": "dark",
+      "reflow": true,
+      "violations": []
+    },
+    {
+      "route": "/system/profiles",
+      "width": 1440,
+      "theme": "dark",
+      "reflow": true,
+      "violations": []
+    }
+  ],
+  "search_render_ms": [
+    91.66199999999662,
+    92.18349999999919,
+    92.92710000000079,
+    95.71050000000105,
+    110.88249999999971
+  ],
+  "p95_search_render_ms": 110.88249999999971,
+  "failure": "locator.waitFor: Timeout 15000ms exceeded.\nCall log:\n\u001b[2m  - waiting for getByLabel('Treść nowego draftu', { exact: true }) to be visible\u001b[22m\n"
+}

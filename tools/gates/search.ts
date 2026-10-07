@@ -1,6 +1,7 @@
 import { spawn } from 'node:child_process';
+import { createServer } from 'node:http';
 import { DatabaseSync } from 'node:sqlite';
-import { mkdirSync, writeFileSync } from 'node:fs';
+import { existsSync, mkdirSync, writeFileSync } from 'node:fs';
 import { resolve } from 'node:path';
 import { randomUUID } from 'node:crypto';
 import { chromium } from '@playwright/test';
@@ -16,11 +17,42 @@ import type {
   Statement,
 } from '../../packages/core/src/db/boundary.js';
 import application from '../../config/application.json';
+import bundle from '../../config/registry/master-bundle.json';
+import { PromptRegistry } from '../../packages/core/src/registry/store.js';
+import { SemanticProfiles } from '../../packages/core/src/registry/semantic-profiles.js';
+import { semanticModules } from '../../packages/core/src/ai/semantic-profile.js';
 
 // Entirely isolated synthetic corpus. No Gemini, external data or production writes.
+const scopeIndex = process.argv.indexOf('--scope');
+const scope = scopeIndex < 0 ? 'search' : process.argv[scopeIndex + 1];
+if (scope !== 'search' && scope !== 'knowledge')
+  throw new Error('INVALID_SEARCH_SCOPE');
+const knowledge = scope === 'knowledge';
+const itemsIndex = process.argv.indexOf('--items');
+if (itemsIndex >= 0 && process.argv[itemsIndex + 1] !== '10000')
+  throw new Error('SEARCH_REQUIRES_10000_ITEMS');
 const root = resolve('.local/search-gate-' + randomUUID());
 mkdirSync(root, { recursive: true });
-const fixture = await uxFixtureSql(10000),
+const outputIndex = process.argv.indexOf('--output');
+const output =
+  outputIndex < 0 ? root : resolve(process.argv[outputIndex + 1] ?? '');
+if (outputIndex >= 0 && !process.argv[outputIndex + 1])
+  throw new Error('SEARCH_OUTPUT_REQUIRED');
+const reportPath = resolve(output, 'report.json');
+if (existsSync(reportPath)) throw new Error('SEARCH_REPORT_ALREADY_EXISTS');
+mkdirSync(output, { recursive: true });
+const port = await new Promise<number>((yes, no) => {
+  const probe = createServer();
+  probe.on('error', no);
+  probe.listen(0, '127.0.0.1', () => {
+    const address = probe.address();
+    if (!address || typeof address === 'string')
+      return no(new Error('SEARCH_PORT_UNAVAILABLE'));
+    probe.close((error) => (error ? no(error) : yes(address.port)));
+  });
+});
+const localOrigin = 'http://127.0.0.1:' + port;
+const fixture = await uxFixtureSql(10000, knowledge),
   sqlite = new DatabaseSync(':memory:');
 let derived = '';
 let plansSql = '';
@@ -34,6 +66,32 @@ try {
       new Date().toISOString(),
     ),
     index = new SearchIndex(db, owner);
+  if (knowledge) {
+    await new PromptRegistry(db, owner).importBundle(bundle, new Date());
+    await new SemanticProfiles(db, owner).save(
+      {
+        profile_id: 'ux-custom',
+        revision: 1,
+        name: 'Syntetyczny Custom',
+        reason: 'Isolated UX fixture',
+        config: {
+          mode: 'CUSTOM',
+          modules: Object.fromEntries(
+            semanticModules.map((key) => [
+              key,
+              key === 'summary' || key === 'claims',
+            ]),
+          ),
+          translation: 'NONE',
+          history: false,
+          second_pass: null,
+          validation_pass: null,
+        },
+      },
+      bundle,
+      new Date(),
+    );
+  }
   for (let step = 0; step < 20000; step++)
     if (!(await index.step(new Date())).progressed) break;
   if ((await index.metadata()).freshness !== 'FRESH')
@@ -86,7 +144,19 @@ try {
       return 'EXPLAIN QUERY PLAN ' + sql + ';';
     })
     .join('\n');
-  for (const table of ['search_documents', 'search_index_state'])
+  for (const table of [
+    ...(knowledge
+      ? [
+          'schema_versions',
+          'prompt_versions',
+          'semantic_profile_versions',
+          'config_versions',
+          'audit_events',
+        ]
+      : []),
+    'search_documents',
+    'search_index_state',
+  ])
     for (const row of sqlite
       .prepare('SELECT * FROM ' + table + ' ORDER BY rowid')
       .all())
@@ -134,7 +204,7 @@ writeFileSync(
       SESSION_SIGNING_SECRET: uxSessionSecret,
       APP_ORIGIN: application.app_origin,
     },
-    dev: { ip: '127.0.0.1', port: 8792 },
+    dev: { ip: '127.0.0.1', port },
   }),
 );
 const cli = resolve('node_modules/wrangler/bin/wrangler.js'),
@@ -146,10 +216,16 @@ const run = (args: string[]) =>
       windowsHide: true,
       stdio: 'ignore',
     });
+    const timeout = setTimeout(() => {
+      child.kill();
+      no(new Error('SEARCH_LOCAL_CLI_TIMEOUT'));
+    }, 120000);
     child.on('error', no);
-    child.on('exit', (code) =>
-      code === 0 ? yes() : no(new Error('SEARCH_LOCAL_CLI_FAILED')),
-    );
+    child.on('exit', (code) => {
+      clearTimeout(timeout);
+      if (code === 0) yes();
+      else no(new Error('SEARCH_LOCAL_CLI_FAILED'));
+    });
   });
 await run([
   'd1',
@@ -189,12 +265,17 @@ const plans = await new Promise<unknown[]>((yes, no) => {
     },
   );
   let output = '';
+  const timeout = setTimeout(() => {
+    child.kill();
+    no(new Error('SEARCH_PLAN_READ_TIMEOUT'));
+  }, 60000);
   child.stdout.on('data', (part: Buffer) => {
     output += part.toString();
     if (output.length > 1000000) child.kill();
   });
   child.on('error', no);
   child.on('exit', (code) => {
+    clearTimeout(timeout);
     try {
       if (code !== 0) throw new Error();
       const results = JSON.parse(output) as { results: { detail: string }[] }[];
@@ -212,11 +293,14 @@ const server = spawn(
 let browser: Awaited<ReturnType<typeof chromium.launch>> | undefined;
 const report: Record<string, unknown> = {
   version: 'gate-s-local:1',
+  scope,
   sampled_at: new Date().toISOString(),
   fixture: 'SYNTHETIC_ISOLATED_10000_ITEMS',
   runtime: 'actual local workerd/D1 and built GUI',
   production_d1: 'NOT_RUN',
   ai_requests: 0,
+  manual_screen_reader: 'NOT_RUN',
+  provider_quality: 'NOT_RUN',
   status: 'INCONCLUSIVE',
   query_inspection: {
     engine: 'actual local D1 EXPLAIN of KnowledgeSearch SQL',
@@ -233,7 +317,11 @@ try {
   let ready = false;
   for (let attempt = 0; attempt < 100; attempt++) {
     try {
-      ready = (await fetch('http://127.0.0.1:8792/health')).ok;
+      ready = (
+        await fetch(localOrigin + '/health', {
+          signal: AbortSignal.timeout(2000),
+        })
+      ).ok;
     } catch {}
     if (ready) break;
     await delay(100);
@@ -264,10 +352,10 @@ try {
     )
       throw new Error('SEARCH_UNEXPECTED_NETWORK');
     const start = performance.now(),
-      response = await fetch(
-        'http://127.0.0.1:8792' + url.pathname + url.search,
-        { headers: { Cookie: '__Host-bi-session=' + fixture.cookie } },
-      ),
+      response = await fetch(localOrigin + url.pathname + url.search, {
+        headers: { Cookie: '__Host-bi-session=' + fixture.cookie },
+        signal: AbortSignal.timeout(15000),
+      }),
       body = Buffer.from(await response.arrayBuffer());
     await delay(25 + (body.length * 8) / 10000);
     trace.push({
@@ -282,6 +370,8 @@ try {
     });
   });
   const page = await context.newPage();
+  page.setDefaultTimeout(15000);
+  page.setDefaultNavigationTimeout(30000);
   await page.goto(application.app_origin + '/search?q=publikacja');
   await page
     .getByRole('link', { name: /Publikacja ux-/ })
@@ -324,6 +414,98 @@ try {
   );
   elapsed.sort((a, b) => a - b);
   const p95 = elapsed[Math.ceil(elapsed.length * 0.95) - 1]!;
+  const matrix: {
+    route: string;
+    width: number;
+    theme: string;
+    reflow: boolean;
+    violations: string[];
+  }[] = [];
+  report.matrix = matrix;
+  report.search_render_ms = elapsed;
+  report.p95_search_render_ms = p95;
+  let evidenceKeyboard = !knowledge;
+  if (knowledge) {
+    for (const path of [
+      '/search?q=publikacja',
+      '/ledger',
+      '/entities',
+      '/items/ux-6',
+      '/system/profiles',
+      '/system/prompts',
+    ]) {
+      await page.goto(application.app_origin + path);
+      await page.locator('main h1').waitFor();
+      if (path === '/ledger')
+        await page.locator('.daily-row').first().waitFor();
+      if (path === '/items/ux-6')
+        await page
+          .getByRole('button', { name: 'Źródło 1', exact: true })
+          .first()
+          .waitFor();
+      if (path === '/system/profiles')
+        await page
+          .getByRole('button', { name: 'Syntetyczny Custom · v1', exact: true })
+          .waitFor();
+      if (path === '/system/prompts') {
+        await page.getByLabel('Treść nowego draftu').waitFor();
+        await page.getByText('Budżet Prompt Lab', { exact: true }).click();
+        await page
+          .getByText('Historia eksperymentów Prompt Lab', { exact: true })
+          .click();
+      }
+      for (const theme of ['light', 'dark'])
+        for (const width of [360, 768, 1024, 1440]) {
+          await page.setViewportSize({ width, height: 900 });
+          await page.getByLabel('Motyw', { exact: true }).selectOption(theme);
+          const audit = await new AxeBuilder({ page })
+            .withTags(['wcag2a', 'wcag2aa', 'wcag21aa'])
+            .analyze();
+          matrix.push({
+            route: path,
+            width,
+            theme,
+            reflow: await page.evaluate(
+              () => document.documentElement.scrollWidth <= innerWidth,
+            ),
+            violations: audit.violations.map((row) => row.id),
+          });
+        }
+    }
+    await page.goto(application.app_origin + '/items/ux-6?return=%2Fledger');
+    const trigger = page
+      .getByRole('button', { name: 'Źródło 1', exact: true })
+      .first();
+    await trigger.focus();
+    await page.keyboard.press('Enter');
+    await page
+      .getByText('Oryginalny cytat · dokładny zapis źródła', { exact: true })
+      .waitFor();
+    if (
+      !(await page.locator('.original-quote').textContent())?.includes(
+        'Żółć 🧠.',
+      )
+    )
+      throw new Error('KNOWLEDGE_SOURCE_QUOTE_MISMATCH');
+    const evidenceAudit = await new AxeBuilder({ page })
+      .withTags(['wcag2a', 'wcag2aa', 'wcag21aa'])
+      .analyze();
+    await page.keyboard.press('Escape');
+    await page.waitForFunction(
+      () => document.activeElement?.textContent === 'Źródło 1',
+    );
+    evidenceKeyboard = await trigger.evaluate(
+      (node) => node === document.activeElement,
+    );
+    report.evidence = {
+      keyboard_open_close_focus: evidenceKeyboard,
+      original_quote_verified: true,
+      timestamp: 'NONE_NO_FABRICATED_TIME',
+      violations: evidenceAudit.violations.map((row) => row.id),
+    };
+    if (evidenceAudit.violations.length)
+      throw new Error('KNOWLEDGE_EVIDENCE_ACCESSIBILITY_FAILED');
+  }
   Object.assign(report, {
     search_render_ms: elapsed,
     p95_search_render_ms: p95,
@@ -331,10 +513,13 @@ try {
     axe_violations: violations.map((v) => ({ id: v.id, impact: v.impact })),
     mobile_overflow: overflow,
     requests: trace,
+    matrix,
     local_acceptance:
       p95 <= 300 &&
       !violations.length &&
       !overflow &&
+      evidenceKeyboard &&
+      matrix.every((row) => row.reflow && !row.violations.length) &&
       trace.every((t) => t.status === 200)
         ? 'PASS'
         : 'FAIL',
@@ -351,13 +536,12 @@ try {
 } finally {
   await browser?.close();
   server.kill();
-  writeFileSync(
-    resolve(root, 'report.json'),
-    JSON.stringify(report, null, 2) + '\n',
-  );
+  writeFileSync(reportPath, JSON.stringify(report, null, 2) + '\n', {
+    flag: 'wx',
+  });
   console.log(
     JSON.stringify({
-      report: resolve(root, 'report.json'),
+      report: reportPath,
       local_acceptance: report.local_acceptance ?? 'FAIL',
       production_d1: 'NOT_RUN',
     }),

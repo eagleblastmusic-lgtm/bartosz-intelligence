@@ -19,3 +19,4 @@ docs/verification/gate-ai/quota-retest-2026-10-06.json
 docs/verification/gate-ai/quota-third-2026-10-06.json
 docs/verification/knowledge/CP_6_5_GATE_S_LOCAL.json
 docs/verification/knowledge/CP_6_5_GATE_S_LOCAL_FAIL.json
+docs/verification/gate-s-knowledge/*.json

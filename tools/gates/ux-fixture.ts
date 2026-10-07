@@ -1,5 +1,6 @@
 import { randomUUID } from 'node:crypto';
 import { readFileSync, readdirSync } from 'node:fs';
+import { knowledgeUxFixtureSql } from './knowledge-ux-fixture.js';
 import {
   randomToken,
   sha256,
@@ -8,7 +9,7 @@ import {
 
 // Isolated synthetic data only; never runs against the owner's database.
 export const uxSessionSecret = 'ux-fixture-session-signing-key-only-32-bytes';
-export async function uxFixtureSql(items: number) {
+export async function uxFixtureSql(items: number, knowledge = false) {
   if (items !== 10000) throw new Error('UX_REQUIRES_10000_ITEMS');
   const token = randomToken(),
     at = new Date().toISOString();
@@ -42,9 +43,10 @@ CASE CAST(substr(item_id,4) AS INTEGER)%6 WHEN 0 THEN 'SUCCEEDED' WHEN 1 THEN 'P
 CASE CAST(substr(item_id,4) AS INTEGER)%6 WHEN 0 THEN NULL WHEN 1 THEN NULL WHEN 2 THEN 'QUOTA_UNKNOWN_OR_STALE' WHEN 3 THEN 'NO_CAPTIONS' WHEN 4 THEN 'SOURCE_UNAVAILABLE' ELSE 'REVIEW_REQUIRED' END,
 '${at}',80,'2026-10-01T00:00:00.000Z','NEW','{"snapshot":{"settings":{"mode":"PRODUCTION"}}}','${at}','${at}' FROM items;
 INSERT INTO analysis_runs(run_id,owner_id,item_id,job_id,input_snapshot_json,profile_snapshot_json,routing_snapshot_json,state,outcome_json,created_at,accepted_at)
-SELECT 'run-'||item_id,owner_id,item_id,job_id,'{}','{}','{}','ACCEPTED',json_object('version','intelligence-accepted:1','view',json_object('version','accepted-view:1','status','OK','enabled_modules',json_array('summary','claims'),'coverage_complete',json('true'),'summary_pl',json_array(json_object('text_pl','Syntetyczna notatka do pomiaru układu i renderowania; nie jest wynikiem AI ani dowodem jakości. Warunki, negacja i zakres wypowiedzi pozostają oddzielne od statusu przetwarzania.','evidence_ids',json_array())),'key_points',json_array(),'entities',json_array(),'tools',json_array(),'typed_counts',json_object('claims',1))),'${at}','${at}' FROM jobs WHERE state='SUCCEEDED';
+SELECT 'run-'||item_id,owner_id,item_id,job_id,'{}','{}','{}','ACCEPTED',json_object('version','intelligence-accepted:1','view',json_object('version','accepted-view:1','status','OK','enabled_modules',json_array('summary','claims'),'coverage_complete',json('true'),'summary_pl',json_array(json_object('text_pl','Syntetyczna notatka do pomiaru układu i renderowania; nie jest wynikiem AI ani dowodem jakości. Warunki, negacja i zakres wypowiedzi pozostają oddzielne od statusu przetwarzania.','evidence_ids',json_array())),'key_points',json_array(),'entities',json_array(),'tools',json_array(),'typed_counts',json_object('claims',1))),'${at}','${at}' FROM jobs WHERE state='SUCCEEDED' ${knowledge ? "AND item_id!='ux-6'" : ''};
 INSERT INTO active_analysis_selections SELECT owner_id,item_id,run_id,1,run_id FROM analysis_runs;
-`,
+` +
+      (knowledge ? await knowledgeUxFixtureSql(at) : ''),
     fixture_id: randomUUID(),
   };
 }
