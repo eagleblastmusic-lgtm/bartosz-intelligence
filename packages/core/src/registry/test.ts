@@ -11,6 +11,9 @@ import { PromptDrafts } from './draft.js';
 import { validator_schema_hashes } from './generated/validators.js';
 import bundle from '../../../../config/registry/master-bundle.json';
 import { compileSemanticProfile } from '../ai/semantic-profile.js';
+import { AnalysisJobs } from '../ai/jobs.js';
+import { OptionalTaskPreparation } from '../ai/tasks/preparation.js';
+import { PromptRegistry } from './store.js';
 
 /** A report links verified provider receipts and existing scope qualification.
  * Static validation alone never supplies semantic quality approval. */
@@ -20,6 +23,113 @@ export class PromptTests {
     private context: AccessContext,
   ) {
     assertContext(context);
+  }
+  async preview(
+    input: {
+      prompt_id: string;
+      version: number;
+      source_run_id: string;
+      semantic_profile_id: string | null;
+      semantic_profile_revision: number | null;
+      model_revision: number;
+      max_output_tokens: number;
+      purpose: string;
+      region: string;
+      limits: Record<string, number>;
+    },
+    now: Date,
+  ) {
+    this.context.requireOwner();
+    if (!Number.isSafeInteger(input.model_revision) || input.model_revision < 1)
+      throw new Error('INVALID_PROMPT_TEST');
+    const settings = {
+      runtime: 'local' as const,
+      mode: 'QUALITY_TEST' as const,
+      purpose: input.purpose,
+      region: input.region,
+      max_output_tokens: input.max_output_tokens,
+      limits: input.limits,
+    };
+    if (
+      [
+        'ECONOMY_ANALYSIS_V1',
+        'FULL_ANALYSIS_V1',
+        'ADVANCED_ANALYSIS_V1',
+      ].includes(input.prompt_id)
+    ) {
+      if (
+        !input.semantic_profile_id ||
+        input.semantic_profile_revision === null
+      )
+        throw new Error('INVALID_PROMPT_TEST');
+      const preview = await new AnalysisJobs(
+        this.db,
+        this.context,
+      ).previewExplicit(
+        input.source_run_id,
+        settings,
+        {
+          semantic_profile_id: input.semantic_profile_id,
+          semantic_profile_revision: input.semantic_profile_revision,
+          pass: null,
+          test_prompt: { prompt_id: input.prompt_id, version: input.version },
+          test_model_revision: input.model_revision,
+        },
+        now,
+      );
+      return { kind: 'ANALYSIS' as const, ...preview };
+    }
+    if (
+      !['FULL_TRANSLATION_V1', 'HISTORICAL_COMPARE_V1'].includes(
+        input.prompt_id,
+      )
+    )
+      throw new Error('CAPABILITY_NOT_AVAILABLE');
+    if (
+      input.semantic_profile_id !== null ||
+      input.semantic_profile_revision !== null ||
+      Object.keys(input.limits).length
+    )
+      throw new Error('INVALID_PROMPT_TEST');
+    const profile = await new ModelRegistry(this.db, this.context).load(
+      'gemini_free',
+      input.model_revision,
+    );
+    if (!profile) throw new Error('MODEL_NOT_CONFIGURED');
+    const prompt = await new PromptRegistry(this.db, this.context).load(
+      input.prompt_id,
+      input.version,
+      0,
+      'QUALITY_TEST',
+    );
+    const tasks = new OptionalTaskPreparation(this.db, this.context);
+    const source = await new AnalysisJobs(this.db, this.context).sourceForOwner(
+      input.source_run_id,
+    );
+    const prepared =
+      input.prompt_id === 'FULL_TRANSLATION_V1'
+        ? await tasks.translation(input.source_run_id, 'FULL', now)
+        : await tasks.history(source.item_id, now);
+    if (prepared.task === 'HISTORICAL_COMPARE') {
+      const sourceArtifact = await this.db
+        .prepare(
+          "SELECT json_extract(input_snapshot_json,'$.source_artifact_id') artifact FROM analysis_runs WHERE owner_id=? AND run_id=? AND state='ACCEPTED'",
+        )
+        .bind(this.context.ownerId, prepared.plan.snapshot.current_run_id)
+        .first<string>('artifact');
+      if (sourceArtifact !== source.source_artifact_id)
+        throw new Error('INVALID_HISTORY_SOURCE_REVISION');
+    }
+    return {
+      kind: 'OPTIONAL' as const,
+      prompt_id: prompt.prompt_id,
+      prompt_version: prompt.version,
+      prompt_hash: prompt.prompt_hash,
+      model_revision: profile.revision,
+      wire_schema_id: prompt.wire.id,
+      wire_schema_hash: prompt.wire.hash,
+      ...(await tasks.preview(prepared, settings, now, profile, prompt)),
+    };
   }
   async reports(promptId: string, version: number) {
     this.context.requireOwner();

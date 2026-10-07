@@ -31,6 +31,9 @@ it('creates immutable compatible drafts with exact bindings while published and 
     'PROMPT_NOT_AVAILABLE',
   );
   expect(
+    (await registry.load(old.prompt_id, 3, 0, 'QUALITY_TEST')).prompt_hash,
+  ).toBe(draft.prompt_hash);
+  expect(
     (await drafts.create(input, new Date(fixtureNow.getTime() + 1000))).version,
   ).toBe(3);
   await expect(

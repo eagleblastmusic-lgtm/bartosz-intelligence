@@ -215,14 +215,17 @@ export class PromptRegistry {
     promptId: string,
     version: number,
     generation: number,
+    mode: 'PRODUCTION' | 'QUALITY_TEST' = 'PRODUCTION',
   ): Promise<PromptSnapshot> {
     if (this.context.kind === 'owner') this.context.requireOwner();
     else this.context.requireTask('ANALYZE');
+    if (!['PRODUCTION', 'QUALITY_TEST'].includes(mode))
+      throw new Error('INVALID_PROMPT_MODE');
     const row = await this.db
       .prepare(
-        "SELECT prompt_hash,prompt_text,bundle_json FROM prompt_versions WHERE owner_id=? AND prompt_id=? AND version=? AND status='PUBLISHED'",
+        "SELECT prompt_hash,prompt_text,bundle_json FROM prompt_versions WHERE owner_id=? AND prompt_id=? AND version=? AND (status='PUBLISHED' OR (?='QUALITY_TEST' AND status IN ('DRAFT','TESTED')))",
       )
-      .bind(this.context.ownerId, promptId, version)
+      .bind(this.context.ownerId, promptId, version, mode)
       .first<{
         prompt_hash: string;
         prompt_text: string;

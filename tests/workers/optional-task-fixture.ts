@@ -109,6 +109,34 @@ export async function verifyOptionalTranslation(
       prompt_hash: draft.prompt_hash,
     },
   };
+  const acceptedSource = await db
+    .prepare(
+      "SELECT r.run_id FROM analysis_runs r JOIN jobs j ON j.owner_id=r.owner_id AND j.job_id=r.job_id WHERE r.owner_id=? AND r.item_id=? AND r.state='ACCEPTED' AND j.task_type='FETCH_TRANSCRIPT' LIMIT 1",
+    )
+    .bind(owner.ownerId, itemId)
+    .first<string>('run_id');
+  const draftPreview = await new PromptTests(db, owner).preview(
+    {
+      prompt_id: prompt.prompt_id,
+      version: 3,
+      source_run_id: acceptedSource!,
+      semantic_profile_id: null,
+      semantic_profile_revision: null,
+      model_revision: 3,
+      max_output_tokens: 1000,
+      purpose: 'personal',
+      region: 'PL',
+      limits: {},
+    },
+    fixtureNow,
+  );
+  expect(draftPreview).toMatchObject({
+    kind: 'OPTIONAL',
+    prompt_version: 3,
+    prompt_hash: draft.prompt_hash,
+    additional_model_requests: 1,
+    quota_status: 'UNKNOWN',
+  });
   await db
     .prepare('INSERT INTO worker_identities VALUES(?,?,?,?,?,NULL)')
     .bind(

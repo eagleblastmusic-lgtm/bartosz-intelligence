@@ -84,6 +84,8 @@ export interface ExplicitAnalysisIntent {
   semantic_profile_id: string;
   semantic_profile_revision: number;
   pass: { mode: 'SECOND_PASS' | 'VALIDATE'; candidate_run_id: string } | null;
+  test_prompt?: { prompt_id: string; version: number };
+  test_model_revision?: number;
 }
 
 // The durable job captures registry snapshots before any provider request. Workers
@@ -205,7 +207,19 @@ export class AnalysisJobs {
     if (intent && !semanticProfile) throw new Error('NOT_FOUND');
     const registry = new PromptRegistry(this.db, this.context);
     let prompt: PromptSnapshot;
-    if (semanticProfile) {
+    if (intent?.test_prompt) {
+      if (settings.mode !== 'QUALITY_TEST' || !semanticProfile || intent.pass)
+        throw new Error('INVALID_PROMPT_TEST');
+      prompt = semanticPrompt(
+        semanticProfile,
+        await registry.load(
+          intent.test_prompt.prompt_id,
+          intent.test_prompt.version,
+          0,
+          'QUALITY_TEST',
+        ),
+      );
+    } else if (semanticProfile) {
       try {
         prompt = semanticPrompt(
           semanticProfile,
@@ -232,9 +246,18 @@ export class AnalysisJobs {
         semanticProfile.compiled.wire.hash !== prompt.wire.hash)
     )
       throw new Error('CAPABILITY_NOT_AVAILABLE');
-    const profile = await new ModelRegistry(this.db, this.context).latest(
-      'gemini_free',
-    );
+    const models = new ModelRegistry(this.db, this.context);
+    if (
+      intent?.test_model_revision !== undefined &&
+      (settings.mode !== 'QUALITY_TEST' ||
+        !Number.isSafeInteger(intent.test_model_revision) ||
+        intent.test_model_revision < 1)
+    )
+      throw new Error('INVALID_PROMPT_TEST');
+    const profile =
+      intent?.test_model_revision === undefined
+        ? await models.latest('gemini_free')
+        : await models.load('gemini_free', intent.test_model_revision);
     if (!profile) throw new Error('MODEL_NOT_CONFIGURED');
     const normalized = {
       ...settings,
@@ -381,6 +404,13 @@ export class AnalysisJobs {
       preview_hash: hash,
       item_id: snapshot.source.item_id,
       source_hash: snapshot.source.source_hash,
+      prompt_id: snapshot.prompt.prompt_id,
+      prompt_version: snapshot.prompt.version,
+      prompt_hash: snapshot.prompt.prompt_hash,
+      model_revision: snapshot.profile.revision,
+      wire_schema_id: snapshot.prompt.wire.id,
+      wire_schema_hash: snapshot.prompt.wire.hash,
+      quality_scope: snapshot.quality_scope,
       semantic_profile_id: snapshot.semantic_profile!.profile_id,
       semantic_profile_revision: snapshot.semantic_profile!.revision,
       pass: snapshot.additional_pass?.mode ?? 'REPROCESS',
@@ -950,6 +980,7 @@ export class AnalysisJobs {
           snapshot.prompt.prompt_id,
           snapshot.prompt.version,
           snapshot.prompt.generation,
+          snapshot.settings.mode,
         );
       } catch (error) {
         if (

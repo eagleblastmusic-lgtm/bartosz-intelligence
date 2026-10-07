@@ -3,6 +3,8 @@ import { QuotaSnapshots } from '../../packages/core/src/ai/quota-snapshots.js';
 import { verifyOptionalTranslation } from './optional-task-fixture.js';
 import { verifyMultipartTranslation } from './optional-translation-chunks-fixture.js';
 import { verifyOptionalHistory } from './optional-history-fixture.js';
+import { PromptDrafts } from '../../packages/core/src/registry/draft.js';
+import { PromptTests } from '../../packages/core/src/registry/test.js';
 import { verifyCorrectedInput } from './corrected-input-fixture.js';
 import {
   analysisQualityScope,
@@ -1125,6 +1127,65 @@ it.each([
       settings,
       fixtureNow,
     ))!;
+    let draftTestPreviewHash = '';
+    if (scenario === 'QUALITY_TEST') {
+      const family = semanticSnapshot.compiled.prompt.id;
+      const draft = await new PromptDrafts(env.DB, owner).create(
+        {
+          prompt_id: family,
+          base_version: 2,
+          expected_latest_version: 2,
+          text:
+            semanticSnapshot.compiled.prompt.text +
+            '\nDraft quality test instruction.',
+          reason: 'Synthetic test target',
+        },
+        fixtureNow,
+      );
+      const jobsBefore = await env.DB.prepare(
+        'SELECT count(*) n FROM jobs',
+      ).first('n');
+      const preview = await new PromptTests(env.DB, owner).preview(
+        {
+          prompt_id: family,
+          version: draft.version,
+          source_run_id: accepted.run_id,
+          semantic_profile_id: 'monitor',
+          semantic_profile_revision: 1,
+          model_revision: profile.revision,
+          max_output_tokens: settings.max_output_tokens,
+          purpose: settings.purpose,
+          region: settings.region,
+          limits: settings.limits,
+        },
+        fixtureNow,
+      );
+      expect(preview).toMatchObject({
+        kind: 'ANALYSIS',
+        prompt_version: 3,
+        prompt_hash: draft.prompt_hash,
+        model_revision: profile.revision,
+        additional_model_requests: 1,
+        quota_status: 'UNKNOWN',
+      });
+      draftTestPreviewHash = preview.preview_hash;
+      expect(
+        await env.DB.prepare('SELECT count(*) n FROM jobs').first('n'),
+      ).toBe(jobsBefore);
+      await expect(
+        analysis.previewExplicit(
+          accepted.run_id,
+          { ...settings, mode: 'PRODUCTION' },
+          {
+            semantic_profile_id: 'monitor',
+            semantic_profile_revision: 1,
+            pass: null,
+            test_prompt: { prompt_id: family, version: 3 },
+          },
+          fixtureNow,
+        ),
+      ).rejects.toThrow('INVALID_PROMPT_TEST');
+    }
     await semanticRegistry.save(
       {
         profile_id: 'monitor',
@@ -2373,6 +2434,27 @@ it.each([
         fixtureSecret,
       );
       expect(finished).toMatchObject({ accepted: false, state: 'SUCCEEDED' });
+      if (draftTestPreviewHash) {
+        const queued = await analysis.confirmExplicit(
+          draftTestPreviewHash,
+          crypto.randomUUID(),
+          fixtureNow,
+        );
+        const draftToken = (await aiStore.lease(
+          queued.job_id,
+          'ANALYZE',
+          fixtureNow,
+          'local',
+        ))!;
+        await aiStore.start(draftToken, 'ANALYZE', fixtureNow);
+        const pinned = await new AnalysisJobs(env.DB, aiAccess).load(
+          draftToken,
+          fixtureNow,
+        );
+        expect(pinned.snapshot.prompt.version).toBe(3);
+        expect(pinned.snapshot.settings.mode).toBe('QUALITY_TEST');
+        expect(pinned.snapshot.profile.revision).toBe(profile.revision);
+      }
       expect(
         await validation.finishQualityTest(
           aiToken,

@@ -63,6 +63,13 @@ reprocessApp.get('/context/:item', async (c) => {
       })),
     ],
     candidate_run_id: selected?.accepted_run_id ?? null,
+    model_profile: model
+      ? {
+          profile_id: model.profile_id,
+          revision: model.revision,
+          model: model.model,
+        }
+      : null,
     available: Boolean(
       source &&
       model?.free_eligible &&

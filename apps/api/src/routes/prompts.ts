@@ -3,6 +3,47 @@ import { PromptTests } from '../../../../packages/core/src/registry/test.js';
 import { PromptPublications } from '../../../../packages/core/src/registry/publish.js';
 import { ownerRouter, body, queryFields, text } from './common.js';
 export const promptsApp = ownerRouter();
+promptsApp.post('/tests/preview', async (c) => {
+  const input = await body(c, [
+    'prompt_id',
+    'version',
+    'source_run_id',
+    'semantic_profile_id',
+    'semantic_profile_revision',
+    'model_revision',
+    'max_output_tokens',
+    'purpose',
+    'region',
+    'limits',
+  ]);
+  if (
+    !input.limits ||
+    typeof input.limits !== 'object' ||
+    Array.isArray(input.limits)
+  )
+    throw new Error('INVALID_PROMPT_TEST');
+  return c.json(
+    await new PromptTests(c.env.DB, c.get('access')).preview(
+      {
+        prompt_id: text(input.prompt_id, 80),
+        version: input.version as number,
+        source_run_id: text(input.source_run_id, 128),
+        semantic_profile_id:
+          input.semantic_profile_id === null
+            ? null
+            : text(input.semantic_profile_id, 80),
+        semantic_profile_revision: input.semantic_profile_revision as
+          number | null,
+        model_revision: input.model_revision as number,
+        max_output_tokens: input.max_output_tokens as number,
+        purpose: text(input.purpose, 200),
+        region: text(input.region, 40),
+        limits: input.limits as Record<string, number>,
+      },
+      new Date(),
+    ),
+  );
+});
 promptsApp.post('/publication/preview', async (c) => {
   const input = await body(c, [
     'action',
