@@ -19,7 +19,36 @@ if (
   throw new Error('REMOTE_MIGRATION_CHECKSUM_MISMATCH');
 const hash = (bytes) => createHash('sha256').update(bytes).digest('hex');
 const suppliedCopy = process.argv[2];
+const virtualTables = (
+  await query(
+    "SELECT name,sql FROM sqlite_master WHERE type='table' AND sql LIKE 'CREATE VIRTUAL TABLE%'",
+  )
+).at(0).results;
+if (virtualTables.some((row) => row.name !== 'knowledge_fts'))
+  throw new Error('UNSUPPORTED_BACKUP_DERIVED_TABLE');
+const exportTables = (
+  await query(
+    "SELECT name FROM sqlite_master WHERE type='table' AND name NOT LIKE 'sqlite_%' AND name NOT LIKE '_cf_%' AND name NOT LIKE 'knowledge_fts%' AND sql NOT LIKE 'CREATE VIRTUAL TABLE%' ORDER BY name",
+  )
+)
+  .at(0)
+  .results.map((row) => row.name);
 let bytes;
+const supplementarySchema = (
+  await query(
+    "SELECT sql FROM sqlite_master WHERE type IN ('index','trigger','view') AND sql IS NOT NULL AND name NOT LIKE 'sqlite_%' AND name NOT LIKE '_cf_%' AND name NOT LIKE 'knowledge_fts%' ORDER BY CASE type WHEN 'index' THEN 0 WHEN 'trigger' THEN 1 ELSE 2 END,name",
+  )
+)
+  .at(0)
+  .results.map(
+    (row) =>
+      row.sql.replace(
+        /^CREATE (UNIQUE )?(INDEX|TRIGGER|VIEW) /i,
+        (_match, unique = '', kind) =>
+          'CREATE ' + unique + kind + ' IF NOT EXISTS ',
+      ) + ';',
+  )
+  .join('\n');
 if (suppliedCopy) {
   if (!/^\d{4}-\d{2}-\d{2}T\d{2}-\d{2}-\d{2}\.\d{3}Z\.sql$/.test(suppliedCopy))
     throw new Error('PRIVATE_BACKUP_COPY_NAME_REQUIRED');
@@ -33,6 +62,9 @@ if (suppliedCopy) {
       'POST',
       {
         output_format: 'polling',
+        ...(virtualTables.length
+          ? { dump_options: { tables: exportTables } }
+          : {}),
         ...(bookmark ? { current_bookmark: bookmark } : {}),
       },
     );
@@ -80,7 +112,32 @@ const id = new Date().toISOString().replaceAll(':', '-');
 const directory = '.local/pre-deployment-backups';
 mkdirSync(directory, { recursive: true });
 const path = directory + '/' + id + '.sql';
-if (!suppliedCopy) writeFileSync(path, bytes, { flag: 'wx', mode: 0o600 });
+// Store a self-contained restore script, including only the derived virtual
+// schema before ordinary rows and an explicit rebuild after canonical import.
+if (
+  virtualTables.length &&
+  !new TextDecoder()
+    .decode(bytes.subarray(0, 4096))
+    .includes('CREATE VIRTUAL TABLE knowledge_fts')
+) {
+  bytes = Buffer.concat([
+    Buffer.from(
+      'PRAGMA foreign_keys=OFF;\n' +
+        virtualTables.map((row) => row.sql + ';').join('\n') +
+        '\n',
+    ),
+    bytes,
+    Buffer.from(
+      "\nINSERT INTO knowledge_fts(knowledge_fts) VALUES('rebuild');\n",
+    ),
+  ]);
+}
+if (virtualTables.length)
+  bytes = Buffer.concat([
+    bytes,
+    Buffer.from('\n' + supplementarySchema + '\n'),
+  ]);
+writeFileSync(path, bytes, { flag: 'wx', mode: 0o600 });
 const db = new DatabaseSync(directory + '/' + id + '.restore.sqlite');
 const tables = [
   'owner_users',
@@ -198,6 +255,7 @@ const evidence = {
   foreign_key_check: 'PASS',
   signed_url_recorded: false,
   credential_values_recorded: false,
+  derived_fts_rebuilt: virtualTables.length > 0,
   source:
     'https://developers.cloudflare.com/api/resources/d1/subresources/database/methods/export/',
 };
