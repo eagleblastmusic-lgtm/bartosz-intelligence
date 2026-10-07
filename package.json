@@ -26,6 +26,7 @@
     "gate:e": "tsx --env-file-if-exists=.env tools/gates/eligibility.ts",
     "gate:ai": "tsx tools/gates/ai-pilot.ts",
     "gate:u": "tsx tools/gates/ux.ts",
+    "gate:translation": "tsx tools/gates/translation.ts",
     "capacity:collect": "tsx --env-file-if-exists=.env tools/gates/capacity/collect.ts",
     "gate:c": "tsx tools/gates/capacity/evaluate.ts"
   },
