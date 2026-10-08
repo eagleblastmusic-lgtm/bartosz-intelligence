@@ -31,6 +31,7 @@
     "gate:d-export": "tsx tools/gates/drive-export.ts",
     "gate:d-bridge": "tsx tools/gates/bridge.ts",
     "gate:r": "tsx tools/gates/reliability/run.ts",
+    "release:secrets": "tsx --env-file-if-exists=.env tools/release/scan-secrets.ts",
     "capacity:collect": "tsx --env-file-if-exists=.env tools/gates/capacity/collect.ts",
     "gate:c": "tsx tools/gates/capacity/evaluate.ts"
   },
