@@ -1,0 +1,47 @@
+{
+  "version": "HardeningTechnicalAcceptance/1.0",
+  "basis": "ACTUAL_LOCAL_EXECUTION",
+  "source_commit": "e581402036542005abfaf7f0f1566265b915d5d0",
+  "source_delta": "Formatting-only tests/e2e/system.spec.ts line wrapping",
+  "unit_and_contract": { "files": 77, "passed": 397, "failed": 0 },
+  "workers": { "files": 55, "passed": 226, "failed": 0 },
+  "chromium_e2e": { "passed": 26, "failed": 0 },
+  "total_tests_passed": 649,
+  "lint": "PASS",
+  "typecheck": "PASS",
+  "build": "PASS",
+  "worker_build_mode": "DRY_RUN",
+  "format": "PASS_AFTER_FORMATTING_FIX",
+  "format_history": [
+    "SANDBOX_IGNORED_TOOL_DIRECTORY_EPERM",
+    "SYSTEM_TEST_LINE_WRAPPING_FIXED"
+  ],
+  "public_bundle_secret_scan": {
+    "status": "PASS",
+    "files_scanned": 4,
+    "bytes_scanned": 409413,
+    "findings": [],
+    "secret_values_recorded": false
+  },
+  "local_services": {
+    "transcript": "FRESH_HEARTBEAT",
+    "source_corrections": "FRESH_HEARTBEAT",
+    "search": "FRESH_HEARTBEAT",
+    "analysis": "INACTIVE_NO_BLIND_PROVIDER_REQUEST"
+  },
+  "backup_cadence": {
+    "windows_task": "REGISTERED",
+    "existing_private_copy_sha256": "MATCH",
+    "freshness": "FRESH",
+    "redundant_backup_started": false,
+    "due_scheduled_execution": "NOT_RUN"
+  },
+  "provider_requests_in_automated_tests": 0,
+  "paid_services_enabled": false,
+  "human_review_cp_3_13": "AWAITING_HUMAN_REVIEW",
+  "manual_screen_reader_gate_u": "NOT_RUN_DEFERRED",
+  "full_gate_d_export": "NOT_YET_QUALIFIED",
+  "full_gate_r": "NOT_YET_QUALIFIED",
+  "global_release_qualified": false,
+  "stage_completion_handoff": false
+}

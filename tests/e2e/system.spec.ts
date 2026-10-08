@@ -97,14 +97,12 @@ test('System preserves unknown capacity, stale quota, failed age and incomplete 
     });
   });
   await page.goto(origin + '/system');
-  const inactive = page
-    .locator('section')
-    .filter({
-      has: page.getByRole('heading', {
-        name: 'Nieaktywne pipeline',
-        exact: true,
-      }),
-    });
+  const inactive = page.locator('section').filter({
+    has: page.getByRole('heading', {
+      name: 'Nieaktywne pipeline',
+      exact: true,
+    }),
+  });
   await expect(inactive).toContainText('Codex Subscription');
   await expect(inactive).toContainText(
     'Wyłączony — brak adaptera i aktywacji.',
