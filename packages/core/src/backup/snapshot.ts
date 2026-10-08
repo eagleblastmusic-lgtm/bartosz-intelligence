@@ -144,19 +144,13 @@ export class CoreBackup {
   private async snapshot(id: string, active = true) {
     const row = await this.db
       .prepare(
-        'SELECT * FROM backup_snapshots WHERE owner_id=? AND backup_id=?',
+        "SELECT s.*,EXISTS(SELECT 1 FROM maintenance_state WHERE singleton=1 AND barrier_token=s.backup_id AND barrier_until>strftime('%Y-%m-%dT%H:%M:%fZ','now')) AS active_permit FROM backup_snapshots s WHERE s.owner_id=? AND s.backup_id=?",
       )
       .bind(this.context.ownerId, id)
-      .first<Snapshot>();
+      .first<Snapshot & { active_permit: number }>();
     if (!row) throw new Error('NOT_FOUND');
     if (active) {
-      const permit = await this.db
-        .prepare(
-          "SELECT singleton FROM maintenance_state WHERE singleton=1 AND barrier_token=? AND barrier_until>strftime('%Y-%m-%dT%H:%M:%fZ','now')",
-        )
-        .bind(id)
-        .first();
-      if (!permit || row.state !== 'BUILDING')
+      if (!row.active_permit || row.state !== 'BUILDING')
         throw new Error('BACKUP_EXPIRED_OR_CLOSED');
     }
     return row;
@@ -248,11 +242,15 @@ export class CoreBackup {
     const query = this.db.prepare(
       `SELECT rowid AS __cursor,${spec.projection} FROM ${table} WHERE rowid>?${spec.scoped ? ' AND owner_id=?' : ''} ORDER BY rowid LIMIT 25`,
     );
-    const raw = (
-      await query
-        .bind(cursor, ...(spec.scoped ? [this.context.ownerId] : []))
-        .all<Row>()
-    ).results;
+    const page = await this.db.batch([
+      query.bind(cursor, ...(spec.scoped ? [this.context.ownerId] : [])),
+      this.db
+        .prepare(
+          'SELECT cursor,next_cursor,chunk_index,count FROM backup_chunks WHERE owner_id=? AND backup_id=? AND table_name=? ORDER BY chunk_index',
+        )
+        .bind(this.context.ownerId, id, table),
+    ]);
+    const raw = (page[0]?.results ?? []) as Row[];
     // Limit each hash/serialization work unit, independently of total corpus size.
     const rows: Row[] = [],
       rowCursors: number[] = [];
@@ -273,19 +271,12 @@ export class CoreBackup {
       rows.push(data);
       rowCursors.push(Number(__cursor));
     }
-    const previous = (
-      await this.db
-        .prepare(
-          'SELECT cursor,next_cursor,chunk_index,count FROM backup_chunks WHERE owner_id=? AND backup_id=? AND table_name=? ORDER BY chunk_index',
-        )
-        .bind(this.context.ownerId, id, table)
-        .all<{
-          cursor: number;
-          next_cursor: number | null;
-          chunk_index: number;
-          count: number;
-        }>()
-    ).results;
+    const previous = (page[1]?.results ?? []) as {
+      cursor: number;
+      next_cursor: number | null;
+      chunk_index: number;
+      count: number;
+    }[];
     const existing = previous.find((row) => row.cursor === cursor);
     const last = previous.at(-1);
     if (
@@ -328,30 +319,45 @@ export class CoreBackup {
       index: existing?.chunk_index ?? previous.length,
       bytes,
     };
-    await this.snapshot(id); // Expiry during an awaited read never becomes a valid cut.
-    await this.db
-      .prepare(
-        'INSERT INTO backup_chunks(owner_id,backup_id,table_name,chunk_index,cursor,next_cursor,count,sha256,columns_json,bytes) VALUES(?,?,?,?,?,?,?,?,?,?) ON CONFLICT(owner_id,backup_id,table_name,cursor) DO NOTHING',
-      )
-      .bind(
-        this.context.ownerId,
-        id,
-        table,
-        result.index,
-        cursor,
-        next,
-        rows.length,
-        result.sha256,
-        JSON.stringify(columns),
-        bytes,
-      )
-      .run();
-    const saved = await this.db
-      .prepare(
-        'SELECT sha256 FROM backup_chunks WHERE owner_id=? AND backup_id=? AND table_name=? AND cursor=?',
-      )
-      .bind(this.context.ownerId, id, table, cursor)
-      .first<string>('sha256');
+    // The database guard covers expiry during awaited reads and the receipt write.
+    const active =
+      "EXISTS(SELECT 1 FROM backup_snapshots s JOIN maintenance_state m ON m.singleton=1 AND m.barrier_token=s.backup_id WHERE s.owner_id=? AND s.backup_id=? AND s.state='BUILDING' AND m.barrier_until>strftime('%Y-%m-%dT%H:%M:%fZ','now'))";
+    const savedBatch = await this.db.batch([
+      this.db
+        .prepare(
+          `INSERT INTO backup_chunks(owner_id,backup_id,table_name,chunk_index,cursor,next_cursor,count,sha256,columns_json,bytes) SELECT ?,?,?,?,?,?,?,?,?,? WHERE ${active} ON CONFLICT(owner_id,backup_id,table_name,cursor) DO NOTHING`,
+        )
+        .bind(
+          this.context.ownerId,
+          id,
+          table,
+          result.index,
+          cursor,
+          next,
+          rows.length,
+          result.sha256,
+          JSON.stringify(columns),
+          bytes,
+          this.context.ownerId,
+          id,
+        ),
+      this.db
+        .prepare(
+          `SELECT sha256 FROM backup_chunks WHERE owner_id=? AND backup_id=? AND table_name=? AND cursor=? AND ${active}`,
+        )
+        .bind(
+          this.context.ownerId,
+          id,
+          table,
+          cursor,
+          this.context.ownerId,
+          id,
+        ),
+    ]);
+    const saved = (
+      savedBatch[1]?.results?.[0] as { sha256: string } | undefined
+    )?.sha256;
+    if (!saved) throw new Error('BACKUP_EXPIRED_OR_CLOSED');
     if (saved !== result.sha256) throw new Error('BACKUP_CHUNK_MISMATCH');
     return result;
   }

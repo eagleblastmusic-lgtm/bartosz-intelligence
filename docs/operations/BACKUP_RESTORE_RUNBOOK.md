@@ -62,3 +62,17 @@ Worker path, independent-medium recovery, automated 24-hour backup cadence and
 full outage RPO/RTO remain separate qualification work. RPO 24 h and RTO 4 h are
 targets, not achieved SLA. Gate C maturity and Gemini quality acceptance are also
 independent of a passing backup integrity check.
+
+The drill records separate backup, isolated restore and total elapsed durations.
+These durations do not qualify a full application outage RPO/RTO. The current
+restore target remains a new local SQLite file, never the deployed D1 database.
+
+On 2026-10-08 the first concurrent-service backup attempt failed in CHUNKS:
+`docs/verification/backup/2026-10-08T18-16-04.165Z-fail.json`. Its incomplete copy
+was not verified. The serial REST path performed repeated barrier lookups and
+separate page/receipt requests for every chunk. The correction combines the
+snapshot/permit lookup, batches independent page/receipt reads and atomically
+guards receipt insertion/readback against the current database barrier. The
+barrier duration and acceptance criteria remain unchanged. Expiry immediately
+before receipt commit is tested and cannot persist a chunk. Backup/restore and
+related recovery regression verification: 10 tests passed.

@@ -17,6 +17,37 @@ import { restoreCanonical } from '../../packages/core/src/backup/restore.js';
 import type { BackupChunk } from '../../packages/core/src/backup/snapshot.js';
 import type { Database } from '../../packages/core/src/db/boundary.js';
 beforeEach(resetCore);
+it('rejects expiry immediately before the batched receipt write without persisting a chunk', async () => {
+  const owner = await fixtureOwner();
+  const backup = new CoreBackup(env.DB, owner),
+    started = await backup.begin(2);
+  let committing = false;
+  const racing: Database = {
+    prepare(sql) {
+      if (sql.startsWith('INSERT INTO backup_chunks')) committing = true;
+      return env.DB.prepare(sql);
+    },
+    async batch(statements) {
+      if (committing) {
+        await env.DB.prepare(
+          "UPDATE maintenance_state SET barrier_until='2000-01-01T00:00:00.000Z'",
+        ).run();
+      }
+      return env.DB.batch(statements as D1PreparedStatement[]);
+    },
+  };
+  await expect(
+    new CoreBackup(racing, owner).chunk(started.backup_id, 'owner_users', 0),
+  ).rejects.toThrow('BACKUP_EXPIRED_OR_CLOSED');
+  expect(
+    await env.DB.prepare(
+      'SELECT count(*) n FROM backup_chunks WHERE backup_id=?',
+    )
+      .bind(started.backup_id)
+      .first('n'),
+  ).toBe(0);
+  await backup.abort(started.backup_id);
+});
 it('pins an explicit extended format and its bounded barrier, rejecting format mutation', async () => {
   const backup = new CoreBackup(env.DB, await fixtureOwner());
   await expect(backup.begin(3 as 2)).rejects.toThrow('INVALID_BACKUP_FORMAT');

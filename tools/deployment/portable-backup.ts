@@ -54,6 +54,7 @@ if (acl.status !== 0) throw new Error('PRIVATE_BACKUP_ACL_REQUIRED');
 const db = remoteDatabase(),
   now = new Date(),
   sessionHash = await sha256(randomToken());
+const drillStarted = performance.now();
 const owners = await db
   .prepare(
     'SELECT owner_id,subject FROM owner_users WHERE allowlisted=1 LIMIT 2',
@@ -112,7 +113,9 @@ try {
   const digest = (value: Uint8Array) =>
     createHash('sha256').update(value).digest('hex');
   if (digest(copied) !== digest(bytes)) throw new Error('BACKUP_COPY_MISMATCH');
+  const backupElapsedMs = Math.ceil(performance.now() - drillStarted);
   phase = 'INDEPENDENT_SQLITE_RESTORE';
+  const restoreStarted = performance.now();
   const restorePath = join(directory, backupId + '.sqlite');
   if (existsSync(restorePath)) throw new Error('RESTORE_TARGET_EXISTS');
   const target = new DatabaseSync(restorePath);
@@ -160,6 +163,9 @@ try {
     private_acl: 'OWNER_SYSTEM_ONLY',
     independent_medium: 'NOT_VERIFIED',
     production_worker_cpu: 'NOT_MEASURED: administrative D1 REST bridge',
+    backup_elapsed_ms: backupElapsedMs,
+    isolated_restore_elapsed_ms: Math.ceil(performance.now() - restoreStarted),
+    drill_elapsed_ms: Math.ceil(performance.now() - drillStarted),
     rpo_rto: 'NOT_QUALIFIED',
     secret_values_recorded: false,
   };
@@ -171,10 +177,14 @@ try {
     { flag: 'wx' },
   );
   process.stdout.write(JSON.stringify(receipt) + '\n');
-} catch {
+} catch (error) {
   const failure = {
     result: 'FAIL',
     phase,
+    reason:
+      error instanceof Error && /^[A-Z][A-Z0-9_]{1,100}$/.test(error.message)
+        ? error.message
+        : 'BACKUP_DRILL_FAILED',
     backup_id: backupId ?? null,
     recorded_at: new Date().toISOString(),
     secret_values_recorded: false,
