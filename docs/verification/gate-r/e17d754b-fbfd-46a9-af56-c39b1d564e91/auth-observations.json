@@ -1,0 +1,8 @@
+{
+  "worker_auth_rejected": true,
+  "old_completion_rejected": true,
+  "owner_session_rejected": true,
+  "replacement_accepted": true,
+  "accepted_effects": 1,
+  "origin_preserved": true
+}

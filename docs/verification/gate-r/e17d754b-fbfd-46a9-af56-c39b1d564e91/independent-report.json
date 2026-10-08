@@ -1,0 +1,64 @@
+{
+  "version": "GateRReport/1.0",
+  "gate": "R",
+  "status": "NOT_RUN",
+  "configuration_sha256": "324bf674dbb30bed468d17c374ea140764a553c7a65157e2ea073ff005053907",
+  "baseline_sha256": "181d9f2c27bccf4c2d2cbb8990916655c77853852397a67f94756e3ad78e1943",
+  "evaluated_at": "2026-10-08T22:51:42.738Z",
+  "rows": [
+    {
+      "id": "lease_crash",
+      "status": "PASS",
+      "evidence_sha256": "0dfbde0566519e59acca22f2e026fad46c9671a79714e0a3e414072c18cd169e"
+    },
+    {
+      "id": "queue_loss",
+      "status": "PASS",
+      "evidence_sha256": "eaa94021b3343f8a90158fe4f4e3609f484a0809cc17c3b278a5703c6363f39d"
+    },
+    {
+      "id": "discovery_interruption",
+      "status": "PASS",
+      "evidence_sha256": "0ba46906a01fe760cd7bde28811b44b75cb1f732f2e01b20930dd103ef868df1"
+    },
+    {
+      "id": "database_rollback",
+      "status": "PASS",
+      "evidence_sha256": "9d03bad927be0fc7848683a40726ec0ff41c7857aab31373cd8fbed1fa79d72f"
+    },
+    {
+      "id": "transcript_failure",
+      "status": "NOT_RUN",
+      "evidence_sha256": null
+    },
+    {
+      "id": "auth_revocation",
+      "status": "PASS",
+      "evidence_sha256": "8309c061bd70f7d12a1b205d756cadbe23dac88a79adf72873dba13c791b857e"
+    },
+    {
+      "id": "quota_local_offline",
+      "status": "NOT_RUN",
+      "evidence_sha256": null
+    },
+    {
+      "id": "malformed_ai",
+      "status": "NOT_RUN",
+      "evidence_sha256": null
+    },
+    {
+      "id": "model_prompt_rollback",
+      "status": "NOT_RUN",
+      "evidence_sha256": null
+    },
+    {
+      "id": "drive_consumer_failure",
+      "status": "NOT_RUN",
+      "evidence_sha256": null
+    }
+  ],
+  "provider_requests_performed": false,
+  "automatic_activation": false,
+  "global_release_approved": false,
+  "input_sha256": "e03e03022ba0ceaa6ce8e8e1084c3e082ca3c81c00e129874f24eed7da9df2d1"
+}

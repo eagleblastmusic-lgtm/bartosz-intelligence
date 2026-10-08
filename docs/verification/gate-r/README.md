@@ -88,3 +88,20 @@ succeeded exactly once. Evidence: `b21a69ff-168f-434c-8cb5-20c991589c3e/`;
 lease crash, queue loss and database rollback PASS; overall Gate R NOT_RUN.
 The independent on-disk CLI evaluation confirmed the same result. Targeted
 Discovery/recovery and evaluator/combined-recovery suites: 24 tests PASS.
+
+Candidate `1e1701b` adds interrupted discovery and revoked authorization in the
+same isolated restored D1. A staged second discovery page survives an injected
+batch failure and expired lease; stale completion is rejected, exactly two Items
+and two transcript Jobs remain, and the watermark advances only after recovery.
+A revoked worker cannot authenticate or complete its running candidate; a revoked
+owner session is rejected. Fresh temporary authorization recovers the durable
+job exactly once with its original arrival/origin. All newly provisioned auth
+-drill credentials and sessions are revoked inside the isolated database.
+Evidence: `e17d754b-fbfd-46a9-af56-c39b1d564e91/`, independently evaluated from
+on-disk hashes. Five cases PASS; remaining five NOT_RUN, overall Gate R NOT_RUN.
+Synthetic discovery metadata does not qualify actual YouTube enumeration.
+Targeted drill/evaluator/combined recovery suites: 19 tests PASS; tools and Workers
+typechecks and scoped lint PASS. No production or provider request was made by
+the drill. A separate production read-only aggregate confirmed fresh transcript,
+source-correction and search heartbeats; analysis remains inactive pending quota
+and qualifying quality evidence. Accepted Core source runs are not accepted AI.

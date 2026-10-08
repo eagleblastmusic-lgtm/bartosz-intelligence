@@ -1,0 +1,16 @@
+{
+  "version": "GateRCase/1.0",
+  "case_id": "database_rollback",
+  "configuration_sha256": "324bf674dbb30bed468d17c374ea140764a553c7a65157e2ea073ff005053907",
+  "baseline_sha256": "181d9f2c27bccf4c2d2cbb8990916655c77853852397a67f94756e3ad78e1943",
+  "kind": "ACTUAL_LOCAL_D1",
+  "observed_at": "2026-10-08T22:51:01.526Z",
+  "result": "PASS",
+  "lost_jobs": 0,
+  "duplicate_effects": 0,
+  "stale_writes": 0,
+  "origins_preserved": true,
+  "recovered": true,
+  "paid_requests": 0,
+  "recovery_elapsed_ms": 5208
+}
