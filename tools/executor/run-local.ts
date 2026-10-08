@@ -67,7 +67,7 @@ process.on('SIGINT', () => {
 process.on('SIGTERM', () => {
   shutdown.abort();
 });
-process.exitCode = await runExecutorLoop({
+const exitCode = await runExecutorLoop({
   cycle: () =>
     worker instanceof LocalAnalysisWorker
       ? worker.cycle(selectedJob)
@@ -80,3 +80,4 @@ process.exitCode = await runExecutorLoop({
       JSON.stringify(event) + '\n',
     ),
 });
+process.exitCode = exitCode === 1 && !once ? 78 : exitCode;
