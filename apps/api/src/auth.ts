@@ -114,12 +114,21 @@ authApp.onError((error, c) => {
   );
 });
 authApp.get('/login', async (c) => {
+  const returnPath =
+    c.req.query('return_to') === '/system/connections'
+      ? '/system/connections'
+      : '/';
   const intent = await beginLogin(
     c.env.DB,
     await runtimeOidcConfiguration(c.env),
     new Date(),
   );
   c.header('Set-Cookie', intent.browserCookie);
+  c.header(
+    'Set-Cookie',
+    `__Host-bi-return=${encodeURIComponent(returnPath)}; Path=/; Secure; HttpOnly; SameSite=Lax; Max-Age=600`,
+    { append: true },
+  );
   return c.redirect(intent.url, 302);
 });
 authApp.post('/bootstrap/login', async (c) => {
@@ -221,7 +230,16 @@ authApp.get('/callback', async (c) => {
     '__Host-bi-login=; Path=/; Secure; HttpOnly; SameSite=Lax; Max-Age=0',
     { append: true },
   );
-  return c.redirect(applicationOrigin(c.env) + '/', 302);
+  const returnPath =
+    cookieValue(c.req.raw, '__Host-bi-return') === '%2Fsystem%2Fconnections'
+      ? '/system/connections'
+      : '/';
+  c.header(
+    'Set-Cookie',
+    '__Host-bi-return=; Path=/; Secure; HttpOnly; SameSite=Lax; Max-Age=0',
+    { append: true },
+  );
+  return c.redirect(applicationOrigin(c.env) + returnPath, 302);
 });
 authApp.get('/session', async (c) => {
   const context = await ownerContext(c.env, c.req.raw);

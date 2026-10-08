@@ -126,7 +126,14 @@ function App() {
               <p>
                 Zaloguj się, aby czytać materiały i zarządzać swoimi kanałami.
               </p>
-              <a className="primary-link" href="/api/v1/auth/login">
+              <a
+                className="primary-link"
+                href={
+                  route.startsWith('/system/connections')
+                    ? '/api/v1/auth/login?return_to=%2Fsystem%2Fconnections'
+                    : '/api/v1/auth/login'
+                }
+              >
                 Zaloguj się przez Google
               </a>
             </>

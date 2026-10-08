@@ -9,6 +9,42 @@ import {
 } from '../../apps/api/src/auth.js';
 import application from '../../config/application.json';
 beforeEach(resetCore);
+it('login preserves only the allowlisted connections destination in a short secure cookie', async () => {
+  const settings = {
+    ...env,
+    GOOGLE_OIDC_CLIENT_ID: 'fixture-client',
+    GOOGLE_OIDC_CLIENT_SECRET: 'fixture-only',
+    GOOGLE_OIDC_OWNER_SUBJECT: 'subject-a',
+    SESSION_SIGNING_SECRET: 'fixture-session-secret-32-characters-minimum',
+  };
+  for (const destination of [
+    '/system/connections',
+    'https://evil.example',
+    '//evil.example',
+    '/api/v1/auth/logout',
+  ]) {
+    const response = await worker.fetch(
+      new Request(
+        application.app_origin +
+          '/api/v1/auth/login?return_to=' +
+          encodeURIComponent(destination),
+      ),
+      settings,
+      createExecutionContext(),
+    );
+    expect(response.status).toBe(302);
+    expect(response.headers.get('Set-Cookie')).toContain(
+      '__Host-bi-return=' +
+        encodeURIComponent(
+          destination === '/system/connections' ? destination : '/',
+        ) +
+        '; Path=/; Secure; HttpOnly; SameSite=Lax; Max-Age=600',
+    );
+    expect(new URL(response.headers.get('Location')!).origin).toBe(
+      'https://accounts.google.com',
+    );
+  }
+});
 it('configured callback exactly matches the real API route and missing secrets fail closed', async () => {
   expect(authCallbackPath).toBe('/api/v1/auth/callback');
   const response = await worker.fetch(
