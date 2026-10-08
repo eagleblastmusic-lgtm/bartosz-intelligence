@@ -35,3 +35,12 @@ stream failure, RSS DTD/depth rejection and existing redirect protection.
 The first Workers typecheck found its TextDecoder options require explicit
 ignoreBOM. This compatibility failure was corrected with ignoreBOM=false;
 the streaming byte bounds and strict UTF-8 behavior are unchanged.
+
+The owner OIDC exchange had the same post-allocation size-check gap: token,
+error and signing-key bodies were fully read before checking their length.
+All three now use the shared streaming reader with a 32768-byte ceiling and
+strict UTF-8. Oversized responses are cancelled before parsing or subsequent
+requests; diagnostics retain only existing fixed categories, without provider
+body text. Targeted workerd regression covers all three paths. The affected
+OIDC/signature/reader/auth API suite passed 26 tests; scoped lint and API/Workers
+typechecks passed. No new live Google consent was required or performed.

@@ -1,6 +1,7 @@
 import { base64url, decode64, randomToken, sha256 } from './crypto.js';
 import type { Database } from '../db/boundary.js';
 import { fetchWithoutRedirect } from '../http/no-redirect.js';
+import { boundedText } from '../http/bounded-text.js';
 
 export type OidcFailureReason =
   | 'INPUT'
@@ -228,7 +229,7 @@ export async function finishLogin(
   });
   if (!response.ok) {
     // Consume at most a bounded error body and retain only known error categories.
-    const raw = await response.text();
+    const raw = await boundedText(response, 32768).catch(() => '');
     let category: unknown;
     if (raw.length <= 32768) {
       try {
@@ -246,8 +247,9 @@ export async function finishLogin(
           : 'TOKEN_EXCHANGE',
     );
   }
-  const body = await response.text();
-  if (body.length > 32768) throw new OidcFailure('OIDC_DENIED', 'TOKEN_FORMAT');
+  const body = await boundedText(response, 32768).catch(() => {
+    throw new OidcFailure('OIDC_DENIED', 'TOKEN_FORMAT');
+  });
   const token: unknown = parseTokenJson(body)?.id_token;
   if (typeof token !== 'string')
     throw new OidcFailure('OIDC_DENIED', 'TOKEN_FORMAT');
@@ -260,9 +262,9 @@ export async function finishLogin(
   });
   if (!keyResponse.ok)
     throw new OidcFailure('OIDC_KEYS_UNAVAILABLE', 'KEYS_UNAVAILABLE');
-  const keyBody = await keyResponse.text();
-  if (keyBody.length > 32768)
+  const keyBody = await boundedText(keyResponse, 32768).catch(() => {
     throw new OidcFailure('OIDC_DENIED', 'TOKEN_FORMAT');
+  });
   const keys = parseTokenJson(keyBody)?.keys;
   if (!Array.isArray(keys))
     throw new OidcFailure('OIDC_DENIED', 'TOKEN_FORMAT');

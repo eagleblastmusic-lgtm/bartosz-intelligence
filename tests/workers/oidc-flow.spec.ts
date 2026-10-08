@@ -13,6 +13,45 @@ const config = {
 beforeEach(async () => {
   await resetCore();
 });
+it('cancels oversized token, error and signing-key responses before parsing or further requests', async () => {
+  for (const phase of ['TOKEN', 'ERROR', 'KEYS'] as const) {
+    const login = await beginLogin(env.DB, config, now);
+    const url = new URL(login.url);
+    let cancelled = false;
+    let calls = 0;
+    const fetcher: typeof fetch = async () => {
+      calls++;
+      if (phase === 'KEYS' && calls === 1)
+        return Response.json({ id_token: 'synthetic-token' });
+      return new Response(
+        new ReadableStream({
+          pull(controller) {
+            controller.enqueue(new Uint8Array(32769));
+          },
+          cancel() {
+            cancelled = true;
+          },
+        }),
+        { status: phase === 'ERROR' ? 400 : 200 },
+      );
+    };
+    await expect(
+      finishLogin(
+        env.DB,
+        config,
+        url.searchParams.get('state')!,
+        'fixture-code',
+        login.browserCookie.split(';')[0]!.split('=')[1]!,
+        now,
+        fetcher,
+      ),
+    ).rejects.toMatchObject({
+      reason: phase === 'ERROR' ? 'TOKEN_EXCHANGE' : 'TOKEN_FORMAT',
+    });
+    expect(cancelled).toBe(true);
+    expect(calls).toBe(phase === 'KEYS' ? 2 : 1);
+  }
+});
 it('workerd verifies a signed token with Google-shaped public JWK and consumes the browser intent once', async () => {
   const login = await beginLogin(env.DB, config, now),
     url = new URL(login.url);
