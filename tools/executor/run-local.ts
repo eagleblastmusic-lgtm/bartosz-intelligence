@@ -4,16 +4,17 @@ import { LocalAnalysisWorker } from '../../apps/executor/src/analysis-worker.js'
 import { LocalSourceCorrectionWorker } from '../../apps/executor/src/source-correction-worker.js';
 import { LocalSearchWorker } from '../../apps/executor/src/search-worker.js';
 import { LocalOptionalAIWorker } from '../../apps/executor/src/optional-worker.js';
-const analysis = process.argv.includes('--analysis');
-const corrections = process.argv.includes('--source-corrections');
-const search = process.argv.includes('--search');
-const translation = process.argv.includes('--translation'),
-  history = process.argv.includes('--history');
-if (
-  [analysis, corrections, search, translation, history].filter(Boolean).length >
-  1
-)
-  throw new Error('INVALID_EXECUTOR_MODE');
+import { executorArguments } from '../../apps/executor/src/arguments.js';
+const {
+  mode,
+  once,
+  jobId: selectedJob,
+} = executorArguments(process.argv.slice(2));
+const analysis = mode === '--analysis';
+const corrections = mode === '--source-corrections';
+const search = mode === '--search';
+const translation = mode === '--translation',
+  history = mode === '--history';
 const origin = process.env.APP_ORIGIN,
   credential =
     translation || history
@@ -46,20 +47,6 @@ const worker =
               process.env.GEMINI_API_KEY ?? '',
             )
           : new LocalTranscriptWorker(origin, credential);
-const once = process.argv.includes('--once');
-const selectedJobIndex = process.argv.indexOf('--job-id');
-const selectedJob =
-  selectedJobIndex < 0 ? undefined : process.argv[selectedJobIndex + 1];
-if (
-  selectedJobIndex >= 0 &&
-  (!analysis ||
-    !once ||
-    !selectedJob ||
-    !/^[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}$/.test(
-      selectedJob,
-    ))
-)
-  throw new Error('INVALID_ANALYSIS_JOB_ID');
 const shutdown = new AbortController();
 process.on('SIGINT', () => {
   shutdown.abort();

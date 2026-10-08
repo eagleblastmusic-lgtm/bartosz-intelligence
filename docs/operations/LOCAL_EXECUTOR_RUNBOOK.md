@@ -28,6 +28,11 @@ The default mode runs the qualified local yt-dlp transcript path using `LOCAL_WO
 
 For one explicitly selected analysis test use `--analysis --once --job-id <job_id>`. Selection never grants permission to process another job. `--once` exits after one cycle and returns a nonzero code on failure.
 
+CLI arguments are validated before credential lookup or worker construction.
+Unknown flags, duplicate modes/`--once`/`--job-id`, and a selected job outside
+`--analysis --once` are rejected. Parser and actual supervisor regressions:
+15 tests passed. A misspelled mode cannot silently start the default service.
+
 Normal analysis cycles first prepare at most one accepted, confirmed original
 source into a durable production job through the scoped ANALYZE identity.
 Preparation reads registry/metadata references and invokes no provider. Unknown
