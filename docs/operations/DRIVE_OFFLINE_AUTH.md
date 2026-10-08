@@ -164,3 +164,19 @@ The owner sees the reason/count/next retry and can explicitly retry a recoverabl
 pause using expected settings revision. This never resolves or clears a manual
 edit conflict; conflict resolution requires its separate reviewed workflow.
 Core intake and job scheduling run independently of export failure.
+
+## Manual conflict preservation
+
+The owner can inspect a conflicted day and explicitly choose KEEP_MANUAL.
+The preview reads the exact persisted file, private root and application identity,
+checks stable metadata around a bounded raw read, and stores only hash/version/
+size/mapping metadata in immutable config (never manual file text).
+It expires after ten minutes. Confirmation refreshes OAuth and repeats the
+read; a changed hash/version, mapping, settings or fence rejects the decision.
+Confirmation CAS sets OWNER_PRESERVED_MANUAL, invalidates active leases and
+leaves the remote file and accepted Core knowledge untouched. It does not
+claim the manual bytes as an application export. Future changes for that day
+remain paused and cannot be cleared by ordinary retry or a mode change.
+The GUI links to the actual file for owner inspection and explains this effect.
+This implements preservation; replacing a manual version requires a separate
+reviewed action and is not silently performed by the exporter.

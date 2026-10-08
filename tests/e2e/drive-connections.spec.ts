@@ -111,6 +111,38 @@ test('Drive settings disclose unavailable export, preserve escaped private mappi
       exports.days[0]!.settings_revision = 3;
       return route.fulfill({ json: { settings_revision: 3 } });
     }
+    if (path === '/api/v1/connections/drive/exports/conflict/preview') {
+      expect(route.request().postDataJSON()).toEqual({
+        connection_id: 'private-drive',
+        root_id: 'export-root',
+        date: '2026-10-05',
+        expected_connection_revision: 6,
+        expected_settings_revision: 3,
+      });
+      status.connections[0]!.revision = 7;
+      return route.fulfill({
+        json: {
+          connection_id: 'private-drive',
+          connection_revision: 7,
+          preview_hash: 'c'.repeat(64),
+          file_id: 'same-file',
+          remote_version: '9',
+          remote_hash: 'd'.repeat(64),
+          remote_bytes: 1234,
+          expires_at: '2026-10-08T15:00:00Z',
+        },
+      });
+    }
+    if (path === '/api/v1/connections/drive/exports/conflict/confirm') {
+      expect(route.request().postDataJSON()).toEqual({
+        connection_id: 'private-drive',
+        expected_connection_revision: 7,
+        preview_hash: 'c'.repeat(64),
+        action: 'KEEP_MANUAL',
+      });
+      exports.days[0]!.paused_reason = 'OWNER_PRESERVED_MANUAL';
+      return route.fulfill({ json: { remote_write_performed: false } });
+    }
     if (path === '/api/v1/auth/session')
       return route.fulfill({
         status: authenticated ? 200 : 401,
@@ -322,6 +354,32 @@ test('Drive settings disclose unavailable export, preserve escaped private mappi
   });
   await expect(retry).toBeEnabled();
   await retry.click();
+  await expect(retry).toHaveCount(0);
+  status.connections[0]!.root_id = 'export-root';
+  exports.days[0]!.paused_reason = 'EXPORT_CONFLICT';
+  exports.days[0]!.queue_state = 'PAUSED';
+  await page
+    .getByRole('button', { name: 'Odśwież eksporty', exact: true })
+    .click();
+  await page
+    .getByRole('button', { name: 'Sprawdź konflikt 2026-10-05', exact: true })
+    .click();
+  await expect(
+    page.getByRole('link', {
+      name: 'Otwórz ręczną wersję w Drive',
+      exact: true,
+    }),
+  ).toHaveAttribute('href', 'https://drive.google.com/file/d/same-file/view');
+  expect((await new AxeBuilder({ page }).analyze()).violations).toEqual([]);
+  await page
+    .getByRole('button', {
+      name: 'Zachowaj ręczną wersję i wstrzymaj eksport 2026-10-05',
+      exact: true,
+    })
+    .click();
+  await expect(
+    page.getByText('Właściciel zachował ręczną wersję.', { exact: false }),
+  ).toBeVisible();
   await expect(retry).toHaveCount(0);
   authenticated = false;
   await refresh.click();

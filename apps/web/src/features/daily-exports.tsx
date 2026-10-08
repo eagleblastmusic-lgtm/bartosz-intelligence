@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import type { DailyExportStatus } from '../../../../packages/contracts/src/drive.js';
 import { api, errorMessage } from '../app/api.js';
+import { DriveConflict } from './drive-conflict.js';
 
 export function DailyExports() {
   const [data, setData] = useState<DailyExportStatus | null>(null),
@@ -81,11 +82,28 @@ export function DailyExports() {
             <article className="panel" key={day.root_id + ':' + day.date}>
               <h3>{day.date}</h3>
               <p>{states[day.queue_state]}</p>
+              {day.paused_reason === 'OWNER_PRESERVED_MANUAL' ? (
+                <p>
+                  Właściciel zachował ręczną wersję. Automatyczny eksport tego
+                  dnia jest wstrzymany; nowe wyniki pozostają dostępne w
+                  aplikacji.
+                </p>
+              ) : (
+                ['EXPORT_CONFLICT', 'DRIVE_CONFLICT'].includes(
+                  day.paused_reason ?? day.retry_reason ?? '',
+                ) && (
+                  <DriveConflict
+                    day={day}
+                    changed={() => setVersion((value) => value + 1)}
+                  />
+                )
+              )}
               {(day.retry_count ?? 0) > 0 &&
                 ![
                   'EXPORT_CONFLICT',
                   'DRIVE_CONFLICT',
                   'DRIVE_UNQUALIFIED_UPDATE',
+                  'OWNER_PRESERVED_MANUAL',
                 ].includes(day.paused_reason ?? '') && (
                   <button
                     disabled={

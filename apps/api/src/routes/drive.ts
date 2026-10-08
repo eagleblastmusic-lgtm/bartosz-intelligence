@@ -22,8 +22,81 @@ import {
 import { createDriveRootCandidate } from '../../../../packages/core/src/drive/root-create.js';
 import { exportStatus } from '../../../../packages/core/src/export/status.js';
 import { ExportSettings } from '../../../../packages/core/src/export/settings.js';
+import {
+  previewDriveConflict,
+  preserveManualDriveConflict,
+} from '../../../../packages/core/src/drive/conflict.js';
 
 export const driveApp = ownerRouter();
+driveApp.post('/exports/conflict/preview', async (c) => {
+  const input = await body(c, [
+    'connection_id',
+    'root_id',
+    'date',
+    'expected_connection_revision',
+    'expected_settings_revision',
+  ]);
+  const connectionId = text(input.connection_id, 128);
+  const { access, client, now, renewedRevision } = await rootClient(
+    c,
+    connectionId,
+    input.expected_connection_revision,
+  );
+  try {
+    return c.json(
+      await previewDriveConflict(
+        c.env.DB,
+        access,
+        client,
+        {
+          connection_id: connectionId,
+          connection_revision: renewedRevision,
+          root_id: text(input.root_id, 200),
+          date: text(input.date, 10),
+          expected_settings_revision:
+            input.expected_settings_revision as number,
+        },
+        now,
+      ),
+    );
+  } catch (error) {
+    return rootFailure(error);
+  }
+});
+driveApp.post('/exports/conflict/confirm', async (c) => {
+  const input = await body(c, [
+    'connection_id',
+    'preview_hash',
+    'expected_connection_revision',
+    'action',
+  ]);
+  if (input.action !== 'KEEP_MANUAL')
+    throw new Error('INVALID_EXPORT_SETTINGS');
+  const connectionId = text(input.connection_id, 128);
+  const { access, client, now, renewedRevision } = await rootClient(
+    c,
+    connectionId,
+    input.expected_connection_revision,
+  );
+  try {
+    return c.json(
+      await preserveManualDriveConflict(
+        c.env.DB,
+        access,
+        client,
+        {
+          connection_id: connectionId,
+          connection_revision: renewedRevision,
+          preview_hash: text(input.preview_hash, 64),
+          action: input.action,
+        },
+        now,
+      ),
+    );
+  } catch (error) {
+    return rootFailure(error);
+  }
+});
 driveApp.post('/root/confirm', async (c) => {
   const input = await body(c, [
     'connection_id',
