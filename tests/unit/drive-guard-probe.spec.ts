@@ -1,5 +1,6 @@
 import { expect, it } from 'vitest';
 import { DriveClient } from '../../packages/core/src/drive/client.js';
+import { sha256 } from '../../packages/core/src/auth/crypto.js';
 const input = {
   reserved_id: 'probe-id',
   root_id: 'root-id',
@@ -78,8 +79,53 @@ function fixture(
     client: new DriveClient('synthetic', transport),
     writes,
     body: () => body,
+    mutate: () => {
+      body = 'manual change';
+      revision++;
+    },
   };
 }
+it('guarded adapter checks identity/content and fence before exact v2 PUT and verifies readback', async () => {
+  const state = fixture({ v2: true });
+  let fenced = 0;
+  expect(
+    await state.client.updateMarkdown({
+      id: input.reserved_id,
+      root_id: input.root_id,
+      app_properties: { bi_guard_probe: input.nonce },
+      expected_hash: await sha256(base),
+      markdown: 'updated synthetic report',
+      before_write: async () => {
+        fenced++;
+      },
+    }),
+  ).toEqual({
+    method: 'V2_MEDIA_PUT_IF_MATCH',
+    content_hash: await sha256('updated synthetic report'),
+  });
+  expect(fenced).toBe(1);
+  expect(state.writes).toHaveLength(1);
+});
+it('guarded adapter preserves manual edits and rejects a late concurrent write or expired fence', async () => {
+  for (const kind of ['changed', 'race', 'fence'] as const) {
+    const state = fixture({ v2: true, changed: kind === 'changed' });
+    await expect(
+      state.client.updateMarkdown({
+        id: input.reserved_id,
+        root_id: input.root_id,
+        app_properties: { bi_guard_probe: input.nonce },
+        expected_hash: await sha256(base),
+        markdown: 'updated',
+        before_write: async () => {
+          if (kind === 'race') state.mutate();
+          if (kind === 'fence') throw new Error('STALE_FENCE');
+        },
+      }),
+    ).rejects.toThrow(kind === 'fence' ? 'STALE_FENCE' : 'DRIVE_CONFLICT');
+    expect(state.writes).toHaveLength(kind === 'race' ? 1 : 0);
+    if (kind !== 'fence') expect(state.body()).toBe('manual change');
+  }
+});
 it('qualifies only the exact v2 PUT path using the private property and JSON ETag', async () => {
   const state = fixture({ v2: true });
   expect(

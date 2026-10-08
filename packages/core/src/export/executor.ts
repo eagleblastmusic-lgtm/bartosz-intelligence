@@ -9,8 +9,7 @@ import { DailyExportArtifacts } from './artifacts.js';
 import { sha256 } from '../auth/crypto.js';
 import { materialReport } from './material.js';
 
-// Initial create/reconcile only. Updating existing different bytes remains
-// fail-closed until the selected remote upload method has actual CAS proof.
+// Updates use the exact media method qualified by the actual Drive CAS probe.
 export class DailyExportExecutor {
   constructor(
     private db: Database,
@@ -161,8 +160,8 @@ export class DailyExportExecutor {
       }
       metadata(file);
       const remoteText = await client.readMarkdown(remoteId, 8 * 1024 * 1024);
-      const remoteHash = await sha256(remoteText);
-      const afterRead = await client.getFile(remoteId);
+      let remoteHash = await sha256(remoteText);
+      let afterRead = await client.getFile(remoteId);
       metadata(afterRead);
       if (afterRead.version !== file.version)
         throw new Error('EXPORT_CONFLICT');
@@ -234,9 +233,30 @@ export class DailyExportExecutor {
               };
             }
           }
-          throw new DriveFailure('UNQUALIFIED_UPDATE');
-        }
-        throw new Error('EXPORT_CONFLICT');
+          await client.updateMarkdown({
+            id: remoteId,
+            root_id: lease.root_id,
+            app_properties: properties,
+            expected_hash: state.full_file_hash!,
+            markdown: new TextDecoder('utf-8', {
+              fatal: true,
+              ignoreBOM: true,
+            }).decode(artifact.bytes),
+            before_write: current,
+          });
+          const updated = await client.getFile(remoteId);
+          metadata(updated);
+          remoteHash = await sha256(
+            await client.readMarkdown(remoteId, 8 * 1024 * 1024),
+          );
+          afterRead = await client.getFile(remoteId);
+          metadata(afterRead);
+          if (
+            updated.version !== afterRead.version ||
+            remoteHash !== manifest.content_hash
+          )
+            throw new Error('EXPORT_CONFLICT');
+        } else throw new Error('EXPORT_CONFLICT');
       }
       await current();
       const result = await this.db.batch([
@@ -280,7 +300,8 @@ export class DailyExportExecutor {
       };
     } catch (error) {
       const conflict =
-        error instanceof Error && error.message === 'EXPORT_CONFLICT';
+        (error instanceof Error && error.message === 'EXPORT_CONFLICT') ||
+        (error instanceof DriveFailure && error.category === 'CONFLICT');
       const reason = conflict
         ? 'EXPORT_CONFLICT'
         : error instanceof DriveFailure

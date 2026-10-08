@@ -1,4 +1,5 @@
 import { fetchWithoutRedirect } from '../http/no-redirect.js';
+import { sha256 } from '../auth/crypto.js';
 
 export type DriveFailureCategory =
   | 'AUTH'
@@ -356,10 +357,102 @@ export class DriveClient {
       throw new DriveFailure('DENIED');
     return { private_owner_only: true as const };
   }
-  async updateMarkdown(): Promise<never> {
-    // A version or check-before-write is not a CAS. Until a live upload-method
-    // qualification proves the remote guard, no automatic update is issued.
-    throw new DriveFailure('UNQUALIFIED_UPDATE');
+  async updateMarkdown(input?: {
+    id: string;
+    root_id: string;
+    app_properties: Record<string, string>;
+    expected_hash: string;
+    markdown: string;
+    before_write: () => Promise<unknown>;
+  }) {
+    // Exact v2 method qualified by live trial d99d0b0d-4708-4586-9872-3923c55e96eb.
+    if (!input) throw new DriveFailure('UNQUALIFIED_UPDATE');
+    requireDriveId(input.id);
+    requireDriveId(input.root_id);
+    if (
+      !/^[a-f0-9]{64}$/.test(input.expected_hash) ||
+      typeof input.markdown !== 'string' ||
+      new TextEncoder().encode(input.markdown).length > 8 * 1024 * 1024 ||
+      !input.app_properties ||
+      Object.keys(input.app_properties).length === 0 ||
+      typeof input.before_write !== 'function'
+    )
+      throw new DriveFailure('FORMAT');
+    await this.verifyPrivateFolder(input.root_id);
+    const metadata = async () => {
+      const raw = await this.json(
+        await this.request(
+          'files/' +
+            input.id +
+            '?fields=' +
+            encodeURIComponent(
+              'id,mimeType,parents(id),labels(trashed),properties(key,value,visibility),etag',
+            ),
+          {},
+          false,
+          'v2',
+        ),
+      );
+      const properties = Array.isArray(raw.properties)
+        ? Object.fromEntries(
+            raw.properties
+              .filter((p) => p?.visibility === 'PRIVATE')
+              .map((p) => [p.key, p.value]),
+          )
+        : {};
+      if (
+        raw.id !== input.id ||
+        raw.mimeType !== 'text/markdown' ||
+        (raw.labels as { trashed?: unknown } | undefined)?.trashed !== false ||
+        !Array.isArray(raw.parents) ||
+        !raw.parents.some((p) => p?.id === input.root_id) ||
+        Object.entries(input.app_properties).some(
+          ([key, value]) => properties[key] !== value,
+        )
+      )
+        throw new DriveFailure('CONFLICT');
+      if (
+        typeof raw.etag !== 'string' ||
+        !/^"[A-Za-z0-9_:/+=.-]{1,256}"$/.test(raw.etag)
+      )
+        throw new DriveFailure('UNQUALIFIED_UPDATE');
+      return raw.etag;
+    };
+    const etag = await metadata();
+    if (
+      (await sha256(await this.readMarkdown(input.id, 8 * 1024 * 1024))) !==
+        input.expected_hash ||
+      (await metadata()) !== etag
+    )
+      throw new DriveFailure('CONFLICT');
+    await input.before_write();
+    const updated = await this.json(
+      await this.request(
+        'files/' + input.id + '?uploadType=media&fields=id',
+        {
+          method: 'PUT',
+          headers: {
+            'Content-Type': 'text/markdown; charset=UTF-8',
+            'If-Match': etag,
+          },
+          body: input.markdown,
+        },
+        true,
+        'v2',
+      ),
+    );
+    if (updated.id !== input.id) throw new DriveFailure('FORMAT');
+    const after = await metadata();
+    if (
+      after === etag ||
+      (await this.readMarkdown(input.id, 8 * 1024 * 1024)) !== input.markdown ||
+      (await metadata()) !== after
+    )
+      throw new DriveFailure('CONFLICT');
+    return {
+      method: 'V2_MEDIA_PUT_IF_MATCH' as const,
+      content_hash: await sha256(input.markdown),
+    };
   }
   /** Qualification only, using a caller-persisted disposable identity. This
    * never enables updateMarkdown or touches a Daily file. No hidden retries. */
