@@ -29,6 +29,7 @@ export function DriveRootPreview({
     [name, setName] = useState('Daily'),
     [preview, setPreview] = useState<RootPreview | null>(null),
     [busy, setBusy] = useState(false),
+    [mappingReviewed, setMappingReviewed] = useState(false),
     [error, setError] = useState('');
   function failed(error: unknown) {
     setError(errorMessage(error));
@@ -62,6 +63,7 @@ export function DriveRootPreview({
                     setRoot(candidate.folder_id);
                     setName(candidate.name);
                     setPreview(null);
+                    setMappingReviewed(false);
                     setError('');
                   }}
                 >
@@ -86,6 +88,7 @@ export function DriveRootPreview({
           setBusy(true);
           setError('');
           setPreview(null);
+          setMappingReviewed(false);
           void api<RootPreview>('/connections/drive/root/create', {
             connection_id: connectionId,
             name: name.trim(),
@@ -112,6 +115,7 @@ export function DriveRootPreview({
             onChange={(event) => {
               setName(event.target.value);
               setPreview(null);
+              setMappingReviewed(false);
             }}
           />
           <button type="submit">Utwórz prywatny folder</button>
@@ -123,6 +127,7 @@ export function DriveRootPreview({
           setBusy(true);
           setError('');
           setPreview(null);
+          setMappingReviewed(false);
           void api<Preview>('/connections/drive/root/preview', {
             connection_id: connectionId,
             root_id: root.trim(),
@@ -150,6 +155,7 @@ export function DriveRootPreview({
             onChange={(event) => {
               setRoot(event.target.value);
               setPreview(null);
+              setMappingReviewed(false);
             }}
           />
           <button type="submit">Sprawdź folder</button>
@@ -165,10 +171,7 @@ export function DriveRootPreview({
         <div className="notice" role="status">
           <p>Folder: {preview.folder_name}. Odczyt metadanych: potwierdzony.</p>
           {preview.private_owner_only && (
-            <p>
-              Uprawnienia: wyłącznie właściciel. Folder czeka na pełną
-              weryfikację zapisu.
-            </p>
+            <p>Uprawnienia: wyłącznie właściciel.</p>
           )}
           <p>
             Istniejące mapowania: {preview.existing_mapping_count}.{' '}
@@ -183,7 +186,10 @@ export function DriveRootPreview({
             Wybranego folderu nie zapisano jako gotowego do eksportu.
           </p>
           <p>
-            Próba zapisu, odczytu i aktualizacji pliku dziecka: nie wykonano.
+            Próba zapisu, odczytu i aktualizacji pliku dziecka:{' '}
+            {preview.child_create_read_update === 'PASS'
+              ? 'potwierdzona rzeczywistym testem.'
+              : 'nie wykonano.'}{' '}
             Eksport: niedostępny.
           </p>
           <p>
@@ -191,6 +197,53 @@ export function DriveRootPreview({
             {preview.storage.usage_bytes ?? 'nieustalone'}, limit{' '}
             {preview.storage.limit_bytes ?? 'nieustalony'}.
           </p>
+          {preview.child_create_read_update === 'PASS' && (
+            <div>
+              {preview.root_changed && preview.existing_mapping_count > 0 && (
+                <label>
+                  <input
+                    type="checkbox"
+                    checked={mappingReviewed}
+                    onChange={(event) =>
+                      setMappingReviewed(event.target.checked)
+                    }
+                  />
+                  Potwierdzam przegląd istniejących mapowań. Poprzednie pliki
+                  pozostają zachowane.
+                </label>
+              )}
+              <button
+                type="button"
+                disabled={
+                  busy ||
+                  !enabled ||
+                  (preview.root_changed &&
+                    preview.existing_mapping_count > 0 &&
+                    !mappingReviewed)
+                }
+                onClick={() => {
+                  setBusy(true);
+                  setError('');
+                  void api('/connections/drive/root/confirm', {
+                    connection_id: connectionId,
+                    preview_hash: preview.preview_hash,
+                    expected_revision: preview.connection_revision,
+                    acknowledge_mapping_review: mappingReviewed,
+                  })
+                    .then(() => {
+                      setPreview(null);
+                      setMappingReviewed(false);
+                      setMappingReviewed(false);
+                      changed();
+                    })
+                    .catch(failed)
+                    .finally(() => setBusy(false));
+                }}
+              >
+                Zatwierdź folder Daily
+              </button>
+            </div>
+          )}
         </div>
       )}
     </section>

@@ -157,10 +157,27 @@ test('Drive settings disclose unavailable export, preserve escaped private mappi
           storage: { usage_bytes: '123', limit_bytes: null },
           export_ready: false,
           folder_metadata_access: 'PASS',
-          child_create_read_update: 'NOT_RUN',
           private_owner_only: true,
           created_candidate: true,
+          connection_revision: 4,
+          preview_hash: 'a'.repeat(64),
+          guard_receipt_hash: 'b'.repeat(64),
+          child_create_read_update: 'PASS',
         },
+      });
+    }
+    if (path === '/api/v1/connections/drive/root/confirm') {
+      expect(route.request().postDataJSON()).toEqual({
+        connection_id: 'private-drive',
+        preview_hash: 'a'.repeat(64),
+        expected_revision: 4,
+        acknowledge_mapping_review: true,
+      });
+      status.connections[0]!.root_id = 'created-private-root';
+      status.connections[0]!.root_state = 'VERIFIED';
+      status.connections[0]!.revision = 6;
+      return route.fulfill({
+        json: { root_state: 'VERIFIED', export_ready: false },
       });
     }
     throw new Error('UNEXPECTED_DRIVE_SETTINGS_REQUEST');
@@ -260,15 +277,28 @@ test('Drive settings disclose unavailable export, preserve escaped private mappi
     .getByRole('button', { name: 'Utwórz prywatny folder', exact: true })
     .click();
   await expect(
-    page.getByText(
-      'Uprawnienia: wyłącznie właściciel. Folder czeka na pełną weryfikację zapisu.',
-      { exact: true },
-    ),
+    page.getByText('Uprawnienia: wyłącznie właściciel.', { exact: true }),
   ).toBeVisible();
   await expect(
     page.getByLabel('Identyfikator wybranego folderu', { exact: true }),
   ).toHaveValue('created-private-root');
   expect((await new AxeBuilder({ page }).analyze()).violations).toEqual([]);
+  const confirm = page.getByRole('button', {
+    name: 'Zatwierdź folder Daily',
+    exact: true,
+  });
+  await expect(confirm).toBeDisabled();
+  await page
+    .getByRole('checkbox', {
+      name: 'Potwierdzam przegląd istniejących mapowań.',
+      exact: false,
+    })
+    .check();
+  await expect(confirm).toBeEnabled();
+  await confirm.click();
+  await expect(
+    page.getByText('created-private-root', { exact: true }),
+  ).toBeVisible();
   authenticated = false;
   await refresh.click();
   await expect(

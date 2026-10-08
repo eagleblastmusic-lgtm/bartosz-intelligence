@@ -15,12 +15,49 @@ import {
   DriveClient,
   DriveFailure,
 } from '../../../../packages/core/src/drive/client.js';
-import { previewDriveRoot } from '../../../../packages/core/src/drive/root.js';
+import {
+  previewDriveRoot,
+  confirmDriveRoot,
+} from '../../../../packages/core/src/drive/root.js';
 import { createDriveRootCandidate } from '../../../../packages/core/src/drive/root-create.js';
 import { exportStatus } from '../../../../packages/core/src/export/status.js';
 import { ExportSettings } from '../../../../packages/core/src/export/settings.js';
 
 export const driveApp = ownerRouter();
+driveApp.post('/root/confirm', async (c) => {
+  const input = await body(c, [
+    'connection_id',
+    'preview_hash',
+    'expected_revision',
+    'acknowledge_mapping_review',
+  ]);
+  if (typeof input.acknowledge_mapping_review !== 'boolean')
+    throw new Error('INVALID_DRIVE_ROOT_PREVIEW');
+  const connectionId = text(input.connection_id, 128);
+  const { access, client, now, renewedRevision } = await rootClient(
+    c,
+    connectionId,
+    input.expected_revision,
+  );
+  try {
+    return c.json(
+      await confirmDriveRoot(
+        c.env.DB,
+        access,
+        client,
+        {
+          connection_id: connectionId,
+          preview_hash: text(input.preview_hash, 64),
+          expected_revision: renewedRevision,
+          acknowledge_mapping_review: input.acknowledge_mapping_review,
+        },
+        now,
+      ),
+    );
+  } catch (error) {
+    return rootFailure(error);
+  }
+});
 driveApp.get('/exports/status', async (c) => {
   queryFields(c, []);
   return c.json(await exportStatus(c.env.DB, c.get('access'), new Date()));
