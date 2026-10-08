@@ -22,6 +22,7 @@ test('Drive settings disclose unavailable export, preserve escaped private mappi
   let authenticated = true,
     statusCalls = 0;
   let createCalls = 0;
+  let disconnectCalls = 0;
   const exports: DailyExportStatus = {
     automatic_updates_qualified: false,
     truncated: false,
@@ -82,6 +83,17 @@ test('Drive settings disclose unavailable export, preserve escaped private mappi
   };
   await page.route('**/api/v1/**', async (route) => {
     const path = new URL(route.request().url()).pathname;
+    if (path === '/api/v1/connections/drive/disconnect') {
+      expect(route.request().postDataJSON()).toEqual({
+        connection_id: 'private-drive',
+        expected_revision: 7,
+      });
+      disconnectCalls++;
+      status.connections[0]!.auth_state = 'REVOKED';
+      status.connections[0]!.offline_credential_present = false;
+      status.connections[0]!.revision = 8;
+      return route.fulfill({ json: { auth_state: 'REVOKED' } });
+    }
     if (path === '/api/v1/connections/drive/exports/status')
       return route.fulfill({
         status: authenticated ? 200 : 401,
@@ -381,6 +393,19 @@ test('Drive settings disclose unavailable export, preserve escaped private mappi
     page.getByText('Właściciel zachował ręczną wersję.', { exact: false }),
   ).toBeVisible();
   await expect(retry).toHaveCount(0);
+  await refresh.click();
+  await page.getByRole('button', { name: 'Odłącz Drive', exact: true }).click();
+  expect(disconnectCalls).toBe(0);
+  await page.getByRole('button', { name: 'Anuluj', exact: true }).click();
+  expect(disconnectCalls).toBe(0);
+  await page.getByRole('button', { name: 'Odłącz Drive', exact: true }).click();
+  expect((await new AxeBuilder({ page }).analyze()).violations).toEqual([]);
+  await page
+    .getByRole('button', { name: 'Potwierdź odłączenie', exact: true })
+    .click();
+  await expect(page.getByText('Odłączono', { exact: true })).toBeVisible();
+  expect(disconnectCalls).toBe(1);
+  await expect(page.getByText('export-root', { exact: true })).toHaveCount(2);
   authenticated = false;
   await refresh.click();
   await expect(

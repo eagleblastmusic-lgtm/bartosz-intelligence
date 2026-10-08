@@ -8,6 +8,7 @@ export function Connections() {
   const [data, setData] = useState<DriveStatus | null>(null),
     [error, setError] = useState(''),
     [busy, setBusy] = useState(false),
+    [disconnecting, setDisconnecting] = useState<string | null>(null),
     [revision, setRevision] = useState(0);
   useEffect(() => {
     const controller = new AbortController();
@@ -45,6 +46,22 @@ export function Connections() {
       location.assign(target.href);
     } catch (error) {
       setError(errorMessage(error));
+      setBusy(false);
+    }
+  }
+  async function disconnect(connectionId: string, expectedRevision: number) {
+    setBusy(true);
+    setError('');
+    try {
+      await api('/connections/drive/disconnect', {
+        connection_id: connectionId,
+        expected_revision: expectedRevision,
+      });
+      setDisconnecting(null);
+      setRevision((value) => value + 1);
+    } catch (error) {
+      setError(errorMessage(error));
+    } finally {
       setBusy(false);
     }
   }
@@ -146,6 +163,41 @@ export function Connections() {
               >
                 Połącz ponownie
               </button>
+              {connection.auth_state !== 'REVOKED' &&
+                (disconnecting === connection.connection_id ? (
+                  <div className="notice">
+                    <p>
+                      Odłączenie usunie dostęp offline z aplikacji i zatrzyma
+                      eksport tego połączenia. Dane Core, pliki Drive i
+                      mapowania pozostaną zachowane. Uprawnienia konta Google
+                      możesz osobno cofnąć w ustawieniach Google.
+                    </p>
+                    <button
+                      disabled={busy}
+                      onClick={() =>
+                        void disconnect(
+                          connection.connection_id,
+                          connection.revision,
+                        )
+                      }
+                    >
+                      Potwierdź odłączenie
+                    </button>
+                    <button
+                      disabled={busy}
+                      onClick={() => setDisconnecting(null)}
+                    >
+                      Anuluj
+                    </button>
+                  </div>
+                ) : (
+                  <button
+                    disabled={busy}
+                    onClick={() => setDisconnecting(connection.connection_id)}
+                  >
+                    Odłącz Drive
+                  </button>
+                ))}
               <DriveRootPreview
                 connectionId={connection.connection_id}
                 revision={connection.revision}

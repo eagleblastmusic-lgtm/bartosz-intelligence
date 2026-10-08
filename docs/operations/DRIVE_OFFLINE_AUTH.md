@@ -142,6 +142,13 @@ the selected root. Confirmation alone does not enable the scheduler.
 
 ## Unattended export runtime
 
+The owner can choose Disconnect Drive and confirm explicitly. Revision CAS
+removes the local encrypted offline credential, consumes pending OAuth intents
+and invalidates export leases. Core data, Drive files and root/file mappings
+are preserved. This local disconnect does not revoke the Google account grant;
+the owner can separately remove that grant in Google account settings.
+Reconnection must restore authorization and verify the retained root again.
+
 Migration 034 adds durable retry count, next retry time, pause and failure code.
 `prepare.mjs export-worker` registers only `DRIVE_EXPORT`, persists its private
 credential before the hash, and refuses implicit rotation/recovery mismatches.

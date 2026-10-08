@@ -22,12 +22,27 @@ import {
 import { createDriveRootCandidate } from '../../../../packages/core/src/drive/root-create.js';
 import { exportStatus } from '../../../../packages/core/src/export/status.js';
 import { ExportSettings } from '../../../../packages/core/src/export/settings.js';
+import { disconnectDrive } from '../../../../packages/core/src/drive/disconnect.js';
 import {
   previewDriveConflict,
   preserveManualDriveConflict,
 } from '../../../../packages/core/src/drive/conflict.js';
 
 export const driveApp = ownerRouter();
+driveApp.post('/disconnect', async (c) => {
+  const input = await body(c, ['connection_id', 'expected_revision']);
+  return c.json(
+    await disconnectDrive(
+      c.env.DB,
+      c.get('access'),
+      {
+        connection_id: text(input.connection_id, 128),
+        expected_revision: input.expected_revision as number,
+      },
+      new Date(),
+    ),
+  );
+});
 driveApp.post('/exports/conflict/preview', async (c) => {
   const input = await body(c, [
     'connection_id',
