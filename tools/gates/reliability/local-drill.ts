@@ -53,21 +53,26 @@ requirePrivateRecoveryDirectory(privateDirectory);
 const require = createRequire(import.meta.url);
 const wranglerRequire = createRequire(require.resolve('wrangler/package.json'));
 const runtime = wranglerRequire('miniflare') as {
+  convertV4MiniflareOptions(
+    options: Record<string, unknown>,
+  ): Record<string, unknown>;
   Miniflare: new (options: Record<string, unknown>) => {
     ready: Promise<URL>;
     getD1Database(name: string): Promise<Database>;
     dispose(): Promise<void>;
   };
 };
-const mf = new runtime.Miniflare({
-  modules: true,
-  script:
-    'export default {fetch(){return new Response("ISOLATED_RECOVERY_ONLY")}}',
-  host: '127.0.0.1',
-  port: 0,
-  d1Databases: ['DB'],
-  d1Persist: privateDirectory,
-});
+const mf = new runtime.Miniflare(
+  runtime.convertV4MiniflareOptions({
+    modules: true,
+    script:
+      'export default {fetch(){return new Response("ISOLATED_RECOVERY_ONLY")}}',
+    host: '127.0.0.1',
+    port: 0,
+    d1Databases: ['DB'],
+    d1Persist: privateDirectory,
+  }),
+);
 const output = resolve('docs/verification/gate-r', id);
 if (existsSync(output)) throw new Error('DRILL_EVIDENCE_EXISTS');
 const files = new Map<string, Uint8Array>();
