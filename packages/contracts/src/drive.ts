@@ -33,6 +33,13 @@ export interface DailyExportStatus {
   }[];
 }
 export interface DriveStatus {
+  root_candidates?: {
+    connection_id: string;
+    name: string;
+    folder_id: string;
+    state: 'RESERVED' | 'CREATED';
+  }[];
+  root_candidates_truncated?: boolean;
   configured: boolean;
   export_capability: 'NOT_YET_VERIFIED';
   truncated: boolean;

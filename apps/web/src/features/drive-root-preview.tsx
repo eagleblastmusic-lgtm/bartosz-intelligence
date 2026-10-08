@@ -11,11 +11,19 @@ export function DriveRootPreview({
   revision,
   enabled,
   changed,
+  candidates = [],
+  candidatesTruncated = false,
 }: {
   connectionId: string;
   revision: number;
   enabled: boolean;
   changed: () => void;
+  candidates?: {
+    name: string;
+    folder_id: string;
+    state: 'RESERVED' | 'CREATED';
+  }[];
+  candidatesTruncated?: boolean;
 }) {
   const [root, setRoot] = useState(''),
     [name, setName] = useState('Daily'),
@@ -34,6 +42,39 @@ export function DriveRootPreview({
   return (
     <section aria-labelledby={'root-heading-' + connectionId}>
       <h4 id={'root-heading-' + connectionId}>Sprawdź wskazany folder Daily</h4>
+      {candidates.length > 0 && (
+        <div className="notice">
+          <p>
+            Wcześniej przygotowane foldery — nie są jeszcze zatwierdzone do
+            eksportu.
+          </p>
+          <ul>
+            {candidates.map((candidate) => (
+              <li key={candidate.folder_id}>
+                <strong>{candidate.name}</strong> ·{' '}
+                {candidate.state === 'CREATED'
+                  ? 'Utworzono'
+                  : 'Tworzenie wymaga dokończenia'}{' '}
+                <button
+                  type="button"
+                  disabled={busy || !enabled}
+                  onClick={() => {
+                    setRoot(candidate.folder_id);
+                    setName(candidate.name);
+                    setPreview(null);
+                    setError('');
+                  }}
+                >
+                  Użyj folderu {candidate.name}
+                </button>
+              </li>
+            ))}
+          </ul>
+        </div>
+      )}
+      {candidatesTruncated && (
+        <p className="notice">Lista przygotowanych folderów jest niepełna.</p>
+      )}
       <p>
         Wskaż folder, do którego aplikacja ma już dostęp. Wpisanie
         identyfikatora nie nadaje nowych uprawnień Google. Ten krok pokazuje

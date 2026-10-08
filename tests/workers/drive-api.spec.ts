@@ -234,6 +234,8 @@ it('status requires owner, reports missing configuration honestly, and never sch
   expect(response.status).toBe(200);
   expect(response.headers.get('Cache-Control')).toBe('no-store');
   expect(await response.json()).toEqual({
+    root_candidates: [],
+    root_candidates_truncated: false,
     configured: false,
     connections: [],
     truncated: false,
@@ -304,8 +306,14 @@ it('owner status never exposes subject or encrypted/plain credentials and missin
   )
     .bind(new Date().toISOString(), new Date().toISOString())
     .run();
+  await env.DB.prepare(
+    "INSERT INTO drive_root_candidates(owner_id,connection_id,candidate_name,reserved_folder_id,state,created_at) VALUES('a','fixture-connection','Existing folder','saved-root','CREATED',?)",
+  )
+    .bind(new Date().toISOString())
+    .run();
   const response = await request('/status', await headers());
   const result = (await response.json()) as {
+    root_candidates: { name: string; folder_id: string; state: string }[];
     connections: { auth_state: string; offline_credential_present: boolean }[];
   };
   expect(result.connections[0]).toMatchObject({
@@ -314,7 +322,15 @@ it('owner status never exposes subject or encrypted/plain credentials and missin
   });
   expect(JSON.stringify(result)).not.toContain('private-subject');
   expect(JSON.stringify(result)).not.toContain('envelope');
+  expect(result.root_candidates).toEqual([
+    {
+      connection_id: 'fixture-connection',
+      name: 'Existing folder',
+      folder_id: 'saved-root',
+      state: 'CREATED',
+    },
+  ]);
   expect(
     await (await request('/status', await headers('b'))).json(),
-  ).toMatchObject({ connections: [] });
+  ).toMatchObject({ connections: [], root_candidates: [] });
 });

@@ -52,6 +52,14 @@ test('Drive settings disclose unavailable export, preserve escaped private mappi
     ],
   };
   const status: DriveStatus = {
+    root_candidates: [
+      {
+        connection_id: 'private-drive',
+        name: 'Existing folder',
+        folder_id: 'saved-root',
+        state: 'CREATED',
+      },
+    ],
     configured: false,
     export_capability: 'NOT_YET_VERIFIED',
     truncated: false,
@@ -208,6 +216,18 @@ test('Drive settings disclose unavailable export, preserve escaped private mappi
   await expect(
     page.getByRole('button', { name: 'Sprawdź folder', exact: true }),
   ).toBeEnabled();
+  await page
+    .getByRole('button', { name: 'Użyj folderu Existing folder', exact: true })
+    .click();
+  await expect(
+    page.getByLabel('Identyfikator wybranego folderu', { exact: true }),
+  ).toHaveValue('saved-root');
+  await expect(
+    page.getByLabel('Nazwa nowego prywatnego folderu', { exact: true }),
+  ).toHaveValue('Existing folder');
+  await page
+    .getByLabel('Nazwa nowego prywatnego folderu', { exact: true })
+    .fill('Daily');
   await page
     .getByLabel('Identyfikator wybranego folderu', { exact: true })
     .fill('selected-folder');

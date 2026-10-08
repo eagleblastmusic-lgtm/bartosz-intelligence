@@ -212,7 +212,21 @@ driveApp.get('/status', async (c) => {
         credential_present: number;
       }>()
   ).results;
+  const candidates = (
+    await c.env.DB.prepare(
+      'SELECT connection_id,candidate_name name,reserved_folder_id folder_id,state FROM drive_root_candidates WHERE owner_id=? ORDER BY created_at DESC,reserved_folder_id LIMIT 101',
+    )
+      .bind(c.get('access').ownerId)
+      .all<{
+        connection_id: string;
+        name: string;
+        folder_id: string;
+        state: 'RESERVED' | 'CREATED';
+      }>()
+  ).results;
   const status: DriveStatus = {
+    root_candidates: candidates.slice(0, 100),
+    root_candidates_truncated: candidates.length > 100,
     configured,
     export_capability: 'NOT_YET_VERIFIED',
     connections: rows

@@ -149,6 +149,11 @@ export function Connections() {
               <DriveRootPreview
                 connectionId={connection.connection_id}
                 revision={connection.revision}
+                candidates={(data.root_candidates ?? []).filter(
+                  (candidate) =>
+                    candidate.connection_id === connection.connection_id,
+                )}
+                candidatesTruncated={data.root_candidates_truncated ?? false}
                 enabled={
                   data.configured &&
                   connection.auth_state === 'CONNECTED' &&
