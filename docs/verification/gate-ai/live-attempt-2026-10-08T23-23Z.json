@@ -1,0 +1,60 @@
+{
+  "version": "stage03-live-attempt:1",
+  "recorded_at": "2026-10-08T23:24:06.246Z",
+  "deployment_version": "e82308a7-dced-4562-b876-82fb89007072",
+  "source_run_id": "transcript_39cfb0e1bcf555ab6cc5131d4908549af2713325a58858663832dddf0d55599a",
+  "video_id": "rUhllpnYWR8",
+  "job_id": "8f1812f5-9dad-4451-a6c0-339e5c2aa77d",
+  "analysis_run_id": "analysis_72b76feaf1057cb37b2688a3d3cad24abed5e774806b6c624a3932c256dde387",
+  "profile_revision": 4,
+  "attempt": 1,
+  "generation_submissions": 1,
+  "owner_authorization": "Explicit approval in this conversation of one further request with this transcript and prompt to Google Gemini 3.8 Flash Free in bartosz-intelligence",
+  "provider_status": "TEMPORARY_FAILURE",
+  "finish_reason": "HTTP_503:service_unavailable",
+  "quota_reservation_state": "UNKNOWN",
+  "usage": {
+    "input_tokens": null,
+    "output_tokens": null,
+    "total_tokens": null
+  },
+  "reservation_created_at": "2026-10-08T23:23:53.672Z",
+  "reservation_settled_at": "2026-10-08T23:24:06.246Z",
+  "quota_observation": "quota-live-2026-10-08T23-23Z.json",
+  "quota_source": "Visible Google Cloud current-usage rows, exact project/model and Free-tier buckets; RPD read at 23:23:38.404Z, RPM and INPUT_TPM at 23:23:39.576Z. Not AI Studio peak usage.",
+  "automatic_hidden_retries": 0,
+  "job_state": "RETRY_WAIT",
+  "reason_code": "TRANSIENT",
+  "accepted_effects": 0,
+  "quality_result": "NOT_ASSESSED",
+  "human_pilot": "NOT_CLAIMED",
+  "paid_services_enabled": false,
+  "secret_values_recorded": false,
+  "cpu": { "coverage": "NOT_OBSERVED", "result": "NOT_ASSESSED" },
+  "pre_submission_history": [
+    {
+      "result": "INVALID_EXECUTOR_ARGUMENT",
+      "generation_submissions": 0,
+      "correction": "Use documented --job-id instead of --job"
+    },
+    {
+      "job_id": "ea8812b7-ba70-4208-a0fd-442735c3066d",
+      "result": "DEFERRED",
+      "reason_code": "PROVIDER_UNAVAILABLE",
+      "quota_reservations": 0,
+      "generation_submissions": 0,
+      "correction": "Refresh minute quota after source preparation instead of before the whole cycle"
+    },
+    {
+      "job_id": "8f1812f5-9dad-4451-a6c0-339e5c2aa77d",
+      "result": "LOCAL_HARNESS_PRE_SUBMIT_FAILURE",
+      "quota_reservations": 0,
+      "generation_submissions": 0,
+      "diagnostic_limit": "Original harness caught the error without its category. Its admission pause was inside an RPC with an already-running 30-second AbortSignal.",
+      "correction": "Resume the same unsubmited running job using existing prepare/execute/retain/validate/disposition boundaries. Pause outside RPC, record fresh quota, then issue fresh reserve/submit HTTP calls. Keep a hard one-submission provider guard."
+    }
+  ],
+  "endpoint_documentation": "https://ai.google.dev/gemini-api/docs/interactions-overview.md",
+  "endpoint_check": "Official REST example uses v1beta/interactions with gemini-3.8-flash; model capability GET succeeded. These do not establish generation availability or explain Google's internal 503 cause.",
+  "recovery": "This one approved generation submission is complete. Preserve durable retry state and UNKNOWN usage; no further generation request is authorized by this one-test approval. No live repair, paid fallback or quality promotion occurred."
+}
