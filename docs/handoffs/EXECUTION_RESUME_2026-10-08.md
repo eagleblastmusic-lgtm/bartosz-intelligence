@@ -1,17 +1,19 @@
 # Execution resume — 2026-10-08
 
-Implementation remains IN_PROGRESS. This is an interruption record, not a Stage
-completion handoff or acceptance report.
+This is a historical interruption record, not a Stage completion handoff or
+acceptance report. Execution has resumed. This record imposes no waiting period,
+deadline, token budget or execution limit. Continue from the actual repository
+state and current verification; do not treat the historical state below as current.
 
 ## External execution interruption
 
 Automatic approval review did not execute the last combined scoped lint,
 typecheck and Git commit command because the Codex account usage limit prevented
 review. It explicitly said this was review failure, not a finding that the action
-was unsafe, and required not bypassing the approval check. Its displayed retry
-time was 19:13 on 2026-10-08 (Europe/Warsaw). No purchase or upgrade was made.
+was unsafe, and required not bypassing the approval check. Subsequent authorized
+verification and commits succeeded. No purchase or upgrade was made.
 
-## Current authoritative state
+## State at interruption (historical)
 
 - HEAD `c293395`: owner profile region used in automatic and explicit analysis.
 - `77da597`: scoped automatic production preparation, immutable snapshot,
@@ -28,10 +30,10 @@ time was 19:13 on 2026-10-08 (Europe/Warsaw). No purchase or upgrade was made.
   planning but predates the region fix and uncommitted inactive-pipeline UI.
 - Paid services remain disabled; automatic Drive export remains disabled.
 
-## Uncommitted logical change
+## Uncommitted logical change at interruption (historical)
 
 Inactive Codex Subscription descriptor in owner System: DISABLED, adapter false,
-  no execution route, Gate 0B NOT_RUN, unknown allowance, no health alert.
+no execution route, Gate 0B NOT_RUN, unknown allowance, no health alert.
 Files: `packages/contracts/src/system.ts`, `apps/api/src/routes/system.ts`,
 `apps/web/src/features/system.tsx`, `tests/workers/drive-api.spec.ts`,
 `tests/e2e/system.spec.ts`, `docs/operations/OPTIONAL_PIPELINES.md`.
@@ -52,7 +54,7 @@ Qualified Python package check with the runner's PYTHONPATH confirms yt-dlp
 2026.8.19 and yt-dlp-ejs 0.8.0. Plain system Python alone lacks these packages;
 the runner already sets the correct path and required no change.
 
-## Resume without repeating finished work
+## Resume instructions written at interruption (historical)
 
 Finish the uncommitted System change checks and checkpoint, then deploy stable
 region/UI changes. Continue Stage 07/independent hardening; do not declare Stage
