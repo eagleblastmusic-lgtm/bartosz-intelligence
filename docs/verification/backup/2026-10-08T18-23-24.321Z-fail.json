@@ -1,0 +1,8 @@
+{
+  "result": "FAIL",
+  "phase": "CHUNKS",
+  "reason": "CLOUDFLARE_TRANSPORT_FAILED",
+  "backup_id": "e8431767-7147-424a-8c1c-a30f417a8817",
+  "recorded_at": "2026-10-08T18:23:24.321Z",
+  "secret_values_recorded": false
+}

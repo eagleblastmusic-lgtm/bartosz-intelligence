@@ -17,6 +17,10 @@ import {
 } from '../../packages/core/src/backup/restore.js';
 import { sqliteAdapter } from '../db/sqlite-adapter.js';
 import ledger from '../../db/migration-ledger.json';
+import {
+  recoverBackupChunk,
+  recoverBackupCompletion,
+} from './backup-recovery.js';
 
 // Explicit administrative backup/restore drill. Never an unattended deployment
 // side effect. Private data stays on this host; only redacted receipts enter Git.
@@ -94,13 +98,20 @@ try {
     do {
       if (chunks.length >= 2048 || Date.now() >= Date.parse(started.expires_at))
         throw new Error('BOUNDED_BACKUP_EXPIRED');
-      const chunk = await backup.chunk(backupId, table, cursor);
+      const chunk = await recoverBackupChunk(
+        () => backup!.chunk(backupId!, table, cursor!),
+        started.expires_at,
+      );
       chunks.push(chunk);
       cursor = chunk.next_cursor;
     } while (cursor !== null);
   }
   phase = 'MANIFEST';
-  const manifest = await backup.complete(backupId);
+  const manifest = await recoverBackupCompletion(
+    () => backup!.complete(backupId!),
+    () => backup!.manifest(backupId!),
+    started.expires_at,
+  );
   verifiedRemote = true;
   const portable = { manifest, chunks };
   await verifyPortableBackup(portable);

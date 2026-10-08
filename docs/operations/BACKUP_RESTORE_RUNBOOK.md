@@ -76,3 +76,15 @@ guards receipt insertion/readback against the current database barrier. The
 barrier duration and acceptance criteria remain unchanged. Expiry immediately
 before receipt commit is tested and cannot persist a chunk. Backup/restore and
 related recovery regression verification: 10 tests passed.
+
+The subsequent bounded retest failed with CLOUDFLARE_TRANSPORT_FAILED after
+184 chunks, recorded in
+`docs/verification/backup/2026-10-08T18-23-24.321Z-fail.json`. The generic
+administrative REST client still does not replay ambiguous mutations. The backup
+drill now retries an immutable (backup/table/cursor) chunk at most once after a
+transport/response/selected 5xx failure, while its original barrier remains valid.
+An ambiguous final completion is reconciled by reading the verified manifest;
+another completion is allowed only when readback proves BACKUP_NOT_VERIFIED.
+Unavailable reconciliation, expiry, permission and integrity failures stop the
+drill. This recovery changes no acceptance threshold or barrier duration.
+Recovery/client/barrier regressions: 17 tests passed.
