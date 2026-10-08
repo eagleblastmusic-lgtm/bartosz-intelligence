@@ -2,6 +2,21 @@
 
 Run from the repository root with the pinned runtime, local `.env` and the credential for the selected task. Do not copy credential values into commands or logs.
 
+Register a missing scoped identity with
+`node --env-file=.env tools/deployment/local-worker.mjs`, adding exactly one of
+`--analysis`, `--source-corrections` or `--search` for the selected service.
+Default is FETCH_TRANSCRIPT; the other scopes are ANALYZE, NORMALIZE and PROJECT
+respectively. Unsupported or combined flags are rejected before account access.
+An existing revoked or mismatched credential requires explicit recovery; this
+command never silently rotates it. Private values are saved locally before
+registering their one-way hashes and are excluded from output.
+
+Production NORMALIZE and PROJECT identities were registered on 2026-10-08.
+One actual correction cycle exited successfully idle; one actual search cycle
+exited successfully with progress. Registration/service isolation verification:
+12 tests passed. These checks do not claim continuous availability or completed
+backlog recovery.
+
 ```powershell
 $env:PATH="$PWD\.tools\node-v24.21.0-win-x64;$env:PATH"
 & .\.tools\node-v24.21.0-win-x64\node.exe --import tsx --env-file=.env tools/executor/run-local.ts

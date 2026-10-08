@@ -1,18 +1,16 @@
 import { readFileSync, writeFileSync } from 'node:fs';
 import { createHash, randomBytes } from 'node:crypto';
 import { query } from './cloudflare.mjs';
+import { localWorkerConfiguration } from './local-worker-config.mjs';
+const { worker, variable, scopes } = localWorkerConfiguration(
+  process.argv.slice(2),
+);
 const hash = (value) => createHash('sha256').update(value).digest('hex');
 const owners = (
   await query('SELECT owner_id FROM owner_users WHERE allowlisted=1 LIMIT 2')
 )[0].results;
 if (owners.length !== 1) throw new Error('VERIFIED_OWNER_REQUIRED');
-const analysis = process.argv.includes('--analysis');
-const owner = owners[0].owner_id,
-  worker = analysis ? 'local-analysis' : 'local-transcript',
-  variable = analysis
-    ? 'LOCAL_AI_WORKER_CREDENTIAL'
-    : 'LOCAL_WORKER_CREDENTIAL',
-  scopes = analysis ? ['ANALYZE'] : ['FETCH_TRANSCRIPT'];
+const owner = owners[0].owner_id;
 const existing = (
   await query(
     'SELECT owner_id,credential_hash,scopes_json,revoked_at FROM worker_identities WHERE worker_id=?',
