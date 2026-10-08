@@ -1,5 +1,11 @@
 import type { JobState, JobInput } from '../../../contracts/src/jobs.js';
 import { sha256 } from '../auth/crypto.js';
+// Both candidate selection and the atomic lease use the same immutable route.
+// The two placeholders must be bound to the requested execution location.
+export const runtimeAdmissionPredicate = `
+  (routing_policy_version NOT IN ('local-primary-1','local-source-correction:1') OR ?='local')
+  AND (routing_policy_version NOT IN ('pipeline-selector:1','optional-selector:1')
+    OR json_extract(payload_json,'$.snapshot.settings.runtime')=?)`;
 export async function jobDedup(owner: string, input: JobInput) {
   return sha256(
     JSON.stringify([

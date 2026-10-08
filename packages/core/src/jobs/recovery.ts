@@ -5,7 +5,7 @@ import type {
   TaskType,
 } from '../../../contracts/src/jobs.js';
 import { taskTypes } from '../../../contracts/src/jobs.js';
-import { fairJobOrder } from './policy.js';
+import { fairJobOrder, runtimeAdmissionPredicate } from './policy.js';
 import { JobStore } from './store.js';
 export function parseSignal(value: unknown): QueueSignal {
   if (!value || typeof value !== 'object') throw new Error('INVALID_SIGNAL');
@@ -209,9 +209,9 @@ export async function pull(
     ].map((predicate) =>
       store.db
         .prepare(
-          `SELECT * FROM jobs WHERE owner_id=? AND state='PENDING' AND due_at<=? AND ${predicate} ORDER BY priority DESC,arrival_origin_at,job_id LIMIT 20`,
+          `SELECT * FROM jobs WHERE owner_id=? AND state='PENDING' AND due_at<=? AND ${predicate} AND ${runtimeAdmissionPredicate} ORDER BY priority DESC,arrival_origin_at,job_id LIMIT 20`,
         )
-        .bind(store.context.ownerId, now.toISOString())
+        .bind(store.context.ownerId, now.toISOString(), runtime, runtime)
         .all<JobRecord>(),
     ),
   );

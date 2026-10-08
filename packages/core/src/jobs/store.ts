@@ -8,7 +8,7 @@ import type {
 import { taskTypes } from '../../../contracts/src/jobs.js';
 import { assertContext } from '../db/boundary.js';
 import type { AccessContext, Database, Statement } from '../db/boundary.js';
-import { jobDedup } from './policy.js';
+import { jobDedup, runtimeAdmissionPredicate } from './policy.js';
 export class JobStore {
   constructor(
     readonly db: Database,
@@ -137,7 +137,7 @@ export class JobStore {
         .prepare(
           `UPDATE jobs SET state='LEASED',lease_owner=?,lease_until=?,fencing_token=fencing_token+1,attempt_count=attempt_count+1,updated_at=?
         WHERE owner_id=? AND job_id=? AND task_type=? AND state='PENDING' AND due_at<=?
-        AND (routing_policy_version<>'local-source-correction:1' OR ?='local')
+        AND ${runtimeAdmissionPredicate}
         AND EXISTS(SELECT 1 FROM worker_identities w WHERE w.owner_id=jobs.owner_id AND w.worker_id=? AND w.revoked_at IS NULL AND w.credential_hash=?) RETURNING job_id`,
         )
         .bind(
@@ -148,6 +148,7 @@ export class JobStore {
           jobId,
           task,
           now.toISOString(),
+          runtime,
           runtime,
           this.context.actorId,
           this.context.credentialHash!,

@@ -1,0 +1,32 @@
+{
+  "version": "stage03-live-attempt:1",
+  "recorded_at": "2026-10-08T11:26:00Z",
+  "deployment_version": "624d8956-65ec-43cd-9e6d-ce304b7a0d53",
+  "source_run_id": "transcript_39cfb0e1bcf555ab6cc5131d4908549af2713325a58858663832dddf0d55599a",
+  "job_id": "d06d2a72-b4c0-455f-b252-3cb4f28ac8ed",
+  "analysis_run_id": "analysis_4d4b855e6e3acab2ad9af7c91a9ff11e70ef7aaadcd8b7a5f988aeee9e8cfd1c",
+  "attempt": 1,
+  "generation_submissions": 1,
+  "owner_authorization": "Explicit approval of this source transcript and one quality test to Google Gemini Free in this conversation",
+  "provider_status": "TEMPORARY_FAILURE",
+  "finish_reason": "HTTP_503:service_unavailable",
+  "quota_reservation_state": "UNKNOWN",
+  "usage": {
+    "input_tokens": null,
+    "output_tokens": null,
+    "total_tokens": null
+  },
+  "reservation_created_at": "2026-10-08T11:20:33.917Z",
+  "reservation_settled_at": "2026-10-08T11:20:38.098Z",
+  "quota_observation": "quota-live-2026-10-08.json",
+  "quota_source": "Fresh Google Cloud Console current usage rows for exact project and model; not AI Studio peak usage",
+  "automatic_hidden_retries": 0,
+  "job_state": "RETRY_WAIT",
+  "accepted_effects": 0,
+  "quality_result": "NOT_ASSESSED",
+  "human_pilot": "NOT_CLAIMED",
+  "paid_services_enabled": false,
+  "secret_values_recorded": false,
+  "cpu": { "coverage": "NOT_OBSERVED", "result": "NOT_ASSESSED" },
+  "recovery": "This single approved submission is complete. No additional generation is authorized by that one-test approval. Historical failures and the previous pinned job remain unchanged. Any future test requires current actual quota and an eligible immutable profile."
+}
