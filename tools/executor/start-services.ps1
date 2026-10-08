@@ -1,5 +1,6 @@
-param([switch]$Check, [switch]$Wait)
+param([switch]$Check, [switch]$Wait, [switch]$Restart)
 $ErrorActionPreference = 'Stop'
+if ($Check -and $Restart) { throw 'INVALID_LOCAL_SERVICE_ARGUMENTS' }
 $taskRoot = [IO.Path]::GetFullPath((Join-Path $PSScriptRoot '../..'))
 $taskNode = Join-Path $taskRoot '.tools/node-v24.21.0-win-x64/node.exe'
 $taskLocal = Join-Path $taskRoot '.local'
@@ -23,6 +24,23 @@ if (Test-Path -LiteralPath $taskReceipt) {
 if ($Check) {
   @{ configuration_valid=$true; supervisor_running=($null -ne $taskExisting); services=$taskConfiguration.services; ai_services_started=$false; secret_values_recorded=$false } | ConvertTo-Json -Compress
   exit 0
+}
+if ($Restart -and $taskExisting) {
+  # Only this verified supervisor and its scoped Node children are stopped.
+  # Durable D1 leases recover interrupted jobs; no credential or process command
+  # line is printed. Unknown children fail closed before stopping anything.
+  $taskChildren = @(Get-CimInstance Win32_Process -Filter "ParentProcessId=$taskExisting")
+  foreach ($taskChild in $taskChildren) {
+    if ($taskChild.ExecutablePath -ne $taskNode -or $taskChild.CommandLine -notlike '*tools/executor/run-local.ts*') { throw 'LOCAL_SERVICE_CHILD_CONFLICT' }
+  }
+  Stop-Process -Id $taskExisting -ErrorAction SilentlyContinue
+  foreach ($taskChild in $taskChildren) {
+    $taskCurrent = Get-CimInstance Win32_Process -Filter "ProcessId=$($taskChild.ProcessId)"
+    if ($taskCurrent -and $taskCurrent.CreationDate -eq $taskChild.CreationDate -and $taskCurrent.ExecutablePath -eq $taskNode) {
+      Stop-Process -Id $taskChild.ProcessId -ErrorAction SilentlyContinue
+    }
+  }
+  $taskExisting = $null
 }
 if (!$taskExisting) {
   if (!(Test-Path -LiteralPath $taskLocal)) { New-Item -ItemType Directory -Path $taskLocal | Out-Null }

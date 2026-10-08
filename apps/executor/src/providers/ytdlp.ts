@@ -1,4 +1,4 @@
-import { execFileSync } from 'node:child_process';
+import { execFile } from 'node:child_process';
 import { resolve } from 'node:path';
 import { createHash } from 'node:crypto';
 import type {
@@ -52,25 +52,39 @@ const runner: CaptionProcessRunner = async (input, timeoutMs) => {
       ].includes(key.toUpperCase())
     )
       inherited[key] = value;
-  const raw = execFileSync(
-    'python',
-    [resolve('apps/executor/python/transcript_ytdlp.py')],
-    {
-      input: JSON.stringify(input),
-      encoding: 'utf8',
-      timeout: timeoutMs,
-      maxBuffer: 32 * 1024 * 1024,
-      windowsHide: true,
-      stdio: ['pipe', 'pipe', 'pipe'],
-      env: {
-        ...inherited,
-        PYTHONPATH: resolve('.tools/gate0-python'),
-        PYTHONNOUSERSITE: '1',
-        PYTHONIOENCODING: 'utf-8',
+  const raw = await new Promise<string>((resolveOutput, reject) => {
+    const child = execFile(
+      'python',
+      [resolve('apps/executor/python/transcript_ytdlp.py')],
+      {
+        encoding: 'utf8',
+        timeout: timeoutMs,
+        maxBuffer: 32 * 1024 * 1024,
+        windowsHide: true,
+        env: {
+          ...inherited,
+          PYTHONPATH: resolve('.tools/gate0-python'),
+          PYTHONNOUSERSITE: '1',
+          PYTHONIOENCODING: 'utf-8',
+        },
       },
-    },
-  );
-  return JSON.parse(raw);
+      (error, stdout) => {
+        // Child errors can contain captured transcript/stderr. Never propagate
+        // those bodies to runtime diagnostics or logs.
+        if (error) reject(new Error('LOCAL_CAPTION_PROCESS_FAILURE'));
+        else resolveOutput(stdout);
+      },
+    );
+    child.stdin?.on('error', () =>
+      reject(new Error('LOCAL_CAPTION_PROCESS_FAILURE')),
+    );
+    child.stdin?.end(JSON.stringify(input));
+  });
+  try {
+    return JSON.parse(raw);
+  } catch {
+    throw new Error('LOCAL_CAPTION_PROCESS_FORMAT');
+  }
 };
 function object(value: unknown): Record<string, unknown> {
   if (!value || typeof value !== 'object' || Array.isArray(value))
