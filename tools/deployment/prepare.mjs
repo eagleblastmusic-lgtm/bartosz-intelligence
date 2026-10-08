@@ -97,6 +97,78 @@ if (mode === 'migrate') {
       runtime: 'cloud',
     }),
   );
+} else if (mode === 'telemetry-worker') {
+  const owners = (
+    await query('SELECT owner_id FROM owner_users WHERE allowlisted=1 LIMIT 2')
+  )[0].results;
+  if (owners.length !== 1) throw new Error('VERIFIED_OWNER_REQUIRED');
+  const owner = owners[0].owner_id;
+  const name = 'LOCAL_TELEMETRY_WORKER_CREDENTIAL';
+  const credential = process.env[name] || randomBytes(32).toString('base64url');
+  if (!/^[A-Za-z0-9_-]{43}$/.test(credential))
+    throw new Error('TELEMETRY_CREDENTIAL_INVALID');
+  const read = async () =>
+    (
+      await query(
+        'SELECT owner_id,credential_hash,scopes_json,revoked_at FROM worker_identities WHERE worker_id=?',
+        ['capacity-observer'],
+      )
+    )[0].results;
+  const existing = await read();
+  if (!existing.length) {
+    let local = readFileSync('.env', 'utf8');
+    const matches = local.match(/^LOCAL_TELEMETRY_WORKER_CREDENTIAL=/gm) ?? [];
+    if (matches.length > 1)
+      throw new Error('DUPLICATE_TELEMETRY_CONFIGURATION');
+    local = matches.length
+      ? local.replace(
+          /^LOCAL_TELEMETRY_WORKER_CREDENTIAL=.*$/m,
+          name + '=' + credential,
+        )
+      : local + '\n' + name + '=' + credential + '\n';
+    // Recoverable private value precedes the remote hash; interrupted setup can
+    // resume without implicitly rotating an existing worker identity.
+    writeFileSync('.env', local);
+    await query(
+      'INSERT INTO worker_identities(worker_id,owner_id,credential_hash,scopes_json,created_at) VALUES(?,?,?,?,?) ON CONFLICT(worker_id) DO NOTHING',
+      [
+        'capacity-observer',
+        owner,
+        hash(credential),
+        '["PROJECT"]',
+        new Date().toISOString(),
+      ],
+    );
+  }
+  const current = await read();
+  const privateLines =
+    readFileSync('.env', 'utf8').match(
+      /^LOCAL_TELEMETRY_WORKER_CREDENTIAL=(.*)$/gm,
+    ) ?? [];
+  const privateValue =
+    privateLines.length === 1
+      ? privateLines[0]
+          .slice(name.length + 1)
+          .trim()
+          .replace(/^(['"])([A-Za-z0-9_-]{43})\1$/, '$2')
+      : null;
+  if (
+    privateValue !== credential ||
+    current.length !== 1 ||
+    current[0].owner_id !== owner ||
+    current[0].revoked_at ||
+    current[0].credential_hash !== hash(credential) ||
+    current[0].scopes_json !== '["PROJECT"]'
+  )
+    throw new Error('TELEMETRY_CREDENTIAL_RECOVERY_REQUIRED');
+  console.log(
+    JSON.stringify({
+      telemetry_worker_registered: true,
+      scopes: ['PROJECT'],
+      private_credential_readback: true,
+      observation_started: false,
+    }),
+  );
 } else if (mode === 'secrets') {
   mkdirSync('.local', { recursive: true });
   let local = readFileSync('.env', 'utf8');

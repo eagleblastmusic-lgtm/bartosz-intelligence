@@ -4,6 +4,8 @@ The collector is prepared. This document does not start observation or assert Ga
 
 The local credential `LOCAL_TELEMETRY_WORKER_CREDENTIAL` must identify the owner's dedicated PROJECT worker. It grants metadata observation, not permission to generate Gemini results. Keep its value in the local `.env` only.
 
+Prepare that identity with the existing deployment command `tools/deployment/prepare.mjs telemetry-worker`, using the locally authorized Cloudflare account and `.env`. It persists the private recovery value before the D1 hash and verifies both copies. Existing revoked, mismatched or broader identities require explicit recovery; the command never rotates them implicitly. Provisioning does not start observation.
+
 ```powershell
 $env:PATH="$PWD\.tools\node-v24.21.0-win-x64;$env:PATH"
 & .\.tools\node-v24.21.0-win-x64\node.exe --import tsx --env-file=.env tools/gates/capacity/collect.ts config/capacity-collector.json .local/capacity-observation --watch
