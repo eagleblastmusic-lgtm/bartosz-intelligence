@@ -1,4 +1,5 @@
 import { fetchWithoutRedirect } from '../../http/no-redirect.js';
+import { boundedText } from '../../http/bounded-text.js';
 type JsonRecord = Record<string, unknown>;
 export class YoutubeError extends Error {
   constructor(
@@ -52,8 +53,19 @@ export class YoutubeClient {
     } catch {
       throw new YoutubeError('TRANSIENT');
     }
-    const raw = await response.text();
-    if (raw.length > 512000) throw new YoutubeError('PARSER');
+    let raw: string;
+    try {
+      raw = await boundedText(response, 512000);
+    } catch (error) {
+      throw new YoutubeError(
+        error instanceof Error &&
+          ['RESPONSE_BODY_TOO_LARGE', 'RESPONSE_INVALID_UTF8'].includes(
+            error.message,
+          )
+          ? 'PARSER'
+          : 'TRANSIENT',
+      );
+    }
     let body: JsonRecord;
     try {
       body = JSON.parse(raw);

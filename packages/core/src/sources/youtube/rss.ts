@@ -1,4 +1,5 @@
 import { fetchWithoutRedirect } from '../../http/no-redirect.js';
+import { boundedText } from '../../http/bounded-text.js';
 export function parseAtomHints(xml: string) {
   if (
     new TextEncoder().encode(xml).byteLength > 64000 ||
@@ -75,7 +76,7 @@ export async function pollRss(
   if (!response.ok)
     throw new Error(response.status === 429 ? 'RSS_QUOTA' : 'RSS_TRANSIENT');
   return {
-    hint_ids: parseAtomHints(await response.text()),
+    hint_ids: parseAtomHints(await boundedText(response, 64000)),
     not_modified: false,
     coverage: 'UNKNOWN' as const,
     etag: response.headers.get('ETag'),
