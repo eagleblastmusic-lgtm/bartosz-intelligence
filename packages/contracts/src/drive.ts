@@ -18,6 +18,16 @@ export interface DailyExportStatus {
     rendered_revision: number | null;
     rendered_cut: number | null;
     rendered_bytes: number | null;
+    report_metrics?: {
+      estimated_tokens: number;
+      estimator_version: 'utf8-ceil-div3:1';
+      compaction_level: number;
+      size_state: 'WITHIN_ESTIMATE' | 'OVERSIZE';
+      item_count: number;
+      ready_count: number;
+      pending_count: number;
+      discovery_coverage: 'complete' | 'incomplete';
+    } | null;
     auth_state: string;
     root_state: string;
     last_verified_at: string | null;

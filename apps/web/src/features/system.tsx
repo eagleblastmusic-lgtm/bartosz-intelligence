@@ -369,9 +369,9 @@ export function System() {
             {data.daily_exports ? (
               <>
                 <p>
-                  Automatyczne aktualizacje Drive: niezakwalifikowane. Odczyt
-                  obejmuje {data.daily_exports.days.length} ostatnich dni i
-                  folderów
+                  Gotowość operacyjna eksportera Drive: niezakwalifikowana.
+                  Odczyt obejmuje {data.daily_exports.days.length} ostatnich dni
+                  i folderów
                   {data.daily_exports.truncated
                     ? '; lista jest niekompletna'
                     : ''}
@@ -389,8 +389,10 @@ export function System() {
                   }
                   . Konflikty:{' '}
                   {
-                    data.daily_exports.days.filter(
-                      (day) => day.retry_reason === 'EXPORT_CONFLICT',
+                    data.daily_exports.days.filter((day) =>
+                      ['EXPORT_CONFLICT', 'DRIVE_CONFLICT'].includes(
+                        day.paused_reason ?? day.retry_reason ?? '',
+                      ),
                     ).length
                   }
                   .
@@ -411,10 +413,22 @@ export function System() {
                   przesłania do Drive.
                 </p>
                 <p>
-                  Estymacja tokenów, compaction i OVERSIZE wymagają odczytu
-                  metadanych konkretnych raportów; brak pomiaru nie oznacza
-                  zera. Briefing Bridge: NOT_RUN; brak potwierdzonego pełnego
-                  odczytu przez consumer.
+                  Raporty OVERSIZE w tym odczycie:{' '}
+                  {
+                    data.daily_exports.days.filter(
+                      (day) => day.report_metrics?.size_state === 'OVERSIZE',
+                    ).length
+                  }
+                  . Metadane raportu odczytane dla{' '}
+                  {
+                    data.daily_exports.days.filter(
+                      (day) => day.report_metrics != null,
+                    ).length
+                  }{' '}
+                  dni. Brakujące metadane nie oznaczają zerowego użycia.
+                  Estymacje i compaction są dostępne w szczegółach dni. Briefing
+                  Bridge: NOT_RUN; brak potwierdzonego pełnego odczytu przez
+                  consumer.
                 </p>
               </>
             ) : (

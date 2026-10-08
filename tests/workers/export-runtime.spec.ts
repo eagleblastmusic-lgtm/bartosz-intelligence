@@ -7,6 +7,7 @@ import {
   fixtureOwner,
 } from './core-fixture.js';
 import { ExportSettings } from '../../packages/core/src/export/settings.js';
+import { exportStatus } from '../../packages/core/src/export/status.js';
 import { AccessContext } from '../../packages/core/src/db/boundary.js';
 import { sha256 } from '../../packages/core/src/auth/crypto.js';
 import { DriveExportIdentity } from '../../packages/core/src/drive/identity.js';
@@ -142,7 +143,22 @@ it.each(['TRANSIENT', 'CONFLICT', 'EXHAUSTED'] as const)(
     expect(await env.DB.prepare('SELECT count(*) n FROM jobs').first('n')).toBe(
       0,
     );
-    const settings = new ExportSettings(env.DB, await fixtureOwner());
+    const owner = await fixtureOwner();
+    const status = await exportStatus(env.DB, owner, fixtureNow);
+    expect(status.days[0]!.report_metrics).toMatchObject({
+      item_count: 0,
+      ready_count: 0,
+      pending_count: 0,
+      compaction_level: 0,
+      size_state: 'WITHIN_ESTIMATE',
+      estimator_version: 'utf8-ceil-div3:1',
+    });
+    expect(status.days[0]!.report_metrics!.estimated_tokens).toBe(
+      Math.ceil(status.days[0]!.rendered_bytes! / 3),
+    );
+    expect(JSON.stringify(status)).not.toContain('report_header_prefix');
+    expect(JSON.stringify(status)).not.toContain('body_sha256:');
+    const settings = new ExportSettings(env.DB, owner);
     if (failure === 'CONFLICT')
       await expect(settings.retry('root', '2026-10-05', 1)).rejects.toThrow(
         'REVISION_CONFLICT',

@@ -146,6 +146,28 @@ export function DailyExports() {
                 <dd>
                   {day.exported_seq} / {day.dirty_seq}
                 </dd>
+                <dt>Estymacja tokenów przygotowanego raportu</dt>
+                <dd>
+                  {day.report_metrics
+                    ? `${day.report_metrics.estimated_tokens} (${day.report_metrics.estimator_version}); estymacja, nie usage ani limit konsumenta`
+                    : 'Nieustalona'}
+                </dd>
+                <dt>Compaction / rozmiar Bridge</dt>
+                <dd>
+                  {day.report_metrics
+                    ? `${day.report_metrics.compaction_level} / ${day.report_metrics.size_state}`
+                    : 'Nieustalone'}
+                </dd>
+                <dt>Materiały / gotowe / oczekujące</dt>
+                <dd>
+                  {day.report_metrics
+                    ? `${day.report_metrics.item_count} / ${day.report_metrics.ready_count} / ${day.report_metrics.pending_count}`
+                    : 'Nieustalone'}
+                </dd>
+                <dt>Pokrycie odkrywania raportu</dt>
+                <dd>
+                  {day.report_metrics?.discovery_coverage ?? 'Nieustalone'}
+                </dd>
                 <dt>Powód ostatniej próby</dt>
                 <dd>{day.retry_reason ?? 'Brak'}</dd>
                 <dt>Powód wstrzymania</dt>
