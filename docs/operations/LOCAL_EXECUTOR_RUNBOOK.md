@@ -60,6 +60,13 @@ Completion does not create another analysis run or recursively enqueue PROJECT.
 A concurrent content change leaves the attempt unaccepted; ordinary lease
 expiry/recovery and a fresh index allow retry. No provider call is involved.
 
+The search process publishes its local heartbeat at startup and at most once
+per minute. Fast index steps do not publish a heartbeat on every request.
+Authentication denial prevents subsequent work; a failed heartbeat is retried
+on the next cycle. Cycle acceptance reflects an actual completed projection.
+Heartbeat/supervisor regressions: 7 tests passed, including bounded frequency,
+transport failure and authentication denial in actual child processes.
+
 Projection regression verification: 14 tests passed across projection jobs,
 search, core recovery and outbox. The first race harness incorrectly injected
 revocation before leasing (observed PENDING instead of RUNNING); it was corrected

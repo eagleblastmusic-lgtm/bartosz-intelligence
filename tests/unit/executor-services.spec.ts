@@ -135,7 +135,7 @@ it('actual service children stop after one denied RPC each and never restart or 
     expect(paths.sort()).toEqual([
       '/internal/workers/heartbeat',
       '/internal/workers/heartbeat',
-      '/internal/workers/search/step',
+      '/internal/workers/heartbeat',
     ]);
     const events = stdout
       .trim()
