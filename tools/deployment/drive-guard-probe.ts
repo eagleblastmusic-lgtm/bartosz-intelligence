@@ -14,12 +14,14 @@ import {
 } from '../../packages/core/src/drive/oauth.js';
 
 // Explicit qualification only. Never enables the production update adapter.
-const [, , mode, connectionId, rootId] = process.argv;
+const [, , mode, connectionId, rootId, methodArgument] = process.argv;
+const method = methodArgument ?? 'V3_MEDIA_PATCH_IF_MATCH';
 if (
   mode !== '--live' ||
   !connectionId ||
   !rootId ||
-  process.argv.length !== 5 ||
+  (process.argv.length !== 5 && process.argv.length !== 6) ||
+  !['V3_MEDIA_PATCH_IF_MATCH', 'V2_MEDIA_PUT_IF_MATCH'].includes(method) ||
   !/^[A-Za-z0-9_-]{1,128}$/.test(connectionId) ||
   !/^[A-Za-z0-9_-]{1,128}$/.test(rootId)
 )
@@ -96,7 +98,7 @@ try {
     root_id: rootId,
     reserved_id: reservedId,
     nonce,
-    method: 'V3_MEDIA_PATCH_IF_MATCH',
+    method,
     maximum_trials: 3,
     automatic_updates_enabled: false,
   });
@@ -124,6 +126,7 @@ try {
     reserved_id: reservedId,
     root_id: rootId,
     nonce,
+    method: method as 'V3_MEDIA_PATCH_IF_MATCH' | 'V2_MEDIA_PUT_IF_MATCH',
   });
   receipt = { status: 'PASS', trial_id: trialId, phase, ...proof };
 } catch (error) {

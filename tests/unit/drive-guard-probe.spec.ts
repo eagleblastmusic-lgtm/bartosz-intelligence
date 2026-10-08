@@ -12,6 +12,7 @@ function fixture(
     etag?: string | null;
     foreign?: boolean;
     changed?: boolean;
+    v2?: boolean;
   } = {},
 ) {
   let body = options.changed ? 'manual change' : base,
@@ -33,8 +34,13 @@ function fixture(
         bi_guard_probe: options.foreign ? 'foreign' : input.nonce,
       },
     });
-    if (init?.method === 'PATCH') {
-      expect(target.pathname).toBe('/upload/drive/v3/files/probe-id');
+    if (init?.method === 'PATCH' || init?.method === 'PUT') {
+      expect(target.pathname).toBe(
+        options.v2
+          ? '/upload/drive/v2/files/probe-id'
+          : '/upload/drive/v3/files/probe-id',
+      );
+      expect(init.method).toBe(options.v2 ? 'PUT' : 'PATCH');
       expect(target.searchParams.get('uploadType')).toBe('media');
       const headers = init.headers as Record<string, string>;
       expect(headers['Content-Type']).toBe('text/markdown; charset=UTF-8');
@@ -43,11 +49,27 @@ function fixture(
         return new Response(null, { status: 412 });
       body = String(init.body);
       revision++;
-      return Response.json(metadata());
+      return Response.json(options.v2 ? { id: input.reserved_id } : metadata());
     }
     if (target.searchParams.get('alt') === 'media') return new Response(body);
     const etag =
       options.etag === undefined ? '"r' + revision + '"' : options.etag;
+    if (target.pathname === '/drive/v2/files/probe-id')
+      return Response.json({
+        id: input.reserved_id,
+        title: 'bi-guard-probe.md',
+        mimeType: 'text/markdown',
+        labels: { trashed: false },
+        parents: [{ id: input.root_id }],
+        properties: [
+          {
+            key: 'bi_guard_probe',
+            value: options.foreign ? 'foreign' : input.nonce,
+            visibility: 'PRIVATE',
+          },
+        ],
+        etag,
+      });
     return Response.json(metadata(), {
       headers: etag === null ? {} : { ETag: etag },
     });
@@ -58,6 +80,21 @@ function fixture(
     body: () => body,
   };
 }
+it('qualifies only the exact v2 PUT path using the private property and JSON ETag', async () => {
+  const state = fixture({ v2: true });
+  expect(
+    await state.client.probeMarkdownGuard({
+      ...input,
+      method: 'V2_MEDIA_PUT_IF_MATCH',
+    }),
+  ).toMatchObject({
+    method: 'V2_MEDIA_PUT_IF_MATCH',
+    accepted_writers: 1,
+    rejected_http_status: 412,
+    automatic_updates_enabled: false,
+  });
+  expect(state.writes).toHaveLength(3);
+});
 it('checks exact media upload guard with two concurrent writers and a current-guard write without enabling automatic updates', async () => {
   const tested = fixture();
   expect(await tested.client.probeMarkdownGuard(input)).toMatchObject({

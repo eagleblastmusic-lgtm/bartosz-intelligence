@@ -106,10 +106,13 @@ export class DriveClient {
     path: string,
     options: RequestInit = {},
     upload = false,
+    version: 'v3' | 'v2' = 'v3',
   ) {
     const target =
       'https://www.googleapis.com/' +
-      (upload ? 'upload/drive/v3/' : 'drive/v3/') +
+      (upload ? 'upload/drive/' : 'drive/') +
+      version +
+      '/' +
       path;
     const response = await fetchWithoutRedirect(
       target,
@@ -364,7 +367,16 @@ export class DriveClient {
     reserved_id: string;
     root_id: string;
     nonce: string;
+    method?: 'V3_MEDIA_PATCH_IF_MATCH' | 'V2_MEDIA_PUT_IF_MATCH';
   }) {
+    const v2 = input.method === 'V2_MEDIA_PUT_IF_MATCH';
+    if (
+      input.method !== undefined &&
+      !['V3_MEDIA_PATCH_IF_MATCH', 'V2_MEDIA_PUT_IF_MATCH'].includes(
+        input.method,
+      )
+    )
+      throw new DriveFailure('FORMAT');
     requireDriveId(input.reserved_id);
     requireDriveId(input.root_id);
     if (!/^[a-f0-9]{64}$/.test(input.nonce)) throw new DriveFailure('FORMAT');
@@ -375,10 +387,39 @@ export class DriveClient {
         'files/' +
           input.reserved_id +
           '?fields=' +
-          encodeURIComponent(fileFields),
+          encodeURIComponent(
+            v2
+              ? 'id,title,mimeType,parents(id),labels(trashed),properties(key,value,visibility),etag'
+              : fileFields,
+          ),
+        {},
+        false,
+        v2 ? 'v2' : 'v3',
       );
-      const etag = response.headers.get('ETag');
-      const value = file(await this.json(response));
+      const raw = await this.json(response);
+      const etag = v2
+        ? typeof raw.etag === 'string'
+          ? raw.etag
+          : null
+        : response.headers.get('ETag');
+      const value = v2
+        ? file({
+            id: raw.id,
+            name: raw.title,
+            mimeType: raw.mimeType,
+            trashed: (raw.labels as { trashed?: unknown } | undefined)?.trashed,
+            parents: Array.isArray(raw.parents)
+              ? raw.parents.map((parent) => parent?.id)
+              : [],
+            appProperties: Array.isArray(raw.properties)
+              ? Object.fromEntries(
+                  raw.properties
+                    .filter((property) => property?.visibility === 'PRIVATE')
+                    .map((property) => [property.key, property.value]),
+                )
+              : {},
+          })
+        : file(raw);
       if (
         value.id !== input.reserved_id ||
         value.mimeType !== 'text/markdown' ||
@@ -418,9 +459,9 @@ export class DriveClient {
         'files/' +
           input.reserved_id +
           '?uploadType=media&fields=' +
-          encodeURIComponent(fileFields),
+          encodeURIComponent(v2 ? 'id' : fileFields),
         {
-          method: 'PATCH',
+          method: v2 ? 'PUT' : 'PATCH',
           headers: {
             'Content-Type': 'text/markdown; charset=UTF-8',
             'If-Match': etag,
@@ -428,8 +469,9 @@ export class DriveClient {
           body,
         },
         true,
+        v2 ? 'v2' : 'v3',
       );
-      const updated = file(await this.json(response));
+      const updated = await this.json(response);
       if (updated.id !== input.reserved_id) throw new DriveFailure('FORMAT');
     };
     const candidates = [base + 'WRITER_A\n', base + 'WRITER_B\n'];
@@ -468,7 +510,9 @@ export class DriveClient {
       throw new DriveFailure('UNQUALIFIED_UPDATE');
     return {
       version: 'drive-upload-guard-probe:1' as const,
-      method: 'V3_MEDIA_PATCH_IF_MATCH' as const,
+      method: v2
+        ? ('V2_MEDIA_PUT_IF_MATCH' as const)
+        : ('V3_MEDIA_PATCH_IF_MATCH' as const),
       concurrent_writers: 2,
       accepted_writers: 1,
       rejected_http_status: 412,

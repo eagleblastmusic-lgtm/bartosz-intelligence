@@ -1,5 +1,7 @@
 # Drive guard qualification protocol
 
+Second method preregistration, 2026-10-08: after the v3 response lacked an ETag, explicitly select `V2_MEDIA_PUT_IF_MATCH` as the last CLI argument. The [official v2 File resource](https://developers.google.com/workspace/drive/api/reference/rest/v2/files) exposes JSON `etag`; [v2 files.update](https://developers.google.com/workspace/drive/api/reference/rest/v2/files/update) supports media PUT with drive.file scope. Use that exact JSON ETag with If-Match on v2 media PUT. Validate private properties, parent, MIME and trash state in the same v2 metadata response. All existing acceptance checks and the shared maximum of three persisted trials per connection/root remain unchanged. No automatic fallback occurs inside a trial; no production update activation follows merely from transport tests.
+
 This protocol is preparation, not a live PASS. Automatic updates remain disabled.
 
 Run `tools/deployment/drive-guard-probe.ts --live <connection_id> <root_id>` with the pinned Node/tsx runtime and local `.env` only after the owner has granted Drive access and created an application root candidate. The command requires a CONNECTED connection, an app-created CREATED root and the existing recovery-ready wrapping key. It creates a short administrative session and revokes it on exit.
