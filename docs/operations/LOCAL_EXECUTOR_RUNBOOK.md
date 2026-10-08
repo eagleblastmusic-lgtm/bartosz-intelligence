@@ -97,3 +97,21 @@ search, core recovery and outbox. The first race harness incorrectly injected
 revocation before leasing (observed PENDING instead of RUNNING); it was corrected
 to inject immediately before the final commit. Both content-change and revoked
 worker races now reject completion, and expiry/rebuild recovery is verified.
+
+Use `tools/executor/start-services.ps1 -Restart` after a verified local executor
+change. It validates the recorded supervisor and all direct children before
+stopping any process, allows only the exact system console host and pinned Node
+executor path, then replaces the supervisor and scoped children. PID reuse is
+checked against creation time before stopping children. It starts no AI service.
+Interrupted work retains durable D1 leases and origin; stale completion remains
+fenced. `-Check -Restart` is rejected. Process command lines are never printed.
+
+The caption subprocess uses asynchronous `execFile` so that network heartbeats
+continue while Python runs. Existing timeout/output bounds and the environment
+allowlist remain intact; child stderr and invalid output become fixed categories.
+Checkpoint `126b15b`: 36 affected tests PASS, scoped lint/typecheck PASS and actual
+Python invalid-input process check returned INVALID_LOCAL_INPUT before upstream
+requests (zero). Initial restart failed closed before stopping anything because
+Windows created a system conhost and used backslash separators. The corrected
+launcher completed restart and check; read-only production heartbeats confirmed
+all three non-AI services refreshed together after restart.

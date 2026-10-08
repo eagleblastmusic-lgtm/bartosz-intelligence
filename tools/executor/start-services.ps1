@@ -30,13 +30,16 @@ if ($Restart -and $taskExisting) {
   # Durable D1 leases recover interrupted jobs; no credential or process command
   # line is printed. Unknown children fail closed before stopping anything.
   $taskChildren = @(Get-CimInstance Win32_Process -Filter "ParentProcessId=$taskExisting")
+  $taskRunner = (Join-Path $taskRoot 'tools/executor/run-local.ts').Replace('\','/')
+  $taskConsoleHost = Join-Path $env:SystemRoot 'System32/conhost.exe'
   foreach ($taskChild in $taskChildren) {
-    if ($taskChild.ExecutablePath -ne $taskNode -or $taskChild.CommandLine -notlike '*tools/executor/run-local.ts*') { throw 'LOCAL_SERVICE_CHILD_CONFLICT' }
+    if ($taskChild.ExecutablePath -eq $taskConsoleHost) { continue }
+    if ($taskChild.ExecutablePath -ne $taskNode -or !$taskChild.CommandLine -or $taskChild.CommandLine.Replace('\','/').IndexOf($taskRunner,[StringComparison]::OrdinalIgnoreCase) -lt 0) { throw 'LOCAL_SERVICE_CHILD_CONFLICT' }
   }
   Stop-Process -Id $taskExisting -ErrorAction SilentlyContinue
   foreach ($taskChild in $taskChildren) {
     $taskCurrent = Get-CimInstance Win32_Process -Filter "ProcessId=$($taskChild.ProcessId)"
-    if ($taskCurrent -and $taskCurrent.CreationDate -eq $taskChild.CreationDate -and $taskCurrent.ExecutablePath -eq $taskNode) {
+    if ($taskChild.ExecutablePath -eq $taskNode -and $taskCurrent -and $taskCurrent.CreationDate -eq $taskChild.CreationDate -and $taskCurrent.ExecutablePath -eq $taskNode) {
       Stop-Process -Id $taskChild.ProcessId -ErrorAction SilentlyContinue
     }
   }
