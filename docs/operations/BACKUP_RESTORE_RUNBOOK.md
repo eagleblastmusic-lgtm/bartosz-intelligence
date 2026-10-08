@@ -1,0 +1,64 @@
+# Backup and restore
+
+Run commands from the repository root using the pinned Node runtime. Keep `.env`
+local. Never paste its values, SQL dumps or portable JSON into logs, Git or chat.
+The administrative commands require the existing Cloudflare account authorization.
+No billing, additional provider or subscription is needed.
+
+## Canonical portable drill
+
+```powershell
+$env:WRANGLER_SEND_METRICS = 'false'
+$env:CLOUDFLARE_ACCOUNT_ID = '0db26be1cc4c4f7f196d5ac401e232f3'
+& .\.tools\node-v24.21.0-win-x64\node.exe --env-file=.env --import tsx tools/deployment/portable-backup.ts
+```
+
+This is an explicit administrative operation. It acquires a fixed ten-minute
+mutation barrier for format 2, reads owner-scoped canonical chunks, verifies the
+manifest and private-copy readback, and restores into an empty local SQLite
+database. Reads remain available; writes resume after completion, abort or expiry.
+No active session or reusable worker credential is restored. A temporary internal
+owner session is revoked on exit; neither its value nor the owner subject is printed.
+
+Private files are in `.local/portable-backups`, protected for the current Windows
+owner and SYSTEM. Receipts in `docs/verification/backup` contain only counts,
+hashes, timestamps and fixed diagnostic categories. The SQL export fallback is
+`tools/deployment/pre-upgrade-backup.mjs`; it independently imports the selected
+ordinary tables and rebuilds derived FTS before migration rehearsal.
+
+Format 1 remains the default on the owner API. An explicit `format_version: 2`
+request selects the larger bounded format. Limits and the measurement trigger are
+documented in `docs/decisions/BACKUP_SIZE_ACTIVATION_2026-10-08.md`. Do not alter a
+manifest version to bypass a rejection. Oversize rows or expired barriers require
+diagnosis; an incomplete copy is not a verified recovery artifact.
+
+## Offline restore of an existing portable file
+
+```powershell
+& .\.tools\node-v24.21.0-win-x64\node.exe --env-file=.env --import tsx tools/db/restore-core.ts '<absolute private backup path>'
+```
+
+`GOOGLE_OIDC_OWNER_SUBJECT` must be present locally and match the hashed binding in
+the backup. This command creates an isolated target under `.local/backups`, rejects
+an existing target, validates migration receipts and chunk chains, and checks
+integrity and foreign keys. It does not replace the deployed D1 database.
+The recovery locator records where the validated copy and isolated restore reside;
+writing that locator does not prove an independent medium.
+
+Before any production replacement, identify the concrete target, retain the current
+validated copy, stop writers and invalidate sessions/credentials. Production
+replacement needs an owner decision because it discards newer target state.
+Do not infer permission to overwrite production from a successful local drill.
+
+## Qualification boundaries
+
+A copy on this computer is not an independently verified medium. Keep Drive wrapping
+key recovery separate according to `DRIVE_OFFLINE_AUTH.md`; key recovery does not
+replace a canonical database copy. Actual Drive token recovery needs a completed
+offline grant and its separate test.
+
+The administrative D1 REST drill does not measure Worker CPU. A production-size
+Worker path, independent-medium recovery, automated 24-hour backup cadence and
+full outage RPO/RTO remain separate qualification work. RPO 24 h and RTO 4 h are
+targets, not achieved SLA. Gate C maturity and Gemini quality acceptance are also
+independent of a passing backup integrity check.

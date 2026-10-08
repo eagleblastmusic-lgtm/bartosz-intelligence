@@ -70,7 +70,9 @@ try {
       foreign_key_check: 'PASS',
       active_sessions_restored: 0,
       active_worker_credentials_restored: 0,
-      independent_medium_receipt: true,
+      recovery_locator_written: true,
+      independent_medium_receipt: false,
+      independent_medium_status: 'NOT_VERIFIED',
     }),
   );
 } finally {
