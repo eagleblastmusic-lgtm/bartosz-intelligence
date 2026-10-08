@@ -1,6 +1,7 @@
 import type { Database, AccessContext } from '../db/boundary.js';
 import { sha256 } from '../auth/crypto.js';
 import ledger from '../../../../db/migration-ledger.json';
+import { backupLimits, type BackupFormatVersion } from './limits.js';
 
 export const backupTables = [
   'owner_users',
@@ -69,7 +70,7 @@ export interface BackupChunk {
   bytes: number;
 }
 export interface BackupManifest {
-  version: 1;
+  version: BackupFormatVersion;
   backup_id: string;
   owner_id: string;
   cut_seq: number;
@@ -90,6 +91,7 @@ interface Snapshot {
   expires_at: string;
   counts_json: string;
   manifest_json: string | null;
+  format_version: BackupFormatVersion;
 }
 function tableSpec(table: BackupTable) {
   if (table === 'owner_users')
@@ -159,10 +161,11 @@ export class CoreBackup {
     }
     return row;
   }
-  async begin() {
+  async begin(version: BackupFormatVersion = 1) {
+    const limits = backupLimits(version);
     const id = crypto.randomUUID(),
       now = new Date(),
-      expires = new Date(now.getTime() + 120000).toISOString();
+      expires = new Date(now.getTime() + limits.barrier_ms).toISOString();
     const acquired = await this.db
       .prepare(
         "UPDATE maintenance_state SET generation=generation+1,barrier_token=?,barrier_until=?,cut_seq=(SELECT COALESCE(MAX(seq),0) FROM change_log) WHERE singleton=1 AND (barrier_token IS NULL OR barrier_until<=strftime('%Y-%m-%dT%H:%M:%fZ','now'))",
@@ -196,7 +199,7 @@ export class CoreBackup {
       if (!counts) throw new Error('BACKUP_INVENTORY_MISSING');
       await this.db
         .prepare(
-          "INSERT INTO backup_snapshots(backup_id,owner_id,state,cut_seq,created_at,expires_at,counts_json) VALUES(?,?,'BUILDING',?,?,?,?)",
+          "INSERT INTO backup_snapshots(backup_id,owner_id,state,cut_seq,created_at,expires_at,counts_json,format_version) VALUES(?,?,'BUILDING',?,?,?,?,?)",
         )
         .bind(
           id,
@@ -205,6 +208,7 @@ export class CoreBackup {
           now.toISOString(),
           expires,
           JSON.stringify(counts),
+          version,
         )
         .run();
       await this.snapshot(id);
@@ -214,6 +218,7 @@ export class CoreBackup {
         expires_at: expires,
         cut_seq: cut,
         tables: backupTables,
+        format_version: version,
       };
     } catch (error) {
       await this.db
@@ -238,6 +243,7 @@ export class CoreBackup {
       throw new Error('INVALID_BACKUP_CURSOR');
     const snapshot = await this.snapshot(id),
       counts = JSON.parse(snapshot.counts_json) as Record<string, number>;
+    const limits = backupLimits(snapshot.format_version);
     const spec = tableSpec(table);
     const query = this.db.prepare(
       `SELECT rowid AS __cursor,${spec.projection} FROM ${table} WHERE rowid>?${spec.scoped ? ' AND owner_id=?' : ''} ORDER BY rowid LIMIT 25`,
@@ -260,8 +266,9 @@ export class CoreBackup {
       assertSecretFree(data);
       const size =
         new TextEncoder().encode(JSON.stringify(data)).byteLength + 1;
-      if (rows.length && bytes + size > 64000) break;
-      if (size > 64000) throw new Error('BACKUP_ROW_TOO_LARGE');
+      if (rows.length && bytes + size > limits.chunk_bytes) break;
+      if (bytes + size > limits.chunk_bytes)
+        throw new Error('BACKUP_ROW_TOO_LARGE');
       bytes += size;
       rows.push(data);
       rowCursors.push(Number(__cursor));
@@ -400,10 +407,11 @@ export class CoreBackup {
         })),
       };
     }
-    if (bytes > 2 * 1024 * 1024 || receipts.length > 200)
+    const limits = backupLimits(snapshot.format_version);
+    if (bytes > limits.total_bytes || receipts.length > limits.chunks)
       throw new Error('BACKUP_PILOT_LIMIT');
     const body = {
-      version: 1 as const,
+      version: snapshot.format_version,
       backup_id: id,
       owner_id: this.context.ownerId,
       cut_seq: snapshot.cut_seq,

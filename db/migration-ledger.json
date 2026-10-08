@@ -159,6 +159,11 @@
       "name": "032_export_receipt_lookup.sql",
       "depends_on": ["031_export_desired_mode.sql"],
       "sha256": "fe6b1b96836e82397d8b8262852fafc766b4e0449e2d4a2d2da58c3ca89753bf"
+    },
+    {
+      "name": "033_backup_format_version.sql",
+      "depends_on": ["032_export_receipt_lookup.sql"],
+      "sha256": "2844e881ae967f723684228dc138ad1aa50118cd65ef3ef47549dfb45175df8d"
     }
   ],
   "version": 1

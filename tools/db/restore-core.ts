@@ -18,7 +18,7 @@ import { verifyMigrations } from './migrations.js';
 const inputPath = process.argv[2];
 if (!inputPath || !process.env.GOOGLE_OIDC_OWNER_SUBJECT)
   throw new Error('PRIVATE_BACKUP_AND_OWNER_BINDING_REQUIRED');
-if (statSync(inputPath).size > 4 * 1024 * 1024)
+if (statSync(inputPath).size > 64 * 1024 * 1024)
   throw new Error('BACKUP_FILE_TOO_LARGE');
 const bytes = readFileSync(inputPath),
   portable = JSON.parse(bytes.toString('utf8')) as PortableCoreBackup;

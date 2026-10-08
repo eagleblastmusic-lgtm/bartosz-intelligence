@@ -36,6 +36,90 @@ function database() {
     sqlite.exec(readFileSync('db/migrations/' + name, 'utf8'));
   return { sqlite, db: sqliteAdapter(sqlite) };
 }
+it('restores an explicitly selected format 2 corpus above the measured production copy while retaining format 1 limits', async () => {
+  const source = database(),
+    target = database(),
+    now = new Date();
+  try {
+    source.sqlite
+      .prepare('INSERT INTO owner_users VALUES(?,?,?,?,?)')
+      .run(
+        'a',
+        'https://accounts.google.com',
+        'subject-a',
+        1,
+        now.toISOString(),
+      );
+    source.sqlite
+      .prepare('INSERT INTO owner_sessions VALUES(?,?,?,?,?,NULL)')
+      .run(
+        'fixture-session',
+        'a',
+        'fixture-csrf',
+        now.toISOString(),
+        '2099-01-01T00:00:00Z',
+      );
+    const owner = await AccessContext.owner(
+      source.db,
+      'fixture-session',
+      now.toISOString(),
+    );
+    const payload = JSON.stringify({ synthetic: 'x'.repeat(70000) }),
+      hash = await sha256(payload);
+    const insert = source.sqlite.prepare(
+      'INSERT INTO config_versions VALUES(?,?,?,?,?,?)',
+    );
+    for (let index = 0; index < 180; index++)
+      insert.run(
+        'synthetic-' + index,
+        'a',
+        1,
+        payload,
+        hash,
+        now.toISOString(),
+      );
+    const backup = new CoreBackup(source.db, owner);
+    const pilot = await backup.begin();
+    await expect(
+      backup.chunk(pilot.backup_id, 'config_versions', 0),
+    ).rejects.toThrow('BACKUP_ROW_TOO_LARGE');
+    await backup.abort(pilot.backup_id);
+    const extended = await backup.begin(2);
+    const chunks = [];
+    for (const table of backupTables) {
+      let cursor: number | null = 0;
+      do {
+        const chunk = await backup.chunk(extended.backup_id, table, cursor);
+        chunks.push(chunk);
+        cursor = chunk.next_cursor;
+      } while (cursor !== null);
+    }
+    const manifest = await backup.complete(extended.backup_id);
+    expect(manifest.version).toBe(2);
+    expect(chunks.length).toBeGreaterThan(200);
+    const verified = await verifyPortableBackup({ manifest, chunks });
+    expect(verified.bytes).toBeGreaterThan(11954905);
+    expect(verified.bytes).toBeLessThanOrEqual(32 * 1024 * 1024);
+    await restoreCanonical(target.db, { manifest, chunks }, 'subject-a');
+    expect(
+      target.sqlite.prepare('SELECT COUNT(*) n FROM config_versions').get()?.n,
+    ).toBe(180);
+    const restored = target.sqlite
+      .prepare('SELECT payload_json FROM config_versions WHERE config_id=?')
+      .get('synthetic-179');
+    expect(await sha256(String(restored?.payload_json))).toBe(hash);
+    expect(
+      target.sqlite.prepare('PRAGMA integrity_check').get()?.integrity_check,
+    ).toBe('ok');
+    expect(target.sqlite.prepare('PRAGMA foreign_key_check').all()).toEqual([]);
+    expect(
+      target.sqlite.prepare('SELECT COUNT(*) n FROM owner_sessions').get()?.n,
+    ).toBe(0);
+  } finally {
+    source.sqlite.close();
+    target.sqlite.close();
+  }
+});
 it('independent canonical restore preserves cyclic revision refs/origins and invalidates sessions, leases and worker credentials', async () => {
   const source = database(),
     target = database(),

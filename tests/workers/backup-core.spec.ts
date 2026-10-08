@@ -17,6 +17,25 @@ import { restoreCanonical } from '../../packages/core/src/backup/restore.js';
 import type { BackupChunk } from '../../packages/core/src/backup/snapshot.js';
 import type { Database } from '../../packages/core/src/db/boundary.js';
 beforeEach(resetCore);
+it('pins an explicit extended format and its bounded barrier, rejecting format mutation', async () => {
+  const backup = new CoreBackup(env.DB, await fixtureOwner());
+  await expect(backup.begin(3 as 2)).rejects.toThrow('INVALID_BACKUP_FORMAT');
+  const before = Date.now(),
+    started = await backup.begin(2);
+  expect(started.format_version).toBe(2);
+  expect(Date.parse(started.expires_at) - before).toBeGreaterThanOrEqual(
+    600000,
+  );
+  expect(Date.parse(started.expires_at) - before).toBeLessThan(610000);
+  await expect(
+    env.DB.prepare(
+      'UPDATE backup_snapshots SET format_version=1 WHERE backup_id=?',
+    )
+      .bind(started.backup_id)
+      .run(),
+  ).rejects.toThrow('IMMUTABLE_BACKUP_FORMAT');
+  await backup.abort(started.backup_id);
+});
 it('starts a complete owner-scoped inventory within a bounded control-plane query budget', async () => {
   const owner = await fixtureOwner();
   let invocations = 0;

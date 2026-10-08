@@ -628,7 +628,11 @@ it('backup requires owner CSRF, rejects worker access, and remains closed before
   ).toBe(0);
   const begun = await request('/api/v1/backup', headers, {});
   expect(begun.status).toBe(201);
-  const { backup_id } = (await begun.json()) as { backup_id: string };
+  const { backup_id, format_version } = (await begun.json()) as {
+    backup_id: string;
+    format_version: number;
+  };
+  expect(format_version).toBe(1);
   expect(
     (await request(`/api/v1/backup/${backup_id}/manifest`, headers)).status,
   ).toBe(409);
@@ -648,6 +652,24 @@ it('backup requires owner CSRF, rejects worker access, and remains closed before
       'barrier_token',
     ),
   ).toBeNull();
+  for (const version of [0, 3, '2', true])
+    expect(
+      (await request('/api/v1/backup', headers, { format_version: version }))
+        .status,
+    ).toBe(422);
+  const extended = await request('/api/v1/backup', headers, {
+    format_version: 2,
+  });
+  expect(extended.status).toBe(201);
+  const selected = (await extended.json()) as {
+    backup_id: string;
+    format_version: number;
+  };
+  expect(selected.format_version).toBe(2);
+  expect(
+    (await request(`/api/v1/backup/${selected.backup_id}/abort`, headers, {}))
+      .status,
+  ).toBe(200);
 });
 it('owner listing is bounded, owner-scoped and filter cursors cannot be repurposed', async () => {
   const a = await fixtureOwner(),

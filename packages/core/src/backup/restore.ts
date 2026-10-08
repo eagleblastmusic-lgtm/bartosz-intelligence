@@ -3,6 +3,7 @@ import { backupTables, assertSecretFree } from './snapshot.js';
 import type { BackupManifest, BackupChunk } from './snapshot.js';
 import { sha256 } from '../auth/crypto.js';
 import ledger from '../../../../db/migration-ledger.json';
+import { backupLimits } from './limits.js';
 export interface PortableCoreBackup {
   manifest: BackupManifest;
   chunks: BackupChunk[];
@@ -11,12 +12,13 @@ export async function verifyPortableBackup(input: PortableCoreBackup) {
   if (
     !input?.manifest ||
     !Array.isArray(input.chunks) ||
-    input.chunks.length > 200
+    ![1, 2].includes(input.manifest.version)
   )
     throw new Error('BACKUP_INVALID');
   const { sha256: manifestHash, ...body } = input.manifest;
+  const limits = backupLimits(body.version);
+  if (input.chunks.length > limits.chunks) throw new Error('BACKUP_INVALID');
   if (
-    body.version !== 1 ||
     typeof body.owner_id !== 'string' ||
     !body.owner_id ||
     !Number.isSafeInteger(body.cut_seq) ||
@@ -70,7 +72,11 @@ export async function verifyPortableBackup(input: PortableCoreBackup) {
       if ((await sha256(serialized)) !== chunk.sha256)
         throw new Error('BACKUP_CHUNK_MISMATCH');
       const bytes = new TextEncoder().encode(serialized).byteLength;
-      if (bytes > 64000 || chunk.bytes !== bytes || receipt.bytes !== bytes)
+      if (
+        bytes > limits.chunk_bytes ||
+        chunk.bytes !== bytes ||
+        receipt.bytes !== bytes
+      )
         throw new Error('BACKUP_BYTES_MISMATCH');
       total += bytes;
       for (const row of chunk.rows) {
@@ -97,7 +103,7 @@ export async function verifyPortableBackup(input: PortableCoreBackup) {
     if (cursor !== null || count !== specification.count)
       throw new Error('BACKUP_COUNT_MISMATCH');
   }
-  if (total > 2 * 1024 * 1024 || consumed !== input.chunks.length)
+  if (total > limits.total_bytes || consumed !== input.chunks.length)
     throw new Error('BACKUP_PILOT_LIMIT');
   return {
     rows: Object.values(body.tables).reduce(

@@ -6,8 +6,13 @@ import {
 import type { BackupTable } from '../../../../packages/core/src/backup/snapshot.js';
 export const backupApp = ownerRouter();
 backupApp.post('/', async (c) => {
-  await body(c, []);
-  return c.json(await new CoreBackup(c.env.DB, c.get('access')).begin(), 201);
+  const input = await body(c, ['format_version']);
+  const version = input.format_version ?? 1;
+  if (version !== 1 && version !== 2) throw new Error('INVALID_BACKUP_FORMAT');
+  return c.json(
+    await new CoreBackup(c.env.DB, c.get('access')).begin(version),
+    201,
+  );
 });
 backupApp.get('/:id/chunk', async (c) => {
   queryFields(c, ['table', 'cursor']);
