@@ -1,4 +1,5 @@
 import { Hono } from 'hono';
+import { publicPages } from './public-pages.js';
 import { consumeSignals } from './queue.js';
 import { scheduleControlPlane } from './scheduled.js';
 import { scheduleDriveExport } from './drive-export.js';
@@ -27,6 +28,7 @@ export type { Env } from './env.js';
 const buildVersion = '0.0.1';
 
 const app = new Hono<{ Bindings: Env }>();
+app.route('/', publicPages);
 app.route('/api/v1/auth', authApp);
 app.route('/api/v1/sources', sourcesApp);
 app.route('/api/v1/items', itemsApp);

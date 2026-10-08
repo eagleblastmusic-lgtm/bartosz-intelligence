@@ -13,7 +13,15 @@
     "directory": "../web/dist",
     "binding": "ASSETS",
     "not_found_handling": "single-page-application",
-    "run_worker_first": ["/api", "/api/*", "/internal/*", "/health"]
+    "run_worker_first": [
+      "/about",
+      "/privacy",
+      "/terms",
+      "/api",
+      "/api/*",
+      "/internal/*",
+      "/health"
+    ]
   },
   "vars": {
     "APP_ORIGIN": "https://bartosz-intelligence.eagleblastmusic.workers.dev"
