@@ -1,0 +1,33 @@
+{
+  "version": "quota-current-source:1",
+  "observation": "quota-current-2026-10-08T23-07Z.json",
+  "url": "https://console.cloud.google.com/apis/api/generativelanguage.googleapis.com/quotas?project=bartosz-intelligence",
+  "method": "READ_ONLY_BROWSER_VISIBLE_QUOTA_TABLE",
+  "usage_column": "Obecne wykorzystanie",
+  "exact_dimension": "model : gemini-3.8-flash",
+  "minute_rows_read_at": "2026-10-08T23:06:59.618Z",
+  "daily_row_read_at": "2026-10-08T23:07:02.033Z",
+  "rows": [
+    {
+      "name": "Request limit per model per minute for a project in the free tier",
+      "limit": 5,
+      "current_usage": 0
+    },
+    {
+      "name": "Request limit per model per day for a project in the free tier",
+      "limit": 20,
+      "current_usage": 1
+    },
+    {
+      "name": "GenerateContent free tier input token count limit per model per minute",
+      "limit": 250000,
+      "current_usage": 0
+    }
+  ],
+  "ai_studio_peak_usage_used_as_current": false,
+  "paid_tier_or_tts_suffix_rows_used": false,
+  "generation_submissions": 0,
+  "paid_services_enabled": false,
+  "secret_values_recorded": false,
+  "qualification": "Current quota source is accessible. This historical observation must be refreshed before admission; it does not authorize another generation request or qualify AI quality."
+}

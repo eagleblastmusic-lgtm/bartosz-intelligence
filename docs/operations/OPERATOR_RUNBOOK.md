@@ -44,6 +44,10 @@ and selection history. Do not mutate published prompt snapshots or switch to
 an unimplemented provider. With no qualified compatible replacement, leave new
 analysis deferred and preserve collected source data and existing knowledge.
 
+The concrete preview/confirmation and immutable-revision procedure is in
+[MODEL_PROMPT_RECOVERY.md](MODEL_PROMPT_RECOVERY.md). It does not claim an actual
+model promotion or authorize additional live requests.
+
 ## Drive reconnect, retry and conflict
 
 Open System → Connections. Reconnect the existing Drive connection after
