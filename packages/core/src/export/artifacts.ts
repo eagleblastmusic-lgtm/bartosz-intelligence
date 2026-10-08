@@ -36,7 +36,7 @@ export class DailyExportArtifacts {
     private context: AccessContext,
   ) {
     assertContext(context);
-    context.requireOwner();
+    context.requireOwnerOrTask('DRIVE_EXPORT');
   }
   private guard(lease: ExportLease, now: Date) {
     requireDriveId(lease.root_id);

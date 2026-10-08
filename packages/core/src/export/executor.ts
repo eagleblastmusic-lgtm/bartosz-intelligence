@@ -1,8 +1,4 @@
-import {
-  assertContext,
-  type AccessContext,
-  type Database,
-} from '../db/boundary.js';
+import { assertContext, AccessContext, type Database } from '../db/boundary.js';
 import { DriveClient, DriveFailure, type DriveFile } from '../drive/client.js';
 import { DriveExportIdentity, type ExportLease } from '../drive/identity.js';
 import { DailyExportArtifacts } from './artifacts.js';
@@ -16,7 +12,7 @@ export class DailyExportExecutor {
     private context: AccessContext,
   ) {
     assertContext(context);
-    context.requireOwner();
+    context.requireOwnerOrTask('DRIVE_EXPORT');
   }
   async execute(
     lease: ExportLease,
@@ -47,6 +43,15 @@ export class DailyExportExecutor {
     ];
     const guardSql = `owner_id=? AND root_namespace=? AND publication_date=? AND destination_key GLOB 'drive:*' AND lease_owner=? AND fencing_token=? AND lease_until>? AND rendered_artifact_id=? AND COALESCE(desired_mode,mode)=? AND EXISTS(SELECT 1 FROM drive_connections c WHERE c.owner_id=export_state.owner_id AND c.connection_id=export_state.connection_id AND c.root_id=export_state.root_namespace AND c.root_state='VERIFIED' AND c.auth_state='CONNECTED')`;
     const current = async () => {
+      if (this.context.kind === 'worker') {
+        const active = await AccessContext.worker(
+          this.db,
+          this.context.credentialHash!,
+        );
+        active.requireTask('DRIVE_EXPORT');
+        if (active.ownerId !== this.context.ownerId)
+          throw new Error('FORBIDDEN');
+      }
       const row = await this.db
         .prepare(
           `SELECT reserved_remote_id,file_id,full_file_hash,revision FROM export_state WHERE ${guardSql}`,

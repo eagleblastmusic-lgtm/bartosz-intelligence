@@ -64,6 +64,10 @@ export class AccessContext {
     if (this.kind !== 'worker' || !this.scopes.includes(task))
       throw new Error('FORBIDDEN');
   }
+  requireOwnerOrTask(task: string) {
+    assertContext(this);
+    if (this.kind !== 'owner') this.requireTask(task);
+  }
 }
 export function assertContext(context: AccessContext) {
   if (!contexts.has(context)) throw new Error('INVALID_ACCESS_CONTEXT');

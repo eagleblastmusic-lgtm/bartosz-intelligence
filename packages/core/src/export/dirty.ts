@@ -19,7 +19,7 @@ export class ExportDirtyDays {
     private context: AccessContext,
   ) {
     assertContext(context);
-    context.requireOwner();
+    context.requireOwnerOrTask('DRIVE_EXPORT');
   }
   async sync(now: Date) {
     if (!Number.isFinite(now.getTime()))

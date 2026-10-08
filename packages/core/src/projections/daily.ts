@@ -107,9 +107,10 @@ export class DailyProjection {
     private context: AccessContext,
   ) {
     assertContext(context);
-    context.requireOwner();
+    context.requireOwnerOrTask('DRIVE_EXPORT');
   }
   async sourceProgress(sourceId: string): Promise<SourceProgress> {
+    this.context.requireOwner();
     this.sources([sourceId]);
     const owner = this.context.ownerId;
     const rows = await this.db.batch([
@@ -195,6 +196,7 @@ export class DailyProjection {
     };
   }
   async detail(itemId: string): Promise<ItemDetail> {
+    this.context.requireOwner();
     const row = await this.db
       .prepare(
         `SELECT i.item_id,i.canonical_url,i.published_at,m.metadata_json,COALESCE(c.title,'Źródło') creator,r.run_id,s.selection_revision,json_extract(r.outcome_json,'$.view') view_json,${readiness} readiness,j.state,j.reason_code ${joins} WHERE i.owner_id=? AND i.item_id=?`,
@@ -300,7 +302,12 @@ FROM sources s LEFT JOIN channels c ON c.owner_id=s.owner_id AND c.source_id=s.s
     secret: string,
     now: Date,
   ): Promise<DailySnapshot> {
-    this.context.requireOwner();
+    this.context.requireOwnerOrTask('DRIVE_EXPORT');
+    if (
+      this.context.kind === 'worker' &&
+      (input.date === null || (input.source_ids?.length ?? 0) > 0)
+    )
+      throw new Error('FORBIDDEN');
     pageLimit(input.limit);
     if (input.timezone !== 'Europe/Warsaw' || !Number.isFinite(now.getTime()))
       throw new Error('INVALID_TIMEZONE');

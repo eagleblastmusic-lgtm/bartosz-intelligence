@@ -28,7 +28,7 @@ export async function captureDailyExport(
   now: Date,
 ): Promise<DailyRenderInput> {
   assertContext(context);
-  context.requireOwner();
+  context.requireOwnerOrTask('DRIVE_EXPORT');
   const projection = new DailyProjection(db, context);
   const artifacts = new ArtifactRepository(db, context);
   const snapshot = await projection.day(

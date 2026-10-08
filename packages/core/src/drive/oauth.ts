@@ -25,7 +25,7 @@ export async function refreshDriveAccess(
   fetcher: typeof fetch = fetch,
 ) {
   assertContext(context);
-  context.requireOwner();
+  context.requireOwnerOrTask('DRIVE_EXPORT');
   configRedirect(config);
   if (
     !Number.isFinite(now.getTime()) ||

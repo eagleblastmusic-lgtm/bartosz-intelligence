@@ -29,7 +29,7 @@ export class DriveExportIdentity {
     private context: AccessContext,
   ) {
     assertContext(context);
-    context.requireOwner();
+    context.requireOwnerOrTask('DRIVE_EXPORT');
   }
   private bindings(root: string, date: string) {
     requireDriveId(root);

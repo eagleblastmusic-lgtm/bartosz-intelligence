@@ -240,7 +240,15 @@ export class ArtifactRepository {
   async get(id: string, token?: LeaseToken, task?: TaskType, now = new Date()) {
     let filter = '',
       bindings: readonly (string | number | null)[] = [];
-    if (this.context.kind === 'worker') {
+    if (
+      this.context.kind === 'worker' &&
+      this.context.scopes.includes('DRIVE_EXPORT') &&
+      !token &&
+      !task
+    ) {
+      this.context.requireTask('DRIVE_EXPORT');
+      filter = ` AND state='VERIFIED' AND kind='ANALYSIS_CANDIDATE' AND schema_version='intelligence-canonical:1.2' AND EXISTS(SELECT 1 FROM analysis_runs r WHERE r.owner_id=artifacts.owner_id AND r.item_id=artifacts.item_id AND r.state='ACCEPTED' AND json_extract(r.outcome_json,'$.version')='intelligence-accepted:1' AND json_extract(r.outcome_json,'$.canonical_artifact_id')=artifacts.artifact_id AND json_extract(r.outcome_json,'$.canonical_hash')=artifacts.content_hash)`;
+    } else if (this.context.kind === 'worker') {
       if (!token || !task) throw new Error('FORBIDDEN');
       const guard = this.guard(token, task, now);
       filter = ` AND ${guard.predicate} AND EXISTS(SELECT 1 FROM jobs WHERE owner_id=? AND job_id=? AND item_id=artifacts.item_id)`;
