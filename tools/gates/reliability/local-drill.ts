@@ -1,4 +1,10 @@
-import { readFileSync, mkdirSync, writeFileSync, existsSync } from 'node:fs';
+import {
+  readFileSync,
+  mkdirSync,
+  writeFileSync,
+  existsSync,
+  statSync,
+} from 'node:fs';
 import { resolve, join } from 'node:path';
 import { createRequire } from 'node:module';
 import { randomUUID } from 'node:crypto';
@@ -26,6 +32,8 @@ import {
 } from './evaluate.js';
 import ledger from '../../../db/migration-ledger.json';
 import deployment from '../../../config/deployment.json';
+import { drillDiscovery } from './local-discovery.js';
+import { drillAuth } from './local-auth.js';
 
 // Isolated local D1 only; no production mutation or source/AI provider request.
 const args = process.argv.slice(2);
@@ -37,11 +45,23 @@ if (
 )
   throw new Error('EXPLICIT_PRIVATE_BACKUP_RECEIPT_REQUIRED');
 const pins = candidatePins();
+if (
+  statSync(args[1]!).size > 64 * 1024 * 1024 ||
+  statSync(args[3]!).size > 256 * 1024
+)
+  throw new Error('DRILL_INPUT_TOO_LARGE');
+const parsePrivate = (data: Uint8Array) => {
+  try {
+    return JSON.parse(new TextDecoder('utf-8', { fatal: true }).decode(data));
+  } catch {
+    throw new Error('INVALID_PRIVATE_DRILL_JSON');
+  }
+};
 const bytes = readFileSync(args[1]!);
 if (bytes.length > 64 * 1024 * 1024) throw new Error('BACKUP_FILE_TOO_LARGE');
-const portable = JSON.parse(bytes.toString('utf8')) as PortableCoreBackup;
+const portable = parsePrivate(bytes) as PortableCoreBackup;
 const backupReceiptBytes = readFileSync(args[3]!);
-const backupReceipt = JSON.parse(backupReceiptBytes.toString('utf8'));
+const backupReceipt = parsePrivate(backupReceiptBytes);
 if (
   backupReceipt.backup_sha256 !== evidenceHash(bytes) ||
   backupReceipt.independent_sqlite_restore !== 'PASS'
@@ -152,7 +172,13 @@ try {
   // simulates transport expiry; actual database leases/fences are exercised.
   save('preregistration.json', {
     version: 'LocalD1RecoveryDrill/1.0',
-    cases: ['lease_crash', 'queue_loss', 'database_rollback'],
+    cases: [
+      'lease_crash',
+      'queue_loss',
+      'database_rollback',
+      'discovery_interruption',
+      'auth_revocation',
+    ],
     deadline_ms: 14400000,
     provider_requests: 0,
     synthetic_result: true,
@@ -313,6 +339,10 @@ try {
     null,
     now,
   );
+  const discovery = await drillDiscovery(db, owner, now);
+  save('discovery-observations.json', discovery.observations);
+  const auth = await drillAuth(db, owner, session, now);
+  save('auth-observations.json', auth.observations);
   const after = await origins();
   const originalIds = new Set(originalOrigins.map((row) => row.job_id));
   const originsPreserved =
@@ -338,7 +368,22 @@ try {
   const rows: GateRManifest['cases'] = [];
   for (const caseId of recoveryCases) {
     let evidence = null;
-    if (['lease_crash', 'queue_loss', 'database_rollback'].includes(caseId))
+    const casePass =
+      pass &&
+      (caseId === 'discovery_interruption'
+        ? discovery.pass
+        : caseId === 'auth_revocation'
+          ? auth.pass
+          : true);
+    if (
+      [
+        'lease_crash',
+        'queue_loss',
+        'database_rollback',
+        'discovery_interruption',
+        'auth_revocation',
+      ].includes(caseId)
+    )
       evidence = save(caseId + '.json', {
         version: 'GateRCase/1.0',
         case_id: caseId,
@@ -346,14 +391,14 @@ try {
         baseline_sha256: baseline.sha256,
         kind: 'ACTUAL_LOCAL_D1',
         observed_at: new Date().toISOString(),
-        result: pass ? 'PASS' : 'FAIL',
+        result: casePass ? 'PASS' : 'FAIL',
         lost_jobs:
           originalOrigins.length -
           after.filter((row) => originalIds.has(row.job_id)).length,
         duplicate_effects: Math.max(0, (acceptedCount ?? 0) - 1),
         stale_writes: staleRejected ? 0 : 1,
         origins_preserved: originsPreserved,
-        recovered: pass,
+        recovered: casePass,
         paid_requests: 0,
         recovery_elapsed_ms: Math.ceil(performance.now() - started),
       });
@@ -388,7 +433,7 @@ try {
       global_release_approved: false,
     }),
   );
-  if (!pass) process.exitCode = 2;
+  if (!pass || !discovery.pass || !auth.pass) process.exitCode = 2;
 } finally {
   await mf.dispose();
 }
