@@ -13,7 +13,59 @@ import { renderOwnerDaily } from '../../packages/core/src/export/snapshot.js';
 import { DriveClient } from '../../packages/core/src/drive/client.js';
 import { sha256 } from '../../packages/core/src/auth/crypto.js';
 import { ExportSettings } from '../../packages/core/src/export/settings.js';
+import type { Database } from '../../packages/core/src/db/boundary.js';
 beforeEach(resetCore);
+it('reports a conflict when another owner action changes the mode between the successful CAS and its readback', async () => {
+  const f = await fixture();
+  let raced = false;
+  const database: Database = env.DB;
+  const interleaved: Database = {
+    batch: (statements) => database.batch(statements),
+    prepare(sql) {
+      let statement = database.prepare(sql);
+      return {
+        bind(...values) {
+          statement = statement.bind(...values);
+          return this;
+        },
+        all: () => statement.all(),
+        run: () => statement.run(),
+        async first<T>(column?: string) {
+          if (!raced && sql.startsWith('SELECT settings_revision')) {
+            raced = true;
+            await new ExportSettings(env.DB, f.owner).mode(
+              'root',
+              f.lease.date,
+              'COMPACT',
+              2,
+              fixtureNow,
+            );
+          }
+          return statement.first<T>(column);
+        },
+      };
+    },
+  };
+  await expect(
+    new ExportSettings(interleaved, f.owner).mode(
+      'root',
+      f.lease.date,
+      'FULL',
+      1,
+      fixtureNow,
+    ),
+  ).rejects.toThrow('REVISION_CONFLICT');
+  expect(raced).toBe(true);
+  expect(
+    await env.DB.prepare(
+      "SELECT settings_revision,desired_mode,revision FROM export_state WHERE owner_id='a'",
+    ).first(),
+  ).toMatchObject({
+    settings_revision: 3,
+    desired_mode: 'COMPACT',
+    revision: 0,
+  });
+});
 it('acknowledges identical material without uploading or claiming a new remote revision', async () => {
   const f = await fixture();
   let exists = false,

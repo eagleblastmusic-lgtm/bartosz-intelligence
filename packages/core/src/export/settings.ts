@@ -52,7 +52,10 @@ export class ExportSettings {
       .bind(this.context.ownerId, root, date)
       .first<{ settings_revision: number; desired_mode: string }>();
     if (!row) throw new Error('NOT_FOUND');
-    if (!result.meta.changes && row.settings_revision !== expected)
+    if (
+      row.settings_revision !== expected + (result.meta.changes ? 1 : 0) ||
+      row.desired_mode !== mode
+    )
       throw new Error('REVISION_CONFLICT');
     return row;
   }
