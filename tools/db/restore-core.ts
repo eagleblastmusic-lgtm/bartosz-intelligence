@@ -17,6 +17,15 @@ import { sqliteAdapter } from './sqlite-adapter.js';
 import { verifyMigrations } from './migrations.js';
 import { requirePrivateRecoveryDirectory } from './private-directory.js';
 const inputPath = process.argv[2];
+if (
+  process.argv.length !== 3 &&
+  !(
+    process.argv.length === 5 &&
+    process.argv[3] === '--target-directory' &&
+    process.argv[4]
+  )
+)
+  throw new Error('INVALID_RESTORE_ARGUMENTS');
 if (!inputPath || !process.env.GOOGLE_OIDC_OWNER_SUBJECT)
   throw new Error('PRIVATE_BACKUP_AND_OWNER_BINDING_REQUIRED');
 if (statSync(inputPath).size > 64 * 1024 * 1024)
@@ -32,7 +41,7 @@ const files = Object.fromEntries(
   ]),
 );
 verifyMigrations(files, ledger.migrations);
-const directory = resolve('.local/backups');
+const directory = resolve(process.argv[4] ?? '.local/backups');
 if (process.platform === 'win32') requirePrivateRecoveryDirectory(directory);
 mkdirSync(directory, { recursive: true });
 const target = join(directory, portable.manifest.backup_id + '.sqlite');
@@ -70,6 +79,7 @@ try {
       bytes: verified.bytes,
       integrity_check: 'PASS',
       foreign_key_check: 'PASS',
+      canonical_readback: verified.canonical_readback,
       active_sessions_restored: 0,
       active_worker_credentials_restored: 0,
       recovery_locator_written: true,

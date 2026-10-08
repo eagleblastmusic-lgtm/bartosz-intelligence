@@ -36,6 +36,48 @@ function database() {
     sqlite.exec(readFileSync('db/migrations/' + name, 'utf8'));
   return { sqlite, db: sqliteAdapter(sqlite) };
 }
+it('rejects persisted content drift even when table counts and foreign keys match', async () => {
+  const source = database(),
+    target = database(),
+    now = new Date().toISOString();
+  try {
+    source.sqlite
+      .prepare('INSERT INTO owner_users VALUES(?,?,?,?,?)')
+      .run('a', 'https://accounts.google.com', 'subject-a', 1, now);
+    source.sqlite
+      .prepare('INSERT INTO owner_sessions VALUES(?,?,?,?,?,NULL)')
+      .run('fixture-session', 'a', 'fixture-csrf', now, '2099-01-01T00:00:00Z');
+    source.sqlite
+      .prepare('INSERT INTO audit_events VALUES(?,?,?,?,?,?,?)')
+      .run('audit-a', 'a', 'a', 'ORIGINAL', null, 'correlation', now);
+    const owner = await AccessContext.owner(source.db, 'fixture-session', now);
+    const backup = new CoreBackup(source.db, owner),
+      started = await backup.begin(),
+      chunks = [];
+    for (const table of backupTables) {
+      let cursor: number | null = 0;
+      do {
+        const chunk = await backup.chunk(started.backup_id, table, cursor);
+        chunks.push(chunk);
+        cursor = chunk.next_cursor;
+      } while (cursor !== null);
+    }
+    const manifest = await backup.complete(started.backup_id);
+    target.sqlite.exec(
+      "CREATE TRIGGER isolated_corruption AFTER INSERT ON audit_events BEGIN UPDATE audit_events SET event_type='CORRUPTED' WHERE event_id=NEW.event_id; END",
+    );
+    await expect(
+      restoreCanonical(target.db, { manifest, chunks }, 'subject-a'),
+    ).rejects.toThrow('RESTORE_CONTENT_MISMATCH');
+    expect(
+      target.sqlite.prepare('SELECT COUNT(*) n FROM audit_events').get()?.n,
+    ).toBe(1);
+    expect(target.sqlite.prepare('PRAGMA foreign_key_check').all()).toEqual([]);
+  } finally {
+    source.sqlite.close();
+    target.sqlite.close();
+  }
+});
 it('restores an explicitly selected format 2 corpus above the measured production copy while retaining format 1 limits', async () => {
   const source = database(),
     target = database(),

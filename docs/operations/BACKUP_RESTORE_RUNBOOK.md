@@ -58,6 +58,25 @@ Targeted ACL/restore regressions passed 4 tests; one non-Windows-only test was
 skipped on Windows. Scoped lint and tools typecheck passed. No production data
 was replaced and no new production backup was required.
 
+Canonical restore additionally reads back every persisted row in bounded pages
+and compares SHA-256 values against the exact recovery plan. This includes all
+immutable content, reference/pointer sets and intentional auth/lease changes;
+counts and FK alone cannot qualify the result. A regression corrupts an actual
+inserted audit value in isolated SQLite while keeping counts and FK valid, and
+restore correctly fails with RESTORE_CONTENT_MISMATCH.
+The existing production copy was restored into a new protected isolated target:
+4678 rows / 15587643 canonical bytes, canonical_readback/integrity/FK PASS,
+zero revived sessions/worker credentials. The related restore/Knowledge/backup
+suite passed 8 tests before the additional corruption regression; the final
+standalone restore suite passed 3 tests. Scoped lint and tools/Workers typechecks
+passed. Source data and the deployed D1 were not changed.
+
+For a second independent local rehearsal without overwriting the first target,
+the restore command accepts `--target-directory .local/<new-private-directory>`.
+Windows requires a descendant of `.local`, rejects reparse ancestry and applies
+the same private ACL. Existing target databases are always rejected. No directory
+option authorizes replacement of production or an existing restore.
+
 Before any production replacement, identify the concrete target, retain the current
 validated copy, stop writers and invalidate sessions/credentials. Production
 replacement needs an owner decision because it discards newer target state.

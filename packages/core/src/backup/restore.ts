@@ -136,10 +136,12 @@ export async function restoreCanonical(
     ).results.map((row) => row.name);
   }
   const plans = [];
+  const expectedReadback: Record<string, string[]> = {};
   const exportSeals: { owner_id: string; artifact_id: string }[] = [];
   const pointers: { item_id: string; owner_id: string; revision_id: string }[] =
     [];
   for (const table of backupTables) {
+    expectedReadback[table] = [];
     if (table === 'export_state')
       plans.push(
         ...exportSeals.map((seal) =>
@@ -224,6 +226,18 @@ export async function restoreCanonical(
           [...expectedColumns[table]!].sort().join(',')
         )
           throw new Error('RESTORE_COLUMNS_MISMATCH');
+        const finalRow = { ...row };
+        if (table === 'items')
+          finalRow.current_revision_id = original.current_revision_id!;
+        if (table === 'daily_export_artifacts')
+          finalRow.state = original.state!;
+        expectedReadback[table]!.push(
+          await sha256(
+            JSON.stringify(
+              expectedColumns[table]!.map((column) => finalRow[column]),
+            ),
+          ),
+        );
         plans.push(
           db
             .prepare(
@@ -283,6 +297,34 @@ export async function restoreCanonical(
         .first<number>('n')) !== input.manifest.tables[table]!.count
     )
       throw new Error('RESTORE_COUNT_MISMATCH');
+  // Compare the actual persisted values, including immutable bytes and restored
+  // pointer sets, against the exact recovery plan. Counts/FK alone miss drift.
+  for (const table of backupTables) {
+    const actual: string[] = [];
+    let offset = 0;
+    while (true) {
+      const page = (
+        await db
+          .prepare(
+            `SELECT ${expectedColumns[table]!.join(',')} FROM ${table} ORDER BY rowid LIMIT 40 OFFSET ?`,
+          )
+          .bind(offset)
+          .all<Record<string, string | number | null>>()
+      ).results;
+      for (const row of page)
+        actual.push(
+          await sha256(
+            JSON.stringify(
+              expectedColumns[table]!.map((column) => row[column]),
+            ),
+          ),
+        );
+      if (page.length < 40) break;
+      offset += page.length;
+    }
+    if (actual.sort().join(',') !== expectedReadback[table]!.sort().join(','))
+      throw new Error('RESTORE_CONTENT_MISMATCH');
+  }
   if (
     (await db.prepare('PRAGMA foreign_key_check').all()).results.length ||
     (await db.prepare('PRAGMA quick_check').first<string>('quick_check')) !==
@@ -294,5 +336,6 @@ export async function restoreCanonical(
     result: 'PASS',
     active_sessions_restored: 0,
     active_worker_credentials_restored: 0,
+    canonical_readback: 'PASS',
   };
 }
