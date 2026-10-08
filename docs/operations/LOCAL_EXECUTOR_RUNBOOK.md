@@ -72,6 +72,26 @@ on the next cycle. Cycle acceptance reflects an actual completed projection.
 Heartbeat/supervisor regressions: 7 tests passed, including bounded frequency,
 transport failure and authentication denial in actual child processes.
 
+On Windows use `tools/executor/start-services.ps1` to start or reuse the existing
+supervisor; `-Check` validates configuration and reports its presence. It checks
+the recorded process identity before reusing a PID and receives no secret values
+on the command line. `-Wait` keeps a scheduling wrapper attached to that process.
+
+`tools/executor/install-startup.ps1` registers an owner-logon Windows task with
+Limited privileges, IgnoreNew instances, hidden execution and no execution time
+limit. `-Check` is read-only; `-Remove` removes only the matching startup task,
+leaving running services and Core data intact. A conflicting named task is never
+overwritten. OAuth/Gemini credentials are not stored in task arguments. This
+starts only configured non-AI services and does not imply continuous availability
+while the owner is logged out or the computer is off.
+
+Actual installation verification on 2026-10-08: task Running, Limited,
+IgnoreNew, execution time limit PT0S; one supervisor before and after an explicit
+second start. Both PowerShell files parsed without errors. Initial automatic
+approval review could not evaluate installation; that attempt did not execute.
+After the owner's continuation, review and installation succeeded. This record
+sets no execution-resume waiting period.
+
 Projection regression verification: 14 tests passed across projection jobs,
 search, core recovery and outbox. The first race harness incorrectly injected
 revocation before leasing (observed PENDING instead of RUNNING); it was corrected

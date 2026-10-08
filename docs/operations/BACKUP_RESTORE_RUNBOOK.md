@@ -88,3 +88,11 @@ another completion is allowed only when readback proves BACKUP_NOT_VERIFIED.
 Unavailable reconciliation, expiry, permission and integrity failures stop the
 drill. This recovery changes no acceptance threshold or barrier duration.
 Recovery/client/barrier regressions: 17 tests passed.
+
+The corrected real-production retest passed:
+`docs/verification/backup/2026-10-08T18-39-53.489Z.json`.
+It captured cut 1593 with 35 migrations, 4678 canonical rows and 364 chunks;
+private-copy readback, independent empty SQLite restore, integrity and foreign
+keys passed. Backup took 379516 ms; isolated restore took 4698 ms. No active
+sessions or worker credentials were restored. Independent physical medium and
+full application RPO/RTO remain unqualified.
