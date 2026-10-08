@@ -1,0 +1,20 @@
+{
+  "evidence_kind": "authenticated official Google Cloud Console read-only observation",
+  "recorded_at_utc": "2026-10-08T11:06:27Z",
+  "project": "bartosz-intelligence",
+  "service": "generativelanguage.googleapis.com",
+  "source_url": "https://console.cloud.google.com/apis/api/generativelanguage.googleapis.com/quotas?project=bartosz-intelligence",
+  "filter": ["gemini-3.8-flash", "free tier"],
+  "column": "Obecne wykorzystanie",
+  "model": "gemini-3.8-flash",
+  "tier": "FREE",
+  "observations": [
+    { "bucket": "INPUT_TPM", "limit": 250000, "used": 0 },
+    { "bucket": "RPM", "limit": 5, "used": 0 },
+    { "bucket": "RPD", "limit": 20, "used": 0 }
+  ],
+  "interpretation": "Exact model Free-tier rows explicitly display current usage zero. AI Studio Usage displayed no data after reload; that absence was not used as zero. AI Studio Rate Limit confirmed the Free tier and limits, but its peak counters were not used for admission. Google Cloud's current-use columns are the source of these observations. Provider sample latency is unavailable. Refresh this observation immediately before a generation request; this receipt alone is not an indefinitely fresh permit.",
+  "billing_changed": false,
+  "generation_requests": 0,
+  "secret_values_recorded": false
+}

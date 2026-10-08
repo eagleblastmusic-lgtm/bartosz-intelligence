@@ -48,6 +48,19 @@ const worker =
             )
           : new LocalTranscriptWorker(origin, credential);
 const once = process.argv.includes('--once');
+const selectedJobIndex = process.argv.indexOf('--job-id');
+const selectedJob =
+  selectedJobIndex < 0 ? undefined : process.argv[selectedJobIndex + 1];
+if (
+  selectedJobIndex >= 0 &&
+  (!analysis ||
+    !once ||
+    !selectedJob ||
+    !/^[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}$/.test(
+      selectedJob,
+    ))
+)
+  throw new Error('INVALID_ANALYSIS_JOB_ID');
 let stopped = false;
 let active = false;
 process.on('SIGINT', () => {
@@ -58,7 +71,10 @@ process.on('SIGTERM', () => {
 });
 do {
   try {
-    const result = await worker.cycle();
+    const result =
+      worker instanceof LocalAnalysisWorker
+        ? await worker.cycle(selectedJob)
+        : await worker.cycle();
     active = !result.idle;
     process.stdout.write(
       JSON.stringify({

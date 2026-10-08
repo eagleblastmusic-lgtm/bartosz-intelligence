@@ -21,11 +21,19 @@ export class LocalAnalysisWorker {
     if (!key) throw new Error('AI_EXECUTOR_CONFIGURATION_REQUIRED');
     this.rpc = new WorkerRpc(origin, credential, transport);
   }
-  async cycle() {
+  async cycle(jobId?: string) {
+    if (
+      jobId !== undefined &&
+      !/^[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}$/.test(
+        jobId,
+      )
+    )
+      throw new Error('INVALID_ANALYSIS_JOB_ID');
     await this.rpc.request('heartbeat', { runtime: 'local' });
     const pulled = (await this.rpc.request('lease', {
       runtime: 'local',
       task_type: 'ANALYZE',
+      ...(jobId === undefined ? {} : { job_id: jobId }),
     })) as { leases: { token: LeaseToken; job: JobRecord }[] };
     if (!Array.isArray(pulled.leases) || pulled.leases.length > 1)
       throw new Error('INVALID_LEASE_RESPONSE');
@@ -33,7 +41,8 @@ export class LocalAnalysisWorker {
     if (!leased) return { accepted: false, idle: true, state: null };
     if (
       leased.job.task_type !== 'ANALYZE' ||
-      leased.token.job_id !== leased.job.job_id
+      leased.token.job_id !== leased.job.job_id ||
+      (jobId !== undefined && leased.job.job_id !== jobId)
     )
       throw new Error('INVALID_ANALYSIS_LEASE');
     await this.rpc.request('start', {
