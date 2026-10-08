@@ -19,12 +19,19 @@ import {
 import { renderOwnerDaily } from '../../packages/core/src/export/snapshot.js';
 import { DailyExportArtifacts } from '../../packages/core/src/export/artifacts.js';
 import { DailyExportExecutor } from '../../packages/core/src/export/executor.js';
+import { ExportSettings } from '../../packages/core/src/export/settings.js';
 
 // Explicit single-day verification using the production repositories. No cron,
 // synthetic source changes, provider calls or automatic export activation.
 const [, , flag, connectionId, rootId, date] = process.argv;
+const requestedMode = process.argv[7];
 if (
-  process.argv.length !== 6 ||
+  (process.argv.length !== 6 &&
+    !(
+      process.argv.length === 8 &&
+      process.argv[6] === '--mode' &&
+      (requestedMode === 'COMPACT' || requestedMode === 'FULL')
+    )) ||
   flag !== '--live' ||
   !/^[A-Za-z0-9_-]{1,128}$/.test(connectionId ?? '') ||
   !/^[A-Za-z0-9_-]{1,200}$/.test(rootId ?? '') ||
@@ -102,6 +109,23 @@ try {
   const client = new DriveClient(grant.access_token);
   identity = new DriveExportIdentity(db, context);
   await identity.ensure(connectionId!, rootId!, date!, new Date());
+  if (requestedMode === 'COMPACT' || requestedMode === 'FULL') {
+    const revision = await db
+      .prepare(
+        "SELECT settings_revision FROM export_state WHERE owner_id=? AND root_namespace=? AND publication_date=? AND destination_key GLOB 'drive:*'",
+      )
+      .bind(ownerId, rootId!, date!)
+      .first<number>('settings_revision');
+    if (!revision) throw new Error('EXPORT_STATE_REQUIRED');
+    await new ExportSettings(db, context).mode(
+      rootId!,
+      date!,
+      requestedMode,
+      revision,
+      new Date(),
+    );
+    receipt.requested_mode = requestedMode;
+  }
   phase = 'SNAPSHOT';
   lease = await identity.claim(
     rootId!,
@@ -111,7 +135,7 @@ try {
   );
   const state = await db
     .prepare(
-      "SELECT revision,mode FROM export_state WHERE owner_id=? AND root_namespace=? AND publication_date=? AND destination_key GLOB 'drive:*'",
+      "SELECT revision,COALESCE(desired_mode,mode) mode FROM export_state WHERE owner_id=? AND root_namespace=? AND publication_date=? AND destination_key GLOB 'drive:*'",
     )
     .bind(ownerId, rootId!, date!)
     .first<{ revision: number; mode: 'COMPACT' | 'FULL' }>();

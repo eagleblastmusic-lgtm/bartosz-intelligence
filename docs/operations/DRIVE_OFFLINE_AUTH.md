@@ -151,6 +151,15 @@ These are actual application data, without generated AI results or synthetic
 source changes. They do not qualify the entire D-export gate, human compact
 quality, unattended scheduling or production OAuth publishing lifecycle.
 
+Actual COMPACT → FULL → COMPACT verification also passed on the same file:
+`docs/verification/drive/0b502df2-7a86-4149-80c8-24eee2c091b1.json` (revision 3)
+and `docs/verification/drive/ea9032ff-5592-4af4-b797-f8a978fd5cd4.json`
+(revision 4). Both executions renewed offline access and independently matched
+the remote content hash. The final mode is COMPACT. Targeted export runtime,
+executor and scope tests passed (14), as did identity and manual-conflict tests
+(10); tools typecheck and scoped lint passed. No live manual user file was
+edited to manufacture conflict evidence.
+
 For a bounded administrative verification, run the pinned Node with
 `--env-file=.env --import=tsx tools/deployment/drive-export-live.ts --live
 <connection_id> <owner-approved-root_id> <publication_date>`.
@@ -159,6 +168,9 @@ temporary owner session and releases the lease. It writes only redacted
 metadata receipts; it never enables the scheduler. A failed execution retains
 the reserved file identity and existing recovery state. Re-run only for a
 specific acceptance case or regression.
+An explicit trailing `--mode FULL` or `--mode COMPACT` applies the existing
+owner settings CAS before rendering; the omitted option retains the desired
+mode. This option supports the required real same-file mode roundtrip.
 
 The owner can choose Disconnect Drive and confirm explicitly. Revision CAS
 removes the local encrypted offline credential, consumes pending OAuth intents
