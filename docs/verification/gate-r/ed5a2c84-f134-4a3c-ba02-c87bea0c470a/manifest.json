@@ -1,0 +1,69 @@
+{
+  "version": "GateRManifest/1.0",
+  "configuration": {
+    "path": "configuration.json",
+    "sha256": "c76bd92b1c64af4957d10d3d04bda36b6d497c3e31d11b89b03c4c5a59bbda86"
+  },
+  "baseline": {
+    "path": "baseline.json",
+    "sha256": "ac0a679e346cc16c100ddeadbe1ac1229e67b268c9bdce87a8d93e664e0c2eb5"
+  },
+  "cases": [
+    {
+      "id": "lease_crash",
+      "deadline_ms": 14400000,
+      "evidence": {
+        "path": "lease_crash.json",
+        "sha256": "77902f47b25085dd9db9f3d57af714e4cf03c44da8635561da1bae6d308c5b16"
+      }
+    },
+    {
+      "id": "queue_loss",
+      "deadline_ms": 14400000,
+      "evidence": {
+        "path": "queue_loss.json",
+        "sha256": "df3abe243b8979b2edcbde74608e70d986128e14192843d29b638a04ce883814"
+      }
+    },
+    {
+      "id": "discovery_interruption",
+      "deadline_ms": 14400000,
+      "evidence": null
+    },
+    {
+      "id": "database_rollback",
+      "deadline_ms": 14400000,
+      "evidence": null
+    },
+    {
+      "id": "transcript_failure",
+      "deadline_ms": 14400000,
+      "evidence": null
+    },
+    {
+      "id": "auth_revocation",
+      "deadline_ms": 14400000,
+      "evidence": null
+    },
+    {
+      "id": "quota_local_offline",
+      "deadline_ms": 14400000,
+      "evidence": null
+    },
+    {
+      "id": "malformed_ai",
+      "deadline_ms": 14400000,
+      "evidence": null
+    },
+    {
+      "id": "model_prompt_rollback",
+      "deadline_ms": 14400000,
+      "evidence": null
+    },
+    {
+      "id": "drive_consumer_failure",
+      "deadline_ms": 14400000,
+      "evidence": null
+    }
+  ]
+}

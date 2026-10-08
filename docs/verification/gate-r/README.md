@@ -48,3 +48,35 @@ and its typecheck. The first isolated failure drill proves recovery after
 of the crashed candidate's fence, one successful executor out of two contenders,
 one accepted effect and idempotent repeated completion. Its synthetic Core result
 does not qualify transcript fidelity or AI quality.
+
+## Actual isolated D1 drill
+
+`tools/gates/reliability/local-drill.ts --backup <private-backup.json>
+--receipt <verified-redacted-receipt.json>` restores a verified real portable
+backup into a new private local Miniflare D1. The owner binding comes from the
+local environment; no credential or source content is written to evidence.
+The runtime uses the installed Miniflare compatibility converter and the same
+official migration parser as the Workers harness.
+
+Candidate `eb90e2d` produced evidence in
+`89dbb75f-ecd3-44f8-8d10-3553e7631255/`. Lease crash and lost transport PASS:
+zero lost persisted jobs, duplicate accepted effects and stale writes; original
+origins preserved, one winner out of two executors and idempotent completion.
+A separate authorized CLI evaluation verified the on-disk reference hashes and
+candidate pins: overall NOT_RUN because eight other cases remain unobserved.
+The synthetic Core result does not qualify source fidelity or AI quality.
+Targeted Workers recovery regression: 1 test PASS. Scoped tool lint/typecheck PASS.
+No production mutation, AI/source provider request or paid request occurred.
+
+Historical local failures, preserved without replacing their output:
+
+- Initial constructor rejected legacy options in Miniflare 5 before injections.
+  Root cause: harness API compatibility. Fixed using its exported official
+  compatibility converter.
+- `ed5a2c84-f134-4a3c-ba02-c87bea0c470a/` exercised the mechanisms but the
+  strict evaluator rejected extra `file_count` and a colon in the isolated ID.
+  Those receipts are NOT QUALIFIED. Fixed the serializer, retaining strict
+  acceptance and rerunning the isolated drill on the corrected pinned candidate.
+- `independent-report.json` in the successful drill directory records FAIL from
+  sandbox `spawnSync git EPERM`, before evidence qualification. Authorized
+  read-only retest is `authorized-independent-report.json`: NOT_RUN, two PASS.

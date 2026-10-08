@@ -1,0 +1,9 @@
+{
+  "version": "GateRReport/1.0",
+  "gate": "R",
+  "status": "FAIL",
+  "reason": "INVALID_RECOVERY_EVIDENCE",
+  "provider_requests_performed": false,
+  "automatic_activation": false,
+  "global_release_approved": false
+}

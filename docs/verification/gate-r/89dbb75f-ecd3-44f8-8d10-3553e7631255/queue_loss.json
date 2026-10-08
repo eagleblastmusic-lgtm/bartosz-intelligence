@@ -1,0 +1,16 @@
+{
+  "version": "GateRCase/1.0",
+  "case_id": "queue_loss",
+  "configuration_sha256": "6e0c68f256b76ebd29f7e198bc14b2f669310d3c51b37a4d012b864bce01ad0a",
+  "baseline_sha256": "e1cd5bc736fcc82f9d0c88dc7d914ed8d396575f87a553208f865a9c8b7ce676",
+  "kind": "ACTUAL_LOCAL_D1",
+  "observed_at": "2026-10-08T22:41:14.590Z",
+  "result": "PASS",
+  "lost_jobs": 0,
+  "duplicate_effects": 0,
+  "stale_writes": 0,
+  "origins_preserved": true,
+  "recovered": true,
+  "paid_requests": 0,
+  "recovery_elapsed_ms": 747
+}

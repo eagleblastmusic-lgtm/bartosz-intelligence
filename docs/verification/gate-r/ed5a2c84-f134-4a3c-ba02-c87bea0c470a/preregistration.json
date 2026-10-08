@@ -1,0 +1,11 @@
+{
+  "version": "LocalD1RecoveryDrill/1.0",
+  "cases": [
+    "lease_crash",
+    "queue_loss"
+  ],
+  "deadline_ms": 14400000,
+  "provider_requests": 0,
+  "synthetic_result": true,
+  "logical_transport_outage_hours": 26
+}
