@@ -147,12 +147,26 @@ Local configuration and the existing free Worker were updated accordingly:
 deployment `a7878172-209b-4565-866b-4ca433d2aa08`, receipt
 `docs/verification/deployment/2026-10-08T19-29-39.381Z.json`.
 This is an owner-confirmed setting, not independently inspected brand approval.
-The previously stored connection still reports TESTING until new offline consent
-completes. Never relabel its publishing_state through administrative SQL or a
+The previously stored connection reported TESTING until new offline consent
+completed. Never relabel its publishing_state through administrative SQL or a
 refresh alone. Reconnect on the existing connection, then verify and confirm
 the existing root; do not create another folder. A new consent preserves mappings
-and sets the retained root to VERIFY_REQUIRED. Actual Production grant renewal
-remains pending that owner interaction.
+and sets the retained root to VERIFY_REQUIRED.
+
+The owner subsequently reconnected and reconfirmed the existing root. Actual
+Production grant verification passed:
+`docs/verification/drive/production-grant-renewal.json`, with export receipt
+`docs/verification/drive/6cd6d9de-1314-4e9f-a3ce-e23f61acc8a3.json`.
+The consumed OAuth intent postdates the Production configuration deployment.
+D1 reports PRODUCTION / CONNECTED / VERIFIED and the encrypted grant is present.
+An independent administrative process loaded and decrypted that durable grant,
+successfully renewed it at Google's token endpoint, executed the existing
+Daily exporter and independently matched the remote content hash. The same
+preexisting file/revision 4 was retained with NO_MATERIAL_CHANGE and one mapped
+Daily file. No credentials were recorded. Automatic exports remain disabled.
+This proves persistence and actual renewal now, not indefinite authorization
+or a mature multi-day observation. The entire D-export gate remains unqualified
+until its remaining cases and human quality review are evidenced.
 
 The first configuration write was denied by local sandbox permissions. Deployment
 `575fc785-1341-48f0-882d-478228ec7485` therefore used the previous prepared

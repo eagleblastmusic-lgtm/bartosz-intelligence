@@ -1,0 +1,19 @@
+{
+  "version": "DriveLiveExport/1.0",
+  "trial_id": "6cd6d9de-1314-4e9f-a3ce-e23f61acc8a3",
+  "publication_date": "2026-10-02",
+  "root_id": "1rn_5auxY_8HAeADc1RgGKQ6h9JimD7WM",
+  "automatic_exports_enabled": false,
+  "paid_services_enabled": false,
+  "basis": "ACTUAL_PROVIDER",
+  "token_renewal_verified": true,
+  "status": "PASS",
+  "artifact_id": "5577b011c859e3f10d948d2c003e298b4bf174d926d1c38187209eae30afe770",
+  "file_id": "1WFfdndxp0GJAqKgybSZf1_Opt4yvzAnQ",
+  "revision": 4,
+  "content_hash": "791e6c05afa7d3d8feb5ddcbfeddc794b6ea2337e3ef9972d785db3448782b8b",
+  "remote_version": "6",
+  "disposition": "NO_MATERIAL_CHANGE",
+  "independent_readback_verified": true,
+  "sampled_at": "2026-10-08T19:33:47.699Z"
+}
