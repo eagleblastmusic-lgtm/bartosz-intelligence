@@ -8,5 +8,10 @@
     ],
     "lib": ["ES2023"]
   },
-  "include": ["./**/*.ts", "../../apps/api/src/**/*.ts"]
+  "include": [
+    "./**/*.ts",
+    "../failure/**/*.ts",
+    "../security/**/*.ts",
+    "../../apps/api/src/**/*.ts"
+  ]
 }

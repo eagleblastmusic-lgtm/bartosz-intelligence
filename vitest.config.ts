@@ -27,7 +27,14 @@ export default defineConfig({
             miniflare: { bindings: { CORE_MIGRATIONS: coreMigrations } },
           }),
         ],
-        test: { name: 'workers', include: ['tests/workers/**/*.spec.ts'] },
+        test: {
+          name: 'workers',
+          include: [
+            'tests/workers/**/*.spec.ts',
+            'tests/failure/**/*.spec.ts',
+            'tests/security/**/*.spec.ts',
+          ],
+        },
       },
     ],
   },
