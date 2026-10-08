@@ -89,7 +89,12 @@ Do not infer permission to overwrite production from a successful local drill.
 `tools/deployment/install-backup-cadence.ps1` installs the owner-interactive,
 limited-privilege Windows task `Bartosz Intelligence Verified Backup`.
 It checks hourly and at owner logon, runs only when the newest verified copy is
-at least 24 hours old, and catches missed checks when the owner is available.
+at least 22 hours old, and catches missed checks when the owner is available.
+The two-hour margin allows for the hourly check and bounded backup/restore
+execution before the 24-hour RPO target. Age uses the consistent-cut timestamp,
+not the later verification completion. Older receipts without a capture timestamp
+use completion minus total drill duration conservatively; receipts lacking both
+cannot qualify freshness.
 `-Check` inspects registration; `-Remove` unregisters only this task and preserves
 all existing copies. The launcher also supports `-Check` without mutations.
 
@@ -104,8 +109,15 @@ deleted automatically; monitor disk space and preserve validated recovery copies
 
 Actual installation and read-only verification passed. The existing verified
 copy matched its hash and was FRESH, so no redundant backup/barrier ran.
-Three targeted cadence tests passed, as did tools typecheck, scoped lint and
-both PowerShell parser checks. A full due scheduler execution remains NOT_RUN;
+Four targeted cadence tests passed after the capture-age/margin correction.
+Together with bounded backup recovery regressions, 12 tests passed; tools
+typecheck, scoped lint and the changed PowerShell parser check passed.
+Actual private-copy verification returned FRESH with conservative capture time
+2026-10-08T18:33:29.275Z; no redundant production backup was started.
+Read-only Task Scheduler inspection observed an hourly invocation on
+2026-10-08 at 23:05:05 UTC with exit code 0 and no missed runs. This proves the
+launcher executed, not that a new backup was due or captured.
+A full due scheduler execution remains NOT_RUN;
 the existing backup/restore acceptance is reused, not relabeled as a scheduled run.
 This task requires this computer, the signed-in owner and valid Cloudflare
 authorization. It cannot guarantee a 24-hour RPO while the machine is offline.

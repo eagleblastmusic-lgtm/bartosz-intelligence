@@ -22,4 +22,4 @@ $taskTriggers = @((New-ScheduledTaskTrigger -AtLogOn -User $taskUser), (New-Sche
 $taskPrincipal = New-ScheduledTaskPrincipal -UserId $taskUser -LogonType Interactive -RunLevel Limited
 $taskSettings = New-ScheduledTaskSettingsSet -MultipleInstances IgnoreNew -StartWhenAvailable -ExecutionTimeLimit ([TimeSpan]::FromMinutes(20)) -AllowStartIfOnBatteries -DontStopIfGoingOnBatteries
 Register-ScheduledTask -TaskName $taskName -Action $taskAction -Trigger $taskTriggers -Principal $taskPrincipal -Settings $taskSettings -Description 'Check verified backup freshness hourly and at owner logon; run existing private backup and restore verification when due. No AI or billing.' -Force | Out-Null
-@{backup_task_registered=$true;check_cadence='HOURLY_AND_OWNER_LOGON';backup_due_after_hours=24;secret_values_recorded=$false} | ConvertTo-Json -Compress
+@{backup_task_registered=$true;check_cadence='HOURLY_AND_OWNER_LOGON';backup_due_after_hours=22;secret_values_recorded=$false} | ConvertTo-Json -Compress

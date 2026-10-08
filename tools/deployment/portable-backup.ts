@@ -156,6 +156,7 @@ try {
   const receipt = {
     version: 'portable-backup-drill:1',
     recorded_at: new Date().toISOString(),
+    captured_at: manifest.created_at,
     backup_id: backupId,
     format_version: 2,
     backup_sha256: digest(copied),
