@@ -4,6 +4,15 @@ export interface SystemSummary {
   sampled_at: string;
   paid_services_enabled: false;
   ai_profile: string;
+  pipeline_capabilities?: {
+    profile_id: string;
+    adapter_available: boolean;
+    state: 'AVAILABLE' | 'UNQUALIFIED' | 'DISABLED';
+    execution_locations: ('local' | 'cloud')[];
+    quality_gate: 'AI' | '0B';
+    gate_state: 'PASS' | 'NOT_RUN';
+    allowance_remaining: null;
+  }[];
   transcript_runtime: string;
   daily_exports?: DailyExportStatus;
   workers: {

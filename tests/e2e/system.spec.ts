@@ -10,6 +10,17 @@ test('System preserves unknown capacity, stale quota, failed age and incomplete 
     sampled_at: '2026-10-06T12:00:00Z',
     paid_services_enabled: false,
     ai_profile: 'gemini_free',
+    pipeline_capabilities: [
+      {
+        profile_id: 'codex_subscription',
+        adapter_available: false,
+        state: 'DISABLED',
+        execution_locations: [],
+        quality_gate: '0B',
+        gate_state: 'NOT_RUN',
+        allowance_remaining: null,
+      },
+    ],
     transcript_runtime: 'local',
     daily_exports: undefined as DailyExportStatus | undefined,
     workers: [
@@ -86,6 +97,21 @@ test('System preserves unknown capacity, stale quota, failed age and incomplete 
     });
   });
   await page.goto(origin + '/system');
+  const inactive = page
+    .locator('section')
+    .filter({
+      has: page.getByRole('heading', {
+        name: 'Nieaktywne pipeline',
+        exact: true,
+      }),
+    });
+  await expect(inactive).toContainText('Codex Subscription');
+  await expect(inactive).toContainText(
+    'Wyłączony — brak adaptera i aktywacji.',
+  );
+  await expect(inactive).toContainText('Gate 0B: Nie wykonano');
+  await expect(inactive).toContainText('Pozostały allowance: nieodczytano.');
+  await expect(inactive.locator('[role="alert"]')).toHaveCount(0);
   await expect(page.getByText(/bieżąca wartość nieznana/)).toBeVisible();
   await expect(
     page.getByText('Gemini Free', { exact: true }).first(),

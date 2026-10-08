@@ -76,6 +76,35 @@ export function System() {
               <dd>Wyłączone</dd>
             </dl>
           </section>
+          {data.pipeline_capabilities && (
+            <section className="panel">
+              <h2>Nieaktywne pipeline</h2>
+              <ul>
+                {data.pipeline_capabilities.map((capability) => (
+                  <li key={capability.profile_id}>
+                    {capability.profile_id === 'gemini_free'
+                      ? 'Gemini Free'
+                      : 'Codex Subscription'}{' '}
+                    ·{' '}
+                    {capability.state === 'DISABLED'
+                      ? 'Wyłączony — brak adaptera i aktywacji.'
+                      : capability.state === 'UNQUALIFIED'
+                        ? 'Adapter dostępny; kwalifikacja produkcyjna oczekuje na dowody.'
+                        : 'Profil zakwalifikowany; wykonanie wymaga aktualnego admission.'}{' '}
+                    Gate {capability.quality_gate}:{' '}
+                    {capability.gate_state === 'PASS' ? 'PASS' : 'Nie wykonano'}
+                    .
+                    {capability.allowance_remaining === null &&
+                      ' Pozostały allowance: nieodczytano.'}
+                  </li>
+                ))}
+              </ul>
+              <p className="muted">
+                Włączone adaptery i miejsce wykonania są niezależne od profilu
+                AI. Wyłączony komponent nie stanowi rezerwowej pojemności.
+              </p>
+            </section>
+          )}
           <section className="panel">
             <h2>Lokalny executor</h2>
             {data.workers.length === 0 ? (

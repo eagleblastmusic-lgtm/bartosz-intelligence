@@ -132,6 +132,17 @@ systemApp.get('/summary', async (c) => {
     transcript_runtime: 'local',
     daily_exports: dailyExports,
     ai_profile: 'gemini_free',
+    pipeline_capabilities: [
+      {
+        profile_id: 'codex_subscription',
+        adapter_available: false,
+        state: 'DISABLED',
+        execution_locations: [],
+        quality_gate: '0B',
+        gate_state: 'NOT_RUN',
+        allowance_remaining: null,
+      },
+    ],
     pipeline_profiles: await Promise.all(
       models.results.map(async (row) => {
         if ((await sha256(row.snapshot_json)) !== row.content_hash)

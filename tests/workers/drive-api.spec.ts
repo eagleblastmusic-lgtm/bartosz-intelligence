@@ -119,6 +119,17 @@ it('export status is owner scoped and readonly; mode intent requires CSRF, integ
       days: [{ date: '2026-10-05', remote_revision: 0 }],
     },
     paid_services_enabled: false,
+    pipeline_capabilities: [
+      {
+        profile_id: 'codex_subscription',
+        adapter_available: false,
+        state: 'DISABLED',
+        execution_locations: [],
+        quality_gate: '0B',
+        gate_state: 'NOT_RUN',
+        allowance_remaining: null,
+      },
+    ],
   });
   expect(
     (await exportStatus(env.DB, await fixtureOwner('b'), new Date())).days,
