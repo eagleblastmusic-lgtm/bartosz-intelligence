@@ -14,6 +14,7 @@ import { LongInputCompletion } from '../../../../packages/core/src/ai/long-input
 import { apiRouter, body, text, queryFields } from './common.js';
 import { CapacityCollection } from '../../../../packages/core/src/projections/capacity-collection.js';
 import { SearchIndex } from '../../../../packages/core/src/knowledge/search-index.js';
+import { completeProjectionJob } from '../../../../packages/core/src/knowledge/projection-jobs.js';
 import { taskTypes } from '../../../../packages/contracts/src/jobs.js';
 import type {
   LeaseToken,
@@ -183,9 +184,18 @@ workersApp.post('/optional/complete', async (c) => {
 });
 workersApp.post('/search/step', async (c) => {
   await body(c, []);
-  return c.json(
-    await new SearchIndex(c.env.DB, c.get('access')).step(new Date()),
+  const result = await new SearchIndex(c.env.DB, c.get('access')).step(
+    new Date(),
   );
+  const projection =
+    result.phase === 'COMPLETE'
+      ? await completeProjectionJob(c.env.DB, c.get('access'), new Date())
+      : { completed: false };
+  return c.json({
+    ...result,
+    progressed: result.progressed || projection.completed,
+    projection_completed: projection.completed,
+  });
 });
 workersApp.get('/capacity-observation', async (c) => {
   queryFields(c, ['limit', 'cursor']);

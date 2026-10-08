@@ -36,3 +36,17 @@ SIGINT/SIGTERM stop further pulls and immediately interrupt the idle/backoff tim
 To run all configured services that do not call AI providers, replace `run-local.ts` with `run-services.ts` in the command above. It starts transcript, source correction and search only when their scoped credentials are configured. All configurations are checked before any child starts. Each child receives its own worker credential and the operating-system environment needed by its runtime; OAuth, Cloudflare and Gemini secrets are excluded. Child output is suppressed and the supervisor emits fixed lifecycle events.
 
 A crashed child restarts after 30/60/120 seconds, with one child per service. Continuous authentication denial exits with code 78 and stops that service; `--once` retains failure code 1. Other services continue independently. Supervisor shutdown requests termination and enforces a 30-second kill bound. On Windows, process termination can be immediate; durable leases and fencing recover interrupted work. The supervisor does not start Gemini modes or install a scheduled task.
+
+After the search index reaches a fresh COMPLETE cut, each search step completes
+at most one existing due PROJECT intent for an accepted source/result. It uses
+the scoped PROJECT identity, lease and fencing token; the final atomic write
+rechecks current content changes, source acceptance and worker revocation.
+Completion does not create another analysis run or recursively enqueue PROJECT.
+A concurrent content change leaves the attempt unaccepted; ordinary lease
+expiry/recovery and a fresh index allow retry. No provider call is involved.
+
+Projection regression verification: 14 tests passed across projection jobs,
+search, core recovery and outbox. The first race harness incorrectly injected
+revocation before leasing (observed PENDING instead of RUNNING); it was corrected
+to inject immediately before the final commit. Both content-change and revoked
+worker races now reject completion, and expiry/rebuild recovery is verified.
