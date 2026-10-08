@@ -30,3 +30,14 @@ has precedence. The command cannot create a global release approval by merely
 being listed or run without actual receipts. No completed release is currently
 claimed. Evaluator and related Gate R regressions: 23 tests passed; scoped lint
 and tools typecheck passed.
+
+An actual clean archive installation of commit `95902f3` is recorded in
+`docs/verification/release/clean-install-95902f3.json`: pinned Node/pnpm,
+offline frozen lockfile installation (212 reused packages, zero downloads),
+web/Worker dry-run/library builds, all typecheck projects, free configuration,
+35 fresh migrations and independent empty restore passed. It contained no
+`.env`, previous dependencies or production data. Local store-lock permissions
+and esbuild spawn restrictions failed initially and passed after authorized
+execution; those failures are retained in the receipt. This verifies the build
+and database bootstrap, not a new owner's live Google onboarding or the full
+publication-to-accepted-AI-to-Drive release workflow. No release PASS is inferred.

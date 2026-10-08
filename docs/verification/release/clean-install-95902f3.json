@@ -1,0 +1,45 @@
+{
+  "version": "CleanInstallVerification/1.0",
+  "basis": "ACTUAL_LOCAL",
+  "commit": "95902f396faebc77101e017dfa867da5a3a3db88",
+  "node": "24.21.0",
+  "pnpm": "12.9.1",
+  "lockfile_sha256": "27ae6360e1b410dfd465575dd89b0fd4d766f967e450bfa77e0be38935c938ef",
+  "migration_ledger_sha256": "90e652be8c0057af1ffacf8ca6bd0a5b1183f74466120392f3c6120baa1f886b",
+  "source": "git archive HEAD into new ignored local directory",
+  "env_file_present": false,
+  "initial_node_modules_present": false,
+  "install": "PASS",
+  "install_mode": "frozen-lockfile offline",
+  "packages_reused": 212,
+  "packages_downloaded": 0,
+  "build": "PASS",
+  "worker_build": "DRY_RUN_ONLY",
+  "typecheck": "PASS",
+  "configuration": "PASS",
+  "paid_services_enabled": false,
+  "migrations": {
+    "count": 35,
+    "fresh_install": "PASS",
+    "independent_empty_restore": "PASS",
+    "integrity_check": "PASS",
+    "foreign_key_check": "PASS"
+  },
+  "historical_local_failures": [
+    {
+      "check": "install",
+      "reason": "PNPM_STORE_LOCK_ACCESS_DENIED",
+      "recovery": "authorized execution with local store access",
+      "retest": "PASS"
+    },
+    {
+      "check": "configuration",
+      "reason": "ESBUILD_SPAWN_EPERM",
+      "recovery": "authorized execution of local esbuild process",
+      "retest": "PASS"
+    }
+  ],
+  "owner_first_login": "NOT_RUN",
+  "publication_to_accepted_ai_to_drive": "NOT_RUN",
+  "global_release_qualified": false
+}
