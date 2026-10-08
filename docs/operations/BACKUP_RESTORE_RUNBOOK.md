@@ -52,13 +52,39 @@ Do not infer permission to overwrite production from a successful local drill.
 
 ## Qualification boundaries
 
+### Local automatic cadence
+
+`tools/deployment/install-backup-cadence.ps1` installs the owner-interactive,
+limited-privilege Windows task `Bartosz Intelligence Verified Backup`.
+It checks hourly and at owner logon, runs only when the newest verified copy is
+at least 24 hours old, and catches missed checks when the owner is available.
+`-Check` inspects registration; `-Remove` unregisters only this task and preserves
+all existing copies. The launcher also supports `-Check` without mutations.
+
+Freshness requires a successful private readback, independent SQLite restore,
+integrity/FK checks, a nonfuture receipt timestamp, and an existing private file
+whose SHA-256 matches the receipt. A failed, incomplete, missing or corrupted
+copy cannot postpone backup. The runner reuses the existing portable backup
+and restore implementation; it never forwards child diagnostics or private data.
+Exclusive task scheduling and a local process mutex prevent overlapping cadence
+runs. Failed attempts remain due and can retry at the next check. Nothing is
+deleted automatically; monitor disk space and preserve validated recovery copies.
+
+Actual installation and read-only verification passed. The existing verified
+copy matched its hash and was FRESH, so no redundant backup/barrier ran.
+Three targeted cadence tests passed, as did tools typecheck, scoped lint and
+both PowerShell parser checks. A full due scheduler execution remains NOT_RUN;
+the existing backup/restore acceptance is reused, not relabeled as a scheduled run.
+This task requires this computer, the signed-in owner and valid Cloudflare
+authorization. It cannot guarantee a 24-hour RPO while the machine is offline.
+
 A copy on this computer is not an independently verified medium. Keep Drive wrapping
 key recovery separate according to `DRIVE_OFFLINE_AUTH.md`; key recovery does not
 replace a canonical database copy. Actual Drive token recovery needs a completed
 offline grant and its separate test.
 
 The administrative D1 REST drill does not measure Worker CPU. A production-size
-Worker path, independent-medium recovery, automated 24-hour backup cadence and
+Worker path, independent-medium recovery, observed automatic backup execution and
 full outage RPO/RTO remain separate qualification work. RPO 24 h and RTO 4 h are
 targets, not achieved SLA. Gate C maturity and Gemini quality acceptance are also
 independent of a passing backup integrity check.
