@@ -152,7 +152,7 @@ try {
   // simulates transport expiry; actual database leases/fences are exercised.
   save('preregistration.json', {
     version: 'LocalD1RecoveryDrill/1.0',
-    cases: ['lease_crash', 'queue_loss'],
+    cases: ['lease_crash', 'queue_loss', 'database_rollback'],
     deadline_ms: 14400000,
     provider_requests: 0,
     synthetic_result: true,
@@ -254,6 +254,47 @@ try {
   }
   const runs = new RunRepository(db, contexts[winner]!);
   await runs.prepare('drill-recovered', job.job_id, now.toISOString());
+  // Fail after the commit guard and accepted-run update inside the actual D1
+  // transaction. A subsequent valid completion must recover without leftovers.
+  const interrupted = new RunRepository(
+    {
+      prepare: db.prepare.bind(db),
+      batch: (statements) =>
+        db.batch([
+          ...statements.slice(0, 2),
+          db.prepare('INSERT INTO isolated_drill_missing_table VALUES(1)'),
+          ...statements.slice(2),
+        ]),
+    },
+    contexts[winner]!,
+  );
+  let transactionRejected = false;
+  try {
+    await interrupted.complete(
+      token,
+      'FETCH_TRANSCRIPT',
+      'drill-recovered',
+      hash,
+      outcome,
+      null,
+      now,
+    );
+  } catch {
+    transactionRejected = true;
+  }
+  const rollbackVerified =
+    transactionRejected &&
+    (await stores[winner]!.get(job.job_id))?.state === 'RUNNING' &&
+    (await db
+      .prepare('SELECT state FROM analysis_runs WHERE run_id=?')
+      .bind('drill-recovered')
+      .first<string>('state')) === 'CANDIDATE' &&
+    (await db
+      .prepare(
+        'SELECT commit_nonce FROM job_attempts WHERE job_id=? AND fencing_token=?',
+      )
+      .bind(job.job_id, token.fencing_token)
+      .first<string>('commit_nonce')) === null;
   const accepted = await runs.complete(
     token,
     'FETCH_TRANSCRIPT',
@@ -285,6 +326,7 @@ try {
     .bind(job.job_id)
     .first<number>('n');
   const pass =
+    rollbackVerified &&
     staleRejected &&
     accepted.accepted &&
     repeated.duplicate &&
@@ -296,7 +338,7 @@ try {
   const rows: GateRManifest['cases'] = [];
   for (const caseId of recoveryCases) {
     let evidence = null;
-    if (['lease_crash', 'queue_loss'].includes(caseId))
+    if (['lease_crash', 'queue_loss', 'database_rollback'].includes(caseId))
       evidence = save(caseId + '.json', {
         version: 'GateRCase/1.0',
         case_id: caseId,
