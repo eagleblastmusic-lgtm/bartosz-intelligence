@@ -1,0 +1,9 @@
+{
+  "status": "FAIL",
+  "trial_id": "e8afcf7f-1b83-4d2b-ba7f-0a21bb12b8a8",
+  "phase": "INTENT",
+  "reason": "LOCAL_OR_TRANSPORT_FAILURE",
+  "http_status": null,
+  "automatic_updates_enabled": false,
+  "sampled_at": "2026-10-08T12:57:01.287Z"
+}

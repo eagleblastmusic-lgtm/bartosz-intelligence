@@ -88,7 +88,8 @@ try {
   const reservedId = await client.reserveId();
   const nonce = await sha256(randomToken());
   const scopeHash = await sha256(JSON.stringify([connectionId, rootId]));
-  intentId = 'drive-guard-probe:' + scopeHash + ':' + trialId;
+  const proposedIntentId = 'drive-guard-probe:' + scopeHash + ':' + trialId;
+  const scopePrefix = 'drive-guard-probe:' + scopeHash + ':';
   const payload = JSON.stringify({
     version: 'drive-guard-probe-intent:1',
     connection_id: connectionId,
@@ -102,20 +103,22 @@ try {
   const inserted = await db
     .prepare(
       `INSERT INTO config_versions(config_id,owner_id,revision,payload_json,content_hash,created_at)
-    SELECT ?,?,1,?,?,? WHERE (SELECT count(*) FROM config_versions WHERE owner_id=? AND config_id LIKE ? AND revision=1)<3`,
+    SELECT ?,?,1,?,?,? WHERE (SELECT count(*) FROM config_versions WHERE owner_id=? AND substr(config_id,1,length(?))=? AND revision=1)<3`,
     )
     .bind(
-      intentId,
+      proposedIntentId,
       ownerId,
       payload,
       await sha256(payload),
       new Date().toISOString(),
       ownerId,
-      'drive-guard-probe:' + scopeHash + ':%',
+      scopePrefix,
+      scopePrefix,
     )
     .run();
   if (inserted.meta.changes !== 1)
     throw new Error('BOUNDED_TRIAL_BUDGET_EXHAUSTED');
+  intentId = proposedIntentId;
   phase = 'PROBE';
   const proof = await client.probeMarkdownGuard({
     reserved_id: reservedId,

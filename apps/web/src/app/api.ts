@@ -110,6 +110,8 @@ export function errorMessage(error: unknown) {
       return 'Podaj publiczny kanał YouTube: adres, @handle lub identyfikator kanału.';
     if (error.status === 409 && error.code === 'READ_SNAPSHOT_CHANGED')
       return 'Dane zmieniły się podczas przeglądania. Odśwież widok.';
+    if (error.status === 409 && error.code === 'REVISION_CONFLICT')
+      return 'Stan połączenia zmienił się od ostatniego odczytu. Odświeżono dane; spróbuj ponownie.';
     if (error.status === 403) return 'Brak dostępu do tej operacji.';
     if (error.status === 429 || error.status === 503)
       return `Operacja chwilowo niedostępna. Możesz spróbować ponownie. (${error.code})`;

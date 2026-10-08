@@ -21,6 +21,7 @@ test('Drive settings disclose unavailable export, preserve escaped private mappi
   });
   let authenticated = true,
     statusCalls = 0;
+  let createCalls = 0;
   const exports: DailyExportStatus = {
     automatic_updates_qualified: false,
     truncated: false,
@@ -123,12 +124,21 @@ test('Drive settings disclose unavailable export, preserve escaped private mappi
       });
     }
     if (path === '/api/v1/connections/drive/root/create') {
+      createCalls++;
+      if (createCalls === 1) {
+        expect(route.request().postDataJSON().expected_revision).toBe(2);
+        status.connections[0]!.revision = 3;
+        return route.fulfill({
+          status: 409,
+          json: { code: 'REVISION_CONFLICT' },
+        });
+      }
       expect(route.request().postDataJSON()).toEqual({
         connection_id: 'private-drive',
         name: 'Daily',
-        expected_revision: 2,
+        expected_revision: 3,
       });
-      status.connections[0]!.revision = 3;
+      status.connections[0]!.revision = 4;
       return route.fulfill({
         json: {
           requested_root_id: 'created-private-root',
@@ -218,6 +228,14 @@ test('Drive settings disclose unavailable export, preserve escaped private mappi
   ).toBeVisible();
   expect(await page.locator('main img').count()).toBe(0);
   expect((await new AxeBuilder({ page }).analyze()).violations).toEqual([]);
+  await page
+    .getByRole('button', { name: 'Utwórz prywatny folder', exact: true })
+    .click();
+  await expect(
+    page.getByRole('alert').filter({ hasText: 'Stan połączenia zmienił się' }),
+  ).toBeVisible();
+  await expect.poll(() => statusCalls).toBeGreaterThanOrEqual(5);
+  expect(createCalls).toBe(1);
   await page
     .getByRole('button', { name: 'Utwórz prywatny folder', exact: true })
     .click();

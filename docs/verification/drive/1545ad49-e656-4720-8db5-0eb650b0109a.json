@@ -1,0 +1,9 @@
+{
+  "status": "FAIL",
+  "trial_id": "1545ad49-e656-4720-8db5-0eb650b0109a",
+  "phase": "PROBE",
+  "reason": "UNQUALIFIED_UPDATE",
+  "http_status": null,
+  "automatic_updates_enabled": false,
+  "sampled_at": "2026-10-08T12:58:37.621Z"
+}

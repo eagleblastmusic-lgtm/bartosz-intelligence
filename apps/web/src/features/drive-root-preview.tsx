@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { api, errorMessage } from '../app/api.js';
+import { api, ApiError, errorMessage } from '../app/api.js';
 import type { DriveRootPreview as Preview } from '../../../../packages/core/src/drive/root.js';
 type RootPreview = Preview & {
   created_candidate?: boolean;
@@ -22,6 +22,15 @@ export function DriveRootPreview({
     [preview, setPreview] = useState<RootPreview | null>(null),
     [busy, setBusy] = useState(false),
     [error, setError] = useState('');
+  function failed(error: unknown) {
+    setError(errorMessage(error));
+    if (
+      error instanceof ApiError &&
+      error.status === 409 &&
+      error.code === 'REVISION_CONFLICT'
+    )
+      changed();
+  }
   return (
     <section aria-labelledby={'root-heading-' + connectionId}>
       <h4 id={'root-heading-' + connectionId}>Sprawdź wskazany folder Daily</h4>
@@ -46,7 +55,7 @@ export function DriveRootPreview({
               setRoot(value.requested_root_id);
               changed();
             })
-            .catch((error) => setError(errorMessage(error)))
+            .catch(failed)
             .finally(() => setBusy(false));
         }}
       >
@@ -82,7 +91,7 @@ export function DriveRootPreview({
               setPreview(value);
               changed();
             })
-            .catch((error) => setError(errorMessage(error)))
+            .catch(failed)
             .finally(() => setBusy(false));
         }}
       >
