@@ -11,6 +11,39 @@ import { fixtureOwner, fixtureNow } from './core-fixture.js';
 import { DriveExportIdentity } from '../../packages/core/src/drive/identity.js';
 import { exportStatus } from '../../packages/core/src/export/status.js';
 beforeEach(resetCore);
+it('requires the current verified root for old export mappings without altering their durable identity', async () => {
+  const access = await fixtureOwner();
+  await env.DB.prepare(
+    `INSERT INTO drive_connections(owner_id,connection_id,account_subject,client_id,scopes_json,auth_state,root_id,root_state,revision,last_intent_hash,created_at,updated_at) VALUES('a','export','private-subject','client','[]','CONNECTED','root','VERIFIED',1,'receipt',?,?)`,
+  )
+    .bind(fixtureNow.toISOString(), fixtureNow.toISOString())
+    .run();
+  await new DriveExportIdentity(env.DB, access).ensure(
+    'export',
+    'root',
+    '2026-10-05',
+    fixtureNow,
+  );
+  expect(
+    (await exportStatus(env.DB, access, fixtureNow)).days[0]!.queue_state,
+  ).toBe('WAITING');
+  await env.DB.prepare(
+    "UPDATE drive_connections SET root_id='new-root' WHERE owner_id='a'",
+  ).run();
+  const status = await exportStatus(env.DB, access, fixtureNow);
+  expect(status.days[0]).toMatchObject({
+    root_id: 'root',
+    queue_state: 'ROOT_REQUIRED',
+    remote_revision: 0,
+  });
+  expect(JSON.stringify(status)).not.toContain('new-root');
+  await env.DB.prepare(
+    "UPDATE drive_connections SET root_id=NULL WHERE owner_id='a'",
+  ).run();
+  expect(
+    (await exportStatus(env.DB, access, fixtureNow)).days[0]!.queue_state,
+  ).toBe('ROOT_REQUIRED');
+});
 it('bounds status to fifty actual destinations and uses the covering receipt index', async () => {
   const access = await fixtureOwner();
   await env.DB.prepare(
