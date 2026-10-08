@@ -1,0 +1,42 @@
+{
+  "version": "SecurityCheckpoint/1.0",
+  "candidate_commit": "b957fe0",
+  "basis": "ACTUAL_LOCAL_EXECUTION",
+  "worker_unit_tests": {
+    "files": [
+      "tests/workers/core-migrations.spec.ts",
+      "tests/workers/auth-api.spec.ts",
+      "tests/workers/drive-api.spec.ts",
+      "tests/workers/control-queue.spec.ts",
+      "tests/unit/source-resolver.spec.ts",
+      "tests/unit/rss.spec.ts",
+      "tests/unit/release-secrets.spec.ts",
+      "tests/unit/bounded-text.spec.ts"
+    ],
+    "passed": 34,
+    "failed": 0
+  },
+  "chromium_e2e": {
+    "files": [
+      "tests/e2e/item-detail.spec.ts",
+      "tests/e2e/core-onboarding.spec.ts",
+      "tests/e2e/knowledge-search.spec.ts"
+    ],
+    "passed": 5,
+    "failed": 0,
+    "api_data": "ISOLATED_FIXTURES",
+    "actual_google_login": false,
+    "actual_ai_quality": false
+  },
+  "public_bundle_secret_scan": {
+    "status": "PASS",
+    "files_scanned": 4,
+    "bytes_scanned": 409413,
+    "findings": [],
+    "secret_values_recorded": false
+  },
+  "scope": "Existing owner/session/CSRF/worker revocation/source byte and URL boundaries; literal hostile content and unsafe links in browser; known local secrets absent from public build",
+  "active_codex_injection_canary": "NOT_APPLICABLE_DISABLED_ADAPTER",
+  "full_security_release_acceptance": "NOT_YET_QUALIFIED",
+  "global_release_qualified": false
+}
