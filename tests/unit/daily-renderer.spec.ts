@@ -14,9 +14,105 @@ import {
 } from '../../packages/core/src/export/renderer.js';
 import type { DailyItemView } from '../../packages/contracts/src/daily.js';
 import { materialReport } from '../../packages/core/src/export/material.js';
+import {
+  verifyDailyRead,
+  type DailyRead,
+} from '../../packages/core/src/export/consumer.js';
 
 const hash = (value: string) =>
   createHash('sha256').update(value).digest('hex');
+it('verifies complete stable consumer reads and rejects gaps, duplicate chunks, mixed versions, missing blocks and forged counts', async () => {
+  const report = await renderDaily(await fixture());
+  const read = (markdown: string): DailyRead => {
+    const bytes = new TextEncoder().encode(markdown);
+    const chunks: DailyRead['chunks'][number][] = [];
+    for (let offset = 0; offset < bytes.length; offset += 127)
+      chunks.push({
+        root_id: 'root',
+        file_id: 'daily',
+        version: '7',
+        offset,
+        bytes: bytes.slice(offset, offset + 127),
+      });
+    return {
+      root_id: 'root',
+      file_id: 'daily',
+      date: report.date,
+      version_before: '7',
+      version_after: '7',
+      chunks,
+    };
+  };
+  const complete = read(report.markdown);
+  await expect(verifyDailyRead(complete)).resolves.toMatchObject({
+    full_read: 'VERIFIED',
+    item_ids: report.item_ids,
+    content_hash: report.content_hash,
+    byte_count: report.byte_count,
+    partial: report.partial,
+    bridge_gate: 'NOT_RUN',
+  });
+  await expect(
+    verifyDailyRead({ ...complete, version_after: '8' }),
+  ).rejects.toThrow('BRIDGE_MIXED_REVISION');
+  await expect(
+    verifyDailyRead({ ...complete, chunks: complete.chunks.slice(1) }),
+  ).rejects.toThrow('BRIDGE_INCOMPLETE_READ');
+  await expect(
+    verifyDailyRead({
+      ...complete,
+      chunks: [complete.chunks[0]!, ...complete.chunks],
+    }),
+  ).rejects.toThrow('BRIDGE_INCOMPLETE_READ');
+  await expect(
+    verifyDailyRead({
+      ...complete,
+      chunks: [
+        { ...complete.chunks[0]!, file_id: 'foreign' },
+        ...complete.chunks.slice(1),
+      ],
+    }),
+  ).rejects.toThrow('BRIDGE_MIXED_REVISION');
+  await expect(
+    verifyDailyRead(read(report.markdown.slice(0, -10))),
+  ).rejects.toThrow('BRIDGE_INCOMPLETE_READ');
+  await expect(
+    verifyDailyRead(
+      read(report.markdown.replace('revision: 1', 'revision: 1\nrevision: 1')),
+    ),
+  ).rejects.toThrow('BRIDGE_PROTOCOL_INVALID');
+  await expect(
+    verifyDailyRead(read(report.markdown.replace('Żółć', 'Zmienione'))),
+  ).rejects.toThrow('BRIDGE_BODY_HASH_MISMATCH');
+  const duplicated = report.markdown.replace(
+    'ITEM ' + report.item_ids[1],
+    'ITEM ' + report.item_ids[0],
+  );
+  const body = duplicated.slice(
+    duplicated.indexOf('\n---\n\n') + 6,
+    duplicated.lastIndexOf('END_REPORT date='),
+  );
+  await expect(
+    verifyDailyRead(
+      read(
+        duplicated.replace(
+          /body_sha256: [a-f0-9]{64}/,
+          'body_sha256: ' + hash(body),
+        ),
+      ),
+    ),
+  ).rejects.toThrow('BRIDGE_COUNT_MISMATCH');
+  const oversizeInput = await fixture();
+  oversizeInput.compact_token_budget = 1;
+  const oversize = await renderDaily(oversizeInput);
+  await expect(verifyDailyRead(read(oversize.markdown))).resolves.toMatchObject(
+    {
+      size_state: 'OVERSIZE',
+      bridge_gate: 'NOT_RUN',
+      semantic_verification: 'NOT_ASSERTED',
+    },
+  );
+});
 it('renders Warsaw time without relabelling UTC and associates FULL units with their canonical Evidence', async () => {
   const input = await fixture(undefined, true);
   input.mode = 'FULL';
