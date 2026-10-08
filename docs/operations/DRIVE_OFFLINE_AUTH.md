@@ -107,8 +107,11 @@ remote conditional method is unqualified. Controlled local transport tests
 cover accepted/unaccepted timeouts and an old executor finishing after lease
 recovery; they do not qualify real Drive concurrency or production export.
 
-These are local identity/recovery guarantees. Actual conditional-update
-concurrency proof and live Drive qualification remain open.
+The exact v2 media PUT conditional method passed actual trial
+`d99d0b0d-4708-4586-9872-3923c55e96eb`: one of two concurrent writers succeeded,
+the other returned 412, and a current-guard write had stable exact readback.
+The immutable receipt qualifies this method for that connection/root. Full
+D-export acceptance and the Testing authorization lifecycle remain open.
 
 On Windows, `tools/deployment/drive-recovery.ts <absolute-private-directory>
 <TESTING|PRODUCTION|INTERNAL>` prepares the owner-selected directory outside the
@@ -129,3 +132,35 @@ silently recreated. Permissions must expose exactly one active user owner;
 shared/public/domain access is rejected. The GUI shows the candidate and fills
 its ID for inspection. Creation does not mark the connection root VERIFIED or
 enable exports; actual child/update qualification remains required.
+
+Root confirmation uses an immutable owner-scoped preview valid for ten minutes.
+The server refreshes OAuth, rechecks private permissions/storage and the exact
+successful guard receipt, and adopts the root with revision CAS. Changing a root
+with existing mappings requires explicit mapping review; old IDs are preserved.
+The durable change cursor resets to replay historical publication dates into
+the selected root. Confirmation alone does not enable the scheduler.
+
+## Unattended export runtime
+
+Migration 034 adds durable retry count, next retry time, pause and failure code.
+`prepare.mjs export-worker` registers only `DRIVE_EXPORT`, persists its private
+credential before the hash, and refuses implicit rotation/recovery mismatches.
+It does not start export. Prepare deployment secrets again after registration.
+`DRIVE_EXPORT_ENABLED` defaults to disabled; activate only for the actual
+qualified release scope after root selection and D-export verification.
+
+Each existing five-minute scheduled tick independently replays at most 100
+change events and attempts one fair due day. It uses the scoped worker identity,
+not an owner browser session. Only accepted verified canonical artifacts are
+read; no AI is invoked. A prepared sealed revision is reused after restart or
+ambiguous HTTP, retaining its exact bytes. Late dirty changes remain queued.
+Credential revocation and elapsed lease are checked before remote writes and
+acceptance. A lost create/update response reconciles the persisted file ID.
+
+Transient failures back off from five minutes to six hours, respect bounded
+Retry-After (maximum one day), and pause after eight failed attempts. Conflicts,
+denied access, invalid metadata and missing committed files pause immediately.
+The owner sees the reason/count/next retry and can explicitly retry a recoverable
+pause using expected settings revision. This never resolves or clears a manual
+edit conflict; conflict resolution requires its separate reviewed workflow.
+Core intake and job scheduling run independently of export failure.

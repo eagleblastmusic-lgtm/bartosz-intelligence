@@ -143,9 +143,15 @@ export class ExportDirtyDays {
     return (
       await this.db
         .prepare(
-          `SELECT root_namespace root_id,publication_date date,dirty_seq,exported_seq,first_dirty_at,last_material_event_at FROM export_state e WHERE owner_id=? AND destination_key GLOB 'drive:*' AND (dirty_seq>exported_seq OR revision=0 OR desired_generation>exported_generation) AND (lease_owner IS NULL OR lease_until<=?) AND (last_material_event_at<=? OR first_dirty_at<=?) AND EXISTS(SELECT 1 FROM drive_connections c WHERE c.owner_id=e.owner_id AND c.connection_id=e.connection_id AND c.auth_state='CONNECTED' AND c.root_state='VERIFIED' AND c.root_id=e.root_namespace) ORDER BY first_dirty_at,publication_date,root_namespace LIMIT 20`,
+          `SELECT root_namespace root_id,publication_date date,dirty_seq,exported_seq,first_dirty_at,last_material_event_at FROM export_state e WHERE owner_id=? AND destination_key GLOB 'drive:*' AND paused_reason IS NULL AND (next_retry_at IS NULL OR next_retry_at<=?) AND (dirty_seq>exported_seq OR revision=0 OR desired_generation>exported_generation) AND (lease_owner IS NULL OR lease_until<=?) AND (last_material_event_at<=? OR first_dirty_at<=?) AND EXISTS(SELECT 1 FROM drive_connections c WHERE c.owner_id=e.owner_id AND c.connection_id=e.connection_id AND c.auth_state='CONNECTED' AND c.root_state='VERIFIED' AND c.root_id=e.root_namespace) ORDER BY first_dirty_at,publication_date,root_namespace LIMIT 20`,
         )
-        .bind(this.context.ownerId, now.toISOString(), debounce, maximum)
+        .bind(
+          this.context.ownerId,
+          now.toISOString(),
+          now.toISOString(),
+          debounce,
+          maximum,
+        )
         .all<{
           root_id: string;
           date: string;

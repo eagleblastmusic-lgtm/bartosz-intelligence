@@ -1,6 +1,7 @@
 import { Hono } from 'hono';
 import { consumeSignals } from './queue.js';
 import { scheduleControlPlane } from './scheduled.js';
+import { scheduleDriveExport } from './drive-export.js';
 import { authApp } from './auth.js';
 import type { Env } from './env.js';
 import { sourcesApp } from './routes/sources.js';
@@ -85,6 +86,9 @@ export default {
         environment.BARTOSZ_QUEUE,
         new Date(controller.scheduledTime),
       ),
+    );
+    context.waitUntil(
+      scheduleDriveExport(environment, new Date(controller.scheduledTime)),
     );
   },
 } satisfies ExportedHandler<Env>;

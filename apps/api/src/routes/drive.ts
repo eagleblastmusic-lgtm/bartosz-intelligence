@@ -79,6 +79,16 @@ driveApp.post('/exports/mode', async (c) => {
     ),
   );
 });
+driveApp.post('/exports/retry', async (c) => {
+  const input = await body(c, ['root_id', 'date', 'expected_revision']);
+  return c.json(
+    await new ExportSettings(c.env.DB, c.get('access')).retry(
+      text(input.root_id, 200),
+      text(input.date, 10),
+      input.expected_revision as number,
+    ),
+  );
+});
 driveApp.post('/root/preview', async (c) => {
   const input = await body(c, [
     'connection_id',

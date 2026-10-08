@@ -18,6 +18,7 @@ const reasons = new Set([
   'DRIVE_TRANSPORT',
   'DRIVE_NOT_FOUND',
   'DRIVE_CONFLICT',
+  'DRIVE_AUTHORIZATION',
 ]);
 export async function exportStatus(
   db: Database,
@@ -30,7 +31,7 @@ export async function exportStatus(
   const rows = (
     await db
       .prepare(
-        `SELECT e.root_namespace root_id,e.publication_date date,e.connection_id,COALESCE(e.desired_mode,e.mode) desired_mode,e.mode remote_mode,e.settings_revision,e.desired_generation,e.exported_generation,e.dirty_seq,e.exported_seq,e.revision remote_revision,e.file_id,a.revision rendered_revision,a.source_change_seq rendered_cut,a.byte_count rendered_bytes,c.auth_state,c.root_state,c.root_id current_root_id,e.lease_until,e.first_dirty_at,e.last_material_event_at,(SELECT MAX(p.updated_at) FROM drive_export_attempts p WHERE p.owner_id=e.owner_id AND p.reserved_remote_id=e.reserved_remote_id AND p.state='VERIFIED') last_verified_at,(SELECT p.reason FROM drive_export_attempts p WHERE p.owner_id=e.owner_id AND p.artifact_id=e.rendered_artifact_id) retry_reason FROM export_state e JOIN drive_connections c ON c.owner_id=e.owner_id AND c.connection_id=e.connection_id LEFT JOIN daily_export_artifacts a ON a.owner_id=e.owner_id AND a.artifact_id=e.rendered_artifact_id AND a.state='SEALED' WHERE e.owner_id=? AND e.destination_key GLOB 'drive:*' ORDER BY e.publication_date DESC,e.root_namespace LIMIT 51`,
+        `SELECT e.root_namespace root_id,e.publication_date date,e.connection_id,COALESCE(e.desired_mode,e.mode) desired_mode,e.mode remote_mode,e.settings_revision,e.retry_count,e.next_retry_at,e.paused_reason,e.desired_generation,e.exported_generation,e.dirty_seq,e.exported_seq,e.revision remote_revision,e.file_id,a.revision rendered_revision,a.source_change_seq rendered_cut,a.byte_count rendered_bytes,c.auth_state,c.root_state,c.root_id current_root_id,e.lease_until,e.first_dirty_at,e.last_material_event_at,(SELECT MAX(p.updated_at) FROM drive_export_attempts p WHERE p.owner_id=e.owner_id AND p.reserved_remote_id=e.reserved_remote_id AND p.state='VERIFIED') last_verified_at,COALESCE(e.last_failure_code,(SELECT p.reason FROM drive_export_attempts p WHERE p.owner_id=e.owner_id AND p.artifact_id=e.rendered_artifact_id)) retry_reason FROM export_state e JOIN drive_connections c ON c.owner_id=e.owner_id AND c.connection_id=e.connection_id LEFT JOIN daily_export_artifacts a ON a.owner_id=e.owner_id AND a.artifact_id=e.rendered_artifact_id AND a.state='SEALED' WHERE e.owner_id=? AND e.destination_key GLOB 'drive:*' ORDER BY e.publication_date DESC,e.root_namespace LIMIT 51`,
       )
       .bind(access.ownerId)
       .all<
@@ -75,13 +76,17 @@ export async function exportStatus(
               ? 'AUTH_REQUIRED'
               : row.root_state !== 'VERIFIED' || current_root_id !== row.root_id
                 ? 'ROOT_REQUIRED'
-                : lease_until && lease_until > now.toISOString()
-                  ? 'LEASED'
-                  : !pending
-                    ? 'CURRENT'
-                    : due_at && due_at <= now.toISOString()
-                      ? 'DUE'
-                      : 'WAITING';
+                : row.paused_reason
+                  ? 'PAUSED'
+                  : row.next_retry_at && row.next_retry_at > now.toISOString()
+                    ? 'RETRY_WAIT'
+                    : lease_until && lease_until > now.toISOString()
+                      ? 'LEASED'
+                      : !pending
+                        ? 'CURRENT'
+                        : due_at && due_at <= now.toISOString()
+                          ? 'DUE'
+                          : 'WAITING';
           return {
             ...row,
             retry_reason:

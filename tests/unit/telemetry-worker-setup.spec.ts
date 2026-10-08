@@ -27,8 +27,15 @@ vi.mock('../../tools/deployment/cloudflare.mjs', () => ({
     if (sql.startsWith('SELECT owner_id,credential_hash'))
       return [{ results: state.workers }];
     if (sql.startsWith('INSERT INTO worker_identities')) {
-      expect(state.local).toContain('LOCAL_TELEMETRY_WORKER_CREDENTIAL=');
-      expect(values?.[0]).toBe('capacity-observer');
+      const exporting = process.argv[2] === 'export-worker';
+      expect(state.local).toContain(
+        exporting
+          ? 'DRIVE_EXPORT_WORKER_CREDENTIAL='
+          : 'LOCAL_TELEMETRY_WORKER_CREDENTIAL=',
+      );
+      expect(values?.[0]).toBe(
+        exporting ? 'daily-exporter' : 'capacity-observer',
+      );
       state.workers.push({
         owner_id: values![1]!,
         credential_hash: values![2]!,
@@ -73,6 +80,30 @@ it('persists a recoverable credential before registering only PROJECT and resume
   await import('../../tools/deployment/prepare.mjs');
   expect(state.writes).toBe(1);
   expect(state.inserts).toBe(1);
+});
+
+it('registers a recoverable dedicated export identity without starting export or granting owner rights', async () => {
+  process.argv[2] = 'export-worker';
+  vi.stubEnv('DRIVE_EXPORT_WORKER_CREDENTIAL', 'b'.repeat(43));
+  await import('../../tools/deployment/prepare.mjs');
+  expect(state.workers[0]?.scopes_json).toBe('["DRIVE_EXPORT"]');
+  expect(console.log).toHaveBeenCalledWith(
+    JSON.stringify({
+      export_worker_registered: true,
+      scopes: ['DRIVE_EXPORT'],
+      private_credential_readback: true,
+      export_started: false,
+    }),
+  );
+  vi.resetModules();
+  await import('../../tools/deployment/prepare.mjs');
+  expect(state.writes).toBe(1);
+  expect(state.inserts).toBe(1);
+  state.workers[0]!.revoked_at = '2026-10-08T12:00:00Z';
+  vi.resetModules();
+  await expect(import('../../tools/deployment/prepare.mjs')).rejects.toThrow(
+    'EXPORT_CREDENTIAL_RECOVERY_REQUIRED',
+  );
 });
 
 it('does not rotate a revoked identity', async () => {

@@ -97,32 +97,38 @@ if (mode === 'migrate') {
       runtime: 'cloud',
     }),
   );
-} else if (mode === 'telemetry-worker') {
+} else if (mode === 'telemetry-worker' || mode === 'export-worker') {
+  const telemetry = mode === 'telemetry-worker';
+  const workerId = telemetry ? 'capacity-observer' : 'daily-exporter';
+  const scopes = telemetry ? ['PROJECT'] : ['DRIVE_EXPORT'];
+  const category = telemetry ? 'TELEMETRY' : 'EXPORT';
   const owners = (
     await query('SELECT owner_id FROM owner_users WHERE allowlisted=1 LIMIT 2')
   )[0].results;
   if (owners.length !== 1) throw new Error('VERIFIED_OWNER_REQUIRED');
   const owner = owners[0].owner_id;
-  const name = 'LOCAL_TELEMETRY_WORKER_CREDENTIAL';
+  const name = telemetry
+    ? 'LOCAL_TELEMETRY_WORKER_CREDENTIAL'
+    : 'DRIVE_EXPORT_WORKER_CREDENTIAL';
   const credential = process.env[name] || randomBytes(32).toString('base64url');
   if (!/^[A-Za-z0-9_-]{43}$/.test(credential))
-    throw new Error('TELEMETRY_CREDENTIAL_INVALID');
+    throw new Error(category + '_CREDENTIAL_INVALID');
   const read = async () =>
     (
       await query(
         'SELECT owner_id,credential_hash,scopes_json,revoked_at FROM worker_identities WHERE worker_id=?',
-        ['capacity-observer'],
+        [workerId],
       )
     )[0].results;
   const existing = await read();
   if (!existing.length) {
     let local = readFileSync('.env', 'utf8');
-    const matches = local.match(/^LOCAL_TELEMETRY_WORKER_CREDENTIAL=/gm) ?? [];
+    const matches = local.match(new RegExp('^' + name + '=', 'gm')) ?? [];
     if (matches.length > 1)
-      throw new Error('DUPLICATE_TELEMETRY_CONFIGURATION');
+      throw new Error('DUPLICATE_' + category + '_CONFIGURATION');
     local = matches.length
       ? local.replace(
-          /^LOCAL_TELEMETRY_WORKER_CREDENTIAL=.*$/m,
+          new RegExp('^' + name + '=.*$', 'm'),
           name + '=' + credential,
         )
       : local + '\n' + name + '=' + credential + '\n';
@@ -132,10 +138,10 @@ if (mode === 'migrate') {
     await query(
       'INSERT INTO worker_identities(worker_id,owner_id,credential_hash,scopes_json,created_at) VALUES(?,?,?,?,?) ON CONFLICT(worker_id) DO NOTHING',
       [
-        'capacity-observer',
+        workerId,
         owner,
         hash(credential),
-        '["PROJECT"]',
+        JSON.stringify(scopes),
         new Date().toISOString(),
       ],
     );
@@ -143,7 +149,7 @@ if (mode === 'migrate') {
   const current = await read();
   const privateLines =
     readFileSync('.env', 'utf8').match(
-      /^LOCAL_TELEMETRY_WORKER_CREDENTIAL=(.*)$/gm,
+      new RegExp('^' + name + '=(.*)$', 'gm'),
     ) ?? [];
   const privateValue =
     privateLines.length === 1
@@ -158,15 +164,16 @@ if (mode === 'migrate') {
     current[0].owner_id !== owner ||
     current[0].revoked_at ||
     current[0].credential_hash !== hash(credential) ||
-    current[0].scopes_json !== '["PROJECT"]'
+    current[0].scopes_json !== JSON.stringify(scopes)
   )
-    throw new Error('TELEMETRY_CREDENTIAL_RECOVERY_REQUIRED');
+    throw new Error(category + '_CREDENTIAL_RECOVERY_REQUIRED');
   console.log(
     JSON.stringify({
-      telemetry_worker_registered: true,
-      scopes: ['PROJECT'],
+      [telemetry ? 'telemetry_worker_registered' : 'export_worker_registered']:
+        true,
+      scopes,
       private_credential_readback: true,
-      observation_started: false,
+      [telemetry ? 'observation_started' : 'export_started']: false,
     }),
   );
 } else if (mode === 'secrets') {
@@ -198,6 +205,8 @@ if (mode === 'migrate') {
     'DRIVE_WRAPPING_KEY',
     'DRIVE_KEY_RECOVERY_READY',
     'GOOGLE_DRIVE_OAUTH_PUBLISHING_STATUS',
+    'DRIVE_EXPORT_ENABLED',
+    'DRIVE_EXPORT_WORKER_CREDENTIAL',
   ])
     if (process.env[name]) secrets[name] = process.env[name];
   if (

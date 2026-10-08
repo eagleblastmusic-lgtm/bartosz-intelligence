@@ -202,7 +202,7 @@ export async function confirmDriveRoot(
       !input.acknowledge_mapping_review)
   )
     throw new Error('REVISION_CONFLICT');
-  const updated = await db
+  const adoption = db
     .prepare(
       `UPDATE drive_connections SET root_id=?,root_state='VERIFIED',revision=revision+1,last_intent_hash=?,updated_at=? WHERE owner_id=? AND connection_id=? AND revision=? AND auth_state='CONNECTED' AND root_id IS ?`,
     )
@@ -214,9 +214,22 @@ export async function confirmDriveRoot(
       input.connection_id,
       input.expected_revision,
       preview.current_root_id,
-    )
-    .run();
-  if (updated.meta.changes !== 1) throw new Error('REVISION_CONFLICT');
+    );
+  const updated = await db.batch([
+    adoption,
+    db
+      .prepare(
+        `INSERT INTO export_dirty_cursor(owner_id,processed_seq) SELECT owner_id,0 FROM drive_connections WHERE owner_id=? AND connection_id=? AND revision=? AND last_intent_hash=? AND root_id=? AND root_state='VERIFIED' ON CONFLICT(owner_id) DO UPDATE SET processed_seq=0`,
+      )
+      .bind(
+        context.ownerId,
+        input.connection_id,
+        input.expected_revision + 1,
+        input.preview_hash,
+        fresh.requested_root_id,
+      ),
+  ]);
+  if (updated[0]?.meta.changes !== 1) throw new Error('REVISION_CONFLICT');
   return {
     root_id: fresh.requested_root_id,
     root_state: 'VERIFIED' as const,

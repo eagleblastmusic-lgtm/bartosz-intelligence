@@ -1,5 +1,5 @@
 import { env } from 'cloudflare:workers';
-import { beforeEach, expect, it } from 'vitest';
+import { beforeEach, expect, it, vi } from 'vitest';
 import {
   resetCore,
   fixtureOwner,
@@ -15,6 +15,50 @@ import { sha256 } from '../../packages/core/src/auth/crypto.js';
 import { ExportSettings } from '../../packages/core/src/export/settings.js';
 import type { Database } from '../../packages/core/src/db/boundary.js';
 beforeEach(resetCore);
+it('expires the lease during remote HTTP even without a competing claim and reconciles on a new lease', async () => {
+  const f = await fixture();
+  let clock = 0,
+    exists = false,
+    creates = 0;
+  const spy = vi.spyOn(Date, 'now').mockImplementation(() => clock);
+  try {
+    const client = new DriveClient('synthetic', async (target, init) => {
+      if (String(target).includes('generateIds'))
+        return Response.json({ ids: ['reserved'] });
+      if (init?.method === 'POST') {
+        exists = true;
+        creates++;
+        clock = 900001;
+        return Response.json(f.file);
+      }
+      if (!exists) return new Response(null, { status: 404 });
+      return String(target).includes('alt=media')
+        ? new Response(f.report.markdown)
+        : Response.json(f.file);
+    });
+    await expect(
+      f.executor.execute(f.lease, f.artifact, client, fixtureNow),
+    ).rejects.toThrow('EXPORT_STALE_FENCE_OR_REVISION');
+    expect(
+      await env.DB.prepare(
+        "SELECT file_id FROM export_state WHERE owner_id='a'",
+      ).first('file_id'),
+    ).toBeNull();
+    const later = new Date(fixtureNow.getTime() + 900001);
+    const lease = await f.identity.claim(
+      'root',
+      f.lease.date,
+      'recovery',
+      later,
+    );
+    await expect(
+      f.executor.execute(lease, f.artifact, client, later),
+    ).resolves.toMatchObject({ file_id: 'reserved' });
+    expect(creates).toBe(1);
+  } finally {
+    spy.mockRestore();
+  }
+});
 it('reports a conflict when another owner action changes the mode between the successful CAS and its readback', async () => {
   const f = await fixture();
   let raced = false;

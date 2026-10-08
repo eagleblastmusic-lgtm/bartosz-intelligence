@@ -25,6 +25,10 @@ export class DailyExportExecutor {
       artifactId,
     );
     const manifest = artifact.manifest;
+    const started = Date.now();
+    const refreshClock = () => {
+      guard[5] = new Date(now.getTime() + Date.now() - started).toISOString();
+    };
     if (
       manifest.root_id !== lease.root_id ||
       manifest.publication_date !== lease.date ||
@@ -43,6 +47,7 @@ export class DailyExportExecutor {
     ];
     const guardSql = `owner_id=? AND root_namespace=? AND publication_date=? AND destination_key GLOB 'drive:*' AND lease_owner=? AND fencing_token=? AND lease_until>? AND rendered_artifact_id=? AND COALESCE(desired_mode,mode)=? AND EXISTS(SELECT 1 FROM drive_connections c WHERE c.owner_id=export_state.owner_id AND c.connection_id=export_state.connection_id AND c.root_id=export_state.root_namespace AND c.root_state='VERIFIED' AND c.auth_state='CONNECTED')`;
     const current = async () => {
+      refreshClock();
       if (this.context.kind === 'worker') {
         const active = await AccessContext.worker(
           this.db,
@@ -96,6 +101,7 @@ export class DailyExportExecutor {
       throw new Error('EXPORT_STALE_FENCE_OR_REVISION');
     if (attempt.state === 'CONFLICT') throw new Error('EXPORT_CONFLICT');
     const record = async (reason: string, conflict = false) => {
+      refreshClock();
       await this.db
         .prepare(
           `UPDATE drive_export_attempts SET reason=?,state=?,updated_at=? WHERE owner_id=? AND artifact_id=? AND fencing_token=? AND EXISTS(SELECT 1 FROM export_state WHERE ${guardSql})`,
@@ -197,6 +203,7 @@ export class DailyExportExecutor {
               materialReport(bytes.decode(old.bytes)) ===
               materialReport(bytes.decode(artifact.bytes))
             ) {
+              await current();
               // Readback above proves the original bytes/version still exist.
               // Acknowledge coverage without claiming this candidate was uploaded.
               const result = await this.db.batch([

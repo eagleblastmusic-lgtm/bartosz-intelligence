@@ -12,6 +12,8 @@ export interface Env {
   DRIVE_WRAPPING_KEY_ID?: string;
   DRIVE_WRAPPING_KEY?: string;
   DRIVE_KEY_RECOVERY_READY?: string;
+  DRIVE_EXPORT_ENABLED?: string;
+  DRIVE_EXPORT_WORKER_CREDENTIAL?: string;
   SESSION_SIGNING_SECRET?: string;
   YOUTUBE_API_KEY?: string;
   CONTROL_WORKER_CREDENTIAL?: string;

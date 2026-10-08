@@ -22,12 +22,17 @@ export interface DailyExportStatus {
     root_state: string;
     last_verified_at: string | null;
     retry_reason: string | null;
+    retry_count?: number;
+    next_retry_at?: string | null;
+    paused_reason?: string | null;
     queue_state:
       | 'AUTH_REQUIRED'
       | 'ROOT_REQUIRED'
       | 'LEASED'
       | 'WAITING'
       | 'DUE'
+      | 'PAUSED'
+      | 'RETRY_WAIT'
       | 'CURRENT';
     due_at: string | null;
   }[];

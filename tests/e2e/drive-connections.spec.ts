@@ -46,6 +46,8 @@ test('Drive settings disclose unavailable export, preserve escaped private mappi
         root_state: 'VERIFIED',
         last_verified_at: null,
         retry_reason: 'DRIVE_UNQUALIFIED_UPDATE',
+        retry_count: 8,
+        paused_reason: 'RETRY_BUDGET_EXHAUSTED',
         queue_state: 'AUTH_REQUIRED',
         due_at: null,
       },
@@ -97,6 +99,17 @@ test('Drive settings disclose unavailable export, preserve escaped private mappi
       return route.fulfill({
         json: { desired_mode: 'FULL', settings_revision: 2 },
       });
+    }
+    if (path === '/api/v1/connections/drive/exports/retry') {
+      expect(route.request().postDataJSON()).toEqual({
+        root_id: 'export-root',
+        date: '2026-10-05',
+        expected_revision: 2,
+      });
+      exports.days[0]!.retry_count = 0;
+      exports.days[0]!.paused_reason = null;
+      exports.days[0]!.settings_revision = 3;
+      return route.fulfill({ json: { settings_revision: 3 } });
     }
     if (path === '/api/v1/auth/session')
       return route.fulfill({
@@ -299,6 +312,17 @@ test('Drive settings disclose unavailable export, preserve escaped private mappi
   await expect(
     page.getByText('created-private-root', { exact: true }),
   ).toBeVisible();
+  exports.days[0]!.auth_state = 'CONNECTED';
+  await page
+    .getByRole('button', { name: 'Odśwież eksporty', exact: true })
+    .click();
+  const retry = page.getByRole('button', {
+    name: 'Ponów eksport 2026-10-05',
+    exact: true,
+  });
+  await expect(retry).toBeEnabled();
+  await retry.click();
+  await expect(retry).toHaveCount(0);
   authenticated = false;
   await refresh.click();
   await expect(

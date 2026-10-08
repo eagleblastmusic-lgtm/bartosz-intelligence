@@ -14,6 +14,20 @@ export class ExportSettings {
     assertContext(context);
     context.requireOwner();
   }
+  async retry(root: string, date: string, expected: number) {
+    requireDriveId(root);
+    requireLocalDate(date);
+    if (!Number.isSafeInteger(expected) || expected < 1)
+      throw new Error('INVALID_EXPORT_SETTINGS');
+    const result = await this.db
+      .prepare(
+        `UPDATE export_state SET retry_count=0,next_retry_at=NULL,paused_reason=NULL,last_failure_code=NULL,settings_revision=settings_revision+1,lease_owner=NULL,lease_until=NULL,fencing_token=fencing_token+1 WHERE owner_id=? AND root_namespace=? AND publication_date=? AND destination_key GLOB 'drive:*' AND settings_revision=? AND COALESCE(paused_reason,'') NOT IN ('EXPORT_CONFLICT','DRIVE_CONFLICT','DRIVE_UNQUALIFIED_UPDATE') AND EXISTS(SELECT 1 FROM drive_connections c WHERE c.owner_id=export_state.owner_id AND c.connection_id=export_state.connection_id AND c.auth_state='CONNECTED' AND c.root_state='VERIFIED' AND c.root_id=export_state.root_namespace)`,
+      )
+      .bind(this.context.ownerId, root, date, expected)
+      .run();
+    if (result.meta.changes !== 1) throw new Error('REVISION_CONFLICT');
+    return { settings_revision: expected + 1 };
+  }
   async mode(
     root: string,
     date: string,

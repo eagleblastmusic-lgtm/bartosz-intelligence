@@ -50,6 +50,8 @@ export function DailyExports() {
     WAITING: 'Oczekuje na debounce',
     DUE: 'Gotowy w kolejce',
     CURRENT: 'Przetworzono bieżące zmiany',
+    PAUSED: 'Wstrzymano — wymaga sprawdzenia przyczyny',
+    RETRY_WAIT: 'Oczekuje na termin ponowienia',
   };
   return (
     <section className="panel" aria-labelledby="daily-exports-title">
@@ -66,9 +68,8 @@ export function DailyExports() {
       {data && (
         <>
           <p className="notice">
-            Automatyczna aktualizacja istniejących plików oczekuje na
-            weryfikację ochrony przed równoczesną edycją. Stan kolejki nie
-            potwierdza wykonania eksportu.
+            Automatyczny eksporter oczekuje na pełną weryfikację operacyjną.
+            Stan kolejki nie potwierdza wykonania eksportu.
           </p>
           {!data.days.length && (
             <p>
@@ -80,6 +81,34 @@ export function DailyExports() {
             <article className="panel" key={day.root_id + ':' + day.date}>
               <h3>{day.date}</h3>
               <p>{states[day.queue_state]}</p>
+              {(day.retry_count ?? 0) > 0 &&
+                ![
+                  'EXPORT_CONFLICT',
+                  'DRIVE_CONFLICT',
+                  'DRIVE_UNQUALIFIED_UPDATE',
+                ].includes(day.paused_reason ?? '') && (
+                  <button
+                    disabled={
+                      busy ||
+                      day.auth_state !== 'CONNECTED' ||
+                      day.root_state !== 'VERIFIED'
+                    }
+                    onClick={() => {
+                      setBusy(true);
+                      setError('');
+                      void api('/connections/drive/exports/retry', {
+                        root_id: day.root_id,
+                        date: day.date,
+                        expected_revision: day.settings_revision,
+                      })
+                        .then(() => setVersion((value) => value + 1))
+                        .catch((error) => setError(errorMessage(error)))
+                        .finally(() => setBusy(false));
+                    }}
+                  >
+                    Ponów eksport {day.date}
+                  </button>
+                )}
               <dl>
                 <dt>Folder</dt>
                 <dd>{day.root_id}</dd>
@@ -101,6 +130,12 @@ export function DailyExports() {
                 </dd>
                 <dt>Powód ostatniej próby</dt>
                 <dd>{day.retry_reason ?? 'Brak'}</dd>
+                <dt>Powód wstrzymania</dt>
+                <dd>{day.paused_reason ?? 'Brak'}</dd>
+                <dt>Liczba nieudanych prób</dt>
+                <dd>{day.retry_count ?? 0}</dd>
+                <dt>Następne ponowienie</dt>
+                <dd>{day.next_retry_at ?? 'Brak'}</dd>
                 <dt>Termin kolejki</dt>
                 <dd>{day.due_at ?? 'Brak'}</dd>
                 <dt>Ostatni zweryfikowany zapis lub odczyt</dt>
