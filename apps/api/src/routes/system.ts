@@ -65,7 +65,7 @@ systemApp.get('/summary', async (c) => {
         expires_at: string;
       }>(),
     c.env.DB.prepare(
-      `SELECT provider,model,bucket,units,remaining,limit_value,used_value,reset_at,source,sampled_at,expires_at,confidence FROM quota_snapshots WHERE owner_id=? ORDER BY sampled_at DESC LIMIT 50`,
+      `SELECT provider,model,bucket,units,remaining,limit_value,used_value,reset_at,source,sampled_at,expires_at,confidence FROM quota_snapshots q WHERE owner_id=? AND q.snapshot_id=(SELECT latest.snapshot_id FROM quota_snapshots latest WHERE latest.owner_id=q.owner_id AND latest.provider=q.provider AND latest.model IS q.model AND latest.bucket=q.bucket ORDER BY latest.sampled_at DESC,latest.snapshot_id DESC LIMIT 1) ORDER BY sampled_at DESC,snapshot_id DESC LIMIT 50`,
     )
       .bind(owner)
       .all<{ expires_at: string }>(),

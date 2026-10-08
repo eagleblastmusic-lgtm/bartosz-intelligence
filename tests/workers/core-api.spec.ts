@@ -432,6 +432,19 @@ it('System distinguishes task completion from accepted analysis and retains fail
   const before = await env.DB.prepare(
     'SELECT COUNT(*) n FROM change_log',
   ).first();
+  for (const [id, ownerId, model, remaining, sampled] of [
+    ['old', 'a', 'gemini-3.8-flash', 20, '2026-10-01T00:00:00Z'],
+    ['latest-a', 'a', 'gemini-3.8-flash', 17, '2026-10-02T00:00:00Z'],
+    ['latest-z', 'a', 'gemini-3.8-flash', 16, '2026-10-02T00:00:00Z'],
+    ['foreign', 'b', 'gemini-3.8-flash', 999, '2026-10-03T00:00:00Z'],
+    ['no-model', 'a', null, 3, '2026-10-02T00:00:00Z'],
+  ] as const) {
+    await env.DB.prepare(
+      "INSERT INTO quota_snapshots(snapshot_id,owner_id,provider,model,bucket,units,remaining,source,sampled_at,expires_at,confidence) VALUES(?,?,'gemini',?,'RPD','requests',?,'dashboard',?,'2099-01-01T00:00:00Z','actual')",
+    )
+      .bind(id, ownerId, model, remaining, sampled)
+      .run();
+  }
   const response = await request('/api/v1/system/summary', headers);
   expect(response.status).toBe(200);
   const data = (await response.json()) as {
@@ -445,6 +458,7 @@ it('System distinguishes task completion from accepted analysis and retains fail
     job_reasons: { reason_code: string }[];
     costs: { status: string };
     transcript_coverage: { denominator: number };
+    quota: { model: string | null; remaining: number }[];
   };
   expect(data.capacity).toMatchObject({
     accepted_count: 0,
@@ -458,6 +472,11 @@ it('System distinguishes task completion from accepted analysis and retains fail
     expect(metric.value).toBeNull();
   expect(data.costs.status).toBe('PAID_DISABLED');
   expect(data.transcript_coverage.denominator).toBe(0);
+  expect(data.quota).toHaveLength(2);
+  expect(
+    data.quota.find((row) => row.model === 'gemini-3.8-flash')?.remaining,
+  ).toBe(16);
+  expect(data.quota.find((row) => row.model === null)?.remaining).toBe(3);
   expect(
     await env.DB.prepare('SELECT COUNT(*) n FROM change_log').first(),
   ).toEqual(before);

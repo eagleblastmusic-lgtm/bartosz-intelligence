@@ -106,11 +106,15 @@ export function System() {
               <ul>
                 {data.quota.map((quota, index) => (
                   <li key={index}>
-                    {quota.provider} · {quota.bucket}:{' '}
+                    {quota.provider} · {quota.bucket}: pozostało w chwili
+                    odczytu{' '}
                     {quota.freshness === 'FRESH'
                       ? (quota.remaining ?? 'nieodczytany')
                       : 'bieżąca wartość nieznana'}{' '}
-                    · {quota.freshness === 'FRESH' ? 'aktualny' : 'nieaktualny'}
+                    ·{' '}
+                    {quota.freshness === 'FRESH'
+                      ? 'odczyt ważny'
+                      : 'odczyt wygasł'}
                     <p className="metadata">
                       Odczyt: {time(quota.sampled_at)} · reset:{' '}
                       {time(quota.reset_at)} · źródło:{' '}
@@ -120,6 +124,10 @@ export function System() {
                 ))}
               </ul>
             )}
+            <p className="metadata">
+              Odczyt nie uwzględnia późniejszych rezerwacji i requestów. Przed
+              analizą aplikacja oddzielnie sprawdza dostępny budżet.
+            </p>
           </section>
           <section className="panel">
             <h2>Trwałe zadania</h2>
