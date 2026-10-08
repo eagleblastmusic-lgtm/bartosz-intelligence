@@ -104,9 +104,11 @@ try {
   mkdirSync(output, { recursive: true });
   const configuration = save('configuration.json', {
     version: 'GateRConfiguration/1.0',
-    ...pins,
+    candidate_sha256: pins.candidate_sha256,
+    migration_set_sha256: pins.migration_set_sha256,
+    migration_count: pins.migration_count,
     target_origin: origin,
-    isolated_database_id: 'local-d1:' + id,
+    isolated_database_id: 'local-d1-' + id,
     production_database_id: deployment.database_id,
     owner_pseudonym: 'OWNER_A',
     paid_services_enabled: false,
