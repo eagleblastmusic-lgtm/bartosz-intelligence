@@ -142,6 +142,24 @@ the selected root. Confirmation alone does not enable the scheduler.
 
 ## Unattended export runtime
 
+Actual owner root confirmation and single-day production export have been
+verified. Receipts `docs/verification/drive/7dad1744-116e-4284-900f-eee2a87a1e79.json`
+and `docs/verification/drive/c6a9e094-ef59-411c-ade4-a219d686af2c.json` record
+offline token renewal, the same persisted Daily file identity and independent
+content hash readback. The second execution returned NO_MATERIAL_CHANGE.
+These are actual application data, without generated AI results or synthetic
+source changes. They do not qualify the entire D-export gate, human compact
+quality, unattended scheduling or production OAuth publishing lifecycle.
+
+For a bounded administrative verification, run the pinned Node with
+`--env-file=.env --import=tsx tools/deployment/drive-export-live.ts --live
+<connection_id> <owner-approved-root_id> <publication_date>`.
+The runner uses the existing repositories and export fences, revokes its
+temporary owner session and releases the lease. It writes only redacted
+metadata receipts; it never enables the scheduler. A failed execution retains
+the reserved file identity and existing recovery state. Re-run only for a
+specific acceptance case or regression.
+
 The owner can choose Disconnect Drive and confirm explicitly. Revision CAS
 removes the local encrypted offline credential, consumes pending OAuth intents
 and invalidates export leases. Core data, Drive files and root/file mappings
