@@ -14,6 +14,7 @@ export class DriveFailure extends Error {
   constructor(
     readonly category: DriveFailureCategory,
     readonly retry_after_seconds: number | null = null,
+    readonly http_status: number | null = null,
   ) {
     super('DRIVE_' + category);
   }
@@ -159,6 +160,7 @@ export class DriveClient {
                 ? 'TRANSIENT'
                 : 'DENIED',
       retryAfter,
+      response.status,
     );
   }
   private async json(response: Response): Promise<Record<string, unknown>> {
@@ -355,5 +357,124 @@ export class DriveClient {
     // A version or check-before-write is not a CAS. Until a live upload-method
     // qualification proves the remote guard, no automatic update is issued.
     throw new DriveFailure('UNQUALIFIED_UPDATE');
+  }
+  /** Qualification only, using a caller-persisted disposable identity. This
+   * never enables updateMarkdown or touches a Daily file. No hidden retries. */
+  async probeMarkdownGuard(input: {
+    reserved_id: string;
+    root_id: string;
+    nonce: string;
+  }) {
+    requireDriveId(input.reserved_id);
+    requireDriveId(input.root_id);
+    if (!/^[a-f0-9]{64}$/.test(input.nonce)) throw new DriveFailure('FORMAT');
+    const base =
+      'Bartosz Intelligence guard probe\n' + input.nonce + '\nBASE\n';
+    const metadata = async () => {
+      const response = await this.request(
+        'files/' +
+          input.reserved_id +
+          '?fields=' +
+          encodeURIComponent(fileFields),
+      );
+      const etag = response.headers.get('ETag');
+      const value = file(await this.json(response));
+      if (
+        value.id !== input.reserved_id ||
+        value.mimeType !== 'text/markdown' ||
+        value.trashed !== false ||
+        !value.parents?.includes(input.root_id) ||
+        value.appProperties?.bi_guard_probe !== input.nonce
+      )
+        throw new DriveFailure('DENIED');
+      if (!etag || !/^"[A-Za-z0-9_:/+=.-]{1,256}"$/.test(etag))
+        throw new DriveFailure('UNQUALIFIED_UPDATE');
+      return { etag, value };
+    };
+    await this.verifyPrivateFolder(input.root_id);
+    try {
+      const existing = await this.getFile(input.reserved_id);
+      if (
+        existing.appProperties?.bi_guard_probe !== input.nonce ||
+        !existing.parents?.includes(input.root_id)
+      )
+        throw new DriveFailure('DENIED');
+    } catch (error) {
+      if (!(error instanceof DriveFailure) || error.category !== 'NOT_FOUND')
+        throw error;
+      await this.createMarkdown({
+        reserved_id: input.reserved_id,
+        root_id: input.root_id,
+        name: 'bi-guard-probe.md',
+        markdown: base,
+        app_properties: { bi_guard_probe: input.nonce },
+      });
+    }
+    const initial = await metadata();
+    if ((await this.readMarkdown(input.reserved_id, 512)) !== base)
+      throw new DriveFailure('CONFLICT');
+    const write = async (etag: string, body: string) => {
+      const response = await this.request(
+        'files/' +
+          input.reserved_id +
+          '?uploadType=media&fields=' +
+          encodeURIComponent(fileFields),
+        {
+          method: 'PATCH',
+          headers: {
+            'Content-Type': 'text/markdown; charset=UTF-8',
+            'If-Match': etag,
+          },
+          body,
+        },
+        true,
+      );
+      const updated = file(await this.json(response));
+      if (updated.id !== input.reserved_id) throw new DriveFailure('FORMAT');
+    };
+    const candidates = [base + 'WRITER_A\n', base + 'WRITER_B\n'];
+    const race = await Promise.allSettled(
+      candidates.map((body) => write(initial.etag, body)),
+    );
+    const winners = race.flatMap((result, index) =>
+      result.status === 'fulfilled' ? [index] : [],
+    );
+    const rejected = race.filter((result) => result.status === 'rejected');
+    if (
+      winners.length !== 1 ||
+      rejected.length !== 1 ||
+      rejected[0]!.status !== 'rejected' ||
+      !(rejected[0]!.reason instanceof DriveFailure) ||
+      rejected[0]!.reason.http_status !== 412
+    )
+      throw new DriveFailure('UNQUALIFIED_UPDATE');
+    const current = await metadata();
+    if (
+      current.etag === initial.etag ||
+      (await this.readMarkdown(input.reserved_id, 512)) !==
+        candidates[winners[0]!]
+    )
+      throw new DriveFailure('UNQUALIFIED_UPDATE');
+    const afterRead = await metadata();
+    if (afterRead.etag !== current.etag) throw new DriveFailure('CONFLICT');
+    const finalBody = base + 'CURRENT_GUARD\n';
+    await write(current.etag, finalBody);
+    const final = await metadata();
+    if (
+      final.etag === current.etag ||
+      (await this.readMarkdown(input.reserved_id, 512)) !== finalBody ||
+      (await metadata()).etag !== final.etag
+    )
+      throw new DriveFailure('UNQUALIFIED_UPDATE');
+    return {
+      version: 'drive-upload-guard-probe:1' as const,
+      method: 'V3_MEDIA_PATCH_IF_MATCH' as const,
+      concurrent_writers: 2,
+      accepted_writers: 1,
+      rejected_http_status: 412,
+      current_guard_write: 'PASS' as const,
+      stable_readback: 'PASS' as const,
+      automatic_updates_enabled: false as const,
+    };
   }
 }
