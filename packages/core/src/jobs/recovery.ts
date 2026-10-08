@@ -201,6 +201,12 @@ export async function pull(
   if (!Number.isInteger(slots) || slots < 1 || slots > 10)
     throw new Error('INVALID_SLOTS');
   for (const task of tasks ?? []) store.context.requireTask(task);
+  const admittedTasks = taskTypes.filter(
+    (task) =>
+      store.context.scopes.includes(task) && (!tasks || tasks.includes(task)),
+  );
+  if (admittedTasks.length === 0) return [];
+  const taskPredicate = `task_type IN (${admittedTasks.map(() => '?').join(',')})`;
   const groups = await Promise.all(
     [
       "task_type IN ('DISCOVER','RECONCILE','BACKUP')",
@@ -209,9 +215,15 @@ export async function pull(
     ].map((predicate) =>
       store.db
         .prepare(
-          `SELECT * FROM jobs WHERE owner_id=? AND state='PENDING' AND due_at<=? AND ${predicate} AND ${runtimeAdmissionPredicate} ORDER BY priority DESC,arrival_origin_at,job_id LIMIT 20`,
+          `SELECT * FROM jobs WHERE owner_id=? AND state='PENDING' AND due_at<=? AND ${predicate} AND ${runtimeAdmissionPredicate} AND ${taskPredicate} ORDER BY priority DESC,arrival_origin_at,job_id LIMIT 20`,
         )
-        .bind(store.context.ownerId, now.toISOString(), runtime, runtime)
+        .bind(
+          store.context.ownerId,
+          now.toISOString(),
+          runtime,
+          runtime,
+          ...admittedTasks,
+        )
         .all<JobRecord>(),
     ),
   );

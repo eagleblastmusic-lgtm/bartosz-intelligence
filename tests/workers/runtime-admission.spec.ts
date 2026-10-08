@@ -143,3 +143,29 @@ it('filters incompatible runtime before bounded fair pull, avoiding backlog star
     ).first('n'),
   ).toBe(21);
 });
+it('filters task capabilities before the candidate limit instead of starving a selected analysis worker', async () => {
+  const { owner, worker } = await stores();
+  for (let index = 0; index < 21; index++)
+    await owner.enqueue(
+      {
+        ...input('local-primary-1', 'FETCH_TRANSCRIPT', {}, 'caption-' + index),
+        priority: 100,
+      },
+      fixtureNow.toISOString(),
+    );
+  const eligible = (await owner.enqueue(
+    input('pipeline-selector:1', 'ANALYZE', {
+      snapshot: { settings: { runtime: 'local' } },
+    }),
+    fixtureNow.toISOString(),
+  ))!;
+  expect(
+    (await pull(worker, fixtureNow, 'local', 1, ['ANALYZE'])).map(
+      (lease) => lease.job.job_id,
+    ),
+  ).toEqual([eligible.job_id]);
+  expect(await pull(worker, fixtureNow, 'local', 1, [])).toEqual([]);
+  await expect(
+    pull(worker, fixtureNow, 'local', 1, ['BACKUP']),
+  ).rejects.toThrow('FORBIDDEN');
+});
