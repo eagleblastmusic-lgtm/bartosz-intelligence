@@ -11,6 +11,7 @@ import {
 
 export class LocalAnalysisWorker {
   private rpc: WorkerRpc;
+  private planningCursor: { accepted_at: string; run_id: string } | null = null;
   constructor(
     private origin: string,
     private credential: string,
@@ -30,11 +31,37 @@ export class LocalAnalysisWorker {
     )
       throw new Error('INVALID_ANALYSIS_JOB_ID');
     await this.rpc.request('heartbeat', { runtime: 'local' });
+    if (jobId === undefined) {
+      const planned = (await this.rpc.request('analysis/schedule', {
+        after: this.planningCursor,
+      })) as {
+        next_cursor: { accepted_at: string; run_id: string } | null;
+        provider_requests: number;
+      };
+      if (
+        !planned ||
+        planned.provider_requests !== 0 ||
+        (planned.next_cursor !== null &&
+          (typeof planned.next_cursor !== 'object' ||
+            !planned.next_cursor ||
+            !Number.isFinite(Date.parse(planned.next_cursor.accepted_at)) ||
+            !/^[A-Za-z0-9_-]{1,128}$/.test(planned.next_cursor.run_id)))
+      )
+        throw new Error('INVALID_AUTOMATIC_CURSOR');
+      this.planningCursor = planned.next_cursor;
+    }
     const pulled = (await this.rpc.request('lease', {
       runtime: 'local',
       task_type: 'ANALYZE',
-      ...(jobId === undefined ? {} : { job_id: jobId }),
-    })) as { leases: { token: LeaseToken; job: JobRecord }[] };
+      ...(jobId === undefined
+        ? { analysis_mode: 'PRODUCTION' }
+        : { job_id: jobId }),
+    })) as {
+      leases: {
+        token: LeaseToken;
+        job: JobRecord & { payload_json: string };
+      }[];
+    };
     if (!Array.isArray(pulled.leases) || pulled.leases.length > 1)
       throw new Error('INVALID_LEASE_RESPONSE');
     const leased = pulled.leases[0];
@@ -45,6 +72,15 @@ export class LocalAnalysisWorker {
       (jobId !== undefined && leased.job.job_id !== jobId)
     )
       throw new Error('INVALID_ANALYSIS_LEASE');
+    if (jobId === undefined) {
+      let mode: unknown;
+      try {
+        mode = JSON.parse(leased.job.payload_json).snapshot?.settings?.mode;
+      } catch {
+        throw new Error('INVALID_ANALYSIS_LEASE');
+      }
+      if (mode !== 'PRODUCTION') throw new Error('INVALID_ANALYSIS_LEASE');
+    }
     await this.rpc.request('start', {
       task_type: 'ANALYZE',
       token: leased.token,

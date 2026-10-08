@@ -13,6 +13,22 @@ The default mode runs the qualified local yt-dlp transcript path using `LOCAL_WO
 
 For one explicitly selected analysis test use `--analysis --once --job-id <job_id>`. Selection never grants permission to process another job. `--once` exits after one cycle and returns a nonzero code on failure.
 
+Normal analysis cycles first prepare at most one accepted, confirmed original
+source into a durable production job through the scoped ANALYZE identity.
+Preparation reads registry/metadata references and invokes no provider. Unknown
+quality, unpublished prompts and unavailable profiles remain deferred; a key
+alone never grants admission. The source arrival clock/origin are preserved.
+The first automatic snapshot and enqueue/outbox are atomic, with current worker,
+source permission and prompt-use guards. Subsequent scans do not reprocess an
+already planned source when a new prompt/profile is published.
+
+Source scan cursors are progress hints kept in the local process, not authority.
+They wrap after the last page, so unqualified early sources cannot starve later
+ones; restart safely rescans durable accepted sources. Ordinary pulls filter
+PRODUCTION before the candidate limit and the local worker checks this again.
+They do not execute pending QUALITY_TEST experiments. A selected `--job-id`
+cycle skips automatic planning and retains its explicitly bounded test scope.
+
 Normal idle polling waits 30 seconds. Search that progressed waits 250 ms. Consecutive cycle failures wait 30, 60, then at most 120 seconds; a successful cycle resets this backoff. Authentication denial stops the process with a nonzero code and requires repair of the scoped credential. Logs contain only fixed cycle events and bounded RPC route/status metadata, never exception stacks, source content or credentials.
 
 SIGINT/SIGTERM stop further pulls and immediately interrupt the idle/backoff timer. An in-flight cycle finishes its bounded protocol before shutdown; forcibly killing the process relies on durable lease expiry and fencing for recovery. This command does not install autostart or claim that a process is running merely because configuration exists.

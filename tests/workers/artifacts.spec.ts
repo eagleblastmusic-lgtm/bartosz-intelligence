@@ -742,6 +742,7 @@ it.each([
   'MULTIPART_TRANSLATION',
   'CUSTOM_PRODUCTION',
   'PRODUCTION',
+  'AUTOMATIC',
   'RATE_LIMITED',
   'TEMPORARY_FAILURE',
   'REFUSED',
@@ -758,6 +759,7 @@ it.each([
       scenario === 'CHUNK_PRODUCTION' || scenario === 'CHUNK_FULL_PRODUCTION';
     const mode: 'PRODUCTION' | 'QUALITY_TEST' =
       scenario === 'PRODUCTION' ||
+      scenario === 'AUTOMATIC' ||
       scenario === 'CUSTOM_PRODUCTION' ||
       chunkProduction
         ? 'PRODUCTION'
@@ -1022,7 +1024,7 @@ it.each([
       purpose: 'personal',
       region: 'PL',
       max_output_tokens: 4000,
-      limits: { claims: 20 },
+      limits: { claims: scenario === 'AUTOMATIC' ? 40 : 20 },
     };
     const analysis = new AnalysisJobs(env.DB, owner);
     const semanticRegistry = new SemanticProfiles(env.DB, owner);
@@ -1084,6 +1086,39 @@ it.each([
         fixtureNow,
       ),
     ).rejects.toThrow('ANALYSIS_PROFILE_QUALITY_SCOPE');
+    if (scenario === 'AUTOMATIC') {
+      const credential = await sha256('automatic-scoped-fixture');
+      await env.DB.prepare(
+        'INSERT INTO worker_identities VALUES(?,?,?,?,?,NULL)',
+      )
+        .bind(
+          'automatic-worker',
+          'a',
+          credential,
+          '["ANALYZE"]',
+          fixtureNow.toISOString(),
+        )
+        .run();
+      const automatic = new AnalysisJobs(
+        env.DB,
+        await AccessContext.worker(env.DB, credential),
+      );
+      const waiting = await automatic.scheduleAutomatic(fixtureNow);
+      expect(waiting).toMatchObject({
+        created: 0,
+        deferred: ['ANALYSIS_PROFILE_QUALITY_SCOPE'],
+        provider_requests: 0,
+      });
+      expect(waiting.next_cursor?.run_id).toBe(accepted.run_id);
+      expect(
+        await automatic.scheduleAutomatic(fixtureNow, waiting.next_cursor),
+      ).toMatchObject({ created: 0, next_cursor: null });
+      expect(
+        await env.DB.prepare(
+          "SELECT count(*) n FROM jobs WHERE task_type='ANALYZE'",
+        ).first('n'),
+      ).toBe(0);
+    }
     if (mode === 'PRODUCTION') {
       profile.quality_approvals = [
         await analysisQualityScope(semanticPrompt(semanticSnapshot), profile, {
@@ -1125,6 +1160,86 @@ it.each([
         fixtureNow,
       ),
     ).rejects.toThrow('FORBIDDEN');
+    if (scenario === 'AUTOMATIC') {
+      const credential = await sha256('automatic-scoped-fixture');
+      const scoped = await AccessContext.worker(env.DB, credential);
+      const automatic = new AnalysisJobs(env.DB, scoped);
+      await expect(
+        new AnalysisJobs(env.DB, access).enqueueAutomatic(
+          accepted.run_id,
+          settings,
+          fixtureNow,
+        ),
+      ).rejects.toThrow('FORBIDDEN');
+      await expect(
+        automatic.enqueueAutomatic(
+          accepted.run_id,
+          { ...settings, mode: 'QUALITY_TEST' },
+          fixtureNow,
+        ),
+      ).rejects.toThrow('FORBIDDEN');
+      const planned = await automatic.scheduleAutomatic(fixtureNow);
+      expect(planned).toMatchObject({
+        created: 1,
+        deferred: [],
+        provider_requests: 0,
+      });
+      const queryPlan = await env.DB.prepare(
+        "EXPLAIN QUERY PLAN SELECT 1 FROM jobs WHERE owner_id=? AND task_type='ANALYZE' AND json_extract(payload_json,'$.snapshot.source.run_id')=? AND json_extract(payload_json,'$.snapshot.settings.mode')='PRODUCTION'",
+      )
+        .bind(owner.ownerId, accepted.run_id)
+        .all<{ detail: string }>();
+      expect(
+        queryPlan.results.some((row) =>
+          row.detail.includes('automatic_analysis_source'),
+        ),
+      ).toBe(true);
+      expect(await automatic.scheduleAutomatic(fixtureNow)).toMatchObject({
+        created: 0,
+        provider_requests: 0,
+        next_cursor: null,
+      });
+      const job = await automatic.enqueueAutomatic(
+        accepted.run_id,
+        settings,
+        fixtureNow,
+      );
+      expect(
+        JSON.parse(
+          (await env.DB.prepare('SELECT payload_json FROM jobs WHERE job_id=?')
+            .bind(job.job_id)
+            .first<string>('payload_json'))!,
+        ),
+      ).toMatchObject({
+        snapshot: { settings: { runtime: 'local', mode: 'PRODUCTION' } },
+      });
+      expect(job.arrival_origin_at).toBe(
+        (await new JobStore(env.DB, access).get(token.job_id))!
+          .arrival_origin_at,
+      );
+      expect(
+        await env.DB.prepare('SELECT count(*) n FROM outbox WHERE job_id=?')
+          .bind(job.job_id)
+          .first('n'),
+      ).toBe(1);
+      await env.DB.prepare(
+        'UPDATE sources SET ai_processing_allowed=0 WHERE owner_id=?',
+      )
+        .bind(owner.ownerId)
+        .run();
+      await expect(
+        automatic.enqueueAutomatic(accepted.run_id, settings, fixtureNow),
+      ).rejects.toThrow('ANALYSIS_SOURCE_PROCESSING_DENIED');
+      await env.DB.prepare(
+        "UPDATE worker_identities SET revoked_at=? WHERE worker_id='automatic-worker'",
+      )
+        .bind(fixtureNow.toISOString())
+        .run();
+      await expect(automatic.scheduleAutomatic(fixtureNow)).rejects.toThrow(
+        'UNAUTHENTICATED',
+      );
+      return;
+    }
     const aiJob = (await analysis.enqueue(
       accepted.run_id,
       settings,

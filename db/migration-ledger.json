@@ -169,6 +169,11 @@
       "name": "034_export_retry_policy.sql",
       "depends_on": ["033_backup_format_version.sql"],
       "sha256": "a847e076a4142dcfa93b9e076cde33f1508670d451a21413e44a06fee7065c4a"
+    },
+    {
+      "name": "035_automatic_analysis_scan.sql",
+      "depends_on": ["034_export_retry_policy.sql"],
+      "sha256": "60e0a4378cbbc1428bf5dd45e0bd649db2086c5f8090e385059e328d924f52dd"
     }
   ],
   "version": 1

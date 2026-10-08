@@ -8,6 +8,46 @@ import { pull } from '../../packages/core/src/jobs/recovery.js';
 import type { JobInput } from '../../packages/contracts/src/jobs.js';
 
 beforeEach(resetCore);
+it('background production pull leaves quality experiments untouched before the candidate limit', async () => {
+  const { owner, worker } = await stores();
+  for (let index = 0; index < 21; index++)
+    await owner.enqueue(
+      {
+        ...input(
+          'pipeline-selector:1',
+          'ANALYZE',
+          {
+            snapshot: { settings: { runtime: 'local', mode: 'QUALITY_TEST' } },
+          },
+          'quality-' + index,
+        ),
+        priority: 100,
+      },
+      fixtureNow.toISOString(),
+    );
+  const production = (await owner.enqueue(
+    input(
+      'pipeline-selector:1',
+      'ANALYZE',
+      { snapshot: { settings: { runtime: 'local', mode: 'PRODUCTION' } } },
+      'production',
+    ),
+    fixtureNow.toISOString(),
+  ))!;
+  expect(
+    (await pull(worker, fixtureNow, 'local', 1, ['ANALYZE'], 'PRODUCTION')).map(
+      (lease) => lease.job.job_id,
+    ),
+  ).toEqual([production.job_id]);
+  expect(
+    await env.DB.prepare(
+      "SELECT count(*) n FROM jobs WHERE json_extract(payload_json,'$.snapshot.settings.mode')='QUALITY_TEST' AND state='PENDING' AND attempt_count=0",
+    ).first('n'),
+  ).toBe(21);
+  await expect(
+    pull(worker, fixtureNow, 'local', 1, ['FETCH_TRANSCRIPT'], 'PRODUCTION'),
+  ).rejects.toThrow('INVALID_TASK');
+});
 async function stores() {
   await env.DB.prepare('INSERT INTO worker_identities VALUES(?,?,?,?,?,NULL)')
     .bind(

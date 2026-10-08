@@ -63,12 +63,25 @@ it('expired pinned eligibility defers before provider HTTP and arbitrary input f
       );
       const body = JSON.parse(String(init?.body));
       calls.push({ route, body });
+      if (route === 'analysis/schedule')
+        return Response.json({ next_cursor: null, provider_requests: 0 });
       if (route === 'analysis/input')
         return Response.json({ code }, { status: 503 });
       return Response.json(
         route === 'lease'
           ? {
-              leases: [{ token, job: { job_id: 'job', task_type: 'ANALYZE' } }],
+              leases: [
+                {
+                  token,
+                  job: {
+                    job_id: 'job',
+                    task_type: 'ANALYZE',
+                    payload_json: JSON.stringify({
+                      snapshot: { settings: { mode: 'PRODUCTION' } },
+                    }),
+                  },
+                },
+              ],
             }
           : {},
       );
@@ -104,6 +117,7 @@ it('expired pinned eligibility defers before provider HTTP and arbitrary input f
       );
       expect(calls.map((call) => call.route)).toEqual([
         'heartbeat',
+        'analysis/schedule',
         'lease',
         'start',
         'analysis/input',
@@ -173,7 +187,13 @@ it('local analysis polling requests only its capability and idle never reaches G
       Authorization: 'Bearer ' + 'a'.repeat(43),
     });
     expect(JSON.stringify(body)).not.toContain('private-provider-key');
-    return Response.json(route === 'lease' ? { leases: [] } : {});
+    return Response.json(
+      route === 'lease'
+        ? { leases: [] }
+        : route === 'schedule'
+          ? { next_cursor: null, provider_requests: 0 }
+          : {},
+    );
   };
   const worker = new LocalAnalysisWorker(
     'https://fixture.invalid',
@@ -192,7 +212,15 @@ it('local analysis polling requests only its capability and idle never reaches G
   });
   expect(calls).toEqual([
     { route: 'heartbeat', body: { runtime: 'local' } },
-    { route: 'lease', body: { runtime: 'local', task_type: 'ANALYZE' } },
+    { route: 'schedule', body: { after: null } },
+    {
+      route: 'lease',
+      body: {
+        runtime: 'local',
+        task_type: 'ANALYZE',
+        analysis_mode: 'PRODUCTION',
+      },
+    },
   ]);
   expect(providerCalls).toBe(0);
 });
@@ -211,7 +239,13 @@ it('a mismatched or unsupported analysis lease cannot start or call the provider
     const transport: typeof fetch = async (url) => {
       const route = new URL(String(url)).pathname.split('/').at(-1)!;
       routes.push(route);
-      return Response.json(route === 'lease' ? { leases: [invalid] } : {});
+      return Response.json(
+        route === 'lease'
+          ? { leases: [invalid] }
+          : route === 'schedule'
+            ? { next_cursor: null, provider_requests: 0 }
+            : {},
+      );
     };
     await expect(
       new LocalAnalysisWorker(
@@ -221,6 +255,6 @@ it('a mismatched or unsupported analysis lease cannot start or call the provider
         transport,
       ).cycle(),
     ).rejects.toThrow('INVALID_ANALYSIS_LEASE');
-    expect(routes).toEqual(['heartbeat', 'lease']);
+    expect(routes).toEqual(['heartbeat', 'schedule', 'lease']);
   }
 });

@@ -1,8 +1,4 @@
-import {
-  assertContext,
-  type AccessContext,
-  type Database,
-} from '../db/boundary.js';
+import { assertContext, AccessContext, type Database } from '../db/boundary.js';
 import { sha256 } from '../auth/crypto.js';
 import { JobStore } from '../jobs/store.js';
 import { leasePredicate } from '../jobs/lease-guard.js';
@@ -171,8 +167,13 @@ export class AnalysisJobs {
     settings: AnalysisSettings,
     now: Date,
     intent?: ExplicitAnalysisIntent,
+    automatic = false,
   ) {
-    this.context.requireOwner();
+    if (automatic) {
+      this.context.requireTask('ANALYZE');
+      if (intent || settings.mode !== 'PRODUCTION')
+        throw new Error('FORBIDDEN');
+    } else this.context.requireOwner();
     if (
       !['local', 'cloud'].includes(settings.runtime) ||
       !['PRODUCTION', 'QUALITY_TEST'].includes(settings.mode) ||
@@ -345,6 +346,7 @@ export class AnalysisJobs {
     now: Date,
     intent?: ExplicitAnalysisIntent,
   ) {
+    this.context.requireOwner();
     const snapshot = await this.buildSnapshot(
       sourceRunId,
       settings,
@@ -352,6 +354,137 @@ export class AnalysisJobs {
       intent,
     );
     return this.queueSnapshot(snapshot, intent?.nonce ?? '', now);
+  }
+  /** Scoped preparation only: no source bytes or provider request are sent here. */
+  async enqueueAutomatic(
+    sourceRunId: string,
+    settings: AnalysisSettings,
+    now: Date,
+  ) {
+    this.context.requireTask('ANALYZE');
+    (
+      await AccessContext.worker(this.db, this.context.credentialHash!)
+    ).requireTask('ANALYZE');
+    if (settings.mode !== 'PRODUCTION') throw new Error('FORBIDDEN');
+    const source = await this.db
+      .prepare(
+        `SELECT j.arrival_origin_at,j.origin_kind FROM analysis_runs r JOIN jobs j ON j.owner_id=r.owner_id AND j.job_id=r.job_id WHERE r.owner_id=? AND r.run_id=? AND r.state='ACCEPTED' AND j.task_type='FETCH_TRANSCRIPT' AND j.state='SUCCEEDED'`,
+      )
+      .bind(this.context.ownerId, sourceRunId)
+      .first<{
+        arrival_origin_at: string;
+        origin_kind: 'NEW' | 'BACKFILL' | 'MANUAL' | 'INTEGRITY';
+      }>();
+    if (!source) throw new Error('ANALYSIS_SOURCE_NOT_ACCEPTED');
+    const configId = 'automatic-analysis:' + sourceRunId;
+    const frozen = await this.db
+      .prepare(
+        `SELECT payload_json,content_hash FROM config_versions WHERE owner_id=? AND config_id=? AND revision=1`,
+      )
+      .bind(this.context.ownerId, configId)
+      .first<{ payload_json: string; content_hash: string }>();
+    let snapshot: AnalysisJobSnapshot;
+    if (frozen) {
+      if ((await sha256(frozen.payload_json)) !== frozen.content_hash)
+        throw new Error('AUTOMATIC_SNAPSHOT_HASH_MISMATCH');
+      snapshot = JSON.parse(frozen.payload_json) as AnalysisJobSnapshot;
+      if (
+        snapshot.version !== 'analysis-job:1' ||
+        snapshot.source.run_id !== sourceRunId ||
+        snapshot.settings.mode !== 'PRODUCTION' ||
+        snapshot.additional_pass ||
+        snapshot.source.correction
+      )
+        throw new Error('INVALID_AUTOMATIC_SNAPSHOT');
+    } else
+      snapshot = await this.buildSnapshot(
+        sourceRunId,
+        settings,
+        now,
+        undefined,
+        true,
+      );
+    await this.requireSourceProcessing(snapshot.source.item_id);
+    const job = await this.queueSnapshot(snapshot, '', now, {
+      configId,
+      ...source,
+    });
+    (
+      await AccessContext.worker(this.db, this.context.credentialHash!)
+    ).requireTask('ANALYZE');
+    return job;
+  }
+  async scheduleAutomatic(
+    now: Date,
+    after: { accepted_at: string; run_id: string } | null = null,
+  ) {
+    this.context.requireTask('ANALYZE');
+    (
+      await AccessContext.worker(this.db, this.context.credentialHash!)
+    ).requireTask('ANALYZE');
+    if (
+      after &&
+      (!Number.isFinite(Date.parse(after.accepted_at)) ||
+        !/^[A-Za-z0-9_-]{1,128}$/.test(after.run_id))
+    )
+      throw new Error('INVALID_AUTOMATIC_CURSOR');
+    const rows = (
+      await this.db
+        .prepare(
+          `SELECT r.run_id,r.accepted_at FROM analysis_runs r JOIN jobs j ON j.owner_id=r.owner_id AND j.job_id=r.job_id JOIN items i ON i.owner_id=r.owner_id AND i.item_id=r.item_id JOIN sources s ON s.owner_id=i.owner_id AND s.source_id=i.source_id WHERE r.owner_id=? AND r.state='ACCEPTED' AND j.task_type='FETCH_TRANSCRIPT' AND j.state='SUCCEEDED' AND s.ai_processing_allowed=1 AND s.access_state='PUBLIC' AND i.availability='PUBLIC' AND json_extract(r.outcome_json,'$.authority.authority_confidence')='CONFIRMED' AND (r.accepted_at>? OR (r.accepted_at=? AND r.run_id>?)) AND NOT EXISTS(SELECT 1 FROM jobs a WHERE a.owner_id=r.owner_id AND a.task_type='ANALYZE' AND json_extract(a.payload_json,'$.snapshot.source.run_id')=r.run_id AND json_extract(a.payload_json,'$.snapshot.settings.mode')='PRODUCTION') ORDER BY r.accepted_at,r.run_id LIMIT 1`,
+        )
+        .bind(
+          this.context.ownerId,
+          after?.accepted_at ?? '',
+          after?.accepted_at ?? '',
+          after?.run_id ?? '',
+        )
+        .all<{ run_id: string; accepted_at: string }>()
+    ).results;
+    const model = await new ModelRegistry(this.db, this.context).latest(
+      'gemini_free',
+    );
+    let created = 0;
+    const deferred: string[] = [];
+    for (const row of rows) {
+      if (!model) {
+        deferred.push('MODEL_NOT_CONFIGURED');
+        continue;
+      }
+      try {
+        await this.enqueueAutomatic(
+          row.run_id,
+          {
+            runtime: 'local',
+            mode: 'PRODUCTION',
+            purpose: model.purposes[0] ?? '',
+            region: 'PL',
+            max_output_tokens: Math.min(4000, model.output_tokens),
+            limits: { claims: 40 },
+          },
+          now,
+        );
+        created++;
+      } catch (error) {
+        const reason = error instanceof Error ? error.message : '';
+        if (
+          !/^(ANALYSIS_PROFILE_[A-Z_]+|MODEL_NOT_CONFIGURED|PROMPT_NOT_CONFIGURED|PROMPT_DEPRECATED|CAPABILITY_NOT_AVAILABLE|ANALYSIS_SOURCE_PROCESSING_DENIED|AUTOMATIC_ANALYSIS_ALREADY_PLANNED_OR_REVOKED)$/.test(
+            reason,
+          )
+        )
+          throw error;
+        deferred.push(reason);
+      }
+    }
+    const last = rows.at(-1);
+    return {
+      created,
+      deferred,
+      next_cursor: last
+        ? { accepted_at: last.accepted_at, run_id: last.run_id }
+        : null,
+      provider_requests: 0 as const,
+    };
   }
   async previewExplicit(
     sourceRunId: string,
@@ -579,8 +712,23 @@ export class AnalysisJobs {
     snapshot: AnalysisJobSnapshot,
     nonce: string,
     now: Date,
+    automatic?: {
+      configId: string;
+      arrival_origin_at: string;
+      origin_kind: 'NEW' | 'BACKFILL' | 'MANUAL' | 'INTEGRITY';
+    },
   ) {
-    this.context.requireOwner();
+    if (automatic) {
+      this.context.requireTask('ANALYZE');
+      if (
+        nonce ||
+        snapshot.settings.mode !== 'PRODUCTION' ||
+        snapshot.replaces_pending ||
+        snapshot.additional_pass ||
+        snapshot.source.correction
+      )
+        throw new Error('FORBIDDEN');
+    } else this.context.requireOwner();
     const {
       source,
       prompt,
@@ -621,15 +769,75 @@ export class AnalysisJobs {
       canonical_schema_version: 'intelligence-canonical:1.2',
       enrichment_version: '1.0',
       explicit_run_nonce: nonce,
-      arrival_origin_at: now.toISOString(),
-      origin_kind: 'MANUAL' as const,
+      arrival_origin_at: automatic?.arrival_origin_at ?? now.toISOString(),
+      origin_kind: automatic?.origin_kind ?? ('MANUAL' as const),
       payload: { snapshot },
       priority: settings.mode === 'QUALITY_TEST' || additionalPass ? 20 : 60,
       due_at: now.toISOString(),
     };
     const store = new JobStore(this.db, this.context);
     let job;
-    if (!snapshot.replaces_pending)
+    if (automatic) {
+      const worker = {
+        predicate:
+          "EXISTS(SELECT 1 FROM worker_identities WHERE owner_id=? AND worker_id=? AND credential_hash=? AND revoked_at IS NULL) AND EXISTS(SELECT 1 FROM items i JOIN sources s ON s.owner_id=i.owner_id AND s.source_id=i.source_id WHERE i.owner_id=? AND i.item_id=? AND s.ai_processing_allowed=1 AND s.access_state='PUBLIC' AND i.availability='PUBLIC')",
+        bindings: [
+          this.context.ownerId,
+          this.context.actorId,
+          this.context.credentialHash!,
+          this.context.ownerId,
+          source.item_id,
+        ],
+      };
+      const usage = promptUseGuard(
+        this.context.ownerId,
+        prompt.prompt_id,
+        prompt.version,
+      );
+      const guard = {
+        predicate:
+          worker.predicate +
+          ' AND ' +
+          usage.predicate +
+          ' AND EXISTS(SELECT 1 FROM config_versions WHERE owner_id=? AND config_id=? AND revision=1 AND content_hash=?)',
+        bindings: [
+          ...worker.bindings,
+          ...usage.bindings,
+          this.context.ownerId,
+          automatic.configId,
+          hash,
+        ],
+      };
+      const prepared = await store.prepareEnqueue(
+        input,
+        now.toISOString(),
+        guard,
+      );
+      await this.db.batch([
+        this.db
+          .prepare(
+            `INSERT INTO config_versions(config_id,owner_id,revision,payload_json,content_hash,created_at) SELECT ?,?,1,?,?,? WHERE ${worker.predicate} AND ${usage.predicate} AND NOT EXISTS(SELECT 1 FROM jobs WHERE owner_id=? AND task_type='ANALYZE' AND json_extract(payload_json,'$.snapshot.source.run_id')=? AND json_extract(payload_json,'$.snapshot.settings.mode')='PRODUCTION') ON CONFLICT DO NOTHING`,
+          )
+          .bind(
+            automatic.configId,
+            this.context.ownerId,
+            JSON.stringify(snapshot),
+            hash,
+            now.toISOString(),
+            ...worker.bindings,
+            ...usage.bindings,
+            this.context.ownerId,
+            source.run_id,
+          ),
+        ...prepared.statements,
+      ]);
+      job = await this.db
+        .prepare('SELECT * FROM jobs WHERE owner_id=? AND dedup_key=?')
+        .bind(this.context.ownerId, prepared.dedup_key)
+        .first<import('../../../contracts/src/jobs.js').JobRecord>();
+      if (!job)
+        throw new Error('AUTOMATIC_ANALYSIS_ALREADY_PLANNED_OR_REVOKED');
+    } else if (!snapshot.replaces_pending)
       job = await store.enqueue(
         input,
         now.toISOString(),

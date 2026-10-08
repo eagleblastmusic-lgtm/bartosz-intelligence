@@ -197,7 +197,15 @@ export async function pull(
   runtime: 'local' | 'cloud',
   slots = 1,
   tasks?: readonly TaskType[],
+  analysisMode?: 'PRODUCTION',
 ) {
+  if (
+    analysisMode !== undefined &&
+    (analysisMode !== 'PRODUCTION' ||
+      tasks?.length !== 1 ||
+      tasks[0] !== 'ANALYZE')
+  )
+    throw new Error('INVALID_TASK');
   if (!Number.isInteger(slots) || slots < 1 || slots > 10)
     throw new Error('INVALID_SLOTS');
   for (const task of tasks ?? []) store.context.requireTask(task);
@@ -215,7 +223,7 @@ export async function pull(
     ].map((predicate) =>
       store.db
         .prepare(
-          `SELECT * FROM jobs WHERE owner_id=? AND state='PENDING' AND due_at<=? AND ${predicate} AND ${runtimeAdmissionPredicate} AND ${taskPredicate} ORDER BY priority DESC,arrival_origin_at,job_id LIMIT 20`,
+          `SELECT * FROM jobs WHERE owner_id=? AND state='PENDING' AND due_at<=? AND ${predicate} AND ${runtimeAdmissionPredicate} AND ${taskPredicate} ${analysisMode ? "AND json_extract(payload_json,'$.snapshot.settings.mode')='PRODUCTION'" : ''} ORDER BY priority DESC,arrival_origin_at,job_id LIMIT 20`,
         )
         .bind(
           store.context.ownerId,

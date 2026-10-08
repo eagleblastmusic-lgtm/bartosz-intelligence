@@ -62,6 +62,31 @@ function optionalTask(value: unknown): OptionalTask {
     throw new Error('INVALID_TASK');
   return value;
 }
+workersApp.post('/analysis/schedule', async (c) => {
+  const input = await body(c, ['after']);
+  let after: { accepted_at: string; run_id: string } | null = null;
+  if (input.after !== undefined && input.after !== null) {
+    if (
+      typeof input.after !== 'object' ||
+      Array.isArray(input.after) ||
+      Object.keys(input.after).some(
+        (key) => !['accepted_at', 'run_id'].includes(key),
+      )
+    )
+      throw new Error('INVALID_AUTOMATIC_CURSOR');
+    const cursor = input.after as Record<string, unknown>;
+    after = {
+      accepted_at: text(cursor.accepted_at, 32),
+      run_id: text(cursor.run_id, 128),
+    };
+  }
+  return c.json(
+    await new AnalysisJobs(c.env.DB, c.get('access')).scheduleAutomatic(
+      new Date(),
+      after,
+    ),
+  );
+});
 workersApp.post('/optional/input', async (c) => {
   const input = await body(c, ['token', 'task_type']),
     access = c.get('access');
@@ -600,12 +625,18 @@ workersApp.post('/artifacts/verify-step', async (c) => {
   );
 });
 workersApp.post('/lease', async (c) => {
-  const input = await body(c, ['runtime', 'task_type', 'job_id']),
+  const input = await body(c, [
+      'runtime',
+      'task_type',
+      'job_id',
+      'analysis_mode',
+    ]),
     access = c.get('access'),
     location = runtime(input.runtime);
   const store = new JobStore(c.env.DB, access),
     now = new Date();
   if (input.job_id !== undefined) {
+    if (input.analysis_mode !== undefined) throw new Error('INVALID_TASK');
     const type = task(input.task_type);
     access.requireTask(type);
     const lease = await store.lease(
@@ -620,7 +651,18 @@ workersApp.post('/lease', async (c) => {
   }
   const types =
     input.task_type === undefined ? undefined : [task(input.task_type)];
-  return c.json({ leases: await pull(store, now, location, 1, types) });
+  if (input.analysis_mode !== undefined && input.analysis_mode !== 'PRODUCTION')
+    throw new Error('INVALID_TASK');
+  return c.json({
+    leases: await pull(
+      store,
+      now,
+      location,
+      1,
+      types,
+      input.analysis_mode as 'PRODUCTION' | undefined,
+    ),
+  });
 });
 workersApp.post('/heartbeat', async (c) => {
   const input = await body(c, ['runtime', 'task_type', 'token']),
