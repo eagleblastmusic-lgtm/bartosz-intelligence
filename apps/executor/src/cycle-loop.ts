@@ -1,0 +1,58 @@
+import { setTimeout as delay } from 'node:timers/promises';
+import { WorkerRpcError } from './worker-rpc.js';
+
+/** One serial cycle at a time; durable jobs remain on the control plane. */
+export async function runExecutorLoop(input: {
+  cycle: () => Promise<{ idle: boolean; accepted: boolean }>;
+  once: boolean;
+  search: boolean;
+  signal: AbortSignal;
+  emit: (event: Record<string, unknown>, failure: boolean) => void;
+  wait?: (milliseconds: number, signal: AbortSignal) => Promise<void>;
+}): Promise<number> {
+  const wait =
+    input.wait ??
+    ((milliseconds, signal) => delay(milliseconds, undefined, { signal }));
+  let failures = 0;
+  while (!input.signal.aborted) {
+    let interval = 30000;
+    try {
+      const result = await input.cycle();
+      failures = 0;
+      if (input.search && !result.idle) interval = 250;
+      input.emit(
+        {
+          event: 'LOCAL_EXECUTOR_CYCLE',
+          accepted: result.accepted,
+          idle: result.idle,
+        },
+        false,
+      );
+    } catch (error) {
+      const denied =
+        error instanceof Error && error.message === 'EXECUTOR_AUTH_DENIED';
+      input.emit(
+        {
+          event: denied
+            ? 'LOCAL_EXECUTOR_AUTH_DENIED'
+            : 'LOCAL_EXECUTOR_CYCLE_FAILED',
+          ...(error instanceof WorkerRpcError
+            ? { route: error.route, status: error.status }
+            : {}),
+        },
+        true,
+      );
+      if (denied || input.once) return 1;
+      failures = Math.min(failures + 1, 3);
+      interval = Math.min(120000, 30000 * 2 ** (failures - 1));
+    }
+    if (input.once || input.signal.aborted) return 0;
+    try {
+      await wait(interval, input.signal);
+    } catch (error) {
+      if (input.signal.aborted) return 0;
+      throw error;
+    }
+  }
+  return 0;
+}

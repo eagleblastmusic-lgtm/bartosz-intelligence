@@ -1,6 +1,5 @@
-import { setTimeout as delay } from 'node:timers/promises';
 import { LocalTranscriptWorker } from '../../apps/executor/src/local-worker.js';
-import { WorkerRpcError } from '../../apps/executor/src/worker-rpc.js';
+import { runExecutorLoop } from '../../apps/executor/src/cycle-loop.js';
 import { LocalAnalysisWorker } from '../../apps/executor/src/analysis-worker.js';
 import { LocalSourceCorrectionWorker } from '../../apps/executor/src/source-correction-worker.js';
 import { LocalSearchWorker } from '../../apps/executor/src/search-worker.js';
@@ -61,47 +60,23 @@ if (
     ))
 )
   throw new Error('INVALID_ANALYSIS_JOB_ID');
-let stopped = false;
-let active = false;
+const shutdown = new AbortController();
 process.on('SIGINT', () => {
-  stopped = true;
+  shutdown.abort();
 });
 process.on('SIGTERM', () => {
-  stopped = true;
+  shutdown.abort();
 });
-do {
-  try {
-    const result =
-      worker instanceof LocalAnalysisWorker
-        ? await worker.cycle(selectedJob)
-        : await worker.cycle();
-    active = !result.idle;
-    process.stdout.write(
-      JSON.stringify({
-        event: 'LOCAL_EXECUTOR_CYCLE',
-        accepted: result.accepted,
-        idle: result.idle,
-      }) + '\n',
-    );
-  } catch (error) {
-    active = false;
-    // Never print exception stacks, provider bodies, credentials or input text.
-    const denied =
-      error instanceof Error && error.message === 'EXECUTOR_AUTH_DENIED';
-    process.stderr.write(
-      JSON.stringify({
-        event: denied
-          ? 'LOCAL_EXECUTOR_AUTH_DENIED'
-          : 'LOCAL_EXECUTOR_CYCLE_FAILED',
-        ...(error instanceof WorkerRpcError
-          ? { route: error.route, status: error.status }
-          : {}),
-      }) + '\n',
-    );
-    if (denied || once) {
-      process.exitCode = 1;
-      break;
-    }
-  }
-  if (!once && !stopped) await delay(search && active ? 250 : 30000);
-} while (!once && !stopped);
+process.exitCode = await runExecutorLoop({
+  cycle: () =>
+    worker instanceof LocalAnalysisWorker
+      ? worker.cycle(selectedJob)
+      : worker.cycle(),
+  once,
+  search,
+  signal: shutdown.signal,
+  emit: (event, failure) =>
+    (failure ? process.stderr : process.stdout).write(
+      JSON.stringify(event) + '\n',
+    ),
+});
