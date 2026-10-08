@@ -969,7 +969,7 @@ it.each([
       free_eligible: true,
       billing_enabled: false,
       purposes: ['personal'],
-      regions: ['PL'],
+      regions: [scenario === 'AUTOMATIC' ? 'PL/EEA' : 'PL'],
       task_types: [semanticMode],
       runtimes: ['local'],
       structured_output: true,
@@ -1022,7 +1022,7 @@ it.each([
       runtime: 'local' as const,
       mode,
       purpose: 'personal',
-      region: 'PL',
+      region: scenario === 'AUTOMATIC' ? 'PL/EEA' : 'PL',
       max_output_tokens: 4000,
       limits: { claims: scenario === 'AUTOMATIC' ? 40 : 20 },
     };

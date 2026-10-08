@@ -82,7 +82,7 @@ reprocessApp.get('/context/:item', async (c) => {
           runtime: 'local',
           mode: 'PRODUCTION',
           purpose: model.purposes[0] ?? '',
-          region: 'PL',
+          region: model.regions[0] ?? '',
           max_output_tokens: Math.min(4000, model.output_tokens),
           limits: { claims: 40 },
         }
