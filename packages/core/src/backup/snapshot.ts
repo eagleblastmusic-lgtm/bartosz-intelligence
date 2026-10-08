@@ -175,16 +175,25 @@ export class CoreBackup {
         .prepare('SELECT cut_seq FROM maintenance_state WHERE barrier_token=?')
         .bind(id)
         .first<number>('cut_seq');
-      const counts: Record<string, number> = {};
-      for (const table of backupTables) {
-        const scoped = tableSpec(table).scoped;
-        const query = this.db.prepare(
-          `SELECT COUNT(*) n FROM ${table}${scoped ? ' WHERE owner_id=?' : ''}`,
-        );
-        counts[table] = (await (
-          scoped ? query.bind(this.context.ownerId) : query
-        ).first<number>('n'))!;
-      }
+      // One database invocation keeps the growing table inventory within the
+      // control-plane query budget. Names come exclusively from our allowlist.
+      const counts = await this.db
+        .prepare(
+          'SELECT ' +
+            backupTables
+              .map(
+                (table) =>
+                  `(SELECT COUNT(*) FROM ${table}${tableSpec(table).scoped ? ' WHERE owner_id=?' : ''}) AS ${table}`,
+              )
+              .join(','),
+        )
+        .bind(
+          ...backupTables
+            .filter((table) => tableSpec(table).scoped)
+            .map(() => this.context.ownerId),
+        )
+        .first<Record<string, number>>();
+      if (!counts) throw new Error('BACKUP_INVENTORY_MISSING');
       await this.db
         .prepare(
           "INSERT INTO backup_snapshots(backup_id,owner_id,state,cut_seq,created_at,expires_at,counts_json) VALUES(?,?,'BUILDING',?,?,?,?)",

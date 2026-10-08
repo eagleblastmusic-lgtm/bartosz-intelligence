@@ -15,7 +15,32 @@ import { JobStore } from '../../packages/core/src/jobs/store.js';
 import { sha256 } from '../../packages/core/src/auth/crypto.js';
 import { restoreCanonical } from '../../packages/core/src/backup/restore.js';
 import type { BackupChunk } from '../../packages/core/src/backup/snapshot.js';
+import type { Database } from '../../packages/core/src/db/boundary.js';
 beforeEach(resetCore);
+it('starts a complete owner-scoped inventory within a bounded control-plane query budget', async () => {
+  const owner = await fixtureOwner();
+  let invocations = 0;
+  const bounded: Database = {
+    prepare(sql) {
+      invocations++;
+      if (invocations > 10) throw new Error('QUERY_BUDGET_EXCEEDED');
+      return env.DB.prepare(sql);
+    },
+    batch: env.DB.batch.bind(env.DB),
+  };
+  const backup = new CoreBackup(bounded, owner);
+  const started = await backup.begin();
+  const row = await env.DB.prepare(
+    'SELECT counts_json FROM backup_snapshots WHERE backup_id=?',
+  )
+    .bind(started.backup_id)
+    .first<{ counts_json: string }>();
+  const counts = JSON.parse(row!.counts_json) as Record<string, number>;
+  expect(Object.keys(counts).sort()).toEqual([...backupTables].sort());
+  expect(counts.owner_users).toBe(1);
+  expect(invocations).toBeLessThanOrEqual(10);
+  await new CoreBackup(env.DB, owner).abort(started.backup_id);
+});
 it('D1 mutation barrier freezes a consistent cut, rejects concurrent writer, hashes every chunk, and releases after verification', async () => {
   const owner = await fixtureOwner(),
     other = await fixtureOwner('b');
