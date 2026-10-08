@@ -80,3 +80,11 @@ Historical local failures, preserved without replacing their output:
 - `independent-report.json` in the successful drill directory records FAIL from
   sandbox `spawnSync git EPERM`, before evidence qualification. Authorized
   read-only retest is `authorized-independent-report.json`: NOT_RUN, two PASS.
+
+Candidate `75502ea` additionally injected a SQL failure after the acceptance
+guard and run update inside the D1 batch. Before retry, job state remained
+RUNNING, run state CANDIDATE and attempt commit nonce null. Valid retry then
+succeeded exactly once. Evidence: `b21a69ff-168f-434c-8cb5-20c991589c3e/`;
+lease crash, queue loss and database rollback PASS; overall Gate R NOT_RUN.
+The independent on-disk CLI evaluation confirmed the same result. Targeted
+Discovery/recovery and evaluator/combined-recovery suites: 24 tests PASS.

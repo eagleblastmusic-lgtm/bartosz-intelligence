@@ -1,0 +1,11 @@
+{
+  "version": "GateRConfiguration/1.0",
+  "candidate_sha256": "456068f2e1f940f0faa00bfd21b494dfd545d53eabd3152ba0acee3c27d0012f",
+  "migration_set_sha256": "0ea54579fe5f0a5c4d8501a0ac3718f5fe9d6e317a93ebb1ff38f9e706b73f2a",
+  "migration_count": 35,
+  "target_origin": "http://127.0.0.1:63448",
+  "isolated_database_id": "local-d1-b21a69ff-168f-434c-8cb5-20c991589c3e",
+  "production_database_id": "6f7a7527-610b-4e56-ad80-682ea7acd567",
+  "owner_pseudonym": "OWNER_A",
+  "paid_services_enabled": false
+}
