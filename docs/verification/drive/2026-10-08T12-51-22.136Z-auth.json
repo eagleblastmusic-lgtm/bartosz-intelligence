@@ -1,0 +1,16 @@
+{
+  "version": "drive-auth-live:1",
+  "sampled_at": "2026-10-08T12:51:22.136Z",
+  "connection_id": "516468a4-e59c-4754-a9d6-09b63adf6603",
+  "auth_state": "CONNECTED",
+  "publishing_state": "TESTING",
+  "offline_refresh": "PASS",
+  "last_refresh_at": "2026-10-08T12:50:48.748Z",
+  "recovery_copy_matches_active_key": "PASS",
+  "actual_refresh_envelope_decryption_with_recovery_key": "PASS",
+  "root_state": "UNSELECTED",
+  "root_child_probe": "NOT_RUN",
+  "production_token_longevity": "NOT_YET_MATURE",
+  "credentials_recorded": false,
+  "account_binding_hash": "130f8c67f3d44d6a353daea5cb080d3bce713941ae1638118fbc869386b780cd"
+}
