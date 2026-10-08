@@ -81,15 +81,20 @@ if (suppliedCopy) {
     typeof exported.result?.signed_url !== 'string'
   )
     throw new Error('REMOTE_BACKUP_NOT_READY');
+  let downloadPhase = 'URL_VALIDATION',
+    downloadStatus = null;
   try {
     const url = new URL(exported.result.signed_url);
     if (url.protocol !== 'https:' || url.username || url.password)
       throw new Error();
+    downloadPhase = 'HTTP';
     const response = await fetch(url, {
-      redirect: 'error',
+      redirect: 'manual',
       signal: AbortSignal.timeout(30000),
     });
+    downloadStatus = response.status;
     if (!response.ok || !response.body) throw new Error();
+    downloadPhase = 'BODY';
     const reader = response.body.getReader(),
       parts = [];
     let size = 0;
@@ -104,8 +109,44 @@ if (suppliedCopy) {
       parts.push(part.value);
     }
     bytes = Buffer.concat(parts);
-  } catch {
-    throw new Error('PRIVATE_BACKUP_DOWNLOAD_FAILED');
+  } catch (error) {
+    const code = error?.cause?.code ?? error?.code;
+    const category = [
+      'ENOTFOUND',
+      'ECONNRESET',
+      'ETIMEDOUT',
+      'UND_ERR_CONNECT_TIMEOUT',
+    ].includes(code)
+      ? code
+      : error?.name === 'TimeoutError'
+        ? 'TIMEOUT'
+        : 'UNCLASSIFIED';
+    const evidence = {
+      created_at: new Date().toISOString(),
+      result: 'FAIL',
+      phase: 'PRIVATE_BACKUP_DOWNLOAD',
+      download_phase: downloadPhase,
+      http_status: downloadStatus,
+      transport_category: category,
+      migration_started: false,
+      signed_url_recorded: false,
+      credential_values_recorded: false,
+    };
+    mkdirSync('docs/verification/deployment', { recursive: true });
+    writeFileSync(
+      'docs/verification/deployment/' +
+        evidence.created_at.replaceAll(':', '-') +
+        '-pre-upgrade-download-fail.json',
+      JSON.stringify(evidence, null, 2) + '\n',
+      { flag: 'wx' },
+    );
+    console.log(JSON.stringify(evidence));
+    throw new Error(
+      'PRIVATE_BACKUP_DOWNLOAD_FAILED_' +
+        downloadPhase +
+        '_' +
+        (downloadStatus ?? category),
+    );
   }
 }
 const id = new Date().toISOString().replaceAll(':', '-');

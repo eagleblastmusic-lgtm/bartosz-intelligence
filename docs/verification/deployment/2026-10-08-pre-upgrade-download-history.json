@@ -1,0 +1,13 @@
+{
+  "recorded_at": "2026-10-08T13:41:47.226Z",
+  "result": "FAIL",
+  "phase": "PRIVATE_BACKUP_DOWNLOAD",
+  "reason": "PRIVATE_BACKUP_DOWNLOAD_FAILED",
+  "transport_category": "UNCLASSIFIED",
+  "migration_started": false,
+  "bounded_retest": "PASS",
+  "retest_receipt": "2026-10-08T13-40-13.535Z-pre-upgrade.json",
+  "signed_url_recorded": false,
+  "credential_values_recorded": false
+}
+
