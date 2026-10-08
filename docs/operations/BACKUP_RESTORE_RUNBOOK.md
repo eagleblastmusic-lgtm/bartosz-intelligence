@@ -45,6 +45,19 @@ integrity and foreign keys. It does not replace the deployed D1 database.
 The recovery locator records where the validated copy and isolated restore reside;
 writing that locator does not prove an independent medium.
 
+Standalone Windows restore now verifies a protected owner/SYSTEM-only ACL on
+`.local/backups` before creating database bytes. Recovery targets must remain
+under `.local`; reparse points in the target ancestry are rejected. ACL failures
+stop restore without exposing PowerShell diagnostics. An actual restore of
+backup `5a30668c-f9f2-4aae-b965-b9e15dc9c073` passed: 4678 rows, 15587643 canonical
+bytes, integrity/FK PASS and zero restored active sessions/worker credentials.
+Read-only checks confirmed owner/SYSTEM-only access on the directory, restored
+SQLite file and private recovery locator. This closes a concrete gap where the
+standalone restore previously relied on inherited directory permissions.
+Targeted ACL/restore regressions passed 4 tests; one non-Windows-only test was
+skipped on Windows. Scoped lint and tools typecheck passed. No production data
+was replaced and no new production backup was required.
+
 Before any production replacement, identify the concrete target, retain the current
 validated copy, stop writers and invalidate sessions/credentials. Production
 replacement needs an owner decision because it discards newer target state.

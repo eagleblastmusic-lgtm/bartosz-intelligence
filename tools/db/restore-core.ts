@@ -15,6 +15,7 @@ import {
 import type { PortableCoreBackup } from '../../packages/core/src/backup/restore.js';
 import { sqliteAdapter } from './sqlite-adapter.js';
 import { verifyMigrations } from './migrations.js';
+import { requirePrivateRecoveryDirectory } from './private-directory.js';
 const inputPath = process.argv[2];
 if (!inputPath || !process.env.GOOGLE_OIDC_OWNER_SUBJECT)
   throw new Error('PRIVATE_BACKUP_AND_OWNER_BINDING_REQUIRED');
@@ -32,6 +33,7 @@ const files = Object.fromEntries(
 );
 verifyMigrations(files, ledger.migrations);
 const directory = resolve('.local/backups');
+if (process.platform === 'win32') requirePrivateRecoveryDirectory(directory);
 mkdirSync(directory, { recursive: true });
 const target = join(directory, portable.manifest.backup_id + '.sqlite');
 if (existsSync(target)) throw new Error('RESTORE_TARGET_EXISTS');
