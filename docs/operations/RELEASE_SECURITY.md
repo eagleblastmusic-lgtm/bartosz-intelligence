@@ -31,3 +31,7 @@ request or Stage 01 requalification.
 The affected source/recovery/runtime verification passed 14 tests, including
 oversized chunked bodies without Content-Length, declared oversize, invalid UTF-8,
 stream failure, RSS DTD/depth rejection and existing redirect protection.
+
+The first Workers typecheck found its TextDecoder options require explicit
+ignoreBOM. This compatibility failure was corrected with ignoreBOM=false;
+the streaming byte bounds and strict UTF-8 behavior are unchanged.

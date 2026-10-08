@@ -32,7 +32,9 @@ export async function boundedText(response: Response, limit: number) {
     offset += part.length;
   }
   try {
-    return new TextDecoder('utf-8', { fatal: true }).decode(bytes);
+    return new TextDecoder('utf-8', { fatal: true, ignoreBOM: false }).decode(
+      bytes,
+    );
   } catch {
     throw new Error('RESPONSE_INVALID_UTF8');
   }
