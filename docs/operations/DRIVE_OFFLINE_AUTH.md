@@ -142,6 +142,27 @@ the selected root. Confirmation alone does not enable the scheduler.
 
 ## Unattended export runtime
 
+The owner confirmed Google publishing was changed to Production on 2026-10-08.
+Local configuration and the existing free Worker were updated accordingly:
+deployment `a7878172-209b-4565-866b-4ca433d2aa08`, receipt
+`docs/verification/deployment/2026-10-08T19-29-39.381Z.json`.
+This is an owner-confirmed setting, not independently inspected brand approval.
+The previously stored connection still reports TESTING until new offline consent
+completes. Never relabel its publishing_state through administrative SQL or a
+refresh alone. Reconnect on the existing connection, then verify and confirm
+the existing root; do not create another folder. A new consent preserves mappings
+and sets the retained root to VERIFY_REQUIRED. Actual Production grant renewal
+remains pending that owner interaction.
+
+The first configuration write was denied by local sandbox permissions. Deployment
+`575fc785-1341-48f0-882d-478228ec7485` therefore used the previous prepared
+configuration; it is not proof of the Production setting. Authorized preparation
+and the subsequent deployment corrected this. Secrets were never logged.
+Targeted OAuth verification passed 11 tests, including old Testing-token renewal
+with Production configuration remaining TESTING, followed by new Production
+consent preserving the root and requiring verification. Scoped lint and Workers
+typecheck passed.
+
 Actual owner root confirmation and single-day production export have been
 verified. Receipts `docs/verification/drive/7dad1744-116e-4284-900f-eee2a87a1e79.json`
 and `docs/verification/drive/c6a9e094-ef59-411c-ade4-a219d686af2c.json` record

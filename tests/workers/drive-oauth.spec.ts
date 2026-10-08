@@ -31,6 +31,61 @@ const config = {
   app_origin: 'https://bi.example',
 };
 beforeEach(resetCore);
+it('Production configuration does not relabel an old Testing token; a new consent preserves the root and requires verification', async () => {
+  const initial = await flow();
+  const transport = await tokenTransport(initial.url);
+  await finishDriveAuthorization(
+    env.DB,
+    initial.owner,
+    { ...config, publishing_status: 'TESTING' },
+    initial.wrapping,
+    initial.input,
+    fixtureNow,
+    transport.fetcher,
+  );
+  await env.DB.prepare(
+    "UPDATE drive_connections SET root_id='existing-private-root',root_state='VERIFIED'",
+  ).run();
+  await refreshDriveAccess(
+    env.DB,
+    initial.owner,
+    { ...config, publishing_status: 'PRODUCTION' },
+    initial.wrapping,
+    initial.start.connection_id,
+    fixtureNow,
+    async () =>
+      Response.json({
+        token_type: 'Bearer',
+        access_token: 'synthetic-access',
+        expires_in: 3600,
+      }),
+  );
+  expect(
+    await env.DB.prepare(
+      'SELECT publishing_state,root_state FROM drive_connections',
+    ).first(),
+  ).toEqual({ publishing_state: 'TESTING', root_state: 'VERIFIED' });
+  const reconnect = await flow(initial.start.connection_id);
+  const newGrant = await tokenTransport(reconnect.url);
+  await finishDriveAuthorization(
+    env.DB,
+    reconnect.owner,
+    { ...config, publishing_status: 'PRODUCTION' },
+    reconnect.wrapping,
+    reconnect.input,
+    fixtureNow,
+    newGrant.fetcher,
+  );
+  expect(
+    await env.DB.prepare(
+      'SELECT publishing_state,root_id,root_state FROM drive_connections',
+    ).first(),
+  ).toEqual({
+    publishing_state: 'PRODUCTION',
+    root_id: 'existing-private-root',
+    root_state: 'VERIFY_REQUIRED',
+  });
+});
 it('persists explicit Testing consent status without promoting an unknown or renewed grant to production', async () => {
   const f = await flow(),
     t = await tokenTransport(f.url);
