@@ -1,0 +1,16 @@
+{
+  "version": "DriveBackupTransferRecovery/1.0",
+  "observed_on": "2026-10-09",
+  "backup_id": "5a30668c-f9f2-4aae-b965-b9e15dc9c073",
+  "file_id": "1bB6NlyLM_urqiEKGxqMHkoPHqgdUc_vF",
+  "first_upload_result": "TRANSPORT_TIMEOUT_15000_MS_RESPONSE_UNKNOWN",
+  "reconciliation": "EXISTING_RESERVED_FILE_ID_FOUND",
+  "second_upload_create_performed": false,
+  "readback_sha256": "31cd69361a6bb1342dd76726ba9aa1f430791cda36f90818dba61857cd027bd0",
+  "download_integrity": "PASS",
+  "same_file_id_preserved": true,
+  "duplicate_files_created": 0,
+  "new_large_backup_timeout_ms": 120000,
+  "gate_r_case_qualification": "NOT_ASSERTED_WITHOUT_FROZEN_FULL_CASE_EVIDENCE",
+  "paid_services_enabled": false
+}

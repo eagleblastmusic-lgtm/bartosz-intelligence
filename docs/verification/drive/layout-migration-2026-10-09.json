@@ -1,0 +1,45 @@
+{
+  "version": "DriveLayoutMigration/1.0",
+  "observed_at": "2026-10-09T15:58:51.376Z",
+  "status": "PASS",
+  "parent_id": "1vfEz_U9Y0mEFMw8j7Amp6UbJQrQYtfA6",
+  "bartosz_intelligence_id": "1aFYzO7kMVebvP-Y-V6oIWAAkf21MR7mN",
+  "daily_id": "1rn_5auxY_8HAeADc1RgGKQ6h9JimD7WM",
+  "backups_id": "1qulQNJMmEcFy_9o3908CNgU6Kdj7aB84",
+  "limited_content_verified_before_data_move": true,
+  "parent_acl_changed": false,
+  "daily_mapping_preserved": true,
+  "report_id": "1WFfdndxp0GJAqKgybSZf1_Opt4yvzAnQ",
+  "files": [
+    {
+      "id": "169ly1HEnThueOGnxP0E94VoZFs-DsP4Y",
+      "version": "4",
+      "content_hash": "e212d286b8c8520df5740b8a35a6c6cf32b2936398ad1f7595043cd70b399d3b",
+      "content_unchanged": true,
+      "parents": ["1aFYzO7kMVebvP-Y-V6oIWAAkf21MR7mN"]
+    },
+    {
+      "id": "1WFfdndxp0GJAqKgybSZf1_Opt4yvzAnQ",
+      "version": "8",
+      "content_hash": "791e6c05afa7d3d8feb5ddcbfeddc794b6ea2337e3ef9972d785db3448782b8b",
+      "content_unchanged": true,
+      "parents": ["1rn_5auxY_8HAeADc1RgGKQ6h9JimD7WM"]
+    },
+    {
+      "id": "1j9CaPJd8duRwnWOzwU7Pxgd6Mkws79fM",
+      "version": "9",
+      "content_hash": "13603fc4663a5e861ff6c7b4d39eef6be6fcf502a6a32cd156acbd25a449ca17",
+      "content_unchanged": true,
+      "parents": ["1aFYzO7kMVebvP-Y-V6oIWAAkf21MR7mN"]
+    },
+    {
+      "id": "1Nrk0H7E7wu__KGCaNDH5jguVq-UIq5vM",
+      "version": "4",
+      "content_hash": "2e29e51cb2e4fe30e2dcd64e887ebd0cccc6ebf182f9028dfa9505d1698b5795",
+      "content_unchanged": true,
+      "parents": ["1aFYzO7kMVebvP-Y-V6oIWAAkf21MR7mN"]
+    }
+  ],
+  "exact_two_subfolders": true,
+  "paid_services_enabled": false
+}

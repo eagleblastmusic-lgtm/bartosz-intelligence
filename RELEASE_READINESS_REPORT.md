@@ -1,6 +1,6 @@
 # Bartosz Intelligence V1 — release readiness
 
-Stan: 2026-10-09, Europe/Warsaw. Application commit: `ef67cdf`; recovery tooling
+Stan: 2026-10-09, Europe/Warsaw. Application/backup commit: `96532b5`; recovery tooling
 commit: `019b3f5` (poprzedzony `eb72dff`), base
 `1f5e448`. Ten raport jest audytem dostępnych dowodów, nie zgodą na release.
 
@@ -17,7 +17,8 @@ drille i pomiary wymieniono jawnie poniżej; nie oznaczono ich PASS.
   Nieznane użycie tokenów pozostaje UNKNOWN; nie powstaje dodatkowe wysłanie.
 - Trwały retry po błędzie przejściowym respektuje późniejszy Retry-After
   dostawcy, zachowując dotychczasowy budżet prób, jitter i fencing.
-- Wdrożono Workera `639ca7d1-2264-48e1-ad0e-5daca72f870b`.
+- Wdrożono Workera `93995293-fd49-4f25-b843-63f326c30a32` (commit `96532b5`),
+  zastępując wcześniejszy `639ca7d1-2264-48e1-ad0e-5daca72f870b`.
   `/health`: HTTP 200, DB/Queue/Assets obecne. To sprawdzenie bindings,
   nie E2E ani dowód dostępności zewnętrznych usług.
 - Uruchomiono istniejący kolektor Gate C z PROJECT-scoped tożsamością,
@@ -115,9 +116,9 @@ i kwalifikacji; nie jest automatycznym rozwiązaniem obecnego 503.
 | CP-7.8–7.10          | Codex/optional płatne route DISABLED; Gate 0B NOT_RUN, brak dodatkowej capacity                                                        |
 | CP-7.11              | Runbooki/backup istnieją; pełny operational acceptance i Stage DONE otwarte                                                            |
 | CP-8.1               | Strict evidence evaluators/pins/preregistration istnieją; nowy kandydat nie odziedzicza pełnego PASS starego manifestu                 |
-| CP-8.2               | Siedem actual local-D1 cases PASS na aktualnym przypiętym kandydacie; brak całego Gate R                                               |
+| CP-8.2               | Siedem actual local-D1 cases PASS na historycznie przypiętym 019b3f5; brak current full Gate R                                         |
 | CP-8.3–8.4           | Immutable model/prompt rollback actual local-D1 PASS; full quality i pozostałe frozen drille nieukończone                              |
-| CP-8.5               | Independent empty SQLite restore PASS; niezależny nośnik i pełne RPO/RTO niekwalifikowane                                              |
+| CP-8.5               | Independent Drive transfer/empty SQLite restore PASS; pełne app RPO/RTO niekwalifikowane                                               |
 | CP-8.6               | Istniejące security negatives i secret scan PASS w opisanym zakresie                                                                   |
 | CP-8.7               | Lokalny 10k/Gate S/U PASS; produkcyjna kwalifikacja CPU/query i Gate C otwarte                                                         |
 | CP-8.8               | Clean install/build/bootstrap PASS na `95902f3`; live owner first-run i pełna checklist nieukończone                                   |
@@ -176,7 +177,7 @@ próbą ingerującą w istniejący raport lub grant użytkownika.
 
 ## Recovery, backup i obserwacja
 
-Aktualne Gate R evidence `docs/verification/gate-r/2081a456-c834-4bfc-9c6d-267dee40091c/`:
+Historyczne przypięte Gate R evidence `docs/verification/gate-r/2081a456-c834-4bfc-9c6d-267dee40091c/`:
 lease crash, queue loss, discovery interruption, database rollback,
 auth revocation, quota/local offline i model/prompt rollback PASS w isolated
 actual local D1 po odtworzeniu istniejącego backupu do pustej bazy.
@@ -196,9 +197,10 @@ Backup receipt `docs/verification/backup/2026-10-08T18-39-53.489Z.json`:
 4678 canonical rows, 364 chunks, cut 1593, 35 migrations, independent empty
 SQLite restore/integrity/FKs/hash PASS, bez aktywnych sessions/credentials.
 Backup 379516 ms, restore 4698 ms. To zmierzone czasy komponentów,
-**RPO/RTO całej aplikacji: NOT_QUALIFIED**. Independent medium: NOT_VERIFIED.
+**RPO/RTO całej aplikacji: NOT_QUALIFIED**. Independent Drive medium: VERIFIED
+po upload/download/empty restore 2026-10-09; szczegóły aktualizacji poniżej.
 Dzisiejszy check: FRESH, capture 2026-10-08T18:33:29.275Z, backup_started=false.
-Scheduler: ostatni run 2026-10-09T14:05:05Z, exit 0, missed runs 0.
+Scheduler: ostatni run 2026-10-09T16:05:05Z (18:05:05 Europe/Warsaw), exit 0; next 17:05:05Z.
 Due backup execution nadal nie ma kwalifikującego dowodu; nie powtórzono kopii.
 
 Gate C immutable chain: `.local/capacity-observation/`;
@@ -238,7 +240,8 @@ Minimalne działania do pełnego V1 release:
 2. Domknięcie actual Gate D-export pełnym scorecardem na bezpiecznych danych;
    D-bridge actual Scheduled/Voice lub faktyczny capability/owner scope decision.
 3. Pozostałe trzy frozen Gate R scenarios, complete app recovery/RPO/RTO,
-   niezależny recovery medium/locator; backup execution observation.
+   backup execution observation. Niezależna kopia Drive i recovery locator są
+   już zweryfikowane dla cut 1593.
 4. Produkcyjne 10k/search/CPU oraz pełne primary evidence 20-row release checklist;
    bieżące real corpus SQL/query measurement wykonane.
 5. Kontynuacja realnego Gate C na docelowym scope i wymaganych windows;
@@ -247,8 +250,8 @@ Minimalne działania do pełnego V1 release:
    następnie formalne completion handoffy Stage 07/08 i production acceptance.
 
 Zgody/decyzje właściciela: każde nowe Gemini wysłanie (materiał + liczba),
-ewentualny model replacement, destructive auth/report drills, lokalizacja
-niezależnego backup medium oraz rzeczywisty Bridge capability/active scope.
+ewentualny model replacement, destructive auth/report drills oraz rzeczywisty
+Bridge capability/active scope. Lokalizację Drive backupu właściciel zatwierdził.
 Żadnej z tych decyzji nie podjęto za właściciela. Nie ponowiono prośby o
 odroczone formularze ludzkie. Niewykonane lokalne drille/pomiary pozostają
 technicznym backlogiem, nie zostają zbiorczo nazwane zewnętrznym blockerem.
@@ -289,3 +292,65 @@ Production HTTP search: 5 poprawnych requestów, HTTP 200, po 6 wyników.
 Cloudflare CPU telemetry HTTP 403: rzeczywisty CPU pozostaje INCONCLUSIVE.
 Nie utożsamiono czasu sieciowego z CPU. IMPLEMENTATION COMPLETE i PRODUCTION ACCEPTED
 pozostają niepotwierdzone; obowiązkowe bramki nie zostały poluzowane.
+
+## Aktualizacja po zatwierdzonej migracji i decyzji właściciela
+
+Migracja Drive **PASS**. Folder nadrzędny Bartosz Intelligence:
+`1aFYzO7kMVebvP-Y-V6oIWAAkf21MR7mN`, pod APLIKACJE
+`1vfEz_U9Y0mEFMw8j7Amp6UbJQrQYtfA6`. Daily zachował dotychczasowy ID
+`1rn_5auxY_8HAeADc1RgGKQ6h9JimD7WM`; Backups:
+`1qulQNJMmEcFy_9o3908CNgU6Kdj7aB84`. Dokładnie dwa podfoldery.
+Trzy diagnostyki przeniesiono do nowego rodzica. Wszystkie dotychczasowe file ID
+i SHA-256 treści zachowano; raport Daily nadal ma ID
+`1WFfdndxp0GJAqKgybSZf1_Opt4yvzAnQ`, a mapping eksportu nie został zmieniony.
+API potwierdziło limited access po umieszczeniu pustego folderu pod APLIKACJE,
+przed przeniesieniem danych: owner ma content access, ANYONE ma wyłącznie
+view=metadata/inheritedPermissionsDisabled=true. Nie zmieniono ACL APLIKACJE.
+Osobny test logowania nie-właściciela NOT_RUN; skuteczność content ACL wynika
+z rzeczywistych files.get/permissions.list, nie samego ustawienia flagi.
+
+Właściciel wybrał canonical-json bez szyfrowania aplikacyjnego. Master §23
+staged backup wymaga prywatnego, spójnego snapshotu bez sekretów; szyfrowane
+chunki opisuje jako „Rozszerzony projekt, nie upfront requirement”, po size/time/RPO
+trigger. Stage 08 CP-8.4 wymaga ich tylko warunkowo. Kryteriów Gate R nie zmieniono.
+Zachowano opcję aes256gcm, ale wybrany wariant nie ładuje ani nie wymaga klucza.
+
+Rzeczywisty **upload → download → SHA-256 → portable integrity → empty restore PASS**.
+Zachowano dotychczasowy verified cut 1593, bez powtarzania kosztownego production exportu.
+Drive file `1bB6NlyLM_urqiEKGxqMHkoPHqgdUc_vF`: 15799265 bytes,
+SHA-256 `31cd69361a6bb1342dd76726ba9aa1f430791cda36f90818dba61857cd027bd0`.
+Download użyto jako wejścia do nowej pustej izolowanej bazy:
+4678 rows, 15587643 canonical bytes, row hashes/ID/refs, integrity/FK PASS;
+0 aktywnych sesji i reusable worker credentials po restore.
+Wyeksportowane tabele wykluczają credentials/sessions; walidacja secret-free
+i kontrola wartości aktualnych sekretów z lokalnego środowiska przeszły przed uploadem.
+Restore bazy: **5547 ms**. Wiek snapshotu przy teście: **77473638 ms** (około 21,52 h).
+To wiek snapshotu i czas restore DB, nie pełny aplikacyjny RPO/RTO.
+Niezależna kopia na Drive jest zweryfikowana; pełny Gate R nadal **NOT_RUN**.
+Nie wykonano nowej generacji Gemini; decrypt **NOT_REQUIRED** w wybranym wariancie.
+
+Pierwszy upload miał timeout odpowiedzi 15 s, ale zapisał plik. Reconciliation
+znalazło ten sam reserved file ID i prawidłowe bytes; drugi create nie nastąpił.
+Minimalna poprawka: 120 s wyłącznie dla dużego transferu backupu. Nie zmieniono
+timeoutów Daily ani polityki AI. Nowe canonical cuty mają odrębne UUID/file ID;
+istniejących backupów i raportów nie nadpisuje się ani nie usuwa.
+Config Drive backup jest aktywny na Backups; istniejąca hourly cadence korzysta
+z verified local cuts i zachowuje kopię lokalną po błędzie zdalnego transferu.
+
+Regresja: **16 unit + 42 Workers PASS**, Core/API/tools/Workers typecheck,
+scoped lint, format i production Worker dry-run PASS. Commit **96532b5**.
+Dowody: layout-migration/access-before-data-migration w docs/verification/drive;
+drive-5a30668c-f9f2-4aae-b965-b9e15dc9c073 oraz -restore i transfer-recovery
+w docs/verification/backup. Wcześniejsze opisy pending migration/backup są
+historią poprzedniego checkpointu; powyższy stan je zastępuje.
+
+**IMPLEMENTATION COMPLETE: NO; PRODUCTION ACCEPTED: NO.** Pozostałe bramki,
+pełny live E2E, frozen recovery cases, app recovery, human review i mature Gate C
+pozostają otwarte. Actual ChatGPT Daily read nie został potwierdzony.
+
+Deployment 2026-10-09T16:08:18.889Z: Worker
+`93995293-fd49-4f25-b843-63f326c30a32`, HTTP health 200, DB/Queue/Assets true.
+Sprawdzenie istniejącej cadence: FRESH, backup_started=false,
+drive_archive=ALREADY_VERIFIED; nie wykonano kolejnego identycznego exportu/uploadu.
+Paid guard pozostaje false. Odszyfrowanie nie jest etapem wybranego canonical-json
+recovery; restore wymaga istniejącego owner binding/config, nie nowego recovery key.

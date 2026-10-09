@@ -33,3 +33,17 @@ readback. Configuration remains disabled until approved/verified Backups exists.
 PASS. Actual Drive upload/download/isolated restore NOT_RUN. Owner ACL inspection
 and revised migration approval are recorded in the release report. Do not carry
 earlier candidate fingerprints forward across this code delta.
+
+Commit 96532b5 activates owner-selected private canonical-json Drive archives,
+without a separate key, preserving optional encryption. Actual existing backup
+upload/download/hash/isolated empty restore PASS: 4678 rows, canonical readback,
+integrity/FK PASS, no revived sessions/credentials. Restore DB 5547 ms; snapshot
+age 21.52 h, neither is full application RPO/RTO. Lost upload response reconciled
+on the same reserved file ID without duplicate create. Independent Drive copy is
+now verified; full Gate R and Stage acceptance remain open. 16 unit + 42 Workers
+PASS, typecheck/lint/format/production dry-run PASS. No new Gemini generation.
+
+Production deployment: 93995293-fd49-4f25-b843-63f326c30a32, health HTTP 200,
+DB/Queue/Assets present. Existing Windows backup task last ran 2026-10-09 18:05:05
+Europe/Warsaw, LastTaskResult=0; next 19:05:05. Cadence readback FRESH and
+ALREADY_VERIFIED. This confirms current execution/config, not multi-day maturity.

@@ -166,3 +166,19 @@ private-copy readback, independent empty SQLite restore, integrity and foreign
 keys passed. Backup took 379516 ms; isolated restore took 4698 ms. No active
 sessions or worker credentials were restored. Independent physical medium and
 full application RPO/RTO remain unqualified.
+
+On 2026-10-09 the owner approved private Drive archival in canonical-json format,
+without application encryption or a separate recovery key. Master §23 treats
+encrypted chunks as a conditional size/time/RPO extension, not a basic backup
+requirement. The existing encryption option remains available but is not required
+by this selected mode. config/drive-backup.json targets the actual private Backups
+folder 1qulQNJMmEcFy_9o3908CNgU6Kdj7aB84. Hourly cadence archives verified cuts,
+preserves local copies on failure and never overwrites older UUID/file IDs.
+Actual transfer of the existing verified cut and restore from its Drive download
+passed: 4678 rows, every canonical row read back, integrity/FK PASS, no revived
+session/credential. Empty DB restore took 5547 ms. Independent Drive storage is
+verified; full application recovery/RPO/RTO and Gate R remain unqualified.
+The standalone restore output still says independent_medium_status=NOT_VERIFIED,
+because that tool does not inspect remote storage. The separate hash-bound Drive
+transfer/restore receipt proves the downloaded file came from the verified Drive
+copy; it does not upgrade the standalone tool's scope or the full recovery gate.

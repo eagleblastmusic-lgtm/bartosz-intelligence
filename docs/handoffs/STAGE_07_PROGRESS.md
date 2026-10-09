@@ -31,3 +31,9 @@ read access; public link access is not needed for that grant. No migration or
 permission change was performed. Revised migration requires approval: new limited
 parent Bartosz Intelligence, existing immutable export root renamed Daily, sibling
 Backups, diagnostics moved to parent. Actual ChatGPT Daily read remains unverified.
+
+Approved migration completed: new limited parent 1aFYzO7kMVebvP-Y-V6oIWAAkf21MR7mN;
+Daily retains 1rn_5auxY_8HAeADc1RgGKQ6h9JimD7WM and export mapping;
+Backups 1qulQNJMmEcFy_9o3908CNgU6Kdj7aB84. Actual content ACL verified before
+data move, parent APLIKACJE ACL unchanged. All existing file IDs/content hashes
+preserved. Layout migration PASS does not close the full Gate D-export scorecard.

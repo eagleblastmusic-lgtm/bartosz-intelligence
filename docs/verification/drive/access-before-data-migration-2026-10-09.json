@@ -1,0 +1,24 @@
+{
+  "version": "DrivePreMigrationAccess/1.0",
+  "observed_on": "2026-10-09",
+  "observation_order": "AFTER_EMPTY_FOLDER_MOVE_BEFORE_EXISTING_DATA_MOVE",
+  "folder_id": "1aFYzO7kMVebvP-Y-V6oIWAAkf21MR7mN",
+  "parent_id": "1vfEz_U9Y0mEFMw8j7Amp6UbJQrQYtfA6",
+  "remote_version": "3",
+  "inheritedPermissionsDisabled": true,
+  "permissions": [
+    { "type": "user", "role": "owner", "inheritedPermissionsDisabled": true },
+    {
+      "type": "anyone",
+      "role": "reader",
+      "view": "metadata",
+      "inheritedPermissionsDisabled": true
+    }
+  ],
+  "private_owner_only_content": "PASS",
+  "parent_link_users_content_access": "DENIED_BY_LIMITED_ACCESS",
+  "separate_non_owner_login_trial": "NOT_RUN",
+  "method": "Actual Drive files.get and permissions.list; strict content-access verification",
+  "parent_acl_changed": false,
+  "paid_services_enabled": false
+}
