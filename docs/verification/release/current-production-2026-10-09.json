@@ -1,0 +1,121 @@
+{
+  "version": "ReleaseReadOnlySnapshot/1.0",
+  "observed_at": "2026-10-09T14:11:29.393Z",
+  "basis": "ACTUAL_PRODUCTION_D1",
+  "paid_services_enabled": false,
+  "gemini_requests": 0,
+  "counts": [
+    {
+      "channels": 1,
+      "items": 53,
+      "observations": 0,
+      "migrations": 35
+    }
+  ],
+  "jobs": [
+    {
+      "task_type": "ANALYZE",
+      "state": "PENDING",
+      "reason_code": null,
+      "count": 4
+    },
+    {
+      "task_type": "DISCOVER",
+      "state": "SUCCEEDED",
+      "reason_code": null,
+      "count": 184
+    },
+    {
+      "task_type": "FETCH_TRANSCRIPT",
+      "state": "DEFERRED",
+      "reason_code": "LOCAL_YTDLP_NO_CAPTIONS",
+      "count": 1
+    },
+    {
+      "task_type": "FETCH_TRANSCRIPT",
+      "state": "DEFERRED",
+      "reason_code": "PROVIDER_UNAVAILABLE",
+      "count": 15
+    },
+    {
+      "task_type": "FETCH_TRANSCRIPT",
+      "state": "SUCCEEDED",
+      "reason_code": null,
+      "count": 37
+    },
+    {
+      "task_type": "PROJECT",
+      "state": "SUCCEEDED",
+      "reason_code": null,
+      "count": 37
+    },
+    {
+      "task_type": "RECONCILE",
+      "state": "SUCCEEDED",
+      "reason_code": null,
+      "count": 5
+    }
+  ],
+  "runs": [
+    {
+      "state": "ACCEPTED",
+      "count": 37
+    },
+    {
+      "state": "CANDIDATE",
+      "count": 7
+    }
+  ],
+  "services": [
+    {
+      "worker_id": "local-transcript",
+      "runtime": "local",
+      "heartbeat_at": "2026-10-09T14:11:27.137Z",
+      "online_until": "2026-10-09T14:14:27.137Z"
+    },
+    {
+      "worker_id": "local-analysis",
+      "runtime": "local",
+      "heartbeat_at": "2026-10-08T23:24:05.649Z",
+      "online_until": "2026-10-08T23:27:05.649Z"
+    },
+    {
+      "worker_id": "local-source-corrections",
+      "runtime": "local",
+      "heartbeat_at": "2026-10-09T14:11:25.573Z",
+      "online_until": "2026-10-09T14:14:25.573Z"
+    },
+    {
+      "worker_id": "local-search",
+      "runtime": "local",
+      "heartbeat_at": "2026-10-09T14:11:26.640Z",
+      "online_until": "2026-10-09T14:14:26.640Z"
+    }
+  ],
+  "exports": [
+    {
+      "publication_date": "2026-10-02",
+      "mode": "COMPACT",
+      "revision": 4,
+      "file_id": "1WFfdndxp0GJAqKgybSZf1_Opt4yvzAnQ",
+      "dirty_seq": 1685,
+      "exported_seq": 1689
+    }
+  ],
+  "drive": [
+    {
+      "auth_state": "CONNECTED",
+      "root_state": "VERIFIED",
+      "publishing_state": "PRODUCTION"
+    }
+  ],
+  "last_ai": [
+    {
+      "status": "TEMPORARY_FAILURE",
+      "finish_reason": "HTTP_503:service_unavailable",
+      "usage": "{\"input_tokens\":null,\"output_tokens\":null,\"total_tokens\":null}",
+      "content_hash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "byte_size": 0
+    }
+  ]
+}
