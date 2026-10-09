@@ -5,6 +5,11 @@
 Autorytatywna rewizja V1.1.3 wymaga osobnego prywatnego pliku oryginalnych
 napisów, niezależnie od AI. Produkcja nadal wymaga kontrolowanego przejścia
 35 → 039; nie uruchamiać nowego kodu na starym schemacie.
+Ostatnia poprawka `1f120d1` zapisuje `caption-coverage:1` przed normalizacją AI;
+archiwum preferuje tę małą mapę, zachowując obsługę starszych pełnych map.
+PARTIAL i awaria przygotowania AI nie odbierają archiwum oryginalnych cue.
+Zweryfikowany lokalny preview 1071 cue z istniejącego backupu jest evidence
+fidelity, nie zastępuje poniższego rzeczywistego readback Drive.
 
 Po actual quota probe i świeżym Analytics wykonać kolejno:
 

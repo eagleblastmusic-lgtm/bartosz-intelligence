@@ -9,6 +9,10 @@ source updates; partial captions are preserved before AI deferral. Daily gains
 a verified link. Cleanup requires both archives, the latest acquired source,
 seven days after the later verification, and all existing holds. Deletion OFF.
 Current local schema 39; production remains 35 until actual quota recovery.
+Latest fix `1f120d1` captures compact original-cue coverage before AI preparation;
+partial/failed preparation remains archivable. Delta: 7 unit/contract and 44
+Workers PASS. Cached real source: all 1071 cues, identical full Markdown/hash;
+98 KB compact map versus 689 KB current AI map. No new production operations.
 Read the newest RELEASE_READINESS_REPORT.md and current retention runbook for
 final evidence and bounded folder setup/archive-once. No Gemini consent consumed.
 Heartbeat update to 39 was attempted but its approval review failed on the

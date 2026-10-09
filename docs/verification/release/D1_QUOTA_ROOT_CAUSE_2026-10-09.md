@@ -16,6 +16,15 @@ i SHA. To **nie** pomiar billed rows_read. Live koszt archiwizacji i CPU Workers
 Free pozostają nieznane; typowe/peak capacity 20 kanałów nadal nie ma PASS.
 Zależności AI/Drive i holds nadal mogą zwiększać backlog, mimo retencji.
 Nie wykonujemy dalszych mikrooptymalizacji poza niezawodnym P0.
+Poprawka niezależności archiwum `1f120d1` zapisuje zwartą mapę oryginalnych cue
+przed przygotowaniem AI. Na rzeczywistym cached źródle 1071 cue: bieżąca mapa
+AI 688 552 bytes → coverage 98 268 bytes, identyczny pełny Markdown i SHA.
+Zmniejsza bytes mapy potrzebnej do archiwizacji o około 86%; nie jest pomiarem
+produkcji ani redukcją całej bazy. Pełna analiza zachowuje własne mapy i dodatkowo
+przechowuje mały tymczasowy coverage; PARTIAL unika zbędnych artefaktów AI.
+Źródło i timestampy pozostają archiwizowalne przy błędzie przygotowania AI.
+Nowe 7 unit/contract i 44 Workers PASS oraz typecheck/lint/build/config; dowody
+w [osobnym receipt](transcript-archive-compact-2026-10-10.json).
 
 [Aktualna weryfikacja i ryzyka](TRANSCRIPT_ARCHIVE_VERIFICATION_2026-10-10.md)
 oraz RELEASE_READINESS_REPORT.md są bieżącym checkpointem. Produkcja nadal

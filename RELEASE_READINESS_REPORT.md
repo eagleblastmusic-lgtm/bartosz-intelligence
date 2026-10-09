@@ -3,12 +3,18 @@
 ## Aktualny checkpoint — pełne oryginalne transkrypcje na Drive
 
 2026-10-10, V1.1.3. **IMPLEMENTATION COMPLETE NO; PRODUCTION ACCEPTED NO.**
-Implementacja: `966da18`. [Immutable receipt](docs/verification/release/transcript-archive-2026-10-10.json).
+Implementacja archiwum: `966da18`; ostatnia poprawka: **`1f120d1`**.
+[Immutable baseline receipt](docs/verification/release/transcript-archive-2026-10-10.json),
+[aktualna delta i rzeczywisty cached source](docs/verification/release/transcript-archive-compact-2026-10-10.json).
 [Szczegółowa weryfikacja](docs/verification/release/TRANSCRIPT_ARCHIVE_VERIFICATION_2026-10-10.md).
-Weryfikacja lokalna: pełne **483 unit/contract PASS, zero FAIL, jeden platformowy
+Baseline archiwum: pełne **483 unit/contract PASS, zero FAIL, jeden platformowy
 skip; 253 Workers PASS, zero FAIL**. Ostatnia zmiana kolejności cron ma osobne
 **2 targeted PASS**, GUI/accessibility **4 PASS**. Workers zawiera 15 przypadków
-archiwizacji, a unit sprawdza też retencję i restore. Nie sumujemy ponowień.
+archiwizacji, a unit sprawdza też retencję i restore. Ostatnia delta ma osobne
+**7 unit/contract i 44 Workers PASS**, w tym 16 przypadków archiwizacji oraz
+pełny zestaw RPC/AI acceptance. Typecheck/lint/build/config/format/secret scan
+ponownie PASS. Nie sumujemy ponowień ani nie przypisujemy starszego pełnego
+uruchomienia do późniejszego kodu. GUI i 39 migracji nie zmieniły się.
 Pierwsza równoległa próba miała timeouty; pełne sekwencyjne uruchomienie przeszło
 bez zmiany timeoutów lub asercji. Kosztowny matcher miliona bajtów zastąpiono
 równoważnym porównaniem wszystkich bajtów i długości.
@@ -23,6 +29,11 @@ Każdy pozyskany cue zachowuje oryginalny tekst i timestamp; MANUAL/GENERATED,
 PARTIAL/UNKNOWN oraz niepotwierdzony język są jawne. Braków nie generujemy.
 Niepełne źródło jest utrwalane przed odroczeniem AI. Zmiana źródła aktualizuje
 ten sam plik Drive; zmienna data pobrania nie psuje dedup artefaktów.
+Oryginalne cue mają teraz zwartą mapę `caption-coverage:1`, zapisaną przed
+normalizacją AI. Awaria dalszego przygotowania AI zachowuje materiał gotowy
+do archiwizacji. PARTIAL zapisuje tylko RAW/source/coverage (3 artefakty);
+pełny materiał zachowuje dotychczasowe mapy AI i dodaje coverage (6 artefaktów).
+Legacy pełne mapy pozostają obsługiwane; nowe archiwum preferuje zwartą mapę.
 
 P0 pozostaje bez zmian: **film ukończony po zweryfikowanym polskim streszczeniu
 Daily**. Awaria archiwizacji transkrypcji nie blokuje tego wyniku. Daily dodaje
@@ -56,6 +67,15 @@ nie duplikuje tekstu; receipt/descriptor jest ograniczony do 8 KiB. Dokument
 powyżej 32 MiB jest odraczany bez skrócenia. Actual CPU/rows_read/rows_written
 archiwizacji i szczytowe 20 kanałów nadal wymagają pomiaru produkcyjnego;
 **Gate C NOT_YET_MATURE**. Stare modele capacity zachowują zakres i założenia.
+Na zweryfikowanym, wcześniej pobranym backupie rzeczywisty `rUhllpnYWR8`
+ma 39 736 bytes źródła i **1071 cue**. Lokalny pełny Markdown: **107 144 bytes**,
+SHA `d77b9ce121b49e2d08c5ebb0c07d6e5c3411c3a1b628ab8b285c843400b4ce94`.
+Aktualny normalizer: **688 552 bytes** mapy; coverage: **98 268 bytes**,
+około **86% mniej bytes mapy odczytywanej do archiwizacji**, identyczny dokument.
+Legacy mapa z backupu ma 3 580 573 bytes; nie jest bieżącym wynikiem normalizera.
+To nie 86% oszczędności całej bazy: pełna analiza nadal potrzebuje map AI,
+a coverage dodaje mały tymczasowy artefakt. Nie mierzono billed rows ani cloud CPU.
+Nie pobrano ponownie transkrypcji ani backupu; lokalny Markdown nie jest live Drive PASS.
 Darmowy Workers ma limit CPU 10 ms na cron według
 [oficjalnych limitów](https://developers.cloudflare.com/workers/platform/limits/#cpu-time).
 Pierwszy prawdziwy scheduled transcript musi zmierzyć CPU/error outcome; sukces

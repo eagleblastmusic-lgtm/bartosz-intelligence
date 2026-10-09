@@ -1,0 +1,115 @@
+{
+  "version": "transcript-archive-compact-verification:1",
+  "observed_at": "2026-10-09T23:16:56.454609+00:00",
+  "implementation_commit": "1f120d153a95fa92ec5c989ff49e6f369f067af5",
+  "prior_feature_receipt": {
+    "path": "docs/verification/release/transcript-archive-2026-10-10.json",
+    "sha256": "93be20b36f95e50f0a8a106a3097f4e7dac481e640a43ebd218aaf40879e66d1",
+    "scope": "Full baseline before compact-cue delta: 483 unit/contract, 253 Workers, plus 2 scheduler and 4 GUI cases. No repeated GUI or migrations."
+  },
+  "source_sha256": {
+    "apps/executor/src/transcript-runner.ts": "36dbd5761957481bfaf964cc4b3db871b52c11a406d13015f77f7585f5948406",
+    "packages/core/src/transcript/archive-renderer.ts": "96494685cb9793485c750ea14598e12f192e1529f8f2a17e14d358284a8cd2c4",
+    "packages/core/src/transcript/archive.ts": "317d012554fdacbdd240d443c97842f254de32f47bf4e1a08b127e78fbcf86ca",
+    "tests/contracts/transcript-providers.spec.ts": "70179b1a1621ea00682d6886dd3ff2428f826e5d405780f9ea0fb7f7dccbfed0",
+    "tests/unit/transcript-archive-renderer.spec.ts": "a2fce0de5103d4b303086479cb3e78d3787471e516c9830ebe622b642efa96b9",
+    "tests/workers/artifacts.spec.ts": "a93b1f3312d178dd6a53a24898e691fb7bc3e21192f0167efcef37e793337533",
+    "tests/workers/transcript-archive.spec.ts": "a94a5dddb072b3e9f75d674070bb43a670ac219367e01130f07188f817038571"
+  },
+  "regression": {
+    "unit_contract": {
+      "path": ".local/tests/transcript-compact-unit-contract.json",
+      "sha256": "38e0b770c3e2e51f42a51da70467316f2edda9e8c57d219f43497edbfb65e8f1",
+      "passed": 7,
+      "failed": 0,
+      "pending": 0
+    },
+    "workers": {
+      "path": ".local/tests/transcript-compact-workers.json",
+      "sha256": "a5c1287408e04894cfd4003018c40e4be82cf65b066e2af3c4c7701ffd3c8a0b",
+      "passed": 44,
+      "failed": 0,
+      "pending": 0
+    }
+  },
+  "verification": {
+    "types": {
+      "path": ".local/tests/transcript-compact-types.log",
+      "sha256": "7008158dc85964611a7564e8855b9fe321faf2ced6f2b6d7b7bc832430cc5c64",
+      "status": "PASS"
+    },
+    "lint": {
+      "path": ".local/tests/transcript-compact-lint.log",
+      "sha256": "ba0fe8c02ea35565997272c100095ee8bf4e7b55a14baba5e7510c36d3dd81ae",
+      "status": "PASS"
+    },
+    "build": {
+      "path": ".local/tests/transcript-compact-build.log",
+      "sha256": "ff8a709b03ed1f084c52b2186a08b86aa01d4819ced409738140d8228826ba52",
+      "status": "PASS"
+    },
+    "config": {
+      "path": ".local/tests/transcript-compact-config.log",
+      "sha256": "7b615b1f7023dd77123850c8fe41ccceccb060793782385c1c482bca8d8bf455",
+      "status": "PASS"
+    },
+    "format": {
+      "path": ".local/tests/transcript-compact-format.log",
+      "sha256": "f20510a9da4717c51c4cffee6d0dd88d6c9a723d0a83711d01216f5b48961283",
+      "status": "PASS"
+    },
+    "secrets": {
+      "path": ".local/tests/transcript-compact-secrets.log",
+      "sha256": "b391cd974e98bc4af3999fa24e945f44dfc3ac019e2bfefab59052d33a454c8e",
+      "status": "PASS"
+    }
+  },
+  "real_cached_source_comparison": {
+    "video_id": "rUhllpnYWR8",
+    "backup_sha256": "31cd69361a6bb1342dd76726ba9aa1f430791cda36f90818dba61857cd027bd0",
+    "source_sha256": "f0f0874314d88f5b19acc2abb55aa9a326425a5e1f93f42b006534d1a7c092c0",
+    "source_bytes": 39736,
+    "legacy_map_bytes": 3580573,
+    "current_normalized_map_bytes": 688552,
+    "compact_map_bytes": 98268,
+    "compact_map_sha256": "2ac944b0dff570075d8aaeb32f84f23d835b1baefa590eb235d2fd68a382be92",
+    "same_markdown_and_sha": true,
+    "cue_count": 1071,
+    "markdown_bytes": 107144,
+    "markdown_sha256": "d77b9ce121b49e2d08c5ebb0c07d6e5c3411c3a1b628ab8b285c843400b4ce94",
+    "private_local_output": ".local/transcripts/rUhllpnYWR8.md",
+    "production_d1_requests": 0,
+    "gemini_requests": 0,
+    "drive_mutations": 0,
+    "provider_requests": 0
+  },
+  "scope_notes": [
+    "Cached verified legacy canonical backup, no fresh D1/provider request. Full captions rendered locally; Drive availability and scheduled Workers CPU remain unmeasured.",
+    "688552 bytes is the current normalizer manifest on the cached 1071-cue source; 3580573 is the legacy stored manifest. Compact coverage is 98268 bytes. All render identical full Markdown and SHA.",
+    "Compact coverage adds one small temporary artifact on a full transcript; the AI manifest remains required during analysis. 85.73 percent reduction concerns archive map bytes read versus current AI map, not total D1 storage or billed rows.",
+    "Partial source persists RAW/source/coverage (3 artifacts) without unnecessary AI normalized/maps (full source has 6). A downstream AI preparation/storage failure leaves archivable raw cues.",
+    "Existing old full manifests remain readable. Cleanup policy still requires both private verified archives, all holds and jobs, and at least seven days after later verification.",
+    "No claim of full production PASS or production acceptance."
+  ],
+  "schema": {
+    "current_local": 39,
+    "last_measured_production": 35,
+    "migration_delta_this_checkpoint": 0
+  },
+  "paid_services_enabled": false,
+  "new_production_operations": {
+    "d1_requests": 0,
+    "drive_mutations": 0,
+    "gemini_requests": 0,
+    "model_requests": 0,
+    "provider_requests": 0,
+    "canonical_backup_capture": 0,
+    "production_delete": 0
+  },
+  "remaining": [
+    "Actual quota availability after 2026-10-10T00:00:00Z; controlled migration/deploy, private Transkrypcje folder and one real transcript readback.",
+    "Actual scheduled Free Workers CPU and D1 row costs; Gate C 20 channels remains unqualified.",
+    "Separate pending Gemini consent and first production cleanup approval remain unconsumed.",
+    "Existing heartbeat update was not executed because automatic approval review hit the Codex usage limit."
+  ]
+}

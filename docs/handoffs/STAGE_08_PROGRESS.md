@@ -8,6 +8,11 @@ labels, fenced restart/retry and stable file ID. Daily summary remains P0.
 Retention requires both verified files plus the later verification +7d; pending
 or newly acquired unarchived sources hold cleanup. Backups 35–38 restore into
 39; no backup deletion or production cleanup approval was granted.
+Latest fix `1f120d1` persists compact original-cue coverage before AI preparation.
+Its 7 unit/contract and 44 Workers regressions passed; cached real 1071-cue
+source renders an identical full Markdown/hash with a 98 KB archive map.
+The current AI map for that source is 689 KB; this is not total storage savings
+or a live cloud CPU/billed-rows claim. No production or provider requests added.
 Current RELEASE_READINESS_REPORT.md records regression scopes separately from
 pending actual folder/archive and real Gemini → Daily. R/D/C and human review
 are not claimed complete. The old heartbeat prompt update failed approval

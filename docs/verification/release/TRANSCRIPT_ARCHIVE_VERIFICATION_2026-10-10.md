@@ -6,13 +6,38 @@ film completion condition. This checkpoint does not qualify live AI → Drive or
 declare production acceptance. Current receipt and code pin are linked from
 RELEASE_READINESS_REPORT.md.
 
-The existing transcript worker now preserves RAW, SOURCE_ORIGINAL, timestamp
-coverage and offsets before deferring a PARTIAL source. Archive rendering reads
+The existing transcript worker now preserves RAW, SOURCE_ORIGINAL and compact
+timestamp coverage before AI normalization or deferring a PARTIAL source. The
+compact-cue delta is pinned to `1f120d1`; its separate immutable receipt is
+[transcript-archive-compact-2026-10-10.json](transcript-archive-compact-2026-10-10.json).
+Partial input stores three artifacts; full input stores six, including the
+unchanged AI normalized/segment/offset artifacts. An AI preparation failure
+therefore leaves the captured source independently archivable. Archive rendering reads
 SOURCE_ORIGINAL and reconstructs every cue through raw offsets, preserving
 Unicode, markup, blank/repeated cues and unknown timestamps. It never uses the
 normalized text as the archived caption text. Missing ranges remain explicit;
 AVAILABLE_FULL describes all acquired available captions, not proof of every
 spoken word in the video. Original-language uncertainty is explicit.
+
+The delta passed 7 unit/contract and 44 Workers cases, plus typecheck, lint,
+build, config, format and public secret scan. The earlier complete regression
+remains evidence for the baseline; repeated subsets are not added to its count.
+The SQL reconciliation prefers `caption-coverage:1` over a later AI map and
+still accepts old full manifests. No migration or GUI change required repetition.
+
+Cached real-source fidelity was checked against the already verified downloaded
+canonical backup (SHA `31cd69361a6bb1342dd76726ba9aa1f430791cda36f90818dba61857cd027bd0`).
+All chunks, original artifact SHA and portable backup integrity were verified.
+Video `rUhllpnYWR8`: 39,736 source bytes, **1071 cues**, 107,144 Markdown bytes,
+SHA `d77b9ce121b49e2d08c5ebb0c07d6e5c3411c3a1b628ab8b285c843400b4ce94`.
+The stored legacy map is 3,580,573 bytes; the current normalizer on the same
+cues produces 688,552 bytes; compact coverage produces 98,268 bytes. All three
+render identical full Markdown and SHA. The approximately 86% improvement is
+archive map bytes versus the current AI map, not total D1 storage or billed rows.
+Full analysis retains its AI maps and adds a small temporary coverage artifact.
+The private local preview is `.local/transcripts/rUhllpnYWR8.md`; no fresh
+provider/D1/Gemini request, Drive write or backup capture was performed.
+This proves local fidelity and preparation, not live Drive or scheduled cloud CPU.
 
 Immutable descriptors exclude the changing acquisition clock. Their identity
 includes raw-payload SHA and completeness/provenance so PARTIAL → full, changed
