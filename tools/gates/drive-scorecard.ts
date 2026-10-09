@@ -1,4 +1,4 @@
-import { readFileSync, writeFileSync } from 'node:fs';
+import { readFileSync, statSync, writeFileSync } from 'node:fs';
 import { dirname, resolve } from 'node:path';
 import { strictJson } from '../../packages/core/src/ai/repair/strict-json.js';
 import {
@@ -30,6 +30,10 @@ export function runDriveScorecard(gate: DriveGateInput['gate']) {
   let report: Record<string, unknown>;
   try {
     const inputPath = resolve(args[1]);
+    const inputStat = statSync(inputPath);
+    if (!inputStat.isFile()) throw new Error('DRIVE_GATE_INPUT_NOT_FILE');
+    if (inputStat.size > 256 * 1024)
+      throw new Error('DRIVE_GATE_INPUT_TOO_LARGE');
     const bytes = readFileSync(inputPath);
     if (bytes.length > 256 * 1024)
       throw new Error('DRIVE_GATE_INPUT_TOO_LARGE');

@@ -72,3 +72,9 @@ FAIL is retained even if other checks are unavailable. An actual unavailable
 capability yields UNAVAILABLE, while unperformed checks stay NOT_RUN. Current
 lack of a task/Voice tool does not prove the owner's ChatGPT plan is unavailable.
 No actual complete Gate D acceptance is claimed by this protocol.
+
+CLI input hardening rejects nonregular files and manifests larger than 256 KiB
+before reading bytes; the post-read bound remains in force if a file grows after
+the initial stat. Targeted input/Drive/release regressions: 24 tests PASS; tools
+typecheck and scoped lint PASS. This is input-boundary verification, not actual
+provider or consumer acceptance.
