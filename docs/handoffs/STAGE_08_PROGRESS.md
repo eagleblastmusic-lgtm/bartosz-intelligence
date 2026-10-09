@@ -1,5 +1,22 @@
 # Stage 08 — current handoff
 
+## D1 optimization checkpoint, 2026-10-09
+
+NOT_DONE. Confirmed control-path scans fixed by migration 036/query changes;
+actual local workerd costs and correctness retained in root-cause report.
+455 unit/contract +234 Workers PASS, zero FAIL, one intentional platform skip;
+final metadata delta targeted 8 PASS. Production unchanged until real reset.
+Old verified backup remains sufficient for fixture/index-only restore; at reset
+its age >24h and later cut justify one fresh RPO capture if cadence has none.
+Do not repeat a production backup solely for PASS.
+
+Current Gate R 8/10 is historical and pinned, not full current release acceptance.
+Actual-provider transcript/Drive scope and controlled 2-case suite are tracked
+in `docs/runbooks/D1_CONTROLLED_RESUME.md`. Heartbeat checks actual table quota,
+fresh account usage and deploys verified 036/build before remaining production
+measurements. No Gemini/paid/destructive actions. Owner approved 19 staged
+new-only sources; no source IDs need another permission question.
+
 ## Final execution, 2026-10-09
 
 Status: NOT_DONE. Code/tooling `3f3a7d3`; deployed runtime `96532b5`, Worker

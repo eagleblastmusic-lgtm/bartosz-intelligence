@@ -1,0 +1,341 @@
+{
+  "version": "D1CostComparison/1.0",
+  "observed_at": "2026-10-09T18:20:46.430Z",
+  "basis": "ACTUAL_LOCAL_WORKERD_META_NOT_PRODUCTION",
+  "status": "PASS",
+  "backup_sha256": "31cd69361a6bb1342dd76726ba9aa1f430791cda36f90818dba61857cd027bd0",
+  "restored_rows": 4678,
+  "corpus": {
+    "owner_users": 1,
+    "worker_identities": 7,
+    "schema_versions": 9,
+    "config_versions": 19,
+    "audit_events": 1,
+    "sources": 1,
+    "channels": 1,
+    "items": 53,
+    "item_revisions": 53,
+    "jobs": 217,
+    "job_attempts": 1507,
+    "outbox": 75,
+    "artifacts": 90,
+    "artifact_chunks": 372,
+    "transcript_representations": 17,
+    "prompt_versions": 6,
+    "semantic_profile_versions": 0,
+    "model_registry": 2,
+    "quota_reservations": 5,
+    "usage_records": 5,
+    "candidate_repair_attempts": 0,
+    "analysis_runs": 22,
+    "optional_ai_results": 0,
+    "entities": 0,
+    "entity_aliases": 0,
+    "entity_alias_decisions": 0,
+    "entity_identity_events": 0,
+    "entity_identity_members": 0,
+    "evidence": 0,
+    "analysis_evidence": 0,
+    "observations": 0,
+    "observation_evidence": 0,
+    "observation_entities": 0,
+    "correction_overlays": 0,
+    "spaces": 0,
+    "item_spaces": 0,
+    "review_state": 0,
+    "insights": 0,
+    "insight_observations": 0,
+    "organization_mutations": 0,
+    "active_analysis_selections": 0,
+    "drive_connections": 1,
+    "drive_root_candidates": 1,
+    "daily_export_artifacts": 0,
+    "daily_export_chunks": 0,
+    "drive_export_attempts": 0,
+    "export_state": 0,
+    "export_dirty_cursor": 0,
+    "change_log": 1593,
+    "source_requests": 1,
+    "discovery_scans": 145,
+    "discovery_scan_members": 474
+  },
+  "comparisons": [
+    {
+      "operation": "transcript_admission",
+      "before_rows_read": 1508,
+      "after_rows_read": 4,
+      "results_equal": true,
+      "write_count_equal": true
+    },
+    {
+      "operation": "capacity_page",
+      "before_rows_read": 232713,
+      "after_rows_read": 1328,
+      "results_equal": true,
+      "write_count_equal": true
+    },
+    {
+      "operation": "metadata_refresh",
+      "before_rows_read": 2545,
+      "after_rows_read": 160,
+      "results_equal": true,
+      "write_count_equal": true
+    },
+    {
+      "operation": "backup_attempt_chunk",
+      "before_rows_read": 3021,
+      "after_rows_read": 32,
+      "results_equal": true,
+      "write_count_equal": true
+    }
+  ],
+  "operations": [
+    {
+      "phase": "before",
+      "label": "transcript_admission",
+      "queries": 1,
+      "rows_read": 1508,
+      "rows_written": 0,
+      "elapsed_ms": 10.573100000001432,
+      "result_sha256": "50872ef3cd6fb6a91fbc49a67a3bb43a52982be2866dd96abbca70e9da367ac7",
+      "plans": [
+        {
+          "query_sha256": "485153ced2a68c11f40938751486edc1f4fb787f1cc4efa235a6d98469b69639",
+          "details": [
+            "SEARCH a USING INDEX sqlite_autoindex_job_attempts_2 (owner_id=?)",
+            "SEARCH j USING INDEX sqlite_autoindex_jobs_3 (owner_id=? AND job_id=?)",
+            "USE TEMP B-TREE FOR ORDER BY"
+          ]
+        }
+      ]
+    },
+    {
+      "phase": "before",
+      "label": "capacity_page",
+      "queries": 2,
+      "rows_read": 232713,
+      "rows_written": 0,
+      "elapsed_ms": 83.19159999999829,
+      "result_sha256": "0fef2e06350d63751a28bce2171b9d2cdf056c57a8c738c2de80cb12b697bb06",
+      "plans": [
+        {
+          "query_sha256": "c00bdbff67eb2cc467f02d49b10e51c54f54cab056faaa1f264e9c7bbd4784f3",
+          "details": [
+            "SEARCH change_log USING COVERING INDEX change_owner_seq (owner_id=?)"
+          ]
+        },
+        {
+          "query_sha256": "989103674290c70c512398d75c153893b077f30c5fc8bf80c78f5f52e4efef3a",
+          "details": [
+            "SEARCH i USING INDEX sqlite_autoindex_items_3 (owner_id=?)",
+            "SEARCH j USING INDEX sqlite_autoindex_jobs_3 (owner_id=? AND job_id=?) LEFT-JOIN",
+            "CORRELATED SCALAR SUBQUERY 2",
+            "SEARCH q USING INDEX jobs_item_recent (owner_id=? AND item_id=?)",
+            "SEARCH ir USING INDEX sqlite_autoindex_analysis_runs_2 (owner_id=? AND run_id=?) LEFT-JOIN",
+            "CORRELATED SCALAR SUBQUERY 3",
+            "SEARCH r USING INDEX automatic_source_scan (owner_id=? AND state=?)",
+            "SEARCH q USING INDEX sqlite_autoindex_jobs_3 (owner_id=? AND job_id=?)",
+            "SEARCH sr USING INDEX sqlite_autoindex_analysis_runs_2 (owner_id=? AND run_id=?) LEFT-JOIN",
+            "CORRELATED SCALAR SUBQUERY 4",
+            "SEARCH r USING INDEX automatic_source_scan (owner_id=? AND state=?)",
+            "SEARCH q USING INDEX sqlite_autoindex_jobs_3 (owner_id=? AND job_id=?)",
+            "USE TEMP B-TREE FOR ORDER BY",
+            "SEARCH ar USING INDEX sqlite_autoindex_artifacts_2 (owner_id=? AND item_id=? AND artifact_id=?) LEFT-JOIN",
+            "CORRELATED SCALAR SUBQUERY 1",
+            "SEARCH a USING INDEX sqlite_autoindex_job_attempts_2 (owner_id=?)",
+            "SEARCH q USING INDEX sqlite_autoindex_jobs_3 (owner_id=? AND job_id=?)"
+          ]
+        }
+      ]
+    },
+    {
+      "phase": "before",
+      "label": "metadata_refresh",
+      "queries": 1,
+      "rows_read": 2545,
+      "rows_written": 0,
+      "elapsed_ms": 9.89310000000114,
+      "result_sha256": "852d7edf7bca11022dc88e8875f6d44ea70711f8286c7b1f0d90177b63d97632",
+      "plans": [
+        {
+          "query_sha256": "e6ad432994fdbcfdafbbad87b4be819def7103355c86ba17406f4d1b98fe7998",
+          "details": [
+            "SEARCH s USING INDEX sources_due (enabled=?)",
+            "SEARCH i USING INDEX items_source (owner_id=? AND source_id=?)",
+            "CORRELATED SCALAR SUBQUERY 1",
+            "SEARCH j USING INDEX jobs_due (owner_id=? AND state=?)",
+            "SEARCH r USING INDEX sqlite_autoindex_item_revisions_3 (owner_id=? AND item_id=? AND revision_id=?)",
+            "USE TEMP B-TREE FOR ORDER BY"
+          ]
+        }
+      ]
+    },
+    {
+      "phase": "before",
+      "label": "backup_attempt_chunk",
+      "queries": 5,
+      "rows_read": 3021,
+      "rows_written": 3,
+      "elapsed_ms": 41.4855000000025,
+      "result_sha256": "0002362602c581151d980e203cd9e2b754ca8aeded9a500be47027b4749605d9",
+      "plans": [
+        {
+          "query_sha256": "b0c57c723d6c01e62d2e6c5dd8630735a3ebbde32c07ad39f4704be7c2393025",
+          "details": [
+            "SEARCH s USING INDEX sqlite_autoindex_backup_snapshots_2 (owner_id=? AND backup_id=?)",
+            "CORRELATED SCALAR SUBQUERY 1",
+            "SEARCH maintenance_state USING INTEGER PRIMARY KEY (rowid=?)"
+          ]
+        },
+        {
+          "query_sha256": "2faba83b3bbb601c5ef9ba5874139cc202f21a1dd277f0beac9954892fd2984d",
+          "details": [
+            "SEARCH job_attempts USING INDEX sqlite_autoindex_job_attempts_2 (owner_id=?)",
+            "USE TEMP B-TREE FOR ORDER BY"
+          ]
+        },
+        {
+          "query_sha256": "c1ef435dfea2d5f278f3bdf624da8074306ee205ac657f66f8cd3de3d9666e2d",
+          "details": [
+            "SEARCH backup_chunks USING INDEX sqlite_autoindex_backup_chunks_2 (owner_id=? AND backup_id=? AND table_name=?)"
+          ]
+        },
+        {
+          "query_sha256": "edbfebc6216ae614fb3ff09e1f537d7f163ba8774c062e177f6819c295fa8698",
+          "details": [
+            "SEARCH backup_chunks USING INDEX sqlite_autoindex_backup_chunks_1 (owner_id=? AND backup_id=? AND table_name=? AND cursor=?)",
+            "SCALAR SUBQUERY 1",
+            "SEARCH m USING INTEGER PRIMARY KEY (rowid=?)",
+            "SEARCH s USING INDEX sqlite_autoindex_backup_snapshots_2 (owner_id=? AND backup_id=?)"
+          ]
+        }
+      ]
+    },
+    {
+      "phase": "after",
+      "label": "transcript_admission",
+      "queries": 1,
+      "rows_read": 4,
+      "rows_written": 0,
+      "elapsed_ms": 13.207900000001246,
+      "result_sha256": "50872ef3cd6fb6a91fbc49a67a3bb43a52982be2866dd96abbca70e9da367ac7",
+      "plans": [
+        {
+          "query_sha256": "31c18d0e053077973d2caac75ddd580be7e1b7678302fc66cd2354274d0403b3",
+          "details": [
+            "SEARCH a USING COVERING INDEX transcript_admission_errors (owner_id=? AND error_code=?)",
+            "SEARCH j USING INDEX sqlite_autoindex_jobs_3 (owner_id=? AND job_id=?)",
+            "USE TEMP B-TREE FOR ORDER BY"
+          ]
+        }
+      ]
+    },
+    {
+      "phase": "after",
+      "label": "capacity_page",
+      "queries": 2,
+      "rows_read": 1328,
+      "rows_written": 0,
+      "elapsed_ms": 16.634400000002643,
+      "result_sha256": "0fef2e06350d63751a28bce2171b9d2cdf056c57a8c738c2de80cb12b697bb06",
+      "plans": [
+        {
+          "query_sha256": "c00bdbff67eb2cc467f02d49b10e51c54f54cab056faaa1f264e9c7bbd4784f3",
+          "details": [
+            "SEARCH change_log USING COVERING INDEX change_owner_seq (owner_id=?)"
+          ]
+        },
+        {
+          "query_sha256": "01e9ad69aae89ecade8eafc24e51d504d21b65bf9d99ac753096e1c9d37ffd98",
+          "details": [
+            "SEARCH i USING INDEX sqlite_autoindex_items_3 (owner_id=?)",
+            "SEARCH j USING INDEX sqlite_autoindex_jobs_3 (owner_id=? AND job_id=?) LEFT-JOIN",
+            "CORRELATED SCALAR SUBQUERY 2",
+            "SEARCH q USING INDEX jobs_item_recent (owner_id=? AND item_id=?)",
+            "SEARCH ir USING INDEX sqlite_autoindex_analysis_runs_2 (owner_id=? AND run_id=?) LEFT-JOIN",
+            "CORRELATED SCALAR SUBQUERY 3",
+            "SEARCH r USING INDEX automatic_source_scan (owner_id=? AND state=?)",
+            "SEARCH q USING INDEX sqlite_autoindex_jobs_3 (owner_id=? AND job_id=?)",
+            "SEARCH sr USING INDEX sqlite_autoindex_analysis_runs_2 (owner_id=? AND run_id=?) LEFT-JOIN",
+            "CORRELATED SCALAR SUBQUERY 4",
+            "SEARCH r USING INDEX capacity_accepted_item (owner_id=? AND item_id=?)",
+            "SEARCH q USING INDEX sqlite_autoindex_jobs_3 (owner_id=? AND job_id=?)",
+            "SEARCH ar USING INDEX sqlite_autoindex_artifacts_2 (owner_id=? AND item_id=? AND artifact_id=?) LEFT-JOIN",
+            "CORRELATED SCALAR SUBQUERY 1",
+            "SEARCH q USING INDEX jobs_item_recent (owner_id=? AND item_id=?)",
+            "SEARCH a USING INDEX sqlite_autoindex_job_attempts_2 (owner_id=? AND job_id=?)"
+          ]
+        }
+      ]
+    },
+    {
+      "phase": "after",
+      "label": "metadata_refresh",
+      "queries": 1,
+      "rows_read": 160,
+      "rows_written": 0,
+      "elapsed_ms": 9.122499999997672,
+      "result_sha256": "852d7edf7bca11022dc88e8875f6d44ea70711f8286c7b1f0d90177b63d97632",
+      "plans": [
+        {
+          "query_sha256": "e6ad432994fdbcfdafbbad87b4be819def7103355c86ba17406f4d1b98fe7998",
+          "details": [
+            "SEARCH s USING INDEX sources_due (enabled=?)",
+            "SEARCH i USING INDEX items_source (owner_id=? AND source_id=?)",
+            "CORRELATED SCALAR SUBQUERY 1",
+            "SEARCH j USING INDEX metadata_refresh_active (owner_id=? AND source_id=?)",
+            "SEARCH r USING INDEX sqlite_autoindex_item_revisions_3 (owner_id=? AND item_id=? AND revision_id=?)",
+            "USE TEMP B-TREE FOR ORDER BY"
+          ]
+        }
+      ]
+    },
+    {
+      "phase": "after",
+      "label": "backup_attempt_chunk",
+      "queries": 5,
+      "rows_read": 32,
+      "rows_written": 3,
+      "elapsed_ms": 45.4320000000007,
+      "result_sha256": "0002362602c581151d980e203cd9e2b754ca8aeded9a500be47027b4749605d9",
+      "plans": [
+        {
+          "query_sha256": "b0c57c723d6c01e62d2e6c5dd8630735a3ebbde32c07ad39f4704be7c2393025",
+          "details": [
+            "SEARCH s USING INDEX sqlite_autoindex_backup_snapshots_2 (owner_id=? AND backup_id=?)",
+            "CORRELATED SCALAR SUBQUERY 1",
+            "SEARCH maintenance_state USING INTEGER PRIMARY KEY (rowid=?)"
+          ]
+        },
+        {
+          "query_sha256": "34e2ce5ef621a45ff20a9465d5d7c0a85a3492293f9150c5396d9dd189b424d9",
+          "details": [
+            "SEARCH job_attempts USING INTEGER PRIMARY KEY (rowid>?)"
+          ]
+        },
+        {
+          "query_sha256": "c1ef435dfea2d5f278f3bdf624da8074306ee205ac657f66f8cd3de3d9666e2d",
+          "details": [
+            "SEARCH backup_chunks USING INDEX sqlite_autoindex_backup_chunks_2 (owner_id=? AND backup_id=? AND table_name=?)"
+          ]
+        },
+        {
+          "query_sha256": "edbfebc6216ae614fb3ff09e1f537d7f163ba8774c062e177f6819c295fa8698",
+          "details": [
+            "SEARCH backup_chunks USING INDEX sqlite_autoindex_backup_chunks_1 (owner_id=? AND backup_id=? AND table_name=? AND cursor=?)",
+            "SCALAR SUBQUERY 1",
+            "SEARCH m USING INTEGER PRIMARY KEY (rowid=?)",
+            "SEARCH s USING INDEX sqlite_autoindex_backup_snapshots_2 (owner_id=? AND backup_id=?)"
+          ]
+        }
+      ]
+    }
+  ],
+  "index_creation_cost": {
+    "changes": 0,
+    "rows_read": 1768,
+    "rows_written": 21
+  },
+  "provider_requests": 0,
+  "paid_services_enabled": false
+}

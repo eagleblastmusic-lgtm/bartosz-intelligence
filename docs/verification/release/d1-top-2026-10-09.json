@@ -1,0 +1,262 @@
+{
+  "version": "D1QueryAttribution/1.0",
+  "observed_at": "2026-10-09T18:11:52.387Z",
+  "start_utc": "2026-10-09T00:00:00.000Z",
+  "end_utc": "2026-10-09T18:11:52.387Z",
+  "basis": "ACTUAL_CLOUDFLARE_GRAPHQL",
+  "top_limit": 30,
+  "sql_queries_executed": 0,
+  "top": [
+    {
+      "query_sha256": "7b4c502811f73bf39af3f2089f49d669e22cca2e0c87c2a7a1102bcbd1563570",
+      "sql_template": "SELECT a.error_code,a.finished_at FROM job_attempts a JOIN jobs j ON j.owner_id=a.owner_id AND j.job_id=a.job_id WHERE a.owner_id=? AND j.task_type='?' AND ((a.error_code='?' AND a.finished_at>?) OR (a.error_code='?' AND a.finished_at>?)) ORDER BY julianday(a.finished_at)+CASE WHEN a.error_code='?' THEN 0.0208333333333333 ELSE 0.25 END DESC LIMIT ?",
+      "count": 1998,
+      "queryDurationMs": 2455.0299999999997,
+      "rowsRead": 3526290,
+      "rowsWritten": 0
+    },
+    {
+      "query_sha256": "9d91033d962610269551307eab37e86726a85343e13a182749f321d7ee7ba16a",
+      "sql_template": "SELECT i.item_id,i.source_id,i.external_id,i.published_at,i.publication_provenance,i.discovered_at,i.availability,\n        j.job_id,j.state job_state,j.reason_code,j.arrival_origin_at,j.origin_kind,j.attempt_count,j.due_at,j.input_revision,j.profile_revision,j.prompt_snapshot_id,\n        (SELECT MIN(a.started_at) FROM job_attempts a JOIN jobs q ON q.owner_id=a.owner_id AND q.job_id=a.job_id WHERE q.owner_id=i.owner_id AND q.item_id=i.item_id AND q.task_type='?' AND json_extract(q.payload_json,'?')='?' AND json_type(q.payload_json,'?') IS NULL) analysis_started_at,\n        ir.accepted_at accepted_complete_at,ir.run_id accepted_effect_id,\n        sr.run_id source_run_id,sr.accepted_at source_accepted_at,sr.candidate_hash source_outcome_hash,\n        json_extract(sr.outcome_json,'?') source_artifact_id,json_extract(sr.outcome_json,'?') source_hash,\n        json_extract(sr.outcome_json,'?') source_language,json_extract(sr.outcome_json,'?') source_authority,\n        ar.byte_size source_bytes\n        FROM items i LEFT JOIN jobs j ON j.owner_id=i.owner_id AND j.job_id=(SELECT q.job_id FROM jobs q WHERE q.owner_id=i.owner_id AND q.item_id=i.item_id AND q.task_type IN ('?','?') AND (q.task_type!='?' OR json_extract(q.payload_json,'?')='?') AND json_type(q.payload_json,'?') IS NULL ORDER BY q.created_at DESC,q.job_id DESC LIMIT ?)\n        LEFT JOIN analysis_runs ir ON ir.owner_id=i.owner_id AND ir.run_id=(SELECT r.run_id FROM analysis_runs r JOIN jobs q ON q.owner_id=r.owner_id AND q.job_id=r.job_id WHERE r.owner_id=i.owner_id AND r.item_id=i.item_id AND r.state='?' AND q.task_type='?' AND json_extract(r.outcome_json,'?')='?' AND json_extract(r.outcome_json,'?')=1 AND json_extract(r.outcome_json,'?')='?' ORDER BY r.accepted_at,r.run_id LIMIT 1)\n        LEFT JOIN analysis_runs sr ON sr.owner_id=i.owner_id AND sr.run_id=(SELECT r.run_id FROM analysis_runs r JOIN jobs q ON q.owner_id=r.owner_id AND q.job_id=r.job_id WHERE r.owner_id=i.owner_id AND r.item_id=i.item_id AND r.state='?' AND q.task_type='?' AND json_extract(r.outcome_json,'?')='?' AND (ir.run_id IS NULL OR json_extract(r.outcome_json,'?')=json_extract(ir.outcome_json,'?')) ORDER BY r.created_at DESC,r.run_id DESC LIMIT 1)\n        LEFT JOIN artifacts ar ON ar.owner_id=i.owner_id AND ar.item_id=i.item_id AND ar.artifact_id=json_extract(sr.outcome_json,'?') AND ar.state='?' AND ar.kind='?'\n        WHERE i.owner_id=? AND (? IS NULL OR i.item_id>?) ORDER BY i.item_id LIMIT ?",
+      "count": 8,
+      "queryDurationMs": 545.3872,
+      "rowsRead": 1720240,
+      "rowsWritten": 0
+    },
+    {
+      "query_sha256": "c4c42bdb21b98d149718e719838b0992529ccee0a5ce51031591a5daaf265dd3",
+      "sql_template": "SELECT i.owner_id,i.source_id FROM items i JOIN item_revisions r ON r.owner_id=i.owner_id AND r.item_id=i.item_id AND r.revision_id=i.current_revision_id JOIN sources s ON s.owner_id=i.owner_id AND s.source_id=i.source_id WHERE s.enabled=1 AND r.fetched_at<=?\n    AND NOT EXISTS(SELECT 1 FROM jobs j WHERE j.owner_id=i.owner_id AND j.source_id=i.source_id AND j.task_type='?' AND json_extract(j.payload_json,'?')='?' AND j.state IN ('?','?','?','?','?')) ORDER BY r.fetched_at,i.item_id LIMIT ?",
+      "count": 182,
+      "queryDurationMs": 205.4613,
+      "rowsRead": 297721,
+      "rowsWritten": 0
+    },
+    {
+      "query_sha256": "6c39acdf790ba7827d22258c423894a6b42b21508d30c0d54a782f14ca673132",
+      "sql_template": "SELECT rowid AS __cursor,* FROM job_attempts WHERE rowid>? AND owner_id=? ORDER BY rowid LIMIT ?",
+      "count": 46,
+      "queryDurationMs": 47.5944,
+      "rowsRead": 140679,
+      "rowsWritten": 0
+    },
+    {
+      "query_sha256": "e64992652d6ffbfe68525f4765aa025a05fb068e8c63ad16a878a3dc68a66863",
+      "sql_template": "SELECT w.owner_id,w.worker_id,w.scopes_json FROM worker_identities w\n       JOIN owner_users u USING(owner_id)\n       WHERE w.credential_hash=? AND w.revoked_at IS NULL AND u.allowlisted=1",
+      "count": 15966,
+      "queryDurationMs": 4229.9371,
+      "rowsRead": 31802,
+      "rowsWritten": 0
+    },
+    {
+      "query_sha256": "ebc610a993e81fc2ce5ef24052c113812971783fcc9f6b3f7880a2525c7a3b34",
+      "sql_template": "SELECT * FROM jobs WHERE owner_id=? AND state='?' AND due_at<=? AND origin_kind<>'?' AND task_type NOT IN ('?','?','?') AND \n  (routing_policy_version NOT IN ('?','?') OR ?='?')\n  AND (routing_policy_version NOT IN ('?','?')\n    OR json_extract(payload_json,'?')=?) AND task_type IN (?)  ORDER BY priority DESC,arrival_origin_at,job_id LIMIT ?",
+      "count": 3993,
+      "queryDurationMs": 2093.502,
+      "rowsRead": 28635,
+      "rowsWritten": 0
+    },
+    {
+      "query_sha256": "13806208e668f48bcb4c83e1af14fc1bc8441108eda07434b121192001c3bc3b",
+      "sql_template": "SELECT * FROM jobs WHERE owner_id=? AND state='?' AND due_at<=? AND origin_kind='?' AND task_type NOT IN ('?','?','?') AND \n  (routing_policy_version NOT IN ('?','?') OR ?='?')\n  AND (routing_policy_version NOT IN ('?','?')\n    OR json_extract(payload_json,'?')=?) AND task_type IN (?)  ORDER BY priority DESC,arrival_origin_at,job_id LIMIT ?",
+      "count": 3827,
+      "queryDurationMs": 1328.3443999999997,
+      "rowsRead": 27394,
+      "rowsWritten": 0
+    },
+    {
+      "query_sha256": "8cdd1aec397b7d4d76107ca7aa3906ef16f1a853a5072a86225447fdd6f8dccf",
+      "sql_template": "SELECT o.event_id,o.owner_id,o.payload_json FROM outbox o JOIN jobs j ON j.owner_id=o.owner_id AND j.job_id=o.job_id WHERE o.delivered_at IS NULL AND o.due_at<=? AND j.state='?' ORDER BY o.due_at,o.event_id LIMIT ?",
+      "count": 188,
+      "queryDurationMs": 113.27060000000002,
+      "rowsRead": 20743,
+      "rowsWritten": 0
+    },
+    {
+      "query_sha256": "e394545ef6ff459c9ef8af2bea25a319de85f1c25d41afcc92f8f97163b3c08a",
+      "sql_template": "SELECT i.owner_id,i.item_id,i.source_id,i.namespace,i.external_id,i.published_at,i.availability FROM items i JOIN sources s ON s.owner_id=i.owner_id AND s.source_id=i.source_id WHERE s.enabled=1 AND i.current_revision_id IS NOT NULL AND NOT EXISTS(SELECT 1 FROM jobs j WHERE j.owner_id=i.owner_id AND j.item_id=i.item_id AND j.task_type='?' AND j.input_revision='?') ORDER BY i.discovered_at,i.item_id LIMIT ?",
+      "count": 164,
+      "queryDurationMs": 126.0193,
+      "rowsRead": 18147,
+      "rowsWritten": 0
+    },
+    {
+      "query_sha256": "589b87105bfeb3258053ed9527511791f3d3e7f80a7ecfa4fbc5a6ef054960f7",
+      "sql_template": "SELECT j.job_id,j.input_revision FROM jobs j JOIN analysis_runs r ON r.owner_id=j.owner_id AND r.run_id=j.input_revision JOIN jobs source ON source.owner_id=r.owner_id AND source.job_id=r.job_id WHERE j.owner_id=? AND j.task_type='?' AND j.state='?' AND j.due_at<=? AND j.routing_policy_version='?' AND j.profile_revision='?' AND json_extract(j.payload_json,'?')=r.run_id AND r.state='?' AND source.state='?' ORDER BY j.arrival_origin_at,j.job_id LIMIT ?",
+      "count": 1967,
+      "queryDurationMs": 812.9228,
+      "rowsRead": 12042,
+      "rowsWritten": 0
+    },
+    {
+      "query_sha256": "2bd08713eb700f0042c577dc7b9228057a9601466f8bb9cb8cca621577568d6f",
+      "sql_template": "INSERT INTO worker_sessions(owner_id,worker_id,runtime,capabilities_json,heartbeat_at,online_until) SELECT owner_id,worker_id,?,scopes_json,?,? FROM worker_identities WHERE owner_id=? AND worker_id=? AND revoked_at IS NULL AND credential_hash=? ON CONFLICT(owner_id,worker_id) DO UPDATE SET runtime=excluded.runtime,capabilities_json=excluded.capabilities_json,heartbeat_at=excluded.heartbeat_at,online_until=excluded.online_until",
+      "count": 5023,
+      "queryDurationMs": 1735.7592999999997,
+      "rowsRead": 9986,
+      "rowsWritten": 4993
+    },
+    {
+      "query_sha256": "e18a9fe36d2213d4c2fb2845fcb558b498065e8d7b59c227ebecc3bfa8f3ed03",
+      "sql_template": "SELECT rowid AS __cursor,* FROM artifact_chunks WHERE rowid>? AND owner_id=? ORDER BY rowid LIMIT ?",
+      "count": 10,
+      "queryDurationMs": 139.1312,
+      "rowsRead": 9940,
+      "rowsWritten": 0
+    },
+    {
+      "query_sha256": "ae04f18d03fd6f8edbed8b01e41c48dd186a16bf27017f43c096a94db145f0b2",
+      "sql_template": "SELECT rowid AS __cursor,* FROM jobs WHERE rowid>? AND owner_id=? ORDER BY rowid LIMIT ?",
+      "count": 17,
+      "queryDurationMs": 46.78660000000001,
+      "rowsRead": 6769,
+      "rowsWritten": 0
+    },
+    {
+      "query_sha256": "6aceed286e1286bfa57d5ed72f6de6a0eae950db044b57117c6100eeaa5124ba",
+      "sql_template": "SELECT * FROM jobs WHERE state IN ('?','?') AND due_at<=? ORDER BY due_at,job_id LIMIT ?",
+      "count": 247,
+      "queryDurationMs": 112.9065,
+      "rowsRead": 5180,
+      "rowsWritten": 0
+    },
+    {
+      "query_sha256": "daab5da7380060994548916362cc8be82631546a2bfbed5e57e1849ce6a51a4b",
+      "sql_template": "SELECT job_id,task_type,fencing_token FROM jobs WHERE task_type IN ('?','?') AND ((state='?' AND due_at<=?) OR (state='?' AND reason_code='?' AND due_at<=?) OR (state='?' AND lease_until>?)) ORDER BY priority DESC,arrival_origin_at,job_id LIMIT ?",
+      "count": 214,
+      "queryDurationMs": 68.77929999999999,
+      "rowsRead": 5155,
+      "rowsWritten": 0
+    },
+    {
+      "query_sha256": "326bf0bc9656b46ae0881ff091c74a7013e46940e4a6ec9c3ee9023ce3a53e0d",
+      "sql_template": "SELECT generation,indexed_cut,target_cut,phase,cursor,updated_at FROM search_index_state WHERE owner_id=?",
+      "count": 4544,
+      "queryDurationMs": 1111.8087999999998,
+      "rowsRead": 4544,
+      "rowsWritten": 0
+    },
+    {
+      "query_sha256": "c00bdbff67eb2cc467f02d49b10e51c54f54cab056faaa1f264e9c7bbd4784f3",
+      "sql_template": "SELECT COALESCE(MAX(seq),0) cut_seq FROM change_log WHERE owner_id=?",
+      "count": 4394,
+      "queryDurationMs": 579.7090999999999,
+      "rowsRead": 4393,
+      "rowsWritten": 0
+    },
+    {
+      "query_sha256": "a782b02147ff3bfad0904584395c770392239fb72e9f888fb9a2f841eeef1ec7",
+      "sql_template": "SELECT * FROM jobs WHERE owner_id=? AND state='?' AND due_at<=? AND task_type IN ('?','?','?') AND \n  (routing_policy_version NOT IN ('?','?') OR ?='?')\n  AND (routing_policy_version NOT IN ('?','?')\n    OR json_extract(payload_json,'?')=?) AND task_type IN (?)  ORDER BY priority DESC,arrival_origin_at,job_id LIMIT ?",
+      "count": 3873,
+      "queryDurationMs": 1317.4499,
+      "rowsRead": 3873,
+      "rowsWritten": 0
+    },
+    {
+      "query_sha256": "c1ef435dfea2d5f278f3bdf624da8074306ee205ac657f66f8cd3de3d9666e2d",
+      "sql_template": "SELECT cursor,next_cursor,chunk_index,count FROM backup_chunks WHERE owner_id=? AND backup_id=? AND table_name=? ORDER BY chunk_index",
+      "count": 114,
+      "queryDurationMs": 26.510000000000005,
+      "rowsRead": 3158,
+      "rowsWritten": 0
+    },
+    {
+      "query_sha256": "56263e98c55ee2269c52bf467599c7df5624fed12b09d9a202f45edf9a25fd6e",
+      "sql_template": "SELECT seq,component FROM change_log WHERE owner_id=? AND seq>? ORDER BY seq LIMIT ?",
+      "count": 1950,
+      "queryDurationMs": 423.00880000000006,
+      "rowsRead": 2250,
+      "rowsWritten": 0
+    },
+    {
+      "query_sha256": "fb87849b4f6615325b87f26b99d80f59ec7dda1ee3e2779b4260bf662e347c22",
+      "sql_template": "INSERT INTO jobs(job_id,owner_id,source_id,task_type,input_revision,profile_revision,routing_policy_version,explicit_run_nonce,dedup_key,state,due_at,priority,arrival_origin_at,origin_kind,payload_json,created_at,updated_at)\n        SELECT ?,owner_id,source_id,?,?,'?','?','?',?,'?',?,?,?,'?',?,?,? FROM sources WHERE owner_id=? AND source_id=? AND enabled=1 AND due_at<=?\n        AND NOT EXISTS(SELECT 1 FROM jobs WHERE owner_id=? AND source_id=? AND task_type IN ('?','?') AND COALESCE(json_extract(payload_json,'?'),'?')=? AND state IN ('?','?','?','?','?')) ON CONFLICT(owner_id,dedup_key) DO NOTHING",
+      "count": 58,
+      "queryDurationMs": 128.4711,
+      "rowsRead": 1995,
+      "rowsWritten": 464
+    },
+    {
+      "query_sha256": "915402c08bc894aa4968ad5ffa3b652b1c3c59b882b41081187c14cc5c9c93de",
+      "sql_template": "SELECT rowid AS __cursor,* FROM outbox WHERE rowid>? AND owner_id=? ORDER BY rowid LIMIT ?",
+      "count": 10,
+      "queryDurationMs": 6.313,
+      "rowsRead": 1950,
+      "rowsWritten": 0
+    },
+    {
+      "query_sha256": "6003861f7734d2d56da3a8c32775083caa48ec4b87f16204868393e87d7e7787",
+      "sql_template": "INSERT INTO jobs(job_id,owner_id,item_id,source_id,task_type,input_revision,profile_revision,routing_policy_version,explicit_run_nonce,dedup_key,state,reason_code,due_at,priority,arrival_origin_at,origin_kind,payload_json,created_at,updated_at)\n        SELECT ?,owner_id,item_id,source_id,'?','?','?','?','?',?,?,?,?,?,?,?,'?',?,? FROM items WHERE owner_id=? AND source_id=? AND namespace=? AND external_id=? AND EXISTS(SELECT 1 FROM discovery_scans s WHERE s.owner_id=? AND s.scan_id=? AND s.job_id=? AND s.commit_nonce=?) AND EXISTS(SELECT 1 FROM jobs j JOIN worker_identities w ON w.owner_id=j.owner_id AND w.worker_id=j.lease_owner WHERE j.owner_id=? AND j.job_id=? AND j.task_type=? AND j.state='?' AND j.lease_owner=? AND j.fencing_token=? AND j.lease_until>? AND w.revoked_at IS NULL AND w.credential_hash=?)\n        ON CONFLICT(owner_id,dedup_key) DO NOTHING",
+      "count": 149,
+      "queryDurationMs": 97.54249999999999,
+      "rowsRead": 1490,
+      "rowsWritten": 0
+    },
+    {
+      "query_sha256": "e38cb1ef98a0da2f49aa8571e20515412bf4b04c1737fa2206da891475a3d2aa",
+      "sql_template": "SELECT owner_id,job_id,fencing_token,task_type FROM jobs WHERE state='?' AND due_at<=? AND task_type NOT IN ('?','?') ORDER BY priority DESC,due_at,job_id LIMIT ?",
+      "count": 140,
+      "queryDurationMs": 48.0547,
+      "rowsRead": 1484,
+      "rowsWritten": 0
+    },
+    {
+      "query_sha256": "3333096ccb80192424ceb9dcf0147c0f31a21c767fd3fa95a851238b624ee8af",
+      "sql_template": "SELECT table_name,MAX(chunk_index) last_index,SUM(count) rows,MAX(next_cursor) next_cursor FROM backup_chunks WHERE backup_id=? GROUP BY table_name",
+      "count": 1,
+      "queryDurationMs": 5.0706,
+      "rowsRead": 1439,
+      "rowsWritten": 0
+    },
+    {
+      "query_sha256": "ea3a2159350a4670dfadef0e3b4d1881d5f410fab8954dd316ee09fb96d221cd",
+      "sql_template": "SELECT owner_id,job_id,fencing_token FROM jobs WHERE state IN ('?','?') AND lease_until<=? ORDER BY lease_until,job_id LIMIT ?",
+      "count": 255,
+      "queryDurationMs": 80.20240000000001,
+      "rowsRead": 1275,
+      "rowsWritten": 0
+    },
+    {
+      "query_sha256": "a77d1b8172423f2dd3d3acb7014b98908975f54fe89a847ae493b570cab9dcb1",
+      "sql_template": "SELECT task_type,state,reason_code,COUNT(*) count FROM jobs GROUP BY task_type,state,reason_code",
+      "count": 2,
+      "queryDurationMs": 1.2302,
+      "rowsRead": 1132,
+      "rowsWritten": 0
+    },
+    {
+      "query_sha256": "7f6eb23a7d973f624b357887515d89f966166e1baa2b762fe4b2121880450021",
+      "sql_template": "SELECT rowid AS __cursor,* FROM item_revisions WHERE rowid>? AND owner_id=? ORDER BY rowid LIMIT ?",
+      "count": 12,
+      "queryDurationMs": 14.337600000000002,
+      "rowsRead": 996,
+      "rowsWritten": 0
+    },
+    {
+      "query_sha256": "be1fa2d6e15301b5128b250c885dbce9f613e39747b5015b43e5bda6d43065a7",
+      "sql_template": "SELECT knowledge_fts.rowid doc_rowid,d.doc_id,d.parent_id,d.item_id,d.run_id,d.kind,d.observation_id,d.entity_id,substr(d.text,1,1000) text,i.published_at,json_extract(m.metadata_json,'?') title\n   FROM knowledge_fts JOIN search_documents d ON d.rowid=knowledge_fts.rowid\n   LEFT JOIN items i ON i.owner_id=d.owner_id AND i.item_id=d.item_id LEFT JOIN item_revisions m ON m.owner_id=i.owner_id AND m.item_id=i.item_id AND m.revision_id=i.current_revision_id\n   WHERE knowledge_fts MATCH ? AND d.owner_id=? AND (CASE d.kind WHEN '?' THEN EXISTS(SELECT 1 FROM search_item_documents s WHERE s.owner_id=d.owner_id AND s.doc_id=d.parent_id) WHEN '?' THEN EXISTS(SELECT 1 FROM search_observation_documents s WHERE s.owner_id=d.owner_id AND s.doc_id=d.parent_id) WHEN '?' THEN EXISTS(SELECT 1 FROM search_insight_documents s WHERE s.owner_id=d.owner_id AND s.doc_id=d.parent_id) WHEN '?' THEN EXISTS(SELECT 1 FROM search_entity_documents s WHERE s.owner_id=d.owner_id AND s.doc_id=d.parent_id) WHEN '?' THEN EXISTS(SELECT 1 FROM search_alias_documents s WHERE s.owner_id=d.owner_id AND s.doc_id=d.parent_id) WHEN '?' THEN EXISTS(SELECT 1 FROM search_summary_documents s WHERE s.owner_id=d.owner_id AND s.doc_id=d.parent_id) ELSE 0 END) AND (? IS NULL OR d.kind=?) AND (? IS NULL OR i.source_id=?)\n   AND (? IS NULL OR EXISTS(SELECT 1 FROM item_spaces x JOIN spaces p ON p.owner_id=x.owner_id AND p.space_id=x.space_id AND p.active=1 WHERE x.owner_id=d.owner_id AND x.item_id=d.item_id AND x.space_id=? AND x.active=1))\n   AND (? IS NULL OR EXISTS(SELECT 1 FROM entities e WHERE e.owner_id=d.owner_id AND e.entity_id=d.entity_id AND COALESCE((SELECT x.effective_entity_id FROM entity_identity_members x WHERE x.owner_id=e.owner_id AND x.entity_id=e.entity_id ORDER BY x.revision DESC LIMIT ?),e.entity_id)=(SELECT COALESCE((SELECT x.effective_entity_id FROM entity_identity_members x WHERE x.owner_id=t.owner_id AND x.entity_id=t.entity_id ORDER BY x.revision DESC LIMIT 1),t.entity_id) FROM entities t WHERE t.owner_id=d.owner_id AND t.entity_id=?)) OR EXISTS(SELECT 1 FROM observation_entities e WHERE e.owner_id=d.owner_id AND e.observation_id=d.observation_id AND COALESCE((SELECT x.effective_entity_id FROM entity_identity_members x WHERE x.owner_id=e.owner_id AND x.entity_id=e.entity_id ORDER BY x.revision DESC LIMIT 1),e.entity_id)=(SELECT COALESCE((SELECT x.effective_entity_id FROM entity_identity_members x WHERE x.owner_id=t.owner_id AND x.entity_id=t.entity_id ORDER BY x.revision DESC LIMIT 1),t.entity_id) FROM entities t WHERE t.owner_id=d.owner_id AND t.entity_id=?)))\n   AND knowledge_fts.rowid>? ORDER BY knowledge_fts.rowid LIMIT ?",
+      "count": 2,
+      "queryDurationMs": 7.7172,
+      "rowsRead": 894,
+      "rowsWritten": 0
+    },
+    {
+      "query_sha256": "788482895a26b8c6afea7996a037ac5561ed3dd09de34da7c74bdeda3cbdf1c3",
+      "sql_template": "UPDATE jobs SET state='?',lease_owner=?,lease_until=?,fencing_token=fencing_token+1,attempt_count=attempt_count+1,updated_at=?\n        WHERE owner_id=? AND job_id=? AND task_type=? AND state='?' AND due_at<=?\n        AND \n  (routing_policy_version NOT IN ('?','?') OR ?='?')\n  AND (routing_policy_version NOT IN ('?','?')\n    OR json_extract(payload_json,'?')=?)\n        AND EXISTS(SELECT 1 FROM worker_identities w WHERE w.owner_id=jobs.owner_id AND w.worker_id=? AND w.revoked_at IS NULL AND w.credential_hash=?) RETURNING job_id",
+      "count": 113,
+      "queryDurationMs": 85.79450000000001,
+      "rowsRead": 884,
+      "rowsWritten": 618
+    }
+  ],
+  "inventory": [
+    {
+      "database": "BARTOSZ_CORE",
+      "size_bytes": 22482944
+    },
+    {
+      "database": "OTHER_8bdcae02cdf4",
+      "size_bytes": 2899968
+    }
+  ],
+  "paid_services_enabled": false
+}

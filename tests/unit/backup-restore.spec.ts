@@ -483,6 +483,23 @@ it('independent canonical restore preserves cyclic revision refs/origins and inv
       manifest: await backup.complete(started.backup_id),
       chunks,
     };
+    // The qualified index-only suffix must not force a new canonical capture.
+    const legacy = structuredClone(portable);
+    legacy.manifest.migrations = legacy.manifest.migrations.slice(0, -1);
+    const { sha256: ignoredLegacyHash, ...legacyBody } = legacy.manifest;
+    void ignoredLegacyHash;
+    legacy.manifest.sha256 = await sha256(JSON.stringify(legacyBody));
+    expect((await verifyPortableBackup(legacy)).rows).toBe(
+      (await verifyPortableBackup(portable)).rows,
+    );
+    const drifted = structuredClone(legacy);
+    drifted.manifest.migrations[0]!.sha256 = '0'.repeat(64);
+    const { sha256: ignoredDriftHash, ...driftBody } = drifted.manifest;
+    void ignoredDriftHash;
+    drifted.manifest.sha256 = await sha256(JSON.stringify(driftBody));
+    await expect(verifyPortableBackup(drifted)).rejects.toThrow(
+      'BACKUP_MANIFEST_MISMATCH',
+    );
     expect(JSON.stringify(portable)).not.toContain('fixture-worker-secret');
     expect(JSON.stringify(portable)).not.toContain('fixture-session');
     expect(JSON.stringify(portable)).not.toContain('subject-a');
@@ -502,7 +519,7 @@ it('independent canonical restore preserves cyclic revision refs/origins and inv
       target.sqlite.prepare('SELECT COUNT(*) n FROM owner_users').get()!.n,
     ).toBe(0);
     expect(
-      await restoreCanonical(target.db, portable, 'subject-a'),
+      await restoreCanonical(target.db, legacy, 'subject-a'),
     ).toMatchObject({ result: 'PASS' });
     expect(
       target.sqlite.prepare('SELECT COUNT(*) n FROM search_documents').get()!.n,

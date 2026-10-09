@@ -240,7 +240,7 @@ export class CoreBackup {
     const limits = backupLimits(snapshot.format_version);
     const spec = tableSpec(table);
     const query = this.db.prepare(
-      `SELECT rowid AS __cursor,${spec.projection} FROM ${table} WHERE rowid>?${spec.scoped ? ' AND owner_id=?' : ''} ORDER BY rowid LIMIT 25`,
+      `SELECT rowid AS __cursor,${spec.projection} FROM ${table} NOT INDEXED WHERE rowid>?${spec.scoped ? ' AND owner_id=?' : ''} ORDER BY rowid LIMIT 25`,
     );
     const page = await this.db.batch([
       query.bind(cursor, ...(spec.scoped ? [this.context.ownerId] : [])),

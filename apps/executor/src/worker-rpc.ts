@@ -11,6 +11,8 @@ export class WorkerRpcError extends Error {
       | 'ANALYSIS_PROFILE_QUALITY_SCOPE'
       | 'OPTIONAL_PROFILE_ACCOUNT_PURPOSE_REGION'
       | 'OPTIONAL_PROFILE_QUALITY_SCOPE'
+      | 'D1_DAILY_READ_LIMIT'
+      | 'D1_DAILY_WRITE_LIMIT'
       | null = null,
   ) {
     super(message);
@@ -110,7 +112,9 @@ export class WorkerRpc {
                 value.code === 'ANALYSIS_PROFILE_ACCOUNT_PURPOSE_REGION' ||
                 value.code === 'ANALYSIS_PROFILE_QUALITY_SCOPE' ||
                 value.code === 'OPTIONAL_PROFILE_ACCOUNT_PURPOSE_REGION' ||
-                value.code === 'OPTIONAL_PROFILE_QUALITY_SCOPE')
+                value.code === 'OPTIONAL_PROFILE_QUALITY_SCOPE' ||
+                value.code === 'D1_DAILY_READ_LIMIT' ||
+                value.code === 'D1_DAILY_WRITE_LIMIT')
             )
               code = value.code;
           }

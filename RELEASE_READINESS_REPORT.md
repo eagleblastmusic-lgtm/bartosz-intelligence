@@ -1,5 +1,55 @@
 # Bartosz Intelligence V1 — release readiness
 
+## Bieżący checkpoint: D1 root cause i kontrolowana kontynuacja
+
+2026-10-09. **IMPLEMENTATION COMPLETE NO; PRODUCTION ACCEPTED NO.**
+Autorytatywna diagnoza: [D1_QUOTA_ROOT_CAUSE_2026-10-09](docs/verification/release/D1_QUOTA_ROOT_CAUSE_2026-10-09.md).
+Analytics całego konta: **5 507 234 reads /11 178 writes**, storage 25 382 912 bytes.
+Osiągnięto daily READ limit. Admission transkrypcji (3.526 mln reads) i Gate C
+(1.720 mln w oddzielnym top SQL dataset) potwierdzają nieefektywność regularnych
+ścieżek. Nie sprowadzamy przyczyny do jednorazowych testów. Datasetów nie
+uzgadniamy sztucznie; dokładne udziały kategorii i sekunda wyczerpania nieznane.
+
+Migracja **036, wyłącznie cztery indeksy**, selektywne admission/metadata,
+item-first Capacity join i rowid backup seek są zweryfikowane lokalnie.
+Actual workerd meta: **1508→4 /232713→1328 /2545→2 /3021→32 reads**;
+pełny lokalny canonical backup **269699→31184**, te same counts/hashes/writes.
+Dokładny zweryfikowany 35-migration prefix backupu pozostaje restore-compatible
+tylko z tą index-only zmianą. Produkcja nadal ma **35 migracji** i Worker
+`93995293-fd49-4f25-b843-63f326c30a32`; nie przypisujemy jej lokalnej poprawy.
+
+**455 unit/contract +234 Workers =689 PASS**, zero FAIL, jeden świadomy
+platformowy skip. Dodatkowy targeted po końcowym metadata SQL/index: 8 PASS.
+Migrations/FK/integrity, pełny typecheck/lint i build PASS; public secret scan
+4 files/409769 bytes, zero findings. Evidence:
+`docs/verification/release/d1-final-verification-2026-10-09.json`.
+GUI nie zmieniono; wcześniejsze E2E/accessibility/10k zachowują swoje zakresy.
+
+Analytics monitor i próg 80% odraczają niekrytyczny kolektor; rzeczywista próba
+cadence dała EXHAUSTED /CAPACITY_DEFERRED_D1_RESERVE bez collector SQL.
+API/executor po potwierdzonym daily limit czekają do następnego UTC resetu,
+zachowując durable jobs. Nie ma fikcyjnego exact remaining quota.
+
+Właściciel **zatwierdził 19 konkretnych kanałów i stopniowe new-only**:
+[lista](docs/decisions/GATE_C_CHANNEL_PROPOSAL_2026-10-09.md).
+Nie dodano ich przed odzyskaniem D1. Nie pytamy ponownie o listę ani tryb.
+20-channel Free D1 jest warunkowo wykonalne w modelu odczytów; write/peak/large
+restore i real AI throughput pozostają NIEKWALIFIKOWANE. Gate C NOT_YET_MATURE.
+
+[Kontrolowane wznowienie](docs/runbooks/D1_CONTROLLED_RESUME.md) zawiera minimalne
+**2 Gate R i7 D-export**, ocenę starej kopii, budżet i AI preflight. Heartbeat
+tego czatu: **10 października 02:05 Europe/Warsaw**. Jedna rzeczywista table probe
+dopiero po 00:00 UTC, fresh account Analytics, następnie 036/build i bounded
+pomiary. Stara kopia pozostaje integralna; o resecie ma 29h26min i starszy cut,
+więc jedna nowa kopia ma uzasadnienie RPO, o ile cadence jej już nie wykonała.
+Brak nowych Gemini requestów; `paid_services_enabled=false`.
+
+Gate R pozostaje **8/10 historycznych PASS**, D-export **6/13**, Bridge 9 NOT_RUN,
+CP-3.13 AWAITING_HUMAN_REVIEW, screen-reader DEFERRED. Nie agregujemy różnych
+pins w pełny bieżący PASS. Poniżej zachowane wcześniejsze rozliczenia.
+
+## Retained stan przed optymalizacją D1
+
 Stan końcowej iteracji: 2026-10-09, Europe/Warsaw. Kod narzędzi: `3f3a7d3`.
 Wdrożona aplikacja/backup: `96532b5`, Worker
 `93995293-fd49-4f25-b843-63f326c30a32`. Poniższe bieżące rozliczenie zastępuje

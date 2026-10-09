@@ -4,6 +4,10 @@ import type { Env } from '../env.js';
 import type { AccessContext } from '../../../../packages/core/src/db/boundary.js';
 import { ownerContext } from '../auth.js';
 import { DriveOAuthFailure } from '../../../../packages/core/src/drive/oauth.js';
+import {
+  d1DailyLimit,
+  nextD1Reset,
+} from '../../../../packages/core/src/db/d1-quota.js';
 export type ApiEnvironment = {
   Bindings: Env;
   Variables: { access: AccessContext; correlation: string };
@@ -17,6 +21,22 @@ export function apiRouter() {
     await next();
   });
   router.onError((error, c) => {
+    const d1Limit = d1DailyLimit(error);
+    if (d1Limit) {
+      const now = new Date();
+      c.header(
+        'Retry-After',
+        String(Math.ceil((nextD1Reset(now).getTime() - now.getTime()) / 1000)),
+      );
+      return c.json(
+        {
+          code: d1Limit,
+          message: 'Daily database capacity exhausted.',
+          correlation_id: c.get('correlation'),
+        },
+        503,
+      );
+    }
     const raw = error.message.includes('BACKUP_MUTATION_PAUSED')
       ? 'BACKUP_BUSY'
       : error.message;

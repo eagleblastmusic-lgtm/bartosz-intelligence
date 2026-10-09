@@ -15,6 +15,20 @@ $taskAcquired = $false
 try {
   try { $taskAcquired = $taskMutex.WaitOne(0) } catch [Threading.AbandonedMutexException] { $taskAcquired = $true }
   if (!$taskAcquired) { '{"state":"ALREADY_RUNNING","secret_values_recorded":false}'; exit 0 }
+  & $taskNode '--env-file=.env' '--import=tsx' 'tools/deployment/d1-usage.ts' '--read-analytics' '--local'
+  $taskUsageResult = $LASTEXITCODE
+  if ($taskUsageResult -ne 0) {
+    '{"state":"CAPACITY_DEFERRED_D1_BUDGET_UNKNOWN","qualification":"NOT_MATURE","paid_services_enabled":false}'
+    exit 0
+  }
+  if ($taskUsageResult -eq 0) {
+    $taskUsage = Get-Content -LiteralPath '.local/d1-usage/latest.json' -Raw | ConvertFrom-Json
+    if (!$taskUsage.policy.noncritical_admitted) {
+      # Preserve a real gap; never manufacture a complete capacity sample.
+      '{"state":"CAPACITY_DEFERRED_D1_RESERVE","qualification":"NOT_MATURE","paid_services_enabled":false}'
+      exit 0
+    }
+  }
   & $taskNode '--env-file=.env' '--import=tsx' 'tools/gates/capacity/collect.ts' 'config/capacity-collector.json' '.local/capacity-observation'
   exit $LASTEXITCODE
 } finally {

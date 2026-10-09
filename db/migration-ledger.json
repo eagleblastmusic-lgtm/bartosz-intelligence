@@ -174,6 +174,11 @@
       "name": "035_automatic_analysis_scan.sql",
       "depends_on": ["034_export_retry_policy.sql"],
       "sha256": "60e0a4378cbbc1428bf5dd45e0bd649db2086c5f8090e385059e328d924f52dd"
+    },
+    {
+      "name": "036_d1_read_indexes.sql",
+      "depends_on": ["035_automatic_analysis_scan.sql"],
+      "sha256": "a3d7b05173adb55ca6ce63ed13e25e6db8f1f6fa46d61f24050ce5846299145a"
     }
   ],
   "version": 1

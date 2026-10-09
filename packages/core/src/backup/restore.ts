@@ -25,7 +25,7 @@ export async function verifyPortableBackup(input: PortableCoreBackup) {
     body.cut_seq < 0 ||
     !Number.isFinite(Date.parse(body.created_at)) ||
     !/^[a-f0-9-]{36}$/.test(body.backup_id) ||
-    JSON.stringify(body.migrations) !== JSON.stringify(ledger.migrations) ||
+    !compatibleBackupMigrations(body.migrations) ||
     (await sha256(JSON.stringify(body))) !== manifestHash
   )
     throw new Error('BACKUP_MANIFEST_MISMATCH');
@@ -113,6 +113,18 @@ export async function verifyPortableBackup(input: PortableCoreBackup) {
     bytes: total,
     manifest_sha256: manifestHash,
   };
+}
+// Only this explicitly qualified index-only suffix may be restored from an
+// older manifest. Other schema changes still require an exact migration set.
+function compatibleBackupMigrations(migrations: typeof ledger.migrations) {
+  return (
+    JSON.stringify(migrations) === JSON.stringify(ledger.migrations) ||
+    (Array.isArray(migrations) &&
+      migrations.length === ledger.migrations.length - 1 &&
+      ledger.migrations.at(-1)?.name === '036_d1_read_indexes.sql' &&
+      JSON.stringify(migrations) ===
+        JSON.stringify(ledger.migrations.slice(0, -1)))
+  );
 }
 // Administrative/offline restoration only, into an isolated empty target.
 // It never restores a live session or reusable worker credential.

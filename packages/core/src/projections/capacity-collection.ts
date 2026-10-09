@@ -35,7 +35,7 @@ export class CapacityCollection {
         .prepare(
           `SELECT i.item_id,i.source_id,i.external_id,i.published_at,i.publication_provenance,i.discovered_at,i.availability,
         j.job_id,j.state job_state,j.reason_code,j.arrival_origin_at,j.origin_kind,j.attempt_count,j.due_at,j.input_revision,j.profile_revision,j.prompt_snapshot_id,
-        (SELECT MIN(a.started_at) FROM job_attempts a JOIN jobs q ON q.owner_id=a.owner_id AND q.job_id=a.job_id WHERE q.owner_id=i.owner_id AND q.item_id=i.item_id AND q.task_type='ANALYZE' AND json_extract(q.payload_json,'$.snapshot.settings.mode')='PRODUCTION' AND json_type(q.payload_json,'$.snapshot.chunk') IS NULL) analysis_started_at,
+        (SELECT MIN(a.started_at) FROM jobs q CROSS JOIN job_attempts a ON a.owner_id=q.owner_id AND a.job_id=q.job_id WHERE q.owner_id=i.owner_id AND q.item_id=i.item_id AND q.task_type='ANALYZE' AND json_extract(q.payload_json,'$.snapshot.settings.mode')='PRODUCTION' AND json_type(q.payload_json,'$.snapshot.chunk') IS NULL) analysis_started_at,
         ir.accepted_at accepted_complete_at,ir.run_id accepted_effect_id,
         sr.run_id source_run_id,sr.accepted_at source_accepted_at,sr.candidate_hash source_outcome_hash,
         json_extract(sr.outcome_json,'$.source_artifact_id') source_artifact_id,json_extract(sr.outcome_json,'$.source_hash') source_hash,

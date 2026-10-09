@@ -59,6 +59,36 @@ export async function cf(path, method = 'GET', body) {
   credential = result.credential;
   return result.result;
 }
+// Analytics reads do not execute SQL against D1. Never log provider errors,
+// query literals, credentials or account metadata from a rejected response.
+export async function d1Analytics(query, variables) {
+  if (!/^[a-f0-9]{32}$/i.test(account ?? ''))
+    throw new Error('ACCOUNT_CONFIGURATION_REQUIRED');
+  credential ??= loadCredential();
+  const response = await fetch('https://api.cloudflare.com/client/v4/graphql', {
+    method: 'POST',
+    headers: {
+      Authorization: `Bearer ${credential}`,
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({
+      query,
+      variables: { ...variables, accountTag: account },
+    }),
+    redirect: 'error',
+    signal: AbortSignal.timeout(20000),
+  }).catch(() => {
+    throw new Error('D1_ANALYTICS_TRANSPORT_FAILED');
+  });
+  if (!response.ok) {
+    await response.body?.cancel();
+    throw new Error('D1_ANALYTICS_HTTP_' + response.status);
+  }
+  const value = await response.json();
+  if (value.errors?.length || !Array.isArray(value.data?.viewer?.accounts))
+    throw new Error('D1_ANALYTICS_ACCESS_OR_QUERY_REJECTED');
+  return value.data.viewer.accounts;
+}
 export async function query(sql, params = []) {
   return queryBatch([{ sql, params }]);
 }

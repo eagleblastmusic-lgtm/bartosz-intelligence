@@ -1,5 +1,32 @@
 import { describe, expect, it } from 'vitest';
 import { runExecutorLoop } from '../../apps/executor/src/cycle-loop.js';
+import { WorkerRpcError } from '../../apps/executor/src/worker-rpc.js';
+
+it.each(['D1_DAILY_READ_LIMIT', 'D1_DAILY_WRITE_LIMIT'] as const)(
+  'sleeps until UTC reset after confirmed %s and remains abortable',
+  async (code) => {
+    const shutdown = new AbortController(),
+      waits: number[] = [];
+    let cycles = 0;
+    await runExecutorLoop({
+      signal: shutdown.signal,
+      once: false,
+      search: false,
+      clock: () => new Date('2026-10-09T20:00:00.000Z'),
+      cycle: async () => {
+        cycles++;
+        throw new WorkerRpcError('WORKER_RPC_FAILED', 'lease', 503, code);
+      },
+      emit: () => {},
+      wait: async (ms) => {
+        waits.push(ms);
+        shutdown.abort();
+      },
+    });
+    expect(cycles).toBe(1);
+    expect(waits).toEqual([4 * 3600000 + 5000]);
+  },
+);
 
 describe('serial executor recovery loop', () => {
   it('bounds outage backoff and resets after recovery without exposing errors', async () => {

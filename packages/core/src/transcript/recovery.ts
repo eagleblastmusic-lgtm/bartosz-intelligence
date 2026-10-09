@@ -85,7 +85,7 @@ export class TranscriptRecovery {
       };
     const row = await this.db
       .prepare(
-        `SELECT a.error_code,a.finished_at FROM job_attempts a JOIN jobs j ON j.owner_id=a.owner_id AND j.job_id=a.job_id WHERE a.owner_id=? AND j.task_type='FETCH_TRANSCRIPT' AND ((a.error_code='LOCAL_YTDLP_IP_BLOCKED' AND a.finished_at>?) OR (a.error_code='LOCAL_YTDLP_PARSER_CHANGED' AND a.finished_at>?)) ORDER BY julianday(a.finished_at)+CASE WHEN a.error_code='LOCAL_YTDLP_IP_BLOCKED' THEN 0.0208333333333333 ELSE 0.25 END DESC LIMIT 1`,
+        `SELECT a.error_code,a.finished_at FROM job_attempts a JOIN jobs j ON j.owner_id=a.owner_id AND j.job_id=a.job_id WHERE a.owner_id=? AND a.error_code IN ('LOCAL_YTDLP_IP_BLOCKED','LOCAL_YTDLP_PARSER_CHANGED') AND j.task_type='FETCH_TRANSCRIPT' AND ((a.error_code='LOCAL_YTDLP_IP_BLOCKED' AND a.finished_at>?) OR (a.error_code='LOCAL_YTDLP_PARSER_CHANGED' AND a.finished_at>?)) ORDER BY julianday(a.finished_at)+CASE WHEN a.error_code='LOCAL_YTDLP_IP_BLOCKED' THEN 0.0208333333333333 ELSE 0.25 END DESC LIMIT 1`,
       )
       .bind(
         this.context.ownerId,

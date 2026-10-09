@@ -1,5 +1,21 @@
 # Stage 07 — current handoff
 
+## D1 optimization checkpoint, 2026-10-09
+
+NOT_DONE. Current report: `RELEASE_READINESS_REPORT.md`; detailed measured
+diagnosis: `docs/verification/release/D1_QUOTA_ROOT_CAUSE_2026-10-09.md`.
+Daily READ exhaustion has confirmed regular-path causes, not just tests.
+Index-only migration 036 and runtime changes pass local verification; production
+remains 35 migrations / Worker 93995293 until actual post-reset deployment.
+Current local tests: 455 unit/contract +234 Workers PASS, zero FAIL, one skip.
+
+Owner approved the concrete 19-source list and staged new-only activation.
+Do not ask again or perform full backfill. Resolve/add after real quota recovery
+and optimization deployment. Gemini still requires separate approval.
+Minimal 2 R /7 D-export sequence, old-backup assessment and controlled budget:
+`docs/runbooks/D1_CONTROLLED_RESUME.md`. Heartbeat at 02:05 Europe/Warsaw.
+D-export remains 6/13, Bridge 9 NOT_RUN; no existing reports overwritten.
+
 ## Final execution, 2026-10-09
 
 Status: NOT_DONE. Code/tooling `3f3a7d3`; deployed application `96532b5` and

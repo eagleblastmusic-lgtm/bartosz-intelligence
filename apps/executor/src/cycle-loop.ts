@@ -1,5 +1,6 @@
 import { setTimeout as delay } from 'node:timers/promises';
 import { WorkerRpcError } from './worker-rpc.js';
+import { nextD1Reset } from '../../../packages/core/src/db/d1-quota.js';
 
 /** One serial cycle at a time; durable jobs remain on the control plane. */
 export async function runExecutorLoop(input: {
@@ -9,6 +10,7 @@ export async function runExecutorLoop(input: {
   signal: AbortSignal;
   emit: (event: Record<string, unknown>, failure: boolean) => void;
   wait?: (milliseconds: number, signal: AbortSignal) => Promise<void>;
+  clock?: () => Date;
 }): Promise<number> {
   const wait =
     input.wait ??
@@ -45,6 +47,17 @@ export async function runExecutorLoop(input: {
       if (denied || input.once) return 1;
       failures = Math.min(failures + 1, 3);
       interval = Math.min(120000, 30000 * 2 ** (failures - 1));
+      if (
+        error instanceof WorkerRpcError &&
+        (error.code === 'D1_DAILY_READ_LIMIT' ||
+          error.code === 'D1_DAILY_WRITE_LIMIT')
+      ) {
+        const now = (input.clock ?? (() => new Date()))();
+        interval = Math.max(
+          1000,
+          nextD1Reset(now).getTime() - now.getTime() + 5000,
+        );
+      }
     }
     if (input.once || input.signal.aborted) return 0;
     try {
