@@ -182,3 +182,29 @@ The standalone restore output still says independent_medium_status=NOT_VERIFIED,
 because that tool does not inspect remote storage. The separate hash-bound Drive
 transfer/restore receipt proves the downloaded file came from the verified Drive
 copy; it does not upgrade the standalone tool's scope or the full recovery gate.
+
+## Isolated application recovery and daily D1 limits
+
+After building the application, run `tools/gates/reliability/application-restore.ts
+--drive-copy <verified-downloaded-canonical-json>` with the pinned Node/tsx and
+configured owner subject. The tool checks the existing Drive transfer receipt,
+creates a private empty workerd/D1 instance, applies the approved migrations,
+restores canonical rows, rebuilds FTS and tests API, Daily, search and actual JS/CSS
+assets. It denies external service requests. It shuts down workerd, checks the
+same persisted database with full SQLite integrity_check, restarts workerd and
+verifies authenticated reads. Old sessions remain invalidated; the isolated
+session is newly issued for this test. This is local recovery evidence; it does
+not prove live Google login, cloud reprovisioning or a complete executor rebuild.
+
+Miniflare v5 requires `resourcePersistencePath` after converting v4 options.
+The old `d1Persist` property is discarded by conversion. Inspect only the hashed
+canonical D1 SQLite file; cache and metadata databases are separate files.
+
+Actual D1 daily read exhaustion interrupted the 2026-10-09 backup. A failed run
+does not qualify a newer cut. The old verified Drive copy remains retained.
+Explicit daily quota failures produce `WAITING_QUOTA_RESET` until 00:00 UTC;
+the backup stays DUE and RPO is not declared PASS. The existing hourly task
+resumes after reset on a powered, logged-in host. Do not enable paid service or
+retry a daily limit as a transient failure. Only an explicitly classified D1
+busy/timeout permits one retry of the same immutable chunk. Owner lookup failures
+now create redacted receipts too; cleanup failures cannot hide the primary cause.

@@ -23,6 +23,7 @@ docs/verification/gate-s-knowledge/*.json
 # Retained receipts and frozen configuration bytes are hashed evidence.
 docs/verification/drive/final-execution-scorecard/configuration.json
 docs/verification/drive/final-execution-scorecard-v2/configuration.json
+docs/verification/drive/final-execution-scorecard-v3/configuration.json
 docs/verification/drive/layout-inventory-2026-10-09.json
 docs/verification/gate-ai/quota-live-2026-10-09.json
 docs/verification/gate-r/89dbb75f-ecd3-44f8-8d10-3553e7631255/preregistration.json
@@ -32,3 +33,4 @@ docs/verification/release/search-production-2026-10-09.json
 docs/verification/release/search-worker-diagnostic-2026-10-09.json
 docs/verification/release/search-worker-production-2026-10-09.json
 docs/verification/release/search-worker-trailing-slash-diagnostic-2026-10-09.json
+docs/verification/release/capacity-partial-2026-10-09.json

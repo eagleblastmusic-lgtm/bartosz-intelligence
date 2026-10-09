@@ -1,0 +1,63 @@
+{
+  "version": "GateRReport/1.0",
+  "gate": "R",
+  "status": "NOT_RUN",
+  "configuration_sha256": "4d7200f687232234b7360eb102803349a3ffcf9b2c13fc2e8238d33c14f76b50",
+  "baseline_sha256": "a4dce759708fe29615ff6bdc487d930b1aaf32febfbb55aac9c928a2706ed5f4",
+  "evaluated_at": "2026-10-09T17:19:29.347Z",
+  "rows": [
+    {
+      "id": "lease_crash",
+      "status": "PASS",
+      "evidence_sha256": "dbbd09c1f4c90a7c7a8be680c6f9f9ec7dd4e2b783fc3bfe32869f5150a63577"
+    },
+    {
+      "id": "queue_loss",
+      "status": "PASS",
+      "evidence_sha256": "ea4841ea6790412114ebabcbd59e5870ae9e99be63b5f54e36f857126de28bb7"
+    },
+    {
+      "id": "discovery_interruption",
+      "status": "PASS",
+      "evidence_sha256": "b04c4e19022c50bad6680d7662eb31fb31f3924233f5999bcf54ff5a9bf91b03"
+    },
+    {
+      "id": "database_rollback",
+      "status": "PASS",
+      "evidence_sha256": "4412ed01697d854347c5907e6227f10b766e8edadf98959a2169c74dd7304356"
+    },
+    {
+      "id": "transcript_failure",
+      "status": "NOT_RUN",
+      "evidence_sha256": "e2fe59c42115066236a15ef2847c2948289807d38169f7ead8030d45cdc81e7e"
+    },
+    {
+      "id": "auth_revocation",
+      "status": "PASS",
+      "evidence_sha256": "e3520791c42ff58705b9f1bbc9a4da88d95fb265fa7e7a2f1ad5ddefae50d386"
+    },
+    {
+      "id": "quota_local_offline",
+      "status": "PASS",
+      "evidence_sha256": "4e6dbe064712c7bac6adf62799a667193d749ce461e8a00450071ec24deadbbe"
+    },
+    {
+      "id": "malformed_ai",
+      "status": "PASS",
+      "evidence_sha256": "129b253618c21e824c19e765797ab42f70df2dab076349a5ba76c89f8e267b7f"
+    },
+    {
+      "id": "model_prompt_rollback",
+      "status": "PASS",
+      "evidence_sha256": "99126bb465959ae16f8594a0b78fcc9d0987502beb54b26294930eba032067c3"
+    },
+    {
+      "id": "drive_consumer_failure",
+      "status": "NOT_RUN",
+      "evidence_sha256": "582e814b6718bb124f430b9f3fd0c71265a003f8bc7e4bd0695d370c34a470c5"
+    }
+  ],
+  "provider_requests_performed": false,
+  "automatic_activation": false,
+  "global_release_approved": false
+}

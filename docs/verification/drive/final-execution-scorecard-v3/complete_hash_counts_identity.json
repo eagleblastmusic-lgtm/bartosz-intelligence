@@ -1,0 +1,21 @@
+{
+  "version": "drive-gate-observation:1",
+  "kind": "ACTUAL",
+  "configuration_sha256": "60b636c82f40d258efb2b5faab27ec59d99f11cedb818998a5122c425d23e89b",
+  "check": "complete_hash_counts_identity",
+  "observed_at": "2026-10-09T17:19:49.546Z",
+  "observer": "ACTUAL_RETAINED_RECEIPTS",
+  "result": "PASS",
+  "method": "PROVIDER_READBACK",
+  "facts": {
+    "full_hash_match": true,
+    "body_hash_match": true,
+    "counts_match": true,
+    "root_file_date_match": true,
+    "rendered_sha256": "791e6c05afa7d3d8feb5ddcbfeddc794b6ea2337e3ef9972d785db3448782b8b",
+    "readback_sha256": "791e6c05afa7d3d8feb5ddcbfeddc794b6ea2337e3ef9972d785db3448782b8b",
+    "bytes": 3325,
+    "primary_ref_0": "canonical-readback-2026-10-09.json:d4fe0398c87e307b4e467e300368b41b764fb64c6ec8bb588e8b5759105d9b6b",
+    "scope": "Retained actual mechanism qualification; pending-only Daily; not accepted AI content"
+  }
+}

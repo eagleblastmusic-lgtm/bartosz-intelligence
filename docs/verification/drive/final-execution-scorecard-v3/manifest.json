@@ -1,0 +1,103 @@
+{
+  "version": "drive-gate-evidence:1",
+  "gate": "D_EXPORT",
+  "configuration_sha256": "60b636c82f40d258efb2b5faab27ec59d99f11cedb818998a5122c425d23e89b",
+  "configuration_path": "configuration.json",
+  "rows": [
+    {
+      "id": "oauth_offline_renewal",
+      "result": "NOT_RUN",
+      "evidence": []
+    },
+    {
+      "id": "private_root_child_access",
+      "result": "PASS",
+      "evidence": [
+        {
+          "path": "private_root_child_access.json",
+          "sha256": "5a60fec894568ac44ba6b1b6d615c75e9820ed54672136ece51a7e3487d69534"
+        }
+      ]
+    },
+    {
+      "id": "stable_snapshot",
+      "result": "NOT_RUN",
+      "evidence": []
+    },
+    {
+      "id": "compact_raw_markdown",
+      "result": "PASS",
+      "evidence": [
+        {
+          "path": "compact_raw_markdown.json",
+          "sha256": "dde5a1bf18a5c08a1f657f94a07018327fa4599e858a58172611d7f2f052d8bf"
+        }
+      ]
+    },
+    {
+      "id": "reserved_create_timeout_recovery",
+      "result": "PASS",
+      "evidence": [
+        {
+          "path": "reserved_create_timeout_recovery.json",
+          "sha256": "bde699913431817f35917d6e91d8d12050f16796c007a15c93fb0526dc7ea09e"
+        }
+      ]
+    },
+    {
+      "id": "same_file_late_revision",
+      "result": "NOT_RUN",
+      "evidence": []
+    },
+    {
+      "id": "same_file_mode_switch",
+      "result": "PASS",
+      "evidence": [
+        {
+          "path": "same_file_mode_switch.json",
+          "sha256": "1ea4d123fe51a48d73b64b8070bc7888a611deed4afc5426933369f973910d58"
+        }
+      ]
+    },
+    {
+      "id": "manual_edit_conflict",
+      "result": "NOT_RUN",
+      "evidence": []
+    },
+    {
+      "id": "concurrent_remote_guard",
+      "result": "PASS",
+      "evidence": [
+        {
+          "path": "concurrent_remote_guard.json",
+          "sha256": "5b7e1e8d4c8568f1468fe1862d9d1fd0165080883b60e8f683c59901531460fa"
+        }
+      ]
+    },
+    {
+      "id": "complete_hash_counts_identity",
+      "result": "PASS",
+      "evidence": [
+        {
+          "path": "complete_hash_counts_identity.json",
+          "sha256": "44552a99a16bd5f768ee900a4ee6be47842fdf5c80c3dfc9147ceee17dc03ff8"
+        }
+      ]
+    },
+    {
+      "id": "quota_storage_stop",
+      "result": "NOT_RUN",
+      "evidence": []
+    },
+    {
+      "id": "core_independent_of_drive",
+      "result": "NOT_RUN",
+      "evidence": []
+    },
+    {
+      "id": "human_compact_quality",
+      "result": "NOT_RUN",
+      "evidence": []
+    }
+  ]
+}

@@ -1,14 +1,149 @@
 # Bartosz Intelligence V1 — release readiness
 
-Stan: 2026-10-09, Europe/Warsaw. Application/backup commit: `96532b5`; recovery tooling
-commit: `019b3f5` (poprzedzony `eb72dff`), base
-`1f5e448`. Ten raport jest audytem dostępnych dowodów, nie zgodą na release.
+Stan końcowej iteracji: 2026-10-09, Europe/Warsaw. Kod narzędzi: `3f3a7d3`.
+Wdrożona aplikacja/backup: `96532b5`, Worker
+`93995293-fd49-4f25-b843-63f326c30a32`. Poniższe bieżące rozliczenie zastępuje
+starsze statusy zachowane dalej w dokumencie. Nie stanowi zgody na release.
 
 **IMPLEMENTATION COMPLETE: NO. PRODUCTION ACCEPTED: NO.**
-**OBSERVATION IN PROGRESS: YES; Gate C: NOT_YET_MATURE.**
-Nie wszystkie niezależne odbiory techniczne są ukończone. Brak dowodu nie jest
-awarią implementacji ani dowodem zewnętrznego blockera. Pozostałe nieprzeprowadzone
-drille i pomiary wymieniono jawnie poniżej; nie oznaczono ich PASS.
+**Gate C: NOT_YET_MATURE; bieżące odczyty produkcyjne blokuje D1 DAILY READ LIMIT.**
+Nie ma pełnego rzeczywistego AI E2E ani kompletu odbiorów V1. Wykonano dostępne
+lokalne regresje, recovery i odtworzenie workerd; dalsze integracyjne odbiory
+produkcji wymagają odzyskania darmowej capacity, udanej zatwierdzonej generacji
+i wskazanych niżej warunków. Nie tworzono zastępczych wyników AI ani płatnego fallbacku.
+
+## Aktualny wynik wykonania
+
+- Rozszerzono frozen recovery o transcript cooldown/restart/fencing, restart
+  konsumenta Drive na tej samej zapieczętowanej rewizji oraz pełny disposition
+  malformed AI: zachowany candidate, zero accepted analysis/Observations.
+  Odświeżenie profilu i quota snapshots dotyczyło wyłącznie izolowanego D1;
+  historycznych snapshotów produkcyjnych nie przepisano.
+- Odtworzono istniejącą niezależnie pobraną kopię Drive w pustym lokalnym
+  **workerd/D1**: 4678 wierszy, canonical readback, pełny integrity_check tej
+  samej fizycznej bazy, FK, przebudowa FTS, API/Daily/search, rzeczywiste JS/CSS,
+  odmowa niezalogowanego odczytu i ponowne uruchomienie runtime'u: PASS.
+  Czas bazy **22583 ms**, FTS **2559 ms**, lokalnej aplikacji z restartem
+  **31623 ms**. To lokalny pomiar; live OIDC, cloud deployment/reprovisioning
+  oraz odbudowa executora po utracie komputera nie są nim kwalifikowane.
+  Evidence: `docs/verification/backup/application-e1b85651-3cc7-49bd-8aa6-70113a4a3465.json`.
+- Naprawiono harness recovery: konwerter Miniflare v5 ignorował `d1Persist`.
+  Użyto `resourcePersistencePath`; pełną integralność sprawdzono po zamknięciu
+  workerd na kanonicznym pliku D1, wykluczając bazy cache/metadata.
+  Wcześniejsze Node-equivalent evidence zachowano z jego węższym zakresem.
+- Zainstalowano trwałe zadanie Windows **Bartosz Intelligence Capacity Observation**:
+  co godzinę i przy logowaniu, mutex, Limited/Hidden, IgnoreNew, StartWhenAvailable.
+  Rzeczywista próbka numer 5: 53 cases, COMPLETE, cut 2255,
+  `2026-10-09T16:34:49.048Z`. Zadanie wymaga włączonego komputera i zalogowanego
+  właściciela; nie uzupełnia fikcyjnie pominiętych godzin i nie uruchamia AI.
+- Google Drive connector rzeczywiście przeczytał prywatny Daily: **3325 bytes**,
+  SHA-256 `791e6c05afa7d3d8feb5ddcbfeddc794b6ea2337e3ef9972d785db3448782b8b`,
+  cztery unikalne Items, cztery pending, zero ready, footer i partial disclosure.
+  To pełny bezpośredni odczyt małego raportu, nie Scheduled/Voice/large-file PASS.
+- Zachowano foldery/ID Daily i Backups, pliki i poprzednią zweryfikowaną kopię.
+  Nie powtórzono identycznego upload/download/restore backupu.
+- Świeży yt-dlp dla `rUhllpnYWR8`: OK, 807747 raw bytes, **1071 cues**,
+  hash providera zgodny z raw bytes, timestamp anchors poprawne. Nie wykonano
+  nowego Gemini requestu. Historyczne 503 nie stanowią accepted AI E2E.
+
+Fingerprint aktualnego kodu/narzędzi: `6acced302c1ea5860c6de0514ae626a27d40ba4c7653ab50c311340437ad591e`.
+Fingerprint wdrożonej aplikacji: `26a763df6d4846e12d1b30615319a8d49706342a93bb8ce86680f3193b304b33`.
+35 migracji, fingerprint `0ea54579fe5f0a5c4d8501a0ac3718f5fe9d6e317a93ebb1ff38f9e706b73f2a`.
+Zmiany tej iteracji obejmują narzędzia/testy/dokumentację; runtime produkcyjny
+pozostaje na wymienionym wdrożeniu. Evidence posiada własne historyczne pins;
+nie przepisano ich na nowy fingerprint.
+
+## Końcowa weryfikacja i bramki
+
+**434 unit/contract PASS + 233 Workers PASS = 667 PASS; 0 FAIL.** Jeden test
+Windows ACL dla innego systemu jest świadomie skipped na Windows. Pierwszy
+nieograniczony run miał dwa timeouty przy równoległym obciążeniu; targeted
+regression i pełne `maxWorkers=2` przeszły bez zmiany timeoutów/assertions.
+Evidence: `docs/verification/release/final-execution-tests-2026-10-09.json`.
+Malformed provider-output: 28 Workers PASS; końcowa diagnostyka/cadence backupu:
+30 targeted PASS (zawarte w pełnej regresji). Lint, typecheck narzędzi i build
+PASS; pełny typecheck, lint i format: PASS w końcowej kontroli.
+Secret scan publicznego builda: PASS, 4 files/409413 bytes, zero findings.
+Zachowane GUI E2E/automated accessibility/10k/clean-install dowody pozostają
+w swoich zakresach; bez zmiany GUI nie ponawiano identycznych odbiorów.
+
+| Checkpoint / gate    | Potwierdzony wynik i rzeczywista pozostała zależność                                                                                                                                                                                                                                                                                                                                                                                                  |
+| -------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| CP-3.7–3.12 / AI E2E | Lokalne pipeline/validator/provenance regresje PASS; live generation NOT_PASS. Osobna zgoda na jeden QUALITY_TEST `rUhllpnYWR8` oczekuje odpowiedzi, następnie wymagane świeże Free quota i dostępność Gemini.                                                                                                                                                                                                                                        |
+| CP-3.13              | AWAITING_HUMAN_REVIEW; nie pytano ponownie o odroczony odbiór.                                                                                                                                                                                                                                                                                                                                                                                        |
+| Stage 04 / Gate U    | Zachowane automatyczne PASS; manual screen-reader NOT_RUN/DEFERRED.                                                                                                                                                                                                                                                                                                                                                                                   |
+| Stage 05 / Gate C    | Kolektor i trwały harmonogram działają; 1 zatwierdzony kanał, nie 20. Brak 19 wskazanych źródeł i wymaganych 7 dni kalibracji + 28 dni obserwacji. Aktualnie także rzeczywisty limit D1.                                                                                                                                                                                                                                                              |
+| Stage 06 / Gate S    | Knowledge/Ledger/profiles/Registry mają lokalne dowody; search po restore działa. Production CPU/10k pozostaje niekwalifikowane, wcześniejszy analytics access 403 i bieżący limit D1. Full/Custom real AI quality wymaga udanej generacji i review.                                                                                                                                                                                                  |
+| CP-7.1–7.4           | Zachowane rzeczywiste grant/renewal/root/create/update/COMPACT↔FULL/readback. Nowy scorecard rozlicza mechanizmy na retained receipts, bez nowych zapisów Daily.                                                                                                                                                                                                                                                                                      |
+| CP-7.5 / D-export    | **6/13 PASS**, overall NOT_RUN. `final-execution-scorecard-v3/report.json` jest autorytatywne dla tej iteracji. Pozostałe: failure visibility OAuth, stable-cut late change, same-file late revision, manual-edit conflict, quota/storage stop, live Core independence i human compact quality. Integracyjne próby z D1 blokuje daily limit; quality wymaga rzeczywistych accepted danych/review. Auto-export pozostaje wyłączony do pełnego odbioru. |
+| CP-7.6 / D-bridge    | Bezpośredni connector read/hash PASS, pełne **9 checks NOT_RUN**. Brak dostępnego narzędzia do dwóch rzeczywistych unattended ChatGPT Scheduled runs i owner Voice; nie oznaczono capability UNAVAILABLE. Large-file/pagination/late revision oraz semantyczny human briefing wymagają odpowiedniego rzeczywistego raportu i konsumenta. Codex automation nie zastępuje ChatGPT Scheduled.                                                            |
+| CP-7.7–7.10          | Zachowane System/GUI; opcjonalne route/Codex DISABLED, Gate 0B nie jest deklarowane spare capacity.                                                                                                                                                                                                                                                                                                                                                   |
+| CP-7.11              | Runbooki i harmonogramy uaktualnione; backup DUE/WAITING_QUOTA_RESET, nie FRESH. Operational acceptance zależy od nowej zweryfikowanej kopii po odzyskaniu capacity.                                                                                                                                                                                                                                                                                  |
+| CP-8.1–8.3 / Gate R  | Frozen manifest `3a296f3b-e793-4e89-9c12-147c568f0e38`, pins kandydata `65bf672`: **8 PASS**, overall NOT_RUN. Niezależny on-disk evaluator zgodny. Transcript i Drive consumer mają functional local D1 PASS, ale strict evaluator wymaga ACTUAL_PROVIDER; nie zmieniono kryterium ani rodzaju evidence. Dalszy live Drive consumer drill wymaga dostępu D1 po reset.                                                                                |
+| CP-8.4               | Retained model/prompt rollback i malformed candidate retention PASS. Quality/canary z accepted real AI pozostaje zależne od Gemini/review; nowego modelu nie wybrano.                                                                                                                                                                                                                                                                                 |
+| CP-8.5               | Independent Drive backup/restore oraz local workerd restore/restart PASS w opisanym zakresie. Cloud/live owner/executor-loss RPO/RTO NOT_QUALIFIED; świeży backup zatrzymał rzeczywisty limit D1.                                                                                                                                                                                                                                                     |
+| CP-8.6               | Security negatives zachowane; nowy build secret scan PASS.                                                                                                                                                                                                                                                                                                                                                                                            |
+| CP-8.7               | Local 10k PASS zachowane; pełna produkcyjna capacity/performance NOT_QUALIFIED. Wyczerpanie D1 jest negatywną obserwacją, nie dowodem 20-channel capacity.                                                                                                                                                                                                                                                                                            |
+| CP-8.8               | Retained clean archive install/build/bootstrap PASS `95902f3`, dodatkowy pusty workerd restore PASS. Live owner first-run wymaga rzeczywistego logowania właściciela; izolowany podpisany session nie zastępuje OIDC acceptance.                                                                                                                                                                                                                      |
+| CP-8.9               | Raport/runbooki/handoffy uaktualnione; formalny release NOT_DONE.                                                                                                                                                                                                                                                                                                                                                                                     |
+
+**REAL FULL E2E: NOT_PASS / INCOMPLETE.** Ostatni kompletny read-only snapshot
+przed quota: 1 source, 53 Items, 37 accepted source runs, zero Observations.
+Nie zastąpiono brakującej generacji syntetycznym accepted wynikiem.
+
+## Potwierdzony blocker D1 i odblokowanie
+
+Zaplanowany backup `f985f676-d486-43c9-ae8e-e5a8f7782e6c` zakończył się
+`CHUNKS / HTTP 400 / provider code 7500` o `17:11:50 UTC`. Kolejna bezpieczna
+diagnostyka ustaliła **account-wide daily D1 read limit exceeded**.
+`SELECT 1` mógł działać; nie jest to dowód dostępności odczytów tabel.
+Evidence: `docs/verification/release/d1-daily-limit-2026-10-09.json`.
+[Cloudflare potwierdza](https://developers.cloudflare.com/changelog/post/2026-09-01-d1-free-tier-limit-enforcement/)
+reset o **00:00 UTC**, czyli **2026-10-10 02:00 Europe/Warsaw**.
+Nie przyznano dodatkowej capacity, nie zmieniono planu na płatny i nie zgadywano
+dokładnego account usage bez analytics permission.
+
+Naprawiono lokalną diagnostykę: kategoria quota bez prywatnego komunikatu,
+brak retry limitu dziennego, zapis błędu także przed utworzeniem sesji oraz
+niemaskujący cleanup. Harmonogram pozostawia backup DUE i czeka do resetu;
+po nim istniejące zadanie godzinowe może wykonać nową kopię przy włączonym,
+zalogowanym komputerze. Odczyt lokalnego stanu: `WAITING_QUOTA_RESET`,
+`backup_started=false`, `rpo_qualified=false`. Nie twierdzimy, że nowy backup
+już przeszedł. Poprzednia niezależna kopia ma capture `2026-10-08T18:33:32.355Z`;
+jej integralność pozostaje PASS, lecz nie stanowi wielodniowej kwalifikacji RPO.
+
+Odczyt zadań Windows: **Bartosz Intelligence Verified Backup**, ostatnio
+19:05:05 Europe/Warsaw, result 2, następny 20:05:05; **Bartosz Intelligence
+Capacity Observation**, ostatnio 19:34:34, result 0, następny 20:34:34.
+Result 0 kolektora oznacza zapis evidence, nie Gate PASS: rzeczywista próbka 6
+ma **PARTIAL / CAPACITY_HTTP_500**, zero pokrycia cases. Kopia metadanych:
+`docs/verification/release/capacity-partial-2026-10-09.json`. Nie zaliczono tej
+próbki do kompletnego okna capacity.
+
+Automatyczna kontrola uprawnień odrzuciła diagnostyczny SELECT pełnych payloadów
+artefaktów do lokalnego procesu, wskazując prywatną treść i brak konkretnej zgody
+na ten odczyt. Użyto bezpiecznych metadanych/kategorii. Pytanie o jedną nową
+kanoniczną kopię oczekuje odpowiedzi; samo zatwierdzenie nie omija limitu D1.
+Nie próbowano obchodzić odmowy. Test manual-conflict zatrzymał się przed
+utworzeniem jakiegokolwiek pliku na Drive; jego NOT_RUN jest jawne.
+
+Wymagane od właściciela: odpowiedź na osobne, już zadane pytanie o jeden
+Gemini QUALITY_TEST i lista pozostałych 19 zatwierdzonych kanałów. CP-3.13
+i screen-reader pozostają wcześniej odroczone. Odzyskanie D1 następuje po
+zewnętrznym resetcie; pełny Bridge wymaga rzeczywistego konsumenta Scheduled/Voice,
+a pełny first-run rzeczywistego logowania. Te zależności nie są pozornym backlogiem
+refaktoryzacji ani powodem do osłabienia Definition of Done.
+
+Diagnostyczne, niekompletne evidence pozostawiono dla audytowalności:
+Gate R `2ad1d3e3...` (expired restored eligibility), `50430912...` (missing
+isolated quota observation), następnie poprawiony `618e67b4...` i końcowy
+`3a296f3b...`; scorecard pierwszej próby (za długi fact), v2 i końcowy v3.
+Żadnej niekompletnej próby nie oznaczono pełnym PASS.
+
+## Zachowane wcześniejsze dowody i historia
+
+Poniższe wpisy zachowują historyczne daty, fingerprints i zakresy. Ich starsze
+statusy nie zastępują bieżącego rozliczenia powyżej.
 
 ## Aktualny kandydat i wykonane zmiany
 

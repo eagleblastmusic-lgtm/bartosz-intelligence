@@ -1,0 +1,14 @@
+{
+  "version": "drive-gate-config:1",
+  "gate": "D_EXPORT",
+  "owner_id": "OWNER_A",
+  "connection_id": "516468a4-e59c-4754-a9d6-09b63adf6603",
+  "root_id": "1rn_5auxY_8HAeADc1RgGKQ6h9JimD7WM",
+  "renderer_version": "1.1",
+  "report_schema": "1.1",
+  "cut_seq": 1685,
+  "scope_dates": [
+    "2026-10-02"
+  ],
+  "consumer": null
+}

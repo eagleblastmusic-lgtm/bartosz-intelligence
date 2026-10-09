@@ -16,3 +16,17 @@ The first run writes an immutable START/config hash. Later runs require the same
 Responses are limited to 256 KiB per page, at most 50 cases per page and the configured page count. Only the telemetry field allowlist is retained; exception bodies and authorization headers are excluded. Every watch cycle runs serially and waits the configured interval after the preceding cycle. SIGINT/SIGTERM interrupt waiting and current HTTP reads; an interrupted read is recorded as PARTIAL/COLLECTOR_STOPPED. HTTP 401/403 records PARTIAL and exits 78 instead of repeatedly using a denied credential.
 
 Keep observation evidence immutable and evaluate the required real windows with `tools/gates/capacity/evaluate.ts`. Missing elapsed time remains OBSERVING / NOT_YET_MATURE. Do not substitute synthetic process tests, peak quota values, guessed remaining capacity or an idle collector for real application use. A running collector alone does not qualify source completeness, provider quality, costs, outage recovery or saturation.
+
+The Windows task `Bartosz Intelligence Capacity Observation` is now installed.
+`tools/deployment/install-capacity-cadence.ps1` registers hourly and owner-logon
+triggers; `run-capacity-cadence.ps1` runs a single bounded sample under a mutex.
+The task uses the pinned local Node/toolchain, a hidden window, Limited privileges,
+IgnoreNew and StartWhenAvailable. Use `-Check` on the launcher to validate local
+configuration without collecting data. Avoid running a second `--watch` alongside
+the task. The computer must be powered on and the owner logged in; missed hours
+are not manufactured. Preserve the existing chained observation directory.
+
+2026-10-09: an actual account-wide D1 daily read limit blocked further production
+queries. PARTIAL/failed samples do not qualify the observation window. The free
+limit resets at 00:00 UTC; no paid fallback is enabled. A 53-case complete sample
+still represents one approved source, not the required 20-channel qualification.

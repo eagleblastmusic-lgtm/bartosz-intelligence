@@ -1,0 +1,19 @@
+{
+  "version": "drive-gate-observation:1",
+  "kind": "ACTUAL",
+  "configuration_sha256": "60b636c82f40d258efb2b5faab27ec59d99f11cedb818998a5122c425d23e89b",
+  "check": "private_root_child_access",
+  "observed_at": "2026-10-09T17:19:49.550Z",
+  "observer": "ACTUAL_RETAINED_RECEIPTS",
+  "result": "PASS",
+  "method": "PROVIDER_READBACK",
+  "facts": {
+    "root_private": true,
+    "child_create_read_update": true,
+    "primary_ref_0": "canonical-readback-2026-10-09.json:d4fe0398c87e307b4e467e300368b41b764fb64c6ec8bb588e8b5759105d9b6b",
+    "primary_ref_1": "layout-migration-2026-10-09.json:b1c112d45ad2b388bf7e77a57de080f80bbd93d461dc41101254b8faa0381c37",
+    "primary_ref_2": "7dad1744-116e-4284-900f-eee2a87a1e79.json:05bc708212da40b1825e90eb54c007d5a112f29e9d37f33080529cb81cd1e1f9",
+    "primary_ref_3": "0b502df2-7a86-4149-80c8-24eee2c091b1.json:aad31050d2fad4860e0c26cb6e430445b77b572340bf295b921b5e7a9ff0c117",
+    "scope": "Retained actual mechanism qualification; pending-only Daily; not accepted AI content"
+  }
+}

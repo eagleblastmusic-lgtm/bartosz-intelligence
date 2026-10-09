@@ -1,0 +1,74 @@
+{
+  "version": "ApplicationRestoreWorkerd/1.0",
+  "observed_at": "2026-10-09T17:15:04.266Z",
+  "candidate_sha256": "3780053030fb4c715b9e845b45fd11f39d645b952eed49e8dd6bab8461b0eb3a",
+  "migration_set_sha256": "0ea54579fe5f0a5c4d8501a0ac3718f5fe9d6e317a93ebb1ff38f9e706b73f2a",
+  "migration_count": 35,
+  "file_count": 601,
+  "status": "PASS",
+  "runtime": "ACTUAL_LOCAL_WORKERD_D1_APPLICATION",
+  "independent_medium": "PREVIOUSLY_DOWNLOADED_VERIFIED_GOOGLE_DRIVE",
+  "backup_sha256": "31cd69361a6bb1342dd76726ba9aa1f430791cda36f90818dba61857cd027bd0",
+  "restored_rows": 4678,
+  "canonical_readback": "PASS",
+  "database_restore_ms": 22583,
+  "search_rebuild_ms": 2559,
+  "application_handlers_recovery_ms": 31623,
+  "unauthorized_denied": true,
+  "old_sessions_invalidated": true,
+  "integrity": true,
+  "quick_check": true,
+  "integrity_basis": "SAME_PERSISTED_ISOLATED_D1_OFFLINE_SQLITE",
+  "persisted_runtime_restart": true,
+  "foreign_keys": true,
+  "routes": [
+    {
+      "path": "/health",
+      "status": 200,
+      "bytes": 98,
+      "sha256": "d44d1c85476d9311a943142464cd258891d1284beedfa78a0feefec7da7d234c"
+    },
+    {
+      "path": "/",
+      "status": 200,
+      "bytes": 403,
+      "sha256": "b4b1874dd221601c441bd6c82105ac3da8f9213c0274be401c4214293bf4ccdf"
+    },
+    {
+      "path": "/api/v1/items?limit=20",
+      "status": 200,
+      "bytes": 12793,
+      "sha256": "189aa52ad602e3e864ef446177d45d8bb5e2569ffe3086138295c51ce0584a76"
+    },
+    {
+      "path": "/api/v1/daily?date=2026-10-02",
+      "status": 200,
+      "bytes": 3674,
+      "sha256": "71ddd6bd898f6c7d2a397d858039d76beaacf8faeccf1774f3d088024a7e2609"
+    },
+    {
+      "path": "/api/v1/search?q=TED",
+      "status": 200,
+      "bytes": 9577,
+      "sha256": "4a266582142320a3a5bb8d8379eb286ea0983b21d68c3fc4af96b77e4b6b43ed"
+    },
+    {
+      "path": "/assets/index-l1Qagxzx.js",
+      "status": 200,
+      "bytes": 397495,
+      "sha256": "a430e15d20a1c4d1f196a31e954a16058f5414382f7c011ba85e32e8d52b5bae"
+    },
+    {
+      "path": "/assets/index-IVykiFMu.css",
+      "status": 200,
+      "bytes": 11066,
+      "sha256": "6d4c42c7b9128663d187bb8752b9237c22d97fb52374c88d4283b06e23b6f578"
+    }
+  ],
+  "live_owner_oidc": "NOT_RUN",
+  "workerd_deployment": "PASS_LOCAL_ISOLATED",
+  "executor_reprovision": "NOT_RUN",
+  "full_application_rpo_rto": "NOT_QUALIFIED",
+  "provider_requests": 0,
+  "paid_services_enabled": false
+}

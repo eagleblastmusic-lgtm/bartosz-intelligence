@@ -1,0 +1,16 @@
+{
+  "version": "LiveTranscriptDiagnostic/1.0",
+  "observed_at": "2026-10-09T17:04:53.287Z",
+  "basis": "ACTUAL_LOCAL_YTDLP",
+  "video_id": "rUhllpnYWR8",
+  "status": "OK",
+  "failure_code": null,
+  "raw_bytes": 807747,
+  "raw_sha256": "d2c9a5f39b615e7f4ae693c45a5fcec126111abf7ec7bbd4ee1bd73b460bb8b9",
+  "provider_hash_matches": true,
+  "cues": 1071,
+  "anchors_valid": true,
+  "gemini_requests": 0,
+  "production_writes": 0,
+  "frozen_provider_failure_drill": "NOT_QUALIFIED"
+}

@@ -1,5 +1,44 @@
 # Stage 08 — current handoff
 
+## Final execution, 2026-10-09
+
+Status: NOT_DONE. Code/tooling `3f3a7d3`; deployed runtime `96532b5`, Worker
+`93995293-fd49-4f25-b843-63f326c30a32`. The current release report supersedes
+older statuses below. Implementation complete NO; production accepted NO.
+
+- Frozen D1 recovery `3a296f3b-e793-4e89-9c12-147c568f0e38`, candidate `65bf672`:
+  8 PASS, independent on-disk evaluator agrees, overall NOT_RUN. Added retained
+  malformed AI disposition (no accepted effects), transcript cooldown/restart
+  and Drive consumer sealed-artifact restart. The latter two are functional
+  local PASS, not ACTUAL_PROVIDER qualification. Pins were not rewritten.
+- Actual independent Drive-copy restore to empty local workerd/D1: 4678 rows,
+  canonical readback, full offline integrity on the same D1 file, FK, FTS, API,
+  Daily, search, JS/CSS and persisted runtime restart PASS. DB 22583 ms, search
+  rebuild 2559 ms, application recovery with restart 31623 ms. Live owner OIDC,
+  cloud reprovisioning and lost-host executor recovery are outside this proof.
+  Miniflare v5 persistence and canonical-file selection harness errors fixed.
+- Final regression: 434 unit/contract and 233 Workers PASS, zero FAIL,
+  one intentional other-platform skip. Original timeouts/assertions retained.
+  Existing automated accessibility, GUI E2E, security and clean-install scopes
+  retained; public build secret scan PASS. Code/tooling changes require no
+  redeployment of the unchanged application runtime.
+- Durable hourly/logon Windows capacity task installed with mutex/limited hidden
+  execution; real COMPLETE sample 5 has 53 cases. One approved source, not 20;
+  no accepted AI observations and no mature observation window.
+- Actual D1 daily read quota exhaustion stopped today's automatic backup and
+  further production integration reads. Redacted classification, bounded retry
+  only for explicit busy/timeout, early failure receipts and quota-aware cadence
+  implemented and tested. Backup remains DUE, WAITING_QUOTA_RESET until
+  2026-10-10 00:00 UTC. Existing Drive archive remains retained; RPO not PASS.
+- CP-3.13 AWAITING_HUMAN_REVIEW, manual screen-reader DEFERRED; do not ask again.
+  Pending separate approval for one Gemini QUALITY_TEST and 19 source IDs.
+  Full Bridge requires actual ChatGPT Scheduled/Voice availability/use.
+
+Do not label Stage DONE or reuse old pins as current full release PASS.
+Runbooks and the release report identify the exact evidence and reset conditions.
+
+## Retained earlier progress
+
 2026-10-09. Status: NOT_DONE. Current audit and candidate fingerprints:
 `RELEASE_READINESS_REPORT.md`; recovery tooling commit `019b3f5`.
 

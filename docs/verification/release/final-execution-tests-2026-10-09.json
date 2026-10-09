@@ -1,0 +1,889 @@
+{
+  "version": "FinalExecutionTests/1.0",
+  "recorded_at": "2026-10-09T17:30:43.422Z",
+  "implementation_commit": "3f3a7d3",
+  "reports": [
+    {
+      "source": ".local/tests/final-execution-unit-contract-complete.json",
+      "source_sha256": "6dda8d45e4a00ca9a86c5deaa28fc8d94981325a1f1f9f8382184fc39e1c98c4",
+      "passed": 434,
+      "failed": 0,
+      "skipped": 1,
+      "suites": [
+        {
+          "name": "contracts/ai-provider.spec.ts",
+          "status": "passed",
+          "passed": 8,
+          "skipped": []
+        },
+        {
+          "name": "contracts/analysis-runner.spec.ts",
+          "status": "passed",
+          "passed": 9,
+          "skipped": []
+        },
+        {
+          "name": "contracts/analysis-transport.spec.ts",
+          "status": "passed",
+          "passed": 5,
+          "skipped": []
+        },
+        {
+          "name": "contracts/analysis-worker.spec.ts",
+          "status": "passed",
+          "passed": 5,
+          "skipped": []
+        },
+        {
+          "name": "contracts/deployment-db.spec.ts",
+          "status": "passed",
+          "passed": 1,
+          "skipped": []
+        },
+        {
+          "name": "contracts/drive-create-recovery.spec.ts",
+          "status": "passed",
+          "passed": 2,
+          "skipped": []
+        },
+        {
+          "name": "contracts/gate-c-report.spec.ts",
+          "status": "passed",
+          "passed": 7,
+          "skipped": []
+        },
+        {
+          "name": "contracts/gate0-criteria-amendment.spec.ts",
+          "status": "passed",
+          "passed": 9,
+          "skipped": []
+        },
+        {
+          "name": "contracts/gate0-direct-captions.spec.ts",
+          "status": "passed",
+          "passed": 10,
+          "skipped": []
+        },
+        {
+          "name": "contracts/gate0-functional-evaluation.spec.ts",
+          "status": "passed",
+          "passed": 5,
+          "skipped": []
+        },
+        {
+          "name": "contracts/gate0-live-runner.spec.ts",
+          "status": "passed",
+          "passed": 8,
+          "skipped": []
+        },
+        {
+          "name": "contracts/gate0-manifest.spec.ts",
+          "status": "passed",
+          "passed": 6,
+          "skipped": []
+        },
+        {
+          "name": "contracts/migrations.spec.ts",
+          "status": "passed",
+          "passed": 4,
+          "skipped": []
+        },
+        {
+          "name": "contracts/prompt-bundle.spec.ts",
+          "status": "passed",
+          "passed": 2,
+          "skipped": []
+        },
+        {
+          "name": "contracts/transcript-providers.spec.ts",
+          "status": "passed",
+          "passed": 5,
+          "skipped": []
+        },
+        {
+          "name": "unit/ai-pilot-annotation.spec.ts",
+          "status": "passed",
+          "passed": 1,
+          "skipped": []
+        },
+        {
+          "name": "unit/ai-pilot-inputs.spec.ts",
+          "status": "passed",
+          "passed": 7,
+          "skipped": []
+        },
+        {
+          "name": "unit/ai-pilot.spec.ts",
+          "status": "passed",
+          "passed": 4,
+          "skipped": []
+        },
+        {
+          "name": "unit/ai-selector.spec.ts",
+          "status": "passed",
+          "passed": 2,
+          "skipped": []
+        },
+        {
+          "name": "unit/analysis-worker-selection.spec.ts",
+          "status": "passed",
+          "passed": 5,
+          "skipped": []
+        },
+        {
+          "name": "unit/backup-cadence.spec.ts",
+          "status": "passed",
+          "passed": 5,
+          "skipped": []
+        },
+        {
+          "name": "unit/backup-encryption.spec.ts",
+          "status": "passed",
+          "passed": 4,
+          "skipped": []
+        },
+        {
+          "name": "unit/backup-recovery.spec.ts",
+          "status": "passed",
+          "passed": 15,
+          "skipped": []
+        },
+        {
+          "name": "unit/backup-restore.spec.ts",
+          "status": "passed",
+          "passed": 3,
+          "skipped": []
+        },
+        {
+          "name": "unit/bounded-text.spec.ts",
+          "status": "passed",
+          "passed": 5,
+          "skipped": []
+        },
+        {
+          "name": "unit/capacity-collector-process.spec.ts",
+          "status": "passed",
+          "passed": 1,
+          "skipped": []
+        },
+        {
+          "name": "unit/capacity-evidence.spec.ts",
+          "status": "passed",
+          "passed": 3,
+          "skipped": []
+        },
+        {
+          "name": "unit/capacity-metrics.spec.ts",
+          "status": "passed",
+          "passed": 8,
+          "skipped": []
+        },
+        {
+          "name": "unit/capacity-page.spec.ts",
+          "status": "passed",
+          "passed": 3,
+          "skipped": []
+        },
+        {
+          "name": "unit/caption-process.spec.ts",
+          "status": "passed",
+          "passed": 2,
+          "skipped": []
+        },
+        {
+          "name": "unit/cloudflare-request.spec.ts",
+          "status": "passed",
+          "passed": 10,
+          "skipped": []
+        },
+        {
+          "name": "unit/config.spec.ts",
+          "status": "passed",
+          "passed": 22,
+          "skipped": []
+        },
+        {
+          "name": "unit/corrected-source.spec.ts",
+          "status": "passed",
+          "passed": 2,
+          "skipped": []
+        },
+        {
+          "name": "unit/custom-compiler.spec.ts",
+          "status": "passed",
+          "passed": 4,
+          "skipped": []
+        },
+        {
+          "name": "unit/daily-dates.spec.ts",
+          "status": "passed",
+          "passed": 1,
+          "skipped": []
+        },
+        {
+          "name": "unit/daily-renderer.spec.ts",
+          "status": "passed",
+          "passed": 10,
+          "skipped": []
+        },
+        {
+          "name": "unit/daily-status.spec.ts",
+          "status": "passed",
+          "passed": 2,
+          "skipped": []
+        },
+        {
+          "name": "unit/discovery-window.spec.ts",
+          "status": "passed",
+          "passed": 1,
+          "skipped": []
+        },
+        {
+          "name": "unit/drive-client.spec.ts",
+          "status": "passed",
+          "passed": 4,
+          "skipped": []
+        },
+        {
+          "name": "unit/drive-credentials.spec.ts",
+          "status": "passed",
+          "passed": 4,
+          "skipped": []
+        },
+        {
+          "name": "unit/drive-evidence.spec.ts",
+          "status": "passed",
+          "passed": 15,
+          "skipped": []
+        },
+        {
+          "name": "unit/drive-guard-probe.spec.ts",
+          "status": "passed",
+          "passed": 7,
+          "skipped": []
+        },
+        {
+          "name": "unit/drive-limited-access.spec.ts",
+          "status": "passed",
+          "passed": 8,
+          "skipped": []
+        },
+        {
+          "name": "unit/drive-scorecard-input.spec.ts",
+          "status": "passed",
+          "passed": 2,
+          "skipped": []
+        },
+        {
+          "name": "unit/eligibility.spec.ts",
+          "status": "passed",
+          "passed": 9,
+          "skipped": []
+        },
+        {
+          "name": "unit/enrichment.spec.ts",
+          "status": "passed",
+          "passed": 6,
+          "skipped": []
+        },
+        {
+          "name": "unit/executor-arguments.spec.ts",
+          "status": "passed",
+          "passed": 11,
+          "skipped": []
+        },
+        {
+          "name": "unit/executor-cycle-loop.spec.ts",
+          "status": "passed",
+          "passed": 4,
+          "skipped": []
+        },
+        {
+          "name": "unit/executor-services.spec.ts",
+          "status": "passed",
+          "passed": 4,
+          "skipped": []
+        },
+        {
+          "name": "unit/full-mapper.spec.ts",
+          "status": "passed",
+          "passed": 7,
+          "skipped": []
+        },
+        {
+          "name": "unit/gemini-response.spec.ts",
+          "status": "passed",
+          "passed": 4,
+          "skipped": []
+        },
+        {
+          "name": "unit/hash-checkpoint.spec.ts",
+          "status": "passed",
+          "passed": 1,
+          "skipped": []
+        },
+        {
+          "name": "unit/history-translation.spec.ts",
+          "status": "passed",
+          "passed": 9,
+          "skipped": []
+        },
+        {
+          "name": "unit/jobs-policy.spec.ts",
+          "status": "passed",
+          "passed": 3,
+          "skipped": []
+        },
+        {
+          "name": "unit/knowledge-ux-fixture.spec.ts",
+          "status": "passed",
+          "passed": 1,
+          "skipped": []
+        },
+        {
+          "name": "unit/lab-controls.spec.ts",
+          "status": "passed",
+          "passed": 10,
+          "skipped": []
+        },
+        {
+          "name": "unit/language-routing.spec.ts",
+          "status": "passed",
+          "passed": 4,
+          "skipped": []
+        },
+        {
+          "name": "unit/local-worker-config.spec.ts",
+          "status": "passed",
+          "passed": 8,
+          "skipped": []
+        },
+        {
+          "name": "unit/long-input.spec.ts",
+          "status": "passed",
+          "passed": 7,
+          "skipped": []
+        },
+        {
+          "name": "unit/metadata-admission.spec.ts",
+          "status": "passed",
+          "passed": 13,
+          "skipped": []
+        },
+        {
+          "name": "unit/oidc.spec.ts",
+          "status": "passed",
+          "passed": 11,
+          "skipped": []
+        },
+        {
+          "name": "unit/optional-worker.spec.ts",
+          "status": "passed",
+          "passed": 3,
+          "skipped": []
+        },
+        {
+          "name": "unit/private-recovery-directory.spec.ts",
+          "status": "passed",
+          "passed": 2,
+          "skipped": ["rejects the Windows ACL helper on another platform"]
+        },
+        {
+          "name": "unit/qualified-config.spec.ts",
+          "status": "passed",
+          "passed": 2,
+          "skipped": []
+        },
+        {
+          "name": "unit/recovery-evidence.spec.ts",
+          "status": "passed",
+          "passed": 16,
+          "skipped": []
+        },
+        {
+          "name": "unit/release-evidence.spec.ts",
+          "status": "passed",
+          "passed": 7,
+          "skipped": []
+        },
+        {
+          "name": "unit/release-secrets.spec.ts",
+          "status": "passed",
+          "passed": 5,
+          "skipped": []
+        },
+        {
+          "name": "unit/repair.spec.ts",
+          "status": "passed",
+          "passed": 3,
+          "skipped": []
+        },
+        {
+          "name": "unit/rss.spec.ts",
+          "status": "passed",
+          "passed": 2,
+          "skipped": []
+        },
+        {
+          "name": "unit/search-corpus.spec.ts",
+          "status": "passed",
+          "passed": 1,
+          "skipped": []
+        },
+        {
+          "name": "unit/search-query.spec.ts",
+          "status": "passed",
+          "passed": 1,
+          "skipped": []
+        },
+        {
+          "name": "unit/search-worker.spec.ts",
+          "status": "passed",
+          "passed": 3,
+          "skipped": []
+        },
+        {
+          "name": "unit/source-resolver.spec.ts",
+          "status": "passed",
+          "passed": 4,
+          "skipped": []
+        },
+        {
+          "name": "unit/stage01-decision.spec.ts",
+          "status": "passed",
+          "passed": 2,
+          "skipped": []
+        },
+        {
+          "name": "unit/stage01-handoff.spec.ts",
+          "status": "passed",
+          "passed": 1,
+          "skipped": []
+        },
+        {
+          "name": "unit/telemetry-worker-setup.spec.ts",
+          "status": "passed",
+          "passed": 5,
+          "skipped": []
+        },
+        {
+          "name": "unit/token-accounting.spec.ts",
+          "status": "passed",
+          "passed": 1,
+          "skipped": []
+        },
+        {
+          "name": "unit/transcript-normalize.spec.ts",
+          "status": "passed",
+          "passed": 6,
+          "skipped": []
+        },
+        {
+          "name": "unit/transcript-recovery.spec.ts",
+          "status": "passed",
+          "passed": 2,
+          "skipped": []
+        },
+        {
+          "name": "unit/translation-chunks.spec.ts",
+          "status": "passed",
+          "passed": 2,
+          "skipped": []
+        },
+        {
+          "name": "unit/translation-evaluation.spec.ts",
+          "status": "passed",
+          "passed": 4,
+          "skipped": []
+        },
+        {
+          "name": "unit/translation-inputs.spec.ts",
+          "status": "passed",
+          "passed": 3,
+          "skipped": []
+        },
+        {
+          "name": "unit/web-dates.spec.ts",
+          "status": "passed",
+          "passed": 1,
+          "skipped": []
+        }
+      ]
+    },
+    {
+      "source": ".local/tests/final-execution-workers.json",
+      "source_sha256": "867d5f3bf328cb9fd7220fbcb8db2a99cb45311ca635ece2834fc5057ef1a2c2",
+      "passed": 233,
+      "failed": 0,
+      "skipped": 0,
+      "suites": [
+        {
+          "name": "failure/job-recovery.spec.ts",
+          "status": "passed",
+          "passed": 1,
+          "skipped": []
+        },
+        {
+          "name": "workers/artifacts.spec.ts",
+          "status": "passed",
+          "passed": 28,
+          "skipped": []
+        },
+        {
+          "name": "workers/auth-api.spec.ts",
+          "status": "passed",
+          "passed": 3,
+          "skipped": []
+        },
+        {
+          "name": "workers/backfill-intent.spec.ts",
+          "status": "passed",
+          "passed": 2,
+          "skipped": []
+        },
+        {
+          "name": "workers/backup-core.spec.ts",
+          "status": "passed",
+          "passed": 5,
+          "skipped": []
+        },
+        {
+          "name": "workers/bootstrap.spec.ts",
+          "status": "passed",
+          "passed": 5,
+          "skipped": []
+        },
+        {
+          "name": "workers/capacity-collection.spec.ts",
+          "status": "passed",
+          "passed": 2,
+          "skipped": []
+        },
+        {
+          "name": "workers/control-queue.spec.ts",
+          "status": "passed",
+          "passed": 2,
+          "skipped": []
+        },
+        {
+          "name": "workers/core-api.spec.ts",
+          "status": "passed",
+          "passed": 18,
+          "skipped": []
+        },
+        {
+          "name": "workers/core-migrations.spec.ts",
+          "status": "passed",
+          "passed": 4,
+          "skipped": []
+        },
+        {
+          "name": "workers/core-recovery-acceptance.spec.ts",
+          "status": "passed",
+          "passed": 1,
+          "skipped": []
+        },
+        {
+          "name": "workers/corrections.spec.ts",
+          "status": "passed",
+          "passed": 2,
+          "skipped": []
+        },
+        {
+          "name": "workers/daily-projection.spec.ts",
+          "status": "passed",
+          "passed": 8,
+          "skipped": []
+        },
+        {
+          "name": "workers/discovery-recovery-drill.spec.ts",
+          "status": "passed",
+          "passed": 2,
+          "skipped": []
+        },
+        {
+          "name": "workers/discovery.spec.ts",
+          "status": "passed",
+          "passed": 6,
+          "skipped": []
+        },
+        {
+          "name": "workers/drive-api.spec.ts",
+          "status": "passed",
+          "passed": 9,
+          "skipped": []
+        },
+        {
+          "name": "workers/drive-conflict.spec.ts",
+          "status": "passed",
+          "passed": 6,
+          "skipped": []
+        },
+        {
+          "name": "workers/drive-disconnect.spec.ts",
+          "status": "passed",
+          "passed": 3,
+          "skipped": []
+        },
+        {
+          "name": "workers/drive-oauth.spec.ts",
+          "status": "passed",
+          "passed": 11,
+          "skipped": []
+        },
+        {
+          "name": "workers/drive-probe-budget.spec.ts",
+          "status": "passed",
+          "passed": 1,
+          "skipped": []
+        },
+        {
+          "name": "workers/drive-qualification.spec.ts",
+          "status": "passed",
+          "passed": 1,
+          "skipped": []
+        },
+        {
+          "name": "workers/drive-recovery-drill.spec.ts",
+          "status": "passed",
+          "passed": 1,
+          "skipped": []
+        },
+        {
+          "name": "workers/drive-root-create.spec.ts",
+          "status": "passed",
+          "passed": 4,
+          "skipped": []
+        },
+        {
+          "name": "workers/drive-root.spec.ts",
+          "status": "passed",
+          "passed": 3,
+          "skipped": []
+        },
+        {
+          "name": "workers/entity-aliases.spec.ts",
+          "status": "passed",
+          "passed": 2,
+          "skipped": []
+        },
+        {
+          "name": "workers/entity-identity.spec.ts",
+          "status": "passed",
+          "passed": 2,
+          "skipped": []
+        },
+        {
+          "name": "workers/export-artifacts.spec.ts",
+          "status": "passed",
+          "passed": 4,
+          "skipped": []
+        },
+        {
+          "name": "workers/export-dirty.spec.ts",
+          "status": "passed",
+          "passed": 6,
+          "skipped": []
+        },
+        {
+          "name": "workers/export-executor.spec.ts",
+          "status": "passed",
+          "passed": 9,
+          "skipped": []
+        },
+        {
+          "name": "workers/export-identity.spec.ts",
+          "status": "passed",
+          "passed": 4,
+          "skipped": []
+        },
+        {
+          "name": "workers/export-runtime.spec.ts",
+          "status": "passed",
+          "passed": 3,
+          "skipped": []
+        },
+        {
+          "name": "workers/export-scope.spec.ts",
+          "status": "passed",
+          "passed": 2,
+          "skipped": []
+        },
+        {
+          "name": "workers/fencing.spec.ts",
+          "status": "passed",
+          "passed": 5,
+          "skipped": []
+        },
+        {
+          "name": "workers/isolation.spec.ts",
+          "status": "passed",
+          "passed": 1,
+          "skipped": []
+        },
+        {
+          "name": "workers/jobstore.spec.ts",
+          "status": "passed",
+          "passed": 2,
+          "skipped": []
+        },
+        {
+          "name": "workers/knowledge-ledger.spec.ts",
+          "status": "passed",
+          "passed": 1,
+          "skipped": []
+        },
+        {
+          "name": "workers/knowledge-restore.spec.ts",
+          "status": "passed",
+          "passed": 1,
+          "skipped": []
+        },
+        {
+          "name": "workers/lab-quota.spec.ts",
+          "status": "passed",
+          "passed": 5,
+          "skipped": []
+        },
+        {
+          "name": "workers/lab-reviews.spec.ts",
+          "status": "passed",
+          "passed": 4,
+          "skipped": []
+        },
+        {
+          "name": "workers/offline-recovery-drill.spec.ts",
+          "status": "passed",
+          "passed": 1,
+          "skipped": []
+        },
+        {
+          "name": "workers/oidc-flow.spec.ts",
+          "status": "passed",
+          "passed": 7,
+          "skipped": []
+        },
+        {
+          "name": "workers/organization.spec.ts",
+          "status": "passed",
+          "passed": 3,
+          "skipped": []
+        },
+        {
+          "name": "workers/outbox.spec.ts",
+          "status": "passed",
+          "passed": 4,
+          "skipped": []
+        },
+        {
+          "name": "workers/owner-bootstrap.spec.ts",
+          "status": "passed",
+          "passed": 2,
+          "skipped": []
+        },
+        {
+          "name": "workers/projection-jobs.spec.ts",
+          "status": "passed",
+          "passed": 5,
+          "skipped": []
+        },
+        {
+          "name": "workers/prompt-drafts.spec.ts",
+          "status": "passed",
+          "passed": 1,
+          "skipped": []
+        },
+        {
+          "name": "workers/prompt-history.spec.ts",
+          "status": "passed",
+          "passed": 1,
+          "skipped": []
+        },
+        {
+          "name": "workers/prompt-lab.spec.ts",
+          "status": "passed",
+          "passed": 2,
+          "skipped": []
+        },
+        {
+          "name": "workers/prompt-registry.spec.ts",
+          "status": "passed",
+          "passed": 1,
+          "skipped": []
+        },
+        {
+          "name": "workers/prompt-usage.spec.ts",
+          "status": "passed",
+          "passed": 1,
+          "skipped": []
+        },
+        {
+          "name": "workers/public-pages.spec.ts",
+          "status": "passed",
+          "passed": 1,
+          "skipped": []
+        },
+        {
+          "name": "workers/quota-observations.spec.ts",
+          "status": "passed",
+          "passed": 2,
+          "skipped": []
+        },
+        {
+          "name": "workers/rollback-recovery-drill.spec.ts",
+          "status": "passed",
+          "passed": 1,
+          "skipped": []
+        },
+        {
+          "name": "workers/runtime-admission.spec.ts",
+          "status": "passed",
+          "passed": 5,
+          "skipped": []
+        },
+        {
+          "name": "workers/runtime-http.spec.ts",
+          "status": "passed",
+          "passed": 2,
+          "skipped": []
+        },
+        {
+          "name": "workers/scheduler.spec.ts",
+          "status": "passed",
+          "passed": 3,
+          "skipped": []
+        },
+        {
+          "name": "workers/search.spec.ts",
+          "status": "passed",
+          "passed": 4,
+          "skipped": []
+        },
+        {
+          "name": "workers/semantic-profiles.spec.ts",
+          "status": "passed",
+          "passed": 4,
+          "skipped": []
+        },
+        {
+          "name": "workers/sources-items.spec.ts",
+          "status": "passed",
+          "passed": 3,
+          "skipped": []
+        },
+        {
+          "name": "workers/transcript-recovery-drill.spec.ts",
+          "status": "passed",
+          "passed": 1,
+          "skipped": []
+        }
+      ]
+    }
+  ],
+  "unit_contract_max_workers": 2,
+  "worker_max_workers": 2,
+  "timeout_policy": "UNCHANGED",
+  "worker_runtime_source_unchanged_after_worker_suite": true,
+  "initial_parallel_unit_attempt": "2 timeouts; targeted and bounded full suite passed without changing assertions/timeouts",
+  "gemini_requests": 0
+}

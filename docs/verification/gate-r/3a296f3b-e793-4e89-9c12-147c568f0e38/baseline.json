@@ -1,0 +1,19 @@
+{
+  "version": "GateRBaseline/1.0",
+  "configuration_sha256": "4d7200f687232234b7360eb102803349a3ffcf9b2c13fc2e8238d33c14f76b50",
+  "backup_sha256": "31cd69361a6bb1342dd76726ba9aa1f430791cda36f90818dba61857cd027bd0",
+  "backup_receipt": {
+    "path": "backup-receipt.json",
+    "sha256": "39f830bf66c31fb654575a348e7d0750ca9e6335ce58fbc5b8a0d54eff4c31e4"
+  },
+  "restore_verified": true,
+  "cut_seq": 1593,
+  "counts": {
+    "items": 53,
+    "jobs": 217,
+    "analysis_runs": 22,
+    "evidence": 0,
+    "observations": 0
+  },
+  "origin_set_sha256": "aa2582fc494f22f1a8c26672d88bd6b01361de681fc0127cebf5e2dcb6d6b975"
+}

@@ -1,0 +1,17 @@
+{
+  "parser_state": "DEFERRED",
+  "parser_reason": "LOCAL_YTDLP_PARSER_CHANGED",
+  "circuit_open": true,
+  "premature_lease_denied": true,
+  "circuit_recovers": true,
+  "restart_fence": 2,
+  "stale_fence_rejected": true,
+  "final_state": "DEFERRED",
+  "final_reason": "LOCAL_YTDLP_NO_CAPTIONS",
+  "accepted_effects": 0,
+  "origin_preserved": true,
+  "provider_requests": 0,
+  "injected_statuses": true,
+  "logical_clock": true,
+  "source_recovery": "RETRY_ADMISSION_ONLY_NO_SUCCESSFUL_SOURCE"
+}

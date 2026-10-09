@@ -1,0 +1,59 @@
+{
+  "version": "ApplicationRestoreEquivalent/1.0",
+  "observed_at": "2026-10-09T16:55:45.488Z",
+  "candidate_sha256": "aa70e5acb1ee8664ad307ec063405f56616332e58783fcd51c849a89bf42c0dc",
+  "migration_set_sha256": "0ea54579fe5f0a5c4d8501a0ac3718f5fe9d6e317a93ebb1ff38f9e706b73f2a",
+  "migration_count": 35,
+  "file_count": 601,
+  "status": "PASS",
+  "runtime": "ACTUAL_NODE_SQLITE_APPLICATION_HANDLERS",
+  "independent_medium": "PREVIOUSLY_DOWNLOADED_VERIFIED_GOOGLE_DRIVE",
+  "backup_sha256": "31cd69361a6bb1342dd76726ba9aa1f430791cda36f90818dba61857cd027bd0",
+  "restored_rows": 4678,
+  "canonical_readback": "PASS",
+  "database_restore_ms": 2357,
+  "search_rebuild_ms": 438,
+  "application_handlers_recovery_ms": 5886,
+  "unauthorized_denied": true,
+  "old_sessions_invalidated": true,
+  "integrity": true,
+  "foreign_keys": true,
+  "routes": [
+    {
+      "path": "/health",
+      "status": 200,
+      "bytes": 98,
+      "sha256": "d44d1c85476d9311a943142464cd258891d1284beedfa78a0feefec7da7d234c"
+    },
+    {
+      "path": "/",
+      "status": 200,
+      "bytes": 403,
+      "sha256": "b4b1874dd221601c441bd6c82105ac3da8f9213c0274be401c4214293bf4ccdf"
+    },
+    {
+      "path": "/api/v1/items?limit=20",
+      "status": 200,
+      "bytes": 12793,
+      "sha256": "10f6166bd0f787d3e1fb7e7577c7f646ef33bd464d059d50354998acbd7edb4c"
+    },
+    {
+      "path": "/api/v1/daily?date=2026-10-02",
+      "status": 200,
+      "bytes": 3674,
+      "sha256": "36238fa93b1d99be4c83dcc2e517ccd05e2fa756cb9acda512cc0f6cc89e54bc"
+    },
+    {
+      "path": "/api/v1/search?q=TED",
+      "status": 200,
+      "bytes": 9577,
+      "sha256": "6ac8c651db452fe500ab43249bd61a887bb95f583fe9d6830efade1b22ad3edb"
+    }
+  ],
+  "live_owner_oidc": "NOT_RUN",
+  "workerd_deployment": "NOT_RUN",
+  "executor_reprovision": "NOT_RUN",
+  "full_application_rpo_rto": "NOT_QUALIFIED",
+  "provider_requests": 0,
+  "paid_services_enabled": false
+}

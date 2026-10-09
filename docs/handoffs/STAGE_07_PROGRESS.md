@@ -1,5 +1,37 @@
 # Stage 07 — current handoff
 
+## Final execution, 2026-10-09
+
+Status: NOT_DONE. Code/tooling `3f3a7d3`; deployed application `96532b5` and
+Worker `93995293-fd49-4f25-b843-63f326c30a32`. Current authoritative outcomes:
+`RELEASE_READINESS_REPORT.md`. Older entries below retain their historical scope.
+
+Owner-approved layout is retained: parent `1aFYzO7kMVebvP-Y-V6oIWAAkf21MR7mN`,
+Daily `1rn_5auxY_8HAeADc1RgGKQ6h9JimD7WM`, Backups
+`1qulQNJMmEcFy_9o3908CNgU6Kdj7aB84`. No report was overwritten or moved again.
+
+D-export scorecard v3: 6/13 scoped actual checks PASS, overall NOT_RUN;
+auto-export remains disabled. Private root/child access, raw COMPACT, reserved
+create-response-loss recovery, same-ID COMPACT/FULL, remote concurrency guard
+and complete canonical readback have actual retained receipts. OAuth negative,
+late-cut/revision, manual conflict, quota/storage/Core independence and human
+quality remain unqualified. Current live probes requiring D1 are blocked by an
+actual account-wide daily read limit; the manual-conflict probe created no file.
+
+The connected Google Drive tool actually read the complete Daily, 3325 bytes,
+exact canonical hash, 4 pending/0 ready and footer/partial disclosure. This
+resolves the missing direct connector read. It does not qualify the 9 scheduled
+Bridge checks, large-file pagination, owner Voice or human semantic review.
+No actual capability UNAVAILABLE is inferred from missing tools.
+
+Existing canonical Drive copy/4678-row restore remains verified. Hourly backup
+is DUE/WAITING_QUOTA_RESET after today's actual failure; never call it FRESH.
+Quota resets 2026-10-10 00:00 UTC, on a powered/logged-in host the existing task
+can resume. Paid services remain false, no Gemini generation was sent.
+Stage acceptance still requires the actual outstanding gates, not new refactors.
+
+## Retained earlier progress
+
 2026-10-09. Status: NOT_DONE. Authoritative current audit:
 `RELEASE_READINESS_REPORT.md`; implementation candidate `ef67cdf`.
 

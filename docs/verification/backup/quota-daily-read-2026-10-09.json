@@ -1,0 +1,9 @@
+{
+  "version": "backup-quota-failure:1",
+  "recorded_at": "2026-10-09T17:25:34.971Z",
+  "reason": "CLOUDFLARE_REQUEST_FAILED_400_7500_D1_DAILY_READ_LIMIT",
+  "basis": "ACTUAL_PRODUCTION_D1_API",
+  "primary_evidence": "docs/verification/release/d1-daily-limit-2026-10-09.json",
+  "backup_started": false,
+  "secret_values_recorded": false
+}

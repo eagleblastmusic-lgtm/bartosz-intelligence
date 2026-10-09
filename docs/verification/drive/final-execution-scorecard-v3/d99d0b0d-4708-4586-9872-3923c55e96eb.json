@@ -1,0 +1,14 @@
+{
+  "status": "PASS",
+  "trial_id": "d99d0b0d-4708-4586-9872-3923c55e96eb",
+  "phase": "PROBE",
+  "version": "drive-upload-guard-probe:1",
+  "method": "V2_MEDIA_PUT_IF_MATCH",
+  "concurrent_writers": 2,
+  "accepted_writers": 1,
+  "rejected_http_status": 412,
+  "current_guard_write": "PASS",
+  "stable_readback": "PASS",
+  "automatic_updates_enabled": false,
+  "sampled_at": "2026-10-08T13:07:00.949Z"
+}

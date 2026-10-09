@@ -1,0 +1,15 @@
+{
+  "failure_state": "RETRY_WAIT",
+  "early_state": "IDLE",
+  "recovered_state": "VERIFIED",
+  "repeated_state": "IDLE",
+  "same_artifact": true,
+  "failure_revision": 0,
+  "final_revision": 1,
+  "creates": 1,
+  "canonical_readback": true,
+  "dirty_acknowledged": true,
+  "provider_requests": 0,
+  "simulated_transport": true,
+  "logical_clock": true
+}

@@ -96,3 +96,10 @@ Continue independent technical work without repeatedly asking for these forms.
 Automated axe, keyboard, quality/Evidence and E2E checks stay required. Multi-day
 Gate C observation remains separate and must use real application work; do not
 manufacture PASS or pause development to wait for elapsed days.
+
+Confirmed D1 free daily quota is an account-wide service limitation. Queries can
+fail through both REST and Worker bindings; `/health` alone does not prove usable
+Core. Preserve data and existing backup receipts, allow the daily reset at
+00:00 UTC, and verify a new capture before claiming freshness/RPO. Keep
+`paid_services_enabled=false`. The current redacted incident and scheduled
+cadence state are recorded in `RELEASE_READINESS_REPORT.md`.

@@ -1,0 +1,93 @@
+{
+  "version": "drive-gate-evidence:1",
+  "gate": "D_EXPORT",
+  "configuration_sha256": "60b636c82f40d258efb2b5faab27ec59d99f11cedb818998a5122c425d23e89b",
+  "configuration_path": "configuration.json",
+  "rows": [
+    {
+      "id": "oauth_offline_renewal",
+      "result": "NOT_RUN",
+      "evidence": []
+    },
+    {
+      "id": "private_root_child_access",
+      "result": "NOT_RUN",
+      "evidence": []
+    },
+    {
+      "id": "stable_snapshot",
+      "result": "NOT_RUN",
+      "evidence": []
+    },
+    {
+      "id": "compact_raw_markdown",
+      "result": "NOT_RUN",
+      "evidence": []
+    },
+    {
+      "id": "reserved_create_timeout_recovery",
+      "result": "PASS",
+      "evidence": [
+        {
+          "path": "reserved_create_timeout_recovery.json",
+          "sha256": "790bdc9edd7c63375d65d0e94115761d501b3f2f4bbbca9c4989b383fc28c79b"
+        }
+      ]
+    },
+    {
+      "id": "same_file_late_revision",
+      "result": "NOT_RUN",
+      "evidence": []
+    },
+    {
+      "id": "same_file_mode_switch",
+      "result": "PASS",
+      "evidence": [
+        {
+          "path": "same_file_mode_switch.json",
+          "sha256": "866cf029ecc524eb2784233fecf337f0e7c093a64b42d9abd220cb7bf1448378"
+        }
+      ]
+    },
+    {
+      "id": "manual_edit_conflict",
+      "result": "NOT_RUN",
+      "evidence": []
+    },
+    {
+      "id": "concurrent_remote_guard",
+      "result": "PASS",
+      "evidence": [
+        {
+          "path": "concurrent_remote_guard.json",
+          "sha256": "3738dcf69a674f6937df6d63f3e59f8a5b5085b85a2a41d056ed725eccd7abc2"
+        }
+      ]
+    },
+    {
+      "id": "complete_hash_counts_identity",
+      "result": "PASS",
+      "evidence": [
+        {
+          "path": "complete_hash_counts_identity.json",
+          "sha256": "13747a84202013fcf7d5b8d198dea327f44bce4e7b351b01f483ad77d947bad9"
+        }
+      ]
+    },
+    {
+      "id": "quota_storage_stop",
+      "result": "NOT_RUN",
+      "evidence": []
+    },
+    {
+      "id": "core_independent_of_drive",
+      "result": "NOT_RUN",
+      "evidence": []
+    },
+    {
+      "id": "human_compact_quality",
+      "result": "NOT_RUN",
+      "evidence": []
+    }
+  ]
+}

@@ -1,0 +1,17 @@
+{
+  "version": "drive-gate-observation:1",
+  "kind": "ACTUAL",
+  "configuration_sha256": "60b636c82f40d258efb2b5faab27ec59d99f11cedb818998a5122c425d23e89b",
+  "check": "reserved_create_timeout_recovery",
+  "observed_at": "2026-10-09T16:58:23.290Z",
+  "observer": "ACTUAL_RETAINED_RECEIPTS",
+  "result": "PASS",
+  "method": "PROVIDER_READBACK",
+  "facts": {
+    "reserved_before_create": true,
+    "ambiguous_response_reconciled": true,
+    "one_file": true,
+    "primary_ref_0": "8c5d75bd-0e30-4cc4-863a-2c00e19dd65d.json:7bf84b6acba7c646b1dc6a99a38c24dd1e4727e0fb9681bb923ba08e37701a41",
+    "scope": "Retained actual mechanism qualification; pending-only Daily; not accepted AI content"
+  }
+}
