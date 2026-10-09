@@ -154,7 +154,9 @@ try {
     credential = await sha256(randomToken());
   const now = new Date();
   await db
-    .prepare('INSERT INTO owner_sessions VALUES(?,?,?,?,?)')
+    .prepare(
+      'INSERT INTO owner_sessions(session_hash,owner_id,csrf_hash,created_at,expires_at) VALUES(?,?,?,?,?)',
+    )
     .bind(
       session,
       ownerId,
