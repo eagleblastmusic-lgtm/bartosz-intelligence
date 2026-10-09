@@ -59,32 +59,35 @@ const db = remoteDatabase(),
   now = new Date(),
   sessionHash = await sha256(randomToken());
 const drillStarted = performance.now();
-const owners = await db
-  .prepare(
-    'SELECT owner_id,subject FROM owner_users WHERE allowlisted=1 LIMIT 2',
-  )
-  .all<{ owner_id: string; subject: string }>();
-if (owners.results.length !== 1) throw new Error('VERIFIED_OWNER_REQUIRED');
-const owner = owners.results[0]!;
-await db
-  .prepare(
-    'INSERT INTO owner_sessions(session_hash,owner_id,csrf_hash,created_at,expires_at) VALUES(?,?,?,?,?)',
-  )
-  .bind(
-    sessionHash,
-    owner.owner_id,
-    await sha256(randomToken()),
-    now.toISOString(),
-    new Date(now.getTime() + 900000).toISOString(),
-  )
-  .run();
 let backup: CoreBackup | undefined,
   backupId: string | undefined,
   verifiedRemote = false,
-  phase = 'BEGIN',
+  sessionCreated = false,
+  phase = 'OWNER',
   chunkTable: string | null = null,
   chunkCursor: number | null = null;
 try {
+  const owners = await db
+    .prepare(
+      'SELECT owner_id,subject FROM owner_users WHERE allowlisted=1 LIMIT 2',
+    )
+    .all<{ owner_id: string; subject: string }>();
+  if (owners.results.length !== 1) throw new Error('VERIFIED_OWNER_REQUIRED');
+  const owner = owners.results[0]!;
+  await db
+    .prepare(
+      'INSERT INTO owner_sessions(session_hash,owner_id,csrf_hash,created_at,expires_at) VALUES(?,?,?,?,?)',
+    )
+    .bind(
+      sessionHash,
+      owner.owner_id,
+      await sha256(randomToken()),
+      now.toISOString(),
+      new Date(now.getTime() + 900000).toISOString(),
+    )
+    .run();
+  sessionCreated = true;
+  phase = 'BEGIN';
   const context = await AccessContext.owner(
     db,
     sessionHash,
@@ -221,8 +224,19 @@ try {
 } finally {
   if (backup && backupId && !verifiedRemote)
     await backup.abort(backupId).catch(() => undefined);
-  await db
-    .prepare('UPDATE owner_sessions SET revoked_at=? WHERE session_hash=?')
-    .bind(new Date().toISOString(), sessionHash)
-    .run();
+  if (sessionCreated)
+    await db
+      .prepare('UPDATE owner_sessions SET revoked_at=? WHERE session_hash=?')
+      .bind(new Date().toISOString(), sessionHash)
+      .run()
+      .catch(() => {
+        // The session expires after 15 minutes. Preserve the primary failure and
+        // report cleanup separately without leaking SQL or credentials.
+        console.error(
+          JSON.stringify({
+            cleanup: 'SESSION_REVOCATION_FAILED',
+            session_expiry_minutes: 15,
+          }),
+        );
+      });
 }

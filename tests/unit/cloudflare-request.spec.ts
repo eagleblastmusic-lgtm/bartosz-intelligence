@@ -5,6 +5,14 @@ it.each([
   ['query timed out: private SQL', 'D1_TIMEOUT'],
   ['no such column: private column', 'D1_SQL_INVALID'],
   ['string or blob too big: private payload', 'D1_TOO_LARGE'],
+  [
+    "You have exceeded your account's daily D1 read limit: private",
+    'D1_DAILY_READ_LIMIT',
+  ],
+  [
+    "You have exceeded your account's daily D1 write limit: private",
+    'D1_DAILY_WRITE_LIMIT',
+  ],
 ])(
   'classifies D1 7500 without exposing its message or replaying %s',
   async (message, category) => {

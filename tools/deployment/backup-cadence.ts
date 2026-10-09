@@ -8,6 +8,33 @@ export interface BackupReceipt {
   integrity_check?: unknown;
   foreign_key_check?: unknown;
 }
+export interface BackupQuotaFailure {
+  reason?: unknown;
+  recorded_at?: unknown;
+}
+/** A confirmed account-wide daily limit is not transient; the backup stays due. */
+export function backupQuotaReset(receipts: BackupQuotaFailure[], now: Date) {
+  if (!Number.isFinite(now.getTime())) throw new Error('INVALID_BACKUP_CLOCK');
+  for (const row of receipts) {
+    if (
+      typeof row.reason !== 'string' ||
+      !/^CLOUDFLARE_REQUEST_FAILED_400_7500_D1_DAILY_(?:READ|WRITE)_LIMIT$/.test(
+        row.reason,
+      ) ||
+      typeof row.recorded_at !== 'string'
+    )
+      continue;
+    const observed = new Date(row.recorded_at);
+    if (!Number.isFinite(observed.getTime()) || observed > now) continue;
+    const reset = Date.UTC(
+      observed.getUTCFullYear(),
+      observed.getUTCMonth(),
+      observed.getUTCDate() + 1,
+    );
+    if (now.getTime() < reset) return new Date(reset).toISOString();
+  }
+  return null;
+}
 
 /** Failed, future-dated and incomplete receipts never postpone a backup. */
 export function backupDue(receipts: BackupReceipt[], now: Date) {

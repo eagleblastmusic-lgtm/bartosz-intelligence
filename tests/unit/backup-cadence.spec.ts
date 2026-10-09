@@ -1,6 +1,46 @@
 import { expect, it } from 'vitest';
-import { backupDue } from '../../tools/deployment/backup-cadence.js';
+import {
+  backupDue,
+  backupQuotaReset,
+} from '../../tools/deployment/backup-cadence.js';
 const now = new Date('2026-10-08T20:00:00Z');
+it('waits only for an actually classified daily quota and resumes at UTC midnight', () => {
+  for (const kind of ['READ', 'WRITE']) {
+    const failures = [
+      {
+        reason:
+          'CLOUDFLARE_REQUEST_FAILED_400_7500_D1_DAILY_' + kind + '_LIMIT',
+        recorded_at: '2026-10-08T19:00:00Z',
+      },
+    ];
+    expect(backupQuotaReset(failures, now)).toBe('2026-10-09T00:00:00.000Z');
+    expect(
+      backupQuotaReset(failures, new Date('2026-10-09T00:00:00Z')),
+    ).toBeNull();
+    expect(backupDue([], now).due).toBe(true);
+  }
+  for (const reason of [
+    'CLOUDFLARE_REQUEST_FAILED_400_7500',
+    'CLOUDFLARE_TRANSPORT_FAILED',
+  ])
+    expect(
+      backupQuotaReset([{ reason, recorded_at: '2026-10-08T19:00:00Z' }], now),
+    ).toBeNull();
+  expect(
+    backupQuotaReset(
+      [
+        {
+          reason: 'CLOUDFLARE_REQUEST_FAILED_400_7500_D1_DAILY_READ_LIMIT',
+          recorded_at: '2026-10-09T19:00:00Z',
+        },
+      ],
+      now,
+    ),
+  ).toBeNull();
+  expect(() => backupQuotaReset([], new Date('invalid'))).toThrow(
+    'INVALID_BACKUP_CLOCK',
+  );
+});
 const valid = {
   version: 'portable-backup-drill:1',
   recorded_at: '2026-10-08T19:00:00Z',

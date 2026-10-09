@@ -49,15 +49,21 @@ export async function cloudflareRequest(
     const category =
       code !== 7500
         ? ''
-        : /database is locked|database is busy/.test(message)
-          ? '_D1_BUSY'
-          : /execution timed out|query timed out/.test(message)
-            ? '_D1_TIMEOUT'
-            : /no such column|no such table|syntax error/.test(message)
-              ? '_D1_SQL_INVALID'
-              : /string or blob too big|response size limit/.test(message)
-                ? '_D1_TOO_LARGE'
-                : '';
+        : /daily.*read|read.*daily/.test(message) &&
+            /exceed|limit/.test(message)
+          ? '_D1_DAILY_READ_LIMIT'
+          : /daily.*writ|writ.*daily/.test(message) &&
+              /exceed|limit/.test(message)
+            ? '_D1_DAILY_WRITE_LIMIT'
+            : /database is locked|database is busy/.test(message)
+              ? '_D1_BUSY'
+              : /execution timed out|query timed out/.test(message)
+                ? '_D1_TIMEOUT'
+                : /no such column|no such table|syntax error/.test(message)
+                  ? '_D1_SQL_INVALID'
+                  : /string or blob too big|response size limit/.test(message)
+                    ? '_D1_TOO_LARGE'
+                    : '';
     throw new Error(
       `CLOUDFLARE_REQUEST_FAILED_${response.status}_${typeof code === 'number' ? code : 'UNKNOWN'}${category}`,
     );
