@@ -1,5 +1,9 @@
 import type { Database } from '../db/boundary.js';
-import { backupTables, assertSecretFree } from './snapshot.js';
+import {
+  backupTables,
+  legacyBackupTables,
+  assertSecretFree,
+} from './snapshot.js';
 import type { BackupManifest, BackupChunk } from './snapshot.js';
 import { sha256 } from '../auth/crypto.js';
 import ledger from '../../../../db/migration-ledger.json';
@@ -31,12 +35,16 @@ export async function verifyPortableBackup(input: PortableCoreBackup) {
     throw new Error('BACKUP_MANIFEST_MISMATCH');
   if (
     Object.keys(body.tables).sort().join(',') !==
-    [...backupTables].sort().join(',')
+    [...(body.migrations.length < 37 ? legacyBackupTables : backupTables)]
+      .sort()
+      .join(',')
   )
     throw new Error('BACKUP_TABLES_MISMATCH');
   let total = 0,
     consumed = 0;
-  for (const table of backupTables) {
+  for (const table of body.migrations.length < 37
+    ? legacyBackupTables
+    : backupTables) {
     const specification = body.tables[table]!;
     if (
       !specification ||
@@ -114,16 +122,17 @@ export async function verifyPortableBackup(input: PortableCoreBackup) {
     manifest_sha256: manifestHash,
   };
 }
-// Only this explicitly qualified index-only suffix may be restored from an
-// older manifest. Other schema changes still require an exact migration set.
+// Qualified upgrades: 036 is index-only; 037 adds empty retention tables without
+// changing legacy columns. Every prior migration name/hash must match exactly.
 function compatibleBackupMigrations(migrations: typeof ledger.migrations) {
   return (
     JSON.stringify(migrations) === JSON.stringify(ledger.migrations) ||
     (Array.isArray(migrations) &&
-      migrations.length === ledger.migrations.length - 1 &&
-      ledger.migrations.at(-1)?.name === '036_d1_read_indexes.sql' &&
+      [35, 36].includes(migrations.length) &&
+      ledger.migrations.at(-1)?.name === '037_drive_only_retention.sql' &&
+      ledger.migrations.at(-2)?.name === '036_d1_read_indexes.sql' &&
       JSON.stringify(migrations) ===
-        JSON.stringify(ledger.migrations.slice(0, -1)))
+        JSON.stringify(ledger.migrations.slice(0, migrations.length)))
   );
 }
 // Administrative/offline restoration only, into an isolated empty target.
@@ -197,6 +206,15 @@ export async function restoreCanonical(
           row.lease_owner = null;
           row.lease_until = null;
           row.fencing_token = Number(row.fencing_token) + 1;
+        }
+        if (table === 'retention_settings') {
+          row.deletion_enabled = 0;
+          row.approval_reference = null;
+          row.next_check_at = null;
+        }
+        if (table === 'retention_items') {
+          row.permit_token = null;
+          row.last_block_reason = 'RESTORE_REVERIFY_REQUIRED';
         }
         if (table === 'daily_export_artifacts' && row.state === 'SEALED') {
           exportSeals.push({
@@ -306,7 +324,7 @@ export async function restoreCanonical(
     if (
       (await db
         .prepare(`SELECT COUNT(*) n FROM ${table}`)
-        .first<number>('n')) !== input.manifest.tables[table]!.count
+        .first<number>('n')) !== (input.manifest.tables[table]?.count ?? 0)
     )
       throw new Error('RESTORE_COUNT_MISMATCH');
   // Compare the actual persisted values, including immutable bytes and restored

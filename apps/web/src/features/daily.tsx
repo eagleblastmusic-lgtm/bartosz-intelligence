@@ -352,7 +352,22 @@ export function Daily({ route }: { route: string }) {
                     {item.view?.summary_pl.map((note, index) => (
                       <p key={index}>{note.text_pl}</p>
                     ))}
-                    {!item.view && (
+                    {item.archive && (
+                      <p>
+                        <a
+                          href={
+                            'https://drive.google.com/file/d/' +
+                            encodeURIComponent(item.archive.file_id) +
+                            '/view'
+                          }
+                          target="_blank"
+                          rel="noreferrer"
+                        >
+                          Streszczenie w archiwum Google Drive
+                        </a>
+                      </p>
+                    )}
+                    {!item.view && !item.archive && (
                       <p className="metadata">
                         {item.analysis_status === 'READY'
                           ? 'Wynik przyjęty; podgląd jest dostępny w szczegółach.'

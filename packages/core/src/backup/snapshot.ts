@@ -3,7 +3,7 @@ import { sha256 } from '../auth/crypto.js';
 import ledger from '../../../../db/migration-ledger.json';
 import { backupLimits, type BackupFormatVersion } from './limits.js';
 
-export const backupTables = [
+export const legacyBackupTables = [
   'owner_users',
   'worker_identities',
   'schema_versions',
@@ -56,6 +56,18 @@ export const backupTables = [
   'source_requests',
   'discovery_scans',
   'discovery_scan_members',
+] as const;
+export const backupTables = [
+  ...legacyBackupTables.slice(
+    0,
+    legacyBackupTables.indexOf('drive_export_attempts'),
+  ),
+  'retention_settings',
+  'daily_export_members',
+  'retention_items',
+  ...legacyBackupTables.slice(
+    legacyBackupTables.indexOf('drive_export_attempts'),
+  ),
 ] as const;
 export type BackupTable = (typeof backupTables)[number];
 type Row = Record<string, string | number | null>;

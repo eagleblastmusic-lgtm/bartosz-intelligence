@@ -13,6 +13,14 @@ reprocessApp.get('/context/:item', async (c) => {
   const access = c.get('access'),
     itemId = text(c.req.param('item'), 128);
   if (
+    await c.env.DB.prepare(
+      "SELECT 1 FROM retention_items WHERE owner_id=? AND item_id=? AND phase IN ('PRUNING','COMPLETE')",
+    )
+      .bind(access.ownerId, itemId)
+      .first()
+  )
+    throw new Error('ARCHIVED_ITEM_REQUIRES_RECOVERY');
+  if (
     !(await c.env.DB.prepare(
       'SELECT 1 FROM items WHERE owner_id=? AND item_id=?',
     )

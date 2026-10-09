@@ -81,6 +81,14 @@ test('System preserves unknown capacity, stale quota, failed age and incomplete 
       expect(route.request().method()).toBe('GET');
       if (path === '/api/v1/auth/session')
         return route.fulfill({ json: { authenticated: true } });
+      if (path === '/api/v1/system/retention')
+        return route.fulfill({
+          json: {
+            policy: 'DRIVE_ONLY_VERIFIED_PLUS_7_DAYS',
+            settings: null,
+            items: [],
+          },
+        });
       if (path === '/api/v1/system/summary') {
         reads++;
         return fail

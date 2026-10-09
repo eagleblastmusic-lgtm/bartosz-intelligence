@@ -20,6 +20,17 @@ function time(value: string | null | undefined) {
     : 'Nieodczytano';
 }
 export function System() {
+  const [retention, setRetention] = useState<{
+    settings: null | { deletion_enabled: number };
+    items: {
+      item_id: string;
+      phase: string;
+      purge_after: string;
+      deleted_bytes: number;
+      hold_reason: string | null;
+      last_block_reason: string | null;
+    }[];
+  } | null>(null);
   const [data, setData] = useState<Summary | null>(null),
     [error, setError] = useState(''),
     [revision, setRevision] = useState(0);
@@ -32,6 +43,18 @@ export function System() {
       })
       .catch((error) => {
         if (!controller.signal.aborted) setError(errorMessage(error));
+      });
+    api<NonNullable<typeof retention>>(
+      '/system/retention',
+      undefined,
+      undefined,
+      controller.signal,
+    )
+      .then((value) => {
+        if (!controller.signal.aborted) setRetention(value);
+      })
+      .catch(() => {
+        if (!controller.signal.aborted) setRetention(null);
       });
     return () => controller.abort();
   }, [revision]);
@@ -65,6 +88,35 @@ export function System() {
               timeZone: 'Europe/Warsaw',
             })}
           </p>
+          <section className="panel">
+            <h2>Retencja danych roboczych</h2>
+            <p>
+              Raporty pozostają w Google Drive. Ciężkie dane można usunąć po 7
+              dniach od zweryfikowanego eksportu.
+            </p>
+            <p>
+              {retention
+                ? retention.settings?.deletion_enabled
+                  ? 'Automatyczne usuwanie zatwierdzone.'
+                  : 'Obserwacja i dry-run; rzeczywiste usuwanie wyłączone.'
+                : 'Stan retencji nieodczytany.'}
+            </p>
+            {retention && (
+              <ul>
+                {retention.items.map((item) => (
+                  <li key={item.item_id}>
+                    {item.item_id} · {item.phase} · retencja do{' '}
+                    {time(item.purge_after)} · usunięto {item.deleted_bytes}{' '}
+                    bytes logicznych
+                    {item.hold_reason || item.last_block_reason
+                      ? ' · hold: ' +
+                        (item.hold_reason ?? item.last_block_reason)
+                      : ''}
+                  </li>
+                ))}
+              </ul>
+            )}
+          </section>
           <section className="panel">
             <h2>Przetwarzanie</h2>
             <dl className="system-definition">

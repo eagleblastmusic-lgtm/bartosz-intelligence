@@ -271,6 +271,11 @@ export class DailyExportExecutor {
         } else throw new Error('EXPORT_CONFLICT');
       }
       await current();
+      // Retention starts after remote readback, not at the beginning of a slow
+      // upload. Keep the caller's clock origin and include elapsed HTTP time.
+      const verifiedAt = new Date(
+        now.getTime() + Math.max(0, Date.now() - started),
+      );
       const result = await this.db.batch([
         this.db
           .prepare(
@@ -292,7 +297,7 @@ export class DailyExportExecutor {
           .bind(
             afterRead.version!,
             remoteHash,
-            now.toISOString(),
+            verifiedAt.toISOString(),
             this.context.ownerId,
             artifactId,
             lease.fencing_token,
@@ -301,8 +306,36 @@ export class DailyExportExecutor {
             manifest.content_hash,
             manifest.revision,
           ),
+        this.db
+          .prepare(
+            `INSERT INTO retention_items(owner_id,item_id,accepted_run_id,canonical_hash,root_id,publication_date,artifact_id,file_id,remote_version,export_revision,file_hash,verified_at,purge_after,updated_at)
+ SELECT m.owner_id,m.item_id,m.run_id,m.canonical_hash,?,?,?,?,?,?,?,?,?,? FROM daily_export_members m
+ WHERE m.owner_id=? AND m.artifact_id=? AND EXISTS(SELECT 1 FROM export_state WHERE ${guardSql} AND file_id=? AND full_file_hash=? AND revision=?)
+ ON CONFLICT(owner_id,item_id) DO UPDATE SET accepted_run_id=excluded.accepted_run_id,canonical_hash=excluded.canonical_hash,root_id=excluded.root_id,publication_date=excluded.publication_date,artifact_id=excluded.artifact_id,file_id=excluded.file_id,remote_version=excluded.remote_version,export_revision=excluded.export_revision,file_hash=excluded.file_hash,
+ verified_at=CASE WHEN retention_items.file_hash=excluded.file_hash AND retention_items.accepted_run_id=excluded.accepted_run_id THEN retention_items.verified_at ELSE excluded.verified_at END,
+ purge_after=CASE WHEN retention_items.file_hash=excluded.file_hash AND retention_items.accepted_run_id=excluded.accepted_run_id THEN retention_items.purge_after ELSE excluded.purge_after END,updated_at=excluded.updated_at
+ WHERE retention_items.phase='WAITING'`,
+          )
+          .bind(
+            manifest.root_id,
+            manifest.publication_date,
+            artifactId,
+            remoteId,
+            afterRead.version!,
+            manifest.revision,
+            remoteHash,
+            verifiedAt.toISOString(),
+            new Date(verifiedAt.getTime() + 7 * 86400000).toISOString(),
+            verifiedAt.toISOString(),
+            this.context.ownerId,
+            artifactId,
+            ...guard,
+            remoteId,
+            manifest.content_hash,
+            manifest.revision,
+          ),
       ]);
-      if (result.some((row) => row.meta.changes !== 1))
+      if (result.slice(0, 2).some((row) => row.meta.changes !== 1))
         throw new Error('EXPORT_STALE_FENCE_OR_REVISION');
       return {
         file_id: remoteId,

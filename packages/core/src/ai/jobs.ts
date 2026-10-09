@@ -99,6 +99,15 @@ export class AnalysisJobs {
     assertContext(context);
   }
   private async requireSourceProcessing(itemId: string) {
+    if (
+      await this.db
+        .prepare(
+          "SELECT 1 FROM retention_items WHERE owner_id=? AND item_id=? AND phase IN ('PRUNING','COMPLETE')",
+        )
+        .bind(this.context.ownerId, itemId)
+        .first()
+    )
+      throw new Error('ARCHIVED_ITEM_REQUIRES_RECOVERY');
     const permitted = await this.db
       .prepare(
         `SELECT 1 FROM items i JOIN sources s ON s.owner_id=i.owner_id AND s.source_id=i.source_id WHERE i.owner_id=? AND i.item_id=? AND s.ai_processing_allowed=1 AND s.access_state='PUBLIC' AND i.availability='PUBLIC'`,
@@ -119,6 +128,7 @@ export class AnalysisJobs {
         candidate_hash: string;
       }>();
     if (!row) return acceptedCorrectedSource(this.db, this.context, runId);
+    await this.requireSourceProcessing(row.item_id);
     if ((await sha256(row.outcome_json)) !== row.candidate_hash)
       throw new Error('ANALYSIS_SOURCE_NOT_ACCEPTED');
     const outcome = JSON.parse(row.outcome_json) as {
@@ -431,7 +441,7 @@ export class AnalysisJobs {
     const rows = (
       await this.db
         .prepare(
-          `SELECT r.run_id,r.accepted_at FROM analysis_runs r JOIN jobs j ON j.owner_id=r.owner_id AND j.job_id=r.job_id JOIN items i ON i.owner_id=r.owner_id AND i.item_id=r.item_id JOIN sources s ON s.owner_id=i.owner_id AND s.source_id=i.source_id WHERE r.owner_id=? AND r.state='ACCEPTED' AND j.task_type='FETCH_TRANSCRIPT' AND j.state='SUCCEEDED' AND s.ai_processing_allowed=1 AND s.access_state='PUBLIC' AND i.availability='PUBLIC' AND json_extract(r.outcome_json,'$.authority.authority_confidence')='CONFIRMED' AND (r.accepted_at>? OR (r.accepted_at=? AND r.run_id>?)) AND NOT EXISTS(SELECT 1 FROM jobs a WHERE a.owner_id=r.owner_id AND a.task_type='ANALYZE' AND json_extract(a.payload_json,'$.snapshot.source.run_id')=r.run_id AND json_extract(a.payload_json,'$.snapshot.settings.mode')='PRODUCTION') ORDER BY r.accepted_at,r.run_id LIMIT 1`,
+          `SELECT r.run_id,r.accepted_at FROM analysis_runs r JOIN jobs j ON j.owner_id=r.owner_id AND j.job_id=r.job_id JOIN items i ON i.owner_id=r.owner_id AND i.item_id=r.item_id JOIN sources s ON s.owner_id=i.owner_id AND s.source_id=i.source_id WHERE r.owner_id=? AND r.state='ACCEPTED' AND j.task_type='FETCH_TRANSCRIPT' AND j.state='SUCCEEDED' AND s.ai_processing_allowed=1 AND s.access_state='PUBLIC' AND i.availability='PUBLIC' AND NOT EXISTS(SELECT 1 FROM retention_items t WHERE t.owner_id=r.owner_id AND t.item_id=r.item_id AND t.phase IN ('PRUNING','COMPLETE')) AND json_extract(r.outcome_json,'$.authority.authority_confidence')='CONFIRMED' AND (r.accepted_at>? OR (r.accepted_at=? AND r.run_id>?)) AND NOT EXISTS(SELECT 1 FROM jobs a WHERE a.owner_id=r.owner_id AND a.task_type='ANALYZE' AND json_extract(a.payload_json,'$.snapshot.source.run_id')=r.run_id AND json_extract(a.payload_json,'$.snapshot.settings.mode')='PRODUCTION') ORDER BY r.accepted_at,r.run_id LIMIT 1`,
         )
         .bind(
           this.context.ownerId,

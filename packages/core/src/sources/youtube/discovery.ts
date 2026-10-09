@@ -224,7 +224,7 @@ export async function commitDiscoveryPage(
       db
         .prepare(
           `INSERT INTO jobs(job_id,owner_id,item_id,source_id,task_type,input_revision,profile_revision,routing_policy_version,explicit_run_nonce,dedup_key,state,reason_code,due_at,priority,arrival_origin_at,origin_kind,payload_json,created_at,updated_at)
-        SELECT ?,owner_id,item_id,source_id,'FETCH_TRANSCRIPT','source-intake-1','economy-1','local-primary-1','',?,?,?,?,?,?,?,'{}',?,? FROM items WHERE owner_id=? AND source_id=? AND namespace=? AND external_id=? AND ${permit.predicate}
+        SELECT ?,owner_id,item_id,source_id,'FETCH_TRANSCRIPT','source-intake-1','economy-1','local-primary-1','',?,?,?,?,?,?,?,'{}',?,? FROM items WHERE owner_id=? AND source_id=? AND namespace=? AND external_id=? AND NOT EXISTS(SELECT 1 FROM retention_items t WHERE t.owner_id=items.owner_id AND t.item_id=items.item_id AND t.phase IN ('PRUNING','COMPLETE')) AND ${permit.predicate}
         ON CONFLICT(owner_id,dedup_key) DO NOTHING`,
         )
         .bind(

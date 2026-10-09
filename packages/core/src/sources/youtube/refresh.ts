@@ -3,7 +3,7 @@ import { sha256 } from '../../auth/crypto.js';
 import type { ItemMetadata } from '../../../../contracts/src/discovery.js';
 // A successful scan really observed these Items even when the immutable metadata
 // revision did not change. REFRESH/HEAD coverage remains PARTIAL by design.
-export const metadataObservationPredicate = `AND NOT EXISTS(SELECT 1 FROM discovery_scan_members m JOIN discovery_scans d ON d.owner_id=m.owner_id AND d.scan_id=m.scan_id JOIN jobs checked ON checked.owner_id=d.owner_id AND checked.job_id=d.job_id WHERE m.owner_id=i.owner_id AND m.item_id=i.item_id AND checked.state='SUCCEEDED' AND checked.updated_at>? AND checked.updated_at<=?)`;
+export const metadataObservationPredicate = `AND NOT EXISTS(SELECT 1 FROM retention_items archived WHERE archived.owner_id=i.owner_id AND archived.item_id=i.item_id AND archived.phase IN ('PRUNING','COMPLETE')) AND NOT EXISTS(SELECT 1 FROM discovery_scan_members m JOIN discovery_scans d ON d.owner_id=m.owner_id AND d.scan_id=m.scan_id JOIN jobs checked ON checked.owner_id=d.owner_id AND checked.job_id=d.job_id WHERE m.owner_id=i.owner_id AND m.item_id=i.item_id AND checked.state='SUCCEEDED' AND checked.updated_at>? AND checked.updated_at<=?)`;
 export async function scheduleMetadataRefresh(db: Database, now: Date) {
   const at = now.toISOString(),
     cutoff = new Date(now.getTime() - 30 * 86400000).toISOString();

@@ -162,8 +162,29 @@ export function ItemDetail({ route }: { route: string }) {
             : 'Pobieranie przyjętego wyniku…'}
         </p>
       )}
-      {current && <ItemOptional key={'optional-' + itemId} itemId={itemId} />}
-      {current && <ItemReprocess key={'reprocess-' + itemId} itemId={itemId} />}
+      {current && !current.detail.archive && (
+        <ItemOptional key={'optional-' + itemId} itemId={itemId} />
+      )}
+      {current && !current.detail.archive && (
+        <ItemReprocess key={'reprocess-' + itemId} itemId={itemId} />
+      )}
+      {current?.detail.archive && (
+        <p className="notice">
+          Streszczenie zapisano w trwałym archiwum.{' '}
+          <a
+            href={
+              'https://drive.google.com/file/d/' +
+              encodeURIComponent(current.detail.archive.file_id) +
+              '/view'
+            }
+            target="_blank"
+            rel="noreferrer"
+          >
+            Otwórz raport na Google Drive
+          </a>
+          . Dane robocze objęto retencją 7 dni.
+        </p>
+      )}
       {current && (
         <>
           <a
@@ -183,10 +204,12 @@ export function ItemDetail({ route }: { route: string }) {
             </p>
           )}
           {!canonical ? (
-            <p>
-              Przyjęty wynik nie jest jeszcze dostępny. Materiał pozostaje w
-              trwałym procesie.
-            </p>
+            !current.detail.archive && (
+              <p>
+                Przyjęty wynik nie jest jeszcze dostępny. Materiał pozostaje w
+                trwałym procesie.
+              </p>
+            )
           ) : (
             <article className="reading-pane">
               {current.detail.view?.relational_coverage ===

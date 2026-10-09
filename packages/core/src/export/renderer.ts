@@ -56,6 +56,11 @@ export interface DailyReport {
   omitted_detail_units: number;
   partial: boolean;
   item_ids: string[];
+  archive_members?: {
+    item_id: string;
+    run_id: string;
+    canonical_hash: string;
+  }[];
 }
 
 // Every untrusted field occupies one escaped Markdown line. This also prevents
@@ -425,6 +430,20 @@ export async function renderDaily(
       omitted_detail_units: omitted,
       partial,
       item_ids: items.map((item) => item.item_id),
+      archive_members:
+        mode === 'FULL' && !partial && omitted === 0
+          ? frozen.selections
+              .filter(
+                (s) =>
+                  s.canonical.status === 'OK' &&
+                  s.canonical.source_issues.length === 0,
+              )
+              .map((s) => ({
+                item_id: s.item_id,
+                run_id: s.run_id,
+                canonical_hash: s.canonical_hash,
+              }))
+          : [],
     };
   }
   throw new Error('EXPORT_RENDER_FAILED');

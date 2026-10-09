@@ -483,9 +483,17 @@ it('independent canonical restore preserves cyclic revision refs/origins and inv
       manifest: await backup.complete(started.backup_id),
       chunks,
     };
-    // The qualified index-only suffix must not force a new canonical capture.
+    // Qualified additive retention upgrade also restores the old inventory.
     const legacy = structuredClone(portable);
     legacy.manifest.migrations = legacy.manifest.migrations.slice(0, -1);
+    for (const table of [
+      'retention_settings',
+      'daily_export_members',
+      'retention_items',
+    ]) {
+      delete legacy.manifest.tables[table];
+      legacy.chunks = legacy.chunks.filter((chunk) => chunk.table !== table);
+    }
     const { sha256: ignoredLegacyHash, ...legacyBody } = legacy.manifest;
     void ignoredLegacyHash;
     legacy.manifest.sha256 = await sha256(JSON.stringify(legacyBody));

@@ -472,6 +472,31 @@ it('FULL preserves contradiction interpretation, both complete sides, Evidence n
   expect(report.markdown).toContain('null');
   expect(report.omitted_detail_units).toBe(0);
 });
+it('binds archive membership only for a complete FULL report, never for compact or incomplete coverage', async () => {
+  const input = await fixture();
+  input.snapshot.items = [input.snapshot.items[0]!];
+  input.snapshot.counts = {
+    items: 1,
+    ready: 1,
+    pending: 0,
+    blocked: 0,
+    failed: 0,
+  };
+  input.snapshot.discovery_complete = true;
+  input.snapshot.complete = true;
+  input.snapshot.partial = false;
+  expect((await renderDaily(input)).archive_members).toEqual([]);
+  input.mode = 'FULL';
+  expect((await renderDaily(input)).archive_members).toEqual([
+    {
+      item_id: input.selections[0]!.item_id,
+      run_id: input.selections[0]!.run_id,
+      canonical_hash: input.selections[0]!.canonical_hash,
+    },
+  ]);
+  input.snapshot.discovery_complete = false;
+  expect((await renderDaily(input)).archive_members).toEqual([]);
+});
 it('retains tools-only Custom context and distinguishes legitimately empty selected arrays', async () => {
   const input = await fixture(['tools']);
   input.compact_token_budget = 1;

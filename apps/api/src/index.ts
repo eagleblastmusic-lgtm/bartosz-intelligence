@@ -2,7 +2,10 @@ import { Hono } from 'hono';
 import { publicPages } from './public-pages.js';
 import { consumeSignals } from './queue.js';
 import { scheduleControlPlane } from './scheduled.js';
-import { scheduleDriveExport } from './drive-export.js';
+import {
+  scheduleDriveExport,
+  scheduleRetentionCleanup,
+} from './drive-export.js';
 import { authApp } from './auth.js';
 import type { Env } from './env.js';
 import { sourcesApp } from './routes/sources.js';
@@ -90,7 +93,16 @@ export default {
       ),
     );
     context.waitUntil(
-      scheduleDriveExport(environment, new Date(controller.scheduledTime)),
+      (async () => {
+        await scheduleDriveExport(
+          environment,
+          new Date(controller.scheduledTime),
+        );
+        return scheduleRetentionCleanup(
+          environment,
+          new Date(controller.scheduledTime),
+        );
+      })(),
     );
   },
 } satisfies ExportedHandler<Env>;

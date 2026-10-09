@@ -5,6 +5,19 @@ import {
 } from '../db/boundary.js';
 import { decodeCursor, encodeCursor, pageLimit } from '../db/cursor.js';
 
+export const capacityItemSelect = `SELECT i.item_id,i.source_id,i.external_id,i.published_at,i.publication_provenance,i.discovered_at,i.availability,
+        j.job_id,j.state job_state,j.reason_code,j.arrival_origin_at,j.origin_kind,j.attempt_count,j.due_at,j.input_revision,j.profile_revision,j.prompt_snapshot_id,
+        COALESCE((SELECT MIN(a.started_at) FROM jobs q CROSS JOIN job_attempts a ON a.owner_id=q.owner_id AND a.job_id=q.job_id WHERE q.owner_id=i.owner_id AND q.item_id=i.item_id AND q.task_type='ANALYZE' AND json_extract(q.payload_json,'$.snapshot.settings.mode')='PRODUCTION' AND json_type(q.payload_json,'$.snapshot.chunk') IS NULL),json_extract(t.operational_json,'$.analysis_started_at')) analysis_started_at,
+        COALESCE(ir.accepted_at,json_extract(t.operational_json,'$.accepted_complete_at')) accepted_complete_at,COALESCE(ir.run_id,json_extract(t.operational_json,'$.accepted_effect_id')) accepted_effect_id,
+        COALESCE(sr.run_id,json_extract(t.operational_json,'$.source_run_id')) source_run_id,COALESCE(sr.accepted_at,json_extract(t.operational_json,'$.source_accepted_at')) source_accepted_at,COALESCE(sr.candidate_hash,json_extract(t.operational_json,'$.source_outcome_hash')) source_outcome_hash,
+        COALESCE(json_extract(sr.outcome_json,'$.source_artifact_id'),json_extract(t.operational_json,'$.source_artifact_id')) source_artifact_id,COALESCE(json_extract(sr.outcome_json,'$.source_hash'),json_extract(t.operational_json,'$.source_hash')) source_hash,
+        COALESCE(json_extract(sr.outcome_json,'$.authority.language_code'),json_extract(t.operational_json,'$.source_language')) source_language,COALESCE(json_extract(sr.outcome_json,'$.authority.authority_confidence'),json_extract(t.operational_json,'$.source_authority')) source_authority,
+        COALESCE(ar.byte_size,json_extract(t.operational_json,'$.source_bytes')) source_bytes
+        FROM items i LEFT JOIN retention_items t ON t.owner_id=i.owner_id AND t.item_id=i.item_id LEFT JOIN jobs j ON j.owner_id=i.owner_id AND j.job_id=(SELECT q.job_id FROM jobs q WHERE q.owner_id=i.owner_id AND q.item_id=i.item_id AND q.task_type IN ('ANALYZE','FETCH_TRANSCRIPT') AND (q.task_type!='ANALYZE' OR json_extract(q.payload_json,'$.snapshot.settings.mode')='PRODUCTION' OR q.job_id=json_extract(t.operational_json,'$.job_id')) AND json_type(q.payload_json,'$.snapshot.chunk') IS NULL ORDER BY q.created_at DESC,q.job_id DESC LIMIT 1)
+        LEFT JOIN analysis_runs ir ON ir.owner_id=i.owner_id AND ir.run_id=(SELECT r.run_id FROM analysis_runs r JOIN jobs q ON q.owner_id=r.owner_id AND q.job_id=r.job_id WHERE r.owner_id=i.owner_id AND r.item_id=i.item_id AND r.state='ACCEPTED' AND q.task_type='ANALYZE' AND json_extract(r.outcome_json,'$.version')='intelligence-accepted:1' AND json_extract(r.outcome_json,'$.view.coverage_complete')=1 AND json_extract(r.outcome_json,'$.view.status')='OK' ORDER BY r.accepted_at,r.run_id LIMIT 1)
+        LEFT JOIN analysis_runs sr ON sr.owner_id=i.owner_id AND sr.run_id=(SELECT r.run_id FROM analysis_runs r JOIN jobs q ON q.owner_id=r.owner_id AND q.job_id=r.job_id WHERE r.owner_id=i.owner_id AND r.item_id=i.item_id AND r.state='ACCEPTED' AND q.task_type='FETCH_TRANSCRIPT' AND json_extract(r.outcome_json,'$.version')='transcript-source:1' AND (ir.run_id IS NULL OR json_extract(r.outcome_json,'$.source_artifact_id')=json_extract(ir.outcome_json,'$.source_artifact_id')) ORDER BY r.created_at DESC,r.run_id DESC LIMIT 1)
+        LEFT JOIN artifacts ar ON ar.owner_id=i.owner_id AND ar.item_id=i.item_id AND ar.artifact_id=json_extract(sr.outcome_json,'$.source_artifact_id') AND ar.state='VERIFIED' AND ar.kind='SOURCE_ORIGINAL'`;
+
 // Measurement-only metadata. No source/canonical text, prompts or credentials.
 export class CapacityCollection {
   constructor(
@@ -33,18 +46,7 @@ export class CapacityCollection {
         .bind(this.context.ownerId),
       this.db
         .prepare(
-          `SELECT i.item_id,i.source_id,i.external_id,i.published_at,i.publication_provenance,i.discovered_at,i.availability,
-        j.job_id,j.state job_state,j.reason_code,j.arrival_origin_at,j.origin_kind,j.attempt_count,j.due_at,j.input_revision,j.profile_revision,j.prompt_snapshot_id,
-        (SELECT MIN(a.started_at) FROM jobs q CROSS JOIN job_attempts a ON a.owner_id=q.owner_id AND a.job_id=q.job_id WHERE q.owner_id=i.owner_id AND q.item_id=i.item_id AND q.task_type='ANALYZE' AND json_extract(q.payload_json,'$.snapshot.settings.mode')='PRODUCTION' AND json_type(q.payload_json,'$.snapshot.chunk') IS NULL) analysis_started_at,
-        ir.accepted_at accepted_complete_at,ir.run_id accepted_effect_id,
-        sr.run_id source_run_id,sr.accepted_at source_accepted_at,sr.candidate_hash source_outcome_hash,
-        json_extract(sr.outcome_json,'$.source_artifact_id') source_artifact_id,json_extract(sr.outcome_json,'$.source_hash') source_hash,
-        json_extract(sr.outcome_json,'$.authority.language_code') source_language,json_extract(sr.outcome_json,'$.authority.authority_confidence') source_authority,
-        ar.byte_size source_bytes
-        FROM items i LEFT JOIN jobs j ON j.owner_id=i.owner_id AND j.job_id=(SELECT q.job_id FROM jobs q WHERE q.owner_id=i.owner_id AND q.item_id=i.item_id AND q.task_type IN ('ANALYZE','FETCH_TRANSCRIPT') AND (q.task_type!='ANALYZE' OR json_extract(q.payload_json,'$.snapshot.settings.mode')='PRODUCTION') AND json_type(q.payload_json,'$.snapshot.chunk') IS NULL ORDER BY q.created_at DESC,q.job_id DESC LIMIT 1)
-        LEFT JOIN analysis_runs ir ON ir.owner_id=i.owner_id AND ir.run_id=(SELECT r.run_id FROM analysis_runs r JOIN jobs q ON q.owner_id=r.owner_id AND q.job_id=r.job_id WHERE r.owner_id=i.owner_id AND r.item_id=i.item_id AND r.state='ACCEPTED' AND q.task_type='ANALYZE' AND json_extract(r.outcome_json,'$.version')='intelligence-accepted:1' AND json_extract(r.outcome_json,'$.view.coverage_complete')=1 AND json_extract(r.outcome_json,'$.view.status')='OK' ORDER BY r.accepted_at,r.run_id LIMIT 1)
-        LEFT JOIN analysis_runs sr ON sr.owner_id=i.owner_id AND sr.run_id=(SELECT r.run_id FROM analysis_runs r JOIN jobs q ON q.owner_id=r.owner_id AND q.job_id=r.job_id WHERE r.owner_id=i.owner_id AND r.item_id=i.item_id AND r.state='ACCEPTED' AND q.task_type='FETCH_TRANSCRIPT' AND json_extract(r.outcome_json,'$.version')='transcript-source:1' AND (ir.run_id IS NULL OR json_extract(r.outcome_json,'$.source_artifact_id')=json_extract(ir.outcome_json,'$.source_artifact_id')) ORDER BY r.created_at DESC,r.run_id DESC LIMIT 1)
-        LEFT JOIN artifacts ar ON ar.owner_id=i.owner_id AND ar.item_id=i.item_id AND ar.artifact_id=json_extract(sr.outcome_json,'$.source_artifact_id') AND ar.state='VERIFIED' AND ar.kind='SOURCE_ORIGINAL'
+          `${capacityItemSelect}
         WHERE i.owner_id=? AND (? IS NULL OR i.item_id>?) ORDER BY i.item_id LIMIT ?`,
         )
         .bind(

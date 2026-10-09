@@ -1,4 +1,5 @@
 import { ownerRouter, body, queryFields } from './common.js';
+import { RetentionCleanup } from '../../../../packages/core/src/retention/cleanup.js';
 import { unobservedCapacity } from '../../../../packages/core/src/projections/capacity.js';
 import { exportStatus } from '../../../../packages/core/src/export/status.js';
 import { sha256 } from '../../../../packages/core/src/auth/crypto.js';
@@ -8,6 +9,25 @@ import {
   type GeminiQuotaObservation,
 } from '../../../../packages/core/src/ai/quota-snapshots.js';
 export const systemApp = ownerRouter();
+systemApp.get('/retention', async (c) =>
+  c.json(await new RetentionCleanup(c.env.DB, c.get('access')).status()),
+);
+systemApp.post('/retention/dry-run', async (c) => {
+  await body(c, []);
+  return c.json(
+    await new RetentionCleanup(c.env.DB, c.get('access')).dryRun(new Date()),
+  );
+});
+systemApp.post('/retention/hold', async (c) => {
+  const input = await body(c, ['item_id', 'reason']);
+  return c.json(
+    await new RetentionCleanup(c.env.DB, c.get('access')).hold(
+      String(input.item_id),
+      input.reason === null ? null : String(input.reason),
+      new Date(),
+    ),
+  );
+});
 systemApp.post('/quota-observations', async (c) => {
   const input = await body(c, ['observation']);
   return c.json(
@@ -85,7 +105,7 @@ systemApp.get('/summary', async (c) => {
       .bind(owner)
       .first(),
     c.env.DB.prepare(
-      "SELECT COUNT(*) arrival_count,SUM(CASE WHEN state='SUCCEEDED' THEN 1 ELSE 0 END) succeeded_jobs_count,(SELECT COUNT(*) FROM analysis_runs r WHERE r.owner_id=? AND r.state='ACCEPTED' AND json_extract(r.outcome_json,'$.version')='intelligence-accepted:1') accepted_count,COALESCE(SUM(CASE WHEN state!='SUCCEEDED' THEN 1 ELSE 0 END),0) open_count,MIN(CASE WHEN state!='SUCCEEDED' THEN arrival_origin_at END) oldest_open_arrival_origin_at,SUM(CASE WHEN state IN ('PENDING','RETRY_WAIT','DEFERRED') AND due_at<=? THEN 1 ELSE 0 END) due_count,SUM(CASE WHEN state IN ('LEASED','RUNNING') AND lease_until<=? THEN 1 ELSE 0 END) expired_lease_count FROM jobs WHERE owner_id=?",
+      "SELECT COUNT(*) arrival_count,SUM(CASE WHEN state='SUCCEEDED' THEN 1 ELSE 0 END) succeeded_jobs_count,(SELECT COUNT(*) FROM analysis_runs r WHERE r.owner_id=? AND r.state='ACCEPTED' AND (json_extract(r.outcome_json,'$.version')='intelligence-accepted:1' OR (json_extract(r.outcome_json,'$.version')='intelligence-archived:1' AND EXISTS(SELECT 1 FROM retention_items t WHERE t.owner_id=r.owner_id AND t.item_id=r.item_id AND t.accepted_run_id=r.run_id)))) accepted_count,COALESCE(SUM(CASE WHEN state!='SUCCEEDED' THEN 1 ELSE 0 END),0) open_count,MIN(CASE WHEN state!='SUCCEEDED' THEN arrival_origin_at END) oldest_open_arrival_origin_at,SUM(CASE WHEN state IN ('PENDING','RETRY_WAIT','DEFERRED') AND due_at<=? THEN 1 ELSE 0 END) due_count,SUM(CASE WHEN state IN ('LEASED','RUNNING') AND lease_until<=? THEN 1 ELSE 0 END) expired_lease_count FROM jobs WHERE owner_id=?",
     )
       .bind(owner, now, now, owner)
       .first(),
@@ -120,7 +140,7 @@ systemApp.get('/summary', async (c) => {
       .bind(owner)
       .all(),
     c.env.DB.prepare(
-      "SELECT COUNT(*) denominator,COALESCE(SUM(EXISTS(SELECT 1 FROM analysis_runs r JOIN jobs j ON j.owner_id=r.owner_id AND j.job_id=r.job_id WHERE r.owner_id=i.owner_id AND r.item_id=i.item_id AND r.state='ACCEPTED' AND j.task_type='FETCH_TRANSCRIPT' AND json_extract(r.outcome_json,'$.version')='transcript-source:1')),0) usable_source FROM items i WHERE i.owner_id=? AND i.availability='PUBLIC' AND EXISTS(SELECT 1 FROM jobs j WHERE j.owner_id=i.owner_id AND j.item_id=i.item_id AND j.task_type='FETCH_TRANSCRIPT')",
+      "SELECT COUNT(*) denominator,COALESCE(SUM(EXISTS(SELECT 1 FROM analysis_runs r JOIN jobs j ON j.owner_id=r.owner_id AND j.job_id=r.job_id WHERE r.owner_id=i.owner_id AND r.item_id=i.item_id AND r.state='ACCEPTED' AND j.task_type='FETCH_TRANSCRIPT' AND json_extract(r.outcome_json,'$.version')='transcript-source:1') OR EXISTS(SELECT 1 FROM retention_items t WHERE t.owner_id=i.owner_id AND t.item_id=i.item_id AND json_extract(t.operational_json,'$.source_run_id') IS NOT NULL)),0) usable_source FROM items i WHERE i.owner_id=? AND i.availability='PUBLIC' AND EXISTS(SELECT 1 FROM jobs j WHERE j.owner_id=i.owner_id AND j.item_id=i.item_id AND j.task_type='FETCH_TRANSCRIPT')",
     )
       .bind(owner)
       .first(),

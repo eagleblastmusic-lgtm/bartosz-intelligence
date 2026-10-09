@@ -63,6 +63,15 @@ export async function runDriveExportTick(
         retry_count: number;
       }>();
     if (!state) throw new Error('EXPORT_STALE_FENCE_OR_REVISION');
+    if (
+      await db
+        .prepare(
+          "SELECT 1 FROM retention_items WHERE owner_id=? AND root_id=? AND publication_date=? AND phase IN ('PRUNING','COMPLETE') LIMIT 1",
+        )
+        .bind(context.ownerId, due.root_id, due.date)
+        .first()
+    )
+      throw new Error('ARCHIVED_REPORT_REQUIRES_RECOVERY');
     const artifacts = new DailyExportArtifacts(db, context);
     let artifactId: string | null = null;
     if (state.rendered_artifact_id) {
@@ -122,13 +131,16 @@ export async function runDriveExportTick(
         .bind(...binding)
         .first<number>('retry_count')) ?? 0) + 1;
     const code =
-      error instanceof DriveFailure
-        ? 'DRIVE_' + error.category
-        : error instanceof DriveOAuthFailure
-          ? 'DRIVE_AUTHORIZATION'
-          : error instanceof Error && error.message === 'EXPORT_CONFLICT'
-            ? 'EXPORT_CONFLICT'
-            : 'EXPORT_RECOVERY_REQUIRED';
+      error instanceof Error &&
+      error.message === 'ARCHIVED_REPORT_REQUIRES_RECOVERY'
+        ? error.message
+        : error instanceof DriveFailure
+          ? 'DRIVE_' + error.category
+          : error instanceof DriveOAuthFailure
+            ? 'DRIVE_AUTHORIZATION'
+            : error instanceof Error && error.message === 'EXPORT_CONFLICT'
+              ? 'EXPORT_CONFLICT'
+              : 'EXPORT_RECOVERY_REQUIRED';
     const permanent =
       (error instanceof DriveFailure &&
         [
@@ -138,7 +150,8 @@ export async function runDriveExportTick(
           'NOT_FOUND',
           'UNQUALIFIED_UPDATE',
         ].includes(error.category)) ||
-      code === 'EXPORT_CONFLICT';
+      code === 'EXPORT_CONFLICT' ||
+      code === 'ARCHIVED_REPORT_REQUIRES_RECOVERY';
     const retryAfter =
       error instanceof DriveFailure ? (error.retry_after_seconds ?? 0) : 0;
     const seconds = Math.min(

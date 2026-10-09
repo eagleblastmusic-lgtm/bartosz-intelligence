@@ -93,7 +93,7 @@ export class ExportDirtyDays {
         statements.push(
           this.db
             .prepare(
-              `INSERT INTO export_state(owner_id,publication_date,timezone,destination_key,root_namespace,connection_id,dirty_seq,first_dirty_at,last_material_event_at) SELECT owner_id,?,'Europe/Warsaw','drive:'||root_id,root_id,connection_id,?,?,? FROM drive_connections WHERE owner_id=? AND auth_state='CONNECTED' AND root_state='VERIFIED' AND root_id IS NOT NULL ON CONFLICT(owner_id,publication_date,timezone,destination_key) DO NOTHING`,
+              `INSERT INTO export_state(owner_id,publication_date,timezone,destination_key,root_namespace,connection_id,dirty_seq,first_dirty_at,last_material_event_at,mode) SELECT owner_id,?,'Europe/Warsaw','drive:'||root_id,root_id,connection_id,?,?,?,'FULL' FROM drive_connections WHERE owner_id=? AND auth_state='CONNECTED' AND root_state='VERIFIED' AND root_id IS NOT NULL ON CONFLICT(owner_id,publication_date,timezone,destination_key) DO NOTHING`,
             )
             .bind(
               date,

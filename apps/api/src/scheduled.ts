@@ -7,6 +7,7 @@ import {
   repairMissingIntents,
 } from '../../../packages/core/src/sources/youtube/reconcile.js';
 import { scheduleMetadataRefresh } from '../../../packages/core/src/sources/youtube/refresh.js';
+import { observeRetention } from '../../../packages/core/src/retention/cleanup.js';
 export async function recoverJobs(db: D1Database, queue: Queue, now: Date) {
   // Five jobs/events per invocation; continuation remains durable for next tick.
   const recovery = await sweep(
@@ -33,6 +34,7 @@ export async function scheduleControlPlane(
   const sources = await scheduleSources(db, now, 1);
   const reconciliation = await repairMissingIntents(db, now, 1);
   const metadata_refresh = await scheduleMetadataRefresh(db, now);
+  const retention = await observeRetention(db, now);
   const recovery = await sweep(
     db,
     now,
@@ -65,5 +67,12 @@ export async function scheduleControlPlane(
       task_type: ready.task_type,
       fencing_hint: ready.fencing_token,
     });
-  return { sources, reconciliation, metadata_refresh, recovery, transport };
+  return {
+    sources,
+    reconciliation,
+    metadata_refresh,
+    retention,
+    recovery,
+    transport,
+  };
 }

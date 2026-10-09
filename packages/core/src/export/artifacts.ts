@@ -243,6 +243,42 @@ export class DailyExportArtifacts {
       .run();
     if (attached.meta.changes !== 1)
       throw new Error('EXPORT_STALE_FENCE_OR_REVISION');
+    // Bind the exact accepted result included in a complete final archive.
+    // A COMPACT/partial report never authorizes irreversible working-data loss.
+    if (
+      report.export_mode === 'FULL' &&
+      !report.partial &&
+      report.omitted_detail_units === 0
+    ) {
+      for (
+        let start = 0;
+        start < (report.archive_members?.length ?? 0);
+        start += 16
+      ) {
+        await this.db.batch(
+          report
+            .archive_members!.slice(start, start + 16)
+            .map((member) =>
+              this.db
+                .prepare(
+                  `INSERT INTO daily_export_members(owner_id,artifact_id,item_id,run_id,canonical_hash) SELECT ?,?,?,?,? WHERE ${leaseGuard} AND EXISTS(SELECT 1 FROM active_analysis_selections s JOIN analysis_runs r ON r.owner_id=s.owner_id AND r.run_id=s.accepted_run_id WHERE s.owner_id=? AND s.item_id=? AND s.accepted_run_id=? AND r.state='ACCEPTED' AND json_extract(r.outcome_json,'$.version')='intelligence-accepted:1' AND json_extract(r.outcome_json,'$.view.status')='OK' AND json_extract(r.outcome_json,'$.view.coverage_complete')=1 AND json_extract(r.outcome_json,'$.canonical_hash')=?) ON CONFLICT(owner_id,artifact_id,item_id) DO NOTHING`,
+                )
+                .bind(
+                  this.context.ownerId,
+                  id,
+                  member.item_id,
+                  member.run_id,
+                  member.canonical_hash,
+                  ...guard,
+                  this.context.ownerId,
+                  member.item_id,
+                  member.run_id,
+                  member.canonical_hash,
+                ),
+            ),
+        );
+      }
+    }
     return id;
   }
 }

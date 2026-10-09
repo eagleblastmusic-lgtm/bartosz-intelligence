@@ -60,6 +60,7 @@ export async function captureDailyExport(
     throw new Error('WHOLE_DAY_EXPORT_REQUIRED');
   const selections: ExportSelection[] = [];
   for (const item of snapshot.items) {
+    if (item.archive) throw new Error('ARCHIVED_REPORT_REQUIRES_RECOVERY');
     if (item.selected_run_id === null) continue;
     const descriptor = await projection.canonicalDescriptor(
       item.item_id,

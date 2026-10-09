@@ -203,7 +203,7 @@ export async function repairMissingIntents(db: Database, now: Date, limit = 5) {
   const rows = (
     await db
       .prepare(
-        `SELECT i.owner_id,i.item_id,i.source_id,i.namespace,i.external_id,i.published_at,i.availability FROM items i JOIN sources s ON s.owner_id=i.owner_id AND s.source_id=i.source_id WHERE s.enabled=1 AND i.current_revision_id IS NOT NULL AND NOT EXISTS(SELECT 1 FROM jobs j WHERE j.owner_id=i.owner_id AND j.item_id=i.item_id AND j.task_type='FETCH_TRANSCRIPT' AND j.input_revision='source-intake-1') ORDER BY i.discovered_at,i.item_id LIMIT ?`,
+        `SELECT i.owner_id,i.item_id,i.source_id,i.namespace,i.external_id,i.published_at,i.availability FROM items i JOIN sources s ON s.owner_id=i.owner_id AND s.source_id=i.source_id WHERE s.enabled=1 AND i.current_revision_id IS NOT NULL AND NOT EXISTS(SELECT 1 FROM retention_items t WHERE t.owner_id=i.owner_id AND t.item_id=i.item_id AND t.phase IN ('PRUNING','COMPLETE')) AND NOT EXISTS(SELECT 1 FROM jobs j WHERE j.owner_id=i.owner_id AND j.item_id=i.item_id AND j.task_type='FETCH_TRANSCRIPT' AND j.input_revision='source-intake-1') ORDER BY i.discovered_at,i.item_id LIMIT ?`,
       )
       .bind(limit)
       .all<{

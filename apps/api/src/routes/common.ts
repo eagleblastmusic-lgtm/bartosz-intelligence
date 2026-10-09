@@ -21,6 +21,21 @@ export function apiRouter() {
     await next();
   });
   router.onError((error, c) => {
+    if (
+      [
+        'ARCHIVED_ITEM_REQUIRES_RECOVERY',
+        'ARCHIVED_REPORT_REQUIRES_RECOVERY',
+      ].includes(error.message)
+    )
+      return c.json(
+        {
+          code: error.message,
+          message:
+            'Raport jest zarchiwizowany na Google Drive. Dane robocze wymagają jawnego odzyskania.',
+          correlation_id: c.get('correlation'),
+        },
+        410,
+      );
     const d1Limit = d1DailyLimit(error);
     if (d1Limit) {
       const now = new Date();

@@ -20,6 +20,12 @@ export interface AcceptedView {
   typed_counts: Record<string, number>;
 }
 export interface DailyItemView {
+  archive?: {
+    file_id: string;
+    remote_version: string;
+    verified_at: string;
+    phase: string;
+  } | null;
   item_id: string;
   source_id: string;
   title: string;
