@@ -1,5 +1,8 @@
 export function base64url(bytes: Uint8Array) {
-  return btoa(String.fromCharCode(...bytes))
+  const parts: string[] = [];
+  for (let offset = 0; offset < bytes.length; offset += 32768)
+    parts.push(String.fromCharCode(...bytes.subarray(offset, offset + 32768)));
+  return btoa(parts.join(''))
     .replaceAll('+', '-')
     .replaceAll('/', '_')
     .replace(/=+$/, '');

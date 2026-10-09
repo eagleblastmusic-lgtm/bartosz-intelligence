@@ -28,6 +28,7 @@ export interface DriveFile {
   trashed?: boolean;
   version?: string;
   modifiedTime?: string;
+  inheritedPermissionsDisabled?: boolean;
   appProperties?: Record<string, string>;
   capabilities?: {
     canAddChildren?: boolean;
@@ -36,7 +37,7 @@ export interface DriveFile {
   };
 }
 const fileFields =
-  'id,name,mimeType,parents,trashed,version,modifiedTime,appProperties,capabilities(canAddChildren,canEdit,canDownload)';
+  'id,name,mimeType,parents,trashed,version,modifiedTime,inheritedPermissionsDisabled,appProperties,capabilities(canAddChildren,canEdit,canDownload)';
 export function requireDriveId(id: string) {
   if (!/^[A-Za-z0-9_-]{1,200}$/.test(id)) throw new DriveFailure('FORMAT');
   return id;
@@ -215,6 +216,89 @@ export class DriveClient {
       maximumBytes,
     );
   }
+  async createEncryptedBackup(input: {
+    reserved_id: string;
+    root_id: string;
+    backup_id: string;
+    envelope_json: string;
+  }) {
+    requireDriveId(input.reserved_id);
+    requireDriveId(input.root_id);
+    if (
+      !/^[a-f0-9-]{36}$/.test(input.backup_id) ||
+      new TextEncoder().encode(input.envelope_json).length > 90 * 1024 * 1024
+    )
+      throw new DriveFailure('FORMAT');
+    let envelope: Record<string, unknown>;
+    try {
+      envelope = JSON.parse(input.envelope_json) as Record<string, unknown>;
+      if (!envelope || typeof envelope !== 'object' || Array.isArray(envelope))
+        throw new Error();
+    } catch {
+      throw new DriveFailure('FORMAT');
+    }
+    if (
+      envelope.version !== 'canonical-backup-aes256gcm:1' ||
+      envelope.backup_id !== input.backup_id ||
+      Object.keys(envelope).sort().join(',') !==
+        'backup_id,ciphertext,iv,key_id,plaintext_sha256,version' ||
+      typeof envelope.ciphertext !== 'string' ||
+      !/^[A-Za-z0-9_-]+$/.test(envelope.ciphertext)
+    )
+      throw new DriveFailure('FORMAT');
+    await this.verifyPrivateFolder(input.root_id);
+    const name = input.backup_id + '.bi-backup.json';
+    const metadata = JSON.stringify({
+      id: input.reserved_id,
+      name,
+      parents: [input.root_id],
+      mimeType: 'application/json',
+      appProperties: { bi_backup: input.backup_id },
+    });
+    let boundary: string;
+    do {
+      boundary = 'bi_' + crypto.randomUUID();
+    } while (
+      input.envelope_json.includes(boundary) ||
+      metadata.includes(boundary)
+    );
+    const body = `--${boundary}\r\nContent-Type: application/json; charset=UTF-8\r\n\r\n${metadata}\r\n--${boundary}\r\nContent-Type: application/json; charset=UTF-8\r\n\r\n${input.envelope_json}\r\n--${boundary}--\r\n`;
+    const result = file(
+      await this.json(
+        await this.request(
+          'files?uploadType=multipart&fields=' + encodeURIComponent(fileFields),
+          {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'multipart/related; boundary=' + boundary,
+            },
+            body,
+          },
+          true,
+        ),
+      ),
+    );
+    if (
+      result.id !== input.reserved_id ||
+      result.name !== name ||
+      result.mimeType !== 'application/json' ||
+      !result.parents?.includes(input.root_id)
+    )
+      throw new DriveFailure('FORMAT');
+    return result;
+  }
+  async readEncryptedBackup(id: string, maximumBytes: number) {
+    if (
+      !Number.isSafeInteger(maximumBytes) ||
+      maximumBytes < 1 ||
+      maximumBytes > 90 * 1024 * 1024
+    )
+      throw new DriveFailure('FORMAT');
+    return boundedBody(
+      await this.request('files/' + requireDriveId(id) + '?alt=media'),
+      maximumBytes,
+    );
+  }
   async createMarkdown(input: {
     reserved_id: string;
     root_id: string;
@@ -296,8 +380,11 @@ export class DriveClient {
     reserved_id: string;
     name: string;
     app_properties: Record<string, string>;
+    parent_id?: string;
+    limited_access?: true;
   }) {
     requireDriveId(input.reserved_id);
+    if (input.parent_id !== undefined) requireDriveId(input.parent_id);
     if (
       !input.name.trim() ||
       input.name !== input.name.trim() ||
@@ -322,13 +409,21 @@ export class DriveClient {
             name: input.name,
             mimeType: 'application/vnd.google-apps.folder',
             appProperties: input.app_properties,
+            ...(input.parent_id ? { parents: [input.parent_id] } : {}),
+            ...(input.limited_access
+              ? { inheritedPermissionsDisabled: true }
+              : {}),
           }),
         }),
       ),
     );
     if (
       result.id !== input.reserved_id ||
-      result.mimeType !== 'application/vnd.google-apps.folder'
+      result.mimeType !== 'application/vnd.google-apps.folder' ||
+      (input.parent_id !== undefined &&
+        !result.parents?.includes(input.parent_id)) ||
+      (input.limited_access === true &&
+        result.inheritedPermissionsDisabled !== true)
     )
       throw new DriveFailure('FORMAT');
     return result;
@@ -339,7 +434,9 @@ export class DriveClient {
         'files/' +
           requireDriveId(id) +
           '/permissions?pageSize=100&fields=' +
-          encodeURIComponent('nextPageToken,permissions(type,role,deleted)'),
+          encodeURIComponent(
+            'nextPageToken,permissions(type,role,deleted,view,inheritedPermissionsDisabled)',
+          ),
       ),
     );
     if (result.nextPageToken || !Array.isArray(result.permissions))
@@ -347,7 +444,15 @@ export class DriveClient {
     const active = result.permissions.filter((value: unknown) => {
       if (!value || typeof value !== 'object' || Array.isArray(value))
         throw new DriveFailure('FORMAT');
-      return (value as Record<string, unknown>).deleted !== true;
+      const permission = value as Record<string, unknown>;
+      // Limited-access parent viewers can see folder metadata, never content.
+      // Both official markers are required; unknown views remain denied.
+      if (
+        permission.view === 'metadata' &&
+        permission.inheritedPermissionsDisabled === true
+      )
+        return false;
+      return permission.deleted !== true;
     });
     if (
       active.length !== 1 ||
