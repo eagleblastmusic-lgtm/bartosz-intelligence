@@ -1,5 +1,70 @@
 # Bartosz Intelligence V1 — release readiness
 
+## Aktualny checkpoint P0 — dostarczenie streszczenia na Drive
+
+2026-10-09. **IMPLEMENTATION COMPLETE NO; PRODUCTION ACCEPTED NO.**
+Implementacja: `77696ae`. [Evidence P0](docs/verification/release/p0-delivery-2026-10-09.json).
+Właściciel wskazał nadrzędny wynik: każdy wykryty film → poprawne polskie
+streszczenie → zweryfikowany trwały Google Drive. Lokalna implementacja rozróżnia
+zaakceptowaną analizę od dostarczonego filmu. `delivery.state=VERIFIED` i licznik
+delivered wynikają z exact accepted run i verified file/version/hash, a nie
+z samego `ANALYZE SUCCEEDED`. GUI pokazuje oczekiwanie na Drive.
+
+Zamknięte techniczne luki P0:
+
+- Poprawne niepuste FULL streszczenie otrzymuje własny verified receipt także
+  przy innych pending filmach lub incomplete discovery. Raport zachowuje flagę
+  częściowego dnia; częściowa analiza samego filmu nadal nie kwalifikuje cleanup.
+- Filmy bez daty publikacji są eksportowane w dniu wykrycia, z jawną nieznaną
+  datą. Verified mapowanie raportu jest stabilne przy późniejszej korekcie daty,
+  zapobiegając drugiemu streszczeniu w innym dniu.
+- Późny film po purge aktualizuje istniejący Daily file ID. FULL readback Drive
+  odzyskuje stare bloki; executor odmawia zmiany/usunięcia ich treści, używa
+  istniejącego CAS i weryfikuje nową wersję. Archived receipts i export state
+  przechodzą atomowo. Trwający cleanup odracza aktualizację, a aktywna export
+  lease blokuje rozpoczęcie cleanup.
+- Zweryfikowane bytes Drive obsługują no-material-change bez wymagania starych
+  local chunks. Globalny polling discovery/źródeł nie renderuje ponownie
+  zarchiwizowanych dni; rzeczywisty film/accepted wynik nadal oznacza dzień dirty.
+- Odtwarzalność backupów schema 35/36/37 zachowano w schema 38. Nie zmieniono
+  starych migracji ani backupów; 038 zmienia wyłącznie guard archive append.
+
+Weryfikacja: **473 unit/contract PASS, 0 FAIL, 1 platformowy skip**; pełny lokalny
+Workers baseline **237 PASS** i końcowa zmieniona delta **32 PASS**, dodatkowo
+**2 PASS** dla końcowej korekty daty/retencji; GUI/accessibility **4 PASS**.
+Typecheck/lint/build/config i 38 migrations/FK/integrity/empty restore PASS.
+Public secret scan: **4 files / 412272 bytes / zero findings**.
+Pełny Workers baseline poprzedza ostatnią deltę export/projection; nie sumujemy
+powtórzonych testów i nie nazywamy ich rzeczywistym provider E2E.
+
+[Diagnoza Gemini 503 i konkretny następny test](docs/verification/gate-ai/GEMINI_503_P0_2026-10-09.md).
+Zachowane siedem prób pipeline zwróciło 503; jest to niedostępność usługi,
+nie dowód przekroczenia quota lub defektu danego modelu/endpointu. Nie wykonano
+nowego żądania Gemini ani zmiany modelu. Pytanie o jedną nową próbę QUALITY_TEST
+`rUhllpnYWR8` / `gemini-3.8-flash` Free wraz z read-only preflight pozostaje
+pending; poprzednie upoważnienia zostały zużyte. QUALITY_TEST candidate nie
+zastępuje przyjęcia jakości i produkcyjnego accepted → verified Drive.
+
+Produkcja nadal ma **35 applied migrations**, oczekujące **036/037/038**,
+ostatni zachowany Worker `93995293-fd49-4f25-b843-63f326c30a32`.
+W tym checkpoint: **0 production D1 queries/writes, 0 Gemini requests,
+0 Drive mutations, 0 destructive production cleanup, paid_services_enabled=false**.
+Nie utworzono nowego canonical backupu. Nie uruchomiono automatycznych generacji
+ani nie potwierdzono codziennie działającego AI → Drive.
+
+Heartbeat 02:05 Europe/Warsaw zaktualizowano: actual quota probe, 38-schema
+preflight/deploy i minimalne niezbędne pomiary, następnie P0 AI → Drive zamiast
+dalszych mikrooptymalizacji D1. Zgoda Gemini musi być rzeczywista, nie domyślna.
+Retencja na produkcji tylko observation/dry-run; pierwsze DELETE i usunięcie
+istniejących backupów nadal wymagają odrębnej konkretnej zgody.
+
+[Zrewidowana decyzja/DoD](docs/decisions/DRIVE_ONLY_RETENTION_V1_2026-10-09.md)
+i [jawna delta istniejącego Master Plan](docs/decisions/p0-delivery-master-plan.patch).
+Knowledge/history/Bridge nie blokują samego P0; integrity, jakość, retry/dedup,
+recovery i rzeczywista obserwacja 20 kanałów pozostają wymagane. Historyczne
+R 8/10, D-export 6/13 i Gate C NOT_YET_MATURE zachowują swoje zakresy i pins.
+Poniższe checkpointy są historią; obecny zakres opisuje ta sekcja.
+
 ## Aktualny checkpoint — zatwierdzone Drive-only i 7 dni retencji
 
 2026-10-09. **IMPLEMENTATION COMPLETE NO; PRODUCTION ACCEPTED NO.**

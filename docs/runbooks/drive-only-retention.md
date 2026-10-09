@@ -1,9 +1,9 @@
 # Drive-only retention, cleanup i recovery
 
 Autorytatywna decyzja: [V1.1.2-retention](../decisions/DRIVE_ONLY_RETENTION_V1_2026-10-09.md).
-Migracja 037 jest addytywna; 036 optymalizuje odczyty. Przed wdrożeniem wymagane
+Migracja 037 jest addytywna; 036 optymalizuje odczyty, a 038 kwalifikuje bezpieczną aktualizację raportu po retencji. Przed wdrożeniem wymagane
 lokalne regresje, migracje/FK/integrity i aktualny backup preflight. Nie edytować
-zastosowanych migracji 001–035. Istniejące backupy 35/36 odtwarzają się do 37;
+zastosowanych migracji 001–035. Istniejące backupy 35/36/37 odtwarzają się do 38;
 nowy inventory zawiera `retention_settings`, `daily_export_members`,
 `retention_items`. Stare nie są nadpisywane.
 
@@ -27,10 +27,31 @@ Obecnie zgody na pierwsze produkcyjne usunięcie NIE MA.
 
 ## Wykonanie po przyszłej zgodzie
 
-Cleanup kwalifikuje tylko dokładny zaakceptowany wynik kompletnego FULL raportu
-z verified Drive attempt. COMPACT, incomplete coverage i historyczne pliki
-bez membership pozostają hold. Każdy nowy hash/run rozpoczyna nowy zegar 7 dni;
-replay tego samego zweryfikowanego wyniku nie przesuwa terminu.
+Cleanup kwalifikuje tylko dokładny zaakceptowany, kompletny wynik filmu z
+niepustym polskim streszczeniem w FULL oraz verified Drive attempt. Inne pending
+filmy lub incomplete discovery dnia nie unieważniają tego wyniku. COMPACT,
+częściowy wynik samego filmu, puste summary i pliki bez membership pozostają hold.
+Nowy accepted run/canonical hash lub zmiana docelowego pliku rozpoczyna nowy
+zegar; aktualizacja tego samego pliku zachowująca ten sam wynik filmu nie przesuwa
+jego pierwszego verified_at/purge_after. Aktualny hash/version całego pliku nadal
+musi zgadzać się przed cleanup.
+
+## Późny film po cleanup
+
+Runtime odczytuje istniejący FULL z Drive: metadata → bytes → metadata, sprawdza
+identity/root/trashed, stabilną wersję, zapisany SHA-256 i protokół raportu.
+Bloki ukończonych filmów zachowuje w całości. Executor porównuje je ponownie
+przed CAS i odmówi usunięcia lub zmiany któregokolwiek. Zweryfikowana nowa wersja
+aktualizuje receipts i export state atomowo, pod tym samym file ID. Migracja 038
+odmawia zmiany pliku lub advancement bez zgodnych archived receipts.
+
+Trwający PRUNING odracza aktualizację; cleanup nie rozpoczyna się przy aktywnej
+export lease. Brak Drive, manual edit, utracony plik lub niezgodny readback
+zachowują pracę i wymagają retry/recovery, bez renderowania pustego archiwum.
+Nie odtwarzamy transkryptów/Knowledge w D1. Sam globalny polling źródeł/discovery
+nie przelicza zarchiwizowanych dni; rzeczywisty nowy film/wynik nadal oznacza
+swój dzień jako dirty. Dzień istniejącego dostarczenia pozostaje stabilny przy
+korekcie daty publikacji; nie tworzymy drugiego streszczenia w nowym dniu.
 
 Pierwszy batch ponownie pobiera metadata → całe bytes/hash → metadata ze stabilną
 wersją. Każde wznowienie sprawdza wersję/file/parent/trashed i wszystkie lokalne

@@ -1,0 +1,70 @@
+diff --git a/Plan/BARTOSZ_INTELLIGENCE_MASTER_ARCHITECTURE_2026_v1.1.1.md b/Plan/BARTOSZ_INTELLIGENCE_MASTER_ARCHITECTURE_2026_v1.1.1.md
+--- a/Plan/BARTOSZ_INTELLIGENCE_MASTER_ARCHITECTURE_2026_v1.1.1.md
++++ b/Plan/BARTOSZ_INTELLIGENCE_MASTER_ARCHITECTURE_2026_v1.1.1.md
+@@ -1,0 +2,10 @@
++
++> **OWNER_APPROVED P0 delivery - 2026-10-09.** Film jest ukonczony dopiero po
++> verified Drive file/version/SHA-256 readback niepustego polskiego streszczenia.
++> Inne pending filmy nie blokuja dostarczenia gotowego FULL wyniku; raport dnia
++> nadal jawnie podaje incomplete coverage. Dla nieznanej daty publikacji uzyj
++> dnia wykrycia z jawnym oznaczeniem, zachowujac trwale mapowanie po eksporcie.
++> Pozny film po retencji aktualizuje ten sam plik z zachowaniem verified bytes
++> poprzednich streszczen. Historyczne Knowledge/Ledger i Bridge nie blokuja P0.
++> Integralnosc, retry/dedup, recovery, jakosc i rzeczywisty live E2E pozostaja.
++> Szczegoly: ../docs/decisions/DRIVE_ONLY_RETENTION_V1_2026-10-09.md.
+diff --git a/Plan/00_IMPLEMENTATION_MASTER_INDEX.md b/Plan/00_IMPLEMENTATION_MASTER_INDEX.md
+--- a/Plan/00_IMPLEMENTATION_MASTER_INDEX.md
++++ b/Plan/00_IMPLEMENTATION_MASTER_INDEX.md
+@@ -1,0 +2,10 @@
++
++> **OWNER_APPROVED P0 delivery - 2026-10-09.** Film jest ukonczony dopiero po
++> verified Drive file/version/SHA-256 readback niepustego polskiego streszczenia.
++> Inne pending filmy nie blokuja dostarczenia gotowego FULL wyniku; raport dnia
++> nadal jawnie podaje incomplete coverage. Dla nieznanej daty publikacji uzyj
++> dnia wykrycia z jawnym oznaczeniem, zachowujac trwale mapowanie po eksporcie.
++> Pozny film po retencji aktualizuje ten sam plik z zachowaniem verified bytes
++> poprzednich streszczen. Historyczne Knowledge/Ledger i Bridge nie blokuja P0.
++> Integralnosc, retry/dedup, recovery, jakosc i rzeczywisty live E2E pozostaja.
++> Szczegoly: ../docs/decisions/DRIVE_ONLY_RETENTION_V1_2026-10-09.md.
+diff --git a/Plan/05_GATE_C_ZERO_COST_CAPACITY.md b/Plan/05_GATE_C_ZERO_COST_CAPACITY.md
+--- a/Plan/05_GATE_C_ZERO_COST_CAPACITY.md
++++ b/Plan/05_GATE_C_ZERO_COST_CAPACITY.md
+@@ -1,0 +2,10 @@
++
++> **OWNER_APPROVED P0 delivery - 2026-10-09.** Film jest ukonczony dopiero po
++> verified Drive file/version/SHA-256 readback niepustego polskiego streszczenia.
++> Inne pending filmy nie blokuja dostarczenia gotowego FULL wyniku; raport dnia
++> nadal jawnie podaje incomplete coverage. Dla nieznanej daty publikacji uzyj
++> dnia wykrycia z jawnym oznaczeniem, zachowujac trwale mapowanie po eksporcie.
++> Pozny film po retencji aktualizuje ten sam plik z zachowaniem verified bytes
++> poprzednich streszczen. Historyczne Knowledge/Ledger i Bridge nie blokuja P0.
++> Integralnosc, retry/dedup, recovery, jakosc i rzeczywisty live E2E pozostaja.
++> Szczegoly: ../docs/decisions/DRIVE_ONLY_RETENTION_V1_2026-10-09.md.
+diff --git a/Plan/07_V1B_INTEGRATIONS_AND_OPERATIONS.md b/Plan/07_V1B_INTEGRATIONS_AND_OPERATIONS.md
+--- a/Plan/07_V1B_INTEGRATIONS_AND_OPERATIONS.md
++++ b/Plan/07_V1B_INTEGRATIONS_AND_OPERATIONS.md
+@@ -1,0 +2,10 @@
++
++> **OWNER_APPROVED P0 delivery - 2026-10-09.** Film jest ukonczony dopiero po
++> verified Drive file/version/SHA-256 readback niepustego polskiego streszczenia.
++> Inne pending filmy nie blokuja dostarczenia gotowego FULL wyniku; raport dnia
++> nadal jawnie podaje incomplete coverage. Dla nieznanej daty publikacji uzyj
++> dnia wykrycia z jawnym oznaczeniem, zachowujac trwale mapowanie po eksporcie.
++> Pozny film po retencji aktualizuje ten sam plik z zachowaniem verified bytes
++> poprzednich streszczen. Historyczne Knowledge/Ledger i Bridge nie blokuja P0.
++> Integralnosc, retry/dedup, recovery, jakosc i rzeczywisty live E2E pozostaja.
++> Szczegoly: ../docs/decisions/DRIVE_ONLY_RETENTION_V1_2026-10-09.md.
+diff --git a/Plan/08_V1C_HARDENING_AND_RELEASE.md b/Plan/08_V1C_HARDENING_AND_RELEASE.md
+--- a/Plan/08_V1C_HARDENING_AND_RELEASE.md
++++ b/Plan/08_V1C_HARDENING_AND_RELEASE.md
+@@ -1,0 +2,10 @@
++
++> **OWNER_APPROVED P0 delivery - 2026-10-09.** Film jest ukonczony dopiero po
++> verified Drive file/version/SHA-256 readback niepustego polskiego streszczenia.
++> Inne pending filmy nie blokuja dostarczenia gotowego FULL wyniku; raport dnia
++> nadal jawnie podaje incomplete coverage. Dla nieznanej daty publikacji uzyj
++> dnia wykrycia z jawnym oznaczeniem, zachowujac trwale mapowanie po eksporcie.
++> Pozny film po retencji aktualizuje ten sam plik z zachowaniem verified bytes
++> poprzednich streszczen. Historyczne Knowledge/Ledger i Bridge nie blokuja P0.
++> Integralnosc, retry/dedup, recovery, jakosc i rzeczywisty live E2E pozostaja.
++> Szczegoly: ../docs/decisions/DRIVE_ONLY_RETENTION_V1_2026-10-09.md.

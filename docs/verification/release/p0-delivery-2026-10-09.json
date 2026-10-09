@@ -1,0 +1,255 @@
+{
+  "version": "p0-drive-delivery-verification:1",
+  "recorded_at": "2026-10-09T21:18:43.355198+00:00",
+  "implementation_commit": "77696ae6fa7ec25ad888ff7dd9c97bf3b7ded6b0",
+  "basis": "ACTUAL_LOCAL_EXECUTION_WITH_ISOLATED_SQL_AND_SIMULATED_PROVIDERS",
+  "unit_contract": {
+    "passed": 473,
+    "failed": 0,
+    "skipped": 1
+  },
+  "workers_baseline_before_final_export_projection_delta": {
+    "passed": 237,
+    "failed": 0,
+    "skipped": 0
+  },
+  "final_affected_workers": {
+    "passed": 32,
+    "failed": 0,
+    "skipped": 0
+  },
+  "final_metadata_correction_scenario": {
+    "passed": 2,
+    "failed": 0,
+    "skipped": 0
+  },
+  "e2e": {
+    "passed": 4,
+    "failed": 0,
+    "skipped": 0,
+    "flaky": 0
+  },
+  "checks": {
+    "typecheck": "PASS",
+    "lint": "PASS",
+    "build": "PASS",
+    "configuration": "PASS",
+    "migrations": 38,
+    "foreign_keys": "PASS",
+    "integrity": "PASS",
+    "independent_empty_restore": "PASS",
+    "master_plan_patch_reverse_check": "PASS"
+  },
+  "public_build_scan": {
+    "version": "public-build-secret-scan:1",
+    "status": "PASS",
+    "files_scanned": 4,
+    "bytes_scanned": 412272,
+    "findings": [],
+    "secret_values_recorded": false
+  },
+  "production": {
+    "changed": false,
+    "applied_migrations": 35,
+    "pending_migrations": [
+      36,
+      37,
+      38
+    ],
+    "production_d1_requests": 0,
+    "drive_mutations": 0,
+    "gemini_requests": 0,
+    "model_changed": false,
+    "first_destructive_cleanup_approved": false,
+    "first_destructive_cleanup_executed": false,
+    "paid_services_enabled": false,
+    "actual_ai_to_drive_e2e_pass": false
+  },
+  "gemini_single_request_approval": "PENDING_AS_OF_RECEIPT",
+  "historical_provider_status": "HTTP_503_SERVICE_UNAVAILABLE",
+  "backup_inventory_compatibility": [
+    35,
+    36,
+    37,
+    38
+  ],
+  "archive_append_scope": "Synthetic COMPLETE fixture with real SQL/export code and simulated Drive; existing isolated full purge/restart/restore regressions also pass. This is not actual Drive CAS qualification or AI quality evidence.",
+  "test_reporting": "Baseline and affected reruns are not additive and are not represented as a full final Workers rerun.",
+  "evidence": [
+    {
+      "path": "apps/web/src/components/source-progress.tsx",
+      "bytes": 3249,
+      "sha256": "01447715c55fa7c80e640bc42776b7acef53db24a11ec8cfc36e11e763a78d66"
+    },
+    {
+      "path": "apps/web/src/features/daily.tsx",
+      "bytes": 14488,
+      "sha256": "6b9bd866a11479498ae6916a6b2d92a7bcf745beaed8040153e32ddc4f25a1ff"
+    },
+    {
+      "path": "apps/web/src/features/item-detail.tsx",
+      "bytes": 17265,
+      "sha256": "c1ac91c7231f1ade8bb84512ac1d9d93fec8fdce0d85da86c64caacfb21470b2"
+    },
+    {
+      "path": "db/migration-ledger.json",
+      "bytes": 7416,
+      "sha256": "95cc769f0ee75b11178661e6cdcc7208b87eb7f5c2420952ae1b84bd58ba07df"
+    },
+    {
+      "path": "db/migrations/038_verified_archive_append.sql",
+      "bytes": 999,
+      "sha256": "f01107cac90b5970938a72d9d58b188c3674856a9ea7d6686230b18598cdbb2d"
+    },
+    {
+      "path": "packages/contracts/src/daily.ts",
+      "bytes": 3064,
+      "sha256": "b38c148d801dbbf85aab9142e99b52cbb3e4b1658c72677d2c374a6917bfa638"
+    },
+    {
+      "path": "packages/contracts/src/item-detail.ts",
+      "bytes": 1129,
+      "sha256": "8cb0e4871bc1acf514502a1ba1bdc1b20e250441e7f80d971a03244125afc6eb"
+    },
+    {
+      "path": "packages/core/src/backup/restore.ts",
+      "bytes": 13648,
+      "sha256": "578aec04290dec3c561546334bc1344489e4c1702952092c53b9557f6ae8562c"
+    },
+    {
+      "path": "packages/core/src/export/artifacts.ts",
+      "bytes": 10795,
+      "sha256": "14f03b9d02db4c547f930a89334c2004f96a6239113211903e41a8f8f478a0e3"
+    },
+    {
+      "path": "packages/core/src/export/dirty.ts",
+      "bytes": 7011,
+      "sha256": "654d65dffc5e302ef10a75d0b4c532010f034094939eaec81113eefc475d42d6"
+    },
+    {
+      "path": "packages/core/src/export/executor.ts",
+      "bytes": 16315,
+      "sha256": "1ffb8d92b8ee6652db41ec35f92a8082dcc12d87fe358c1bbce202c882483c42"
+    },
+    {
+      "path": "packages/core/src/export/renderer.ts",
+      "bytes": 17861,
+      "sha256": "c8cc111890390682c043d1f3e2f2f84b57c58f779c35091794bd568b8d10da6e"
+    },
+    {
+      "path": "packages/core/src/export/runtime.ts",
+      "bytes": 7612,
+      "sha256": "de9cc3c9373b5db8c83004572477ec0395b65b9991263d8e9f673caac57557a5"
+    },
+    {
+      "path": "packages/core/src/export/snapshot.ts",
+      "bytes": 5556,
+      "sha256": "f68d3bda684ae44e36e7ef001154b150019d744da9e7ad5a440f316377eb71c4"
+    },
+    {
+      "path": "packages/core/src/export/status.ts",
+      "bytes": 6526,
+      "sha256": "4519099c961557afcf4d3962758cc39f142fdefc641bdb5f69cf9d2ae9a6b487"
+    },
+    {
+      "path": "packages/core/src/projections/daily.ts",
+      "bytes": 21991,
+      "sha256": "4826357a2fce373456e7edf6e6a76160d1db788efdc8a0b3ff22778f1f807ebd"
+    },
+    {
+      "path": "tests/e2e/item-detail.spec.ts",
+      "bytes": 16293,
+      "sha256": "27886411b23fb6b3d7232a21f499cf8277ebbf6adfa74a9c90a87a32947ab8de"
+    },
+    {
+      "path": "tests/e2e/retention.spec.ts",
+      "bytes": 2975,
+      "sha256": "3f4cba99fd56c4304456b7f40a81faf077547bd9fc71c64b40d26fdab5e2f9f7"
+    },
+    {
+      "path": "tests/unit/backup-restore.spec.ts",
+      "bytes": 22507,
+      "sha256": "0f9dc94b04e52f2db096ab639345712c9bda83d53982b26b6a653879df01b578"
+    },
+    {
+      "path": "tests/unit/daily-renderer.spec.ts",
+      "bytes": 18950,
+      "sha256": "7db63abc2b42cf462162691969bb9762b33975c9b360020fce03a663b1ddeb0c"
+    },
+    {
+      "path": "tests/workers/daily-projection.spec.ts",
+      "bytes": 20691,
+      "sha256": "ddeb0f2d8d14e5ebc19c7b63c8538a0f84029cc322dd2a54b4a041f9f06c5d35"
+    },
+    {
+      "path": "tests/workers/retention-export.spec.ts",
+      "bytes": 15180,
+      "sha256": "5c4968b10d22bbe59221711551b623c67165b8c93ed7333c972172a8537a5671"
+    },
+    {
+      "path": "tools/gates/d1/measure-live.ts",
+      "bytes": 4749,
+      "sha256": "fdf1f48330cbf0e6a1b6da81b906d3ba2537a4711eb9714eb09cd57efd672864"
+    },
+    {
+      "path": ".local/tests/p0-final-unit-contract.json",
+      "bytes": 159126,
+      "sha256": "eae254ef6c824ea87809f83cae14289da053bd7c2367b5dff5008699dbdaec2a"
+    },
+    {
+      "path": ".local/tests/p0-all-workers.json",
+      "bytes": 84971,
+      "sha256": "f5a6d150032e225a249ab9b24005fae32e685c6e2f398abe704014d127b5662a"
+    },
+    {
+      "path": ".local/tests/p0-final-workers.json",
+      "bytes": 11639,
+      "sha256": "6575e1edcebe3deb563a7f791a9e57f8886c78a5d43542da58b4e93a34edaab3"
+    },
+    {
+      "path": ".local/tests/p0-stable-day-workers.json",
+      "bytes": 1341,
+      "sha256": "70d1bd2a76e5c6ce2aa662f6cc8f677bea75edf9992a08d9ea541c11774083f6"
+    },
+    {
+      "path": ".local/tests/p0-final-e2e.json",
+      "bytes": 6757,
+      "sha256": "47f3b133e2d4ddf89358450c3b80f41b9bb2a518f483a05a11a2f815db167a25"
+    },
+    {
+      "path": ".local/tests/p0-final-typecheck.log",
+      "bytes": 557,
+      "sha256": "706bd563d8b2ed5320213c1a0f731a022af5da058f727add1391c9bb78b5001c"
+    },
+    {
+      "path": ".local/tests/p0-final-lint.log",
+      "bytes": 36,
+      "sha256": "ba0fe8c02ea35565997272c100095ee8bf4e7b55a14baba5e7510c36d3dd81ae"
+    },
+    {
+      "path": ".local/tests/p0-final-build.log",
+      "bytes": 1419,
+      "sha256": "255382e8aea99be876c5b4870f954a9d63447b2fa6e4fd832ebb2f00caf27e97"
+    },
+    {
+      "path": ".local/tests/p0-final-config.log",
+      "bytes": 157,
+      "sha256": "7b615b1f7023dd77123850c8fe41ccceccb060793782385c1c482bca8d8bf455"
+    },
+    {
+      "path": ".local/tests/p0-final-secrets.log",
+      "bytes": 144,
+      "sha256": "85aab1f7f073664f7a21ad715590e02ddd9568b856cde2f3c9ef234d5862821b"
+    },
+    {
+      "path": ".local/tests/p0-migrations.log",
+      "bytes": 194,
+      "sha256": "8658325e0859713960610f7c1f26ffb3dcd4e5a713da49fc5e7984195b4d55de"
+    },
+    {
+      "path": "docs/decisions/p0-delivery-master-plan.patch",
+      "bytes": 4748,
+      "sha256": "7b3cd4a8af91a39eeec33320065b1793a5385f3dc0c7053172217652b89cbb23"
+    }
+  ]
+}

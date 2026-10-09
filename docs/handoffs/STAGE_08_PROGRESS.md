@@ -1,5 +1,18 @@
 # Stage 08 — current handoff
 
+## Current P0 delivery checkpoint, 2026-10-09
+
+Owner priority: every detected film finishes only after verified Polish summary
+on Drive. Current local schema 38; production still 35, pending quota reset and
+controlled deploy. Latest targeted protocol/SQL/GUI evidence is in release
+readiness. Do not claim production acceptance from simulated provider tests.
+Gemini 503 diagnosis and the exact one-request preflight are in
+docs/verification/gate-ai/GEMINI_503_P0_2026-10-09.md. No generation or model
+change is authorized by a pending question. Finish necessary integrity/recovery
+gates and real AI→Drive; do not expand historical Knowledge or repeat D1 microbenchmarks.
+Preserve staged new-only channel approval, zero-cost policy and the separate
+first-cleanup approval boundary. Historical results below retain their scopes.
+
 ## Owner-approved Drive-only checkpoint, 2026-10-09
 
 NOT_DONE for the full stage; local retention implementation verified. Read

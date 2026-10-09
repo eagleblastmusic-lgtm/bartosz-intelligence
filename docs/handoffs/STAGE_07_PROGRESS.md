@@ -1,5 +1,18 @@
 # Stage 07 — current handoff
 
+## Current P0 delivery checkpoint, 2026-10-09
+
+Focus: real Polish summary → verified Drive, not permanent Knowledge/history.
+Read the newest RELEASE_READINESS_REPORT.md section and the revised owner
+decision. Local schema 38; production remains 35. Each complete FULL summary
+can finish delivery within an incomplete day; empty/partial film outcomes cannot.
+Late archive updates preserve verified old blocks and existing file ID; metadata
+date corrections keep the report mapping stable. Production Gemini/Drive E2E
+remains incomplete, no new generation consent consumed, no model change.
+The separate one-request consent question is pending, not authorization.
+First production deletion still requires explicit concrete-scope approval.
+Formal historical gates below remain honest; Bridge/history does not block P0.
+
 ## Owner-approved Drive-only checkpoint, 2026-10-09
 
 NOT_DONE for the full stage; local retention implementation verified. Read

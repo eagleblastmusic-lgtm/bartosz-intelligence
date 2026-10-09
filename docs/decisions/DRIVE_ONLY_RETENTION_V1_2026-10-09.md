@@ -49,3 +49,37 @@ niej mierzyć wzrost Drive i unikać duplikatów, bez twierdzenia o bounded arch
 Implementation Master Plan trwa dalej. Gate AI/human odbiory, pozostałe Gate R,
 7 D-export i realne Gate C zachowują niezaliczone kryteria. Ta decyzja nie jest
 zgodą na nowe generacje, płatne usługi ani pierwsze produkcyjne DELETE.
+
+# Doprecyzowanie właściciela: nadrzędny wynik P0
+
+2026-10-09: właściciel potwierdził, że celem V1 jest automatyczne dostarczenie
+poprawnego polskiego streszczenia **każdego wykrytego filmu** na Google Drive.
+Etap AI może zakończyć się przyjęciem wyniku, ale film jest ukończony dopiero
+po potwierdzonym zapisie końcowego streszczenia: file ID, stabilna wersja,
+pełny readback i zgodny SHA-256. D1 pozostaje bazą operacyjną.
+
+Minimalna rewizja odbioru:
+
+- P0 obejmuje durable discovery/transcript, walidowane polskie streszczenie,
+  zweryfikowany Drive, bezpieczne retry/dedup, restore stanu operacyjnego,
+  retencję oraz rzeczywistą obserwację 20 zatwierdzonych źródeł.
+- Historyczne wyszukiwanie Knowledge, rozbudowana historia Ledger i Bridge
+  nie blokują odbioru samego dostarczania streszczeń. Ich istniejące implementacje
+  pozostają; nie dokładamy historycznego magazynu.
+- Testy integralności, jakości treści, uprawnień i recovery pozostają wymagane.
+  Przeglądu człowieka ani live E2E nie zastępuje fixture. Istniejące formalne
+  Gate R/D/C zachowują wynik i pins; zmiana priorytetu nie nadaje im PASS.
+- Gotowe streszczenie w FULL może być dostarczone, gdy inne filmy lub discovery
+  dnia są jeszcze nieukończone. Taki raport nadal jawnie oznacza częściowy dzień.
+- Dla filmu bez daty publikacji dzień eksportu wynika z daty wykrycia; dokument
+  jawnie zachowuje nieznaną datę publikacji. Po pierwszym verified eksporcie
+  mapowanie dnia raportu pozostaje stabilne przy korekcie metadanych.
+- Późny materiał aktualizuje istniejący plik Daily, zachowując odczytane i
+  zweryfikowane wcześniejsze streszczenia po cleanup. Zmiana/zaginięcie Drive,
+  konflikt hash/version lub trwający cleanup odraczają zapis.
+- Niepuste streszczenie jest konieczne do potwierdzenia dostarczenia P0.
+  Custom bez modułu summary i pusty wynik nie oznaczają ukończenia filmu.
+
+Nowa generacja Gemini, zmiana modelu i pierwsze produkcyjne usunięcie nadal
+wymagają odrębnych upoważnień wskazanych przez właściciela. Bieżący checkpoint
+nie zawiera takich operacji. `paid_services_enabled=false`.
