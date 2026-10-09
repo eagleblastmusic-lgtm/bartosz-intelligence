@@ -23,10 +23,13 @@ import {
 } from '../../packages/core/src/export/snapshot.js';
 import { ExportSettings } from '../../packages/core/src/export/settings.js';
 import { ExportDirtyDays } from '../../packages/core/src/export/dirty.js';
+import { materialReport } from '../../packages/core/src/export/material.js';
+import { RetentionCleanup } from '../../packages/core/src/retention/cleanup.js';
 beforeEach(resetCore);
-it.each([true, false])(
-  'starts the seven-day clock only after exact FULL membership and verified readback; corrupt readback: %s',
-  async (corrupt) => {
+it.each(['corrupt', 'archive-append', 'identical-reprocessing'])(
+  'starts the seven-day clock only after exact FULL membership and verified readback: %s',
+  async (scenario) => {
+    const corrupt = scenario === 'corrupt';
     const owner = await fixtureOwner(),
       at = fixtureNow.toISOString();
     const source = (await new SourceRepository(env.DB, owner).upsert(
@@ -214,7 +217,7 @@ it.each([true, false])(
           return Response.json(file);
         }
         if (!exists) return new Response(null, { status: 404 });
-        if (String(target).includes('alt=media')) elapsed = 90000;
+        if (String(target).includes('alt=media')) elapsed += 90000;
         return String(target).includes('alt=media')
           ? new Response(remoteMarkdown + (corrupt ? 'corrupt' : ''))
           : Response.json(file);
@@ -322,6 +325,107 @@ it.each([true, false])(
         verified_at: receipt!.verified_at,
         purge_after: receipt!.purge_after,
       });
+      if (scenario === 'identical-reprocessing') {
+        // A new accepted run can render identical material (summary/key points
+        // and source-bound Evidence IDs), without an additional Drive upload.
+        await env.DB.prepare(
+          `INSERT INTO analysis_runs(run_id,owner_id,item_id,job_id,input_snapshot_json,profile_snapshot_json,routing_snapshot_json,state,outcome_json,created_at,accepted_at)
+ SELECT 'repeat',owner_id,item_id,job_id,input_snapshot_json,profile_snapshot_json,routing_snapshot_json,state,outcome_json,created_at,accepted_at FROM analysis_runs WHERE run_id='run'`,
+        ).run();
+        await env.DB.prepare(
+          "UPDATE active_analysis_selections SET requested_run_id='repeat',accepted_run_id='repeat',selection_revision=2 WHERE owner_id='a' AND item_id=?",
+        )
+          .bind(item.item_id)
+          .run();
+        const repeatedDay = await new DailyProjection(env.DB, owner).day(
+          { date: lease.date, timezone: 'Europe/Warsaw', limit: 20 },
+          fixtureSecret,
+          fixtureNow,
+        );
+        expect(repeatedDay.items[0]!.delivery).toBeNull();
+        const repeatedReport = await renderDaily({
+          snapshot: repeatedDay,
+          selections: [
+            {
+              item_id: item.item_id,
+              run_id: 'repeat',
+              canonical_hash: canonicalHash,
+              canonical,
+            },
+          ],
+          app_origin: 'https://example.test',
+          revision: 2,
+          mode: 'FULL',
+        });
+        expect(materialReport(repeatedReport.markdown)).toBe(
+          materialReport(report.markdown),
+        );
+        const repeatedId = await new DailyExportArtifacts(env.DB, owner).save(
+          lease,
+          repeatedReport,
+          fixtureNow,
+        );
+        const repeatedAt = new Date(fixtureNow.getTime() + 180000);
+        await expect(
+          executor.execute(lease, repeatedId, client, repeatedAt),
+        ).resolves.toMatchObject({
+          disposition: 'NO_MATERIAL_CHANGE',
+          revision: 1,
+        });
+        expect(updates).toBe(0);
+        const completed = await new DailyProjection(env.DB, owner).day(
+          { date: lease.date, timezone: 'Europe/Warsaw', limit: 20 },
+          fixtureSecret,
+          fixtureNow,
+        );
+        expect(completed.counts.delivered).toBe(1);
+        const repeatedReceipt = await env.DB.prepare(
+          'SELECT * FROM retention_items',
+        ).first();
+        expect(repeatedReceipt).toMatchObject({
+          accepted_run_id: 'repeat',
+          artifact_id: id,
+          file_hash: report.content_hash,
+          export_revision: 1,
+          remote_version: '1',
+        });
+        expect(repeatedReceipt!.verified_at).toBe(
+          new Date(repeatedAt.getTime() + 90000).toISOString(),
+        );
+        expect(repeatedReceipt!.purge_after).toBe(
+          new Date(repeatedAt.getTime() + 90000 + 7 * 86400000).toISOString(),
+        );
+        await executor.execute(
+          lease,
+          repeatedId,
+          client,
+          new Date(fixtureNow.getTime() + 240000),
+        );
+        expect(
+          await env.DB.prepare(
+            'SELECT verified_at,purge_after FROM retention_items',
+          ).first(),
+        ).toMatchObject({
+          verified_at: repeatedReceipt!.verified_at,
+          purge_after: repeatedReceipt!.purge_after,
+        });
+        await env.DB.prepare(
+          'UPDATE export_state SET lease_until=NULL,lease_owner=NULL,exported_seq=dirty_seq',
+        ).run();
+        const dryRun = await new RetentionCleanup(env.DB, owner).dryRun(
+          new Date(repeatedAt.getTime() + 90000 + 7 * 86400000),
+        );
+        expect(dryRun.items[0]!.eligible_from_database).toBe(true);
+        expect(
+          await env.DB.prepare(
+            'SELECT state,reason FROM drive_export_attempts WHERE artifact_id=?',
+          )
+            .bind(repeatedId)
+            .first(),
+        ).toMatchObject({ state: 'PREPARED', reason: 'NO_MATERIAL_CHANGE' });
+        update.mockRestore();
+        return;
+      }
       await env.DB.prepare(
         "UPDATE retention_items SET phase='COMPLETE' WHERE owner_id='a'",
       ).run();

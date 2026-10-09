@@ -131,6 +131,43 @@ export class DailyExportExecutor {
       )
         throw new Error('EXPORT_CONFLICT');
     };
+    const receipt = (
+      proofArtifact: string,
+      revision: number,
+      remoteHash: string,
+      remoteVersion: string,
+      verifiedAt: Date,
+    ) =>
+      this.db
+        .prepare(
+          `INSERT INTO retention_items(owner_id,item_id,accepted_run_id,canonical_hash,root_id,publication_date,artifact_id,file_id,remote_version,export_revision,file_hash,verified_at,purge_after,updated_at)
+ SELECT m.owner_id,m.item_id,m.run_id,m.canonical_hash,?,?,?,?,?,?,?,?,?,? FROM daily_export_members m
+ JOIN active_analysis_selections s ON s.owner_id=m.owner_id AND s.item_id=m.item_id AND s.accepted_run_id=m.run_id
+ JOIN analysis_runs r ON r.owner_id=s.owner_id AND r.run_id=s.accepted_run_id AND r.state='ACCEPTED' AND json_extract(r.outcome_json,'$.canonical_hash')=m.canonical_hash
+ WHERE m.owner_id=? AND m.artifact_id=? AND EXISTS(SELECT 1 FROM export_state WHERE ${guardSql} AND file_id=? AND full_file_hash=? AND revision=?)
+ ON CONFLICT(owner_id,item_id) DO UPDATE SET accepted_run_id=excluded.accepted_run_id,canonical_hash=excluded.canonical_hash,root_id=excluded.root_id,publication_date=excluded.publication_date,artifact_id=excluded.artifact_id,file_id=excluded.file_id,remote_version=excluded.remote_version,export_revision=excluded.export_revision,file_hash=excluded.file_hash,
+ verified_at=CASE WHEN retention_items.file_id=excluded.file_id AND retention_items.root_id=excluded.root_id AND retention_items.canonical_hash=excluded.canonical_hash AND retention_items.accepted_run_id=excluded.accepted_run_id THEN retention_items.verified_at ELSE excluded.verified_at END,
+ purge_after=CASE WHEN retention_items.file_id=excluded.file_id AND retention_items.root_id=excluded.root_id AND retention_items.canonical_hash=excluded.canonical_hash AND retention_items.accepted_run_id=excluded.accepted_run_id THEN retention_items.purge_after ELSE excluded.purge_after END,updated_at=excluded.updated_at
+ WHERE retention_items.phase='WAITING'`,
+        )
+        .bind(
+          manifest.root_id,
+          manifest.publication_date,
+          proofArtifact,
+          remoteId,
+          remoteVersion,
+          revision,
+          remoteHash,
+          verifiedAt.toISOString(),
+          new Date(verifiedAt.getTime() + 7 * 86400000).toISOString(),
+          verifiedAt.toISOString(),
+          this.context.ownerId,
+          artifactId,
+          ...guard,
+          remoteId,
+          remoteHash,
+          revision,
+        );
     let file: DriveFile;
     try {
       try {
@@ -215,6 +252,23 @@ export class DailyExportExecutor {
             )
           ) {
             await current();
+            const proof = await this.db
+              .prepare(
+                `SELECT a.artifact_id FROM daily_export_artifacts a JOIN drive_export_attempts p ON p.owner_id=a.owner_id AND p.artifact_id=a.artifact_id WHERE a.owner_id=? AND a.root_id=? AND a.publication_date=? AND a.revision=? AND a.content_hash=? AND a.state='SEALED' AND p.state='VERIFIED' AND p.verified_hash=? LIMIT 2`,
+              )
+              .bind(
+                this.context.ownerId,
+                lease.root_id,
+                lease.date,
+                state.revision,
+                remoteHash,
+                remoteHash,
+              )
+              .all<{ artifact_id: string }>();
+            if (proof.results.length !== 1) throw new Error('EXPORT_CONFLICT');
+            const verifiedAt = new Date(
+              now.getTime() + Math.max(0, Date.now() - started),
+            );
             // Readback above proves the original bytes/version still exist.
             // Acknowledge coverage without claiming this candidate was uploaded.
             const result = await this.db.batch([
@@ -244,8 +298,29 @@ export class DailyExportExecutor {
                   remoteHash,
                   manifest.source_change_seq,
                 ),
+              this.db
+                .prepare(
+                  `UPDATE drive_export_attempts SET remote_version=?,updated_at=? WHERE owner_id=? AND artifact_id=? AND state='VERIFIED' AND verified_hash=? AND EXISTS(SELECT 1 FROM export_state WHERE ${guardSql} AND revision=? AND full_file_hash=?)`,
+                )
+                .bind(
+                  afterRead.version!,
+                  verifiedAt.toISOString(),
+                  this.context.ownerId,
+                  proof.results[0]!.artifact_id,
+                  remoteHash,
+                  ...guard,
+                  state.revision,
+                  remoteHash,
+                ),
+              receipt(
+                proof.results[0]!.artifact_id,
+                state.revision,
+                remoteHash,
+                afterRead.version!,
+                verifiedAt,
+              ),
             ]);
-            if (result.some((row) => row.meta.changes !== 1))
+            if (result.slice(0, 3).some((row) => row.meta.changes !== 1))
               throw new Error('EXPORT_STALE_FENCE_OR_REVISION');
             return {
               file_id: remoteId,
@@ -335,34 +410,13 @@ export class DailyExportExecutor {
             manifest.content_hash,
             manifest.revision,
           ),
-        this.db
-          .prepare(
-            `INSERT INTO retention_items(owner_id,item_id,accepted_run_id,canonical_hash,root_id,publication_date,artifact_id,file_id,remote_version,export_revision,file_hash,verified_at,purge_after,updated_at)
- SELECT m.owner_id,m.item_id,m.run_id,m.canonical_hash,?,?,?,?,?,?,?,?,?,? FROM daily_export_members m
- WHERE m.owner_id=? AND m.artifact_id=? AND EXISTS(SELECT 1 FROM export_state WHERE ${guardSql} AND file_id=? AND full_file_hash=? AND revision=?)
- ON CONFLICT(owner_id,item_id) DO UPDATE SET accepted_run_id=excluded.accepted_run_id,canonical_hash=excluded.canonical_hash,root_id=excluded.root_id,publication_date=excluded.publication_date,artifact_id=excluded.artifact_id,file_id=excluded.file_id,remote_version=excluded.remote_version,export_revision=excluded.export_revision,file_hash=excluded.file_hash,
- verified_at=CASE WHEN retention_items.file_id=excluded.file_id AND retention_items.root_id=excluded.root_id AND retention_items.canonical_hash=excluded.canonical_hash AND retention_items.accepted_run_id=excluded.accepted_run_id THEN retention_items.verified_at ELSE excluded.verified_at END,
- purge_after=CASE WHEN retention_items.file_id=excluded.file_id AND retention_items.root_id=excluded.root_id AND retention_items.canonical_hash=excluded.canonical_hash AND retention_items.accepted_run_id=excluded.accepted_run_id THEN retention_items.purge_after ELSE excluded.purge_after END,updated_at=excluded.updated_at
- WHERE retention_items.phase='WAITING'`,
-          )
-          .bind(
-            manifest.root_id,
-            manifest.publication_date,
-            artifactId,
-            remoteId,
-            afterRead.version!,
-            manifest.revision,
-            remoteHash,
-            verifiedAt.toISOString(),
-            new Date(verifiedAt.getTime() + 7 * 86400000).toISOString(),
-            verifiedAt.toISOString(),
-            this.context.ownerId,
-            artifactId,
-            ...guard,
-            remoteId,
-            manifest.content_hash,
-            manifest.revision,
-          ),
+        receipt(
+          artifactId,
+          manifest.revision,
+          remoteHash,
+          afterRead.version!,
+          verifiedAt,
+        ),
       ]);
       if (result.slice(1, 3).some((row) => row.meta.changes !== 1))
         throw new Error('EXPORT_STALE_FENCE_OR_REVISION');
