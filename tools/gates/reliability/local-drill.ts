@@ -34,6 +34,7 @@ import ledger from '../../../db/migration-ledger.json';
 import deployment from '../../../config/deployment.json';
 import { drillDiscovery } from './local-discovery.js';
 import { drillAuth } from './local-auth.js';
+import { drillOffline } from './local-offline.js';
 
 // Isolated local D1 only; no production mutation or source/AI provider request.
 const args = process.argv.slice(2);
@@ -178,6 +179,7 @@ try {
       'database_rollback',
       'discovery_interruption',
       'auth_revocation',
+      'quota_local_offline',
     ],
     deadline_ms: 14400000,
     provider_requests: 0,
@@ -341,6 +343,8 @@ try {
   );
   const discovery = await drillDiscovery(db, owner, now);
   save('discovery-observations.json', discovery.observations);
+  const offline = await drillOffline(db, owner, now);
+  save('offline-observations.json', offline.observations);
   const auth = await drillAuth(db, owner, session, now);
   save('auth-observations.json', auth.observations);
   const after = await origins();
@@ -374,7 +378,9 @@ try {
         ? discovery.pass
         : caseId === 'auth_revocation'
           ? auth.pass
-          : true);
+          : caseId === 'quota_local_offline'
+            ? offline.pass
+            : true);
     if (
       [
         'lease_crash',
@@ -382,6 +388,7 @@ try {
         'database_rollback',
         'discovery_interruption',
         'auth_revocation',
+        'quota_local_offline',
       ].includes(caseId)
     )
       evidence = save(caseId + '.json', {
@@ -433,7 +440,8 @@ try {
       global_release_approved: false,
     }),
   );
-  if (!pass || !discovery.pass || !auth.pass) process.exitCode = 2;
+  if (!pass || !discovery.pass || !auth.pass || !offline.pass)
+    process.exitCode = 2;
 } finally {
   await mf.dispose();
 }
