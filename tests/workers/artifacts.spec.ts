@@ -2356,7 +2356,10 @@ it.each([
             output_tokens: null,
             total_tokens: null,
           },
-          retry_after: null,
+          retry_after:
+            scenario === 'TEMPORARY_FAILURE'
+              ? new Date(Date.now() + 3600000).toISOString()
+              : null,
         },
         transport: analysisTransport,
       })) as { artifact_id: string };
@@ -2376,6 +2379,10 @@ it.each([
             ? 'RETRY_WAIT'
             : 'BLOCKED';
       expect(receipt).toMatchObject({ accepted: false, state: expectedState });
+      if (scenario === 'TEMPORARY_FAILURE')
+        expect(Date.parse(receipt.due_at)).toBeGreaterThan(
+          Date.now() + 3500000,
+        );
       expect(
         await env.DB.prepare('SELECT state FROM jobs WHERE job_id=?')
           .bind(aiToken.job_id)

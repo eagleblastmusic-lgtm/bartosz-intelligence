@@ -189,7 +189,7 @@ export class GeminiFreeProvider implements AIProvider {
               ? 'RATE_LIMITED'
               : [401, 403].includes(response.status)
                 ? 'AUTH_REQUIRED'
-                : response.status >= 500
+                : response.status === 408 || response.status >= 500
                   ? 'TEMPORARY_FAILURE'
                   : 'INVALID_REQUEST',
           finish_reason: `HTTP_${response.status}` + (code ? ':' + code : ''),
@@ -279,8 +279,16 @@ export class GeminiFreeProvider implements AIProvider {
         },
         token_usage_numeric_fields: extractTokenAccounting(root.usage),
       };
-    } catch {
-      return base;
+    } catch (error) {
+      // Retain only a fixed timeout category, never transport exception text.
+      // Submission may already have reached Google; usage remains unknown.
+      return {
+        ...base,
+        finish_reason:
+          error instanceof Error && error.name === 'TimeoutError'
+            ? 'TRANSPORT_TIMEOUT'
+            : 'TRANSPORT_FAILURE',
+      };
     }
   }
 }

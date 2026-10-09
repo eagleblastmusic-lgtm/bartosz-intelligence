@@ -64,9 +64,16 @@ export class AnalysisDisposition {
       reason: string;
       due_at: string;
     };
-    if (response.status === 'TEMPORARY_FAILURE')
+    if (response.status === 'TEMPORARY_FAILURE') {
       decision = retryDisposition('TRANSIENT', job.attempt_count, current());
-    else if (response.status === 'RATE_LIMITED') {
+      const providerBoundary =
+        response.retry_after === null ? NaN : Date.parse(response.retry_after);
+      if (
+        Number.isFinite(providerBoundary) &&
+        providerBoundary > Date.parse(decision.due_at)
+      )
+        decision.due_at = new Date(providerBoundary).toISOString();
+    } else if (response.status === 'RATE_LIMITED') {
       const reset =
         response.retry_after === null ? NaN : Date.parse(response.retry_after);
       // An absent provider reset is unknown, not an invented quota boundary.

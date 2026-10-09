@@ -202,6 +202,7 @@ it('paid/invalid permits never send, failures are redacted and never auto retry'
     [429, 'RATE_LIMITED'],
     [403, 'AUTH_REQUIRED'],
     [503, 'TEMPORARY_FAILURE'],
+    [408, 'TEMPORARY_FAILURE'],
     [400, 'INVALID_REQUEST'],
   ] as const) {
     const adapter = new GeminiFreeProvider(
@@ -218,6 +219,41 @@ it('paid/invalid permits never send, failures are redacted and never auto retry'
         })
       ).status,
     ).toBe(status);
+  }
+});
+it('distinguishes transport deadline from network failure without retrying or exposing details', async () => {
+  for (const [name, reason] of [
+    ['TimeoutError', 'TRANSPORT_TIMEOUT'],
+    ['TypeError', 'TRANSPORT_FAILURE'],
+  ] as const) {
+    let submissions = 0;
+    let calls = 0;
+    const provider = new GeminiFreeProvider(
+      'fixture-private-key',
+      async () => {
+        submissions++;
+      },
+      async () => {
+        calls++;
+        const error = new Error('private source and fixture-private-key');
+        error.name = name;
+        throw error;
+      },
+      () => now,
+    );
+    const result = await provider.run(request, {
+      reservation_id: 'reserved',
+      request_id: request.request_id,
+    });
+    expect(result).toMatchObject({
+      status: 'TEMPORARY_FAILURE',
+      finish_reason: reason,
+      raw_output: null,
+      usage: { input_tokens: null, output_tokens: null, total_tokens: null },
+    });
+    expect(submissions).toBe(1);
+    expect(calls).toBe(1);
+    expect(JSON.stringify(result)).not.toContain('private');
   }
 });
 it('retains bounded official error categories without error messages or hidden retries', async () => {

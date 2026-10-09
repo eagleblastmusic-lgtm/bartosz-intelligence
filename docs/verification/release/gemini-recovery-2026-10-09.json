@@ -1,0 +1,21 @@
+{
+  "version": "GeminiRecoveryRegression/1.0",
+  "basis": "ACTUAL_LOCAL_EXECUTION_WITH_SYNTHETIC_PROVIDER",
+  "base_commit": "1f5e448",
+  "contract_tests": { "files": 3, "passed": 22, "failed": 0 },
+  "pipeline_worker_tests": { "files": 1, "passed": 27, "failed": 0 },
+  "recovery_export_worker_tests": { "files": 2, "passed": 10, "failed": 0 },
+  "core_workers_typecheck": "PASS",
+  "changed_file_lint": "PASS",
+  "worker_dry_run_build": "PASS",
+  "initial_contract_launch": "SANDBOX_SPAWN_EPERM_RESOLVED_BY_REVIEWED_EXECUTION",
+  "gemini_requests": 0,
+  "drive_mutations": 0,
+  "paid_services_enabled": false,
+  "actual_provider_e2e_pass": false,
+  "fixes": [
+    "HTTP_408_IS_TRANSIENT",
+    "TRANSPORT_TIMEOUT_HAS_FIXED_REDACTED_CATEGORY",
+    "TRANSIENT_RETRY_RESPECTS_PROVIDER_RETRY_AFTER"
+  ]
+}
