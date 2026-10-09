@@ -270,6 +270,11 @@ Core/API/executor/tools typecheck oraz scoped ESLint PASS. Te testy nie zastępu
 live upload/download/restore ani pełnego Gate R. Nowa delta zmienia fingerprint
 kandydata; poprzednie frozen recovery evidence zachowuje własne piny.
 
+Końcowa weryfikacja tej delty: GUI production build PASS, Worker deploy dry-run
+PASS (bez wdrożenia), public-build secret scan PASS: 4 pliki, 409413 bytes,
+0 findings. Repo snapshot z dowodami: **8e41443**. Nowe mechanizmy nie zostały
+jeszcze aktywowane ani wdrożone; aktualny production Worker pozostaje poprzedni.
+
 Faktyczny APLIKACJE ACL: owner-only lista osób, ale ANYONE_WITH_LINK/EDITOR
 (wymagane zalogowanie). Osobny OpenAI OAuth dla chatgpt.com ma grant odczytu
 wszystkich plików Drive; publiczny link nie jest wymaganiem tego grantu.
