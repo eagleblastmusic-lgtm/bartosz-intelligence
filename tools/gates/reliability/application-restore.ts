@@ -1,4 +1,5 @@
-import { readFileSync, writeFileSync, mkdirSync } from 'node:fs';
+import { readFileSync, writeFileSync, mkdirSync, readdirSync } from 'node:fs';
+import { DatabaseSync } from 'node:sqlite';
 import { resolve, join } from 'node:path';
 import { randomUUID, createHash } from 'node:crypto';
 import { createRequire } from 'node:module';
@@ -97,6 +98,7 @@ const mf = new runtime.Miniflare(
     },
   }),
 );
+let disposed = false;
 try {
   await mf.ready;
   const db = await mf.getD1Database('DB');
@@ -184,17 +186,39 @@ try {
     )
     .first();
   if (!source) throw new Error('RESTORED_SOURCE_REQUIRED');
-  const integrity =
-    (await db
-      .prepare('PRAGMA integrity_check')
-      .first<string>('integrity_check')) === 'ok';
+  const quickCheck =
+    (await db.prepare('PRAGMA quick_check').first<string>('quick_check')) ===
+    'ok';
   const foreignKeys =
     (await db.prepare('PRAGMA foreign_key_check').all()).results.length === 0;
+  // D1 forbids integrity_check. Retain the stronger check against the same
+  // persisted isolated database after workerd has released its file handles.
+  await mf.dispose();
+  disposed = true;
+  const files = readdirSync(root, { recursive: true }).filter((file) =>
+    String(file).endsWith('.sqlite'),
+  );
+  if (files.length !== 1)
+    throw new Error('ISOLATED_RESTORE_DATABASE_AMBIGUOUS');
+  const physical = new DatabaseSync(join(root, String(files[0])), {
+    readOnly: true,
+  });
+  let integrity: boolean;
+  try {
+    integrity =
+      physical.prepare('PRAGMA integrity_check').get()!.integrity_check ===
+      'ok';
+  } finally {
+    physical.close();
+  }
   const report = {
     version: 'ApplicationRestoreWorkerd/1.0',
     observed_at: new Date().toISOString(),
     ...pins,
-    status: denied && invalidated && integrity && foreignKeys ? 'PASS' : 'FAIL',
+    status:
+      denied && invalidated && integrity && quickCheck && foreignKeys
+        ? 'PASS'
+        : 'FAIL',
     runtime: 'ACTUAL_LOCAL_WORKERD_D1_APPLICATION',
     independent_medium: 'PREVIOUSLY_DOWNLOADED_VERIFIED_GOOGLE_DRIVE',
     backup_sha256: hash,
@@ -206,6 +230,8 @@ try {
     unauthorized_denied: denied,
     old_sessions_invalidated: invalidated,
     integrity,
+    quick_check: quickCheck,
+    integrity_basis: 'SAME_PERSISTED_ISOLATED_D1_OFFLINE_SQLITE',
     foreign_keys: foreignKeys,
     routes: checks,
     live_owner_oidc: 'NOT_RUN',
@@ -224,5 +250,5 @@ try {
   console.log(JSON.stringify(report));
   if (report.status !== 'PASS') process.exitCode = 2;
 } finally {
-  await mf.dispose();
+  if (!disposed) await mf.dispose();
 }
