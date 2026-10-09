@@ -5,7 +5,11 @@ import {
 } from '../../../packages/core/src/db/boundary.js';
 import { sha256, randomToken } from '../../../packages/core/src/auth/crypto.js';
 import { JobStore } from '../../../packages/core/src/jobs/store.js';
-import { AnalysisJobs } from '../../../packages/core/src/ai/jobs.js';
+import {
+  AnalysisJobs,
+  type AnalysisJobSnapshot,
+} from '../../../packages/core/src/ai/jobs.js';
+import { ModelRegistry } from '../../../packages/core/src/ai/models.js';
 import {
   compileEconomy,
   compileSemanticAnalysis,
@@ -31,6 +35,29 @@ export async function drillMalformed(
     .bind(owner.ownerId)
     .first<{ job_id: string }>();
   if (!existing) throw new Error('RESTORED_ANALYSIS_DRILL_REQUIRED');
+  const payload = await db
+    .prepare('SELECT payload_json FROM jobs WHERE job_id=?')
+    .bind(existing.job_id)
+    .first<string>('payload_json');
+  const restored = (JSON.parse(payload!) as { snapshot: AnalysisJobSnapshot })
+    .snapshot;
+  const models = new ModelRegistry(db, owner);
+  const latest = await models.latest('gemini_free');
+  // Fresh synthetic eligibility is isolated; historical snapshots stay immutable.
+  await models.publish(
+    {
+      ...restored.profile,
+      revision: latest!.revision + 1,
+      eligibility_expires_at: new Date(now.getTime() + 3600000).toISOString(),
+      quality_approvals: [],
+    },
+    now,
+  );
+  const queued = (await new AnalysisJobs(db, owner).enqueue(
+    restored.source.run_id,
+    { ...restored.settings, mode: 'QUALITY_TEST' },
+    now,
+  ))!;
   const id = 'malformed-' + randomUUID(),
     credential = await sha256(randomToken());
   await db
@@ -39,8 +66,8 @@ export async function drillMalformed(
     .run();
   const context = await AccessContext.worker(db, credential),
     store = new JobStore(db, context);
-  const original = (await store.get(existing.job_id))!;
-  const token = (await store.lease(existing.job_id, 'ANALYZE', now, 'local'))!;
+  const original = (await store.get(queued.job_id))!;
+  const token = (await store.lease(queued.job_id, 'ANALYZE', now, 'local'))!;
   await store.start(token, 'ANALYZE', now);
   const jobs = new AnalysisJobs(db, context),
     prepared = await jobs.prepareRun(token, now),
