@@ -1,5 +1,21 @@
 # Stage 07 — current handoff
 
+## Current original-transcript archive checkpoint, 2026-10-10
+
+Owner-approved V1.1.3 adds private original-language Markdown in Transkrypcje.
+P0 completion still depends on the verified Polish Daily summary. Transcript
+archive has independent retry, reserved ID, SHA/version/readback and same-ID
+source updates; partial captions are preserved before AI deferral. Daily gains
+a verified link. Cleanup requires both archives, the latest acquired source,
+seven days after the later verification, and all existing holds. Deletion OFF.
+Current local schema 39; production remains 35 until actual quota recovery.
+Read the newest RELEASE_READINESS_REPORT.md and current retention runbook for
+final evidence and bounded folder setup/archive-once. No Gemini consent consumed.
+Heartbeat update to 39 was attempted but its approval review failed on the
+Codex usage limit; the existing heartbeat still has its earlier 38 prompt.
+Use the current 39 checks; do not bypass them or repeat old provider PASS.
+Historical checkpoint scopes below remain unchanged; whole stage NOT_DONE.
+
 ## Current P0 delivery checkpoint, 2026-10-09
 
 Focus: real Polish summary → verified Drive, not permanent Knowledge/history.

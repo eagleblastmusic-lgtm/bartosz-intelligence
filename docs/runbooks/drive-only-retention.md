@@ -1,5 +1,54 @@
 # Drive-only retention, cleanup i recovery
 
+## Aktualne rozszerzenie: Transkrypcje
+
+Autorytatywna rewizja V1.1.3 wymaga osobnego prywatnego pliku oryginalnych
+napisów, niezależnie od AI. Produkcja nadal wymaga kontrolowanego przejścia
+35 → 039; nie uruchamiać nowego kodu na starym schemacie.
+
+Po actual quota probe i świeżym Analytics wykonać kolejno:
+
+1. `node --env-file=.env --import=tsx tools/deployment/transcript-archive-live.ts --provision-folder`.
+   Trwały reserved ID w D1 przed create; folder Transkrypcje we wskazanym
+   Bartosz Intelligence. Nowy folder ma wyłączone dziedziczenie uprawnień;
+   sprawdzamy jego efektywny owner-only dostęp, bez zmiany udostępniania parent.
+   Istniejący
+   przypadkowy folder o tej nazwie wymaga review; nie przejmować ani nie zmieniać ACL.
+   [Oficjalne ograniczenie dostępu Google](https://developers.google.com/workspace/drive/api/guides/limited-expansive-access)
+   wymaga `inheritedPermissionsDisabled=true`. Uprawnienie `view=metadata`
+   z tym markerem nie daje dostępu do treści; inne non-owner ACL blokują eksport.
+2. `node --env-file=.env --import=tsx tools/deployment/transcript-archive-live.ts --archive-once`.
+   Jedna rzeczywista transkrypcja, zero AI; budget 100 REST / 15k reads / 1k writes,
+   no hidden retry i exclusive intent. Udokumentować receipt i actual metryki.
+3. Zweryfikowany build ma `TRANSCRIPT_ARCHIVE_ENABLED=true`; folder bez prywatnej
+   kwalifikacji powoduje CONFIGURATION_HOLD. Cron przetwarza maks. jeden film na
+   tick, niezależnie od `DRIVE_EXPORT_ENABLED`. P0 Daily i transkrypcje mają własny
+   trwały retry. `GET /system/transcript-archives` i szczegóły filmu pokazują stan.
+
+Niepełny pozyskany tekst zachowuje PARTIAL i luki. RAW/SOURCE/maps pozostają
+przed odroczeniem AI; pełne oryginalne cue są rekonstruowane z raw offsets,
+bez NORMALIZED, tłumaczenia lub deduplikowania treści. Dokładny source SHA i
+całego Markdown SHA są różnymi kontrolami. Dokumenty <=32 MiB; przekroczenie
+odracza archiwizację i cleanup, bez obcięcia danych. Koszt CPU największych
+materiałów na produkcyjnym Workers Free wymaga pomiaru live; lokalny PASS tego
+nie dowodzi. Odczyt D1 jest stronicowany po <=64 chunki / zapytanie.
+
+Nowe source revision najpierw kończy przerwany wcześniejszy eksport, następnie
+aktualizuje ten sam file ID przez dotychczasowy v2 media PUT/If-Match. Zmienione
+zdalne bytes, publiczna ACL i wersja w trakcie readback powodują hold/retry,
+bez przyjęcia sukcesu. Reserved IDs, źródło i retry przeżywają restart i restore.
+
+Cleanup musi widzieć VERIFIED transkrypcję odpowiedniego oryginalnego źródła,
+prywatny folder oraz brak pending archive. `purge_after` jest co najmniej siedem
+dni po późniejszym z dwóch potwierdzeń. Opóźniona transkrypcja atomowo wydłuża
+retencję, zachowując status dostarczonego streszczenia. Przed pierwszym batchem
+sprawdzić pełne bytes obu plików; przy wznowieniu wersje i parent obu plików.
+Przedstawić oba file IDs/version/hashes w pierwszym dry-run do osobnej zgody.
+Pierwsze produkcyjne usunięcie nadal nie jest zatwierdzone.
+
+Poniższy opis 037/038 pozostaje historią poprzedniej kwalifikacji; od 039
+obowiązują dodatkowe warunki powyżej. Historycznych backupów nie kasować.
+
 Autorytatywna decyzja: [V1.1.2-retention](../decisions/DRIVE_ONLY_RETENTION_V1_2026-10-09.md).
 Migracja 037 jest addytywna; 036 optymalizuje odczyty, a 038 kwalifikuje bezpieczną aktualizację raportu po retencji. Przed wdrożeniem wymagane
 lokalne regresje, migracje/FK/integrity i aktualny backup preflight. Nie edytować

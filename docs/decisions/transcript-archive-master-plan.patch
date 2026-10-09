@@ -1,0 +1,108 @@
+diff --git a/Plan/BARTOSZ_INTELLIGENCE_MASTER_ARCHITECTURE_2026_v1.1.1.md b/Plan/BARTOSZ_INTELLIGENCE_MASTER_ARCHITECTURE_2026_v1.1.1.md
+--- a/Plan/BARTOSZ_INTELLIGENCE_MASTER_ARCHITECTURE_2026_v1.1.1.md
++++ b/Plan/BARTOSZ_INTELLIGENCE_MASTER_ARCHITECTURE_2026_v1.1.1.md
+@@ -1,4 +1,14 @@
+ # BARTOSZ INTELLIGENCE — MASTER ARCHITECTURE 2026 v1.1.1
++
++> **OWNER_APPROVED V1.1.3 original transcripts - 2026-10-10.**
++> Drive Transkrypcje/<video_id>.md stores every acquired original cue and timestamp.
++> Private reserved ID, SHA-256, verified readback and durable independent retry are required.
++> Preserve manual/generated, partial/unknown completeness and original-language uncertainty.
++> Archive independently of AI; transcript failures never block P0 summary delivery.
++> Daily links the verified transcript. Cleanup requires both archives and seven days
++> after their later verification, with holds/recovery intact. No added AI or paid services.
++> Live folder/transcript proof is separate from local tests; first production DELETE needs approval.
++> Details: ../docs/decisions/DRIVE_ONLY_RETENTION_V1_2026-10-09.md.
+ 
+ > **OWNER_APPROVED P0 delivery - 2026-10-09.** Film jest ukonczony dopiero po
+ > verified Drive file/version/SHA-256 readback niepustego polskiego streszczenia.
+diff --git a/Plan/00_IMPLEMENTATION_MASTER_INDEX.md b/Plan/00_IMPLEMENTATION_MASTER_INDEX.md
+--- a/Plan/00_IMPLEMENTATION_MASTER_INDEX.md
++++ b/Plan/00_IMPLEMENTATION_MASTER_INDEX.md
+@@ -1,4 +1,14 @@
+ # Bartosz Intelligence — Implementation Master Index
++
++> **OWNER_APPROVED V1.1.3 original transcripts - 2026-10-10.**
++> Drive Transkrypcje/<video_id>.md stores every acquired original cue and timestamp.
++> Private reserved ID, SHA-256, verified readback and durable independent retry are required.
++> Preserve manual/generated, partial/unknown completeness and original-language uncertainty.
++> Archive independently of AI; transcript failures never block P0 summary delivery.
++> Daily links the verified transcript. Cleanup requires both archives and seven days
++> after their later verification, with holds/recovery intact. No added AI or paid services.
++> Live folder/transcript proof is separate from local tests; first production DELETE needs approval.
++> Details: ../docs/decisions/DRIVE_ONLY_RETENTION_V1_2026-10-09.md.
+ 
+ > **OWNER_APPROVED P0 delivery - 2026-10-09.** Film jest ukonczony dopiero po
+ > verified Drive file/version/SHA-256 readback niepustego polskiego streszczenia.
+diff --git a/Plan/03_V1A_TRANSCRIPT_AND_AI_PIPELINE.md b/Plan/03_V1A_TRANSCRIPT_AND_AI_PIPELINE.md
+--- a/Plan/03_V1A_TRANSCRIPT_AND_AI_PIPELINE.md
++++ b/Plan/03_V1A_TRANSCRIPT_AND_AI_PIPELINE.md
+@@ -1,4 +1,14 @@
+ # Bartosz Intelligence — V1A — Transcript and AI Pipeline
++
++> **OWNER_APPROVED V1.1.3 original transcripts - 2026-10-10.**
++> Drive Transkrypcje/<video_id>.md stores every acquired original cue and timestamp.
++> Private reserved ID, SHA-256, verified readback and durable independent retry are required.
++> Preserve manual/generated, partial/unknown completeness and original-language uncertainty.
++> Archive independently of AI; transcript failures never block P0 summary delivery.
++> Daily links the verified transcript. Cleanup requires both archives and seven days
++> after their later verification, with holds/recovery intact. No added AI or paid services.
++> Live folder/transcript proof is separate from local tests; first production DELETE needs approval.
++> Details: ../docs/decisions/DRIVE_ONLY_RETENTION_V1_2026-10-09.md.
+ 
+ Implementation Master Plan Pack 2026 • wersja planu 1.0.1 • 2026-10-04
+ 
+diff --git a/Plan/05_GATE_C_ZERO_COST_CAPACITY.md b/Plan/05_GATE_C_ZERO_COST_CAPACITY.md
+--- a/Plan/05_GATE_C_ZERO_COST_CAPACITY.md
++++ b/Plan/05_GATE_C_ZERO_COST_CAPACITY.md
+@@ -1,4 +1,14 @@
+ # Bartosz Intelligence — Gate C — Zero-Cost Capacity Validation
++
++> **OWNER_APPROVED V1.1.3 original transcripts - 2026-10-10.**
++> Drive Transkrypcje/<video_id>.md stores every acquired original cue and timestamp.
++> Private reserved ID, SHA-256, verified readback and durable independent retry are required.
++> Preserve manual/generated, partial/unknown completeness and original-language uncertainty.
++> Archive independently of AI; transcript failures never block P0 summary delivery.
++> Daily links the verified transcript. Cleanup requires both archives and seven days
++> after their later verification, with holds/recovery intact. No added AI or paid services.
++> Live folder/transcript proof is separate from local tests; first production DELETE needs approval.
++> Details: ../docs/decisions/DRIVE_ONLY_RETENTION_V1_2026-10-09.md.
+ 
+ > **OWNER_APPROVED P0 delivery - 2026-10-09.** Film jest ukonczony dopiero po
+ > verified Drive file/version/SHA-256 readback niepustego polskiego streszczenia.
+diff --git a/Plan/07_V1B_INTEGRATIONS_AND_OPERATIONS.md b/Plan/07_V1B_INTEGRATIONS_AND_OPERATIONS.md
+--- a/Plan/07_V1B_INTEGRATIONS_AND_OPERATIONS.md
++++ b/Plan/07_V1B_INTEGRATIONS_AND_OPERATIONS.md
+@@ -1,4 +1,14 @@
+ # Bartosz Intelligence — V1B — Integrations and Operations
++
++> **OWNER_APPROVED V1.1.3 original transcripts - 2026-10-10.**
++> Drive Transkrypcje/<video_id>.md stores every acquired original cue and timestamp.
++> Private reserved ID, SHA-256, verified readback and durable independent retry are required.
++> Preserve manual/generated, partial/unknown completeness and original-language uncertainty.
++> Archive independently of AI; transcript failures never block P0 summary delivery.
++> Daily links the verified transcript. Cleanup requires both archives and seven days
++> after their later verification, with holds/recovery intact. No added AI or paid services.
++> Live folder/transcript proof is separate from local tests; first production DELETE needs approval.
++> Details: ../docs/decisions/DRIVE_ONLY_RETENTION_V1_2026-10-09.md.
+ 
+ > **OWNER_APPROVED P0 delivery - 2026-10-09.** Film jest ukonczony dopiero po
+ > verified Drive file/version/SHA-256 readback niepustego polskiego streszczenia.
+diff --git a/Plan/08_V1C_HARDENING_AND_RELEASE.md b/Plan/08_V1C_HARDENING_AND_RELEASE.md
+--- a/Plan/08_V1C_HARDENING_AND_RELEASE.md
++++ b/Plan/08_V1C_HARDENING_AND_RELEASE.md
+@@ -1,4 +1,14 @@
+ # Bartosz Intelligence — V1C — Hardening and Release
++
++> **OWNER_APPROVED V1.1.3 original transcripts - 2026-10-10.**
++> Drive Transkrypcje/<video_id>.md stores every acquired original cue and timestamp.
++> Private reserved ID, SHA-256, verified readback and durable independent retry are required.
++> Preserve manual/generated, partial/unknown completeness and original-language uncertainty.
++> Archive independently of AI; transcript failures never block P0 summary delivery.
++> Daily links the verified transcript. Cleanup requires both archives and seven days
++> after their later verification, with holds/recovery intact. No added AI or paid services.
++> Live folder/transcript proof is separate from local tests; first production DELETE needs approval.
++> Details: ../docs/decisions/DRIVE_ONLY_RETENTION_V1_2026-10-09.md.
+ 
+ > **OWNER_APPROVED P0 delivery - 2026-10-09.** Film jest ukonczony dopiero po
+ > verified Drive file/version/SHA-256 readback niepustego polskiego streszczenia.

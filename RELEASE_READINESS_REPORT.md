@@ -1,5 +1,97 @@
 # Bartosz Intelligence V1 — release readiness
 
+## Aktualny checkpoint — pełne oryginalne transkrypcje na Drive
+
+2026-10-10, V1.1.3. **IMPLEMENTATION COMPLETE NO; PRODUCTION ACCEPTED NO.**
+Implementacja: `966da18`. [Immutable receipt](docs/verification/release/transcript-archive-2026-10-10.json).
+[Szczegółowa weryfikacja](docs/verification/release/TRANSCRIPT_ARCHIVE_VERIFICATION_2026-10-10.md).
+Weryfikacja lokalna: pełne **483 unit/contract PASS, zero FAIL, jeden platformowy
+skip; 253 Workers PASS, zero FAIL**. Ostatnia zmiana kolejności cron ma osobne
+**2 targeted PASS**, GUI/accessibility **4 PASS**. Workers zawiera 15 przypadków
+archiwizacji, a unit sprawdza też retencję i restore. Nie sumujemy ponowień.
+Pierwsza równoległa próba miała timeouty; pełne sekwencyjne uruchomienie przeszło
+bez zmiany timeoutów lub asercji. Kosztowny matcher miliona bajtów zastąpiono
+równoważnym porównaniem wszystkich bajtów i długości.
+Typecheck/lint/build/config oraz **39 migrations / FK / integrity / empty restore
+PASS**. Public secret scan: **4 pliki /413176 bytes /zero findings**. Ostatni
+test dispatchera jest kompilowany z typami API Workers, bez mieszania ich z Node
+tools; żaden test nie został pominięty przez zmianę projektu kompilatora.
+Zatwierdzone rozszerzenie zaimplementowano lokalnie w istniejącym przepływie:
+osobny prywatny Markdown transkrypcji w Transkrypcje, niezależny od Gemini,
+z własnym reserved ID, SHA-256, pełnym readback, wersją, fencing i retry.
+Każdy pozyskany cue zachowuje oryginalny tekst i timestamp; MANUAL/GENERATED,
+PARTIAL/UNKNOWN oraz niepotwierdzony język są jawne. Braków nie generujemy.
+Niepełne źródło jest utrwalane przed odroczeniem AI. Zmiana źródła aktualizuje
+ten sam plik Drive; zmienna data pobrania nie psuje dedup artefaktów.
+
+P0 pozostaje bez zmian: **film ukończony po zweryfikowanym polskim streszczeniu
+Daily**. Awaria archiwizacji transkrypcji nie blokuje tego wyniku. Daily dodaje
+link po verified transcript i zachowuje istniejący file ID. Naprawiono również
+odrębną regresję P0: identyczny zaakceptowany wynik reprocessing otrzymuje
+właściwy delivery receipt po zweryfikowanym readback (commit `023902d`, 12 PASS).
+Cron kończy próbę P0 przed rozpoczęciem transkrypcji; błąd dowolnego archiwum
+zachowuje niezależny retry. Konflikt lub backoff starego źródła nie blokuje
+rejestracji innych filmów.
+
+Retencja wymaga teraz obu verified archiwów, zgodności z oryginalnym źródłem
+analizy oraz najnowszym pozyskanym źródłem, braku pending archiwizacji/jobs/holds.
+Siedem dni liczymy konserwatywnie od późniejszej weryfikacji obu plików.
+Cleanup sprawdza ich pełne bytes/hash/wersję i po restarcie zachowuje checkpoint.
+Domyślnie **deletion_enabled=0, approval_reference=NULL**. Pierwsze produkcyjne
+DELETE nadal wymaga konkretnego scope i osobnej zgody.
+
+Local schema **39**, minimalny backup inventory **57 tabel**. Dokładne stare
+backupy 35–38 pozostają restore-compatible; reserved transcript ID i minimalne
+statusy przetrwają restore, który wymaga reauth i ponownej kwalifikacji folderu.
+Nie usunięto ani nie przepisano historycznych backupów. Aktualny runbook:
+[retencja/Transkrypcje](docs/runbooks/drive-only-retention.md),
+[kontrolowane wznowienie D1](docs/runbooks/D1_CONTROLLED_RESUME.md).
+[Minimalna delta Master/Stage 03/05/07/08](docs/decisions/transcript-archive-master-plan.patch)
+została zastosowana do istniejących lokalnych Plan inputs; historycznych PASS
+nie przemianowano na FAIL. R/D/C nie są uznane za domknięte na podstawie mocks.
+
+Lokalny benchmark odczytu: **2 250 000 bytes, 69 chunks, 139 → 3 SQL calls**,
+identyczny tekst i SHA. To liczba zapytań, nie rozliczone rows_read. Nowa tabela
+nie duplikuje tekstu; receipt/descriptor jest ograniczony do 8 KiB. Dokument
+powyżej 32 MiB jest odraczany bez skrócenia. Actual CPU/rows_read/rows_written
+archiwizacji i szczytowe 20 kanałów nadal wymagają pomiaru produkcyjnego;
+**Gate C NOT_YET_MATURE**. Stare modele capacity zachowują zakres i założenia.
+Darmowy Workers ma limit CPU 10 ms na cron według
+[oficjalnych limitów](https://developers.cloudflare.com/workers/platform/limits/#cpu-time).
+Pierwszy prawdziwy scheduled transcript musi zmierzyć CPU/error outcome; sukces
+lokalnego Node archive-once nie kwalifikuje jeszcze automatycznego cloud runtime.
+
+Produkcja nadal **35 applied migrations**, pending **036/037/038/039**,
+ostatni zachowany Worker `93995293-fd49-4f25-b843-63f326c30a32`.
+Nowy checkpoint: **0 production D1 SQL/writes, 0 Gemini/model requests,
+0 Drive mutations, 0 canonical backup capture, 0 production DELETE**.
+Jedyny nowy rzeczywisty odczyt Drive przez konektor potwierdził ID/name parent.
+Odczyt pokazał owner i anyone-reader, ale nie pełne markery dziedziczenia;
+nie stwierdzamy na tej podstawie efektywnego publicznego dostępu do treści.
+Nowy folder ma wyłączone dziedziczenie i osobny owner-only check. Prosty create
+konektora nie umożliwia tych ustawień ani reserved identity, więc nie był użyty.
+
+Rzeczywisty clock podczas weryfikacji nadal przed **10 października 00:00 UTC
+= 02:00 Europe/Warsaw**. Pierwszy actual quota probe, exact migration/deploy,
+rzeczywisty podfolder i jeden transcript readback pozostają do wykonania po
+resecie, przez przygotowane bounded tools, **bez AI**. Utworzenie folderu jest
+już zatwierdzone; nie wymaga ponownego pytania. Nie deklarujemy, że już istnieje.
+Pozostałe R/D wymagają aktualnych pins; staged new-only 19 kanałów jest nadal
+zatwierdzone. Nie powtarzać resolution, backup PASS ani kosztownej diagnostyki.
+
+Nowa próba Gemini pozostaje zależna od odpowiedzi na wcześniejsze konkretne
+pytanie QUALITY_TEST `rUhllpnYWR8` / `gemini-3.8-flash` Free + read-only preflight.
+Kolejne „kontynuuj” nie jest osobną zgodą na nowe żądanie lub zmianę modelu.
+**paid_services_enabled=false**; codzienny live AI → Daily jeszcze niepotwierdzony.
+
+Aktualizacja istniejącego heartbeat do schema 39 i Transkrypcje została
+odrzucona na etapie automatycznej kontroli: limit konta Codex uniemożliwił
+ukończenie review. To nie ocena niebezpieczeństwa akcji; akcja nie została
+wykonana i nie obchodzono kontroli. Harmonogram 02:05 nadal aktywny z poprzednim
+promptem 38. Wznowienie musi czytać aktualny raport/runbook i sprawdzić rzeczywiste
+39 migracji; nie pomijać preflight. Aktualizacja przez narzędzie po dostępności
+review pozostaje zaległa. Poniższe checkpointy zachowują historyczne zakresy.
+
 ## Aktualny checkpoint P0 — dostarczenie streszczenia na Drive
 
 2026-10-09. **IMPLEMENTATION COMPLETE NO; PRODUCTION ACCEPTED NO.**

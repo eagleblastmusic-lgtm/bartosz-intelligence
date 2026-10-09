@@ -1,0 +1,234 @@
+{
+  "version": "transcript-archive-local-verification:1",
+  "observed_at": "2026-10-09T22:58:32.332668+00:00",
+  "owner_revision": "V1.1.3-original-transcripts",
+  "implementation_commit": "966da18709c1c96b445fcddba16d4ab07cd29e9a",
+  "prior_p0_fix_commit": "023902d",
+  "source_sha256": {
+    "apps/api/src/drive-export.ts": "76d842abe8824937a2503b68b2cbaabc50fc64fe00d0f24cb6e58a53768e0d5a",
+    "apps/api/src/env.ts": "7f982815ab8e3e710283ade27ffb9f13ff0ba1f820c2e1a0fd0cd8d22e6d5a9c",
+    "apps/api/src/index.ts": "200a30f91dc717ee6d41376e8c557e7fc5aeb9f44ce7abb3e30f93d049d275f8",
+    "apps/api/src/routes/system.ts": "c4c2d68c81347d8911246f5e0f3fcdfa3ab4c9cd16eb77d750f394804860f301",
+    "apps/api/tsconfig.json": "38bb17512c03884460c307e5c3089602a580e5a55bf2559372e05e006d755450",
+    "apps/api/wrangler.production.json": "ec84bd653d1f61b48d7cbb8738118d49848e5d7f745c92f5c2c753673842cd66",
+    "apps/executor/src/analysis-preparation.ts": "b51966dfa7e10758adbdb3a978d8640abda2bf684488cd1c1b06900ccf48d911",
+    "apps/executor/src/transcript-runner.ts": "8964f1ab0171a15eec10a2ad3deae07a7c59712d080e63d81d87e7d7ec25f0ef",
+    "apps/web/src/features/item-detail.tsx": "aac02d01784d1acb3965d43afbb468a7505a036da2bedcdd1a9d48755275a52e",
+    "db/migration-ledger.json": "389a4192a4683cf9fe2585abf612a2630b5e8c4c523ee79a9b727388a700750f",
+    "db/migrations/039_transcript_drive_archive.sql": "31a74aa0cf39c8f2a0b248daf38206834ed6cd9774b3faa4646a8a7c2ebad3e7",
+    "packages/contracts/src/daily.ts": "091c621e485ac964cbded43fb2773898daf7e14049a5a0c1e674617a9c5b0623",
+    "packages/contracts/src/item-detail.ts": "6ea3fefb06802a7f0a4c4db11f4be6bc035979e104729fa2cd7d4e0d9994f145",
+    "packages/core/src/ai/enrichment/ledger.ts": "eb3539f78740766e0cdf41f3680d0118029ffff532a9964280e6a47d5e032057",
+    "packages/core/src/ai/jobs.ts": "51b5fd31ec39e5de8e10b5a7f6d2528596b90dee4ab2073e569a2d292cb48c88",
+    "packages/core/src/artifacts/store.ts": "48a963e21cf93713ddf9887237b6395731f6c70532e57957829d24fb2fa1643c",
+    "packages/core/src/backup/restore.ts": "be3691bc77968495439ebb64e5fc6c60b8ed3586cb8857b204a1569052e7c386",
+    "packages/core/src/backup/snapshot.ts": "79e37368b073f5591534944e78b3318f5dab8c9a3479e162612392df77b043bd",
+    "packages/core/src/drive/client.ts": "e1a09d022d424602f606a0e844eece10d1247a92b7e6d1bc8a83b2e015f90b2c",
+    "packages/core/src/export/renderer.ts": "e38df731c4994a134fa50bd0291e615b1148be028ee89455afcd262f549f7d1d",
+    "packages/core/src/projections/daily.ts": "b8f085ce659ff5c467180aca0322a72a9e78c2662d8f6bce85d442870d68b2dd",
+    "packages/core/src/retention/cleanup.ts": "1656c42f828bd9ff143232ad5c2349b7f5a8b47ad32009aac4d58c2beb13a11b",
+    "packages/core/src/transcript/acceptance.ts": "6fb56b27f065810e3e44c4d4d7880f9d757a725fcfaf67010e09dd914407b153",
+    "packages/core/src/transcript/archive-folder.ts": "d15d5d4f540cb8649fffb7a93d2e7c7f9df7dc072f1a97f3433133b900090ee2",
+    "packages/core/src/transcript/archive-renderer.ts": "dc2e25b634112d64f377cb79efc8297099bfc15aeae23ea90cae765052e21ba6",
+    "packages/core/src/transcript/archive.ts": "5aca2ef47f2ae2847c450973b62dee5c88d80c788f81c41c08aa90b5f49afbbd",
+    "packages/core/src/transcript/correction-jobs.ts": "fb75df71e3a95f98788419b348df141641670bec45d054b7dec31db9e122843a",
+    "tests/contracts/analysis-worker.spec.ts": "e6008b3a3c5f0bb7b6ce980d74484bc9c8232f4532fef54aa201fc0e4f601c6d",
+    "tests/contracts/transcript-providers.spec.ts": "edd6477df49043e1035965dbf987cc17f5190c08ae742d3f3438e5cde7180b4e",
+    "tests/e2e/item-detail.spec.ts": "35c81a6cc2dea7859506baffd5b493e9e352e2516cf45ee22387d1f393a8afb8",
+    "tests/unit/backup-encryption.spec.ts": "459ccf17423ddd1a0fd1f76c15e062bbb87af7dcbddf25e17373dac8be3c1bbd",
+    "tests/unit/backup-restore.spec.ts": "d3e342823207c019bffce6f8c5076251cbb94e0c33c676b1ff9ac6e5667003b2",
+    "tests/unit/retention-cleanup.spec.ts": "0794c2e4fc4b52b96dce5c268d74948ee98571206ecbfa15642643b4ff0d6334",
+    "tests/unit/transcript-archive-renderer.spec.ts": "78c87fcdb3ec28bb71bef4130bafe649dc8c1be4469c422c8c35288387982143",
+    "tests/unit/transcript-archive-scheduling.spec.ts": "3ad60590e9d67a07d7f414a498e3e6c8b744df118f6ffee811ebba31c72d330e",
+    "tests/workers/artifacts.spec.ts": "461f1b13b946286e24f3a353ddf1722aace22506da790af9bb1aae4849cf41e7",
+    "tests/workers/transcript-archive.spec.ts": "7100445c086d4b1ce0c9face9a0e695ef9fce448ca861d2287af56c0f6ff7d7c",
+    "tools/deployment/provision.mjs": "06dcaf28c87e1e0821fe68d93136e9909670d21231a32b407907293992b3ad0a",
+    "tools/deployment/transcript-archive-live.ts": "6759a890fa858a3521c9e6f0ffb6cf4cf70d14b67ce87e5cb11cfcaae8883982",
+    "tools/gates/d1/measure-live.ts": "99e82fbca4ed6a825af3302422d217e03558377a66840771be1608a74103a264",
+    "tsconfig.tools.json": "d7e793a82a5fbe85aabad2d3a4c6e8cb09ae8be7f145effe7e98951a819daa76"
+  },
+  "migration_count": 39,
+  "migration_039_sha256": "31a74aa0cf39c8f2a0b248daf38206834ed6cd9774b3faa4646a8a7c2ebad3e7",
+  "backup_inventory_tables": 57,
+  "regression": {
+    "full_unit_contract": {
+      "path": ".local/tests/transcript-sequential-unit-contract.json",
+      "sha256": "45023742be9bb84de400dcd935bf31064b9f23cc9cf4529a8005e8fa966bcd18",
+      "passed": 483,
+      "failed": 0,
+      "skipped": 1,
+      "skipped_names": []
+    },
+    "full_workers": {
+      "path": ".local/tests/transcript-sequential-workers.json",
+      "sha256": "85a879d632f9c1153ff478d0a9b75f05958e57db1a4e3a1d5e43ac97a14009b1",
+      "passed": 253,
+      "failed": 0,
+      "skipped": 0,
+      "skipped_names": []
+    },
+    "late_scheduler_delta": {
+      "path": ".local/tests/transcript-p0-order.json",
+      "sha256": "eada2be43796601a9f1e6bdfcc99725a0a4fb80b410d324c74caf55a073d9008",
+      "passed": 2,
+      "failed": 0,
+      "skipped": 0,
+      "skipped_names": []
+    },
+    "scheduler_delta_note": "Full baseline precedes final Daily-before-transcript order. Two targeted scheduler cases cover that delta; not a second full baseline.",
+    "gui_accessibility": {
+      "path": ".local/tests/transcript-e2e.json",
+      "sha256": "066d6878a8c2b7f11e8bd961960fc4ab504f721ad776d9bf15cb071d67abae57",
+      "passed": 4,
+      "failed": 0,
+      "flaky": 0
+    },
+    "prior_p0_identical_reprocessing_delta": {
+      "path": ".local/tests/p0-reprocessing-after.json",
+      "sha256": "b8b5226e7f48fd5831b17d3e892a573df6de7ef476489b1e444a6577534fcc51",
+      "passed": 12,
+      "failed": 0,
+      "skipped": 0,
+      "skipped_names": []
+    },
+    "overlapping_cases_are_not_summed": true
+  },
+  "checks": {
+    "typecheck": {
+      "status": "PASS",
+      "log": ".local/tests/transcript-release-types.log",
+      "sha256": "fd2c2f720cba44ef4549c7c9f7703ae256fcec70ff94e73888735304f1e9d8f3"
+    },
+    "lint": {
+      "status": "PASS",
+      "log": ".local/tests/transcript-release-lint.log",
+      "sha256": "ba0fe8c02ea35565997272c100095ee8bf4e7b55a14baba5e7510c36d3dd81ae"
+    },
+    "build": {
+      "status": "PASS",
+      "log": ".local/tests/transcript-release-build.log",
+      "sha256": "f616d517445e1689324e4c3726885bb95d2f75e70135edd2516ad0d92644233e"
+    },
+    "config": {
+      "status": "PASS",
+      "log": ".local/tests/transcript-release-config.log",
+      "sha256": "7b615b1f7023dd77123850c8fe41ccceccb060793782385c1c482bca8d8bf455"
+    },
+    "migrations": {
+      "status": "PASS",
+      "log": ".local/tests/transcript-final-migrations.log",
+      "sha256": "28bbe009b462e29488e3995c3c0aca3c016a44c08c8bb395deebbdcaadec121d"
+    }
+  },
+  "public_secret_scan": {
+    "version": "public-build-secret-scan:1",
+    "status": "PASS",
+    "files_scanned": 4,
+    "bytes_scanned": 413176,
+    "findings": [],
+    "secret_values_recorded": false,
+    "log": ".local/tests/transcript-release-secrets.log",
+    "log_sha256": "b391cd974e98bc4af3999fa24e945f44dfc3ac019e2bfefab59052d33a454c8e"
+  },
+  "public_bundle_sha256": {
+    "apps/web/dist/index.html": "540cc3acd1387eff2a388ee700dd213e6ca9f935d869c1759b4d1cdb6d1a8732",
+    "apps/web/dist/_headers": "e6a90c4c891625ace9373df167c3711762b95158ccc071c1b40d04ed1aaa5787",
+    "apps/web/dist/assets/index-DFtdVndn.js": "a577f3d97175d8cc6126911e9051c112d5461a7f809f92728f0dc85c0005250b",
+    "apps/web/dist/assets/index-IVykiFMu.css": "6d4c42c7b9128663d187bb8752b9237c22d97fb52374c88d4283b06e23b6f578"
+  },
+  "master_plan_patch_sha256": "ab2a36d88e1953040fb899da6dfcfee18c4a72e26be444601ea534a0d478c7b9",
+  "master_plan_reverse_apply_check": "PASS",
+  "benchmark": {
+    "fixture_bytes": 2250000,
+    "chunks": 69,
+    "before_sql_calls": 139,
+    "after_sql_calls": 3,
+    "identical_text_and_sha": true,
+    "page_max_chunks": 64,
+    "production_rows_read": null,
+    "production_rows_written": null,
+    "production_cpu_ms": null,
+    "not_billed_row_counts": true
+  },
+  "retention": {
+    "minimum_days_after_later_verification": 7,
+    "requires_latest_source_archive": true,
+    "pending_archive_or_jobs_or_holds_block_purge": true,
+    "production_deletion_enabled": false,
+    "first_production_deletion_approved": false
+  },
+  "connected_drive_read": {
+    "connector_calls": 1,
+    "network_request_count": null,
+    "folder_id": "1aFYzO7kMVebvP-Y-V6oIWAAkf21MR7mN",
+    "name": "Bartosz Intelligence",
+    "mime_type": "application/vnd.google-apps.folder",
+    "permissions_returned": [
+      {
+        "type": "user",
+        "role": "owner"
+      },
+      {
+        "type": "anyone",
+        "role": "reader"
+      }
+    ],
+    "effective_inheritance_markers_not_returned": true,
+    "public_content_access_not_determined": true,
+    "created_transcripts_folder": false
+  },
+  "production": {
+    "applied_migrations": 35,
+    "worker_version": "93995293-fd49-4f25-b843-63f326c30a32",
+    "new_d1_requests": 0,
+    "new_d1_writes": 0,
+    "new_drive_mutations": 0,
+    "new_gemini_or_model_requests": 0,
+    "new_canonical_backup_captures": 0,
+    "new_production_deletes": 0,
+    "paid_services_enabled": false
+  },
+  "heartbeat": {
+    "id": "bartosz-intelligence-wznowienie-po-resecie-d1",
+    "schedule": "FREQ=DAILY;BYHOUR=2;BYMINUTE=5;BYSECOND=0",
+    "status": "ACTIVE",
+    "retained_configuration_sha256": "4a014613c08e78d706db31556c7ca80db4abded0ae843af71652f9ce5a16e1cb",
+    "update_executed": false,
+    "update_failure": "AUTO_APPROVAL_REVIEW_ACCOUNT_USAGE_LIMIT",
+    "prior_schema_38_prompt_retained": true,
+    "approval_bypass_attempted": false
+  },
+  "remaining": [
+    "Actual quota probe after 2026-10-10T00:00:00Z",
+    "Exact 35-to-39 migration and qualified deployment",
+    "Actual limited-access Transkrypcje folder and one original-caption readback",
+    "Actual scheduled CPU/error qualification on Workers Free; local Node success is insufficient",
+    "Separate pending Gemini consent and human quality acceptance before real P0 AI-to-Daily",
+    "Remaining pinned R/D, approved staged new-only channels and mature C",
+    "Separate first destructive production cleanup approval"
+  ],
+  "whole_implementation_complete": false,
+  "production_accepted": false,
+  "historical_failed_attempts": [
+    {
+      "path": ".local/tests/p0-reprocessing-before.json",
+      "sha256": "9d140d2e14e9fcd0fbb8579bd03d96338f5ed943ad3afba1fcdff2f3e3be7c78"
+    },
+    {
+      "path": ".local/tests/transcript-final-unit-contract.json",
+      "sha256": "839198cf359974221af9b158f3bf5587bcdc755ac704d29905914a3157b3584c"
+    },
+    {
+      "path": ".local/tests/transcript-verified-workers-all.json",
+      "sha256": "d1e592d3a924ac8449eba5f42cdb7efea5357b548225942a2c5f03db44f031e1"
+    },
+    {
+      "path": ".local/tests/transcript-provenance-workers-final.json",
+      "sha256": "de9ba936739899cb643d320f9209e90deb2ff5dffba5aae72d3a6156f7d871a2"
+    },
+    {
+      "path": ".local/tests/transcript-resource-isolated.json",
+      "sha256": "354dfe5ef38f4529f9201de696daaa9d7016e894d16de1713ae00a4dd598d91f"
+    }
+  ]
+}

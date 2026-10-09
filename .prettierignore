@@ -37,6 +37,8 @@ docs/verification/release/capacity-partial-2026-10-09.json
 # Immutable actual D1 trace receipts and pre-request OAuth intents.
 docs/verification/release/d1-cost-comparison-*.json
 docs/verification/release/p0-delivery-*.json
+docs/verification/release/transcript-archive-*.json
+docs/verification/drive/transcript-*.json
 docs/verification/drive/oauth-negative-*-intent.json
 
 # Immutable retention benchmark receipts: preserve their recorded byte hashes.

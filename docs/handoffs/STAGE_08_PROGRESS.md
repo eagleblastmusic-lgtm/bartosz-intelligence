@@ -1,5 +1,20 @@
 # Stage 08 — current handoff
 
+## Current original-transcript archive checkpoint, 2026-10-10
+
+Current local schema 39, production still 35. Original acquired captions now
+have an independent private Drive archive with fidelity, partial/manual/auto
+labels, fenced restart/retry and stable file ID. Daily summary remains P0.
+Retention requires both verified files plus the later verification +7d; pending
+or newly acquired unarchived sources hold cleanup. Backups 35–38 restore into
+39; no backup deletion or production cleanup approval was granted.
+Current RELEASE_READINESS_REPORT.md records regression scopes separately from
+pending actual folder/archive and real Gemini → Daily. R/D/C and human review
+are not claimed complete. The old heartbeat prompt update failed approval
+review because of a Codex usage limit; its active schedule remains unchanged.
+Resume using exact 39-schema preflight and current bounded tools after the
+actual 00:00 UTC reset, without new Gemini consent or paid services.
+
 ## Current P0 delivery checkpoint, 2026-10-09
 
 Owner priority: every detected film finishes only after verified Polish summary

@@ -1,5 +1,61 @@
 # V1 — zatwierdzona rewizja Drive-only i retencja 7 dni
 
+## Aktualna rewizja właściciela: pełne transkrypcje, V1.1.3
+
+2026-10-10, OWNER_APPROVED. Rozszerza poprzednią decyzję: Drive przechowuje
+zarówno polskie streszczenia w Daily, jak i pełny pozyskany tekst oryginalnych
+napisów w osobnych plikach `Transkrypcje/<video_id>.md`. Daily i Backups zachowują
+ID i zawartość. Nowy podfolder powstaje w istniejącym Bartosz Intelligence
+`1aFYzO7kMVebvP-Y-V6oIWAAkf21MR7mN`; jego rzeczywisty ID wymaga zapisu live receipt.
+
+P0 pozostaje: film ukończony dopiero po verified summary → Daily. Eksport
+transkrypcji ma własny stan/retry i działa także przed AI lub przy błędzie Gemini.
+Jego awaria nie blokuje streszczenia. Daily dodaje link po verified transcript
+receipt; wcześniejszy raport jest wtedy aktualizowany pod tym samym ID.
+
+Pełny tekst oznacza wszystkie rzeczywiście pozyskane cue, także puste i
+powtarzające się, z oryginalnym językiem/markup i dostępnymi timestampami.
+Nie normalizujemy, nie tłumaczymy, nie skracamy i nie dopisujemy braków.
+Tożsamość niezmiennych artefaktów uwzględnia SHA surowego payloadu i status
+źródła, ale nie zmienną datę pobrania. Retry tych samych napisów zachowuje
+dedup; przejście PARTIAL → AVAILABLE_FULL lub zmiana timestampów tworzy nową
+wersję źródła i aktualizuje ten sam plik archiwum. Kwalifikowany yt-dlp i jego
+wersja pozostają bez zmian; nowe deskryptory mają jawny suffix tożsamości.
+MANUAL/GENERATED, PARTIAL/AVAILABLE_FULL/UNKNOWN i niepotwierdzony język źródła
+są jawne. Pełny dostępny payload napisów nie dowodzi każdej wypowiedzi w filmie.
+Pozyskany niepełny tekst jest zachowany i archiwizowany; nadal nie kwalifikuje
+kompletnej analizy AI.
+
+Zmodyfikowane wymagania: §7/10 źródła, §19/23 archiwizacja, §25.3 recovery,
+§26.2 D-export oraz Stage 03/05/07/08. Cleanup wymaga teraz verified Daily
+**i** verified transkrypcji odpowiadającej źródłu zaakceptowanej analizy, bez
+pending archiwizacji lub hold. Zegar jest konserwatywny: siedem dni od
+późniejszego potwierdzenia obu archiwów. Ponowienie tych samych bytes nie
+przesuwa zegara. Przed pierwszym DELETE sprawdzane są oba prywatne pliki,
+SHA-256, parent i stabilna wersja; restart ponownie sprawdza wersje.
+
+Bez zmian: jakość polskiego streszczenia, Evidence/provenance bieżącej analizy,
+dedup, fencing, recovery, minimalne metadane D1, istniejące moduły oraz realne
+kryteria 20 kanałów i 0 PLN. Wycofany jest wcześniejszy zakres „wyłącznie
+streszczenia są wymaganym trwałym archiwum”. Wieloletni magazyn Knowledge nadal
+nie jest wymagany. Nie dodano bazy ani providera i nie zwiększono liczby generacji.
+
+Implementacja używa dotychczasowych SOURCE_ORIGINAL i SEGMENT_MAP; nowe tabele
+039 przechowują tylko mapowanie folderu i operacyjny receipt/retry pliku.
+Backup inventory rośnie z 55 do 57 tabel, bez nowej kopii transkrypcji w D1.
+Backupy schema 35/36/37/38 zachowują swój format i odtwarzają się do 39.
+Restore unieważnia leases i wymaga reauth/private-folder verification.
+Nie da się odtworzyć nieposiadanego tekstu po historycznym purge; niczego nie
+generujemy w jego zastępstwie. Starsze checkpointy poniżej zachowują historię.
+
+DoD: source fidelity; private reserved ID przed create; independent retry;
+readback/version/SHA; CAS zmiany źródła pod tym samym ID; link Daily; hold
+cleanup przy braku transkrypcji; restart i restore po purge; rzeczywisty
+podfolder i przynajmniej jeden live transcript receipt. Local PASS nie spełnia
+ostatnich dwóch warunków. Pierwsze produkcyjne DELETE nadal wymaga osobnej zgody.
+
+## Historyczna rewizja V1.1.2-retention
+
 Status: OWNER_APPROVED, 2026-10-09. Rewizja wymagań: **V1.1.2-retention**,
 uzupełnienie Master v1.1.1 i Implementation Pack v1.0.1. Decyzja właściciela
 zastępuje sprzeczne wcześniejsze wymagania; historyczne evidence zachowują zakres

@@ -1,5 +1,27 @@
 # D1 quota — przyczyna i optymalizacja, 2026-10-09
 
+## Aktualizacja zakresu: oryginalne transkrypcje, 2026-10-10
+
+Zatwierdzona V1.1.3 archiwizuje pełny pozyskany tekst także w prywatnym
+Transkrypcje na Drive. Nie tworzy drugiej kopii ciężkiego tekstu w D1:
+schema 039 dodaje dwie małe tabele folder/receipt/retry. Ciężkie dane pozostają
+pod kontrolą retencji, teraz po verified Daily **i** transkrypcji oraz co najmniej
+siedmiu dniach od późniejszej weryfikacji. Nowe źródło, retry/conflict albo hold
+blokują purge. Sam sukces AI nadal nie oznacza ukończenia filmu.
+
+Nie wykonano nowych produkcyjnych odczytów ani zapisów D1. Poniższa diagnoza
+i pomiary zachowują swoje pierwotne zakresy; nie przypisujemy im wyników 039.
+Lokalny test 2,25 MB /69 chunks daje 139 → 3 SQL calls przy identycznym tekście
+i SHA. To **nie** pomiar billed rows_read. Live koszt archiwizacji i CPU Workers
+Free pozostają nieznane; typowe/peak capacity 20 kanałów nadal nie ma PASS.
+Zależności AI/Drive i holds nadal mogą zwiększać backlog, mimo retencji.
+Nie wykonujemy dalszych mikrooptymalizacji poza niezawodnym P0.
+
+[Aktualna weryfikacja i ryzyka](TRANSCRIPT_ARCHIVE_VERIFICATION_2026-10-10.md)
+oraz RELEASE_READINESS_REPORT.md są bieżącym checkpointem. Produkcja nadal
+schema 35; pending 036/037/038/039. No Gemini, no paid, production deletion OFF.
+Poniższy opis jest zachowaną historią ustalonej przyczyny i pierwotnych poprawek.
+
 Status: przyczyna odczytów potwierdzona; poprawki i pomiary lokalne zakończone.
 Migracja 036 i nowy runtime oczekują na kontrolowane wdrożenie po rzeczywistym
 resecie. `paid_services_enabled=false`. Gate C NOT_YET_MATURE;

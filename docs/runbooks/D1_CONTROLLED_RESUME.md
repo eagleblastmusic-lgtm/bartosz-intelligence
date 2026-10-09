@@ -3,7 +3,11 @@
 Priorytet wznowienia: **rzeczywiste AI → zweryfikowany Google Drive**.
 Nowe doprecyzowanie i lokalna delta P0 są w decyzji Drive-only oraz
 [diagnozie Gemini](../verification/gate-ai/GEMINI_503_P0_2026-10-09.md).
-Pending schema obejmuje 036/037/038, bez nowego ciężkiego magazynu.
+Pending schema obejmuje 036/037/038/039, bez nowego ciężkiego magazynu.
+Zatwierdzono prywatne pełne transkrypcje. Po preflight/probe wykonać setup
+podfolderu i jeden archive-once według runbooka retencji, bez Gemini. Następnie
+P0 summary live E2E tylko po faktycznej osobnej zgodzie. Awaria archiwizacji
+transkrypcji nie zatrzymuje Daily; blokuje cleanup pozyskanego źródła.
 Po minimalnym potwierdzeniu poprawki D1 nie wracaj do mikrobenchmarków.
 Historyczne Knowledge/Ledger/Bridge nie blokują samego dostarczania;
 integralność, jakość, retry/dedup i recovery nadal wymagają prawdziwych dowodów.
@@ -30,7 +34,7 @@ Nie zastępuje unattended ChatGPT Scheduled / Voice ani ciągłej obserwacji Gat
    licznik remaining. Wymagany bieżący dzień UTC i receipt młodszy niż 15 min.
    Przy >=80% odczytów lub zapisów odraczamy testy/obserwację. Recovery i
    canonical cleanup nie mogą być porzucane przez pomocniczy budżet testu.
-3. Zastosować oczekujące migracje `036_d1_read_indexes.sql` i `037_drive_only_retention.sql` oraz `038_verified_archive_append.sql` po
+3. Zastosować oczekujące migracje `036_d1_read_indexes.sql`, `037_drive_only_retention.sql`, `038_verified_archive_append.sql` i `039_transcript_drive_archive.sql` po
    sprawdzeniu 35 istniejących nazw/hashów. Na lokalnej kopii koszt indeksów
    jest mierzony w benchmarku; produkcyjne metadata zachować, nie zgadywać.
    Następnie wdrożyć zweryfikowany build z obsługą daily quota i poprawionym SQL.
@@ -39,14 +43,14 @@ Nie zastępuje unattended ChatGPT Scheduled / Voice ani ciągłej obserwacji Gat
    Istniejący tryb: `node --env-file=.env tools/deployment/prepare.mjs migrate`;
    później właściwy zweryfikowany deploy przez `tools/deployment/deploy.mjs`.
    Backup cadence odmawia capture przed zgodnym applied checksum set, więc
-   nie wolno omijać preflight lub stemplować 38 na bazie z applied 35.
+   nie wolno omijać preflight lub stemplować 39 na bazie z applied 35.
 4. Minimalny pomiar produkcyjny: po jednej próbie admission, jednej stronie
    Capacity i jednej kontroli metadata-refresh; zapis `meta.rows_read/written`.
    Bez pełnego skanu danych, bez pięciu identycznych powtórek. Różnice od
    lokalnego workerd są rzeczywistymi wynikami, a nie powodem do zmiany progów.
    Gotowy runner: `node --env-file=.env --import=tsx tools/gates/d1/measure-live.ts --live --once`.
    Wymaga rzeczywistego dzisiejszego probe AVAILABLE, fresh usage, zgodnych
-   38 applied migrations oraz istniejących scoped worker credentials.
+   aktualnych 39 applied migrations oraz istniejących scoped worker credentials.
    Exclusive intent chroni przed replay; budget metadata zachowuje rzeczywiste
    koszty także przy częściowym wykonaniu. Due metadata job jest trwałą zwykłą
    intencją aplikacji; nie tworzy się tymczasowej sesji ani prywatnego dumpu.
