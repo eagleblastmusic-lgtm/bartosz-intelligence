@@ -10,6 +10,7 @@ import {
 } from '../../../packages/core/src/transcript/language.js';
 import { normalizeTranscript } from '../../../packages/core/src/transcript/normalize.js';
 import { sha256 } from '../../../packages/core/src/auth/crypto.js';
+import { captionArchiveCoverage } from '../../../packages/core/src/transcript/archive-renderer.js';
 import type { ArtifactClient } from './artifact-client.js';
 export interface TranscriptLifecycle {
   admission(): Promise<{ available: boolean; reason: string | null }>;
@@ -147,6 +148,23 @@ export async function executeTranscript(
       provenance,
       original_ref: null,
     });
+    await artifacts.upload(
+      JSON.stringify(captionArchiveCoverage(hash, result.segments)),
+      {
+        item_id: item.item_id,
+        kind: 'SEGMENT_MAP',
+        schema_version: 'caption-coverage:1',
+        producer_version: 'caption-coverage:1' + archiveIdentity,
+        provenance: { ...provenance, source_revision: hash },
+        original_ref: source.artifact_id,
+      },
+    );
+    await requireLease();
+    // Archive captured original cues even when partial or AI normalization fails.
+    if (partial) {
+      await lifecycle.diagnostic('INCOMPLETE_SOURCE');
+      return { accepted: false, reason: 'INCOMPLETE_SOURCE' };
+    }
     const normalized = await normalizeTranscript(
       hash,
       result.segments,
@@ -182,13 +200,6 @@ export async function executeTranscript(
       { ...descriptor, kind: 'OFFSET_MAP', schema_version: 'offset-map:1' },
     );
     await requireLease();
-    // Preserve acquired original bytes and timestamp coverage even when the
-    // source is unsuitable for AI. The independent Drive tick picks up verified
-    // SOURCE_ORIGINAL + SEGMENT_MAP; no accepted analysis is required.
-    if (partial) {
-      await lifecycle.diagnostic('INCOMPLETE_SOURCE');
-      return { accepted: false, reason: 'INCOMPLETE_SOURCE' };
-    }
     await lifecycle.accept({
       raw_artifact_id: raw.artifact_id,
       source_artifact_id: source.artifact_id,

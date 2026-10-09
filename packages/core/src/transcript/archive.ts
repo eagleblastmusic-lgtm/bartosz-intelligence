@@ -5,8 +5,8 @@ import { DriveClient, DriveFailure, type DriveFile } from '../drive/client.js';
 import {
   renderTranscriptArchive,
   type TranscriptArchiveDescriptor,
+  type TranscriptArchiveManifest,
 } from './archive-renderer.js';
-import type { normalizeTranscript } from './normalize.js';
 
 type Row = {
   item_id: string;
@@ -38,7 +38,7 @@ export class TranscriptDriveArchive {
     const source = await this.db
       .prepare(
         `SELECT a.artifact_id,a.item_id,a.content_hash,a.provenance_json,a.producer_version,i.external_id,i.canonical_url,i.published_at,i.discovered_at,m.metadata_json,c.title channel,
- (SELECT b.artifact_id FROM artifacts b WHERE b.owner_id=a.owner_id AND b.item_id=a.item_id AND b.original_ref=a.artifact_id AND b.kind='SEGMENT_MAP' AND b.state='VERIFIED' AND json_extract(b.provenance_json,'$.source_revision')=a.content_hash ORDER BY b.created_at DESC,b.artifact_id DESC LIMIT 1) map_id,
+ (SELECT b.artifact_id FROM artifacts b WHERE b.owner_id=a.owner_id AND b.item_id=a.item_id AND b.original_ref=a.artifact_id AND b.kind='SEGMENT_MAP' AND b.state='VERIFIED' AND json_extract(b.provenance_json,'$.source_revision')=a.content_hash ORDER BY CASE WHEN b.schema_version='caption-coverage:1' THEN 0 ELSE 1 END,b.created_at DESC,b.artifact_id DESC LIMIT 1) map_id,
  EXISTS(SELECT 1 FROM analysis_runs r WHERE r.owner_id=a.owner_id AND r.item_id=a.item_id AND r.state='ACCEPTED' AND json_extract(r.outcome_json,'$.version')='transcript-source:1' AND json_extract(r.outcome_json,'$.source_artifact_id')=a.artifact_id) legacy_complete
  FROM artifacts a JOIN items i ON i.owner_id=a.owner_id AND i.item_id=a.item_id
  JOIN item_revisions m ON m.owner_id=i.owner_id AND m.item_id=i.item_id AND m.revision_id=i.current_revision_id
@@ -244,9 +244,7 @@ export class TranscriptDriveArchive {
         descriptor,
         source_text: source.text,
         source_hash: claimed.source_hash,
-        manifest: JSON.parse(map.text) as Awaited<
-          ReturnType<typeof normalizeTranscript>
-        >['manifest'],
+        manifest: JSON.parse(map.text) as TranscriptArchiveManifest,
       });
       if (claimed.content_hash && claimed.content_hash !== report.content_hash)
         throw new Error('TRANSCRIPT_ARCHIVE_CONFLICT');

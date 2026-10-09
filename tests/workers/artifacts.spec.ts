@@ -486,7 +486,7 @@ it('local poller consumes durable caption backlog through the real Worker API an
     await env.DB.prepare(
       "SELECT count(*) AS n FROM artifacts WHERE state='VERIFIED'",
     ).first('n'),
-  ).toBe(5);
+  ).toBe(6);
   const run = await env.DB.prepare(
     "SELECT outcome_json FROM analysis_runs WHERE job_id=? AND state='ACCEPTED'",
   )

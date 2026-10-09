@@ -1,5 +1,6 @@
 import { sha256 } from '../auth/crypto.js';
 import type { normalizeTranscript } from './normalize.js';
+import type { TranscriptSegment } from '../../../contracts/src/transcript.js';
 
 export interface TranscriptArchiveDescriptor {
   video_id: string;
@@ -20,7 +21,46 @@ export interface TranscriptArchiveDescriptor {
   missing_ranges: { start_ms: number | null; end_ms: number | null }[];
   warnings: string[];
 }
-type Manifest = Awaited<ReturnType<typeof normalizeTranscript>>['manifest'];
+type LegacyManifest = Awaited<
+  ReturnType<typeof normalizeTranscript>
+>['manifest'];
+export type TranscriptArchiveManifest = Pick<
+  LegacyManifest,
+  'source_revision' | 'source_text_hash' | 'offset_unit' | 'join_separator'
+> & {
+  coverage: Pick<
+    LegacyManifest['coverage'][number],
+    'upstream_index' | 'raw_start' | 'raw_end' | 'start_ms' | 'end_ms'
+  >[];
+};
+/** Captured before AI normalization; no normalized text or per-character maps. */
+export function captionArchiveCoverage(
+  hash: string,
+  cues: readonly TranscriptSegment[],
+) {
+  if (!/^[a-f0-9]{64}$/.test(hash) || !cues.length)
+    throw new Error('TRANSCRIPT_ARCHIVE_SOURCE_MISMATCH');
+  let offset = 0;
+  const coverage = cues.map((cue) => {
+    const row = {
+      upstream_index: cue.upstream_index,
+      raw_start: offset,
+      raw_end: offset + cue.text.length,
+      start_ms: cue.start_ms,
+      end_ms: cue.end_ms,
+    };
+    offset = row.raw_end + 1;
+    return row;
+  });
+  return {
+    version: 'caption-coverage:1',
+    source_revision: hash,
+    source_text_hash: hash,
+    offset_unit: 'UTF16_CODE_UNIT' as const,
+    join_separator: '\n',
+    coverage,
+  } satisfies TranscriptArchiveManifest & { version: string };
+}
 const label = (value: string) => JSON.stringify(value);
 const timestamp = (value: number | null) => {
   if (value === null) return 'nieznany';
@@ -40,7 +80,7 @@ export async function renderTranscriptArchive(input: {
   descriptor: TranscriptArchiveDescriptor;
   source_text: string;
   source_hash: string;
-  manifest: Manifest;
+  manifest: TranscriptArchiveManifest;
 }) {
   const { descriptor: d, source_text: source, manifest: m } = input;
   if (

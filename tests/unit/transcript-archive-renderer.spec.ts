@@ -3,6 +3,7 @@ import { sha256 } from '../../packages/core/src/auth/crypto.js';
 import { normalizeTranscript } from '../../packages/core/src/transcript/normalize.js';
 import {
   renderTranscriptArchive,
+  captionArchiveCoverage,
   type TranscriptArchiveDescriptor,
 } from '../../packages/core/src/transcript/archive-renderer.js';
 const descriptor: TranscriptArchiveDescriptor = {
@@ -51,6 +52,27 @@ it('preserves all exact acquired cues, Unicode, markup, repetitions, blanks and 
     source_hash: hash,
     manifest: normalized.manifest,
   });
+  const compact = captionArchiveCoverage(
+    hash,
+    texts.map((text, index) => ({
+      upstream_index: index,
+      text,
+      start_ms: index === 0 ? null : 1234,
+      end_ms: index === 0 ? null : 4567,
+      speaker_label: null,
+    })),
+  );
+  const compactReport = await renderTranscriptArchive({
+    descriptor,
+    source_text: source,
+    source_hash: hash,
+    manifest: compact,
+  });
+  expect(compactReport).toEqual(report);
+  expect(JSON.stringify(compact)).not.toContain('anchors');
+  expect(JSON.stringify(compact).length).toBeLessThan(
+    JSON.stringify(normalized.manifest).length,
+  );
   for (const text of texts) expect(report.markdown).toContain(text);
   expect(report.markdown.match(/\nrepeat\n/g)).toHaveLength(2);
   expect(report.markdown).toContain('[nieznany → nieznany]');

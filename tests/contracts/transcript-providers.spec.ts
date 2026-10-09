@@ -133,15 +133,17 @@ it('local transcript orchestration retains raw/source/maps separately, preserves
   expect(uploads.map((row) => row.descriptor.kind)).toEqual([
     'RAW',
     'SOURCE_ORIGINAL',
+    'SEGMENT_MAP',
     'NORMALIZED',
     'SEGMENT_MAP',
     'OFFSET_MAP',
   ]);
   expect(uploads[0]!.text).toBe(raw.toString());
   expect(uploads[1]!.text).toBe(successful.segments[0]!.text);
-  const manifest = JSON.parse(uploads[3]!.text);
+  const manifest = JSON.parse(uploads[4]!.text);
   expect(manifest.anchors[0]).toMatchObject({ start_ms: 250, end_ms: 3500 });
-  expect(uploads[3]!.descriptor.original_ref).toBe('SOURCE_ORIGINAL');
+  expect(uploads[4]!.descriptor.original_ref).toBe('SOURCE_ORIGINAL');
+  expect(uploads[2]!.descriptor.schema_version).toBe('caption-coverage:1');
   expect(events).toEqual(['accepted']);
   uploads.length = 0;
   events.length = 0;
@@ -171,7 +173,7 @@ it('local transcript orchestration retains raw/source/maps separately, preserves
   expect(
     await executeTranscript(item, context, partial, uploader, lifecycle),
   ).toEqual({ accepted: false, reason: 'INCOMPLETE_SOURCE' });
-  expect(uploads).toHaveLength(5);
+  expect(uploads).toHaveLength(3);
   expect(uploads[1]!.text).toBe(successful.segments[0]!.text);
   expect(uploads[1]!.descriptor.provenance.archive_source_status).toBe(
     'PARTIAL',
@@ -235,6 +237,33 @@ it('local transcript orchestration retains raw/source/maps separately, preserves
   ).toEqual({ accepted: true, reason: null });
   expect(uploads[1]!.text).toBe(successful.segments[0]!.text);
   expect(uploads[1]!.descriptor.producer_version).not.toBe(completeIdentity);
+  uploads.length = 0;
+  events.length = 0;
+  await expect(
+    executeTranscript(
+      item,
+      context,
+      provider,
+      {
+        upload: async (text, descriptor) => {
+          if (descriptor.kind === 'NORMALIZED')
+            throw new Error('NORMALIZED_STORAGE_UNAVAILABLE');
+          return uploader.upload(text, descriptor);
+        },
+      },
+      lifecycle,
+    ),
+  ).rejects.toThrow('NORMALIZED_STORAGE_UNAVAILABLE');
+  expect(uploads.map((row) => row.descriptor.kind)).toEqual([
+    'RAW',
+    'SOURCE_ORIGINAL',
+    'SEGMENT_MAP',
+  ]);
+  expect(JSON.parse(uploads[2]!.text).coverage[0]).toMatchObject({
+    start_ms: 250,
+    end_ms: 3500,
+  });
+  expect(events).toEqual([]);
 });
 it('selected local adapter preserves source cues/provenance and warns without clipping source duration overrun', async () => {
   const provider = new YtdlpTranscriptProvider(

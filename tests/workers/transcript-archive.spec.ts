@@ -18,6 +18,7 @@ import { DriveClient } from '../../packages/core/src/drive/client.js';
 import { DailyProjection } from '../../packages/core/src/projections/daily.js';
 import { renderDaily } from '../../packages/core/src/export/renderer.js';
 import { provisionTranscriptFolder } from '../../packages/core/src/transcript/archive-folder.js';
+import { captionArchiveCoverage } from '../../packages/core/src/transcript/archive-renderer.js';
 beforeEach(resetCore);
 async function fixture(partial = false) {
   const owner = await fixtureOwner(),
@@ -305,6 +306,51 @@ async function fixture(partial = false) {
     },
   };
 }
+it('prefers compact captured cues over later AI maps and archives without AI completion', async () => {
+  const f = await fixture(),
+    hash = await sha256(f.text);
+  const compact = JSON.stringify(
+    captionArchiveCoverage(
+      hash,
+      f.text.split('\n').map((text, index) => ({
+        upstream_index: index,
+        text,
+        start_ms: index * 1000,
+        end_ms: (index + 1) * 1000,
+        speaker_label: null,
+      })),
+    ),
+  );
+  const bytes = new TextEncoder().encode(compact),
+    digest = await sha256(compact);
+  const earlier = new Date(fixtureNow.getTime() - 1000).toISOString();
+  await env.DB.prepare(
+    `INSERT INTO artifacts(artifact_id,owner_id,item_id,kind,content_hash,byte_size,chunk_count,schema_version,producer_version,provenance_json,original_ref,state,created_at,verified_at) VALUES('compact','a',?,'SEGMENT_MAP',?,?,1,'caption-coverage:1','caption-coverage:1',?,'source','VERIFIED',?,?)`,
+  )
+    .bind(
+      f.item.item_id,
+      digest,
+      bytes.length,
+      JSON.stringify({ source_revision: hash }),
+      earlier,
+      earlier,
+    )
+    .run();
+  await env.DB.prepare(
+    `INSERT INTO artifact_chunks VALUES('a',?,'compact',0,0,?,?,'d1:compact/0',?)`,
+  )
+    .bind(f.item.item_id, bytes.length, digest, base64url(bytes))
+    .run();
+  expect(
+    await f.archive().tick({ client: async () => f.client }, fixtureNow),
+  ).toMatchObject({ state: 'VERIFIED' });
+  expect(
+    await env.DB.prepare(
+      'SELECT segment_map_artifact_id FROM transcript_archives',
+    ).first('segment_map_artifact_id'),
+  ).toBe('compact');
+  expect(f.markdown).toContain('Exact <b>source</b> &amp; 😀');
+});
 it.each([false, true])(
   'archives original captions despite no AI result, with exact readback and stable dedup: partial %s',
   async (partial) => {
@@ -605,8 +651,8 @@ it.each(['RETRY_WAIT', 'CONFLICT'])(
           id,
         )
         .run();
-        await env.DB.prepare(
-          `INSERT INTO artifact_chunks SELECT owner_id,?, ?,chunk_index,byte_start,byte_size,byte_hash,?,body_base64 FROM artifact_chunks WHERE artifact_id=?`,
+      await env.DB.prepare(
+        `INSERT INTO artifact_chunks SELECT owner_id,?, ?,chunk_index,byte_start,byte_size,byte_hash,?,body_base64 FROM artifact_chunks WHERE artifact_id=?`,
       )
         .bind(sibling.item_id, 'sibling-' + id, 'd1:sibling-' + id + '/0', id)
         .run();
