@@ -1,5 +1,34 @@
 import { expect, it } from 'vitest';
 import { cloudflareRequest } from '../../tools/deployment/cloudflare-request.mjs';
+it.each([
+  ['database is locked: private parameter', 'D1_BUSY'],
+  ['query timed out: private SQL', 'D1_TIMEOUT'],
+  ['no such column: private column', 'D1_SQL_INVALID'],
+  ['string or blob too big: private payload', 'D1_TOO_LARGE'],
+])(
+  'classifies D1 7500 without exposing its message or replaying %s',
+  async (message, category) => {
+    let calls = 0;
+    await expect(
+      cloudflareRequest(
+        'account',
+        'synthetic',
+        'path',
+        'POST',
+        {},
+        () => 'unused',
+        async () => {
+          calls++;
+          return Response.json(
+            { success: false, errors: [{ code: 7500, message }] },
+            { status: 400 },
+          );
+        },
+      ),
+    ).rejects.toThrow('CLOUDFLARE_REQUEST_FAILED_400_7500_' + category);
+    expect(calls).toBe(1);
+  },
+);
 it('refreshes once after explicit expired D1 authentication without changing the request or exposing response messages', async () => {
   let calls = 0,
     refreshes = 0;

@@ -24,6 +24,9 @@ it.each([
   'CLOUDFLARE_REQUEST_FAILED_403_10000',
   'BACKUP_CHUNK_MISMATCH',
   'BACKUP_EXPIRED_OR_CLOSED',
+  'CLOUDFLARE_REQUEST_FAILED_400_7500',
+  'CLOUDFLARE_REQUEST_FAILED_400_7500_D1_SQL_INVALID',
+  'CLOUDFLARE_REQUEST_FAILED_400_7500_D1_TOO_LARGE',
 ])('does not retry permanent or integrity failure %s', async (reason) => {
   let calls = 0;
   await expect(
@@ -38,6 +41,27 @@ it.each([
   ).rejects.toThrow(reason);
   expect(calls).toBe(1);
 });
+it.each(['BUSY', 'TIMEOUT'])(
+  'retries an explicitly classified D1 %s once for the same immutable chunk',
+  async (category) => {
+    let calls = 0;
+    const retained = { cursor: 55 };
+    expect(
+      await recoverBackupChunk(
+        async () => {
+          if (++calls === 1)
+            throw new Error(
+              'CLOUDFLARE_REQUEST_FAILED_400_7500_D1_' + category,
+            );
+          return retained;
+        },
+        expires,
+        clock,
+      ),
+    ).toBe(retained);
+    expect(calls).toBe(2);
+  },
+);
 it('exhausts one transient retry and never extends an expired barrier', async () => {
   let calls = 0;
   const fail = async () => {

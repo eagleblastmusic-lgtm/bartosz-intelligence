@@ -1,6 +1,6 @@
 const transient = (error: unknown) =>
   error instanceof Error &&
-  /^(?:CLOUDFLARE_TRANSPORT_FAILED|CLOUDFLARE_RESPONSE_INVALID|CLOUDFLARE_REQUEST_FAILED_50[0234]_[A-Z0-9_]+)$/.test(
+  /^(?:CLOUDFLARE_TRANSPORT_FAILED|CLOUDFLARE_RESPONSE_INVALID|CLOUDFLARE_REQUEST_FAILED_50[0234]_[A-Z0-9_]+|CLOUDFLARE_REQUEST_FAILED_400_7500_D1_(?:BUSY|TIMEOUT))$/.test(
     error.message,
   );
 /** Only use for a chunk's immutable (backup, table, cursor) identity. */

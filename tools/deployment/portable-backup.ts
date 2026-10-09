@@ -81,7 +81,9 @@ await db
 let backup: CoreBackup | undefined,
   backupId: string | undefined,
   verifiedRemote = false,
-  phase = 'BEGIN';
+  phase = 'BEGIN',
+  chunkTable: string | null = null,
+  chunkCursor: number | null = null;
 try {
   const context = await AccessContext.owner(
     db,
@@ -98,6 +100,8 @@ try {
     do {
       if (chunks.length >= 2048 || Date.now() >= Date.parse(started.expires_at))
         throw new Error('BOUNDED_BACKUP_EXPIRED');
+      chunkTable = table;
+      chunkCursor = cursor;
       const chunk = await recoverBackupChunk(
         () => backup!.chunk(backupId!, table, cursor!),
         started.expires_at,
@@ -193,6 +197,8 @@ try {
   const failure = {
     result: 'FAIL',
     phase,
+    chunk_table: phase === 'CHUNKS' ? chunkTable : null,
+    chunk_cursor: phase === 'CHUNKS' ? chunkCursor : null,
     reason:
       error instanceof Error && /^[A-Z][A-Z0-9_]{1,100}$/.test(error.message)
         ? error.message

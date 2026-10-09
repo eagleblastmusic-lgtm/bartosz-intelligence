@@ -40,8 +40,26 @@ export async function cloudflareRequest(
       credential = await refresh();
       continue;
     }
+    // Code 7500 covers both permanent SQL errors and retryable D1 failures.
+    // Never expose the original message (it may contain query/parameter data).
+    const message =
+      typeof value.errors?.[0]?.message === 'string'
+        ? value.errors[0].message.toLowerCase()
+        : '';
+    const category =
+      code !== 7500
+        ? ''
+        : /database is locked|database is busy/.test(message)
+          ? '_D1_BUSY'
+          : /execution timed out|query timed out/.test(message)
+            ? '_D1_TIMEOUT'
+            : /no such column|no such table|syntax error/.test(message)
+              ? '_D1_SQL_INVALID'
+              : /string or blob too big|response size limit/.test(message)
+                ? '_D1_TOO_LARGE'
+                : '';
     throw new Error(
-      `CLOUDFLARE_REQUEST_FAILED_${response.status}_${typeof code === 'number' ? code : 'UNKNOWN'}`,
+      `CLOUDFLARE_REQUEST_FAILED_${response.status}_${typeof code === 'number' ? code : 'UNKNOWN'}${category}`,
     );
   }
   throw new Error('CLOUDFLARE_AUTH_REQUIRED');
