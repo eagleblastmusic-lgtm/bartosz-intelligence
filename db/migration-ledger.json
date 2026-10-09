@@ -184,6 +184,11 @@
       "name": "037_drive_only_retention.sql",
       "depends_on": ["036_d1_read_indexes.sql"],
       "sha256": "01ec4e58493d74ac7ef11d93153299c018daff88532004be0d4b6af861caf03a"
+    },
+    {
+      "name": "038_verified_archive_append.sql",
+      "depends_on": ["037_drive_only_retention.sql"],
+      "sha256": "f01107cac90b5970938a72d9d58b188c3674856a9ea7d6686230b18598cdbb2d"
     }
   ],
   "version": 1

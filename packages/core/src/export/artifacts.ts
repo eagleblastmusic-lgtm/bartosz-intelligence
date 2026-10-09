@@ -243,13 +243,9 @@ export class DailyExportArtifacts {
       .run();
     if (attached.meta.changes !== 1)
       throw new Error('EXPORT_STALE_FENCE_OR_REVISION');
-    // Bind the exact accepted result included in a complete final archive.
-    // A COMPACT/partial report never authorizes irreversible working-data loss.
-    if (
-      report.export_mode === 'FULL' &&
-      !report.partial &&
-      report.omitted_detail_units === 0
-    ) {
+    // Completion belongs to each film. Other pending films or an open discovery
+    // window do not invalidate a complete FULL summary in this report.
+    if (report.export_mode === 'FULL' && report.omitted_detail_units === 0) {
       for (
         let start = 0;
         start < (report.archive_members?.length ?? 0);

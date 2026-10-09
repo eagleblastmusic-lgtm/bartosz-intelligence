@@ -289,6 +289,9 @@ test('reading verifies paged canonical bytes, preserves accepted text on failure
     page.getByRole('heading', { name: 'Źródłowa analiza narzędzia' }),
   ).toBeVisible();
   await expect(page.getByText(/^Zaakceptowana notatka/)).toBeVisible();
+  await expect(
+    page.getByText('Film oczekuje na zweryfikowany zapis', { exact: false }),
+  ).toBeVisible();
   expect(requests).toEqual([0, 4]);
   await expect(page.locator('#observation-claim-a')).toBeFocused();
   await page.getByRole('button', { name: 'Źródło 1', exact: true }).click();

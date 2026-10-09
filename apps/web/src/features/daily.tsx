@@ -285,10 +285,11 @@ export function Daily({ route }: { route: string }) {
               <strong>{result.counts.items}</strong> materiałów
             </span>
             <span>
-              <strong>{result.counts.ready}</strong> gotowych
+              <strong>{result.counts.ready}</strong> analiz gotowych
             </span>
             <span>
-              <strong>{result.counts.pending}</strong> oczekuje
+              <strong>{result.counts.delivered ?? 0}</strong> dostarczonych na
+              Drive
             </span>
           </div>
           {!undated && !result.discovery_complete && (
@@ -352,12 +353,12 @@ export function Daily({ route }: { route: string }) {
                     {item.view?.summary_pl.map((note, index) => (
                       <p key={index}>{note.text_pl}</p>
                     ))}
-                    {item.archive && (
+                    {item.delivery && (
                       <p>
                         <a
                           href={
                             'https://drive.google.com/file/d/' +
-                            encodeURIComponent(item.archive.file_id) +
+                            encodeURIComponent(item.delivery.file_id) +
                             '/view'
                           }
                           target="_blank"
@@ -380,10 +381,12 @@ export function Daily({ route }: { route: string }) {
                     className="status-badge"
                     data-state={item.analysis_status}
                   >
-                    <span aria-hidden="true">
-                      {item.analysis_status === 'READY' ? '✓' : '◷'}
-                    </span>
-                    {statusLabels[item.analysis_status]}
+                    <span aria-hidden="true">{item.delivery ? '✓' : '◷'}</span>
+                    {item.delivery
+                      ? 'Dostarczone na Drive'
+                      : item.analysis_status === 'READY'
+                        ? 'Oczekuje na Drive'
+                        : statusLabels[item.analysis_status]}
                   </span>
                 </li>
               ))}

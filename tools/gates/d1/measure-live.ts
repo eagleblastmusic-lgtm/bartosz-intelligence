@@ -54,7 +54,7 @@ let status = 'NOT_COMPLETE';
 try {
   const applied = await db
     .prepare(
-      'SELECT name,sha256 FROM applied_migrations ORDER BY name LIMIT 38',
+      `SELECT name,sha256 FROM applied_migrations ORDER BY name LIMIT ${ledger.migrations.length + 1}`,
     )
     .all<{ name: string; sha256: string }>();
   if (
@@ -63,7 +63,7 @@ try {
       ledger.migrations.map(({ name, sha256 }) => ({ name, sha256 })),
     )
   )
-    throw new Error('VERIFIED_MIGRATION_037_REQUIRED');
+    throw new Error('VERIFIED_MIGRATION_038_REQUIRED');
   const transcript = await AccessContext.worker(
     db,
     await sha256(transcriptCredential),

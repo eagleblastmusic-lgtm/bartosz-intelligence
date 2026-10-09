@@ -168,13 +168,20 @@ export function ItemDetail({ route }: { route: string }) {
       {current && !current.detail.archive && (
         <ItemReprocess key={'reprocess-' + itemId} itemId={itemId} />
       )}
-      {current?.detail.archive && (
+      {current?.detail.analysis_status === 'READY' &&
+        !current.detail.delivery && (
+          <p className="notice">
+            Analiza zaakceptowana. Film oczekuje na zweryfikowany zapis
+            streszczenia na Google Drive.
+          </p>
+        )}
+      {current?.detail.delivery && (
         <p className="notice">
           Streszczenie zapisano w trwałym archiwum.{' '}
           <a
             href={
               'https://drive.google.com/file/d/' +
-              encodeURIComponent(current.detail.archive.file_id) +
+              encodeURIComponent(current.detail.delivery.file_id) +
               '/view'
             }
             target="_blank"

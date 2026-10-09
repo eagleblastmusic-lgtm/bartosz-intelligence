@@ -30,6 +30,7 @@ export interface ExportSelection {
   canonical: Canonical;
 }
 export interface DailyRenderInput {
+  archived_blocks?: Record<string, string>;
   snapshot: DailySnapshot;
   selections: readonly ExportSelection[];
   app_origin: string;
@@ -174,7 +175,9 @@ function block(
     `ITEM ${item.item_id}`,
     `## ${text(item.title)}`,
     `Twórca: ${text(item.creator)}`,
-    `Publikacja: ${publicationTimestamp(item.published_at!)}; źródłowy timestamp: ${text(item.published_at!)}`,
+    item.published_at
+      ? `Publikacja: ${publicationTimestamp(item.published_at)}; źródłowy timestamp: ${text(item.published_at)}`
+      : 'Publikacja: nieustalona; dzień raportu wynika z daty wykrycia, nie daty publikacji.',
     `Czas trwania (sekundy): ${item.duration_seconds ?? 'null'}`,
     `Status: ${text(item.analysis_status)}`,
     link('Źródło', item.canonical_url) +
@@ -333,16 +336,25 @@ export async function renderDaily(
     if (
       !/^[A-Za-z0-9_-]{1,128}$/.test(item.item_id) ||
       ids.has(item.item_id) ||
-      item.published_at === null ||
-      publicationDate(item.published_at) !== snapshot.date
+      !(item.published_at ?? item.discovered_at) ||
+      (item.report_date ??
+        publicationDate((item.published_at ?? item.discovered_at)!)) !==
+        snapshot.date
     )
       throw new Error('EXPORT_DAY_ITEM_MISMATCH');
     ids.add(item.item_id);
     if (
       (item.selected_run_id !== null) !== selected.has(item.item_id) ||
-      (item.analysis_status === 'READY' && !selected.has(item.item_id))
+      (item.analysis_status === 'READY' &&
+        !selected.has(item.item_id) &&
+        !item.archive)
     )
       throw new Error('EXPORT_SELECTION_MISSING');
+    if (
+      item.archive &&
+      (mode !== 'FULL' || !frozen.archived_blocks?.[item.item_id])
+    )
+      throw new Error('ARCHIVED_REPORT_REQUIRES_RECOVERY');
   }
   const count = (state: string) =>
     snapshot.items.filter((i) => i.analysis_status === state).length;
@@ -355,14 +367,32 @@ export async function renderDaily(
     throw new Error('EXPORT_COUNT_MISMATCH');
   const items = snapshot.items.toSorted(
     (a, b) =>
-      compare(b.published_at!, a.published_at!) ||
-      compare(b.item_id, a.item_id),
+      compare(
+        (b.published_at ?? b.discovered_at)!,
+        (a.published_at ?? a.discovered_at)!,
+      ) || compare(b.item_id, a.item_id),
   );
   const partial = snapshot.counts.pending > 0 || !snapshot.discovery_complete;
   for (let level = 0; level <= 3; level++) {
-    const blocks = items.map((item) =>
-      block(item, selected.get(item.item_id), origin.origin, mode, level),
-    );
+    const blocks = items.map((item) => {
+      const archived = frozen.archived_blocks?.[item.item_id];
+      if (item.archive && archived) {
+        if (
+          !archived.startsWith(`ITEM ${item.item_id}\n`) ||
+          [...archived.matchAll(/^ITEM /gm)].length !== 1 ||
+          [...archived.matchAll(/^Status: READY$/gm)].length !== 1
+        )
+          throw new Error('EXPORT_ARCHIVE_BLOCK_MISMATCH');
+        return { lines: archived.replace(/\n+$/, '').split('\n'), omitted: 0 };
+      }
+      return block(
+        item,
+        selected.get(item.item_id),
+        origin.origin,
+        mode,
+        level,
+      );
+    });
     const omitted = blocks.reduce((sum, row) => sum + row.omitted, 0);
     const body = [
       `# Bartosz Intelligence — ${snapshot.date}`,
@@ -431,12 +461,14 @@ export async function renderDaily(
       partial,
       item_ids: items.map((item) => item.item_id),
       archive_members:
-        mode === 'FULL' && !partial && omitted === 0
+        mode === 'FULL' && omitted === 0
           ? frozen.selections
               .filter(
                 (s) =>
                   s.canonical.status === 'OK' &&
-                  s.canonical.source_issues.length === 0,
+                  s.canonical.source_issues.length === 0 &&
+                  s.canonical.enabled_modules.includes('summary') &&
+                  s.canonical.summary_pl.some((row) => row.text_pl.trim()),
               )
               .map((s) => ({
                 item_id: s.item_id,

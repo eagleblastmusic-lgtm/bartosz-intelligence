@@ -4,6 +4,7 @@ import { DriveExportIdentity, type ExportLease } from '../drive/identity.js';
 import { DailyExportArtifacts } from './artifacts.js';
 import { sha256 } from '../auth/crypto.js';
 import { materialReport } from './material.js';
+import { reportBlocks } from './snapshot.js';
 
 // Updates use the exact media method qualified by the actual Drive CAS probe.
 export class DailyExportExecutor {
@@ -178,72 +179,81 @@ export class DailyExportExecutor {
         throw new Error('EXPORT_CONFLICT');
       if (remoteHash !== manifest.content_hash) {
         if (state.file_id && remoteHash === state.full_file_hash) {
-          const previous = await this.db
-            .prepare(
-              `SELECT artifact_id FROM daily_export_artifacts WHERE owner_id=? AND root_id=? AND publication_date=? AND revision=? AND content_hash=? AND state='SEALED'`,
-            )
-            .bind(
-              this.context.ownerId,
-              lease.root_id,
-              lease.date,
-              state.revision,
-              remoteHash,
-            )
-            .first<{ artifact_id: string }>();
-          if (previous) {
-            const bytes = new TextDecoder('utf-8', {
-              fatal: true,
-              ignoreBOM: true,
-            });
-            const old = await new DailyExportArtifacts(
-              this.db,
-              this.context,
-            ).read(previous.artifact_id);
+          const archivedRows = (
+            await this.db
+              .prepare(
+                "SELECT item_id,phase FROM retention_items WHERE owner_id=? AND root_id=? AND publication_date=? AND phase IN ('PRUNING','COMPLETE')",
+              )
+              .bind(this.context.ownerId, lease.root_id, lease.date)
+              .all<{ item_id: string; phase: string }>()
+          ).results;
+          if (archivedRows.length) {
+            const oldBlocks = reportBlocks(remoteText);
+            const newBlocks = reportBlocks(
+              new TextDecoder('utf-8', { fatal: true, ignoreBOM: true }).decode(
+                artifact.bytes,
+              ),
+            );
             if (
-              materialReport(bytes.decode(old.bytes)) ===
-              materialReport(bytes.decode(artifact.bytes))
-            ) {
-              await current();
-              // Readback above proves the original bytes/version still exist.
-              // Acknowledge coverage without claiming this candidate was uploaded.
-              const result = await this.db.batch([
-                this.db
-                  .prepare(
-                    `UPDATE export_state SET exported_seq=MAX(exported_seq,?),exported_generation=desired_generation WHERE ${guardSql} AND revision=? AND full_file_hash=?`,
-                  )
-                  .bind(
-                    manifest.source_change_seq,
-                    ...guard,
-                    state.revision,
-                    remoteHash,
-                  ),
-                this.db
-                  .prepare(
-                    `UPDATE drive_export_attempts SET reason='NO_MATERIAL_CHANGE',remote_version=?,verified_hash=?,updated_at=? WHERE owner_id=? AND artifact_id=? AND fencing_token=? AND EXISTS(SELECT 1 FROM export_state WHERE ${guardSql} AND revision=? AND full_file_hash=? AND exported_seq>=?)`,
-                  )
-                  .bind(
-                    afterRead.version!,
-                    remoteHash,
-                    now.toISOString(),
-                    this.context.ownerId,
-                    artifactId,
-                    lease.fencing_token,
-                    ...guard,
-                    state.revision,
-                    remoteHash,
-                    manifest.source_change_seq,
-                  ),
-              ]);
-              if (result.some((row) => row.meta.changes !== 1))
-                throw new Error('EXPORT_STALE_FENCE_OR_REVISION');
-              return {
-                file_id: remoteId,
-                revision: state.revision,
-                content_hash: remoteHash,
-                remote_version: afterRead.version,
-                disposition: 'NO_MATERIAL_CHANGE' as const,
-              };
-            }
+              manifest.mode !== 'FULL' ||
+              archivedRows.some(
+                (row) =>
+                  row.phase === 'PRUNING' ||
+                  !oldBlocks[row.item_id] ||
+                  oldBlocks[row.item_id]!.trimEnd() !==
+                    newBlocks[row.item_id]?.trimEnd(),
+              )
+            )
+              throw new Error('EXPORT_CONFLICT');
+          }
+          if (
+            materialReport(remoteText) ===
+            materialReport(
+              new TextDecoder('utf-8', { fatal: true, ignoreBOM: true }).decode(
+                artifact.bytes,
+              ),
+            )
+          ) {
+            await current();
+            // Readback above proves the original bytes/version still exist.
+            // Acknowledge coverage without claiming this candidate was uploaded.
+            const result = await this.db.batch([
+              this.db
+                .prepare(
+                  `UPDATE export_state SET exported_seq=MAX(exported_seq,?),exported_generation=desired_generation WHERE ${guardSql} AND revision=? AND full_file_hash=?`,
+                )
+                .bind(
+                  manifest.source_change_seq,
+                  ...guard,
+                  state.revision,
+                  remoteHash,
+                ),
+              this.db
+                .prepare(
+                  `UPDATE drive_export_attempts SET reason='NO_MATERIAL_CHANGE',remote_version=?,verified_hash=?,updated_at=? WHERE owner_id=? AND artifact_id=? AND fencing_token=? AND EXISTS(SELECT 1 FROM export_state WHERE ${guardSql} AND revision=? AND full_file_hash=? AND exported_seq>=?)`,
+                )
+                .bind(
+                  afterRead.version!,
+                  remoteHash,
+                  now.toISOString(),
+                  this.context.ownerId,
+                  artifactId,
+                  lease.fencing_token,
+                  ...guard,
+                  state.revision,
+                  remoteHash,
+                  manifest.source_change_seq,
+                ),
+            ]);
+            if (result.some((row) => row.meta.changes !== 1))
+              throw new Error('EXPORT_STALE_FENCE_OR_REVISION');
+            return {
+              file_id: remoteId,
+              revision: state.revision,
+              content_hash: remoteHash,
+              remote_version: afterRead.version,
+              disposition: 'NO_MATERIAL_CHANGE' as const,
+            };
           }
           await client.updateMarkdown({
             id: remoteId,
@@ -279,6 +289,25 @@ export class DailyExportExecutor {
       const result = await this.db.batch([
         this.db
           .prepare(
+            `UPDATE retention_items SET artifact_id=?,remote_version=?,export_revision=?,file_hash=?,updated_at=? WHERE owner_id=? AND root_id=? AND publication_date=? AND phase='COMPLETE' AND file_id=? AND file_hash=? AND EXISTS(SELECT 1 FROM export_state WHERE ${guardSql} AND file_id=? AND full_file_hash=?)`,
+          )
+          .bind(
+            artifactId,
+            afterRead.version!,
+            manifest.revision,
+            remoteHash,
+            verifiedAt.toISOString(),
+            this.context.ownerId,
+            lease.root_id,
+            lease.date,
+            remoteId,
+            state.full_file_hash,
+            ...guard,
+            remoteId,
+            state.full_file_hash,
+          ),
+        this.db
+          .prepare(
             `UPDATE export_state SET file_id=?,body_hash=?,full_file_hash=?,exported_seq=MAX(exported_seq,?),exported_generation=desired_generation,revision=?,mode=? WHERE ${guardSql}`,
           )
           .bind(
@@ -312,8 +341,8 @@ export class DailyExportExecutor {
  SELECT m.owner_id,m.item_id,m.run_id,m.canonical_hash,?,?,?,?,?,?,?,?,?,? FROM daily_export_members m
  WHERE m.owner_id=? AND m.artifact_id=? AND EXISTS(SELECT 1 FROM export_state WHERE ${guardSql} AND file_id=? AND full_file_hash=? AND revision=?)
  ON CONFLICT(owner_id,item_id) DO UPDATE SET accepted_run_id=excluded.accepted_run_id,canonical_hash=excluded.canonical_hash,root_id=excluded.root_id,publication_date=excluded.publication_date,artifact_id=excluded.artifact_id,file_id=excluded.file_id,remote_version=excluded.remote_version,export_revision=excluded.export_revision,file_hash=excluded.file_hash,
- verified_at=CASE WHEN retention_items.file_hash=excluded.file_hash AND retention_items.accepted_run_id=excluded.accepted_run_id THEN retention_items.verified_at ELSE excluded.verified_at END,
- purge_after=CASE WHEN retention_items.file_hash=excluded.file_hash AND retention_items.accepted_run_id=excluded.accepted_run_id THEN retention_items.purge_after ELSE excluded.purge_after END,updated_at=excluded.updated_at
+ verified_at=CASE WHEN retention_items.file_id=excluded.file_id AND retention_items.root_id=excluded.root_id AND retention_items.canonical_hash=excluded.canonical_hash AND retention_items.accepted_run_id=excluded.accepted_run_id THEN retention_items.verified_at ELSE excluded.verified_at END,
+ purge_after=CASE WHEN retention_items.file_id=excluded.file_id AND retention_items.root_id=excluded.root_id AND retention_items.canonical_hash=excluded.canonical_hash AND retention_items.accepted_run_id=excluded.accepted_run_id THEN retention_items.purge_after ELSE excluded.purge_after END,updated_at=excluded.updated_at
  WHERE retention_items.phase='WAITING'`,
           )
           .bind(
@@ -335,7 +364,7 @@ export class DailyExportExecutor {
             manifest.revision,
           ),
       ]);
-      if (result.slice(0, 2).some((row) => row.meta.changes !== 1))
+      if (result.slice(1, 3).some((row) => row.meta.changes !== 1))
         throw new Error('EXPORT_STALE_FENCE_OR_REVISION');
       return {
         file_id: remoteId,

@@ -46,8 +46,9 @@ export function SourceProgress({ sourceId }: { sourceId: string }) {
         <>
           <p>
             <strong>{value.counts.items}</strong> zapisanych materiałów ·{' '}
-            {value.counts.ready} gotowych · {value.counts.pending} oczekuje ·{' '}
-            {value.counts.blocked} zablokowanych · {value.counts.failed} z
+            {value.counts.ready} analiz gotowych · {value.counts.delivered ?? 0}{' '}
+            dostarczonych na Drive · {value.counts.pending} oczekuje na analizę
+            · {value.counts.blocked} zablokowanych · {value.counts.failed} z
             błędem
           </p>
           {value.scan ? (

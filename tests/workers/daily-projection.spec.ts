@@ -20,7 +20,7 @@ const secret = 'fixture-daily-cursor-signing-32-byte-minimum';
 const date = '2026-10-05';
 const at = fixtureNow.toISOString();
 beforeEach(resetCore);
-it('whole-day export reads all keyset pages, preserves original publication day, excludes undated and foreign owner without scheduling AI', async () => {
+it('whole-day export reads all keyset pages, preserves original publication day, includes undated by discovery day and excludes foreign owner without scheduling AI', async () => {
   const owner = await fixtureOwner(),
     sourceId = await source(owner);
   for (let n = 0; n < 53; n++) await item(owner, sourceId, n);
@@ -38,7 +38,7 @@ it('whole-day export reads all keyset pages, preserves original publication day,
     secret,
     fixtureNow,
   );
-  expect(captured.snapshot.items).toHaveLength(53);
+  expect(captured.snapshot.items).toHaveLength(54);
   expect(captured.snapshot.next_cursor).toBeNull();
   const report = await renderOwnerDaily(
     env.DB,
@@ -47,9 +47,12 @@ it('whole-day export reads all keyset pages, preserves original publication day,
     secret,
     fixtureNow,
   );
-  expect(report.item_ids).toHaveLength(53);
+  expect(report.item_ids).toHaveLength(54);
   expect(report.partial).toBe(true);
-  expect(report.markdown).toContain('pending_count: 53');
+  expect(report.markdown).toContain('pending_count: 54');
+  expect(report.markdown).toContain(
+    'Publikacja: nieustalona; dzień raportu wynika z daty wykrycia',
+  );
   const foreign = await renderOwnerDaily(
     env.DB,
     await fixtureOwner('b'),
@@ -133,6 +136,7 @@ it('source progress preserves partial/unknown totals and accepted readiness with
   expect(progress.total).toBeNull();
   expect(progress.scheduled).toBe(1);
   expect(progress.counts).toEqual({
+    delivered: 0,
     items: 2,
     ready: 1,
     pending: 1,
@@ -345,6 +349,7 @@ it('whole-day counts and readiness use selected accepted results, not attempts o
   await scan(owner, sourceId, range.start, range.end);
   const first = await day(owner, 1);
   expect(first.counts).toEqual({
+    delivered: 0,
     items: 6,
     ready: 2,
     pending: 4,
@@ -554,6 +559,7 @@ SELECT 'run-'||item_id,owner_id,item_id,job_id,'{}','{}','{}','ACCEPTED',?, ?,? 
   );
   const elapsed = performance.now() - started;
   expect(result.counts).toEqual({
+    delivered: 0,
     items: 10000,
     ready: 3333,
     pending: 6667,

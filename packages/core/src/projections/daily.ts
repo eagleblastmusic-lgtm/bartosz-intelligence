@@ -5,7 +5,7 @@ import {
 } from '../db/boundary.js';
 import { decodeCursor, encodeCursor, pageLimit } from '../db/cursor.js';
 import { sha256 } from '../auth/crypto.js';
-import { localDayRange, monthDays } from './dates.js';
+import { localDayRange, monthDays, publicationDate } from './dates.js';
 import { ArtifactRepository } from '../artifacts/store.js';
 import type {
   CanonicalDescriptor,
@@ -23,6 +23,8 @@ import type {
 
 interface ReadRow {
   archive_json: string | null;
+  delivery_json: string | null;
+  report_date: string | null;
   item_id: string;
   source_id: string;
   canonical_url: string;
@@ -47,6 +49,7 @@ function counts(row: Record<string, number>): DailyCounts {
   return {
     items,
     ready,
+    delivered: row.delivered ?? 0,
     pending: items - ready,
     blocked: row.blocked ?? 0,
     failed: row.failed ?? 0,
@@ -95,10 +98,13 @@ const joins = `FROM items i
 JOIN item_revisions m ON m.owner_id=i.owner_id AND m.item_id=i.item_id AND m.revision_id=i.current_revision_id
 LEFT JOIN channels c ON c.owner_id=i.owner_id AND c.source_id=i.source_id
 LEFT JOIN active_analysis_selections s ON s.owner_id=i.owner_id AND s.item_id=i.item_id
+LEFT JOIN retention_items p ON p.owner_id=i.owner_id AND p.item_id=i.item_id
+LEFT JOIN retention_items v ON v.owner_id=i.owner_id AND v.item_id=i.item_id AND v.accepted_run_id=s.accepted_run_id
 LEFT JOIN retention_items t ON t.owner_id=i.owner_id AND t.item_id=i.item_id AND t.phase IN ('PRUNING','COMPLETE')
 LEFT JOIN analysis_runs r ON r.owner_id=i.owner_id AND r.item_id=i.item_id AND r.run_id=s.accepted_run_id AND r.state='ACCEPTED' AND json_extract(r.outcome_json,'$.version')='intelligence-accepted:1'
 LEFT JOIN jobs j ON j.owner_id=i.owner_id AND j.job_id=(SELECT q.job_id FROM jobs q WHERE q.owner_id=i.owner_id AND q.item_id=i.item_id AND COALESCE(q.reason_code,'')<>'PROFILE_SUPERSEDED' AND q.task_type IN ('ANALYZE','FETCH_TRANSCRIPT','NORMALIZE') AND (q.task_type!='ANALYZE' OR json_extract(q.payload_json,'$.snapshot.settings.mode')='PRODUCTION') AND json_type(q.payload_json,'$.snapshot.chunk') IS NULL ORDER BY q.created_at DESC,q.job_id DESC LIMIT 1)`;
 const archiveJson = `CASE WHEN t.item_id IS NOT NULL THEN json_object('file_id',t.file_id,'remote_version',t.remote_version,'verified_at',t.verified_at,'phase',t.phase) ELSE NULL END`;
+const deliveryJson = `CASE WHEN v.item_id IS NOT NULL THEN json_object('state','VERIFIED','file_id',v.file_id,'remote_version',v.remote_version,'verified_at',v.verified_at) ELSE NULL END`;
 const readiness = `CASE WHEN t.item_id IS NOT NULL THEN 'READY' WHEN r.run_id IS NOT NULL THEN CASE WHEN json_extract(r.outcome_json,'$.view.coverage_complete')=0 OR json_extract(r.outcome_json,'$.view.status')='INSUFFICIENT_SOURCE' THEN 'PARTIAL' ELSE 'READY' END
 WHEN i.availability IN ('PRIVATE','DELETED') OR j.state='BLOCKED' THEN 'BLOCKED'
 WHEN j.state='FAILED' THEN 'FAILED'
@@ -124,7 +130,7 @@ export class DailyProjection {
         .bind(owner, sourceId),
       this.db
         .prepare(
-          `WITH cohort AS (SELECT ${readiness} readiness ${joins} WHERE i.owner_id=? AND i.source_id=?) SELECT COUNT(*) items,COALESCE(SUM(readiness='READY'),0) ready,COALESCE(SUM(readiness='BLOCKED'),0) blocked,COALESCE(SUM(readiness='FAILED'),0) failed FROM cohort`,
+          `WITH cohort AS (SELECT ${readiness} readiness,${deliveryJson} delivery_json ${joins} WHERE i.owner_id=? AND i.source_id=?) SELECT COUNT(*) items,COALESCE(SUM(readiness='READY'),0) ready,COALESCE(SUM(delivery_json IS NOT NULL),0) delivered,COALESCE(SUM(readiness='BLOCKED'),0) blocked,COALESCE(SUM(readiness='FAILED'),0) failed FROM cohort`,
         )
         .bind(owner, sourceId),
       this.db
@@ -211,7 +217,7 @@ export class DailyProjection {
     this.context.requireOwner();
     const row = await this.db
       .prepare(
-        `SELECT i.item_id,i.canonical_url,i.published_at,m.metadata_json,COALESCE(c.title,'Źródło') creator,r.run_id,s.selection_revision,json_extract(r.outcome_json,'$.view') view_json,${archiveJson} archive_json,${readiness} readiness,j.state,j.reason_code ${joins} WHERE i.owner_id=? AND i.item_id=?`,
+        `SELECT i.item_id,i.canonical_url,i.published_at,m.metadata_json,COALESCE(c.title,'Źródło') creator,r.run_id,s.selection_revision,json_extract(r.outcome_json,'$.view') view_json,${archiveJson} archive_json,${deliveryJson} delivery_json,${readiness} readiness,j.state,j.reason_code ${joins} WHERE i.owner_id=? AND i.item_id=?`,
       )
       .bind(this.context.ownerId, itemId)
       .first<ReadRow>();
@@ -220,6 +226,7 @@ export class DailyProjection {
     return {
       item_id: row.item_id,
       archive: row.archive_json ? JSON.parse(row.archive_json) : null,
+      delivery: row.delivery_json ? JSON.parse(row.delivery_json) : null,
       title: metadata.title,
       creator: row.creator,
       canonical_url: row.canonical_url,
@@ -252,13 +259,18 @@ export class DailyProjection {
       throw new Error('INVALID_SOURCE_FILTER');
     return JSON.stringify([...ids].sort());
   }
-  private cohort(range: Range | null) {
-    return `WITH cohort AS (SELECT i.*,m.metadata_json,COALESCE(c.title,'Źródło') creator,r.run_id,s.selection_revision,json_extract(r.outcome_json,'$.view') view_json,${archiveJson} archive_json,${readiness} readiness,j.state,j.reason_code,j.due_at ${joins}
-WHERE i.owner_id=? AND ${range ? 'i.published_at>=? AND i.published_at<?' : 'i.published_at IS NULL'} AND (?='[]' OR i.source_id IN (SELECT value FROM json_each(?))))`;
+  private cohort(range: Range | null, includeUndated = false) {
+    return `WITH cohort AS (SELECT i.*,p.publication_date report_date,m.metadata_json,COALESCE(c.title,'Źródło') creator,r.run_id,s.selection_revision,json_extract(r.outcome_json,'$.view') view_json,${archiveJson} archive_json,${deliveryJson} delivery_json,${readiness} readiness,j.state,j.reason_code,j.due_at ${joins}
+WHERE i.owner_id=? AND ${range ? (includeUndated ? '((p.item_id IS NOT NULL AND p.publication_date=?) OR (p.item_id IS NULL AND COALESCE(i.published_at,i.discovered_at)>=? AND COALESCE(i.published_at,i.discovered_at)<?))' : 'i.published_at>=? AND i.published_at<?') : 'i.published_at IS NULL'} AND (?='[]' OR i.source_id IN (SELECT value FROM json_each(?))))`;
   }
-  private cohortBindings(range: Range | null, sources: string) {
+  private cohortBindings(
+    range: Range | null,
+    sources: string,
+    includeUndated = false,
+  ) {
     return [
       this.context.ownerId,
+      ...(range && includeUndated ? [publicationDate(range.start)] : []),
       ...(range ? [range.start, range.end] : []),
       sources,
       sources,
@@ -311,6 +323,7 @@ FROM sources s LEFT JOIN channels c ON c.owner_id=s.owner_id AND c.source_id=s.s
   async day(
     input: {
       date: string | null;
+      include_undated?: boolean;
       timezone: string;
       source_ids?: string[];
       cursor?: string;
@@ -334,13 +347,28 @@ FROM sources s LEFT JOIN channels c ON c.owner_id=s.owner_id AND c.source_id=s.s
       sources = this.sources(ids);
     const kind =
       'daily:' +
-      (await sha256(JSON.stringify([input.date, input.timezone, sources])));
+      (await sha256(
+        JSON.stringify([
+          input.date,
+          input.timezone,
+          sources,
+          input.include_undated === true,
+        ]),
+      ));
     const cursor = input.cursor
       ? await decodeCursor(input.cursor, this.context.ownerId, kind, secret)
       : null;
-    const bindings = this.cohortBindings(range, sources),
-      cohort = this.cohort(range),
-      sort = range ? 'published_at' : 'discovered_at';
+    const bindings = this.cohortBindings(
+        range,
+        sources,
+        input.include_undated === true,
+      ),
+      cohort = this.cohort(range, input.include_undated === true),
+      sort = range
+        ? input.include_undated
+          ? 'COALESCE(published_at,discovered_at)'
+          : 'published_at'
+        : 'discovered_at';
     const result = await this.db.batch([
       this.db
         .prepare(
@@ -349,7 +377,7 @@ FROM sources s LEFT JOIN channels c ON c.owner_id=s.owner_id AND c.source_id=s.s
         .bind(this.context.ownerId),
       this.db
         .prepare(
-          `${cohort} SELECT COUNT(*) items,COALESCE(SUM(readiness='READY'),0) ready,COALESCE(SUM(readiness='BLOCKED'),0) blocked,COALESCE(SUM(readiness='FAILED'),0) failed FROM cohort`,
+          `${cohort} SELECT COUNT(*) items,COALESCE(SUM(readiness='READY'),0) ready,COALESCE(SUM(delivery_json IS NOT NULL),0) delivered,COALESCE(SUM(readiness='BLOCKED'),0) blocked,COALESCE(SUM(readiness='FAILED'),0) failed FROM cohort`,
         )
         .bind(...bindings),
       this.db
@@ -387,8 +415,8 @@ FROM sources s LEFT JOIN channels c ON c.owner_id=s.owner_id AND c.source_id=s.s
       projection_revision: await sha256(JSON.stringify([kind, seq])),
       counts: totals,
       discovery_complete: discoveryComplete,
-      complete: discoveryComplete && totals.pending === 0,
-      partial: !discoveryComplete || totals.pending > 0,
+      complete: discoveryComplete && totals.delivered === totals.items,
+      partial: !discoveryComplete || totals.delivered !== totals.items,
       source_coverage: coverage,
       freshness: { sampled_at: now.toISOString(), status: 'CURRENT' },
       items: page.map((row) => {
@@ -406,10 +434,13 @@ FROM sources s LEFT JOIN channels c ON c.owner_id=s.owner_id AND c.source_id=s.s
           creator: row.creator,
           canonical_url: row.canonical_url,
           published_at: row.published_at,
+          discovered_at: row.discovered_at,
+          report_date: row.report_date ?? undefined,
           publication_provenance: row.publication_provenance,
           duration_seconds: metadata.duration_seconds,
           metadata_revision: row.current_revision_id,
           archive: row.archive_json ? JSON.parse(row.archive_json) : null,
+          delivery: row.delivery_json ? JSON.parse(row.delivery_json) : null,
           selected_run_id: row.archive_json ? null : row.run_id,
           selection_revision: row.selection_revision,
           analysis_status: row.readiness,
@@ -463,7 +494,7 @@ FROM sources s LEFT JOIN channels c ON c.owner_id=s.owner_id AND c.source_id=s.s
         .bind(this.context.ownerId),
       this.db
         .prepare(
-          `${cohort}, days(date,start,end) AS (VALUES ${days.map(() => '(?,?,?)').join(',')}) SELECT d.date,COUNT(c.item_id) items,COALESCE(SUM(c.readiness='READY'),0) ready,COALESCE(SUM(c.readiness='BLOCKED'),0) blocked,COALESCE(SUM(c.readiness='FAILED'),0) failed FROM days d LEFT JOIN cohort c ON c.published_at>=d.start AND c.published_at<d.end GROUP BY d.date ORDER BY d.date`,
+          `${cohort}, days(date,start,end) AS (VALUES ${days.map(() => '(?,?,?)').join(',')}) SELECT d.date,COUNT(c.item_id) items,COALESCE(SUM(c.readiness='READY'),0) ready,COALESCE(SUM(c.delivery_json IS NOT NULL),0) delivered,COALESCE(SUM(c.readiness='BLOCKED'),0) blocked,COALESCE(SUM(c.readiness='FAILED'),0) failed FROM days d LEFT JOIN cohort c ON c.published_at>=d.start AND c.published_at<d.end GROUP BY d.date ORDER BY d.date`,
         )
         .bind(
           ...this.cohortBindings(range, sources),
@@ -494,7 +525,7 @@ FROM sources s LEFT JOIN channels c ON c.owner_id=s.owner_id AND c.source_id=s.s
           date: row.date,
           counts: totals,
           discovery_complete: discoveryComplete,
-          complete: discoveryComplete && totals.pending === 0,
+          complete: discoveryComplete && totals.delivered === totals.items,
         };
       }),
     };

@@ -485,7 +485,7 @@ it('independent canonical restore preserves cyclic revision refs/origins and inv
     };
     // Qualified additive retention upgrade also restores the old inventory.
     const legacy = structuredClone(portable);
-    legacy.manifest.migrations = legacy.manifest.migrations.slice(0, -1);
+    legacy.manifest.migrations = legacy.manifest.migrations.slice(0, 36);
     for (const table of [
       'retention_settings',
       'daily_export_members',
@@ -498,6 +498,17 @@ it('independent canonical restore preserves cyclic revision refs/origins and inv
     void ignoredLegacyHash;
     legacy.manifest.sha256 = await sha256(JSON.stringify(legacyBody));
     expect((await verifyPortableBackup(legacy)).rows).toBe(
+      (await verifyPortableBackup(portable)).rows,
+    );
+    const retentionBackup = structuredClone(portable);
+    retentionBackup.manifest.migrations =
+      retentionBackup.manifest.migrations.slice(0, 37);
+    const { sha256: oldHash, ...retentionBody } = retentionBackup.manifest;
+    void oldHash;
+    retentionBackup.manifest.sha256 = await sha256(
+      JSON.stringify(retentionBody),
+    );
+    expect((await verifyPortableBackup(retentionBackup)).rows).toBe(
       (await verifyPortableBackup(portable)).rows,
     );
     const drifted = structuredClone(legacy);

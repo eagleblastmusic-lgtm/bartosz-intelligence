@@ -37,6 +37,12 @@ test('archived material links to Drive without fetching deleted canonical data o
           view: null,
           canonical: null,
           semantic_verification: 'NOT_ASSERTED',
+          delivery: {
+            state: 'VERIFIED',
+            file_id: 'stable-file-id',
+            remote_version: '1',
+            verified_at: '2026-10-09T12:00:00Z',
+          },
           archive: {
             file_id: 'stable-file-id',
             remote_version: '1',

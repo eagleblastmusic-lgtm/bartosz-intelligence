@@ -123,14 +123,16 @@ export async function verifyPortableBackup(input: PortableCoreBackup) {
   };
 }
 // Qualified upgrades: 036 is index-only; 037 adds empty retention tables without
-// changing legacy columns. Every prior migration name/hash must match exactly.
+// changing legacy columns; 038 changes only the verified append guard.
+// Every prior migration name/hash must match exactly.
 function compatibleBackupMigrations(migrations: typeof ledger.migrations) {
   return (
     JSON.stringify(migrations) === JSON.stringify(ledger.migrations) ||
     (Array.isArray(migrations) &&
-      [35, 36].includes(migrations.length) &&
-      ledger.migrations.at(-1)?.name === '037_drive_only_retention.sql' &&
-      ledger.migrations.at(-2)?.name === '036_d1_read_indexes.sql' &&
+      [35, 36, 37].includes(migrations.length) &&
+      ledger.migrations.at(-1)?.name === '038_verified_archive_append.sql' &&
+      ledger.migrations[36]?.name === '037_drive_only_retention.sql' &&
+      ledger.migrations[35]?.name === '036_d1_read_indexes.sql' &&
       JSON.stringify(migrations) ===
         JSON.stringify(ledger.migrations.slice(0, migrations.length)))
   );

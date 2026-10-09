@@ -7,6 +7,12 @@ export interface CanonicalDescriptor {
   schema_version: string;
 }
 export interface ItemDetail {
+  delivery?: {
+    state: 'VERIFIED';
+    file_id: string;
+    verified_at: string;
+    remote_version: string;
+  } | null;
   archive?: {
     file_id: string;
     remote_version: string;

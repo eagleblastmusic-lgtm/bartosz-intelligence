@@ -5,7 +5,7 @@ import { DriveOAuthFailure } from '../drive/oauth.js';
 import { ExportDirtyDays } from './dirty.js';
 import { DailyExportArtifacts } from './artifacts.js';
 import { DailyExportExecutor } from './executor.js';
-import { renderOwnerDaily } from './snapshot.js';
+import { renderOwnerDaily, readArchivedReportBlocks } from './snapshot.js';
 
 /** One fair day per tick. Retry identity and backoff survive process restarts. */
 export async function runDriveExportTick(
@@ -63,19 +63,46 @@ export async function runDriveExportTick(
         retry_count: number;
       }>();
     if (!state) throw new Error('EXPORT_STALE_FENCE_OR_REVISION');
-    if (
-      await db
+    const archived = await db
+      .prepare(
+        "SELECT phase FROM retention_items WHERE owner_id=? AND root_id=? AND publication_date=? AND phase IN ('PRUNING','COMPLETE') ORDER BY phase DESC LIMIT 1",
+      )
+      .bind(context.ownerId, due.root_id, due.date)
+      .first<{ phase: string }>();
+    if (archived?.phase === 'PRUNING')
+      throw new Error('ARCHIVE_CLEANUP_IN_PROGRESS');
+    let client: DriveClient | undefined;
+    let archivedBlocks: Record<string, string> | undefined;
+    if (archived) {
+      if (state.mode !== 'FULL')
+        throw new Error('ARCHIVED_REPORT_REQUIRES_RECOVERY');
+      const saved = await db
         .prepare(
-          "SELECT 1 FROM retention_items WHERE owner_id=? AND root_id=? AND publication_date=? AND phase IN ('PRUNING','COMPLETE') LIMIT 1",
+          `SELECT file_id,full_file_hash FROM export_state WHERE ${predicate}`,
         )
-        .bind(context.ownerId, due.root_id, due.date)
-        .first()
-    )
-      throw new Error('ARCHIVED_REPORT_REQUIRES_RECOVERY');
+        .bind(...binding)
+        .first<{ file_id: string; full_file_hash: string }>();
+      if (!saved?.file_id || !saved.full_file_hash)
+        throw new Error('EXPORT_CONFLICT');
+      client = await input.client(state.connection_id);
+      archivedBlocks = await readArchivedReportBlocks(client, {
+        root_id: due.root_id,
+        date: due.date,
+        file_id: saved.file_id,
+        file_hash: saved.full_file_hash,
+      });
+    }
     const artifacts = new DailyExportArtifacts(db, context);
     let artifactId: string | null = null;
     if (state.rendered_artifact_id) {
-      const saved = await artifacts.read(state.rendered_artifact_id);
+      // Verified historical chunks may have been purged. Only an unpublished
+      // candidate needs local bytes; the old report is recovered from Drive.
+      const saved = await db
+        .prepare(
+          'SELECT revision,mode FROM daily_export_artifacts WHERE owner_id=? AND artifact_id=?',
+        )
+        .bind(context.ownerId, state.rendered_artifact_id)
+        .first<{ revision: number; mode: string }>();
       const reason = await db
         .prepare(
           'SELECT reason FROM drive_export_attempts WHERE owner_id=? AND artifact_id=?',
@@ -83,8 +110,9 @@ export async function runDriveExportTick(
         .bind(context.ownerId, state.rendered_artifact_id)
         .first<string>('reason');
       if (
-        saved.manifest.revision > state.revision &&
-        saved.manifest.mode === state.mode &&
+        saved &&
+        saved.revision > state.revision &&
+        saved.mode === state.mode &&
         reason !== 'NO_MATERIAL_CHANGE'
       )
         artifactId = state.rendered_artifact_id;
@@ -104,13 +132,14 @@ export async function runDriveExportTick(
           app_origin: input.app_origin,
           revision: Math.max(state.revision, lastRevision ?? 0) + 1,
           mode: state.mode,
+          archived_blocks: archivedBlocks,
         },
         input.cursor_secret,
         now,
       );
       artifactId = await artifacts.save(lease, report, now);
     }
-    const client = await input.client(state.connection_id);
+    client ??= await input.client(state.connection_id);
     const receipt = await new DailyExportExecutor(db, context).execute(
       lease,
       artifactId,

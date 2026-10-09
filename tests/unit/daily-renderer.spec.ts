@@ -472,7 +472,7 @@ it('FULL preserves contradiction interpretation, both complete sides, Evidence n
   expect(report.markdown).toContain('null');
   expect(report.omitted_detail_units).toBe(0);
 });
-it('binds archive membership only for a complete FULL report, never for compact or incomplete coverage', async () => {
+it('binds each complete FULL summary despite unrelated incomplete discovery, never for compact', async () => {
   const input = await fixture();
   input.snapshot.items = [input.snapshot.items[0]!];
   input.snapshot.counts = {
@@ -495,6 +495,11 @@ it('binds archive membership only for a complete FULL report, never for compact 
     },
   ]);
   input.snapshot.discovery_complete = false;
+  expect((await renderDaily(input)).archive_members).toHaveLength(1);
+  input.selections[0]!.canonical.summary_pl = [];
+  input.selections[0]!.canonical_hash = hash(
+    JSON.stringify(input.selections[0]!.canonical),
+  );
   expect((await renderDaily(input)).archive_members).toEqual([]);
 });
 it('retains tools-only Custom context and distinguishes legitimately empty selected arrays', async () => {

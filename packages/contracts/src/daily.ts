@@ -1,6 +1,7 @@
 export type AnalysisReadiness =
   'READY' | 'PARTIAL' | 'PENDING' | 'BLOCKED' | 'FAILED' | 'REVIEW_REQUIRED';
 export interface DailyCounts {
+  delivered?: number;
   items: number;
   ready: number;
   pending: number;
@@ -20,6 +21,12 @@ export interface AcceptedView {
   typed_counts: Record<string, number>;
 }
 export interface DailyItemView {
+  delivery?: {
+    state: 'VERIFIED';
+    file_id: string;
+    verified_at: string;
+    remote_version: string;
+  } | null;
   archive?: {
     file_id: string;
     remote_version: string;
@@ -32,6 +39,8 @@ export interface DailyItemView {
   creator: string;
   canonical_url: string;
   published_at: string | null;
+  discovered_at?: string;
+  report_date?: string;
   publication_provenance: string;
   duration_seconds: number | null;
   metadata_revision: string;

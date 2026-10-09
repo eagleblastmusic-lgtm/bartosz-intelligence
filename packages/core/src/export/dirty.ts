@@ -74,11 +74,21 @@ export class ExportDirtyDays {
       if (itemScoped) {
         const row = await this.db
           .prepare(
-            'SELECT published_at FROM items WHERE owner_id=? AND item_id=?',
+            'SELECT i.published_at,i.discovered_at,t.publication_date report_date FROM items i LEFT JOIN retention_items t ON t.owner_id=i.owner_id AND t.item_id=i.item_id WHERE i.owner_id=? AND i.item_id=?',
           )
           .bind(this.context.ownerId, item)
-          .first<{ published_at: string | null }>();
-        if (row?.published_at) days.add(publicationDate(row.published_at));
+          .first<{
+            published_at: string | null;
+            discovered_at: string;
+            report_date: string | null;
+          }>();
+        if (row) {
+          if (row.report_date) days.clear();
+          days.add(
+            row.report_date ??
+              publicationDate(row.published_at ?? row.discovered_at),
+          );
+        }
       }
       // Coverage and shared domain corrections can affect any existing report.
       // Organization/registry drafts do not change the unfiltered accepted cut.
@@ -109,7 +119,7 @@ export class ExportDirtyDays {
         statements.push(
           this.db
             .prepare(
-              `UPDATE export_state SET dirty_seq=MAX(dirty_seq,?),first_dirty_at=CASE WHEN first_dirty_at IS NULL OR (dirty_seq<=exported_seq AND desired_generation<=exported_generation) THEN ? ELSE first_dirty_at END,last_material_event_at=? WHERE owner_id=? AND destination_key GLOB 'drive:*' ${global ? '' : 'AND publication_date IN (' + dates.map(() => '?').join(',') + ')'}`,
+              `UPDATE export_state SET dirty_seq=MAX(dirty_seq,?),first_dirty_at=CASE WHEN first_dirty_at IS NULL OR (dirty_seq<=exported_seq AND desired_generation<=exported_generation) THEN ? ELSE first_dirty_at END,last_material_event_at=? WHERE owner_id=? AND destination_key GLOB 'drive:*' ${global ? (['sources', 'discovery'].includes(change.component) ? "AND NOT EXISTS(SELECT 1 FROM retention_items t WHERE t.owner_id=export_state.owner_id AND t.root_id=export_state.root_namespace AND t.publication_date=export_state.publication_date AND t.phase='COMPLETE')" : '') : 'AND publication_date IN (' + dates.map(() => '?').join(',') + ')'}`,
             )
             .bind(
               change.seq,
