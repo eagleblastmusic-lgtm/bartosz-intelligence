@@ -6,7 +6,7 @@ export default tseslint.config(
       '**/dist/**',
       '**/.wrangler/**',
       '.tools/**',
-      '.local/**',
+      '**/.local/**',
       'Plan/**',
       'packages/core/src/registry/generated/**',
     ],

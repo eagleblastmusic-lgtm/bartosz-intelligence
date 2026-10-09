@@ -20,3 +20,15 @@ docs/verification/gate-ai/quota-third-2026-10-06.json
 docs/verification/knowledge/CP_6_5_GATE_S_LOCAL.json
 docs/verification/knowledge/CP_6_5_GATE_S_LOCAL_FAIL.json
 docs/verification/gate-s-knowledge/*.json
+# Retained receipts and frozen configuration bytes are hashed evidence.
+docs/verification/drive/final-execution-scorecard/configuration.json
+docs/verification/drive/final-execution-scorecard-v2/configuration.json
+docs/verification/drive/layout-inventory-2026-10-09.json
+docs/verification/gate-ai/quota-live-2026-10-09.json
+docs/verification/gate-r/89dbb75f-ecd3-44f8-8d10-3553e7631255/preregistration.json
+docs/verification/gate-r/b21a69ff-168f-434c-8cb5-20c991589c3e/preregistration.json
+docs/verification/gate-r/ed5a2c84-f134-4a3c-ba02-c87bea0c470a/preregistration.json
+docs/verification/release/search-production-2026-10-09.json
+docs/verification/release/search-worker-diagnostic-2026-10-09.json
+docs/verification/release/search-worker-production-2026-10-09.json
+docs/verification/release/search-worker-trailing-slash-diagnostic-2026-10-09.json

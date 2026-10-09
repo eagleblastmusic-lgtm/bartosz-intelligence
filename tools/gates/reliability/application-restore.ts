@@ -1,32 +1,26 @@
 import { readFileSync, writeFileSync, mkdirSync } from 'node:fs';
 import { resolve, join } from 'node:path';
 import { randomUUID, createHash } from 'node:crypto';
-import { DatabaseSync } from 'node:sqlite';
+import { createRequire } from 'node:module';
+import { readD1Migrations } from '@cloudflare/vitest-plugin';
 import {
   restoreCanonical,
   type PortableCoreBackup,
 } from '../../../packages/core/src/backup/restore.js';
-import { sqliteAdapter } from '../../db/sqlite-adapter.js';
 import { requirePrivateRecoveryDirectory } from '../../db/private-directory.js';
 import { issueSession } from '../../../packages/core/src/auth/session.js';
 import { randomToken, sha256 } from '../../../packages/core/src/auth/crypto.js';
-import { AccessContext } from '../../../packages/core/src/db/boundary.js';
+import {
+  AccessContext,
+  type Database,
+} from '../../../packages/core/src/db/boundary.js';
 import { SearchIndex } from '../../../packages/core/src/knowledge/search-index.js';
 import { candidatePins } from '../../release/pins.js';
 import application from '../../../config/application.json';
 
 // Extends the already verified independent Drive copy to actual application
-// handlers and derived search. Node/SQLite equivalent, not a new cloud install.
+// workerd, static assets and derived search. Not a new cloud/OIDC installation.
 const args = process.argv.slice(2);
-// Load the Worker at runtime; its Cloudflare type project stays separate from
-// Node tooling to avoid ambient Buffer collisions.
-const workerModule = '../../../apps/api/src/index.js';
-const worker = (await import(workerModule)).default as {
-  fetch(
-    request: Request,
-    environment: Record<string, unknown>,
-  ): Promise<Response>;
-};
 if (
   args.length !== 2 ||
   args[0] !== '--drive-copy' ||
@@ -49,14 +43,71 @@ const portable = JSON.parse(bytes.toString('utf8')) as PortableCoreBackup;
 const id = randomUUID(),
   root = resolve('.local/application-recovery', id);
 requirePrivateRecoveryDirectory(root);
-const sqlite = new DatabaseSync(join(root, 'restored.sqlite'));
+const require = createRequire(import.meta.url);
+const wranglerRequire = createRequire(require.resolve('wrangler/package.json'));
+const runtime = wranglerRequire('miniflare') as {
+  convertV4MiniflareOptions(
+    options: Record<string, unknown>,
+  ): Record<string, unknown>;
+  Miniflare: new (options: Record<string, unknown>) => {
+    ready: Promise<URL>;
+    getD1Database(name: string): Promise<Database>;
+    dispatchFetch(url: string, init?: RequestInit): Promise<Response>;
+    dispose(): Promise<void>;
+  };
+};
+const secret = randomToken();
+const assetsRoot = resolve('apps/web/dist');
+const mf = new runtime.Miniflare(
+  runtime.convertV4MiniflareOptions({
+    modules: true,
+    script: readFileSync('apps/api/dist/index.js', 'utf8'),
+    compatibilityDate: '2026-10-01',
+    host: '127.0.0.1',
+    port: 0,
+    d1Databases: ['DB'],
+    d1Persist: root,
+    queueProducers: { BARTOSZ_QUEUE: 'isolated-recovery' },
+    bindings: {
+      SESSION_SIGNING_SECRET: secret,
+      APP_ORIGIN: application.app_origin,
+      GOOGLE_OIDC_CLIENT_ID: 'isolated-recovery',
+      GOOGLE_OIDC_CLIENT_SECRET: 'isolated-recovery',
+      GOOGLE_OIDC_OWNER_SUBJECT: process.env.GOOGLE_OIDC_OWNER_SUBJECT,
+    },
+    outboundService: () =>
+      new Response('RECOVERY_EXTERNAL_REQUEST_DENIED', { status: 503 }),
+    serviceBindings: {
+      ASSETS: (request: Request) => {
+        const path = new URL(request.url).pathname;
+        const file = path.startsWith('/assets/')
+          ? resolve(assetsRoot, '.' + path)
+          : join(assetsRoot, 'index.html');
+        if (!file.startsWith(assetsRoot + '\\'))
+          return new Response(null, { status: 404 });
+        const type = file.endsWith('.js')
+          ? 'text/javascript'
+          : file.endsWith('.css')
+            ? 'text/css'
+            : 'text/html';
+        return new Response(readFileSync(file), {
+          headers: { 'Content-Type': type },
+        });
+      },
+    },
+  }),
+);
 try {
-  sqlite.exec('PRAGMA foreign_keys=ON');
+  await mf.ready;
+  const db = await mf.getD1Database('DB');
   const ledger = JSON.parse(readFileSync('db/migration-ledger.json', 'utf8'));
-  for (const migration of ledger.migrations)
-    sqlite.exec(readFileSync('db/migrations/' + migration.name, 'utf8'));
-  const db = sqliteAdapter(sqlite),
-    dbStart = performance.now();
+  const migrations = await readD1Migrations('db/migrations');
+  for (const migration of ledger.migrations) {
+    const parsed = migrations.find((row) => row.name === migration.name);
+    if (!parsed) throw new Error('RESTORE_MIGRATION_MISSING');
+    for (const query of parsed.queries) await db.prepare(query).run();
+  }
+  const dbStart = performance.now();
   const restored = await restoreCanonical(
     db,
     portable,
@@ -64,11 +115,10 @@ try {
   );
   const databaseMs = Math.ceil(performance.now() - dbStart);
   const invalidated =
-    sqlite
+    (await db
       .prepare('SELECT COUNT(*) n FROM owner_sessions WHERE revoked_at IS NULL')
-      .get()!.n === 0;
-  const secret = randomToken(),
-    now = new Date();
+      .first<number>('n')) === 0;
+  const now = new Date();
   const session = await issueSession(
     db,
     {
@@ -96,37 +146,21 @@ try {
   if (searchState.freshness !== 'FRESH')
     throw new Error('RESTORED_SEARCH_NOT_FRESH');
   const indexMs = Math.ceil(performance.now() - indexStart);
-  const html = readFileSync('apps/web/dist/index.html');
-  const environment = {
-    DB: db,
-    SESSION_SIGNING_SECRET: secret,
-    APP_ORIGIN: application.app_origin,
-    GOOGLE_OIDC_CLIENT_ID: 'isolated-recovery',
-    GOOGLE_OIDC_CLIENT_SECRET: 'isolated-recovery',
-    GOOGLE_OIDC_OWNER_SUBJECT: process.env.GOOGLE_OIDC_OWNER_SUBJECT,
-    BARTOSZ_QUEUE: {
-      send: async () => {
-        throw new Error('RECOVERY_PROVIDER_REQUEST_DENIED');
-      },
-    },
-    ASSETS: {
-      fetch: async () =>
-        new Response(html, { headers: { 'Content-Type': 'text/html' } }),
-    },
-  };
   const fetchApp = (path: string, authorized = true) =>
-    worker.fetch(
-      new Request(application.app_origin + path, {
-        headers: authorized ? { Cookie: signed } : {},
-      }),
-      environment,
-    );
+    mf.dispatchFetch(application.app_origin + path, {
+      headers: authorized ? { Cookie: signed } : {},
+    });
   const paths = [
     '/health',
     '/',
     '/api/v1/items?limit=20',
     '/api/v1/daily?date=2026-10-02',
     '/api/v1/search?q=TED',
+    ...new Set(
+      readFileSync('apps/web/dist/index.html', 'utf8').match(
+        /\/assets\/[A-Za-z0-9._-]+\.(?:js|css)/g,
+      ) ?? [],
+    ),
   ];
   const checks = [];
   for (const path of paths) {
@@ -144,22 +178,24 @@ try {
       );
   }
   const denied = (await fetchApp('/api/v1/items', false)).status === 401;
-  const source = sqlite
+  const source = await db
     .prepare(
       "SELECT artifact_id FROM artifacts WHERE kind='SOURCE_ORIGINAL' AND state='VERIFIED' LIMIT 1",
     )
-    .get();
+    .first();
   if (!source) throw new Error('RESTORED_SOURCE_REQUIRED');
   const integrity =
-    sqlite.prepare('PRAGMA integrity_check').get()!.integrity_check === 'ok';
+    (await db
+      .prepare('PRAGMA integrity_check')
+      .first<string>('integrity_check')) === 'ok';
   const foreignKeys =
-    sqlite.prepare('PRAGMA foreign_key_check').all().length === 0;
+    (await db.prepare('PRAGMA foreign_key_check').all()).results.length === 0;
   const report = {
-    version: 'ApplicationRestoreEquivalent/1.0',
+    version: 'ApplicationRestoreWorkerd/1.0',
     observed_at: new Date().toISOString(),
     ...pins,
     status: denied && invalidated && integrity && foreignKeys ? 'PASS' : 'FAIL',
-    runtime: 'ACTUAL_NODE_SQLITE_APPLICATION_HANDLERS',
+    runtime: 'ACTUAL_LOCAL_WORKERD_D1_APPLICATION',
     independent_medium: 'PREVIOUSLY_DOWNLOADED_VERIFIED_GOOGLE_DRIVE',
     backup_sha256: hash,
     restored_rows: restored.rows,
@@ -173,7 +209,7 @@ try {
     foreign_keys: foreignKeys,
     routes: checks,
     live_owner_oidc: 'NOT_RUN',
-    workerd_deployment: 'NOT_RUN',
+    workerd_deployment: 'PASS_LOCAL_ISOLATED',
     executor_reprovision: 'NOT_RUN',
     full_application_rpo_rto: 'NOT_QUALIFIED',
     provider_requests: 0,
@@ -188,5 +224,5 @@ try {
   console.log(JSON.stringify(report));
   if (report.status !== 'PASS') process.exitCode = 2;
 } finally {
-  sqlite.close();
+  await mf.dispose();
 }
