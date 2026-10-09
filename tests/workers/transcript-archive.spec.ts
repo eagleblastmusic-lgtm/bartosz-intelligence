@@ -306,6 +306,37 @@ async function fixture(partial = false) {
     },
   };
 }
+it('scopes an explicit archive to its item without touching another pending source', async () => {
+  const f = await fixture();
+  expect(
+    await f
+      .archive()
+      .tick(
+        { client: async () => f.client, item_id: 'other-item' },
+        fixtureNow,
+      ),
+  ).toEqual({ state: 'IDLE' });
+  expect(f.creates).toBe(0);
+  expect(
+    await env.DB.prepare(
+      'SELECT COUNT(*) n FROM transcript_archives',
+    ).first<number>('n'),
+  ).toBe(0);
+  await f
+    .archive()
+    .tick(
+      { client: async () => f.client, item_id: f.item.item_id },
+      fixtureNow,
+    );
+  expect(f.creates).toBe(1);
+  expect(
+    await env.DB.prepare(
+      'SELECT state FROM transcript_archives WHERE item_id=?',
+    )
+      .bind(f.item.item_id)
+      .first<string>('state'),
+  ).toBe('VERIFIED');
+});
 it('prefers compact captured cues over later AI maps and archives without AI completion', async () => {
   const f = await fixture(),
     hash = await sha256(f.text);

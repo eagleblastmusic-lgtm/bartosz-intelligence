@@ -22,9 +22,15 @@ Po actual quota probe i świeżym Analytics wykonać kolejno:
    [Oficjalne ograniczenie dostępu Google](https://developers.google.com/workspace/drive/api/guides/limited-expansive-access)
    wymaga `inheritedPermissionsDisabled=true`. Uprawnienie `view=metadata`
    z tym markerem nie daje dostępu do treści; inne non-owner ACL blokują eksport.
-2. `node --env-file=.env --import=tsx tools/deployment/transcript-archive-live.ts --archive-once`.
+2. `node --env-file=.env --import=tsx tools/deployment/transcript-archive-live.ts --archive-once --video rUhllpnYWR8`.
    Jedna rzeczywista transkrypcja, zero AI; budget 100 REST / 15k reads / 1k writes,
    no hidden retry i exclusive intent. Udokumentować receipt i actual metryki.
+   Runner ogranicza istniejący archive tick do tego filmu, sprawdza wszystkie
+   1071 cues, wykonuje niezależny pełny bytes/hash readback i sprawdza IDLE
+   przy dedup. `--verify-video --video rUhllpnYWR8` ponownie tylko odczytuje
+   archiwum. Probe AVAILABLE kwalifikuje reset w tym samym dniu UTC; aktualny
+   budżet nadal wymaga Analytics młodszych niż 15 min. Dzięki temu opóźnienie
+   Analytics nie wymusza drugiego probe ani nie zamyka okna po 15 min.
 3. Zweryfikowany build ma `TRANSCRIPT_ARCHIVE_ENABLED=true`; folder bez prywatnej
    kwalifikacji powoduje CONFIGURATION_HOLD. Cron przetwarza maks. jeden film na
    tick, niezależnie od `DRIVE_EXPORT_ENABLED`. P0 Daily i transkrypcje mają własny

@@ -34,7 +34,7 @@ export class TranscriptDriveArchive {
     assertContext(context);
     context.requireOwnerOrTask('DRIVE_EXPORT');
   }
-  async reconcile(now: Date) {
+  async reconcile(now: Date, itemId?: string) {
     const source = await this.db
       .prepare(
         `SELECT a.artifact_id,a.item_id,a.content_hash,a.provenance_json,a.producer_version,i.external_id,i.canonical_url,i.published_at,i.discovered_at,m.metadata_json,c.title channel,
@@ -45,13 +45,19 @@ export class TranscriptDriveArchive {
  LEFT JOIN channels c ON c.owner_id=i.owner_id AND c.source_id=i.source_id
  LEFT JOIN transcript_archives t ON t.owner_id=a.owner_id AND t.item_id=a.item_id
  WHERE a.owner_id=? AND a.kind='SOURCE_ORIGINAL' AND a.state='VERIFIED'
+ AND (? IS NULL OR a.item_id=?)
  AND (t.item_id IS NULL OR (t.source_artifact_id!=a.artifact_id AND t.state='VERIFIED' AND (t.lease_until IS NULL OR t.lease_until<=?)))
  AND NOT EXISTS(SELECT 1 FROM retention_items p WHERE p.owner_id=a.owner_id AND p.item_id=a.item_id AND p.phase IN ('PRUNING','COMPLETE'))
  AND NOT EXISTS(SELECT 1 FROM artifacts n WHERE n.owner_id=a.owner_id AND n.item_id=a.item_id AND n.kind='SOURCE_ORIGINAL' AND n.state='VERIFIED' AND (n.created_at>a.created_at OR (n.created_at=a.created_at AND n.artifact_id>a.artifact_id)))
  AND EXISTS(SELECT 1 FROM artifacts b WHERE b.owner_id=a.owner_id AND b.item_id=a.item_id AND b.original_ref=a.artifact_id AND b.kind='SEGMENT_MAP' AND b.state='VERIFIED' AND json_extract(b.provenance_json,'$.source_revision')=a.content_hash)
  ORDER BY a.created_at,a.artifact_id LIMIT 1`,
       )
-      .bind(this.context.ownerId, now.toISOString())
+      .bind(
+        this.context.ownerId,
+        itemId ?? null,
+        itemId ?? null,
+        now.toISOString(),
+      )
       .first<{
         artifact_id: string;
         item_id: string;
@@ -140,7 +146,10 @@ export class TranscriptDriveArchive {
     return { registered: true };
   }
   async tick(
-    input: { client: (connectionId: string) => Promise<DriveClient> },
+    input: {
+      client: (connectionId: string) => Promise<DriveClient>;
+      item_id?: string;
+    },
     now: Date,
   ) {
     if (!Number.isFinite(now.getTime()))
@@ -160,12 +169,18 @@ export class TranscriptDriveArchive {
       .bind(this.context.ownerId)
       .first<{ folder_id: string; parent_id: string; connection_id: string }>();
     if (!folder) return { state: 'CONFIGURATION_HOLD' };
-    await this.reconcile(now);
+    await this.reconcile(now, input.item_id);
     const due = await this.db
       .prepare(
-        "SELECT item_id FROM transcript_archives WHERE owner_id=? AND state IN ('PENDING','RETRY_WAIT') AND due_at<=? AND (lease_until IS NULL OR lease_until<=?) ORDER BY due_at,item_id LIMIT 1",
+        "SELECT item_id FROM transcript_archives WHERE owner_id=? AND (? IS NULL OR item_id=?) AND state IN ('PENDING','RETRY_WAIT') AND due_at<=? AND (lease_until IS NULL OR lease_until<=?) ORDER BY due_at,item_id LIMIT 1",
       )
-      .bind(this.context.ownerId, now.toISOString(), now.toISOString())
+      .bind(
+        this.context.ownerId,
+        input.item_id ?? null,
+        input.item_id ?? null,
+        now.toISOString(),
+        now.toISOString(),
+      )
       .first<string>('item_id');
     if (!due) return { state: 'IDLE' };
     const claimed = await this.db

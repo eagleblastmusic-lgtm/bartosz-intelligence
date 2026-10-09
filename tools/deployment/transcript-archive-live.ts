@@ -12,11 +12,20 @@ import { provisionTranscriptFolder } from '../../packages/core/src/transcript/ar
 import { TranscriptDriveArchive } from '../../packages/core/src/transcript/archive.js';
 import defaults from '../../config/defaults.json';
 import ledger from '../../db/migration-ledger.json';
+import { ArtifactRepository } from '../../packages/core/src/artifacts/store.js';
+import {
+  renderTranscriptArchive,
+  type TranscriptArchiveDescriptor,
+  type TranscriptArchiveManifest,
+} from '../../packages/core/src/transcript/archive-renderer.js';
 
 const mode = process.argv[2];
+const video = process.argv[3] === '--video' ? process.argv[4] : undefined;
 if (
-  process.argv.length !== 3 ||
-  !['--provision-folder', '--archive-once'].includes(mode!)
+  !['--provision-folder', '--archive-once', '--verify-video'].includes(mode!) ||
+  (mode === '--provision-folder'
+    ? process.argv.length !== 3
+    : process.argv.length !== 5 || video !== 'rUhllpnYWR8')
 )
   throw new Error('EXPLICIT_TRANSCRIPT_ARCHIVE_ACTION_REQUIRED');
 if (defaults.paid_services_enabled !== false)
@@ -29,9 +38,9 @@ const probe = JSON.parse(
 if (
   probe.state !== 'AVAILABLE' ||
   Date.parse(probe.observed_at) > now.getTime() ||
-  now.getTime() - Date.parse(probe.observed_at) > 15 * 60000
+  new Date(probe.observed_at).toISOString().slice(0, 10) !== day
 )
-  throw new Error('FRESH_ACTUAL_D1_PROBE_REQUIRED');
+  throw new Error('ACTUAL_CURRENT_DAY_D1_PROBE_REQUIRED');
 const sample = JSON.parse(
   readFileSync('.local/d1-usage/latest.json', 'utf8'),
 ) as UsageSample;
@@ -125,14 +134,110 @@ try {
           },
           new Date(),
         )
-      : await new TranscriptDriveArchive(db, context).tick(
-          { client },
-          new Date(),
-        );
-} catch {
+      : null;
+  if (video) {
+    const itemId = await db
+      .prepare(
+        "SELECT item_id FROM items WHERE owner_id=? AND namespace='youtube' AND external_id=?",
+      )
+      .bind(context.ownerId, video)
+      .first<string>('item_id');
+    if (!itemId) throw new Error('APPROVED_TRANSCRIPT_ITEM_REQUIRED');
+    const archive = new TranscriptDriveArchive(db, context);
+    const attempt =
+      mode === '--archive-once'
+        ? await archive.tick({ client, item_id: itemId }, new Date())
+        : { state: 'READ_ONLY_VERIFICATION' };
+    const archived = await db
+      .prepare(
+        'SELECT state,source_artifact_id,segment_map_artifact_id,source_hash,descriptor_json,folder_id,reserved_file_id,verified_hash,remote_version,fencing_token,attempt_count FROM transcript_archives WHERE owner_id=? AND item_id=?',
+      )
+      .bind(context.ownerId, itemId)
+      .first<{
+        state: string;
+        source_artifact_id: string;
+        segment_map_artifact_id: string;
+        source_hash: string;
+        descriptor_json: string;
+        folder_id: string;
+        reserved_file_id: string;
+        verified_hash: string;
+        remote_version: string;
+        fencing_token: number;
+        attempt_count: number;
+      }>();
+    if (!archived || archived.state !== 'VERIFIED')
+      throw new Error('APPROVED_TRANSCRIPT_NOT_VERIFIED');
+    const artifacts = new ArtifactRepository(db, context),
+      at = new Date();
+    const source = await artifacts.readTranscriptArchiveText(
+      archived.source_artifact_id,
+      at,
+    );
+    const map = await artifacts.readTranscriptArchiveText(
+      archived.segment_map_artifact_id,
+      at,
+    );
+    const descriptor = JSON.parse(
+      archived.descriptor_json,
+    ) as TranscriptArchiveDescriptor;
+    const manifest = JSON.parse(map.text) as TranscriptArchiveManifest;
+    if (descriptor.video_id !== video || manifest.coverage.length !== 1071)
+      throw new Error('APPROVED_TRANSCRIPT_COVERAGE_MISMATCH');
+    const expected = await renderTranscriptArchive({
+      descriptor,
+      source_text: source.text,
+      source_hash: archived.source_hash,
+      manifest,
+    });
+    const drive = await client(row.results[0]!.connection_id);
+    await drive.verifyPrivateFolder(archived.folder_id);
+    const before = await drive.getFile(archived.reserved_file_id);
+    const downloaded = await drive.readTranscriptMarkdown(
+      archived.reserved_file_id,
+    );
+    const after = await drive.getFile(archived.reserved_file_id);
+    if (
+      before.version !== after.version ||
+      after.version !== archived.remote_version ||
+      after.trashed !== false ||
+      !after.parents?.includes(archived.folder_id) ||
+      downloaded !== expected.markdown ||
+      (await sha256(downloaded)) !== archived.verified_hash ||
+      expected.content_hash !== archived.verified_hash
+    )
+      throw new Error('TRANSCRIPT_INDEPENDENT_READBACK_MISMATCH');
+    const dedup =
+      mode === '--archive-once'
+        ? await archive.tick({ client, item_id: itemId }, new Date())
+        : null;
+    if (dedup && dedup.state !== 'IDLE')
+      throw new Error('TRANSCRIPT_DEDUP_NOT_IDLE');
+    result = {
+      state: 'VERIFIED',
+      video_id: video,
+      file_id: archived.reserved_file_id,
+      folder_id: archived.folder_id,
+      remote_version: archived.remote_version,
+      sha256: archived.verified_hash,
+      byte_count: expected.byte_count,
+      cues: manifest.coverage.length,
+      source_hash: archived.source_hash,
+      byte_for_byte_readback: true,
+      private_folder_verified: true,
+      attempt,
+      dedup,
+      attempt_count: archived.attempt_count,
+      fencing_token: archived.fencing_token,
+    };
+  }
+} catch (error) {
   result = {
     state: 'RECOVERY_REQUIRED',
-    reason: 'TRANSCRIPT_LIVE_FAILED_NO_AUTOMATIC_RETRY',
+    reason:
+      error instanceof Error && /^[A-Z][A-Z_0-9]{1,100}$/.test(error.message)
+        ? error.message
+        : 'TRANSCRIPT_LIVE_FAILED_NO_AUTOMATIC_RETRY',
   };
   process.exitCode = 2;
 }
