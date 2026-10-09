@@ -2,6 +2,7 @@ import type { Database } from '../db/boundary.js';
 import {
   backupTables,
   legacyBackupTables,
+  retentionBackupTables,
   assertSecretFree,
 } from './snapshot.js';
 import type { BackupManifest, BackupChunk } from './snapshot.js';
@@ -35,7 +36,13 @@ export async function verifyPortableBackup(input: PortableCoreBackup) {
     throw new Error('BACKUP_MANIFEST_MISMATCH');
   if (
     Object.keys(body.tables).sort().join(',') !==
-    [...(body.migrations.length < 37 ? legacyBackupTables : backupTables)]
+    [
+      ...(body.migrations.length < 37
+        ? legacyBackupTables
+        : body.migrations.length < 39
+          ? retentionBackupTables
+          : backupTables),
+    ]
       .sort()
       .join(',')
   )
@@ -44,7 +51,9 @@ export async function verifyPortableBackup(input: PortableCoreBackup) {
     consumed = 0;
   for (const table of body.migrations.length < 37
     ? legacyBackupTables
-    : backupTables) {
+    : body.migrations.length < 39
+      ? retentionBackupTables
+      : backupTables) {
     const specification = body.tables[table]!;
     if (
       !specification ||
@@ -129,8 +138,9 @@ function compatibleBackupMigrations(migrations: typeof ledger.migrations) {
   return (
     JSON.stringify(migrations) === JSON.stringify(ledger.migrations) ||
     (Array.isArray(migrations) &&
-      [35, 36, 37].includes(migrations.length) &&
-      ledger.migrations.at(-1)?.name === '038_verified_archive_append.sql' &&
+      [35, 36, 37, 38].includes(migrations.length) &&
+      ledger.migrations.at(-1)?.name === '039_transcript_drive_archive.sql' &&
+      ledger.migrations[37]?.name === '038_verified_archive_append.sql' &&
       ledger.migrations[36]?.name === '037_drive_only_retention.sql' &&
       ledger.migrations[35]?.name === '036_d1_read_indexes.sql' &&
       JSON.stringify(migrations) ===
@@ -213,6 +223,13 @@ export async function restoreCanonical(
           row.deletion_enabled = 0;
           row.approval_reference = null;
           row.next_check_at = null;
+        }
+        if (table === 'transcript_archive_folders')
+          row.private_verified_at = null;
+        if (table === 'transcript_archives') {
+          row.lease_owner = null;
+          row.lease_until = null;
+          row.fencing_token = Number(row.fencing_token) + 1;
         }
         if (table === 'retention_items') {
           row.permit_token = null;

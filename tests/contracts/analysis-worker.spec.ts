@@ -1,10 +1,90 @@
 import { expect, it } from 'vitest';
 import { LocalAnalysisWorker } from '../../apps/executor/src/analysis-worker.js';
 import { resumeChunkPreparation } from '../../apps/executor/src/analysis-chunks.js';
+import { loadAnalysisSource } from '../../apps/executor/src/analysis-preparation.js';
+import type { ArtifactRow } from '../../packages/core/src/artifacts/store.js';
+import type { AnalysisJobSnapshot } from '../../packages/core/src/ai/jobs.js';
+import { sha256 } from '../../packages/core/src/auth/crypto.js';
 import {
   WorkerRpc,
   WorkerRpcError,
 } from '../../apps/executor/src/worker-rpc.js';
+
+it('prepares legacy and archival source identities while rejecting a map from another acquisition', async () => {
+  const token = {
+    job_id: 'job',
+    lease_owner: 'worker',
+    fencing_token: 1,
+    lease_until: '2026-10-10T00:15:00.000Z',
+  };
+  const snapshot = {
+    version: 'analysis-job:1',
+    settings: { runtime: 'local' },
+    source: {
+      item_id: 'item',
+      source_artifact_id: 'source',
+      source_hash: 'a'.repeat(64),
+      segment_map_artifact_id: 'map',
+      manifest_hash: 'b'.repeat(64),
+    },
+  } as AnalysisJobSnapshot;
+  const rpc = new WorkerRpc(
+    'https://fixture.invalid',
+    'a'.repeat(43),
+    async () =>
+      Response.json({
+        run_id: 'analysis_' + 'c'.repeat(64),
+        snapshot,
+        snapshot_hash: await sha256(JSON.stringify(snapshot)),
+      }),
+  );
+  const header: ArtifactRow = {
+    artifact_id: 'source',
+    item_id: 'item',
+    owner_id: 'owner',
+    kind: 'SOURCE_ORIGINAL',
+    content_hash: 'a'.repeat(64),
+    byte_size: 1,
+    chunk_count: 1,
+    schema_version: 'source:1',
+    producer_version: 'yt-dlp@2026.08.19+yt-dlp-ejs@0.8.0',
+    original_ref: null,
+    state: 'VERIFIED',
+    manifest_hash: 'd'.repeat(64),
+    provenance_json: '{}',
+    created_at: '2026-10-10T00:00:00.000Z',
+    verified_at: '2026-10-10T00:00:00.000Z',
+  };
+  for (const suffix of ['', ':archive-source:1:' + 'e'.repeat(64)]) {
+    const source = {
+      ...header,
+      producer_version: header.producer_version + suffix,
+    };
+    const map = {
+      ...header,
+      artifact_id: 'map',
+      kind: 'SEGMENT_MAP' as const,
+      content_hash: 'b'.repeat(64),
+      original_ref: 'source',
+      producer_version: 'source-normalizer:1' + suffix,
+    };
+    const readText = async (id: string) => ({
+      text: 'x',
+      artifact: id === 'source' ? source : map,
+    });
+    await expect(
+      loadAnalysisSource(rpc, { readText }, token, 'local'),
+    ).resolves.toMatchObject({
+      source: { artifact: source },
+      map: { artifact: map },
+    });
+    map.producer_version =
+      'source-normalizer:1:archive-source:1:' + 'f'.repeat(64);
+    await expect(
+      loadAnalysisSource(rpc, { readText }, token, 'local'),
+    ).rejects.toThrow('ANALYSIS_SOURCE_ARTIFACT_MISMATCH');
+  }
+});
 
 it('RPC retains only allowlisted quota categories and never a server body or credential', async () => {
   for (const [status, payload, expected] of [

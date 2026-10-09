@@ -238,6 +238,15 @@ test('reading verifies paged canonical bytes, preserves accepted text on failure
           canonical_url: 'https://www.youtube.com/watch?v=rUhllpnYWR8',
           published_at: null,
           analysis_status: 'READY',
+          transcript_archive: {
+            state: 'VERIFIED',
+            file_id: 'transcript-file',
+            verified_at: '2026-10-09T12:00:00Z',
+            source_status: 'PARTIAL',
+            language_code: 'en',
+            track_kind: 'GENERATED',
+            reason: null,
+          },
           processing_state: 'DEFERRED',
           reason: null,
           selected_run_id: 'run-reading',
@@ -308,6 +317,15 @@ test('reading verifies paged canonical bytes, preserves accepted text on failure
     ),
   ).toBeVisible();
   expect(await page.locator('img').count()).toBe(0);
+  await expect(
+    page.getByRole('link', { name: 'Otwórz pełną dostępną transkrypcję' }),
+  ).toHaveAttribute(
+    'href',
+    'https://drive.google.com/file/d/transcript-file/view',
+  );
+  await expect(
+    page.getByText(/Źródło niepełne; braków nie uzupełniono/),
+  ).toBeVisible();
   await expect(
     page.getByRole('link', { name: '← Powrót do dnia' }),
   ).toHaveAttribute('href', '/daily/2026-10-05?density=compact');

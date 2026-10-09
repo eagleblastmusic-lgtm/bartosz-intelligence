@@ -5,6 +5,7 @@ import { scheduleControlPlane } from './scheduled.js';
 import {
   scheduleDriveExport,
   scheduleRetentionCleanup,
+  scheduleTranscriptArchive,
 } from './drive-export.js';
 import { authApp } from './auth.js';
 import type { Env } from './env.js';
@@ -94,10 +95,17 @@ export default {
     );
     context.waitUntil(
       (async () => {
-        await scheduleDriveExport(
-          environment,
-          new Date(controller.scheduledTime),
-        );
+        // Finish P0 first. Heavy caption work must not compete with an in-flight
+        // summary for the invocation's CPU/memory budget. Each keeps its retry.
+        await Promise.allSettled([
+          scheduleDriveExport(environment, new Date(controller.scheduledTime)),
+        ]);
+        await Promise.allSettled([
+          scheduleTranscriptArchive(
+            environment,
+            new Date(controller.scheduledTime),
+          ),
+        ]);
         return scheduleRetentionCleanup(
           environment,
           new Date(controller.scheduledTime),

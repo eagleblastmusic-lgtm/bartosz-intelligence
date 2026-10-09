@@ -189,6 +189,11 @@
       "name": "038_verified_archive_append.sql",
       "depends_on": ["037_drive_only_retention.sql"],
       "sha256": "f01107cac90b5970938a72d9d58b188c3674856a9ea7d6686230b18598cdbb2d"
+    },
+    {
+      "name": "039_transcript_drive_archive.sql",
+      "depends_on": ["038_verified_archive_append.sql"],
+      "sha256": "31a74aa0cf39c8f2a0b248daf38206834ed6cd9774b3faa4646a8a7c2ebad3e7"
     }
   ],
   "version": 1

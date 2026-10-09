@@ -21,6 +21,15 @@ export interface AcceptedView {
   typed_counts: Record<string, number>;
 }
 export interface DailyItemView {
+  transcript_archive?: {
+    state: string;
+    file_id: string | null;
+    verified_at: string | null;
+    source_status: string;
+    language_code: string;
+    track_kind: string;
+    reason: string | null;
+  } | null;
   delivery?: {
     state: 'VERIFIED';
     file_id: string;

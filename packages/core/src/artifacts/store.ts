@@ -247,7 +247,7 @@ export class ArtifactRepository {
       !task
     ) {
       this.context.requireTask('DRIVE_EXPORT');
-      filter = ` AND state='VERIFIED' AND kind='ANALYSIS_CANDIDATE' AND schema_version='intelligence-canonical:1.2' AND EXISTS(SELECT 1 FROM analysis_runs r WHERE r.owner_id=artifacts.owner_id AND r.item_id=artifacts.item_id AND r.state='ACCEPTED' AND json_extract(r.outcome_json,'$.version')='intelligence-accepted:1' AND json_extract(r.outcome_json,'$.canonical_artifact_id')=artifacts.artifact_id AND json_extract(r.outcome_json,'$.canonical_hash')=artifacts.content_hash)`;
+      filter = ` AND state='VERIFIED' AND ((kind='ANALYSIS_CANDIDATE' AND schema_version='intelligence-canonical:1.2' AND EXISTS(SELECT 1 FROM analysis_runs r WHERE r.owner_id=artifacts.owner_id AND r.item_id=artifacts.item_id AND r.state='ACCEPTED' AND json_extract(r.outcome_json,'$.version')='intelligence-accepted:1' AND json_extract(r.outcome_json,'$.canonical_artifact_id')=artifacts.artifact_id AND json_extract(r.outcome_json,'$.canonical_hash')=artifacts.content_hash)) OR (kind IN ('SOURCE_ORIGINAL','SEGMENT_MAP') AND EXISTS(SELECT 1 FROM transcript_archives t WHERE t.owner_id=artifacts.owner_id AND t.item_id=artifacts.item_id AND artifacts.artifact_id IN (t.source_artifact_id,t.segment_map_artifact_id))))`;
     } else if (this.context.kind === 'worker') {
       if (!token || !task) throw new Error('FORBIDDEN');
       const guard = this.guard(token, task, now);
@@ -369,6 +369,67 @@ export class ArtifactRepository {
         start + chunks.length < artifact.chunk_count
           ? start + chunks.length
           : null,
+    };
+  }
+  /** Archive-only bounded pages avoid one D1 query per cue/chunk. The existing
+   * registered identity gate remains mandatory; no unrestricted worker reader. */
+  async readTranscriptArchiveText(id: string, now: Date) {
+    this.context.requireOwnerOrTask('DRIVE_EXPORT');
+    const header = await this.get(id);
+    if (
+      header.state !== 'VERIFIED' ||
+      !['SOURCE_ORIGINAL', 'SEGMENT_MAP'].includes(header.kind) ||
+      header.byte_size > 32 * 1024 * 1024
+    )
+      throw new Error('VERIFIED_ARCHIVE_SOURCE_REQUIRED');
+    const bytes = new Uint8Array(header.byte_size);
+    const digest = incrementalSha256.create();
+    let offset = 0;
+    for (let start = 0; start < header.chunk_count; start += 64) {
+      const rows = (
+        await this.db
+          .prepare(
+            `SELECT * FROM artifact_chunks WHERE owner_id=? AND artifact_id=? AND chunk_index>=? AND chunk_index<? AND EXISTS(SELECT 1 FROM transcript_archives t WHERE t.owner_id=artifact_chunks.owner_id AND t.item_id=artifact_chunks.item_id AND artifact_chunks.artifact_id IN (t.source_artifact_id,t.segment_map_artifact_id) AND t.lease_until>?) ORDER BY chunk_index`,
+          )
+          .bind(
+            this.context.ownerId,
+            id,
+            start,
+            Math.min(header.chunk_count, start + 64),
+            now.toISOString(),
+          )
+          .all<ArtifactChunk>()
+      ).results;
+      if (rows.length !== Math.min(64, header.chunk_count - start))
+        throw new Error('ARTIFACT_CHUNK_MISSING');
+      for (const [position, chunk] of rows.entries()) {
+        const part = decode64(chunk.body_base64),
+          index = start + position;
+        if (
+          chunk.chunk_index !== index ||
+          chunk.byte_start !== offset ||
+          part.length !== chunk.byte_size ||
+          part.length > artifactChunkBytes ||
+          offset + part.length > bytes.length ||
+          chunk.storage_ref !== `d1:${id}/${index}` ||
+          bytesToHex(incrementalSha256(part)) !== chunk.byte_hash
+        )
+          throw new Error('ARTIFACT_CHUNK_CORRUPT');
+        bytes.set(part, offset);
+        offset += part.length;
+        digest.update(part);
+      }
+    }
+    if (
+      offset !== bytes.length ||
+      bytesToHex(digest.digest()) !== header.content_hash
+    )
+      throw new Error('ARTIFACT_CONTENT_HASH_MISMATCH');
+    return {
+      artifact: header,
+      text: new TextDecoder('utf-8', { fatal: true, ignoreBOM: true }).decode(
+        bytes,
+      ),
     };
   }
   async writeChunk(

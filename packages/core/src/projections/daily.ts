@@ -22,6 +22,7 @@ import type {
 } from '../../../contracts/src/daily.js';
 
 interface ReadRow {
+  transcript_archive_json: string | null;
   archive_json: string | null;
   delivery_json: string | null;
   report_date: string | null;
@@ -101,10 +102,12 @@ LEFT JOIN active_analysis_selections s ON s.owner_id=i.owner_id AND s.item_id=i.
 LEFT JOIN retention_items p ON p.owner_id=i.owner_id AND p.item_id=i.item_id
 LEFT JOIN retention_items v ON v.owner_id=i.owner_id AND v.item_id=i.item_id AND v.accepted_run_id=s.accepted_run_id
 LEFT JOIN retention_items t ON t.owner_id=i.owner_id AND t.item_id=i.item_id AND t.phase IN ('PRUNING','COMPLETE')
+LEFT JOIN transcript_archives x ON x.owner_id=i.owner_id AND x.item_id=i.item_id
 LEFT JOIN analysis_runs r ON r.owner_id=i.owner_id AND r.item_id=i.item_id AND r.run_id=s.accepted_run_id AND r.state='ACCEPTED' AND json_extract(r.outcome_json,'$.version')='intelligence-accepted:1'
 LEFT JOIN jobs j ON j.owner_id=i.owner_id AND j.job_id=(SELECT q.job_id FROM jobs q WHERE q.owner_id=i.owner_id AND q.item_id=i.item_id AND COALESCE(q.reason_code,'')<>'PROFILE_SUPERSEDED' AND q.task_type IN ('ANALYZE','FETCH_TRANSCRIPT','NORMALIZE') AND (q.task_type!='ANALYZE' OR json_extract(q.payload_json,'$.snapshot.settings.mode')='PRODUCTION') AND json_type(q.payload_json,'$.snapshot.chunk') IS NULL ORDER BY q.created_at DESC,q.job_id DESC LIMIT 1)`;
 const archiveJson = `CASE WHEN t.item_id IS NOT NULL THEN json_object('file_id',t.file_id,'remote_version',t.remote_version,'verified_at',t.verified_at,'phase',t.phase) ELSE NULL END`;
 const deliveryJson = `CASE WHEN v.item_id IS NOT NULL THEN json_object('state','VERIFIED','file_id',v.file_id,'remote_version',v.remote_version,'verified_at',v.verified_at) ELSE NULL END`;
+const transcriptArchiveJson = `CASE WHEN x.item_id IS NOT NULL THEN json_object('state',x.state,'file_id',CASE WHEN x.state='VERIFIED' THEN x.reserved_file_id ELSE NULL END,'verified_at',x.verified_at,'source_status',json_extract(x.descriptor_json,'$.source_status'),'language_code',json_extract(x.descriptor_json,'$.language_code'),'track_kind',json_extract(x.descriptor_json,'$.track_kind'),'reason',x.last_reason) ELSE NULL END`;
 const readiness = `CASE WHEN t.item_id IS NOT NULL THEN 'READY' WHEN r.run_id IS NOT NULL THEN CASE WHEN json_extract(r.outcome_json,'$.view.coverage_complete')=0 OR json_extract(r.outcome_json,'$.view.status')='INSUFFICIENT_SOURCE' THEN 'PARTIAL' ELSE 'READY' END
 WHEN i.availability IN ('PRIVATE','DELETED') OR j.state='BLOCKED' THEN 'BLOCKED'
 WHEN j.state='FAILED' THEN 'FAILED'
@@ -217,7 +220,7 @@ export class DailyProjection {
     this.context.requireOwner();
     const row = await this.db
       .prepare(
-        `SELECT i.item_id,i.canonical_url,i.published_at,m.metadata_json,COALESCE(c.title,'Źródło') creator,r.run_id,s.selection_revision,json_extract(r.outcome_json,'$.view') view_json,${archiveJson} archive_json,${deliveryJson} delivery_json,${readiness} readiness,j.state,j.reason_code ${joins} WHERE i.owner_id=? AND i.item_id=?`,
+        `SELECT i.item_id,i.canonical_url,i.published_at,m.metadata_json,COALESCE(c.title,'Źródło') creator,r.run_id,s.selection_revision,json_extract(r.outcome_json,'$.view') view_json,${archiveJson} archive_json,${deliveryJson} delivery_json,${transcriptArchiveJson} transcript_archive_json,${readiness} readiness,j.state,j.reason_code ${joins} WHERE i.owner_id=? AND i.item_id=?`,
       )
       .bind(this.context.ownerId, itemId)
       .first<ReadRow>();
@@ -227,6 +230,9 @@ export class DailyProjection {
       item_id: row.item_id,
       archive: row.archive_json ? JSON.parse(row.archive_json) : null,
       delivery: row.delivery_json ? JSON.parse(row.delivery_json) : null,
+      transcript_archive: row.transcript_archive_json
+        ? JSON.parse(row.transcript_archive_json)
+        : null,
       title: metadata.title,
       creator: row.creator,
       canonical_url: row.canonical_url,
@@ -260,7 +266,7 @@ export class DailyProjection {
     return JSON.stringify([...ids].sort());
   }
   private cohort(range: Range | null, includeUndated = false) {
-    return `WITH cohort AS (SELECT i.*,p.publication_date report_date,m.metadata_json,COALESCE(c.title,'Źródło') creator,r.run_id,s.selection_revision,json_extract(r.outcome_json,'$.view') view_json,${archiveJson} archive_json,${deliveryJson} delivery_json,${readiness} readiness,j.state,j.reason_code,j.due_at ${joins}
+    return `WITH cohort AS (SELECT i.*,p.publication_date report_date,m.metadata_json,COALESCE(c.title,'Źródło') creator,r.run_id,s.selection_revision,json_extract(r.outcome_json,'$.view') view_json,${archiveJson} archive_json,${deliveryJson} delivery_json,${transcriptArchiveJson} transcript_archive_json,${readiness} readiness,j.state,j.reason_code,j.due_at ${joins}
 WHERE i.owner_id=? AND ${range ? (includeUndated ? '((p.item_id IS NOT NULL AND p.publication_date=?) OR (p.item_id IS NULL AND COALESCE(i.published_at,i.discovered_at)>=? AND COALESCE(i.published_at,i.discovered_at)<?))' : 'i.published_at>=? AND i.published_at<?') : 'i.published_at IS NULL'} AND (?='[]' OR i.source_id IN (SELECT value FROM json_each(?))))`;
   }
   private cohortBindings(
@@ -441,6 +447,9 @@ FROM sources s LEFT JOIN channels c ON c.owner_id=s.owner_id AND c.source_id=s.s
           metadata_revision: row.current_revision_id,
           archive: row.archive_json ? JSON.parse(row.archive_json) : null,
           delivery: row.delivery_json ? JSON.parse(row.delivery_json) : null,
+          transcript_archive: row.transcript_archive_json
+            ? JSON.parse(row.transcript_archive_json)
+            : null,
           selected_run_id: row.archive_json ? null : row.run_id,
           selection_revision: row.selection_revision,
           analysis_status: row.readiness,

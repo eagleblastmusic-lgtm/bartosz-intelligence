@@ -180,6 +180,26 @@ async function fixture(partial = false, path = ':memory:') {
   const sourceHash = await sha256('raw');
   sqlite
     .prepare(
+      "INSERT INTO transcript_archive_folders VALUES('a','connection','parent','transcripts',?)",
+    )
+    .run(at);
+  sqlite
+    .prepare(
+      `INSERT INTO transcript_archives(owner_id,item_id,source_artifact_id,segment_map_artifact_id,source_hash,descriptor_json,folder_id,reserved_file_id,content_hash,verified_hash,verified_source_artifact_id,remote_version,verified_at,state,due_at,updated_at) VALUES('a',?,?,'map',?,'{}','transcripts','transcript-file',?,?,?,'1',?,'VERIFIED',?,?)`,
+    )
+    .run(
+      item,
+      sourceArtifact,
+      sourceHash,
+      sourceHash,
+      sourceHash,
+      sourceArtifact,
+      at,
+      at,
+      at,
+    );
+  sqlite
+    .prepare(
       `INSERT INTO evidence VALUES('a','evidence',?,?,?,0,3,?,'["s1"]','{"quote":"raw"}',NULL,NULL,'NONE',NULL,?)`,
     )
     .run(item, sourceArtifact, sourceHash, sourceHash, at);
@@ -208,7 +228,20 @@ async function fixture(partial = false, path = ':memory:') {
     trashed: false,
     version: '1',
   };
-  const client = { getFile: async () => file, readMarkdown: async () => body };
+  const client = {
+    getFile: async (id?: string) =>
+      id === 'transcript-file'
+        ? {
+            ...file,
+            id: 'transcript-file',
+            name: 'videoaaaaaa.md',
+            parents: ['transcripts'],
+          }
+        : file,
+    readMarkdown: async () => body,
+    readTranscriptMarkdown: async () => 'raw',
+    verifyPrivateFolder: async () => ({ private_owner_only: true as const }),
+  };
   const cleanup = new RetentionCleanup(db, owner);
   return {
     ...f,
@@ -289,11 +322,37 @@ it.each([
   'dirty',
   'partial_analysis',
   'correction',
+  'transcript_missing',
+  'transcript_pending',
+  'transcript_source',
+  'transcript_hash',
+  'transcript_version',
+  'transcript_private',
+  'new_unarchived_source',
 ] as const)(
   'holds cleanup for %s without deleting unrelated content',
   async (kind) => {
     const f = await fixture(kind === 'partial_analysis');
     try {
+      if (kind === 'transcript_missing')
+        f.sqlite.exec('DELETE FROM transcript_archives');
+      if (kind === 'transcript_pending')
+        f.sqlite.exec("UPDATE transcript_archives SET state='RETRY_WAIT'");
+      if (kind === 'transcript_source')
+        f.sqlite.exec(
+          "UPDATE transcript_archives SET verified_source_artifact_id='unrelated'",
+        );
+      if (kind === 'new_unarchived_source')
+        f.sqlite
+          .prepare(
+            `INSERT INTO artifacts(artifact_id,owner_id,item_id,kind,content_hash,byte_size,chunk_count,schema_version,producer_version,provenance_json,state,created_at,verified_at) VALUES('new-unarchived','a',?,'SOURCE_ORIGINAL',?,3,1,'raw:1','fixture','{}','VERIFIED',?,?)`,
+          )
+          .run(
+            f.item,
+            await sha256('new'),
+            due.toISOString(),
+            due.toISOString(),
+          );
       if (kind === 'unfinished')
         f.sqlite.exec("UPDATE drive_export_attempts SET state='PREPARED'");
       if (kind === 'disconnected')
@@ -327,14 +386,34 @@ it.each([
             due.toISOString(),
           );
       const client =
-        kind === 'hash'
-          ? { ...f.client, readMarkdown: async () => f.body + 'corruption' }
-          : kind === 'version'
+        kind === 'transcript_hash'
+          ? { ...f.client, readTranscriptMarkdown: async () => 'wrong' }
+          : kind === 'transcript_version'
             ? {
                 ...f.client,
-                getFile: async () => ({ ...f.file, version: '2' }),
+                getFile: async (id?: string) =>
+                  id === 'transcript-file'
+                    ? { ...(await f.client.getFile(id)), version: '2' }
+                    : f.file,
               }
-            : f.client;
+            : kind === 'transcript_private'
+              ? {
+                  ...f.client,
+                  verifyPrivateFolder: async () => {
+                    throw new Error('DENIED');
+                  },
+                }
+              : kind === 'hash'
+                ? {
+                    ...f.client,
+                    readMarkdown: async () => f.body + 'corruption',
+                  }
+                : kind === 'version'
+                  ? {
+                      ...f.client,
+                      getFile: async () => ({ ...f.file, version: '2' }),
+                    }
+                  : f.client;
       expect(await f.cleanup.step(f.item, client, due)).toMatchObject({
         state: 'HELD',
         deleted_rows: 0,
@@ -536,6 +615,22 @@ it('rolls back an interrupted batch, resumes with a new instance, preserves dedu
         )
         .get(),
     ).toMatchObject({ deletion_enabled: 0, approval_reference: null });
+    expect(
+      target.sqlite
+        .prepare(
+          'SELECT reserved_file_id,verified_hash,state FROM transcript_archives',
+        )
+        .get(),
+    ).toMatchObject({
+      reserved_file_id: 'transcript-file',
+      verified_hash: await sha256('raw'),
+      state: 'VERIFIED',
+    });
+    expect(
+      target.sqlite
+        .prepare('SELECT private_verified_at FROM transcript_archive_folders')
+        .get(),
+    ).toMatchObject({ private_verified_at: null });
     expect(target.sqlite.prepare('PRAGMA foreign_key_check').all()).toEqual([]);
   } finally {
     f.sqlite.close();

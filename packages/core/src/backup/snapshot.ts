@@ -57,7 +57,7 @@ export const legacyBackupTables = [
   'discovery_scans',
   'discovery_scan_members',
 ] as const;
-export const backupTables = [
+export const retentionBackupTables = [
   ...legacyBackupTables.slice(
     0,
     legacyBackupTables.indexOf('drive_export_attempts'),
@@ -68,6 +68,11 @@ export const backupTables = [
   ...legacyBackupTables.slice(
     legacyBackupTables.indexOf('drive_export_attempts'),
   ),
+] as const;
+export const backupTables = [
+  ...retentionBackupTables,
+  'transcript_archive_folders',
+  'transcript_archives',
 ] as const;
 export type BackupTable = (typeof backupTables)[number];
 type Row = Record<string, string | number | null>;

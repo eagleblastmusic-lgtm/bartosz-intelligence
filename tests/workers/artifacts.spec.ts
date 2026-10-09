@@ -511,6 +511,11 @@ it('local poller consumes durable caption backlog through the real Worker API an
     .first<{ run_id: string; outcome_json: string }>();
   const before = sourceRun!.outcome_json;
   const owner = await fixtureOwner();
+  expect(
+    await new AnalysisJobs(env.DB, owner).sourceForOwner(sourceRun!.run_id),
+  ).toMatchObject({
+    source_artifact_id: JSON.parse(before).source_artifact_id,
+  });
   const corrections = new SourceCorrectionJobs(env.DB, owner);
   const nonce = crypto.randomUUID();
   const patches = [

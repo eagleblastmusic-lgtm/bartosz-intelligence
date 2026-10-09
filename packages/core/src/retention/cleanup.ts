@@ -45,6 +45,13 @@ const eligible = `t.hold_reason IS NULL AND t.purge_after<=? AND
  WHERE r.owner_id=t.owner_id AND r.item_id=t.item_id AND r.run_id=t.accepted_run_id AND r.state='ACCEPTED'
  AND (t.phase='PRUNING' OR (json_extract(r.outcome_json,'$.version')='intelligence-accepted:1'
  AND json_extract(r.outcome_json,'$.view.coverage_complete')=1 AND json_extract(r.outcome_json,'$.view.status')='OK')))
+ AND (NOT EXISTS(SELECT 1 FROM artifacts original WHERE original.owner_id=t.owner_id AND original.item_id=t.item_id AND original.kind='SOURCE_ORIGINAL' AND original.state='VERIFIED')
+ OR EXISTS(SELECT 1 FROM transcript_archives x JOIN transcript_archive_folders f ON f.owner_id=x.owner_id AND f.folder_id=x.folder_id
+ JOIN analysis_runs r ON r.owner_id=t.owner_id AND r.run_id=t.accepted_run_id
+ WHERE x.owner_id=t.owner_id AND x.item_id=t.item_id AND x.state='VERIFIED' AND x.verified_hash=x.content_hash AND x.reserved_file_id IS NOT NULL AND x.remote_version IS NOT NULL AND f.private_verified_at IS NOT NULL
+ AND (t.phase='PRUNING' OR (x.verified_source_artifact_id=COALESCE((SELECT original_ref FROM artifacts a WHERE a.owner_id=r.owner_id AND a.artifact_id=json_extract(r.outcome_json,'$.source_artifact_id') AND a.kind!='SOURCE_ORIGINAL'),json_extract(r.outcome_json,'$.source_artifact_id'))
+ AND x.verified_source_artifact_id=(SELECT latest.artifact_id FROM artifacts latest WHERE latest.owner_id=t.owner_id AND latest.item_id=t.item_id AND latest.kind='SOURCE_ORIGINAL' AND latest.state='VERIFIED' ORDER BY latest.created_at DESC,latest.artifact_id DESC LIMIT 1)))))
+ AND NOT EXISTS(SELECT 1 FROM transcript_archives x WHERE x.owner_id=t.owner_id AND x.item_id=t.item_id AND x.state!='VERIFIED')
  AND NOT EXISTS(SELECT 1 FROM jobs j WHERE j.owner_id=t.owner_id AND j.state!='SUCCEEDED' AND
  (j.item_id=t.item_id OR j.task_type IN ('HISTORICAL_COMPARE','REPROCESS','TRANSLATE','PROJECT')))
  AND NOT EXISTS(SELECT 1 FROM observations o JOIN analysis_runs r ON r.owner_id=o.owner_id AND r.run_id=o.run_id
@@ -278,6 +285,55 @@ export class RetentionCleanup {
     // A resumed checkpoint checks the immutable remote version again. First
     // deletion additionally verifies full bytes after a stable version read.
     try {
+      const transcript = await this.db
+        .prepare(
+          "SELECT reserved_file_id,folder_id,verified_hash,remote_version FROM transcript_archives WHERE owner_id=? AND item_id=? AND state='VERIFIED'",
+        )
+        .bind(owner, item)
+        .first<{
+          reserved_file_id: string;
+          folder_id: string;
+          verified_hash: string;
+          remote_version: string;
+        }>();
+      if (transcript) {
+        const before = await client.getFile(transcript.reserved_file_id);
+        if (
+          before.id !== transcript.reserved_file_id ||
+          before.trashed !== false ||
+          before.mimeType !== 'text/markdown' ||
+          !before.parents?.includes(transcript.folder_id) ||
+          before.version !== transcript.remote_version
+        )
+          throw new Error('RETENTION_TRANSCRIPT_DRIVE_MISMATCH');
+        if (row.phase === 'WAITING') {
+          // Full exact readback of the transcript, independently of Daily.
+          const reader = client as Pick<
+            DriveClient,
+            'getFile' | 'readMarkdown'
+          > &
+            Partial<
+              Pick<
+                DriveClient,
+                'readTranscriptMarkdown' | 'verifyPrivateFolder'
+              >
+            >;
+          if (!reader.readTranscriptMarkdown || !reader.verifyPrivateFolder)
+            throw new Error('RETENTION_TRANSCRIPT_CLIENT_REQUIRED');
+          await reader.verifyPrivateFolder(transcript.reserved_file_id);
+          const hash = await sha256(
+            await reader.readTranscriptMarkdown(transcript.reserved_file_id),
+          );
+          const after = await client.getFile(transcript.reserved_file_id);
+          if (
+            hash !== transcript.verified_hash ||
+            after.version !== before.version ||
+            after.trashed !== false ||
+            !after.parents?.includes(transcript.folder_id)
+          )
+            throw new Error('RETENTION_TRANSCRIPT_DRIVE_MISMATCH');
+        }
+      }
       const before = await client.getFile(row.file_id);
       if (
         before.id !== row.file_id ||

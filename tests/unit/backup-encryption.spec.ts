@@ -19,7 +19,11 @@ it('roundtrips a backup larger than the JavaScript argument limit', async () => 
     'recovery-v1',
     recovery,
   );
-  expect(await decryptCanonicalBackup(envelope, recovery)).toEqual(bytes);
+  // Compare every byte natively rather than constructing a million-element
+  // matcher graph; equality still requires identical length and content.
+  expect(
+    Buffer.compare(await decryptCanonicalBackup(envelope, recovery), bytes),
+  ).toBe(0);
 });
 it('roundtrips exact bytes with random IVs and no recovery key in envelope', async () => {
   const recovery = await key(),

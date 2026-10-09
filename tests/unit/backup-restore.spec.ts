@@ -490,6 +490,8 @@ it('independent canonical restore preserves cyclic revision refs/origins and inv
       'retention_settings',
       'daily_export_members',
       'retention_items',
+      'transcript_archive_folders',
+      'transcript_archives',
     ]) {
       delete legacy.manifest.tables[table];
       legacy.chunks = legacy.chunks.filter((chunk) => chunk.table !== table);
@@ -503,12 +505,29 @@ it('independent canonical restore preserves cyclic revision refs/origins and inv
     const retentionBackup = structuredClone(portable);
     retentionBackup.manifest.migrations =
       retentionBackup.manifest.migrations.slice(0, 37);
+    for (const table of ['transcript_archive_folders', 'transcript_archives']) {
+      delete retentionBackup.manifest.tables[table];
+      retentionBackup.chunks = retentionBackup.chunks.filter(
+        (chunk) => chunk.table !== table,
+      );
+    }
     const { sha256: oldHash, ...retentionBody } = retentionBackup.manifest;
     void oldHash;
     retentionBackup.manifest.sha256 = await sha256(
       JSON.stringify(retentionBody),
     );
     expect((await verifyPortableBackup(retentionBackup)).rows).toBe(
+      (await verifyPortableBackup(portable)).rows,
+    );
+    const appendBackup = structuredClone(retentionBackup);
+    appendBackup.manifest.migrations = portable.manifest.migrations.slice(
+      0,
+      38,
+    );
+    const { sha256: appendHash, ...appendBody } = appendBackup.manifest;
+    void appendHash;
+    appendBackup.manifest.sha256 = await sha256(JSON.stringify(appendBody));
+    expect((await verifyPortableBackup(appendBackup)).rows).toBe(
       (await verifyPortableBackup(portable)).rows,
     );
     const drifted = structuredClone(legacy);

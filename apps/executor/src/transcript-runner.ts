@@ -79,11 +79,9 @@ export async function executeTranscript(
     }
     const fetched = await provider.fetch(item, selected.source!, context),
       result = fetched.result;
-    if (result.status === 'PARTIAL' || result.missing_ranges.length) {
-      await lifecycle.diagnostic('INCOMPLETE_SOURCE');
-      return { accepted: false, reason: 'INCOMPLETE_SOURCE' };
-    }
-    if (result.status !== 'OK') {
+    const partial =
+      result.status === 'PARTIAL' || result.missing_ranges.length > 0;
+    if (result.status !== 'OK' && result.status !== 'PARTIAL') {
       await lifecycle.outcome(result.status);
       return { accepted: false, reason: result.failure_code ?? result.status };
     }
@@ -108,6 +106,8 @@ export async function executeTranscript(
       selection = selectTranscriptLanguage(list, hash);
     const provenance = {
       provider_id: result.provider_id,
+      provider_version: result.provider_version,
+      raw_payload_hash: result.raw_payload_hash,
       upstream_track_id: result.upstream_track_id,
       language_code: result.language_code,
       track_kind: result.track_kind,
@@ -120,13 +120,22 @@ export async function executeTranscript(
           ? (list.tracks.find((track) => track.is_original === true)
               ?.language_code ?? null)
           : null,
+      archive_source_status: partial ? 'PARTIAL' : 'AVAILABLE_FULL',
+      missing_ranges: result.missing_ranges,
+      timestamp_precision: result.timestamp_precision,
+      warnings: [...result.warnings].sort(),
     };
+    // Source status is immutable provenance. Acquisition time must not change
+    // deduplication; a changed status needs its own descriptor identity even
+    // when the decoded caption bytes are identical to an earlier acquisition.
+    const archiveIdentity =
+      ':archive-source:1:' + (await sha256(JSON.stringify(provenance)));
     await requireLease();
     const raw = await artifacts.upload(rawText, {
       item_id: item.item_id,
       kind: 'RAW',
       schema_version: 'caption-payload:1',
-      producer_version: result.provider_version,
+      producer_version: result.provider_version + archiveIdentity,
       provenance,
       original_ref: null,
     });
@@ -134,7 +143,7 @@ export async function executeTranscript(
       item_id: item.item_id,
       kind: 'SOURCE_ORIGINAL',
       schema_version: 'decoded-cue-text:1',
-      producer_version: result.provider_version,
+      producer_version: result.provider_version + archiveIdentity,
       provenance,
       original_ref: null,
     });
@@ -145,7 +154,8 @@ export async function executeTranscript(
     );
     const descriptor = {
       item_id: item.item_id,
-      producer_version: normalized.manifest.normalizer_version,
+      producer_version:
+        normalized.manifest.normalizer_version + archiveIdentity,
       provenance: { ...provenance, source_revision: hash },
       original_ref: source.artifact_id,
     };
@@ -172,6 +182,13 @@ export async function executeTranscript(
       { ...descriptor, kind: 'OFFSET_MAP', schema_version: 'offset-map:1' },
     );
     await requireLease();
+    // Preserve acquired original bytes and timestamp coverage even when the
+    // source is unsuitable for AI. The independent Drive tick picks up verified
+    // SOURCE_ORIGINAL + SEGMENT_MAP; no accepted analysis is required.
+    if (partial) {
+      await lifecycle.diagnostic('INCOMPLETE_SOURCE');
+      return { accepted: false, reason: 'INCOMPLETE_SOURCE' };
+    }
     await lifecycle.accept({
       raw_artifact_id: raw.artifact_id,
       source_artifact_id: source.artifact_id,

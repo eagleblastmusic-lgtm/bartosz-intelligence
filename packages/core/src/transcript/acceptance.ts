@@ -162,16 +162,46 @@ export class TranscriptAcceptance {
               provenance.is_original === true))
         )
           throw new Error('SOURCE_AUTHORITY_MISMATCH');
+        const { source_revision: ignoredRevision, ...sourceProvenance } =
+          provenance;
+        void ignoredRevision;
+        const archiveIdentity =
+          ':archive-source:1:' +
+          (await sha256(JSON.stringify(sourceProvenance)));
+        const providerVersion = 'yt-dlp@2026.08.19+yt-dlp-ejs@0.8.0';
+        const qualifiedArchive =
+          provenance.provider_version === providerVersion &&
+          typeof provenance.raw_payload_hash === 'string' &&
+          /^[a-f0-9]{64}$/.test(provenance.raw_payload_hash) &&
+          provenance.archive_source_status === 'AVAILABLE_FULL' &&
+          Array.isArray(provenance.missing_ranges) &&
+          provenance.missing_ranges.length === 0;
+        if (provenance.archive_source_status !== undefined && !qualifiedArchive)
+          throw new Error('SOURCE_ARTIFACT_NOT_COMPLETE');
+        if (
+          kind === 'RAW' &&
+          qualifiedArchive &&
+          artifact.content_hash !== provenance.raw_payload_hash
+        )
+          throw new Error('RAW_TRANSCRIPT_HASH_MISMATCH');
         if (kind === 'RAW' || kind === 'SOURCE_ORIGINAL') {
           if (
-            artifact.producer_version !==
-              'yt-dlp@2026.08.19+yt-dlp-ejs@0.8.0' ||
+            !(
+              artifact.producer_version === providerVersion ||
+              (qualifiedArchive &&
+                artifact.producer_version === providerVersion + archiveIdentity)
+            ) ||
             artifact.original_ref !== null
           )
             throw new Error('SOURCE_PROVIDER_NOT_QUALIFIED');
         } else if (
           artifact.original_ref !== input.source_artifact_id ||
-          artifact.producer_version !== 'source-normalizer:1' ||
+          !(
+            artifact.producer_version === 'source-normalizer:1' ||
+            (qualifiedArchive &&
+              artifact.producer_version ===
+                'source-normalizer:1' + archiveIdentity)
+          ) ||
           provenance.source_revision !== selection.source_revision
         )
           throw new Error('NORMALIZED_SOURCE_MISMATCH');

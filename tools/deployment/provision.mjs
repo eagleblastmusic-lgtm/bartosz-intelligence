@@ -83,7 +83,7 @@ const config = {
     not_found_handling: 'single-page-application',
     run_worker_first: ['/api', '/api/*', '/internal/*', '/health'],
   },
-  vars: { APP_ORIGIN: app.app_origin },
+  vars: { APP_ORIGIN: app.app_origin, TRANSCRIPT_ARCHIVE_ENABLED: 'true' },
   d1_databases: [
     {
       binding: 'DB',

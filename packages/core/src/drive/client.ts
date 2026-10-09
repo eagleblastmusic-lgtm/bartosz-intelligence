@@ -217,6 +217,18 @@ export class DriveClient {
       maximumBytes,
     );
   }
+  async readTranscriptMarkdown(id: string) {
+    return boundedBody(
+      await this.request(
+        'files/' + requireDriveId(id) + '?alt=media',
+        {},
+        false,
+        'v3',
+        120000,
+      ),
+      32 * 1024 * 1024,
+    );
+  }
   async createEncryptedBackup(input: {
     reserved_id: string;
     root_id: string;
@@ -351,11 +363,32 @@ export class DriveClient {
     markdown: string;
     app_properties: Record<string, string>;
   }) {
+    return this.createTextMarkdown(input, 8 * 1024 * 1024);
+  }
+  async createTranscriptMarkdown(input: {
+    reserved_id: string;
+    root_id: string;
+    name: string;
+    markdown: string;
+    app_properties: Record<string, string>;
+  }) {
+    return this.createTextMarkdown(input, 32 * 1024 * 1024);
+  }
+  private async createTextMarkdown(
+    input: {
+      reserved_id: string;
+      root_id: string;
+      name: string;
+      markdown: string;
+      app_properties: Record<string, string>;
+    },
+    maximumBytes: number,
+  ) {
     requireDriveId(input.reserved_id);
     requireDriveId(input.root_id);
     if (
       !/^[A-Za-z0-9_. -]{1,200}\.md$/.test(input.name) ||
-      new TextEncoder().encode(input.markdown).length > 8 * 1024 * 1024 ||
+      new TextEncoder().encode(input.markdown).length > maximumBytes ||
       Object.keys(input.app_properties).length > 6 ||
       Object.entries(input.app_properties).some(
         ([key, value]) =>
@@ -420,6 +453,19 @@ export class DriveClient {
       limit_bytes: typeof quota.limit === 'string' ? quota.limit : null,
       usage_bytes: typeof quota.usage === 'string' ? quota.usage : null,
     };
+  }
+  async findChildFolders(parentId: string, name: string) {
+    requireDriveId(parentId);
+    if (name !== 'Transkrypcje') throw new DriveFailure('FORMAT');
+    const params = new URLSearchParams({
+      q: `'${parentId}' in parents and trashed=false and mimeType='application/vnd.google-apps.folder' and name='Transkrypcje'`,
+      pageSize: '100',
+      fields: 'nextPageToken,files(' + fileFields + ')',
+    });
+    const result = await this.json(await this.request('files?' + params));
+    if (result.nextPageToken || !Array.isArray(result.files))
+      throw new DriveFailure('FORMAT');
+    return result.files.map(file);
   }
   async createFolder(input: {
     reserved_id: string;
@@ -515,6 +561,31 @@ export class DriveClient {
     markdown: string;
     before_write: () => Promise<unknown>;
   }) {
+    return this.updateTextMarkdown(input, 8 * 1024 * 1024);
+  }
+  async updateTranscriptMarkdown(input: {
+    id: string;
+    root_id: string;
+    app_properties: Record<string, string>;
+    expected_hash: string;
+    markdown: string;
+    before_write: () => Promise<unknown>;
+  }) {
+    return this.updateTextMarkdown(input, 32 * 1024 * 1024);
+  }
+  private async updateTextMarkdown(
+    input:
+      | {
+          id: string;
+          root_id: string;
+          app_properties: Record<string, string>;
+          expected_hash: string;
+          markdown: string;
+          before_write: () => Promise<unknown>;
+        }
+      | undefined,
+    maximumBytes: number,
+  ) {
     // Exact v2 method qualified by live trial d99d0b0d-4708-4586-9872-3923c55e96eb.
     if (!input) throw new DriveFailure('UNQUALIFIED_UPDATE');
     requireDriveId(input.id);
@@ -522,13 +593,17 @@ export class DriveClient {
     if (
       !/^[a-f0-9]{64}$/.test(input.expected_hash) ||
       typeof input.markdown !== 'string' ||
-      new TextEncoder().encode(input.markdown).length > 8 * 1024 * 1024 ||
+      new TextEncoder().encode(input.markdown).length > maximumBytes ||
       !input.app_properties ||
       Object.keys(input.app_properties).length === 0 ||
       typeof input.before_write !== 'function'
     )
       throw new DriveFailure('FORMAT');
     await this.verifyPrivateFolder(input.root_id);
+    const read = () =>
+      maximumBytes === 8 * 1024 * 1024
+        ? this.readMarkdown(input.id, maximumBytes)
+        : this.readTranscriptMarkdown(input.id);
     const metadata = async () => {
       const raw = await this.json(
         await this.request(
@@ -570,8 +645,7 @@ export class DriveClient {
     };
     const etag = await metadata();
     if (
-      (await sha256(await this.readMarkdown(input.id, 8 * 1024 * 1024))) !==
-        input.expected_hash ||
+      (await sha256(await read())) !== input.expected_hash ||
       (await metadata()) !== etag
     )
       throw new DriveFailure('CONFLICT');
@@ -595,7 +669,7 @@ export class DriveClient {
     const after = await metadata();
     if (
       after === etag ||
-      (await this.readMarkdown(input.id, 8 * 1024 * 1024)) !== input.markdown ||
+      (await read()) !== input.markdown ||
       (await metadata()) !== after
     )
       throw new DriveFailure('CONFLICT');

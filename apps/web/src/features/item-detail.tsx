@@ -192,6 +192,31 @@ export function ItemDetail({ route }: { route: string }) {
           . Dane robocze objęto retencją 7 dni.
         </p>
       )}
+      {current?.detail.transcript_archive && (
+        <p className="notice">
+          Transkrypcja:{' '}
+          {current.detail.transcript_archive.state === 'VERIFIED'
+            ? 'zapisana i zweryfikowana'
+            : 'oczekuje na bezpieczny eksport'}
+          .
+          {current.detail.transcript_archive.source_status === 'PARTIAL' &&
+            ' Źródło niepełne; braków nie uzupełniono.'}
+          {current.detail.transcript_archive.file_id && (
+            <a
+              href={
+                'https://drive.google.com/file/d/' +
+                encodeURIComponent(current.detail.transcript_archive.file_id) +
+                '/view'
+              }
+              target="_blank"
+              rel="noreferrer"
+            >
+              {' '}
+              Otwórz pełną dostępną transkrypcję
+            </a>
+          )}
+        </p>
+      )}
       {current && (
         <>
           <a

@@ -36,6 +36,12 @@ export async function loadAnalysisSource(
     throw new Error('CHUNKS_WAITING');
   const source = await artifacts.readText(snapshot.source.source_artifact_id);
   const map = await artifacts.readText(snapshot.source.segment_map_artifact_id);
+  const providerVersion = 'yt-dlp@2026.08.19+yt-dlp-ejs@0.8.0';
+  const sourceIdentity = source.artifact.producer_version.startsWith(
+    providerVersion + ':archive-source:1:',
+  )
+    ? source.artifact.producer_version.slice(providerVersion.length)
+    : '';
   if (
     source.artifact.kind !==
       (snapshot.source.correction ? 'NORMALIZED' : 'SOURCE_ORIGINAL') ||
@@ -48,7 +54,8 @@ export async function loadAnalysisSource(
         source.artifact.artifact_id) ||
     map.artifact.content_hash !== snapshot.source.manifest_hash ||
     map.artifact.producer_version !==
-      (snapshot.source.correction?.producer_version ?? 'source-normalizer:1') ||
+      (snapshot.source.correction?.producer_version ??
+        'source-normalizer:1' + sourceIdentity) ||
     (snapshot.source.correction &&
       (source.artifact.original_ref !==
         snapshot.source.correction.original_ref ||

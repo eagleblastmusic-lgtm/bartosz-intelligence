@@ -1,4 +1,8 @@
-import type { AnalysisReadiness, AcceptedView } from './daily.js';
+import type {
+  AnalysisReadiness,
+  AcceptedView,
+  DailyItemView,
+} from './daily.js';
 export interface CanonicalDescriptor {
   artifact_id: string;
   content_hash: string;
@@ -7,6 +11,7 @@ export interface CanonicalDescriptor {
   schema_version: string;
 }
 export interface ItemDetail {
+  transcript_archive?: DailyItemView['transcript_archive'];
   delivery?: {
     state: 'VERIFIED';
     file_id: string;

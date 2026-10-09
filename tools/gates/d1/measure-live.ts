@@ -63,7 +63,7 @@ try {
       ledger.migrations.map(({ name, sha256 }) => ({ name, sha256 })),
     )
   )
-    throw new Error('VERIFIED_MIGRATION_038_REQUIRED');
+    throw new Error('VERIFIED_CURRENT_MIGRATIONS_REQUIRED');
   const transcript = await AccessContext.worker(
     db,
     await sha256(transcriptCredential),

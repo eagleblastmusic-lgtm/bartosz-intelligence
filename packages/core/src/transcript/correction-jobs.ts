@@ -113,7 +113,7 @@ export class SourceCorrectionJobs {
       throw new Error('ANALYSIS_SOURCE_AUTHORITY_REQUIRED');
     const pair = await this.db
       .prepare(
-        `SELECT m.content_hash manifest_hash FROM artifacts s JOIN artifacts m ON m.owner_id=s.owner_id AND m.item_id=s.item_id AND m.original_ref=s.artifact_id WHERE s.owner_id=? AND s.item_id=? AND s.artifact_id=? AND s.content_hash=? AND s.kind='SOURCE_ORIGINAL' AND s.state='VERIFIED' AND m.artifact_id=? AND m.kind='SEGMENT_MAP' AND m.state='VERIFIED' AND m.producer_version='source-normalizer:1'`,
+        `SELECT m.content_hash manifest_hash FROM artifacts s JOIN artifacts m ON m.owner_id=s.owner_id AND m.item_id=s.item_id AND m.original_ref=s.artifact_id WHERE s.owner_id=? AND s.item_id=? AND s.artifact_id=? AND s.content_hash=? AND s.kind='SOURCE_ORIGINAL' AND s.state='VERIFIED' AND m.artifact_id=? AND m.kind='SEGMENT_MAP' AND m.state='VERIFIED' AND (m.producer_version='source-normalizer:1' OR (length(s.producer_version)=length('yt-dlp@2026.08.19+yt-dlp-ejs@0.8.0:archive-source:1:')+64 AND substr(s.producer_version,1,length('yt-dlp@2026.08.19+yt-dlp-ejs@0.8.0:archive-source:1:'))='yt-dlp@2026.08.19+yt-dlp-ejs@0.8.0:archive-source:1:' AND m.producer_version=replace(s.producer_version,'yt-dlp@2026.08.19+yt-dlp-ejs@0.8.0','source-normalizer:1')))`,
       )
       .bind(
         this.context.ownerId,

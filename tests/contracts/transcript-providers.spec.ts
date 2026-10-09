@@ -171,8 +171,70 @@ it('local transcript orchestration retains raw/source/maps separately, preserves
   expect(
     await executeTranscript(item, context, partial, uploader, lifecycle),
   ).toEqual({ accepted: false, reason: 'INCOMPLETE_SOURCE' });
-  expect(uploads).toHaveLength(0);
+  expect(uploads).toHaveLength(5);
+  expect(uploads[1]!.text).toBe(successful.segments[0]!.text);
+  expect(uploads[1]!.descriptor.provenance.archive_source_status).toBe(
+    'PARTIAL',
+  );
   expect(events).toEqual(['INCOMPLETE_SOURCE']);
+  const partialIdentity = uploads[1]!.descriptor.producer_version;
+  uploads.length = 0;
+  events.length = 0;
+  expect(
+    await executeTranscript(item, context, provider, uploader, lifecycle),
+  ).toEqual({ accepted: true, reason: null });
+  const completeIdentity = uploads[1]!.descriptor.producer_version;
+  expect(uploads[1]!.text).toBe(successful.segments[0]!.text);
+  expect(completeIdentity).not.toBe(partialIdentity);
+  expect(uploads[1]!.descriptor.provenance).not.toHaveProperty('retrieved_at');
+  uploads.length = 0;
+  const laterAcquisition = {
+    capabilities: provider.capabilities.bind(provider),
+    list_tracks: provider.list_tracks.bind(provider),
+    fetch: async () => {
+      const list = await provider.list_tracks(item, context),
+        fetched = await provider.fetch(item, list.tracks[0]!, context);
+      return {
+        ...fetched,
+        result: { ...fetched.result, retrieved_at: '2026-10-06T00:01:00.000Z' },
+      };
+    },
+  };
+  expect(
+    await executeTranscript(
+      item,
+      context,
+      laterAcquisition,
+      uploader,
+      lifecycle,
+    ),
+  ).toEqual({ accepted: true, reason: null });
+  expect(uploads[1]!.descriptor.producer_version).toBe(completeIdentity);
+  expect(events).toEqual(['accepted', 'accepted']);
+  uploads.length = 0;
+  const newRaw = 'different raw caption timestamps, same decoded text';
+  const newCaptionPayload = {
+    ...laterAcquisition,
+    fetch: async () => {
+      const fetched = await laterAcquisition.fetch();
+      return {
+        ...fetched,
+        raw_payload: new TextEncoder().encode(newRaw),
+        result: { ...fetched.result, raw_payload_hash: await sha256(newRaw) },
+      };
+    },
+  };
+  expect(
+    await executeTranscript(
+      item,
+      context,
+      newCaptionPayload,
+      uploader,
+      lifecycle,
+    ),
+  ).toEqual({ accepted: true, reason: null });
+  expect(uploads[1]!.text).toBe(successful.segments[0]!.text);
+  expect(uploads[1]!.descriptor.producer_version).not.toBe(completeIdentity);
 });
 it('selected local adapter preserves source cues/provenance and warns without clipping source duration overrun', async () => {
   const provider = new YtdlpTranscriptProvider(

@@ -185,6 +185,18 @@ function block(
       link('Materiał w aplikacji', appItem),
   ];
   let omitted = 0;
+  if (
+    item.transcript_archive?.state === 'VERIFIED' &&
+    item.transcript_archive.file_id
+  )
+    lines.push(
+      link(
+        'Pełna dostępna transkrypcja',
+        'https://drive.google.com/file/d/' +
+          encodeURIComponent(item.transcript_archive.file_id) +
+          '/view',
+      ),
+    );
   if (!c) {
     lines.push(
       'Profil: nieustalony (brak wybranego zaakceptowanego wyniku).',

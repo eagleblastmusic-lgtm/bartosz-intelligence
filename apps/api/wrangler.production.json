@@ -24,7 +24,8 @@
     ]
   },
   "vars": {
-    "APP_ORIGIN": "https://bartosz-intelligence.eagleblastmusic.workers.dev"
+    "APP_ORIGIN": "https://bartosz-intelligence.eagleblastmusic.workers.dev",
+    "TRANSCRIPT_ARCHIVE_ENABLED": "true"
   },
   "d1_databases": [
     {

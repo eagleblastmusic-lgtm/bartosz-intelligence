@@ -9,6 +9,18 @@ import {
   type GeminiQuotaObservation,
 } from '../../../../packages/core/src/ai/quota-snapshots.js';
 export const systemApp = ownerRouter();
+systemApp.get('/transcript-archives', async (c) => {
+  queryFields(c, []);
+  return c.json({
+    items: (
+      await c.env.DB.prepare(
+        'SELECT item_id,state,reserved_file_id AS file_id,verified_at,remote_version,due_at,attempt_count,last_reason FROM transcript_archives WHERE owner_id=? ORDER BY updated_at DESC,item_id LIMIT 50',
+      )
+        .bind(c.get('access').ownerId)
+        .all()
+    ).results,
+  });
+});
 systemApp.get('/retention', async (c) =>
   c.json(await new RetentionCleanup(c.env.DB, c.get('access')).status()),
 );

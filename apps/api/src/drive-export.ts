@@ -7,6 +7,49 @@ import { importDriveWrappingKey } from '../../../packages/core/src/drive/credent
 import { DriveClient } from '../../../packages/core/src/drive/client.js';
 import { applicationOrigin } from './auth.js';
 import { RetentionCleanup } from '../../../packages/core/src/retention/cleanup.js';
+import { TranscriptDriveArchive } from '../../../packages/core/src/transcript/archive.js';
+
+export async function scheduleTranscriptArchive(environment: Env, now: Date) {
+  if (environment.TRANSCRIPT_ARCHIVE_ENABLED !== 'true')
+    return { state: 'DISABLED' };
+  if (
+    !environment.DRIVE_EXPORT_WORKER_CREDENTIAL ||
+    !environment.GOOGLE_DRIVE_CLIENT_ID ||
+    !environment.GOOGLE_DRIVE_CLIENT_SECRET ||
+    !environment.DRIVE_WRAPPING_KEY_ID ||
+    !environment.DRIVE_WRAPPING_KEY ||
+    environment.DRIVE_KEY_RECOVERY_READY !== 'true'
+  )
+    return { state: 'CONFIGURATION_HOLD' };
+  const context = await AccessContext.worker(
+    environment.DB,
+    await sha256(environment.DRIVE_EXPORT_WORKER_CREDENTIAL),
+  );
+  const wrapping = await importDriveWrappingKey(
+    environment.DRIVE_WRAPPING_KEY_ID,
+    environment.DRIVE_WRAPPING_KEY,
+  );
+  return new TranscriptDriveArchive(environment.DB, context).tick(
+    {
+      client: async (connectionId) => {
+        const grant = await refreshDriveAccess(
+          environment.DB,
+          context,
+          {
+            client_id: environment.GOOGLE_DRIVE_CLIENT_ID!,
+            client_secret: environment.GOOGLE_DRIVE_CLIENT_SECRET!,
+            app_origin: applicationOrigin(environment),
+          },
+          wrapping,
+          connectionId,
+          now,
+        );
+        return new DriveClient(grant.access_token);
+      },
+    },
+    now,
+  );
+}
 
 export async function scheduleRetentionCleanup(environment: Env, now: Date) {
   const approved = await environment.DB.prepare(
