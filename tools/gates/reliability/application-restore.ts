@@ -196,14 +196,17 @@ try {
   // persisted isolated database after workerd has released its file handles.
   await mf.dispose();
   disposed = true;
-  const files = readdirSync(root, { recursive: true }).filter((file) =>
-    String(file).endsWith('.sqlite'),
-  );
+  const files = readdirSync(
+    join(root, 'd1', 'miniflare-D1DatabaseObject'),
+  ).filter((file) => /^[a-f0-9]{64}\.sqlite$/.test(file));
   if (files.length !== 1)
     throw new Error('ISOLATED_RESTORE_DATABASE_AMBIGUOUS');
-  const physical = new DatabaseSync(join(root, String(files[0])), {
-    readOnly: true,
-  });
+  const physical = new DatabaseSync(
+    join(root, 'd1', 'miniflare-D1DatabaseObject', files[0]!),
+    {
+      readOnly: true,
+    },
+  );
   let integrity: boolean;
   try {
     integrity =

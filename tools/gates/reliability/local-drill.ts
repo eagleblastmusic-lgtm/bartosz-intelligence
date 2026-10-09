@@ -87,17 +87,17 @@ const runtime = wranglerRequire('miniflare') as {
     dispose(): Promise<void>;
   };
 };
-const mf = new runtime.Miniflare(
-  runtime.convertV4MiniflareOptions({
+const mf = new runtime.Miniflare({
+  ...runtime.convertV4MiniflareOptions({
     modules: true,
     script:
       'export default {fetch(){return new Response("ISOLATED_RECOVERY_ONLY")}}',
     host: '127.0.0.1',
     port: 0,
     d1Databases: ['DB'],
-    d1Persist: privateDirectory,
   }),
-);
+  resourcePersistencePath: privateDirectory,
+});
 const output = resolve('docs/verification/gate-r', id);
 if (existsSync(output)) throw new Error('DRILL_EVIDENCE_EXISTS');
 const files = new Map<string, Uint8Array>();
