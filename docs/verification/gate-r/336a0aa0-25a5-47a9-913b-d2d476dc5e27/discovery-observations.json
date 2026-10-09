@@ -1,0 +1,8 @@
+{
+  "batch_rejected": true,
+  "stale_rejected": true,
+  "items_before_recovery": 1,
+  "items_after_recovery": 2,
+  "transcript_jobs": 2,
+  "watermark_advanced_after_recovery": true
+}

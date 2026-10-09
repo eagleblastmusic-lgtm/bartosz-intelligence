@@ -1,0 +1,93 @@
+{
+  "version": "GateRManifest/1.0",
+  "configuration": {
+    "path": "configuration.json",
+    "sha256": "ce071f37d082e07569b518b160f9ad035aaeec5be6e0bfca8f4fc1369cdf2a9a"
+  },
+  "baseline": {
+    "path": "baseline.json",
+    "sha256": "7f030f8da380f638c9feb18189b392bc218ec9d7f0b9f532791bba18485e2d13"
+  },
+  "cases": [
+    {
+      "id": "lease_crash",
+      "deadline_ms": 14400000,
+      "evidence": {
+        "path": "lease_crash.json",
+        "sha256": "6a66325b78f4bfad95f116ea71671ae8910dee2ff17d7e919d1f357ac976de97"
+      }
+    },
+    {
+      "id": "queue_loss",
+      "deadline_ms": 14400000,
+      "evidence": {
+        "path": "queue_loss.json",
+        "sha256": "194af173ed7991a6165b76665e996bf270e681966fce001bc99f24d682dca58e"
+      }
+    },
+    {
+      "id": "discovery_interruption",
+      "deadline_ms": 14400000,
+      "evidence": {
+        "path": "discovery_interruption.json",
+        "sha256": "76ecd857de4b800e0d615892a2029093c2300e0859ed7be36e0ee8fcc7754632"
+      }
+    },
+    {
+      "id": "database_rollback",
+      "deadline_ms": 14400000,
+      "evidence": {
+        "path": "database_rollback.json",
+        "sha256": "32f13c0499b27bd337bb1cb09474a8eb9b14c4f50a20872c89a6a5452b6caf25"
+      }
+    },
+    {
+      "id": "transcript_failure",
+      "deadline_ms": 14400000,
+      "evidence": {
+        "path": "transcript_failure.json",
+        "sha256": "8d4f9b597be16d176349a8bc41e2bafe3f88051fc839e5f783ad418fbe561b09"
+      }
+    },
+    {
+      "id": "auth_revocation",
+      "deadline_ms": 14400000,
+      "evidence": {
+        "path": "auth_revocation.json",
+        "sha256": "05fb0342fd3ae42f123dcf9ceab12db41ed6da834b1704840e04d6ecfecb7393"
+      }
+    },
+    {
+      "id": "quota_local_offline",
+      "deadline_ms": 14400000,
+      "evidence": {
+        "path": "quota_local_offline.json",
+        "sha256": "ea35a496b115d1d1491972f1f4ff95963906e0605f3e33dc8797dfe3f0465300"
+      }
+    },
+    {
+      "id": "malformed_ai",
+      "deadline_ms": 14400000,
+      "evidence": {
+        "path": "malformed_ai.json",
+        "sha256": "b3539ba20fbeb6d928b805fbb72d4c18571c7ba86336d8e11b8e9b5cc36e0239"
+      }
+    },
+    {
+      "id": "model_prompt_rollback",
+      "deadline_ms": 14400000,
+      "evidence": {
+        "path": "model_prompt_rollback.json",
+        "sha256": "d3e470651eb1b56ad89b9e6ed5ddbac3ad8f8b9ee651f4aa9ea9b3ca0cba9a3f"
+      }
+    },
+    {
+      "id": "drive_consumer_failure",
+      "deadline_ms": 14400000,
+      "evidence": {
+        "path": "drive_consumer_failure.json",
+        "sha256": "70e46f68c1f772398b5654d0d0017c944d8c0da438eb40c84448122c41bf4bd7"
+      }
+    }
+  ]
+}

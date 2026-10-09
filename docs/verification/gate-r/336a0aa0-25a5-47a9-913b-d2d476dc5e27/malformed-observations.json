@@ -1,0 +1,12 @@
+{
+  "final_state": "BLOCKED",
+  "reason": "AI_OUTPUT_REVIEW_REQUIRED",
+  "accepted_effects": 0,
+  "observations_unchanged": true,
+  "candidate_bytes_retained": true,
+  "origin_preserved": true,
+  "provider_requests": 0,
+  "injected_response": true,
+  "synthetic_quota": true,
+  "genuine_restored_source": true
+}

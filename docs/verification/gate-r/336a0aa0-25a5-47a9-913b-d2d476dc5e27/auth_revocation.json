@@ -1,0 +1,16 @@
+{
+  "version": "GateRCase/1.0",
+  "case_id": "auth_revocation",
+  "configuration_sha256": "ce071f37d082e07569b518b160f9ad035aaeec5be6e0bfca8f4fc1369cdf2a9a",
+  "baseline_sha256": "7f030f8da380f638c9feb18189b392bc218ec9d7f0b9f532791bba18485e2d13",
+  "kind": "ACTUAL_LOCAL_D1",
+  "observed_at": "2026-10-09T23:37:47.677Z",
+  "result": "PASS",
+  "lost_jobs": 0,
+  "duplicate_effects": 0,
+  "stale_writes": 0,
+  "origins_preserved": true,
+  "recovered": true,
+  "paid_requests": 0,
+  "recovery_elapsed_ms": 24104
+}

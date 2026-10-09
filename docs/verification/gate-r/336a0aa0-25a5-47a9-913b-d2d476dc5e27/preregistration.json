@@ -1,0 +1,19 @@
+{
+  "version": "LocalD1RecoveryDrill/1.0",
+  "cases": [
+    "lease_crash",
+    "queue_loss",
+    "database_rollback",
+    "discovery_interruption",
+    "auth_revocation",
+    "quota_local_offline",
+    "model_prompt_rollback",
+    "transcript_failure",
+    "drive_consumer_failure",
+    "malformed_ai"
+  ],
+  "deadline_ms": 14400000,
+  "provider_requests": 0,
+  "synthetic_result": true,
+  "logical_transport_outage_hours": 26
+}

@@ -55,15 +55,18 @@ const pins = candidatePins(),
 const bytes = readFileSync(args[1]!);
 if (bytes.length > 64 * 1024 * 1024) throw new Error('BACKUP_FILE_TOO_LARGE');
 const backupHash = createHash('sha256').update(bytes).digest('hex');
+const portable = JSON.parse(bytes.toString('utf8')) as PortableCoreBackup;
+const backupId = portable.manifest.backup_id;
+if (!/^[a-f0-9-]{36}$/.test(backupId))
+  throw new Error('VERIFIED_BACKUP_ID_REQUIRED');
 const verified = JSON.parse(
   readFileSync(
-    'docs/verification/backup/drive-5a30668c-f9f2-4aae-b965-b9e15dc9c073-restore.json',
+    'docs/verification/backup/drive-' + backupId + '-restore.json',
     'utf8',
   ),
 );
 if (verified.status !== 'PASS' || verified.archive_sha256 !== backupHash)
   throw new Error('VERIFIED_INDEPENDENT_COPY_REQUIRED');
-const portable = JSON.parse(bytes.toString('utf8')) as PortableCoreBackup;
 const privateRoot = resolve('.local/transcript-provider-recovery', id);
 requirePrivateRecoveryDirectory(privateRoot);
 const output = resolve('docs/verification/gate-r/provider-transcript-' + id);

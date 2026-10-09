@@ -1,0 +1,14 @@
+{
+  "observed_at": "2026-10-09T23:41:25.1312666Z",
+  "isolated_restore": "PASS",
+  "formal_gate_r": "NOT_RUN",
+  "next_action": "USE_FRESH_VERIFIED_SCHEMA_39_BACKUP",
+  "gemini_requests": 0,
+  "source_backup_migration_count": 35,
+  "version": "RecoveryHarnessFailure/1.0",
+  "reason": "VERIFIED_RECOVERY_BACKUP_RECEIPT_REQUIRED",
+  "production_d1_requests": 0,
+  "paid_services_enabled": false,
+  "candidate_migration_count": 39,
+  "state": "HARNESS_BASELINE_MISMATCH"
+}
