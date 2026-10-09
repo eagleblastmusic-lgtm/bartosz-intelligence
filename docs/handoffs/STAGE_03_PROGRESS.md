@@ -1,5 +1,15 @@
 # Stage 03 — current implementation record
 
+2026-10-09 independent continuation: actual yt-dlp process-failure recovery
+and full SOURCE acceptance on persisted isolated D1 PASS. Preregistered timeout
+configuration 1ms, real preflight/list/fetch, durable RETRY_WAIT, runtime restart,
+fence 1→2/stale rejection, one accepted SOURCE even after completion replay,
+807747 bytes/1071 cues, actual recovery 15556ms. Native runner masks child error
+cause; this proves configured process failure/recovery, not upstream outage.
+Receipt: `docs/verification/gate-r/provider-transcript-bc3b398b-de67-45c9-83bd-859248354139/receipt.json`.
+Zero prod D1/Gemini; full accepted real AI E2E remains incomplete and separately
+authorized generation/human review remains pending. CP-3.13 is not reasked.
+
 Stage remains IN_PROGRESS. This is a checkpoint record, not a completion handoff. Final handoff follows Stage acceptance.
 
 Pinned eligibility/quality admission failures now produce a bounded durable `DEFERRED / MODEL_NOT_ELIGIBLE` before provider HTTP instead of leaving RUNNING until lease expiry. Only exact authenticated 503 categories on pre-request analysis routes are recognized; arbitrary input/server failures still raise, and the defer reason is restricted to ANALYZE with the existing lease/fence predicates. No profile refresh, latest-model fallback, new quality approval or Gemini request is implied. Nine API Worker and eight affected executor contracts PASS; typecheck, targeted lint/format and diff checks PASS. The separate eligibility refresh boundary remains open.

@@ -1,3 +1,21 @@
+import type { Database } from '../../packages/core/src/db/boundary.js';
+
+/** Do not stamp a compiled migration set onto a not-yet-upgraded database. */
+export async function assertBackupSchema(
+  db: Database,
+  expected: readonly { name: string; sha256: string }[],
+) {
+  const applied = await db
+    .prepare('SELECT name,sha256 FROM applied_migrations ORDER BY name LIMIT ?')
+    .bind(expected.length + 1)
+    .all<{ name: string; sha256: string }>();
+  if (
+    JSON.stringify(applied.results) !==
+    JSON.stringify(expected.map(({ name, sha256 }) => ({ name, sha256 })))
+  )
+    throw new Error('BACKUP_SCHEMA_MIGRATION_PENDING');
+}
+
 export interface BackupReceipt {
   version?: unknown;
   recorded_at?: unknown;

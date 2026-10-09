@@ -1,0 +1,229 @@
+{
+  "version": "ApprovedSourceIdentities/1.0",
+  "observed_at": "2026-10-09T18:56:26.823Z",
+  "status": "RESOLVED_NOT_ADDED",
+  "proposal_sha256": "6c1ab0ea82b09b595ac258b9f63e51732f62d14c25e8923cb64d42bc5f35b267",
+  "approval": "OWNER_EXPLICIT_LIST_AND_STAGED_NEW_ONLY_2026_10_09",
+  "activation_mode": "NEW_ONLY",
+  "identities": [
+    {
+      "approved_locator": "https://www.youtube.com/@veritasium",
+      "state": "RESOLVED",
+      "namespace": "youtube",
+      "external_id": "UCHnyfMqiRRG1u-2MsSQLbXA",
+      "canonical_locator": "https://www.youtube.com/channel/UCHnyfMqiRRG1u-2MsSQLbXA",
+      "title": "Veritasium",
+      "uploads_playlist_id": "UUHnyfMqiRRG1u-2MsSQLbXA",
+      "handle": "@veritasium",
+      "requires_confirmation": false
+    },
+    {
+      "approved_locator": "https://www.youtube.com/@3blue1brown",
+      "state": "RESOLVED",
+      "namespace": "youtube",
+      "external_id": "UCYO_jab_esuFRV4b17AJtAw",
+      "canonical_locator": "https://www.youtube.com/channel/UCYO_jab_esuFRV4b17AJtAw",
+      "title": "3Blue1Brown",
+      "uploads_playlist_id": "UUYO_jab_esuFRV4b17AJtAw",
+      "handle": "@3blue1brown",
+      "requires_confirmation": false
+    },
+    {
+      "approved_locator": "https://www.youtube.com/@numberphile",
+      "state": "RESOLVED",
+      "namespace": "youtube",
+      "external_id": "UCoxcjq-8xIDTYp3uz647V5A",
+      "canonical_locator": "https://www.youtube.com/channel/UCoxcjq-8xIDTYp3uz647V5A",
+      "title": "Numberphile",
+      "uploads_playlist_id": "UUoxcjq-8xIDTYp3uz647V5A",
+      "handle": "@numberphile",
+      "requires_confirmation": false
+    },
+    {
+      "approved_locator": "https://www.youtube.com/@computerphile",
+      "state": "RESOLVED",
+      "namespace": "youtube",
+      "external_id": "UC9-y-6csu5WGm29I7JiwpnA",
+      "canonical_locator": "https://www.youtube.com/channel/UC9-y-6csu5WGm29I7JiwpnA",
+      "title": "Computerphile",
+      "uploads_playlist_id": "UU9-y-6csu5WGm29I7JiwpnA",
+      "handle": "@computerphile",
+      "requires_confirmation": false
+    },
+    {
+      "approved_locator": "https://www.youtube.com/@smartereveryday",
+      "state": "RESOLVED",
+      "namespace": "youtube",
+      "external_id": "UC6107grRI4m0o2-emgoDnAA",
+      "canonical_locator": "https://www.youtube.com/channel/UC6107grRI4m0o2-emgoDnAA",
+      "title": "SmarterEveryDay",
+      "uploads_playlist_id": "UU6107grRI4m0o2-emgoDnAA",
+      "handle": "@smartereveryday",
+      "requires_confirmation": false
+    },
+    {
+      "approved_locator": "https://www.youtube.com/@minutephysics",
+      "state": "RESOLVED",
+      "namespace": "youtube",
+      "external_id": "UCUHW94eEFW7hkUMVaZz4eDg",
+      "canonical_locator": "https://www.youtube.com/channel/UCUHW94eEFW7hkUMVaZz4eDg",
+      "title": "minutephysics",
+      "uploads_playlist_id": "UUUHW94eEFW7hkUMVaZz4eDg",
+      "handle": "@minutephysics",
+      "requires_confirmation": false
+    },
+    {
+      "approved_locator": "https://www.youtube.com/@CGPGrey",
+      "state": "RESOLVED",
+      "namespace": "youtube",
+      "external_id": "UC2C_jShtL725hvbm1arSV9w",
+      "canonical_locator": "https://www.youtube.com/channel/UC2C_jShtL725hvbm1arSV9w",
+      "title": "CGP Grey",
+      "uploads_playlist_id": "UU2C_jShtL725hvbm1arSV9w",
+      "handle": "@cgpgrey",
+      "requires_confirmation": false
+    },
+    {
+      "approved_locator": "https://www.youtube.com/@kurzgesagt",
+      "state": "RESOLVED",
+      "namespace": "youtube",
+      "external_id": "UCsXVk37bltHxD1rDPwtNM8Q",
+      "canonical_locator": "https://www.youtube.com/channel/UCsXVk37bltHxD1rDPwtNM8Q",
+      "title": "Kurzgesagt – In a Nutshell",
+      "uploads_playlist_id": "UUsXVk37bltHxD1rDPwtNM8Q",
+      "handle": "@kurzgesagt",
+      "requires_confirmation": false
+    },
+    {
+      "approved_locator": "https://www.youtube.com/@RealEngineering",
+      "state": "RESOLVED",
+      "namespace": "youtube",
+      "external_id": "UCR1IuLEqb6UEA_zQ81kwXfg",
+      "canonical_locator": "https://www.youtube.com/channel/UCR1IuLEqb6UEA_zQ81kwXfg",
+      "title": "Real Engineering",
+      "uploads_playlist_id": "UUR1IuLEqb6UEA_zQ81kwXfg",
+      "handle": "@realengineering",
+      "requires_confirmation": false
+    },
+    {
+      "approved_locator": "https://www.youtube.com/@TechnologyConnections",
+      "state": "RESOLVED",
+      "namespace": "youtube",
+      "external_id": "UCy0tKL1T7wFoYcxCe0xjN6Q",
+      "canonical_locator": "https://www.youtube.com/channel/UCy0tKL1T7wFoYcxCe0xjN6Q",
+      "title": "Technology Connections",
+      "uploads_playlist_id": "UUy0tKL1T7wFoYcxCe0xjN6Q",
+      "handle": "@technologyconnections",
+      "requires_confirmation": false
+    },
+    {
+      "approved_locator": "https://www.youtube.com/@PracticalEngineeringChannel",
+      "state": "RESOLVED",
+      "namespace": "youtube",
+      "external_id": "UCMOqf8ab-42UUQIdVoKwjlQ",
+      "canonical_locator": "https://www.youtube.com/channel/UCMOqf8ab-42UUQIdVoKwjlQ",
+      "title": "Practical Engineering",
+      "uploads_playlist_id": "UUMOqf8ab-42UUQIdVoKwjlQ",
+      "handle": "@practicalengineeringchannel",
+      "requires_confirmation": false
+    },
+    {
+      "approved_locator": "https://www.youtube.com/@TwoMinutePapers",
+      "state": "RESOLVED",
+      "namespace": "youtube",
+      "external_id": "UCbfYPyITQ-7l4upoX8nvctg",
+      "canonical_locator": "https://www.youtube.com/channel/UCbfYPyITQ-7l4upoX8nvctg",
+      "title": "Two Minute Papers",
+      "uploads_playlist_id": "UUbfYPyITQ-7l4upoX8nvctg",
+      "handle": "@twominutepapers",
+      "requires_confirmation": false
+    },
+    {
+      "approved_locator": "https://www.youtube.com/@TheRoyalInstitution",
+      "state": "RESOLVED",
+      "namespace": "youtube",
+      "external_id": "UCYeF244yNGuFefuFKqxIAXw",
+      "canonical_locator": "https://www.youtube.com/channel/UCYeF244yNGuFefuFKqxIAXw",
+      "title": "The Royal Institution",
+      "uploads_playlist_id": "UUYeF244yNGuFefuFKqxIAXw",
+      "handle": "@theroyalinstitution",
+      "requires_confirmation": false
+    },
+    {
+      "approved_locator": "https://www.youtube.com/@bigthink",
+      "state": "RESOLVED",
+      "namespace": "youtube",
+      "external_id": "UCvQECJukTDE2i6aCoMnS-Vg",
+      "canonical_locator": "https://www.youtube.com/channel/UCvQECJukTDE2i6aCoMnS-Vg",
+      "title": "Big Think",
+      "uploads_playlist_id": "UUvQECJukTDE2i6aCoMnS-Vg",
+      "handle": "@bigthink",
+      "requires_confirmation": false
+    },
+    {
+      "approved_locator": "https://www.youtube.com/@standupmaths",
+      "state": "RESOLVED",
+      "namespace": "youtube",
+      "external_id": "UCSju5G2aFaWMqn-_0YBtq5A",
+      "canonical_locator": "https://www.youtube.com/channel/UCSju5G2aFaWMqn-_0YBtq5A",
+      "title": "Stand-up Maths",
+      "uploads_playlist_id": "UUSju5G2aFaWMqn-_0YBtq5A",
+      "handle": "@standupmaths",
+      "requires_confirmation": false
+    },
+    {
+      "approved_locator": "https://www.youtube.com/@SteveMould",
+      "state": "RESOLVED",
+      "namespace": "youtube",
+      "external_id": "UCEIwxahdLz7bap-VDs9h35A",
+      "canonical_locator": "https://www.youtube.com/channel/UCEIwxahdLz7bap-VDs9h35A",
+      "title": "Steve Mould",
+      "uploads_playlist_id": "UUEIwxahdLz7bap-VDs9h35A",
+      "handle": "@stevemould",
+      "requires_confirmation": false
+    },
+    {
+      "approved_locator": "https://www.youtube.com/@MarkRober",
+      "state": "RESOLVED",
+      "namespace": "youtube",
+      "external_id": "UCY1kMZp36IQSyNx_9h4mpCg",
+      "canonical_locator": "https://www.youtube.com/channel/UCY1kMZp36IQSyNx_9h4mpCg",
+      "title": "Mark Rober",
+      "uploads_playlist_id": "UUY1kMZp36IQSyNx_9h4mpCg",
+      "handle": "@markrober",
+      "requires_confirmation": false
+    },
+    {
+      "approved_locator": "https://www.youtube.com/@BranchEducation",
+      "state": "RESOLVED",
+      "namespace": "youtube",
+      "external_id": "UCdp4_l1vPmpN-gDbUwhaRUQ",
+      "canonical_locator": "https://www.youtube.com/channel/UCdp4_l1vPmpN-gDbUwhaRUQ",
+      "title": "Branch Education",
+      "uploads_playlist_id": "UUdp4_l1vPmpN-gDbUwhaRUQ",
+      "handle": "@brancheducation",
+      "requires_confirmation": false
+    },
+    {
+      "approved_locator": "https://www.youtube.com/@TheActionLab",
+      "state": "RESOLVED",
+      "namespace": "youtube",
+      "external_id": "UC1VLQPn9cYSqx8plbk9RxxQ",
+      "canonical_locator": "https://www.youtube.com/channel/UC1VLQPn9cYSqx8plbk9RxxQ",
+      "title": "The Action Lab",
+      "uploads_playlist_id": "UU1VLQPn9cYSqx8plbk9RxxQ",
+      "handle": "@theactionlab",
+      "requires_confirmation": false
+    }
+  ],
+  "youtube_usage": {
+    "requests": 19,
+    "estimated_quota_units": 19,
+    "remaining_account_quota": null
+  },
+  "production_d1_requests": 0,
+  "source_create_requests": 0,
+  "backfill_requests": 0,
+  "gemini_requests": 0,
+  "paid_services_enabled": false
+}

@@ -4,6 +4,8 @@ export interface UsageSample {
   state: string;
   account_rows_read: number | null;
   account_rows_written: number | null;
+  current_storage_bytes?: number | null;
+  max_database_size_bytes?: number | null;
 }
 /** Analytics is delayed usage, never an exact remaining-quota counter. */
 export function d1UsagePolicy(sample: UsageSample, now: Date) {
@@ -25,9 +27,24 @@ export function d1UsagePolicy(sample: UsageSample, now: Date) {
       noncritical_admitted: false,
       exact_remaining_quota: null,
     };
-  const utilization = Math.max(
+  const rowUtilization = Math.max(
     sample.account_rows_read! / 5000000,
     sample.account_rows_written! / 100000,
+  );
+  const storageKnown =
+    Number.isSafeInteger(sample.current_storage_bytes) &&
+    Number.isSafeInteger(sample.max_database_size_bytes) &&
+    sample.current_storage_bytes! >= 0 &&
+    sample.max_database_size_bytes! >= 0;
+  // Conservative decimal MB/GB thresholds; provider exact remaining is unknown.
+  const utilization = Math.max(
+    rowUtilization,
+    storageKnown
+      ? Math.max(
+          sample.current_storage_bytes! / 5000000000,
+          sample.max_database_size_bytes! / 500000000,
+        )
+      : 0,
   );
   return {
     state:
@@ -35,8 +52,10 @@ export function d1UsagePolicy(sample: UsageSample, now: Date) {
         ? ('EXHAUSTED' as const)
         : utilization >= 0.8
           ? ('RESERVE_CRITICAL_CAPACITY' as const)
-          : ('WITHIN_OBSERVED_BUDGET' as const),
-    noncritical_admitted: utilization < 0.8,
+          : !storageKnown
+            ? ('UNKNOWN' as const)
+            : ('WITHIN_OBSERVED_BUDGET' as const),
+    noncritical_admitted: storageKnown && utilization < 0.8,
     exact_remaining_quota: null,
   };
 }

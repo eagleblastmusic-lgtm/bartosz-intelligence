@@ -9,8 +9,10 @@ nie wykonano żadnego source-create, backfill ani Gemini requestu.
 Dobór: publiczne materiały edukacyjne, science/technology/mathematics oraz
 różna długość i struktura wypowiedzi. Linki identyfikują kanały, nie dowodzą
 bieżącej liczby uploads, kompletności captions, języka każdego materiału czy
-AI capacity. Canonical channel ID zostanie rozwiązany istniejącym adapterem
-po zatwierdzeniu; nie inventujemy IDs z handle.
+AI capacity. Canonical IDs i uploads playlists zostały rzeczywiście rozwiązane
+istniejącym adapterem po zatwierdzeniu: 19/19, 19 requests. Zapis:
+`docs/verification/capacity/approved-channel-identities-2026-10-09.json`.
+Nie dodano źródeł; nie inventujemy IDs z handle.
 
 | #   | Kanał / link                                                                  | Zastosowanie w kwalifikacji                            |
 | --- | ----------------------------------------------------------------------------- | ------------------------------------------------------ |

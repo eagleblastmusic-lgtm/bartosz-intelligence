@@ -178,7 +178,7 @@
     {
       "name": "036_d1_read_indexes.sql",
       "depends_on": ["035_automatic_analysis_scan.sql"],
-      "sha256": "a3d7b05173adb55ca6ce63ed13e25e6db8f1f6fa46d61f24050ce5846299145a"
+      "sha256": "a1f38ded1d29ff3ca5203f4d632d0c0eec04d4a6a48713a0c7226fb61de2e88a"
     }
   ],
   "version": 1

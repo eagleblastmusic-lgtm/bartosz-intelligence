@@ -14,7 +14,10 @@ import {
 import { sha256, randomToken } from '../../../packages/core/src/auth/crypto.js';
 import { TranscriptRecovery } from '../../../packages/core/src/transcript/recovery.js';
 import { CapacityCollection } from '../../../packages/core/src/projections/capacity-collection.js';
-import { scheduleMetadataRefresh } from '../../../packages/core/src/sources/youtube/refresh.js';
+import {
+  scheduleMetadataRefresh,
+  metadataObservationPredicate,
+} from '../../../packages/core/src/sources/youtube/refresh.js';
 import {
   CoreBackup,
   backupTables,
@@ -102,6 +105,7 @@ try {
               'FROM job_attempts a JOIN jobs q ON q.owner_id=a.owner_id AND q.job_id=a.job_id',
             )
             .replace(' NOT INDEXED', '')
+            .replace(metadataObservationPredicate, '')
             .replace(
               'FROM item_revisions r CROSS JOIN items i ON i.owner_id=r.owner_id AND i.item_id=r.item_id AND i.current_revision_id=r.revision_id',
               'FROM items i JOIN item_revisions r ON r.owner_id=i.owner_id AND r.item_id=i.item_id AND r.revision_id=i.current_revision_id',
@@ -111,8 +115,11 @@ try {
         params: (string | number | null)[] = [];
       const statement: Statement = {
         bind(...values) {
-          params = values;
-          base = base.bind(...values) as LocalStatement;
+          params =
+            legacy && query.includes(metadataObservationPredicate)
+              ? values.slice(0, -2)
+              : values;
+          base = base.bind(...params) as LocalStatement;
           return statement;
         },
         async all<T>() {
@@ -221,6 +228,7 @@ try {
     'capacity_accepted_item',
     'metadata_refresh_active',
     'metadata_revision_due',
+    'metadata_observation_item',
   ];
   for (const name of indexes) await actual.prepare('DROP INDEX ' + name).run();
   let indexCost: Meta | undefined;

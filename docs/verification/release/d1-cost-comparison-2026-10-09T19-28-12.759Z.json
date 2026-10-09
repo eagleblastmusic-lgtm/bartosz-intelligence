@@ -1,0 +1,1336 @@
+{
+  "version": "D1CostComparison/1.0",
+  "observed_at": "2026-10-09T19:28:12.759Z",
+  "basis": "ACTUAL_LOCAL_WORKERD_META_NOT_PRODUCTION",
+  "status": "PASS",
+  "backup_sha256": "31cd69361a6bb1342dd76726ba9aa1f430791cda36f90818dba61857cd027bd0",
+  "restored_rows": 4678,
+  "corpus": {
+    "owner_users": 1,
+    "worker_identities": 7,
+    "schema_versions": 9,
+    "config_versions": 19,
+    "audit_events": 1,
+    "sources": 1,
+    "channels": 1,
+    "items": 53,
+    "item_revisions": 53,
+    "jobs": 217,
+    "job_attempts": 1507,
+    "outbox": 75,
+    "artifacts": 90,
+    "artifact_chunks": 372,
+    "transcript_representations": 17,
+    "prompt_versions": 6,
+    "semantic_profile_versions": 0,
+    "model_registry": 2,
+    "quota_reservations": 5,
+    "usage_records": 5,
+    "candidate_repair_attempts": 0,
+    "analysis_runs": 22,
+    "optional_ai_results": 0,
+    "entities": 0,
+    "entity_aliases": 0,
+    "entity_alias_decisions": 0,
+    "entity_identity_events": 0,
+    "entity_identity_members": 0,
+    "evidence": 0,
+    "analysis_evidence": 0,
+    "observations": 0,
+    "observation_evidence": 0,
+    "observation_entities": 0,
+    "correction_overlays": 0,
+    "spaces": 0,
+    "item_spaces": 0,
+    "review_state": 0,
+    "insights": 0,
+    "insight_observations": 0,
+    "organization_mutations": 0,
+    "active_analysis_selections": 0,
+    "drive_connections": 1,
+    "drive_root_candidates": 1,
+    "daily_export_artifacts": 0,
+    "daily_export_chunks": 0,
+    "drive_export_attempts": 0,
+    "export_state": 0,
+    "export_dirty_cursor": 0,
+    "change_log": 1593,
+    "source_requests": 1,
+    "discovery_scans": 145,
+    "discovery_scan_members": 474
+  },
+  "comparisons": [
+    {
+      "operation": "transcript_admission",
+      "before_rows_read": 1508,
+      "after_rows_read": 4,
+      "results_equal": true,
+      "write_count_equal": true
+    },
+    {
+      "operation": "capacity_page",
+      "before_rows_read": 232713,
+      "after_rows_read": 1328,
+      "results_equal": true,
+      "write_count_equal": true
+    },
+    {
+      "operation": "metadata_refresh",
+      "before_rows_read": 2545,
+      "after_rows_read": 2,
+      "results_equal": true,
+      "write_count_equal": true
+    },
+    {
+      "operation": "backup_attempt_chunk",
+      "before_rows_read": 3021,
+      "after_rows_read": 32,
+      "results_equal": true,
+      "write_count_equal": true
+    },
+    {
+      "operation": "canonical_backup",
+      "before_rows_read": 269698,
+      "after_rows_read": 31185,
+      "results_equal": true,
+      "write_count_equal": true
+    }
+  ],
+  "operations": [
+    {
+      "phase": "before",
+      "label": "transcript_admission",
+      "queries": 1,
+      "rows_read": 1508,
+      "rows_written": 0,
+      "elapsed_ms": 13.568700000003446,
+      "result_sha256": "50872ef3cd6fb6a91fbc49a67a3bb43a52982be2866dd96abbca70e9da367ac7",
+      "plans": [
+        {
+          "query_sha256": "485153ced2a68c11f40938751486edc1f4fb787f1cc4efa235a6d98469b69639",
+          "details": [
+            "SEARCH a USING INDEX sqlite_autoindex_job_attempts_2 (owner_id=?)",
+            "SEARCH j USING INDEX sqlite_autoindex_jobs_3 (owner_id=? AND job_id=?)",
+            "USE TEMP B-TREE FOR ORDER BY"
+          ]
+        }
+      ]
+    },
+    {
+      "phase": "before",
+      "label": "capacity_page",
+      "queries": 2,
+      "rows_read": 232713,
+      "rows_written": 0,
+      "elapsed_ms": 103.94800000000396,
+      "result_sha256": "eb7feb471e485ffd88183291d9c0ca50223a73a701775f08c9cd078b8f69012a",
+      "plans": [
+        {
+          "query_sha256": "c00bdbff67eb2cc467f02d49b10e51c54f54cab056faaa1f264e9c7bbd4784f3",
+          "details": [
+            "SEARCH change_log USING COVERING INDEX change_owner_seq (owner_id=?)"
+          ]
+        },
+        {
+          "query_sha256": "989103674290c70c512398d75c153893b077f30c5fc8bf80c78f5f52e4efef3a",
+          "details": [
+            "SEARCH i USING INDEX sqlite_autoindex_items_3 (owner_id=?)",
+            "SEARCH j USING INDEX sqlite_autoindex_jobs_3 (owner_id=? AND job_id=?) LEFT-JOIN",
+            "CORRELATED SCALAR SUBQUERY 2",
+            "SEARCH q USING INDEX jobs_item_recent (owner_id=? AND item_id=?)",
+            "SEARCH ir USING INDEX sqlite_autoindex_analysis_runs_2 (owner_id=? AND run_id=?) LEFT-JOIN",
+            "CORRELATED SCALAR SUBQUERY 3",
+            "SEARCH r USING INDEX automatic_source_scan (owner_id=? AND state=?)",
+            "SEARCH q USING INDEX sqlite_autoindex_jobs_3 (owner_id=? AND job_id=?)",
+            "SEARCH sr USING INDEX sqlite_autoindex_analysis_runs_2 (owner_id=? AND run_id=?) LEFT-JOIN",
+            "CORRELATED SCALAR SUBQUERY 4",
+            "SEARCH r USING INDEX automatic_source_scan (owner_id=? AND state=?)",
+            "SEARCH q USING INDEX sqlite_autoindex_jobs_3 (owner_id=? AND job_id=?)",
+            "USE TEMP B-TREE FOR ORDER BY",
+            "SEARCH ar USING INDEX sqlite_autoindex_artifacts_2 (owner_id=? AND item_id=? AND artifact_id=?) LEFT-JOIN",
+            "CORRELATED SCALAR SUBQUERY 1",
+            "SEARCH a USING INDEX sqlite_autoindex_job_attempts_2 (owner_id=?)",
+            "SEARCH q USING INDEX sqlite_autoindex_jobs_3 (owner_id=? AND job_id=?)"
+          ]
+        }
+      ]
+    },
+    {
+      "phase": "before",
+      "label": "metadata_refresh",
+      "queries": 1,
+      "rows_read": 2545,
+      "rows_written": 0,
+      "elapsed_ms": 11.68080000000191,
+      "result_sha256": "852d7edf7bca11022dc88e8875f6d44ea70711f8286c7b1f0d90177b63d97632",
+      "plans": [
+        {
+          "query_sha256": "892b12a4373ee29726b442bc2813b2bac009ff400171eeb8c4de1b6c69c6752a",
+          "details": [
+            "SEARCH s USING INDEX sources_due (enabled=?)",
+            "SEARCH i USING INDEX items_source (owner_id=? AND source_id=?)",
+            "CORRELATED SCALAR SUBQUERY 1",
+            "SEARCH j USING INDEX jobs_due (owner_id=? AND state=?)",
+            "SEARCH r USING INDEX sqlite_autoindex_item_revisions_3 (owner_id=? AND item_id=? AND revision_id=?)",
+            "USE TEMP B-TREE FOR ORDER BY"
+          ]
+        }
+      ]
+    },
+    {
+      "phase": "before",
+      "label": "backup_attempt_chunk",
+      "queries": 5,
+      "rows_read": 3021,
+      "rows_written": 3,
+      "elapsed_ms": 41.20540000000619,
+      "result_sha256": "0002362602c581151d980e203cd9e2b754ca8aeded9a500be47027b4749605d9",
+      "plans": [
+        {
+          "query_sha256": "b0c57c723d6c01e62d2e6c5dd8630735a3ebbde32c07ad39f4704be7c2393025",
+          "details": [
+            "SEARCH s USING INDEX sqlite_autoindex_backup_snapshots_2 (owner_id=? AND backup_id=?)",
+            "CORRELATED SCALAR SUBQUERY 1",
+            "SEARCH maintenance_state USING INTEGER PRIMARY KEY (rowid=?)"
+          ]
+        },
+        {
+          "query_sha256": "2faba83b3bbb601c5ef9ba5874139cc202f21a1dd277f0beac9954892fd2984d",
+          "details": [
+            "SEARCH job_attempts USING INDEX sqlite_autoindex_job_attempts_2 (owner_id=?)",
+            "USE TEMP B-TREE FOR ORDER BY"
+          ]
+        },
+        {
+          "query_sha256": "c1ef435dfea2d5f278f3bdf624da8074306ee205ac657f66f8cd3de3d9666e2d",
+          "details": [
+            "SEARCH backup_chunks USING INDEX sqlite_autoindex_backup_chunks_2 (owner_id=? AND backup_id=? AND table_name=?)"
+          ]
+        },
+        {
+          "query_sha256": "edbfebc6216ae614fb3ff09e1f537d7f163ba8774c062e177f6819c295fa8698",
+          "details": [
+            "SEARCH backup_chunks USING INDEX sqlite_autoindex_backup_chunks_1 (owner_id=? AND backup_id=? AND table_name=? AND cursor=?)",
+            "SCALAR SUBQUERY 1",
+            "SEARCH m USING INTEGER PRIMARY KEY (rowid=?)",
+            "SEARCH s USING INDEX sqlite_autoindex_backup_snapshots_2 (owner_id=? AND backup_id=?)"
+          ]
+        }
+      ]
+    },
+    {
+      "phase": "before",
+      "label": "canonical_backup",
+      "queries": 1858,
+      "rows_read": 269698,
+      "rows_written": 1098,
+      "elapsed_ms": 23312.481100000005,
+      "result_sha256": "b2760ade7d1c7aad360bacccd19dc08cb0c4b632e03b51463b6677d742111dc1",
+      "plans": [
+        {
+          "query_sha256": "21c73db1e2100b580207f78534b07aa8b7f59a310dc2924d02230ed643950937",
+          "details": [
+            "SCAN maintenance_state"
+          ]
+        },
+        {
+          "query_sha256": "05a63d1b9429be0f20ba06b043f1246a06b8f8ffe72c9e16c11256ce43e69aef",
+          "details": [
+            "SCAN CONSTANT ROW",
+            "SCALAR SUBQUERY 1",
+            "SEARCH owner_users USING COVERING INDEX sqlite_autoindex_owner_users_1 (owner_id=?)",
+            "SCALAR SUBQUERY 2",
+            "SEARCH worker_identities USING COVERING INDEX sqlite_autoindex_worker_identities_3 (owner_id=?)",
+            "SCALAR SUBQUERY 3",
+            "SCAN schema_versions USING COVERING INDEX sqlite_autoindex_schema_versions_1",
+            "SCALAR SUBQUERY 4",
+            "SEARCH config_versions USING COVERING INDEX sqlite_autoindex_config_versions_1 (owner_id=?)",
+            "SCALAR SUBQUERY 5",
+            "SEARCH audit_events USING COVERING INDEX audit_owner_time (owner_id=?)",
+            "SCALAR SUBQUERY 6",
+            "SEARCH sources USING COVERING INDEX sqlite_autoindex_sources_3 (owner_id=?)",
+            "SCALAR SUBQUERY 7",
+            "SEARCH channels USING COVERING INDEX sqlite_autoindex_channels_2 (owner_id=?)",
+            "SCALAR SUBQUERY 8",
+            "SEARCH items USING COVERING INDEX search_item_cursor (owner_id=?)",
+            "SCALAR SUBQUERY 9",
+            "SEARCH item_revisions USING COVERING INDEX sqlite_autoindex_item_revisions_3 (owner_id=?)",
+            "SCALAR SUBQUERY 10",
+            "SEARCH jobs USING COVERING INDEX sqlite_autoindex_jobs_3 (owner_id=?)",
+            "SCALAR SUBQUERY 11",
+            "SEARCH job_attempts USING COVERING INDEX sqlite_autoindex_job_attempts_2 (owner_id=?)",
+            "SCALAR SUBQUERY 12",
+            "SEARCH outbox USING COVERING INDEX sqlite_autoindex_outbox_2 (owner_id=?)",
+            "SCALAR SUBQUERY 13",
+            "SEARCH artifacts USING COVERING INDEX artifact_item (owner_id=?)",
+            "SCALAR SUBQUERY 14",
+            "SEARCH artifact_chunks USING COVERING INDEX sqlite_autoindex_artifact_chunks_1 (owner_id=?)",
+            "SCALAR SUBQUERY 15",
+            "SEARCH transcript_representations USING COVERING INDEX sqlite_autoindex_transcript_representations_2 (owner_id=?)",
+            "SCALAR SUBQUERY 16",
+            "SEARCH prompt_versions USING COVERING INDEX sqlite_autoindex_prompt_versions_1 (owner_id=?)",
+            "SCALAR SUBQUERY 17",
+            "SEARCH semantic_profile_versions USING COVERING INDEX sqlite_autoindex_semantic_profile_versions_1 (owner_id=?)",
+            "SCALAR SUBQUERY 18",
+            "SEARCH model_registry USING COVERING INDEX sqlite_autoindex_model_registry_1 (owner_id=?)",
+            "SCALAR SUBQUERY 19",
+            "SEARCH quota_reservations USING COVERING INDEX sqlite_autoindex_quota_reservations_3 (owner_id=?)",
+            "SCALAR SUBQUERY 20",
+            "SEARCH usage_records USING COVERING INDEX sqlite_autoindex_usage_records_2 (owner_id=?)",
+            "SCALAR SUBQUERY 21",
+            "SEARCH candidate_repair_attempts USING COVERING INDEX sqlite_autoindex_candidate_repair_attempts_2 (owner_id=?)",
+            "SCALAR SUBQUERY 22",
+            "SEARCH analysis_runs USING COVERING INDEX search_summary_cursor (owner_id=?)",
+            "SCALAR SUBQUERY 23",
+            "SEARCH optional_ai_results USING COVERING INDEX sqlite_autoindex_optional_ai_results_1 (owner_id=?)",
+            "SCALAR SUBQUERY 24",
+            "SEARCH entities USING COVERING INDEX search_entity_cursor (owner_id=?)",
+            "SCALAR SUBQUERY 25",
+            "SEARCH entity_aliases USING COVERING INDEX search_alias_cursor (owner_id=?)",
+            "SCALAR SUBQUERY 26",
+            "SEARCH entity_alias_decisions USING COVERING INDEX alias_decision_literal_type (owner_id=?)",
+            "SCALAR SUBQUERY 27",
+            "SEARCH entity_identity_events USING COVERING INDEX sqlite_autoindex_entity_identity_events_1 (owner_id=?)",
+            "SCALAR SUBQUERY 28",
+            "SEARCH entity_identity_members USING COVERING INDEX identity_member_latest (owner_id=?)",
+            "SCALAR SUBQUERY 29",
+            "SEARCH evidence USING COVERING INDEX evidence_item (owner_id=?)",
+            "SCALAR SUBQUERY 30",
+            "SEARCH analysis_evidence USING COVERING INDEX sqlite_autoindex_analysis_evidence_1 (owner_id=?)",
+            "SCALAR SUBQUERY 31",
+            "SEARCH observations USING COVERING INDEX search_observation_cursor (owner_id=?)",
+            "SCALAR SUBQUERY 32",
+            "SEARCH observation_evidence USING COVERING INDEX sqlite_autoindex_observation_evidence_1 (owner_id=?)",
+            "SCALAR SUBQUERY 33",
+            "SEARCH observation_entities USING COVERING INDEX sqlite_autoindex_observation_entities_1 (owner_id=?)",
+            "SCALAR SUBQUERY 34",
+            "SEARCH correction_overlays USING COVERING INDEX correction_target_latest (owner_id=?)",
+            "SCALAR SUBQUERY 35",
+            "SEARCH spaces USING COVERING INDEX sqlite_autoindex_spaces_1 (owner_id=?)",
+            "SCALAR SUBQUERY 36",
+            "SEARCH item_spaces USING COVERING INDEX space_members (owner_id=?)",
+            "SCALAR SUBQUERY 37",
+            "SEARCH review_state USING COVERING INDEX sqlite_autoindex_review_state_1 (owner_id=?)",
+            "SCALAR SUBQUERY 38",
+            "SEARCH insights USING COVERING INDEX search_insight_cursor (owner_id=?)",
+            "SCALAR SUBQUERY 39",
+            "SEARCH insight_observations USING COVERING INDEX sqlite_autoindex_insight_observations_1 (owner_id=?)",
+            "SCALAR SUBQUERY 40",
+            "SEARCH organization_mutations USING COVERING INDEX sqlite_autoindex_organization_mutations_1 (owner_id=?)",
+            "SCALAR SUBQUERY 41",
+            "SEARCH active_analysis_selections USING COVERING INDEX sqlite_autoindex_active_analysis_selections_1 (owner_id=?)",
+            "SCALAR SUBQUERY 42",
+            "SEARCH drive_connections USING COVERING INDEX sqlite_autoindex_drive_connections_1 (owner_id=?)",
+            "SCALAR SUBQUERY 43",
+            "SEARCH drive_root_candidates USING COVERING INDEX sqlite_autoindex_drive_root_candidates_2 (owner_id=?)",
+            "SCALAR SUBQUERY 44",
+            "SEARCH daily_export_artifacts USING COVERING INDEX sqlite_autoindex_daily_export_artifacts_1 (owner_id=?)",
+            "SCALAR SUBQUERY 45",
+            "SEARCH daily_export_chunks USING COVERING INDEX sqlite_autoindex_daily_export_chunks_1 (owner_id=?)",
+            "SCALAR SUBQUERY 46",
+            "SEARCH drive_export_attempts USING COVERING INDEX sqlite_autoindex_drive_export_attempts_1 (owner_id=?)",
+            "SCALAR SUBQUERY 47",
+            "SEARCH export_state USING COVERING INDEX sqlite_autoindex_export_state_1 (owner_id=?)",
+            "SCALAR SUBQUERY 48",
+            "SEARCH export_dirty_cursor USING COVERING INDEX sqlite_autoindex_export_dirty_cursor_1 (owner_id=?)",
+            "SCALAR SUBQUERY 49",
+            "SEARCH change_log USING COVERING INDEX change_owner_seq (owner_id=?)",
+            "SCALAR SUBQUERY 50",
+            "SEARCH source_requests USING COVERING INDEX sqlite_autoindex_source_requests_1 (owner_id=?)",
+            "SCALAR SUBQUERY 51",
+            "SEARCH discovery_scans USING COVERING INDEX scans_owner_identity (owner_id=?)",
+            "SCALAR SUBQUERY 52",
+            "SEARCH discovery_scan_members USING COVERING INDEX sqlite_autoindex_discovery_scan_members_1 (owner_id=?)"
+          ]
+        },
+        {
+          "query_sha256": "b0c57c723d6c01e62d2e6c5dd8630735a3ebbde32c07ad39f4704be7c2393025",
+          "details": [
+            "SEARCH s USING INDEX sqlite_autoindex_backup_snapshots_2 (owner_id=? AND backup_id=?)",
+            "CORRELATED SCALAR SUBQUERY 1",
+            "SEARCH maintenance_state USING INTEGER PRIMARY KEY (rowid=?)"
+          ]
+        },
+        {
+          "query_sha256": "88f256dcc4e014be5afae382b2cf0fb58177789097825383aa035ca372da589b",
+          "details": [
+            "SEARCH owner_users USING INDEX sqlite_autoindex_owner_users_1 (owner_id=?)"
+          ]
+        },
+        {
+          "query_sha256": "c1ef435dfea2d5f278f3bdf624da8074306ee205ac657f66f8cd3de3d9666e2d",
+          "details": [
+            "SEARCH backup_chunks USING INDEX sqlite_autoindex_backup_chunks_2 (owner_id=? AND backup_id=? AND table_name=?)"
+          ]
+        },
+        {
+          "query_sha256": "edbfebc6216ae614fb3ff09e1f537d7f163ba8774c062e177f6819c295fa8698",
+          "details": [
+            "SEARCH backup_chunks USING INDEX sqlite_autoindex_backup_chunks_1 (owner_id=? AND backup_id=? AND table_name=? AND cursor=?)",
+            "SCALAR SUBQUERY 1",
+            "SEARCH m USING INTEGER PRIMARY KEY (rowid=?)",
+            "SEARCH s USING INDEX sqlite_autoindex_backup_snapshots_2 (owner_id=? AND backup_id=?)"
+          ]
+        },
+        {
+          "query_sha256": "107e9734e8a9691eca0e7f6bb46db647adf461e981d62dd63e1e2415ddf5ef6e",
+          "details": [
+            "SEARCH worker_identities USING INDEX sqlite_autoindex_worker_identities_3 (owner_id=?)",
+            "USE TEMP B-TREE FOR ORDER BY"
+          ]
+        },
+        {
+          "query_sha256": "d9a767ce58291072bd3f2486d9829619993a27c7b375e8b2020d8c6419d3a765",
+          "details": [
+            "SEARCH schema_versions USING INTEGER PRIMARY KEY (rowid>?)"
+          ]
+        },
+        {
+          "query_sha256": "b28cd0f02e9e1657d3f9815a1a1278abed277f2d160ca42f6bf4ea067cdc30e1",
+          "details": [
+            "SEARCH config_versions USING INDEX sqlite_autoindex_config_versions_1 (owner_id=?)",
+            "USE TEMP B-TREE FOR ORDER BY"
+          ]
+        },
+        {
+          "query_sha256": "d7d8805166758adedbe8137ddcec9d70ab556371d1c2f7d390ab54872f68dd01",
+          "details": [
+            "SEARCH audit_events USING INDEX audit_owner_time (owner_id=?)",
+            "USE TEMP B-TREE FOR ORDER BY"
+          ]
+        },
+        {
+          "query_sha256": "07d75a349ff58e58bf32f44ae855257f531d66340540f439eb67586e835118a4",
+          "details": [
+            "SEARCH sources USING INDEX sqlite_autoindex_sources_3 (owner_id=?)",
+            "USE TEMP B-TREE FOR ORDER BY"
+          ]
+        },
+        {
+          "query_sha256": "05e222f2a2b0f25e7564d8de8dc42c7398d5de1bb1bb7d876b4b1976be51e4dd",
+          "details": [
+            "SEARCH channels USING INDEX sqlite_autoindex_channels_2 (owner_id=?)",
+            "USE TEMP B-TREE FOR ORDER BY"
+          ]
+        },
+        {
+          "query_sha256": "b2b4e710b53928c07ae2d4c73d046a18146407b9fd26b904cd5c878bf10d0007",
+          "details": [
+            "SEARCH items USING INDEX search_item_cursor (owner_id=?)",
+            "USE TEMP B-TREE FOR ORDER BY"
+          ]
+        },
+        {
+          "query_sha256": "b9cd6aa78e0e6982b1342650d84910f6e2f328f712636edd4ddc58c67e642c73",
+          "details": [
+            "SEARCH item_revisions USING INDEX sqlite_autoindex_item_revisions_3 (owner_id=?)",
+            "USE TEMP B-TREE FOR ORDER BY"
+          ]
+        },
+        {
+          "query_sha256": "f2da9db052a15d3fe118ab683283b030eee5287e6a2b4cc646a545d2e086ea56",
+          "details": [
+            "SEARCH jobs USING INDEX sqlite_autoindex_jobs_3 (owner_id=?)",
+            "USE TEMP B-TREE FOR ORDER BY"
+          ]
+        },
+        {
+          "query_sha256": "2faba83b3bbb601c5ef9ba5874139cc202f21a1dd277f0beac9954892fd2984d",
+          "details": [
+            "SEARCH job_attempts USING INDEX sqlite_autoindex_job_attempts_2 (owner_id=?)",
+            "USE TEMP B-TREE FOR ORDER BY"
+          ]
+        },
+        {
+          "query_sha256": "4d1926cbee8bd324ee3515deb3fc380315cd7cd3109616c41f37cd95b70f6476",
+          "details": [
+            "SEARCH outbox USING INDEX sqlite_autoindex_outbox_2 (owner_id=?)",
+            "USE TEMP B-TREE FOR ORDER BY"
+          ]
+        },
+        {
+          "query_sha256": "42665d4bcf90368b394dda331faf6e00f067a4ff8bbb637e4a7a685e7e49c80c",
+          "details": [
+            "SEARCH artifacts USING INDEX sqlite_autoindex_artifacts_2 (owner_id=?)",
+            "USE TEMP B-TREE FOR ORDER BY"
+          ]
+        },
+        {
+          "query_sha256": "f5df4d5720b9b8f0fbea6561521a5a8e15db641183168ff081bfd696e871cb18",
+          "details": [
+            "SEARCH artifact_chunks USING INDEX sqlite_autoindex_artifact_chunks_1 (owner_id=?)",
+            "USE TEMP B-TREE FOR ORDER BY"
+          ]
+        },
+        {
+          "query_sha256": "0b4e0bf4340fae815a0d7e6ba6454b3cdf9a0bba8ebcc0ec1735ffab16049b1e",
+          "details": [
+            "SEARCH transcript_representations USING INDEX sqlite_autoindex_transcript_representations_2 (owner_id=?)",
+            "USE TEMP B-TREE FOR ORDER BY"
+          ]
+        },
+        {
+          "query_sha256": "b10b627201724b9b2288158e087f3dac6be8a1996a8bb58f688159a5823e2696",
+          "details": [
+            "SEARCH prompt_versions USING INDEX sqlite_autoindex_prompt_versions_1 (owner_id=?)",
+            "USE TEMP B-TREE FOR ORDER BY"
+          ]
+        },
+        {
+          "query_sha256": "1ad81d1120fa736b654c6a76e44fd3f778804c376f7367b44f6b5a147b4ffb62",
+          "details": [
+            "SEARCH semantic_profile_versions USING INDEX sqlite_autoindex_semantic_profile_versions_1 (owner_id=?)",
+            "USE TEMP B-TREE FOR ORDER BY"
+          ]
+        },
+        {
+          "query_sha256": "cb87ea98edc72f41feed11a4cb090c1b77952fe04f5cac716a6ab135ed18879e",
+          "details": [
+            "SEARCH model_registry USING INDEX sqlite_autoindex_model_registry_1 (owner_id=?)",
+            "USE TEMP B-TREE FOR ORDER BY"
+          ]
+        },
+        {
+          "query_sha256": "f17259897aa0b6c6e3230fc90abc2c9c6048403934ef9e5b4698085dd20a7d0f",
+          "details": [
+            "SEARCH quota_reservations USING INDEX sqlite_autoindex_quota_reservations_3 (owner_id=?)",
+            "USE TEMP B-TREE FOR ORDER BY"
+          ]
+        },
+        {
+          "query_sha256": "ecd2576ffd9bd3e8d6c25bcf5f6772821d18cbdc723e4b6d660d1c58d8db766c",
+          "details": [
+            "SEARCH usage_records USING INDEX sqlite_autoindex_usage_records_2 (owner_id=?)",
+            "USE TEMP B-TREE FOR ORDER BY"
+          ]
+        },
+        {
+          "query_sha256": "d103fccb130cb2ebc1a318b2112072d1135f5148d0926d496067b17e8c98b564",
+          "details": [
+            "SEARCH candidate_repair_attempts USING INDEX sqlite_autoindex_candidate_repair_attempts_2 (owner_id=?)",
+            "USE TEMP B-TREE FOR ORDER BY"
+          ]
+        },
+        {
+          "query_sha256": "b3be8baf9cf4237198a508bab64fcf98c7e109fb332f89aa3d7d15a22526fb5e",
+          "details": [
+            "SEARCH analysis_runs USING INDEX search_summary_cursor (owner_id=?)",
+            "USE TEMP B-TREE FOR ORDER BY"
+          ]
+        },
+        {
+          "query_sha256": "e9e912efb22dde594ec1f5709c8aabf40efed241fc003e33d91d4f1c5a3161f9",
+          "details": [
+            "SEARCH optional_ai_results USING INDEX sqlite_autoindex_optional_ai_results_1 (owner_id=?)",
+            "USE TEMP B-TREE FOR ORDER BY"
+          ]
+        },
+        {
+          "query_sha256": "c9f4b927c00a685002d1cc2ad7a9a3a1623a59814ce23a453367d0a99feaf4e7",
+          "details": [
+            "SEARCH entities USING INDEX search_entity_cursor (owner_id=?)",
+            "USE TEMP B-TREE FOR ORDER BY"
+          ]
+        },
+        {
+          "query_sha256": "5734459ae285cab4cd7067de38ceb6f0170a3032225747ea90bbf92461e11a2d",
+          "details": [
+            "SEARCH entity_aliases USING INDEX search_alias_cursor (owner_id=?)",
+            "USE TEMP B-TREE FOR ORDER BY"
+          ]
+        },
+        {
+          "query_sha256": "3d6b017f4552dfd051890a2cdd356512973a0eb80c56a2b557fde87ab29e3a26",
+          "details": [
+            "SEARCH entity_alias_decisions USING INDEX sqlite_autoindex_entity_alias_decisions_1 (owner_id=?)",
+            "USE TEMP B-TREE FOR ORDER BY"
+          ]
+        },
+        {
+          "query_sha256": "44ea352bf28752804f91316568d79bf032c54bf887a88683abad993da9537729",
+          "details": [
+            "SEARCH entity_identity_events USING INDEX sqlite_autoindex_entity_identity_events_1 (owner_id=?)",
+            "USE TEMP B-TREE FOR ORDER BY"
+          ]
+        },
+        {
+          "query_sha256": "05f009fca00544ff9f6f8d9c10ca5a3fed7365cedde6d498b20c84a7c61d84bc",
+          "details": [
+            "SEARCH entity_identity_members USING INDEX identity_member_latest (owner_id=?)",
+            "USE TEMP B-TREE FOR ORDER BY"
+          ]
+        },
+        {
+          "query_sha256": "8cb47809e5dc1d2e0efa90fc162776f65dadb4855d320c03271fc63fc37c2842",
+          "details": [
+            "SEARCH evidence USING INDEX sqlite_autoindex_evidence_1 (owner_id=?)",
+            "USE TEMP B-TREE FOR ORDER BY"
+          ]
+        },
+        {
+          "query_sha256": "1da4e8468b9f8b322d1498786e4e0950592f51c3eca1a883f02e529726362b65",
+          "details": [
+            "SEARCH analysis_evidence USING COVERING INDEX sqlite_autoindex_analysis_evidence_1 (owner_id=?)",
+            "USE TEMP B-TREE FOR ORDER BY"
+          ]
+        },
+        {
+          "query_sha256": "64bb84b2af8ad23d162d3800060d0c0c8038be4d20816425827630bd7d554fdd",
+          "details": [
+            "SEARCH observations USING INDEX search_observation_cursor (owner_id=?)",
+            "USE TEMP B-TREE FOR ORDER BY"
+          ]
+        },
+        {
+          "query_sha256": "4960efddc9950831c5d13cb10316b6a95e0e20454fe84f66f3a3931b1f9bdc7a",
+          "details": [
+            "SEARCH observation_evidence USING COVERING INDEX sqlite_autoindex_observation_evidence_1 (owner_id=?)",
+            "USE TEMP B-TREE FOR ORDER BY"
+          ]
+        },
+        {
+          "query_sha256": "82c391460ebf477964934955993f45fef6bd392eb3bdb06237e2d9579f092ec4",
+          "details": [
+            "SEARCH observation_entities USING COVERING INDEX sqlite_autoindex_observation_entities_1 (owner_id=?)",
+            "USE TEMP B-TREE FOR ORDER BY"
+          ]
+        },
+        {
+          "query_sha256": "572a89b0ee0e6f079c921fb0652a5dbc2707de93edbd8f6321283e85ccff7e2b",
+          "details": [
+            "SEARCH correction_overlays USING INDEX sqlite_autoindex_correction_overlays_1 (owner_id=?)",
+            "USE TEMP B-TREE FOR ORDER BY"
+          ]
+        },
+        {
+          "query_sha256": "e9a0aa8917a35d21908f3e624c6edafbe2f5bfa54dda4bab1a61e09157542ce2",
+          "details": [
+            "SEARCH spaces USING INDEX sqlite_autoindex_spaces_1 (owner_id=?)",
+            "USE TEMP B-TREE FOR ORDER BY"
+          ]
+        },
+        {
+          "query_sha256": "50a8d317aeb5870ced0af01fb11d86318519259bc8eda6029f99d1f455875991",
+          "details": [
+            "SEARCH item_spaces USING INDEX space_members (owner_id=?)",
+            "USE TEMP B-TREE FOR ORDER BY"
+          ]
+        },
+        {
+          "query_sha256": "5667c0293a88715468e1503bd7bab0ff7a2b836ed4d23d7aa3f5fea7c165a23d",
+          "details": [
+            "SEARCH review_state USING INDEX sqlite_autoindex_review_state_1 (owner_id=?)",
+            "USE TEMP B-TREE FOR ORDER BY"
+          ]
+        },
+        {
+          "query_sha256": "f0e268e64f4ed5cb5e3904a89d32973e9c42054e80d3d63245aa0f9f6588c054",
+          "details": [
+            "SEARCH insights USING INDEX search_insight_cursor (owner_id=?)",
+            "USE TEMP B-TREE FOR ORDER BY"
+          ]
+        },
+        {
+          "query_sha256": "417836fce3e7137ee0262780cc8da1d33aa70e2083cd1a1042620ad2627a0c66",
+          "details": [
+            "SEARCH insight_observations USING COVERING INDEX sqlite_autoindex_insight_observations_1 (owner_id=?)",
+            "USE TEMP B-TREE FOR ORDER BY"
+          ]
+        },
+        {
+          "query_sha256": "7f78aa15e0baa1cba112eb36e07994ed2c3aaf5683bf9f0a5078e93a6332e829",
+          "details": [
+            "SEARCH organization_mutations USING INDEX sqlite_autoindex_organization_mutations_1 (owner_id=?)",
+            "USE TEMP B-TREE FOR ORDER BY"
+          ]
+        },
+        {
+          "query_sha256": "9d91f139b8eff7c35af7502895abf4a151e55d020000b82f2d0ac04cc52e553c",
+          "details": [
+            "SEARCH active_analysis_selections USING INDEX sqlite_autoindex_active_analysis_selections_1 (owner_id=?)",
+            "USE TEMP B-TREE FOR ORDER BY"
+          ]
+        },
+        {
+          "query_sha256": "aebd0ef68d7ed8578ddc17793ca9ee1a466c85d3d2db13d14ebe39011dd603e8",
+          "details": [
+            "SEARCH drive_connections USING INDEX sqlite_autoindex_drive_connections_1 (owner_id=?)",
+            "USE TEMP B-TREE FOR ORDER BY"
+          ]
+        },
+        {
+          "query_sha256": "4bf4f4788b6cd6707e7dd8311e77ba0ba8f021f5309a479c6c7e99ce5c0c8b72",
+          "details": [
+            "SEARCH drive_root_candidates USING INDEX sqlite_autoindex_drive_root_candidates_2 (owner_id=?)",
+            "USE TEMP B-TREE FOR ORDER BY"
+          ]
+        },
+        {
+          "query_sha256": "97d0cfc4b3ef3ee111ba4391d1e0ba316556430f51c9af76ecf429242675e43b",
+          "details": [
+            "SEARCH daily_export_artifacts USING INDEX sqlite_autoindex_daily_export_artifacts_1 (owner_id=?)",
+            "USE TEMP B-TREE FOR ORDER BY"
+          ]
+        },
+        {
+          "query_sha256": "42a3fb2a2d539d54b1c840af2164ac8d21d144dbc7239be80e8c55e8c01de729",
+          "details": [
+            "SEARCH daily_export_chunks USING INDEX sqlite_autoindex_daily_export_chunks_1 (owner_id=?)",
+            "USE TEMP B-TREE FOR ORDER BY"
+          ]
+        },
+        {
+          "query_sha256": "274d3f947171846613b0bc05a4661e347f18503d34ca987e57f534df66b2fe7c",
+          "details": [
+            "SEARCH drive_export_attempts USING INDEX sqlite_autoindex_drive_export_attempts_1 (owner_id=?)",
+            "USE TEMP B-TREE FOR ORDER BY"
+          ]
+        },
+        {
+          "query_sha256": "b01ea6ccd67651d59ceb0d3327921682640396f89cc13d277f6eb4bc12ba9d40",
+          "details": [
+            "SEARCH export_state USING INDEX sqlite_autoindex_export_state_1 (owner_id=?)",
+            "USE TEMP B-TREE FOR ORDER BY"
+          ]
+        },
+        {
+          "query_sha256": "5d7a40d153a05823ca81dc7aeeb39cf7d36f0d50e8d0b00d898d2c991f8ddb8b",
+          "details": [
+            "SEARCH export_dirty_cursor USING INDEX sqlite_autoindex_export_dirty_cursor_1 (owner_id=?)"
+          ]
+        },
+        {
+          "query_sha256": "b6595656d6dd09af1ae006e097c3bca1e636e9b794da9712b22af2ca598f7d35",
+          "details": [
+            "SEARCH change_log USING INDEX change_owner_seq (owner_id=? AND seq>?)"
+          ]
+        },
+        {
+          "query_sha256": "beea63066d779c6a3b5aa09f7bb9354a87db83d36a81b620d771c951b3a64280",
+          "details": [
+            "SEARCH source_requests USING INDEX sqlite_autoindex_source_requests_1 (owner_id=?)",
+            "USE TEMP B-TREE FOR ORDER BY"
+          ]
+        },
+        {
+          "query_sha256": "0000f3686f4ce0baf36466e6da97e6fd6198f6c4f6f9d7a31f35258a33fcf684",
+          "details": [
+            "SEARCH discovery_scans USING INDEX scans_owner_identity (owner_id=?)",
+            "USE TEMP B-TREE FOR ORDER BY"
+          ]
+        },
+        {
+          "query_sha256": "7caf2eda1973a9b20faed94fa5cc28b77bcab13bdf42aeec46bae51afe885f83",
+          "details": [
+            "SEARCH discovery_scan_members USING COVERING INDEX sqlite_autoindex_discovery_scan_members_1 (owner_id=?)",
+            "USE TEMP B-TREE FOR ORDER BY"
+          ]
+        },
+        {
+          "query_sha256": "f74f2a153a076ed2d765d51721fc60b48601124336817de6b58ee15d005d50e6",
+          "details": [
+            "SEARCH backup_chunks USING INDEX sqlite_autoindex_backup_chunks_2 (owner_id=? AND backup_id=?)"
+          ]
+        }
+      ]
+    },
+    {
+      "phase": "after",
+      "label": "transcript_admission",
+      "queries": 1,
+      "rows_read": 4,
+      "rows_written": 0,
+      "elapsed_ms": 11.381600000000617,
+      "result_sha256": "50872ef3cd6fb6a91fbc49a67a3bb43a52982be2866dd96abbca70e9da367ac7",
+      "plans": [
+        {
+          "query_sha256": "31c18d0e053077973d2caac75ddd580be7e1b7678302fc66cd2354274d0403b3",
+          "details": [
+            "SEARCH a USING COVERING INDEX transcript_admission_errors (owner_id=? AND error_code=?)",
+            "SEARCH j USING INDEX sqlite_autoindex_jobs_3 (owner_id=? AND job_id=?)",
+            "USE TEMP B-TREE FOR ORDER BY"
+          ]
+        }
+      ]
+    },
+    {
+      "phase": "after",
+      "label": "capacity_page",
+      "queries": 2,
+      "rows_read": 1328,
+      "rows_written": 0,
+      "elapsed_ms": 19.463999999999942,
+      "result_sha256": "eb7feb471e485ffd88183291d9c0ca50223a73a701775f08c9cd078b8f69012a",
+      "plans": [
+        {
+          "query_sha256": "c00bdbff67eb2cc467f02d49b10e51c54f54cab056faaa1f264e9c7bbd4784f3",
+          "details": [
+            "SEARCH change_log USING COVERING INDEX change_owner_seq (owner_id=?)"
+          ]
+        },
+        {
+          "query_sha256": "01e9ad69aae89ecade8eafc24e51d504d21b65bf9d99ac753096e1c9d37ffd98",
+          "details": [
+            "SEARCH i USING INDEX sqlite_autoindex_items_3 (owner_id=?)",
+            "SEARCH j USING INDEX sqlite_autoindex_jobs_3 (owner_id=? AND job_id=?) LEFT-JOIN",
+            "CORRELATED SCALAR SUBQUERY 2",
+            "SEARCH q USING INDEX jobs_item_recent (owner_id=? AND item_id=?)",
+            "SEARCH ir USING INDEX sqlite_autoindex_analysis_runs_2 (owner_id=? AND run_id=?) LEFT-JOIN",
+            "CORRELATED SCALAR SUBQUERY 3",
+            "SEARCH r USING INDEX automatic_source_scan (owner_id=? AND state=?)",
+            "SEARCH q USING INDEX sqlite_autoindex_jobs_3 (owner_id=? AND job_id=?)",
+            "SEARCH sr USING INDEX sqlite_autoindex_analysis_runs_2 (owner_id=? AND run_id=?) LEFT-JOIN",
+            "CORRELATED SCALAR SUBQUERY 4",
+            "SEARCH r USING INDEX capacity_accepted_item (owner_id=? AND item_id=?)",
+            "SEARCH q USING INDEX sqlite_autoindex_jobs_3 (owner_id=? AND job_id=?)",
+            "SEARCH ar USING INDEX sqlite_autoindex_artifacts_2 (owner_id=? AND item_id=? AND artifact_id=?) LEFT-JOIN",
+            "CORRELATED SCALAR SUBQUERY 1",
+            "SEARCH q USING INDEX jobs_item_recent (owner_id=? AND item_id=?)",
+            "SEARCH a USING INDEX sqlite_autoindex_job_attempts_2 (owner_id=? AND job_id=?)"
+          ]
+        }
+      ]
+    },
+    {
+      "phase": "after",
+      "label": "metadata_refresh",
+      "queries": 1,
+      "rows_read": 2,
+      "rows_written": 0,
+      "elapsed_ms": 10.505999999993946,
+      "result_sha256": "852d7edf7bca11022dc88e8875f6d44ea70711f8286c7b1f0d90177b63d97632",
+      "plans": [
+        {
+          "query_sha256": "247030508ec05b87d5619b69091a842e3ba629e5ccbbbe53b38c181faf84724a",
+          "details": [
+            "SEARCH r USING COVERING INDEX metadata_revision_due (fetched_at<?)",
+            "SEARCH i USING INDEX sqlite_autoindex_items_3 (owner_id=? AND item_id=?)",
+            "CORRELATED SCALAR SUBQUERY 1",
+            "SEARCH checked USING INDEX jobs_due (owner_id=? AND state=?)",
+            "SEARCH d USING INDEX sqlite_autoindex_discovery_scans_2 (owner_id=? AND job_id=?)",
+            "SEARCH m USING COVERING INDEX sqlite_autoindex_discovery_scan_members_1 (owner_id=? AND scan_id=? AND item_id=?)",
+            "CORRELATED SCALAR SUBQUERY 2",
+            "SEARCH j USING INDEX metadata_refresh_active (owner_id=? AND source_id=?)",
+            "SEARCH s USING INDEX sqlite_autoindex_sources_3 (owner_id=? AND source_id=?)",
+            "USE TEMP B-TREE FOR LAST TERM OF ORDER BY"
+          ]
+        }
+      ]
+    },
+    {
+      "phase": "after",
+      "label": "backup_attempt_chunk",
+      "queries": 5,
+      "rows_read": 32,
+      "rows_written": 3,
+      "elapsed_ms": 34.142699999996694,
+      "result_sha256": "0002362602c581151d980e203cd9e2b754ca8aeded9a500be47027b4749605d9",
+      "plans": [
+        {
+          "query_sha256": "b0c57c723d6c01e62d2e6c5dd8630735a3ebbde32c07ad39f4704be7c2393025",
+          "details": [
+            "SEARCH s USING INDEX sqlite_autoindex_backup_snapshots_2 (owner_id=? AND backup_id=?)",
+            "CORRELATED SCALAR SUBQUERY 1",
+            "SEARCH maintenance_state USING INTEGER PRIMARY KEY (rowid=?)"
+          ]
+        },
+        {
+          "query_sha256": "34e2ce5ef621a45ff20a9465d5d7c0a85a3492293f9150c5396d9dd189b424d9",
+          "details": [
+            "SEARCH job_attempts USING INTEGER PRIMARY KEY (rowid>?)"
+          ]
+        },
+        {
+          "query_sha256": "c1ef435dfea2d5f278f3bdf624da8074306ee205ac657f66f8cd3de3d9666e2d",
+          "details": [
+            "SEARCH backup_chunks USING INDEX sqlite_autoindex_backup_chunks_2 (owner_id=? AND backup_id=? AND table_name=?)"
+          ]
+        },
+        {
+          "query_sha256": "edbfebc6216ae614fb3ff09e1f537d7f163ba8774c062e177f6819c295fa8698",
+          "details": [
+            "SEARCH backup_chunks USING INDEX sqlite_autoindex_backup_chunks_1 (owner_id=? AND backup_id=? AND table_name=? AND cursor=?)",
+            "SCALAR SUBQUERY 1",
+            "SEARCH m USING INTEGER PRIMARY KEY (rowid=?)",
+            "SEARCH s USING INDEX sqlite_autoindex_backup_snapshots_2 (owner_id=? AND backup_id=?)"
+          ]
+        }
+      ]
+    },
+    {
+      "phase": "after",
+      "label": "canonical_backup",
+      "queries": 1858,
+      "rows_read": 31185,
+      "rows_written": 1098,
+      "elapsed_ms": 17921.573299999996,
+      "result_sha256": "b2760ade7d1c7aad360bacccd19dc08cb0c4b632e03b51463b6677d742111dc1",
+      "plans": [
+        {
+          "query_sha256": "21c73db1e2100b580207f78534b07aa8b7f59a310dc2924d02230ed643950937",
+          "details": [
+            "SCAN maintenance_state"
+          ]
+        },
+        {
+          "query_sha256": "05a63d1b9429be0f20ba06b043f1246a06b8f8ffe72c9e16c11256ce43e69aef",
+          "details": [
+            "SCAN CONSTANT ROW",
+            "SCALAR SUBQUERY 1",
+            "SEARCH owner_users USING COVERING INDEX sqlite_autoindex_owner_users_1 (owner_id=?)",
+            "SCALAR SUBQUERY 2",
+            "SEARCH worker_identities USING COVERING INDEX sqlite_autoindex_worker_identities_3 (owner_id=?)",
+            "SCALAR SUBQUERY 3",
+            "SCAN schema_versions USING COVERING INDEX sqlite_autoindex_schema_versions_1",
+            "SCALAR SUBQUERY 4",
+            "SEARCH config_versions USING COVERING INDEX sqlite_autoindex_config_versions_1 (owner_id=?)",
+            "SCALAR SUBQUERY 5",
+            "SEARCH audit_events USING COVERING INDEX audit_owner_time (owner_id=?)",
+            "SCALAR SUBQUERY 6",
+            "SEARCH sources USING COVERING INDEX sqlite_autoindex_sources_3 (owner_id=?)",
+            "SCALAR SUBQUERY 7",
+            "SEARCH channels USING COVERING INDEX sqlite_autoindex_channels_2 (owner_id=?)",
+            "SCALAR SUBQUERY 8",
+            "SEARCH items USING COVERING INDEX search_item_cursor (owner_id=?)",
+            "SCALAR SUBQUERY 9",
+            "SEARCH item_revisions USING COVERING INDEX sqlite_autoindex_item_revisions_3 (owner_id=?)",
+            "SCALAR SUBQUERY 10",
+            "SEARCH jobs USING COVERING INDEX sqlite_autoindex_jobs_3 (owner_id=?)",
+            "SCALAR SUBQUERY 11",
+            "SEARCH job_attempts USING COVERING INDEX sqlite_autoindex_job_attempts_2 (owner_id=?)",
+            "SCALAR SUBQUERY 12",
+            "SEARCH outbox USING COVERING INDEX sqlite_autoindex_outbox_2 (owner_id=?)",
+            "SCALAR SUBQUERY 13",
+            "SEARCH artifacts USING COVERING INDEX artifact_item (owner_id=?)",
+            "SCALAR SUBQUERY 14",
+            "SEARCH artifact_chunks USING COVERING INDEX sqlite_autoindex_artifact_chunks_1 (owner_id=?)",
+            "SCALAR SUBQUERY 15",
+            "SEARCH transcript_representations USING COVERING INDEX sqlite_autoindex_transcript_representations_2 (owner_id=?)",
+            "SCALAR SUBQUERY 16",
+            "SEARCH prompt_versions USING COVERING INDEX sqlite_autoindex_prompt_versions_1 (owner_id=?)",
+            "SCALAR SUBQUERY 17",
+            "SEARCH semantic_profile_versions USING COVERING INDEX sqlite_autoindex_semantic_profile_versions_1 (owner_id=?)",
+            "SCALAR SUBQUERY 18",
+            "SEARCH model_registry USING COVERING INDEX sqlite_autoindex_model_registry_1 (owner_id=?)",
+            "SCALAR SUBQUERY 19",
+            "SEARCH quota_reservations USING COVERING INDEX sqlite_autoindex_quota_reservations_3 (owner_id=?)",
+            "SCALAR SUBQUERY 20",
+            "SEARCH usage_records USING COVERING INDEX sqlite_autoindex_usage_records_2 (owner_id=?)",
+            "SCALAR SUBQUERY 21",
+            "SEARCH candidate_repair_attempts USING COVERING INDEX sqlite_autoindex_candidate_repair_attempts_2 (owner_id=?)",
+            "SCALAR SUBQUERY 22",
+            "SEARCH analysis_runs USING COVERING INDEX search_summary_cursor (owner_id=?)",
+            "SCALAR SUBQUERY 23",
+            "SEARCH optional_ai_results USING COVERING INDEX sqlite_autoindex_optional_ai_results_1 (owner_id=?)",
+            "SCALAR SUBQUERY 24",
+            "SEARCH entities USING COVERING INDEX search_entity_cursor (owner_id=?)",
+            "SCALAR SUBQUERY 25",
+            "SEARCH entity_aliases USING COVERING INDEX search_alias_cursor (owner_id=?)",
+            "SCALAR SUBQUERY 26",
+            "SEARCH entity_alias_decisions USING COVERING INDEX alias_decision_literal_type (owner_id=?)",
+            "SCALAR SUBQUERY 27",
+            "SEARCH entity_identity_events USING COVERING INDEX sqlite_autoindex_entity_identity_events_1 (owner_id=?)",
+            "SCALAR SUBQUERY 28",
+            "SEARCH entity_identity_members USING COVERING INDEX identity_member_latest (owner_id=?)",
+            "SCALAR SUBQUERY 29",
+            "SEARCH evidence USING COVERING INDEX evidence_item (owner_id=?)",
+            "SCALAR SUBQUERY 30",
+            "SEARCH analysis_evidence USING COVERING INDEX sqlite_autoindex_analysis_evidence_1 (owner_id=?)",
+            "SCALAR SUBQUERY 31",
+            "SEARCH observations USING COVERING INDEX search_observation_cursor (owner_id=?)",
+            "SCALAR SUBQUERY 32",
+            "SEARCH observation_evidence USING COVERING INDEX sqlite_autoindex_observation_evidence_1 (owner_id=?)",
+            "SCALAR SUBQUERY 33",
+            "SEARCH observation_entities USING COVERING INDEX sqlite_autoindex_observation_entities_1 (owner_id=?)",
+            "SCALAR SUBQUERY 34",
+            "SEARCH correction_overlays USING COVERING INDEX correction_target_latest (owner_id=?)",
+            "SCALAR SUBQUERY 35",
+            "SEARCH spaces USING COVERING INDEX sqlite_autoindex_spaces_1 (owner_id=?)",
+            "SCALAR SUBQUERY 36",
+            "SEARCH item_spaces USING COVERING INDEX space_members (owner_id=?)",
+            "SCALAR SUBQUERY 37",
+            "SEARCH review_state USING COVERING INDEX sqlite_autoindex_review_state_1 (owner_id=?)",
+            "SCALAR SUBQUERY 38",
+            "SEARCH insights USING COVERING INDEX search_insight_cursor (owner_id=?)",
+            "SCALAR SUBQUERY 39",
+            "SEARCH insight_observations USING COVERING INDEX sqlite_autoindex_insight_observations_1 (owner_id=?)",
+            "SCALAR SUBQUERY 40",
+            "SEARCH organization_mutations USING COVERING INDEX sqlite_autoindex_organization_mutations_1 (owner_id=?)",
+            "SCALAR SUBQUERY 41",
+            "SEARCH active_analysis_selections USING COVERING INDEX sqlite_autoindex_active_analysis_selections_1 (owner_id=?)",
+            "SCALAR SUBQUERY 42",
+            "SEARCH drive_connections USING COVERING INDEX sqlite_autoindex_drive_connections_1 (owner_id=?)",
+            "SCALAR SUBQUERY 43",
+            "SEARCH drive_root_candidates USING COVERING INDEX sqlite_autoindex_drive_root_candidates_2 (owner_id=?)",
+            "SCALAR SUBQUERY 44",
+            "SEARCH daily_export_artifacts USING COVERING INDEX sqlite_autoindex_daily_export_artifacts_1 (owner_id=?)",
+            "SCALAR SUBQUERY 45",
+            "SEARCH daily_export_chunks USING COVERING INDEX sqlite_autoindex_daily_export_chunks_1 (owner_id=?)",
+            "SCALAR SUBQUERY 46",
+            "SEARCH drive_export_attempts USING COVERING INDEX sqlite_autoindex_drive_export_attempts_1 (owner_id=?)",
+            "SCALAR SUBQUERY 47",
+            "SEARCH export_state USING COVERING INDEX sqlite_autoindex_export_state_1 (owner_id=?)",
+            "SCALAR SUBQUERY 48",
+            "SEARCH export_dirty_cursor USING COVERING INDEX sqlite_autoindex_export_dirty_cursor_1 (owner_id=?)",
+            "SCALAR SUBQUERY 49",
+            "SEARCH change_log USING COVERING INDEX change_owner_seq (owner_id=?)",
+            "SCALAR SUBQUERY 50",
+            "SEARCH source_requests USING COVERING INDEX sqlite_autoindex_source_requests_1 (owner_id=?)",
+            "SCALAR SUBQUERY 51",
+            "SEARCH discovery_scans USING COVERING INDEX scans_owner_identity (owner_id=?)",
+            "SCALAR SUBQUERY 52",
+            "SEARCH discovery_scan_members USING COVERING INDEX metadata_observation_item (owner_id=?)"
+          ]
+        },
+        {
+          "query_sha256": "b0c57c723d6c01e62d2e6c5dd8630735a3ebbde32c07ad39f4704be7c2393025",
+          "details": [
+            "SEARCH s USING INDEX sqlite_autoindex_backup_snapshots_2 (owner_id=? AND backup_id=?)",
+            "CORRELATED SCALAR SUBQUERY 1",
+            "SEARCH maintenance_state USING INTEGER PRIMARY KEY (rowid=?)"
+          ]
+        },
+        {
+          "query_sha256": "ede5b56ac8a0583573a3586157fb14af12544f5de85d51d6ce7582cbfd3731e7",
+          "details": [
+            "SEARCH owner_users USING INTEGER PRIMARY KEY (rowid>?)"
+          ]
+        },
+        {
+          "query_sha256": "c1ef435dfea2d5f278f3bdf624da8074306ee205ac657f66f8cd3de3d9666e2d",
+          "details": [
+            "SEARCH backup_chunks USING INDEX sqlite_autoindex_backup_chunks_2 (owner_id=? AND backup_id=? AND table_name=?)"
+          ]
+        },
+        {
+          "query_sha256": "edbfebc6216ae614fb3ff09e1f537d7f163ba8774c062e177f6819c295fa8698",
+          "details": [
+            "SEARCH backup_chunks USING INDEX sqlite_autoindex_backup_chunks_1 (owner_id=? AND backup_id=? AND table_name=? AND cursor=?)",
+            "SCALAR SUBQUERY 1",
+            "SEARCH m USING INTEGER PRIMARY KEY (rowid=?)",
+            "SEARCH s USING INDEX sqlite_autoindex_backup_snapshots_2 (owner_id=? AND backup_id=?)"
+          ]
+        },
+        {
+          "query_sha256": "d9bf206d8bc31a28f0f38067469450b05de4c2969bb48db44d2f2db33c24f787",
+          "details": [
+            "SEARCH worker_identities USING INTEGER PRIMARY KEY (rowid>?)"
+          ]
+        },
+        {
+          "query_sha256": "367120c601ef3dd4bb8ae95950ca521cd98ec72c628b439ed2f9129670219319",
+          "details": [
+            "SEARCH schema_versions USING INTEGER PRIMARY KEY (rowid>?)"
+          ]
+        },
+        {
+          "query_sha256": "633dbfdbf99f70019b2dd915267af465326cd9558c100c00bbd17537f20d5649",
+          "details": [
+            "SEARCH config_versions USING INTEGER PRIMARY KEY (rowid>?)"
+          ]
+        },
+        {
+          "query_sha256": "e1529a58edb322a63dd96991bad69685dd913a4ecf31fd4f75ace28968efb5bb",
+          "details": [
+            "SEARCH audit_events USING INTEGER PRIMARY KEY (rowid>?)"
+          ]
+        },
+        {
+          "query_sha256": "e51abbce355272aed9da36eac21a9b4e0a451721faef61a86e0eb8ff1750556a",
+          "details": [
+            "SEARCH sources USING INTEGER PRIMARY KEY (rowid>?)"
+          ]
+        },
+        {
+          "query_sha256": "b8cde584d09679b4d68aaf0c2522ccc39b6d5b20b80a56d01019576202f5e266",
+          "details": [
+            "SEARCH channels USING INTEGER PRIMARY KEY (rowid>?)"
+          ]
+        },
+        {
+          "query_sha256": "5ea3a75668b497a81cb137f57802fd4f198bf567bb6072fd5f34cfe4b02f424d",
+          "details": [
+            "SEARCH items USING INTEGER PRIMARY KEY (rowid>?)"
+          ]
+        },
+        {
+          "query_sha256": "0f4e2a711cb8acb26b076c3c7402dd663417134520eba9ed33c4ec53d4e9115c",
+          "details": [
+            "SEARCH item_revisions USING INTEGER PRIMARY KEY (rowid>?)"
+          ]
+        },
+        {
+          "query_sha256": "377ae368d8775a57daef02f825b158396c6d32998b3394912e3d734792e17b0e",
+          "details": [
+            "SEARCH jobs USING INTEGER PRIMARY KEY (rowid>?)"
+          ]
+        },
+        {
+          "query_sha256": "34e2ce5ef621a45ff20a9465d5d7c0a85a3492293f9150c5396d9dd189b424d9",
+          "details": [
+            "SEARCH job_attempts USING INTEGER PRIMARY KEY (rowid>?)"
+          ]
+        },
+        {
+          "query_sha256": "5d0e9462b44bd5353b5acfe5834c1ca089bd63f7e0553d17629d14f605252b6d",
+          "details": [
+            "SEARCH outbox USING INTEGER PRIMARY KEY (rowid>?)"
+          ]
+        },
+        {
+          "query_sha256": "8aea3fd019771e54286b276b095f9eacbdf33fdda20d1616c3a7d8b369fdf051",
+          "details": [
+            "SEARCH artifacts USING INTEGER PRIMARY KEY (rowid>?)"
+          ]
+        },
+        {
+          "query_sha256": "1a7a9386bf1386aca760bc8533669e6d8889d622e8ab22b06d54cfb0299c1ca7",
+          "details": [
+            "SEARCH artifact_chunks USING INTEGER PRIMARY KEY (rowid>?)"
+          ]
+        },
+        {
+          "query_sha256": "79a9cda6e23bf228138e629a0c3a7edb687e9531fba48df3d7becb622e2c5107",
+          "details": [
+            "SEARCH transcript_representations USING INTEGER PRIMARY KEY (rowid>?)"
+          ]
+        },
+        {
+          "query_sha256": "a343b1da07bd0a8c8b07b27ce39d2c08696192ab8339103793a3490069e6c984",
+          "details": [
+            "SEARCH prompt_versions USING INTEGER PRIMARY KEY (rowid>?)"
+          ]
+        },
+        {
+          "query_sha256": "cffb760dbea87945be06ea1cb791c030511c8c79e3386459277b1d6049a4b487",
+          "details": [
+            "SEARCH semantic_profile_versions USING INTEGER PRIMARY KEY (rowid>?)"
+          ]
+        },
+        {
+          "query_sha256": "015fc1a793cb6b5fd63602657a026f1019b8ef0e77df6c1648638d71d89c5403",
+          "details": [
+            "SEARCH model_registry USING INTEGER PRIMARY KEY (rowid>?)"
+          ]
+        },
+        {
+          "query_sha256": "edbd10a4bf357118b0e646402cb381415e96d4ea0147ddddcc80533c1afbc5d2",
+          "details": [
+            "SEARCH quota_reservations USING INTEGER PRIMARY KEY (rowid>?)"
+          ]
+        },
+        {
+          "query_sha256": "c1dfabc68c80227912ca9f08fc94a02b226f0469f7d99ca6a0839122a7365585",
+          "details": [
+            "SEARCH usage_records USING INTEGER PRIMARY KEY (rowid>?)"
+          ]
+        },
+        {
+          "query_sha256": "3f0e69844143875be203a4344a1765f288219d1a7e9221be3e2f003f52443a08",
+          "details": [
+            "SEARCH candidate_repair_attempts USING INTEGER PRIMARY KEY (rowid>?)"
+          ]
+        },
+        {
+          "query_sha256": "fc04748d907ab16a37ab7a3e23474cd6245480239e305aadb86bdaf8db1419ba",
+          "details": [
+            "SEARCH analysis_runs USING INTEGER PRIMARY KEY (rowid>?)"
+          ]
+        },
+        {
+          "query_sha256": "8f1bae3d6e7ab178b4f91f7082cce1fc6bb0820235df63e89722f69821731c74",
+          "details": [
+            "SEARCH optional_ai_results USING INTEGER PRIMARY KEY (rowid>?)"
+          ]
+        },
+        {
+          "query_sha256": "67db17fb24e85e76041e510fb82b2ce3e8976032784fff9a9f38039fd553e79b",
+          "details": [
+            "SEARCH entities USING INTEGER PRIMARY KEY (rowid>?)"
+          ]
+        },
+        {
+          "query_sha256": "5b2bddfa85a5ce90ad5cda2470a953aa49fd6e74d03ed871316da5aa00cdb403",
+          "details": [
+            "SEARCH entity_aliases USING INTEGER PRIMARY KEY (rowid>?)"
+          ]
+        },
+        {
+          "query_sha256": "458a70566a2af61d27e2fea59e656de02e273624cb3b552aac718bc67b1f391a",
+          "details": [
+            "SEARCH entity_alias_decisions USING INTEGER PRIMARY KEY (rowid>?)"
+          ]
+        },
+        {
+          "query_sha256": "953fbb07dd584d85e3d2ed1d51e060cdfbea7641d3b674e3da98100e23dba46a",
+          "details": [
+            "SEARCH entity_identity_events USING INTEGER PRIMARY KEY (rowid>?)"
+          ]
+        },
+        {
+          "query_sha256": "6c5a390358df2ea0265482e7a8e2e53cd2084503dc305ccff3ddc86166cc76e0",
+          "details": [
+            "SEARCH entity_identity_members USING INTEGER PRIMARY KEY (rowid>?)"
+          ]
+        },
+        {
+          "query_sha256": "10c71a549aedf6412038897b2fe4c180dc642346b84286944b3494ffbb5588a9",
+          "details": [
+            "SEARCH evidence USING INTEGER PRIMARY KEY (rowid>?)"
+          ]
+        },
+        {
+          "query_sha256": "2a7061056913d55bb3852f0c8e0966fde816d98a2c72d4908735bd174446725d",
+          "details": [
+            "SEARCH analysis_evidence USING INTEGER PRIMARY KEY (rowid>?)"
+          ]
+        },
+        {
+          "query_sha256": "81ac277f03a0924ad2867df363b5966df2d5bd2259bc2b2b099fdb4077abbbaf",
+          "details": [
+            "SEARCH observations USING INTEGER PRIMARY KEY (rowid>?)"
+          ]
+        },
+        {
+          "query_sha256": "37e142671cc1fefbfb7d5284c6f1be0a07805405e8d5013fc724d676c0d65c2f",
+          "details": [
+            "SEARCH observation_evidence USING INTEGER PRIMARY KEY (rowid>?)"
+          ]
+        },
+        {
+          "query_sha256": "339aeac10a6f51bce48414ce96861f87fb42f1740e8ccb55717f2c65277401e2",
+          "details": [
+            "SEARCH observation_entities USING INTEGER PRIMARY KEY (rowid>?)"
+          ]
+        },
+        {
+          "query_sha256": "fef993fdd4f537735305f2c3db4d968356e07192c23f45600008eac370a27f54",
+          "details": [
+            "SEARCH correction_overlays USING INTEGER PRIMARY KEY (rowid>?)"
+          ]
+        },
+        {
+          "query_sha256": "b7e01df153da9e0bf5f6def90831b409e66f58ba9cb9db1f825dfb2cfd3b0f7c",
+          "details": [
+            "SEARCH spaces USING INTEGER PRIMARY KEY (rowid>?)"
+          ]
+        },
+        {
+          "query_sha256": "ebca43fadd813a41f2345deda90200d8709d7e1720a6a27015473275914df933",
+          "details": [
+            "SEARCH item_spaces USING INTEGER PRIMARY KEY (rowid>?)"
+          ]
+        },
+        {
+          "query_sha256": "b5fb63ef38af09008648224052a8aab450ca60dd86ce278df211da103d79c00b",
+          "details": [
+            "SEARCH review_state USING INTEGER PRIMARY KEY (rowid>?)"
+          ]
+        },
+        {
+          "query_sha256": "d498bad745ec9391051152057ab6086307140c743abbf4345b289fe01d1d9a45",
+          "details": [
+            "SEARCH insights USING INTEGER PRIMARY KEY (rowid>?)"
+          ]
+        },
+        {
+          "query_sha256": "19f997f48b86900d8b58c8810120220a193f5abb935c386ef7e50a388e800efc",
+          "details": [
+            "SEARCH insight_observations USING INTEGER PRIMARY KEY (rowid>?)"
+          ]
+        },
+        {
+          "query_sha256": "2f96b5575e56e1eede27c7ddf13283db9ca2282480f9d43b13d251364276acc5",
+          "details": [
+            "SEARCH organization_mutations USING INTEGER PRIMARY KEY (rowid>?)"
+          ]
+        },
+        {
+          "query_sha256": "e46c7ee40a47db39f741c69535519af22b75d4cb420e97d007574115c6095197",
+          "details": [
+            "SEARCH active_analysis_selections USING INTEGER PRIMARY KEY (rowid>?)"
+          ]
+        },
+        {
+          "query_sha256": "cb2eb882f99cecfa9b9c87d428be9754aff5bff1550e7337981c3091ca0a9cef",
+          "details": [
+            "SEARCH drive_connections USING INTEGER PRIMARY KEY (rowid>?)"
+          ]
+        },
+        {
+          "query_sha256": "3f7a42183447204383311ceae84805f24a29b5c956db187b1efe951842b376ba",
+          "details": [
+            "SEARCH drive_root_candidates USING INTEGER PRIMARY KEY (rowid>?)"
+          ]
+        },
+        {
+          "query_sha256": "e602d27dc567f16c1d68590f82673d852f47dd619dac12f38750fb2f982de6b7",
+          "details": [
+            "SEARCH daily_export_artifacts USING INTEGER PRIMARY KEY (rowid>?)"
+          ]
+        },
+        {
+          "query_sha256": "f9326a4eca6f750e41ca5da4580ad82f3af49310eea6d98f0d358cd703250135",
+          "details": [
+            "SEARCH daily_export_chunks USING INTEGER PRIMARY KEY (rowid>?)"
+          ]
+        },
+        {
+          "query_sha256": "d8f8fb62a4c2bf95dc7def6f23333128f56766de1c7fdf25d1fdfe2b53a7903b",
+          "details": [
+            "SEARCH drive_export_attempts USING INTEGER PRIMARY KEY (rowid>?)"
+          ]
+        },
+        {
+          "query_sha256": "0c761f369b3692554a4bcfd81313b4406ba894fd33aebacaf68f1cc64708eda4",
+          "details": [
+            "SEARCH export_state USING INTEGER PRIMARY KEY (rowid>?)"
+          ]
+        },
+        {
+          "query_sha256": "69685fe0f261c93468fa0483a30822b514f70a93f06369d061852de10cb7366a",
+          "details": [
+            "SEARCH export_dirty_cursor USING INTEGER PRIMARY KEY (rowid>?)"
+          ]
+        },
+        {
+          "query_sha256": "d1cd36160c3401567edba1c3a137d614519e3fe1451e442ed6e689b6afe92d53",
+          "details": [
+            "SEARCH change_log USING INTEGER PRIMARY KEY (rowid>?)"
+          ]
+        },
+        {
+          "query_sha256": "e52a8f64a52659fdebff7c7e79f83b16cdf8f75dbd815b10ef9038b3b88132b3",
+          "details": [
+            "SEARCH source_requests USING INTEGER PRIMARY KEY (rowid>?)"
+          ]
+        },
+        {
+          "query_sha256": "9371eceb917cd709b7117060576454f6c4fe9cea6af965db45d4c29b450b5e2b",
+          "details": [
+            "SEARCH discovery_scans USING INTEGER PRIMARY KEY (rowid>?)"
+          ]
+        },
+        {
+          "query_sha256": "0ba2ad5e0be6d2e7428bcf803a132f5e8c9b91d2ab3bd3c5fd081fb3a918701a",
+          "details": [
+            "SEARCH discovery_scan_members USING INTEGER PRIMARY KEY (rowid>?)"
+          ]
+        },
+        {
+          "query_sha256": "f74f2a153a076ed2d765d51721fc60b48601124336817de6b58ee15d005d50e6",
+          "details": [
+            "SEARCH backup_chunks USING INDEX sqlite_autoindex_backup_chunks_2 (owner_id=? AND backup_id=?)"
+          ]
+        }
+      ]
+    }
+  ],
+  "index_creation_cost": {
+    "changes": 0,
+    "rows_read": 2852,
+    "rows_written": 550
+  },
+  "provider_requests": 0,
+  "paid_services_enabled": false
+}

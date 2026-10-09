@@ -1,0 +1,24 @@
+{
+  "version": 1,
+  "observed_at": "2026-10-09T19:31:42.783Z",
+  "status": "PASS",
+  "tests": [
+    {
+      "path": ".local/tests/d1-refresh-completion-targeted.json",
+      "sha256": "ac8f1ac6a2f398fb75256ac64e97dda6dff2e91f1cf506ea6daf28690a0abe86",
+      "passed": 4,
+      "failed": 0
+    },
+    {
+      "path": ".local/tests/d1-storage-monitor-targeted.json",
+      "sha256": "d4e620f327ce3630c1489062408d15d85bc915ff90d763086cf4c1b91506c054",
+      "passed": 26,
+      "failed": 0
+    }
+  ],
+  "typecheck": "PASS",
+  "benchmark": "d1-cost-comparison-2026-10-09T19-28-12.759Z.json",
+  "production_d1_requests": 0,
+  "gemini_requests": 0,
+  "paid_services_enabled": false
+}

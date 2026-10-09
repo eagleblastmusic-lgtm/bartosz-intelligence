@@ -1,0 +1,19 @@
+{
+  "version": "DriveOAuthNegative/1.0",
+  "observed_at": "2026-10-09T18:57:23.173Z",
+  "status": "PASS",
+  "scope": "ACTUAL_GOOGLE_INVALID_GRANT_LOCAL_OWNER_API_VISIBILITY",
+  "diagnostic_token": true,
+  "provider_http_status": 400,
+  "oauth_requests": 1,
+  "reason": "REFRESH_REJECTED",
+  "owner_status_http": 200,
+  "auth_state": "REAUTH_REQUIRED",
+  "last_error": "REFRESH_REJECTED",
+  "real_owner_grant_untouched": true,
+  "production_d1_requests": 0,
+  "drive_file_writes": 0,
+  "gemini_requests": 0,
+  "paid_services_enabled": false,
+  "full_d_export_status": "UNCHANGED_REQUIRES_REPORT_BOUND_EVIDENCE"
+}

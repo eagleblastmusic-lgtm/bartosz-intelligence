@@ -1,0 +1,65 @@
+{
+  "version": "D1IndependentCheckpoints/1.0",
+  "recorded_at": "2026-10-09T19:11:31.621Z",
+  "status": "PASS_IN_STATED_SCOPES",
+  "receipts": [
+    {
+      "checkpoint": "transcript",
+      "path": "docs/verification/gate-r/provider-transcript-bc3b398b-de67-45c9-83bd-859248354139/receipt.json",
+      "sha256": "d751201979f0942e0db24c21a8bc3cfb27b0227c5a14a4464914d314e82836b8",
+      "status": "PASS",
+      "scope": "ACTUAL_PROVIDER_RECOVERY_ONLY_NOT_FULL_GATE_R"
+    },
+    {
+      "checkpoint": "oauth",
+      "path": "docs/verification/drive/oauth-negative-d53ce5b4-e8b4-4ab4-a52d-009460d58235.json",
+      "sha256": "2524081231f94a24f256c5be3bdf333fb6f5fa490a76630b0331040a9c0baeaa",
+      "status": "PASS",
+      "scope": "ACTUAL_GOOGLE_INVALID_GRANT_LOCAL_OWNER_API_VISIBILITY"
+    },
+    {
+      "checkpoint": "identities",
+      "path": "docs/verification/capacity/approved-channel-identities-2026-10-09.json",
+      "sha256": "2938fcda090cd743c375922e6ea4bcb9fc9143dd788ef4a1aa0a63bc962dac62",
+      "status": "RESOLVED_NOT_ADDED",
+      "scope": "OWNER_APPROVED_RESOLUTION_ONLY"
+    },
+    {
+      "checkpoint": "backup_guard",
+      "path": ".local/tests/d1-post-checkpoints.json",
+      "sha256": "575de994627eb59ae94edca53b02b308f200478fec2ee331c877bbfe4aad7568",
+      "status": "PASS",
+      "scope": "LOCAL_BACKUP_SCHEMA_AND_RESTORE_REGRESSION",
+      "tests": 9,
+      "failed": 0
+    }
+  ],
+  "verified_code_files": [
+    {
+      "path": "tools/deployment/backup-cadence.ts",
+      "sha256": "ca694c9843490265cbc48c8d0796d408970883aeee5069370be6b54100ac4db4"
+    },
+    {
+      "path": "tools/deployment/portable-backup.ts",
+      "sha256": "f4f16eef18b0bb1e1b675ae7e917946334cf287cb6c19f9153f7e514f36f3712"
+    },
+    {
+      "path": "tools/deployment/drive-oauth-negative.ts",
+      "sha256": "69239438a7a959af9fbd9281fc20fe013b62845cd830b0136399ac15138aa2e2"
+    },
+    {
+      "path": "tools/gates/capacity/resolve-approved.ts",
+      "sha256": "cd32a66deaab8e65981de8fe258417079faef7a119aa2ef248472eb25cde8559"
+    }
+  ],
+  "typecheck": "PASS",
+  "lint": "PASS",
+  "format": "PASS",
+  "production_d1_requests": 0,
+  "new_canonical_production_backups": 0,
+  "gemini_requests": 0,
+  "paid_services_enabled": false,
+  "gate_r": "HISTORICAL_8_PASS_NEW_PROVIDER_SCOPE_NOT_FULL_CURRENT_GATE",
+  "d_export": "HISTORICAL_6_PASS_NEW_NEGATIVE_PROPERTY_NOT_FULL_CURRENT_GATE",
+  "gate_c": "NOT_YET_MATURE"
+}

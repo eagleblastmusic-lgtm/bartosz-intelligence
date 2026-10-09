@@ -1,9 +1,41 @@
 import { expect, it } from 'vitest';
+import { DatabaseSync } from 'node:sqlite';
+import ledger from '../../db/migration-ledger.json';
+import { sqliteAdapter } from '../../tools/db/sqlite-adapter.js';
 import {
+  assertBackupSchema,
   backupDue,
   backupQuotaReset,
 } from '../../tools/deployment/backup-cadence.js';
 const now = new Date('2026-10-08T20:00:00Z');
+it('refuses capture before the pending index upgrade and admits only the exact applied checksums', async () => {
+  const sqlite = new DatabaseSync(':memory:');
+  try {
+    sqlite.exec(
+      'CREATE TABLE applied_migrations(name TEXT PRIMARY KEY,sha256 TEXT)',
+    );
+    const insert = sqlite.prepare('INSERT INTO applied_migrations VALUES(?,?)');
+    for (const row of ledger.migrations.slice(0, -1))
+      insert.run(row.name, row.sha256);
+    const db = sqliteAdapter(sqlite);
+    await expect(assertBackupSchema(db, ledger.migrations)).rejects.toThrow(
+      'BACKUP_SCHEMA_MIGRATION_PENDING',
+    );
+    const suffix = ledger.migrations.at(-1)!;
+    insert.run(suffix.name, suffix.sha256);
+    await expect(
+      assertBackupSchema(db, ledger.migrations),
+    ).resolves.toBeUndefined();
+    sqlite
+      .prepare('UPDATE applied_migrations SET sha256=? WHERE name=?')
+      .run('changed', suffix.name);
+    await expect(assertBackupSchema(db, ledger.migrations)).rejects.toThrow(
+      'BACKUP_SCHEMA_MIGRATION_PENDING',
+    );
+  } finally {
+    sqlite.close();
+  }
+});
 it('waits only for an actually classified daily quota and resumes at UTC midnight', () => {
   for (const kind of ['READ', 'WRITE']) {
     const failures = [

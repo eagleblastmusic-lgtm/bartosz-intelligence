@@ -1,6 +1,6 @@
 import { mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { createHash, randomUUID } from 'node:crypto';
-import { d1Analytics } from './cloudflare.mjs';
+import { d1Analytics, cf } from './cloudflare.mjs';
 import { d1UsagePolicy, type UsageSample } from './d1-usage-policy.js';
 
 const local = process.argv[3] === '--local';
@@ -23,6 +23,7 @@ const receipt: Record<string, unknown> = {
   account_rows_read: null,
   account_rows_written: null,
   current_storage_bytes: null,
+  max_database_size_bytes: null,
   paid_services_enabled: false,
 };
 try {
@@ -82,6 +83,25 @@ try {
     account_rows_written: hourly.reduce((n, r) => n + r.rowsWritten!, 0),
     hourly,
     analytics_lag: 'NOT_MEASURED_NOT_EXACT_REMAINING_QUOTA',
+  });
+  const inventory = await cf('d1/database?per_page=100');
+  if (
+    !Array.isArray(inventory) ||
+    !inventory.length ||
+    inventory.length >= 100 ||
+    inventory.some(
+      (row) => !Number.isSafeInteger(row.file_size) || row.file_size < 0,
+    )
+  )
+    throw new Error('D1_ANALYTICS_STORAGE_UNKNOWN');
+  Object.assign(receipt, {
+    current_storage_bytes: inventory.reduce(
+      (total, row) => total + row.file_size,
+      0,
+    ),
+    max_database_size_bytes: Math.max(...inventory.map((row) => row.file_size)),
+    database_inventory_count: inventory.length,
+    storage_basis: 'ACTUAL_ACCOUNT_INVENTORY_METADATA_NO_SQL',
   });
 } catch (error) {
   const code = error instanceof Error ? error.message : '';

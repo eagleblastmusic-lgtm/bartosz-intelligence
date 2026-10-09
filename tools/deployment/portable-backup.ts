@@ -17,6 +17,7 @@ import {
 } from '../../packages/core/src/backup/restore.js';
 import { sqliteAdapter } from '../db/sqlite-adapter.js';
 import ledger from '../../db/migration-ledger.json';
+import { assertBackupSchema } from './backup-cadence.js';
 import {
   recoverBackupChunk,
   recoverBackupCompletion,
@@ -67,6 +68,9 @@ let backup: CoreBackup | undefined,
   chunkTable: string | null = null,
   chunkCursor: number | null = null;
 try {
+  phase = 'MIGRATIONS';
+  await assertBackupSchema(db, ledger.migrations);
+  phase = 'OWNER';
   const owners = await db
     .prepare(
       'SELECT owner_id,subject FROM owner_users WHERE allowlisted=1 LIMIT 2',

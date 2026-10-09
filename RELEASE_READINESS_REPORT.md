@@ -32,7 +32,11 @@ zachowując durable jobs. Nie ma fikcyjnego exact remaining quota.
 
 Właściciel **zatwierdził 19 konkretnych kanałów i stopniowe new-only**:
 [lista](docs/decisions/GATE_C_CHANNEL_PROPOSAL_2026-10-09.md).
-Nie dodano ich przed odzyskaniem D1. Nie pytamy ponownie o listę ani tryb.
+Wszystkie 19 rozwiązano rzeczywistym YouTube adapterem (19 requests, bez D1)
+do canonical channel IDs i uploads playlists. Evidence:
+`docs/verification/capacity/approved-channel-identities-2026-10-09.json`.
+Nie dodano ich przed odzyskaniem D1. Nie pytamy ponownie o listę ani tryb;
+nie powtarzamy resolution bez konkretnego błędu w zachowanym wyniku.
 20-channel Free D1 jest warunkowo wykonalne w modelu odczytów; write/peak/large
 restore i real AI throughput pozostają NIEKWALIFIKOWANE. Gate C NOT_YET_MATURE.
 
@@ -47,6 +51,41 @@ Brak nowych Gemini requestów; `paid_services_enabled=false`.
 Gate R pozostaje **8/10 historycznych PASS**, D-export **6/13**, Bridge 9 NOT_RUN,
 CP-3.13 AWAITING_HUMAN_REVIEW, screen-reader DEFERRED. Nie agregujemy różnych
 pins w pełny bieżący PASS. Poniżej zachowane wcześniejsze rozliczenia.
+
+Kontynuacja niezależnych checkpointów po diagnozie D1:
+
+- **Actual-provider transcript recovery PASS w swoim zakresie**: prerejestrowany
+  yt-dlp proces z timeoutem ustawionym na 1 ms, obserwowany process failure,
+  trwały RETRY_WAIT, rzeczywisty persisted D1/runtime restart, fence 1→2,
+  stale fence rejected, dokładnie jeden accepted SOURCE także po replay
+  completion. Raw 807747 bytes, hash `d2c9a5f39b615e7f4ae693c45a5fcec126111abf7ec7bbd4ee1bd73b460bb8b9`,
+  1071 cues; recovery **15556 ms**, całość 62795 ms. Zero prod D1/Gemini.
+  Native child error jest maskowany przez istniejący runner; to kontrolowana
+  awaria procesu przy ustawionym timeout, nie dowód outage YouTube.
+  Receipt: `docs/verification/gate-r/provider-transcript-bc3b398b-de67-45c9-83bd-859248354139/receipt.json`.
+  Pierwszy harness run zatrzymał błędny INSERT sesji (6 columns/5 values),
+  przed jakimkolwiek provider requestem; naprawiony explicit column list.
+  FAIL zachowany, nie zgłoszony jako zewnętrzny blocker.
+- **OAuth failure visibility PASS w swoim zakresie**: jeden real Google token
+  request z celowo invalid diagnostic token, HTTP 400/invalid_grant,
+  trwałe REFRESH_REJECTED/REAUTH_REQUIRED i owner API HTTP 200 pokazujące błąd.
+  Nowy grant/scope/consent i rzeczywista owner connection nie były modyfikowane;
+  zero prod D1 i Drive file writes. Receipt:
+  `docs/verification/drive/oauth-negative-d53ce5b4-e8b4-4ab4-a52d-009460d58235.json`.
+  D-export scorecard pozostaje 6/13 do związania aktualnego report/configuration
+  i retained publishing/renewal receipts; tej samej negatywnej próby nie powtarzać.
+- Backup cadence ma teraz bounded checksum readback **przed utworzeniem sesji**.
+  Odmawia capture, gdy current code 36 wyprzedza applied schema 35; nie stempluje
+  nieprawdziwego migration set i nie ściga się z reset/deploy. Test real SQLite
+  prefix→exact set→changed checksum oraz restore: **9 targeted PASS**.
+  Due pozostaje po 22h dla rezerwy RPO, więc model peak musi uwzględniać możliwe
+  dwie kopie w dniu UTC. Nie wydłużono cadence w celu zmniejszenia kosztu.
+
+Commit diagnozy: `84025d5`; harness transcript `9bd2e31`, poprawka `d376ac3`.
+Production unchanged; kolejne tool/evidence commits nie przepinają historycznego
+Gate R. Wykonalne niezależne prace kontynuowano; pozostałe real-provider próby
+Drive/Daily i source-create potrzebują dostępnego D1/grantu, a human quality
+i pełne AI E2E wymagają osobnej generacji/review.
 
 ## Retained stan przed optymalizacją D1
 

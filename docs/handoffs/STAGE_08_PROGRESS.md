@@ -17,6 +17,18 @@ fresh account usage and deploys verified 036/build before remaining production
 measurements. No Gemini/paid/destructive actions. Owner approved 19 staged
 new-only sources; no source IDs need another permission question.
 
+New actual-provider transcript process failure/recovery scope PASS, current
+SOURCE accepted exactly once after real persisted runtime restart. Fence 1→2,
+stale rejected, 807747 bytes/1071 cues, recovery 15556ms. Preregistered 1ms timeout
+produced the runner's masked process failure; no upstream-outage attribution.
+Receipt `docs/verification/gate-r/provider-transcript-bc3b398b-de67-45c9-83bd-859248354139/receipt.json`.
+Frozen 8/10 Gate R pins remain historical. Index-only migration 36 changes the
+schema pins; a formal current baseline/evaluator must be compatible before full
+Gate R acceptance. Do not rewrite older preregistration or combine candidates.
+Backup schema preflight/restore targeted regression: 9 PASS; guards the reset
+race before creating a session/capture. Actual OAuth negative and canonical
+identities are recorded in Stage 07/current release report.
+
 ## Final execution, 2026-10-09
 
 Status: NOT_DONE. Code/tooling `3f3a7d3`; deployed runtime `96532b5`, Worker

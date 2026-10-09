@@ -94,7 +94,7 @@ Nie utożsamiamy tekstu EXPLAIN z pomiarem kosztu — oba są w benchmark receip
 
 ## Wykonane zmiany i benchmark przed/po
 
-Najmniejsza zmiana schema: cztery indeksy w **036_d1_read_indexes.sql**.
+Najmniejsza zmiana schema: pięć indeksów w **036_d1_read_indexes.sql**.
 Canonical tabele, payloady, constraints i projekcje backupu zachowane.
 Legacy backup z dokładnym 35-migration prefixem można odtworzyć do 36 wyłącznie
 dla jawnie kwalifikowanego index-only suffixu; inny/mutowany ledger jest nadal
@@ -119,7 +119,7 @@ Wyniki hash-identical; pełny backup porównuje counts/chunk hashes każdej tabe
 z pominięciem tożsamości nowej sesji i czasu. Konstrukcja indeksów: 1877 reads,
 75 writes lokalnie. Indeksy zwiększają późniejsze zapisy odpowiednich kolumn,
 co uwzględnia budżet; nie twierdzimy, że koszt write spadł.
-Receipt: `d1-cost-comparison-2026-10-09T18-34-55.196Z.json`.
+Receipt: `d1-cost-comparison-2026-10-09T19-28-12.759Z.json`.
 Wcześniejsze dwa pomiary zachowują swój zakres wersji (metadata 160 reads przed
 ostatnim due-range indeksem); nie są przepisywane na nowe wyniki.
 
@@ -145,9 +145,9 @@ backupie; nie gwarantuje to liniowości po zmianie rozkładu danych.
 | Backfill jednego kanału | Chodzi o rzeczywiste nowe Items, SOURCE artifacts, retry i ewentualne AI, a nie sam 1-bit source flag.                                | Brak izolowanego produkcyjnego kosztu/item. Przydział budżetu i etapowanie, bez nieograniczonej aktywacji pełnej historii.                                                |
 | Normalne 20 kanałów     | Admission około 11 520/d przy braku cooldown errors; hourly collector około 0.701 mln/d = 1328 × 22 strony × 24 dla 1060 Items.       | Index entries błędów, wiele accepted runs/item, długość historii i stale metadata mogą zwiększyć koszt.                                                                   |
 | Jednorazowy backup      | 31 184 reads /1098 writes zmierzone na kopii 1 kanału; ×20 daje około 0.624 mln reads /21 960 writes.                                 | To oszacowanie z całego corpus, nie zmierzone 20.                                                                                                                         |
-| Automatyczny backup     | Jedna kopia/dzień przy due 24h; hourly check nie oznacza hourly capture.                                                              | RPO nie może zostać porzucone przez budżet testowy. Większy corpus zwiększy koszt kopii.                                                                                  |
+| Automatyczny backup     | Due po 22h dla rezerwy RPO <=24h; hourly check nie oznacza hourly capture. Możliwe dwie kopie w jednym dniu UTC.                      | RPO nie może zostać porzucone przez budżet testowy. Większy corpus zwiększy koszt kopii.                                                                                  |
 | Intensywne Gate D/R     | Lokalny D1: 0 prod rows. Pozostałe live admin próby: 50k reads/5k writes, koniec nowych prób po nieznanym meta/błędzie/przekroczeniu. | Jedno zapytanie może przekroczyć miękki budżet; cleanup/recovery są poza nim.                                                                                             |
-| Gate C obserwacja       | Zwykły model godzinowy powyżej; przy >=80% lub UNKNOWN odroczone, gap retained.                                                       | Nie ma 7+28 dni, 20 approved sources ani accepted real AI.                                                                                                                |
+| Gate C obserwacja       | Zwykły model godzinowy powyżej; przy >=80% lub UNKNOWN odroczone, gap retained.                                                       | Nie ma 7+28 dni, 20 aktywnych sources ani accepted real AI.                                                                                                               |
 | Recovery po awarii      | Istniejąca niezależna kopia + lokalny pusty restore: zero production rows. Odtworzenie prod zapisuje canonical corpus i indeksy.      | Bulk restore corpus 20 kanałów może przekroczyć 100k writes. Nie udajemy możliwości ukończenia takiego importu w 1 dzień Free; cloud recovery RTO nadal niekwalifikowane. |
 
 Budżet odczytów typowego dnia 20 kanałów: 0.4 mln na pozostałe control/job
@@ -208,6 +208,31 @@ Nie wykonano nowego produkcyjnego capture dla powtórzenia PASS.
 
 ## Weryfikacja i aktualne gates
 
+Dodatkowa kontrola reset/cadence wykazała ryzyko wyścigu: kod narzędzia backupu
+z ledger 36 mógł wystartować przy jeszcze applied 35 i wystawić nieprawdziwy
+migration set. Naprawiono: bounded applied name/hash readback przed owner session
+i capture. Niezgodność zostawia kopię DUE i czeka na migrację; recovery/cleanup
+istniejącej kopii nie są blokowane. Regression real SQLite prefix35→exact36→
+changed checksum oraz restore: 9 targeted PASS. Pełna wcześniejsza regresja
+689 PASS pozostaje dowodem dla runtime optymalizacji; nowy guard jest dodatkowy.
+
+Cadence zachowuje due 22h dla dwugodzinnej rezerwy RPO. Dwie kopie w dniu UTC
+są możliwym **normalnym szczytem**, nie tylko dodatkowym testem. W modelu write
+93k +22k =115k z rezerwą; odroczenie 10k backfill i5k testów zostawia około
+80k rzeczywistych wydatków oraz 20k rezerwy. To przydziały do kalibracji,
+nie zmierzone 20-channel writes. Nie obniżono RPO dla sztucznego dopasowania
+budżetu. Największym pozostałym ryzykiem Free po optymalizacji są writes,
+długa historia i rozmiar pełnego restore, a nie pierwotny admission scan.
+
+Po commicie diagnozy kontynuowano niezależny Master Plan: actual yt-dlp
+process-failure/restart/SOURCE acceptance PASS (15.556s recovery, 1071 cues,
+jedno accepted effect, poprawny fencing), actual Google invalid_grant i local
+owner API visibility PASS oraz 19/19 zatwierdzonych canonical source identities
+rozwiązanych (19 YouTube requests). Zero produkcyjnego D1/Gemini/Drive file writes.
+Szczegóły i zakresy są w aktualnym RELEASE_READINESS_REPORT.md. Formalne gates
+nadal wymagają odpowiednich configuration/baseline pins; nie zaliczono nimi
+pełnego Gate R/D-export. Nie wykonano nowej produkcyjnej kopii.
+
 Actual lokalny benchmark wszystkich pięciu operacji PASS, identyczne wyniki i
 write counts, EXPLAIN zachowany. Pełne Workers **234 PASS /0 FAIL** oraz targeted
 po ostatnim metadata index/SQL **8 PASS**. Typecheck całego repo i lint PASS.
@@ -222,3 +247,31 @@ Production measurements/deploy i brakujące rzeczywiste D1 integracje oczekują
 wyłącznie na reset; nie zablokowano nimi niezależnych prac. Gate R historyczne
 8/10 PASS zachowuje historyczne pins, D-export 6/13, Bridge 9 NOT_RUN, Gate C
 NOT_YET_MATURE. Nowego pełnego PASS ani PRODUCTION ACCEPTED nie zadeklarowano.
+
+## Dalsze checkpointy i nowa decyzja właściciela
+
+Regresja scheduler: 4 PASS. Po skutecznym REFRESH niezmienione metadane
+pozostawały przy starej immutable fetched_at; cutoff zmieniany co cron powodował
+nowe zadania co 5 minut po 30 dniach. Potwierdzony kodem błąd naprawiono przez
+indeksowane membership rzeczywiście zakończonego scan/job. Nie zmieniono czasu
+rewizji ani PARTIAL coverage REFRESH. Test wykonuje rzeczywisty fenced commit,
+sprawdza 30 dni i brak zagłodzenia innego źródła. Aktualny index creation cost
+to 2852 reads /550 writes; cały lokalny backup 269698→31185 reads (szczegóły
+w nowym receipt, wcześniejszych nie przepisano). Typecheck PASS.
+
+Obserwacja publicznych playlist 20 zatwierdzonych kanałów: 137 publikacji
+w odczytanych stronach okna 28 dni, 4.892857/dzień, 20 requests; zero D1/AI.
+To bounded observation z założeniem recency order, nie pełny historyczny crawl.
+17 lokalnych SOURCE Items: 11 150 457 logical artifact bytes, 655 909/item;
+base64 około 874 546/item, całe lokalne DB 17 231 872 bytes. Próbka TED nie
+kwalifikuje rozkładu pozostałych kanałów ani realnych AI outputs.
+
+Inventory storage dodano do monitoringu: total 5 GB i pojedyncza baza 500 MB,
+próg 80%, brak inventory = UNKNOWN. Nowy targeted zestaw 26 PASS. Alert/log
+nie deklaruje dokładnego remaining quota. Zero SQL diagnostycznego na produkcji.
+
+Właściciel zatwierdził Drive-only: ciężkie dane mogą być usuwane dopiero 7 dni
+po zweryfikowanym końcowym eksporcie, z holds i minimalnym trwałym stanem.
+Zastępuje to wcześniejsze założenie wieloletniej historii D1; implementacja
+i kwalifikacja tej zmiany są osobnym kolejnym checkpointem. Pierwsze realne
+usunięcie produkcyjne i nowe żądania Gemini wymagają osobnych zgód.

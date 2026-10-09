@@ -1,0 +1,52 @@
+{
+  "version": "D1LocalStorageEnvelope/1.0",
+  "observed_at": "2026-10-09T19:11:31.508Z",
+  "basis": "METADATA_ONLY_READONLY_LOCAL_RESTORED_D1_AFTER_PROVIDER_DRILL_NOT_PRODUCTION",
+  "verified_source_items": 17,
+  "artifact_groups": [
+    {
+      "kind": "ANALYSIS_CANDIDATE",
+      "artifacts": 5,
+      "items": 1,
+      "logical_bytes": 0
+    },
+    {
+      "kind": "NORMALIZED",
+      "artifacts": 17,
+      "items": 17,
+      "logical_bytes": 113480
+    },
+    {
+      "kind": "OFFSET_MAP",
+      "artifacts": 18,
+      "items": 17,
+      "logical_bytes": 3609729
+    },
+    {
+      "kind": "RAW",
+      "artifacts": 17,
+      "items": 17,
+      "logical_bytes": 1718853
+    },
+    {
+      "kind": "SEGMENT_MAP",
+      "artifacts": 18,
+      "items": 17,
+      "logical_bytes": 5594915
+    },
+    {
+      "kind": "SOURCE_ORIGINAL",
+      "artifacts": 17,
+      "items": 17,
+      "logical_bytes": 113480
+    }
+  ],
+  "logical_source_artifact_bytes": 11150457,
+  "physical_db_bytes": 17231872,
+  "logical_source_bytes_per_item": 655909.2352941176,
+  "base64_source_bytes_per_item_estimated": 874546,
+  "physical_per_source_item_with_all_history_estimated": 1013640,
+  "production_d1_requests": 0,
+  "private_text_recorded": false,
+  "paid_services_enabled": false
+}

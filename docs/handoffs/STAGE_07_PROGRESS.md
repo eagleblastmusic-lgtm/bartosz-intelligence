@@ -16,6 +16,17 @@ Minimal 2 R /7 D-export sequence, old-backup assessment and controlled budget:
 `docs/runbooks/D1_CONTROLLED_RESUME.md`. Heartbeat at 02:05 Europe/Warsaw.
 D-export remains 6/13, Bridge 9 NOT_RUN; no existing reports overwritten.
 
+Independent follow-up completed: 19 approved canonical IDs resolved through
+actual YouTube adapter, 19 requests/zero D1, not added. Actual Google invalid_grant
+diagnostic request produced durable REAUTH_REQUIRED/REFRESH_REJECTED visible in
+local owner API; actual owner grant was untouched. Receipt
+`docs/verification/drive/oauth-negative-d53ce5b4-e8b4-4ab4-a52d-009460d58235.json`.
+Reuse this negative property receipt; do not repeat it just to refresh its date.
+Current report-bound D-export/OAuth acceptance still requires binding the retained
+publishing/success evidence to the intended configuration; no automatic export.
+Backup preflight now refuses compiled/applied schema mismatch before session
+creation. Cadence remains due 22h for RPO reserve, not a strict one-per-UTC-day cap.
+
 ## Final execution, 2026-10-09
 
 Status: NOT_DONE. Code/tooling `3f3a7d3`; deployed application `96532b5` and

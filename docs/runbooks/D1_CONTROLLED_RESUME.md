@@ -29,6 +29,10 @@ Nie zastępuje unattended ChatGPT Scheduled / Voice ani ciągłej obserwacji Gat
    Następnie wdrożyć zweryfikowany build z obsługą daily quota i poprawionym SQL.
    Produkcja ma nadal 35 migracji / Worker `93995293-fd49-4f25-b843-63f326c30a32`
    dopóki rzeczywista operacja i readback nie potwierdzą zmiany.
+   Istniejący tryb: `node --env-file=.env tools/deployment/prepare.mjs migrate`;
+   później właściwy zweryfikowany deploy przez `tools/deployment/deploy.mjs`.
+   Backup cadence odmawia capture przed zgodnym applied checksum set, więc
+   nie wolno omijać preflight lub stemplować 36 na bazie z applied 35.
 4. Minimalny pomiar produkcyjny: po jednej próbie admission, jednej stronie
    Capacity i jednej kontroli metadata-refresh; zapis `meta.rows_read/written`.
    Bez pełnego skanu danych, bez pięciu identycznych powtórek. Różnice od
@@ -40,8 +44,10 @@ Nie zastępuje unattended ChatGPT Scheduled / Voice ani ciągłej obserwacji Gat
    koszty także przy częściowym wykonaniu. Due metadata job jest trwałą zwykłą
    intencją aplikacji; nie tworzy się tymczasowej sesji ani prywatnego dumpu.
 
-5. Zatwierdzone 19 źródeł rozwiązać do canonical channel IDs istniejącym
-   YouTube adapterem i włączać stopniowo z new-only. Zgoda właściciela z
+5. Zatwierdzone 19 źródeł ma już rzeczywiste canonical IDs i uploads playlists:
+   `docs/verification/capacity/approved-channel-identities-2026-10-09.json`.
+   Użyć zachowanego wyniku i włączać stopniowo z new-only; nie powtarzać 19
+   provider requests. Zgoda właściciela z
    2026-10-09 jest w `docs/decisions/GATE_C_CHANNEL_PROPOSAL_2026-10-09.md`.
    Nie pytać ponownie o listę/tryb; nie uruchamiać pełnego backfill lub AI.
 
@@ -69,6 +75,18 @@ drugiej. Przy przerwaniu zachować manifest/intencję i wykonać właściwy clea
 Nowe preregistration/config/baseline zapisać przed injection, z prawdziwymi
 pins, granicą <=4 h i izolowanym D1. Historycznych pins nie przepisywać.
 Oba wymagają `ACTUAL_PROVIDER`; obecne local functional PASS pozostają lokalne.
+
+Niezależny actual-provider transcript recovery już wykonał real process failure
+przy ustawionym timeout 1ms, persisted runtime restart i jeden SOURCE acceptance
+w 15.556s. Receipt `provider-transcript-bc3b398b-de67-45c9-83bd-859248354139`
+ma własne preregistration/pins oraz restore-compatible 35-migration backup.
+Nie importować go jako case PASS do innego preregistered baseline po fakcie.
+Strict evaluator wymaga tego samego candidate/migration set dla pełnego Gate R;
+jeśli formalny odbiór potrzebuje ponownego case pod nowym baseline, uzasadnieniem
+jest zmiana schema/pins, nie nowa data. Historyczne 8 zachowuje zakres; lokalna
+regresja database rollback/backup i inne przypadki wymagane przez zgodność
+jednego frozen candidate są bez produkcyjnego D1. Nie kopiować/sztucznie
+przepinać ich receipts; nie wykonywać kolejnego prod backupu poza potrzebą RPO.
 
 | Przypadek                | Jedna kontrolowana sekwencja                                                                                                                                                                                                                                          | Obowiązkowy dowód                                                                                                                                                                                                                                                                                                       |
 | ------------------------ | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
@@ -106,6 +124,13 @@ queries używać uprzednio sprawdzonych indexed plans i lokalnych kosztów.
 Cleanup/session revocation oraz reconcile nie mogą zostać pominięte przez guard.
 Żadnych automatycznych replay po ambiguous failure. Journal checkpointów
 sprawdzać przed nową próbą; nie powtarzać całej sekwencji po niepewnym zapisie.
+
+OAuth negative property już PASS: jeden real invalid_grant diagnostic request
+i local owner API REAUTH_REQUIRED/REFRESH_REJECTED.
+`docs/verification/drive/oauth-negative-d53ce5b4-e8b4-4ab4-a52d-009460d58235.json`.
+W D-export OAuth check użyć tego receipt razem z retained actual publishing
+i offline-renewal success; sprawdzić report/configuration binding i scope,
+nie powtarzać negatywnego requestu tylko dla kolejnego timestamp.
 
 ## Przygotowane live AI E2E
 

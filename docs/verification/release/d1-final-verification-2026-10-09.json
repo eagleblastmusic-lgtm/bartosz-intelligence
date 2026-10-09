@@ -1,0 +1,64 @@
+{
+  "version": "D1FinalVerification/1.0",
+  "recorded_at": "2026-10-09T18:50:54.693Z",
+  "verified_change_commit": "84025d5",
+  "current_commit": "9bd2e31bde63c54daab25b7ff01998adbfb592f3",
+  "status": "PASS",
+  "basis": "LOCAL_REGRESSION_AND_ACTUAL_LOCAL_WORKERD_D1_META",
+  "tests": [
+    {
+      "path": ".local/tests/d1-final-unit-contract.json",
+      "sha256": "ee99fea5a17dcb218f91214607c1a0107a724526fa909d4367d5aa61b0715922",
+      "tests": 456,
+      "pass": 455,
+      "failed": 0,
+      "skipped": 1
+    },
+    {
+      "path": ".local/tests/d1-full-workers.json",
+      "sha256": "76a0b64b44e7264483ae8c2534372f499a8eef16415ac690fcfd9cc39358aeab",
+      "tests": 234,
+      "pass": 234,
+      "failed": 0,
+      "skipped": 0
+    },
+    {
+      "path": ".local/tests/d1-final-targeted-workers.json",
+      "sha256": "61b8f3b4b8934cc1a5ab634f194ebc7ed9be4e47c786cb4919b9552c329845c5",
+      "tests": 8,
+      "pass": 8,
+      "failed": 0,
+      "skipped": 0
+    },
+    {
+      "path": ".local/tests/d1-final-budget.json",
+      "sha256": "e7c5bd9b297bda98b34131ce6198eee77f801ab54290d639bd9eb6e3143f6d39",
+      "tests": 2,
+      "pass": 2,
+      "failed": 0,
+      "skipped": 0
+    }
+  ],
+  "total_full_pass": 689,
+  "unit_parallel_attempt": "EXISTING_1MIB_ENCRYPTION_TIMEOUT_RETAINED_THEN_SEQUENTIAL_PASS_WITHOUT_ASSERTION_CHANGE",
+  "typecheck": "PASS",
+  "lint": "PASS",
+  "build": "PASS",
+  "migrations": 36,
+  "fresh_install": "PASS",
+  "empty_restore": "PASS",
+  "foreign_key_check": "PASS",
+  "integrity_check": "PASS",
+  "public_secret_scan": {
+    "status": "PASS",
+    "files": 4,
+    "bytes": 409769,
+    "findings": 0
+  },
+  "comparison": "d1-cost-comparison-2026-10-09T18-34-55.196Z.json",
+  "production_deployment": "PENDING_ACTUAL_RESET",
+  "production_post_change_measurements": "NOT_RUN",
+  "prod_d1_sql_for_analytics": 0,
+  "gemini_requests": 0,
+  "paid_services_enabled": false
+}

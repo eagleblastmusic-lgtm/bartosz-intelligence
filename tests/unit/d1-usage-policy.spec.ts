@@ -11,7 +11,31 @@ const sample = {
   start_utc: '2026-10-09T00:00:00.000Z',
   account_rows_read: 3999999,
   account_rows_written: 79999,
+  current_storage_bytes: 25000000,
+  max_database_size_bytes: 22000000,
 };
+it('reserves single database and account storage independently and fails closed for missing inventory', () => {
+  for (const patch of [
+    { max_database_size_bytes: 400000000 },
+    { current_storage_bytes: 4000000000 },
+  ])
+    expect(d1UsagePolicy({ ...sample, ...patch }, now)).toMatchObject({
+      state: 'RESERVE_CRITICAL_CAPACITY',
+      noncritical_admitted: false,
+    });
+  expect(
+    d1UsagePolicy({ ...sample, max_database_size_bytes: null }, now),
+  ).toMatchObject({ state: 'UNKNOWN', noncritical_admitted: false });
+  expect(
+    d1UsagePolicy({ ...sample, max_database_size_bytes: 500000000 }, now).state,
+  ).toBe('EXHAUSTED');
+  expect(
+    d1UsagePolicy(
+      { ...sample, account_rows_read: 5500000, max_database_size_bytes: null },
+      now,
+    ).state,
+  ).toBe('EXHAUSTED');
+});
 it('classifies explicit daily read/write limits without leaking provider text', () => {
   expect(
     d1DailyLimit(
