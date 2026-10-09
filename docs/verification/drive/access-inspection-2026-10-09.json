@@ -1,0 +1,26 @@
+{
+  "version": "DriveAccessInspection/1.0",
+  "observed_on": "2026-10-09",
+  "method": "Google Drive owner UI sharing dialog and Google Account OAuth grant details",
+  "parent_id": "1vfEz_U9Y0mEFMw8j7Amp6UbJQrQYtfA6",
+  "parent_name": "APLIKACJE",
+  "named_recipients": "OWNER_ONLY",
+  "general_access": "ANYONE_WITH_LINK",
+  "general_access_role": "EDITOR",
+  "sign_in_required": true,
+  "chatgpt_named_grant": "GOOGLE_SIGN_IN_PROFILE",
+  "openai_oauth_destination": "chatgpt.com",
+  "openai_drive_permissions_observed": [
+    "Read and download all Drive files",
+    "Read, edit, create and delete all Drive files",
+    "Read, edit, create and delete selected application Drive files"
+  ],
+  "actual_chatgpt_daily_read": "NOT_VERIFIED",
+  "bartosz_oauth_parent_metadata": "HTTP_404_DRIVE_FILE_SCOPE",
+  "migration": "AWAITING_REVISED_SCOPE_APPROVAL",
+  "permission_changes": 0,
+  "file_moves": 0,
+  "created_folders": 0,
+  "backup_upload": "NOT_RUN",
+  "paid_services_enabled": false
+}

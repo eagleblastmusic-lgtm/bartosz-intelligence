@@ -1,0 +1,67 @@
+{
+  "version": "DriveLayoutInspection/1.0",
+  "observed_at": "2026-10-09T15:03:30.404Z",
+  "parent_id": "1vfEz_U9Y0mEFMw8j7Amp6UbJQrQYtfA6",
+  "current_daily_root": "1rn_5auxY_8HAeADc1RgGKQ6h9JimD7WM",
+  "drive_mutations": 0,
+  "paid_services_enabled": false,
+  "current_root": {
+    "id": "1rn_5auxY_8HAeADc1RgGKQ6h9JimD7WM",
+    "name": "Bartosz Intelligence",
+    "mimeType": "application/vnd.google-apps.folder",
+    "trashed": false,
+    "parents": [
+      "0AAnf2kTW1ftKUk9PVA"
+    ],
+    "appProperties": {
+      "bi_root_candidate": "a2192db7d36209f16f3970ce0369d8120afce619aec26d11a6dead378c782793",
+      "bi_owner": "1f1a4477a39f792eaac765462d16b8560e55ff2f2afb09dc610edde09de6649f"
+    },
+    "version": "1",
+    "modifiedTime": "2026-10-08T12:56:00.614Z",
+    "capabilities": {
+      "canAddChildren": true,
+      "canDownload": true,
+      "canEdit": true
+    }
+  },
+  "current_children": {
+    "files": [
+      {
+        "mimeType": "text/markdown",
+        "parents": [
+          "1rn_5auxY_8HAeADc1RgGKQ6h9JimD7WM"
+        ],
+        "id": "169ly1HEnThueOGnxP0E94VoZFs-DsP4Y",
+        "name": "BI recovery verification 8c5d75bd-0e30-4cc4-863a-2c00e19dd65d.md"
+      },
+      {
+        "mimeType": "text/markdown",
+        "parents": [
+          "1rn_5auxY_8HAeADc1RgGKQ6h9JimD7WM"
+        ],
+        "id": "1WFfdndxp0GJAqKgybSZf1_Opt4yvzAnQ",
+        "name": "2026-10-02.md"
+      },
+      {
+        "mimeType": "text/markdown",
+        "parents": [
+          "1rn_5auxY_8HAeADc1RgGKQ6h9JimD7WM"
+        ],
+        "id": "1j9CaPJd8duRwnWOzwU7Pxgd6Mkws79fM",
+        "name": "bi-guard-probe.md"
+      },
+      {
+        "mimeType": "text/markdown",
+        "parents": [
+          "1rn_5auxY_8HAeADc1RgGKQ6h9JimD7WM"
+        ],
+        "id": "1Nrk0H7E7wu__KGCaNDH5jguVq-UIq5vM",
+        "name": "bi-guard-probe.md"
+      }
+    ]
+  },
+  "status": "PARENT_NOT_ACCESSIBLE",
+  "http_status": 404,
+  "category": "NOT_FOUND"
+}

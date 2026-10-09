@@ -1,0 +1,73 @@
+{
+  "version": "ProductionSearchWorkerMeasurement/1.0",
+  "observed_at": "2026-10-09T14:59:38.412Z",
+  "basis": "ACTUAL_PRODUCTION_HTTP",
+  "scope": "CURRENT_REAL_CORPUS_NOT_10K",
+  "timeframe": {
+    "from": 1791557973340,
+    "to": 1791557975880
+  },
+  "samples": [
+    {
+      "status": 404,
+      "ray": "a47e3ff5d9039d75-WAW",
+      "wall_ms": 621.067,
+      "count": null,
+      "body_keys": [
+        "error"
+      ]
+    },
+    {
+      "status": 404,
+      "ray": "a47e3ffbabdeddf9-WAW",
+      "wall_ms": 1045.1533,
+      "count": null,
+      "body_keys": [
+        "error"
+      ]
+    },
+    {
+      "status": 404,
+      "ray": "a47e3ffd7e979d75-WAW",
+      "wall_ms": 289.89220000000023,
+      "count": null,
+      "body_keys": [
+        "error"
+      ]
+    },
+    {
+      "status": 404,
+      "ray": "a47e3fff3d66ddf9-WAW",
+      "wall_ms": 280.1872000000003,
+      "count": null,
+      "body_keys": [
+        "error"
+      ]
+    },
+    {
+      "status": 404,
+      "ray": "a47e4000ff259d75-WAW",
+      "wall_ms": 303.8756999999996,
+      "count": null,
+      "body_keys": [
+        "error"
+      ]
+    }
+  ],
+  "telemetry": {
+    "http_status": 403,
+    "response_sha256": "ec1ce23212b4bdd8ba0a57465d5ec266c8d72ffb56750aa5f34a955b227de9f4",
+    "response_keys": [
+      "success",
+      "errors",
+      "messages",
+      "result"
+    ],
+    "events": []
+  },
+  "cpu_qualification": "INCONCLUSIVE_NO_CORRELATED_EVENTS",
+  "provider_requests": 0,
+  "data_writes": 0,
+  "temporary_auth_session": true,
+  "paid_services_enabled": false
+}

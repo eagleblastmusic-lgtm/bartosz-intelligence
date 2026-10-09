@@ -1,16 +1,22 @@
 # Stage 08 — current handoff
 
 2026-10-09. Status: NOT_DONE. Current audit and candidate fingerprints:
-`RELEASE_READINESS_REPORT.md`; implementation commit `ef67cdf`.
+`RELEASE_READINESS_REPORT.md`; recovery tooling commit `019b3f5`.
 
-Existing isolated D1 evidence qualifies five recovery cases on its pinned
-candidate. The other five remain NOT_RUN. Independent empty SQLite restore and
+Current isolated D1 evidence qualifies seven recovery cases on its pinned
+candidate (`2081a456-c834-4bfc-9c6d-267dee40091c`). Unknown quota/local executor
+restart and immutable model/prompt rollback are now exercised. The other three
+remain NOT_RUN. Independent empty SQLite restore and
 canonical integrity passed; independent physical medium and full app RPO/RTO
-remain unqualified. No costly identical backup/drill was repeated.
+remain unqualified. Existing verified backup was reused for the extended drills;
+no identical production backup was repeated.
 
 Security negatives, local 10k Knowledge/GUI, automated accessibility and clean
 archive install retain their original scope. They do not qualify production CPU,
 new-owner live onboarding, human quality or complete release E2E.
+Five actual production FTS samples returned six results each, 447 D1 rows read,
+zero data writes, indexed canonical joins and 1.76–3.86 ms SQL durations. This is
+the current 53-item corpus; production Worker CPU and 10k qualification remain open.
 New regression: HTTP 408 transient classification, redacted timeout category and
 durable provider Retry-After boundary; 59 tests PASS, typecheck/lint/build PASS.
 
@@ -19,3 +25,11 @@ one source channel, no accepted AI observations, no mature 20-channel PASS.
 CP-3.13 AWAITING_HUMAN_REVIEW and screen-reader NOT_RUN/DEFERRED remain unchanged.
 Full release checklist and remaining actual technical drille/pomiar evidence
 remain open. Do not promote this progress handoff to Stage DONE.
+
+Commit e0c9917 implements encrypted canonical Drive backup using a dedicated
+external recovery key, existing OAuth, durable reserved file ID and authenticated
+readback. Configuration remains disabled until approved/verified Backups exists.
+16 unit and 42 Workers regressions PASS; Core/API/executor/tools typecheck and lint
+PASS. Actual Drive upload/download/isolated restore NOT_RUN. Owner ACL inspection
+and revised migration approval are recorded in the release report. Do not carry
+earlier candidate fingerprints forward across this code delta.

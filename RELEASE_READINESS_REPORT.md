@@ -1,6 +1,7 @@
 # Bartosz Intelligence V1 — release readiness
 
-Stan: 2026-10-09, Europe/Warsaw. Implementation commit: `ef67cdf`, base
+Stan: 2026-10-09, Europe/Warsaw. Application commit: `ef67cdf`; recovery tooling
+commit: `019b3f5` (poprzedzony `eb72dff`), base
 `1f5e448`. Ten raport jest audytem dostępnych dowodów, nie zgodą na release.
 
 **IMPLEMENTATION COMPLETE: NO. PRODUCTION ACCEPTED: NO.**
@@ -22,10 +23,13 @@ drille i pomiary wymieniono jawnie poniżej; nie oznaczono ich PASS.
 - Uruchomiono istniejący kolektor Gate C z PROJECT-scoped tożsamością,
   bez AI; kompletne próbki mają 53 przypadki. Interwał: 3600 sekund.
   Proces działa na tym komputerze; nie obiecuje pracy po wyłączeniu komputera.
-- `paid_services_enabled=false`; brak nowego żądania Gemini, zakupów,
+- `paid_services_enabled=false`; wykonano dokładnie jedno nowo zatwierdzone
+  żądanie Gemini QUALITY_TEST (503); brak zakupów,
   upgrade'ów, zmiany modelu i płatnego fallbacku. Nie zmieniono raportów Drive.
 
-Fingerprint kandydata: `26a763df6d4846e12d1b30615319a8d49706342a93bb8ce86680f3193b304b33`.
+Fingerprint wdrożonej aplikacji: `26a763df6d4846e12d1b30615319a8d49706342a93bb8ce86680f3193b304b33`.
+Fingerprint aktualnego kandydata z rozszerzonym toolingiem recovery:
+`3f79efcc3e9216fc10731faac5a678580e0231ba4c51e2ae889c75164f130111`.
 35 migracji; fingerprint zestawu:
 `0ea54579fe5f0a5c4d8501a0ac3718f5fe9d6e317a93ebb1ff38f9e706b73f2a`.
 Evidence wdrożenia: `docs/verification/deployment/2026-10-09T14-15-57.021Z.json`.
@@ -50,7 +54,7 @@ wysłania. [Oficjalne limity](https://ai.google.dev/gemini-api/docs/rate-limits)
 są zależne od projektu/modelu, wspólne dla kluczy projektu i niegwarantowane;
 RPD resetuje się według czasu Pacific. Nie utożsamiono peak usage z current usage.
 
-Ostatni live request: video `rUhllpnYWR8`, job
+Historyczny live request z 2026-10-08: video `rUhllpnYWR8`, job
 `8f1812f5-9dad-4451-a6c0-339e5c2aa77d`, jedna generacja,
 HTTP_503:service_unavailable, brak token accounting, UNKNOWN reservation,
 RETRY_WAIT/TRANSIENT, zero zaakceptowanych efektów. Odczyt produkcyjny z tego
@@ -66,6 +70,21 @@ błędy harnessu przed wysłaniem opisano osobno w live receipt.
 [Google zaleca backoff przy 503/429](https://ai.google.dev/gemini-api/docs/troubleshooting).
 Adapter nie wykonuje ukrytych retry; kolejka zachowuje job/origin, a ponowienie
 wymaga admission. Dotychczasowa jednożądaniowa zgoda została zużyta.
+
+Właściciel następnie osobno zatwierdził dokładnie jedno nowe QUALITY_TEST tego
+samego materiału. Wykonano je 2026-10-09 o 14:56 UTC: job
+`c6a99a9d-4be4-446e-bbe5-29e5c0b92c24`, profil revision 5, ten sam model.
+GET metadata zachował identyczny response hash; odświeżono eligibility przez
+nową immutable revision bez quality approvals, nie zmieniając starych snapshotów.
+Aktualne widoczne Google Cloud Free counters o 14:55:49 UTC: RPM 0/5,
+RPD 0/20, INPUT_TPM 0/250000. Admission przyjęło jedną rezerwację.
+Jedno wysłanie zakończyło się ponownie `HTTP_503:service_unavailable`;
+reconciliation D1 potwierdziło UNKNOWN, RETRY_WAIT/TRANSIENT i 0 accepted effects.
+Nie wykonano hidden retries ani drugiej generacji. Nowa zgoda również zużyta.
+Primary evidence: `docs/verification/gate-ai/live-attempt-2026-10-09.json`,
+`quota-live-2026-10-09.json`, `model-capabilities-2026-10-09.json`.
+Powtarzalne 503 mimo dostępnych liczników nadal nie identyfikuje wewnętrznej
+przyczyny Google i nie uprawnia do jednostronnej zmiany modelu.
 
 Primary evidence: `docs/verification/gate-ai/live-attempt-2026-10-08T23-23Z.json`,
 `model-capabilities-2026-10-08T23-16-59.681Z.json`,
@@ -96,8 +115,8 @@ i kwalifikacji; nie jest automatycznym rozwiązaniem obecnego 503.
 | CP-7.8–7.10          | Codex/optional płatne route DISABLED; Gate 0B NOT_RUN, brak dodatkowej capacity                                                        |
 | CP-7.11              | Runbooki/backup istnieją; pełny operational acceptance i Stage DONE otwarte                                                            |
 | CP-8.1               | Strict evidence evaluators/pins/preregistration istnieją; nowy kandydat nie odziedzicza pełnego PASS starego manifestu                 |
-| CP-8.2               | Pięć actual local-D1 cases PASS na wcześniejszym przypiętym kandydacie; brak całego Gate R                                             |
-| CP-8.3–8.4           | Lokalne failure/quality guards istnieją; wymagane pełne actual drille/quality/model rollback nieukończone                              |
+| CP-8.2               | Siedem actual local-D1 cases PASS na aktualnym przypiętym kandydacie; brak całego Gate R                                               |
+| CP-8.3–8.4           | Immutable model/prompt rollback actual local-D1 PASS; full quality i pozostałe frozen drille nieukończone                              |
 | CP-8.5               | Independent empty SQLite restore PASS; niezależny nośnik i pełne RPO/RTO niekwalifikowane                                              |
 | CP-8.6               | Istniejące security negatives i secret scan PASS w opisanym zakresie                                                                   |
 | CP-8.7               | Lokalny 10k/Gate S/U PASS; produkcyjna kwalifikacja CPU/query i Gate C otwarte                                                         |
@@ -137,6 +156,17 @@ stable readback. Reserved-create response-loss `8c5d75bd…`: jedna próba creat
 ten sam reserved ID, 83 bytes/hash readback, bez drugiego create.
 Te próby nie domykają pełnego Daily recovery ani quality/full-data E2E.
 
+Nowy rzeczywisty readback revision 4/version 7: pełne 3325 bytes zgodne z SEALED
+canonical artifact `876ae4631dcb271086cc6aac8be5d09c917407048b3ab968351a6a1b81d8d582`,
+full hash `791e6c05afa7d3d8feb5ddcbfeddc794b6ea2337e3ef9972d785db3448782b8b`,
+body hash `27423a73fb1526e65cf2933ce9eb45200853ed907b88ac023adb256b5ddb19fd`.
+Counts: 4 Items, 4 pending, 0 ready, 4 unique canonical IDs, partial=true;
+source cut 1685, root/parent/name i remote version stable. Odnowiono aktualny
+grant, zero Drive writes. Evidence: `docs/verification/drive/canonical-readback-2026-10-09.json`.
+Początkowy FAIL harnessu zachowano w `canonical-readback-diagnostic-2026-10-09.json`:
+string-only sha256 błędnie konwertowało Uint8Array; poprawiono byte hashing.
+Readback PASS nie oznacza zaakceptowanych danych AI ani pełnego Gate D-export.
+
 Brakuje pełnego scorecardu z primary observations dla wszystkich checków,
 actual accepted AI content/counts, late accepted jobs/correction/conflict przez
 cały executor, pełnego outage/reconciliation oraz wymaganej oceny COMPACT.
@@ -146,11 +176,19 @@ próbą ingerującą w istniejący raport lub grant użytkownika.
 
 ## Recovery, backup i obserwacja
 
-Gate R evidence `docs/verification/gate-r/e17d754b-fbfd-46a9-af56-c39b1d564e91/`:
+Aktualne Gate R evidence `docs/verification/gate-r/2081a456-c834-4bfc-9c6d-267dee40091c/`:
 lease crash, queue loss, discovery interruption, database rollback,
-auth revocation PASS w isolated actual local D1. Pozostałe transcript_failure,
-quota_local_offline, malformed_ai, model_prompt_rollback,
-drive_consumer_failure NOT_RUN w pełnym frozen drill manifest.
+auth revocation, quota/local offline i model/prompt rollback PASS w isolated
+actual local D1 po odtworzeniu istniejącego backupu do pustej bazy.
+Independent on-disk evaluator potwierdził hashe i pins, 7 PASS, overall NOT_RUN.
+Unknown quota odrzuciła rezerwację, cloud executor nie przejął local-primary;
+restart zachował job/origin, stary fence odrzucony, duplicate idempotent.
+Rollback przywrócił zgodny prompt bez zmiany in-flight snapshotu; ten sam model
+revision nie daje się nadpisać, nowa revision nie dziedziczy quality approval.
+Wyniki AI i upływ 26 h są syntetyczne i jawnie opisane; nie stanowią quality proof.
+Pozostałe transcript_failure, malformed_ai i drive_consumer_failure NOT_RUN
+w pełnym frozen drill manifest. Istniejące testy malformed output są lokalnymi
+regresjami, bez nowego actual frozen receipt. Nie uznano ich za zewnętrzny blocker.
 Nowe lokalne testy retry nie zamieniają tych wierszy w actual gate receipts.
 Symulacja 26 godzin transportu nie dowodzi rzeczywistej 26-godzinnej awarii Cloudflare.
 
@@ -181,15 +219,28 @@ reviewed execution. Nie powtórzono całej niezmienionej baterii 649 testów
 z `docs/verification/release/hardening-technical-acceptance.json`.
 Nowe evidence: `docs/verification/release/gemini-recovery-2026-10-09.json`.
 
+Rozszerzenie recovery: 2 Workers integration tests PASS, 16 strict recovery
+evaluator unit tests PASS, tools/Workers typecheck, scoped lint i format PASS.
+Final existing public-build secret scan PASS (4 pliki, 409413 bytes, 0 findings).
+Nowe drille wykorzystały poprzedni verified backup zamiast ponownego production
+exportu. Drugi przebieg rozszerzał zakres o rollback; nie był identycznym retestem.
+
+Production search: `docs/verification/release/search-production-2026-10-09.json`:
+5 rzeczywistych FTS zapytań, po 6 wyników, 447 rows_read/query, 0 rows_written,
+1 attempt/query, SQL 1.76–3.86 ms, indeksowane canonical joins, FTS index64:M1>.
+Index FRESH przed/po, cut 2213. To 53-item corpus, nie 10k production Gate S;
+Worker CPU i GUI latency NOT_MEASURED. Pomiar czasu REST zawiera sieć.
+
 Minimalne działania do pełnego V1 release:
 
 1. Osobna zgoda na konkretny materiał/liczbę Gemini calls, świeża quota,
    udany QUALITY_TEST i wymagane quality evidence; następnie scoped production E2E.
 2. Domknięcie actual Gate D-export pełnym scorecardem na bezpiecznych danych;
    D-bridge actual Scheduled/Voice lub faktyczny capability/owner scope decision.
-3. Pozostałe pięć actual Gate R scenarios, complete app recovery/RPO/RTO,
+3. Pozostałe trzy frozen Gate R scenarios, complete app recovery/RPO/RTO,
    niezależny recovery medium/locator; backup execution observation.
-4. Produkcyjne search/query/CPU i końcowa 20-row release checklist.
+4. Produkcyjne 10k/search/CPU oraz pełne primary evidence 20-row release checklist;
+   bieżące real corpus SQL/query measurement wykonane.
 5. Kontynuacja realnego Gate C na docelowym scope i wymaganych windows;
    sam kolektor na jednym kanale nie jest kwalifikacją 20 kanałów.
 6. CP-3.13 human review i odroczony screen-reader według decyzji właściciela,
@@ -201,3 +252,35 @@ niezależnego backup medium oraz rzeczywisty Bridge capability/active scope.
 Żadnej z tych decyzji nie podjęto za właściciela. Nie ponowiono prośby o
 odroczone formularze ludzkie. Niewykonane lokalne drille/pomiary pozostają
 technicznym backlogiem, nie zostają zbiorczo nazwane zewnętrznym blockerem.
+
+## Delta: szyfrowany backup Drive i uprawnienia docelowego folderu
+
+Commit implementacji **e0c9917**. Zaimplementowano AES-256-GCM canonical envelope z uwierzytelnionym backup ID,
+key ID i SHA-256, dedykowanym nieeksportowalnym kluczem oraz losowym IV.
+Naprawiono base64url dla dużych backupów (bez przekroczenia limitu argumentów).
+CLI wykorzystuje istniejący OAuth i canonical verification, zachowuje zarezerwowany
+file ID przed uploadem, sprawdza download/hash/decryption i nie nadpisuje receipt.
+Istniejący backup cadence może archiwizować szyfrowaną kopię; konfiguracja pozostaje
+wyłączona do potwierdzenia docelowego Backups. Nie wykonano uploadu ani restore z Drive.
+Klucz recovery zapisano poza repozytorium, D1 i Drive, w prywatnym katalogu
+LOCALAPPDATA/Bartosz Intelligence/Recovery; brak klucza w evidence.
+
+Regresja tej delty: 16 targeted unit PASS, 42 Drive/OAuth/export/backup Workers PASS.
+Core/API/executor/tools typecheck oraz scoped ESLint PASS. Te testy nie zastępują
+live upload/download/restore ani pełnego Gate R. Nowa delta zmienia fingerprint
+kandydata; poprzednie frozen recovery evidence zachowuje własne piny.
+
+Faktyczny APLIKACJE ACL: owner-only lista osób, ale ANYONE_WITH_LINK/EDITOR
+(wymagane zalogowanie). Osobny OpenAI OAuth dla chatgpt.com ma grant odczytu
+wszystkich plików Drive; publiczny link nie jest wymaganiem tego grantu.
+Nie zmieniono uprawnień, nie przeniesiono plików, nie utworzono folderów.
+Ostateczny wariant migracji wymaga zgody na nowy zakres: nowy ograniczony rodzic,
+obecny immutable export root jako Daily, nowy Backups, diagnostyki w rodzicu.
+Ograniczenie folderu nie izoluje go od OAuth działającego jako właściciel;
+treść backupu chroni szyfrowanie i klucz poza Drive. Odczyt Daily w ChatGPT NOT_VERIFIED.
+Evidence: docs/verification/drive/access-inspection-2026-10-09.json.
+
+Production HTTP search: 5 poprawnych requestów, HTTP 200, po 6 wyników.
+Cloudflare CPU telemetry HTTP 403: rzeczywisty CPU pozostaje INCONCLUSIVE.
+Nie utożsamiono czasu sieciowego z CPU. IMPLEMENTATION COMPLETE i PRODUCTION ACCEPTED
+pozostają niepotwierdzone; obowiązkowe bramki nie zostały poluzowane.

@@ -1,0 +1,14 @@
+{
+  "version": "DailyReadbackDiagnostic/1.0",
+  "status": "FAIL",
+  "basis": "ACTUAL_PROVIDER_AND_PRODUCTION_D1",
+  "observed_at": "2026-10-09T14:45:24.397Z",
+  "expectedHash": "be7291724c4b855c66eb2d22c551bf20097b317d9071367dffefdabe191c7faf",
+  "readback_hash": "791e6c05afa7d3d8feb5ddcbfeddc794b6ea2337e3ef9972d785db3448782b8b",
+  "mapped_full_file_hash": "791e6c05afa7d3d8feb5ddcbfeddc794b6ea2337e3ef9972d785db3448782b8b",
+  "mapped_body_hash": "27423a73fb1526e65cf2933ce9eb45200853ed907b88ac023adb256b5ddb19fd",
+  "artifact_body_hash": "27423a73fb1526e65cf2933ce9eb45200853ed907b88ac023adb256b5ddb19fd",
+  "artifact_bytes": 3325,
+  "remote_bytes": 3325,
+  "drive_mutations": 0
+}

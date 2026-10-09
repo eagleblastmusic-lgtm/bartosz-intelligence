@@ -1,0 +1,11 @@
+{
+  "version": "DriveLayoutInspection/1.0",
+  "observed_at": "2026-10-09T15:02:02.412Z",
+  "parent_id": "1vfEz_U9Y0mEFMw8j7Amp6UbJQrQYtfA6",
+  "current_daily_root": "1rn_5auxY_8HAeADc1RgGKQ6h9JimD7WM",
+  "drive_mutations": 0,
+  "paid_services_enabled": false,
+  "status": "PARENT_NOT_ACCESSIBLE",
+  "http_status": 404,
+  "category": "NOT_FOUND"
+}

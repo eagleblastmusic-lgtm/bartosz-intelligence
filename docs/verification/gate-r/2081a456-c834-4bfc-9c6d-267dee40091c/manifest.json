@@ -1,0 +1,84 @@
+{
+  "version": "GateRManifest/1.0",
+  "configuration": {
+    "path": "configuration.json",
+    "sha256": "4bd854e1242be905f59f4f7ef2a7f984ade6ed6ee3b61f35f9d1a258716e78f5"
+  },
+  "baseline": {
+    "path": "baseline.json",
+    "sha256": "a2dfed3c3137085ab0765fcd5c014a5727678a7714ba4512f18e653168dcca84"
+  },
+  "cases": [
+    {
+      "id": "lease_crash",
+      "deadline_ms": 14400000,
+      "evidence": {
+        "path": "lease_crash.json",
+        "sha256": "bf7114ccc367930bff1af7550eae7c3b5b6e5ddb659cc565b367817968d0270a"
+      }
+    },
+    {
+      "id": "queue_loss",
+      "deadline_ms": 14400000,
+      "evidence": {
+        "path": "queue_loss.json",
+        "sha256": "2aec6d485dc66a5f3958122134746e6fe8c9f9c14b6ccaaa2ea26d8b891d392c"
+      }
+    },
+    {
+      "id": "discovery_interruption",
+      "deadline_ms": 14400000,
+      "evidence": {
+        "path": "discovery_interruption.json",
+        "sha256": "6379d2febbdf933de6faff578229a63a3cbca89485129a39768c994a002fe031"
+      }
+    },
+    {
+      "id": "database_rollback",
+      "deadline_ms": 14400000,
+      "evidence": {
+        "path": "database_rollback.json",
+        "sha256": "4fe43708b9a349ea8e8a847d8d728a06b51eef880c0d28e6ee897ed201123788"
+      }
+    },
+    {
+      "id": "transcript_failure",
+      "deadline_ms": 14400000,
+      "evidence": null
+    },
+    {
+      "id": "auth_revocation",
+      "deadline_ms": 14400000,
+      "evidence": {
+        "path": "auth_revocation.json",
+        "sha256": "77aa9e86df54ec5bfc227384ae1a526f368c935715b5f61139a1aa964dc29638"
+      }
+    },
+    {
+      "id": "quota_local_offline",
+      "deadline_ms": 14400000,
+      "evidence": {
+        "path": "quota_local_offline.json",
+        "sha256": "52b587c864009f1d6f173b98df59c775b593b5cc51a2aaef9c3c1cc761b89ac2"
+      }
+    },
+    {
+      "id": "malformed_ai",
+      "deadline_ms": 14400000,
+      "evidence": null
+    },
+    {
+      "id": "model_prompt_rollback",
+      "deadline_ms": 14400000,
+      "evidence": {
+        "path": "model_prompt_rollback.json",
+        "sha256": "f712a6fcb20380830eea305d6f2050ca0090585f9ad81af834c14dd661ac48c9"
+      }
+    },
+    {
+      "id": "drive_consumer_failure",
+      "deadline_ms": 14400000,
+      "evidence": null
+    }
+  ]
+}

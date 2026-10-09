@@ -1,0 +1,98 @@
+{
+  "version": "ProductionSearchWorkerMeasurement/1.0",
+  "observed_at": "2026-10-09T15:00:43.701Z",
+  "basis": "ACTUAL_PRODUCTION_HTTP",
+  "scope": "CURRENT_REAL_CORPUS_NOT_10K",
+  "timeframe": {
+    "from": 1791558034559,
+    "to": 1791558038748
+  },
+  "samples": [
+    {
+      "status": 200,
+      "ray": "a47e41788eefee48-WAW",
+      "wall_ms": 1952.9449999999997,
+      "count": 6,
+      "body_keys": [
+        "documents",
+        "freshness",
+        "indexed_cut",
+        "current_cut",
+        "scope",
+        "next_cursor"
+      ]
+    },
+    {
+      "status": 200,
+      "ray": "a47e417dfe59ee48-WAW",
+      "wall_ms": 755.2523999999994,
+      "count": 6,
+      "body_keys": [
+        "documents",
+        "freshness",
+        "indexed_cut",
+        "current_cut",
+        "scope",
+        "next_cursor"
+      ]
+    },
+    {
+      "status": 200,
+      "ray": "a47e41828bfcee48-WAW",
+      "wall_ms": 426.4249,
+      "count": 6,
+      "body_keys": [
+        "documents",
+        "freshness",
+        "indexed_cut",
+        "current_cut",
+        "scope",
+        "next_cursor"
+      ]
+    },
+    {
+      "status": 200,
+      "ray": "a47e41881a41ee48-WAW",
+      "wall_ms": 685.7487000000001,
+      "count": 6,
+      "body_keys": [
+        "documents",
+        "freshness",
+        "indexed_cut",
+        "current_cut",
+        "scope",
+        "next_cursor"
+      ]
+    },
+    {
+      "status": 200,
+      "ray": "a47e4189ae80ee48-WAW",
+      "wall_ms": 368.8616999999995,
+      "count": 6,
+      "body_keys": [
+        "documents",
+        "freshness",
+        "indexed_cut",
+        "current_cut",
+        "scope",
+        "next_cursor"
+      ]
+    }
+  ],
+  "telemetry": {
+    "http_status": 403,
+    "response_sha256": "ec1ce23212b4bdd8ba0a57465d5ec266c8d72ffb56750aa5f34a955b227de9f4",
+    "response_keys": [
+      "success",
+      "errors",
+      "messages",
+      "result"
+    ],
+    "events": []
+  },
+  "cpu_qualification": "INCONCLUSIVE_NO_CORRELATED_EVENTS",
+  "provider_requests": 0,
+  "data_writes": 0,
+  "temporary_auth_session": true,
+  "paid_services_enabled": false
+}

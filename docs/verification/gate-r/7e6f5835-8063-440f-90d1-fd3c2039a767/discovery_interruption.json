@@ -1,0 +1,16 @@
+{
+  "version": "GateRCase/1.0",
+  "case_id": "discovery_interruption",
+  "configuration_sha256": "4d6d2a222b47d15e9ae387fe166fbba3ddeef8f818ba0d7a8980a8d56bf9fc04",
+  "baseline_sha256": "8a106f0d1d68808784cc61736bfd4f9770cdaca8914f6060899917b6477c3567",
+  "kind": "ACTUAL_LOCAL_D1",
+  "observed_at": "2026-10-09T14:39:19.833Z",
+  "result": "PASS",
+  "lost_jobs": 0,
+  "duplicate_effects": 0,
+  "stale_writes": 0,
+  "origins_preserved": true,
+  "recovered": true,
+  "paid_requests": 0,
+  "recovery_elapsed_ms": 8686
+}

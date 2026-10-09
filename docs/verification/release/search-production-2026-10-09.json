@@ -1,0 +1,393 @@
+{
+  "version": "ProductionSearchReadback/1.0",
+  "basis": "ACTUAL_PRODUCTION_D1_REST",
+  "observed_at": "2026-10-09T14:38:06.180Z",
+  "scope": "CURRENT_REAL_CORPUS_NOT_10K",
+  "before": {
+    "state": {
+      "generation": "af68a801-a82e-4da4-80f8-133f6cb53a58",
+      "indexed_cut": 2213,
+      "target_cut": 1839,
+      "phase": "COMPLETE",
+      "cursor": "",
+      "updated_at": "2026-10-09T14:31:20.932Z"
+    },
+    "cut_seq": 2213,
+    "freshness": "FRESH"
+  },
+  "after": {
+    "state": {
+      "generation": "af68a801-a82e-4da4-80f8-133f6cb53a58",
+      "indexed_cut": 2213,
+      "target_cut": 1839,
+      "phase": "COMPLETE",
+      "cursor": "",
+      "updated_at": "2026-10-09T14:31:20.932Z"
+    },
+    "cut_seq": 2213,
+    "freshness": "FRESH"
+  },
+  "query": "AI",
+  "samples": 5,
+  "counts": [
+    6,
+    6,
+    6,
+    6,
+    6
+  ],
+  "durations_ms": [
+    1916.3046999999997,
+    1806.9908000000005,
+    1380.3253999999997,
+    1664.9483999999993,
+    1555.7361999999994
+  ],
+  "d1_query_metadata": [
+    {
+      "served_by": "v3-prod",
+      "served_by_region": "WEUR",
+      "served_by_colo": "AMS",
+      "served_by_primary": true,
+      "timings": {
+        "sql_duration_ms": 3.8586
+      },
+      "duration": 3.8586,
+      "changes": 0,
+      "last_row_id": 38,
+      "changed_db": false,
+      "size_after": 22298624,
+      "rows_read": 447,
+      "rows_written": 0,
+      "total_attempts": 1
+    },
+    {
+      "served_by": "v3-prod",
+      "served_by_region": "WEUR",
+      "served_by_colo": "AMS",
+      "served_by_primary": true,
+      "timings": {
+        "sql_duration_ms": 1.9986
+      },
+      "duration": 1.9986,
+      "changes": 0,
+      "last_row_id": 38,
+      "changed_db": false,
+      "size_after": 22298624,
+      "rows_read": 447,
+      "rows_written": 0,
+      "total_attempts": 1
+    },
+    {
+      "served_by": "v3-prod",
+      "served_by_region": "WEUR",
+      "served_by_colo": "AMS",
+      "served_by_primary": true,
+      "timings": {
+        "sql_duration_ms": 2.0345
+      },
+      "duration": 2.0345,
+      "changes": 0,
+      "last_row_id": 38,
+      "changed_db": false,
+      "size_after": 22298624,
+      "rows_read": 447,
+      "rows_written": 0,
+      "total_attempts": 1
+    },
+    {
+      "served_by": "v3-prod",
+      "served_by_region": "WEUR",
+      "served_by_colo": "AMS",
+      "served_by_primary": true,
+      "timings": {
+        "sql_duration_ms": 1.7639
+      },
+      "duration": 1.7639,
+      "changes": 0,
+      "last_row_id": 38,
+      "changed_db": false,
+      "size_after": 22298624,
+      "rows_read": 447,
+      "rows_written": 0,
+      "total_attempts": 1
+    },
+    {
+      "served_by": "v3-prod",
+      "served_by_region": "WEUR",
+      "served_by_colo": "AMS",
+      "served_by_primary": true,
+      "timings": {
+        "sql_duration_ms": 1.8112
+      },
+      "duration": 1.8112,
+      "changes": 0,
+      "last_row_id": 38,
+      "changed_db": false,
+      "size_after": 22298624,
+      "rows_read": 447,
+      "rows_written": 0,
+      "total_attempts": 1
+    }
+  ],
+  "plans": [
+    {
+      "id": 11,
+      "parent": 0,
+      "notused": 152,
+      "detail": "SCAN knowledge_fts VIRTUAL TABLE INDEX 64:M1>"
+    },
+    {
+      "id": 19,
+      "parent": 0,
+      "notused": 45,
+      "detail": "SEARCH d USING INTEGER PRIMARY KEY (rowid=?)"
+    },
+    {
+      "id": 30,
+      "parent": 0,
+      "notused": 0,
+      "detail": "CORRELATED SCALAR SUBQUERY 1"
+    },
+    {
+      "id": 36,
+      "parent": 30,
+      "notused": 55,
+      "detail": "SEARCH m USING COVERING INDEX sqlite_autoindex_item_revisions_3 (owner_id=?)"
+    },
+    {
+      "id": 45,
+      "parent": 30,
+      "notused": 46,
+      "detail": "SEARCH i USING INDEX sqlite_autoindex_items_3 (owner_id=? AND item_id=?)"
+    },
+    {
+      "id": 71,
+      "parent": 0,
+      "notused": 0,
+      "detail": "CORRELATED SCALAR SUBQUERY 2"
+    },
+    {
+      "id": 80,
+      "parent": 71,
+      "notused": 55,
+      "detail": "SEARCH o USING COVERING INDEX observations_run_kind (owner_id=?)"
+    },
+    {
+      "id": 89,
+      "parent": 71,
+      "notused": 46,
+      "detail": "SEARCH r USING INDEX sqlite_autoindex_analysis_runs_2 (owner_id=? AND run_id=?)"
+    },
+    {
+      "id": 107,
+      "parent": 71,
+      "notused": 47,
+      "detail": "SEARCH s USING INDEX sqlite_autoindex_active_analysis_selections_1 (owner_id=? AND item_id=?)"
+    },
+    {
+      "id": 133,
+      "parent": 0,
+      "notused": 0,
+      "detail": "CORRELATED SCALAR SUBQUERY 3"
+    },
+    {
+      "id": 138,
+      "parent": 133,
+      "notused": 62,
+      "detail": "SEARCH n USING INDEX search_insight_cursor (owner_id=?)"
+    },
+    {
+      "id": 157,
+      "parent": 0,
+      "notused": 0,
+      "detail": "CORRELATED SCALAR SUBQUERY 4"
+    },
+    {
+      "id": 162,
+      "parent": 157,
+      "notused": 54,
+      "detail": "SEARCH e USING COVERING INDEX search_entity_cursor (owner_id=?)"
+    },
+    {
+      "id": 179,
+      "parent": 0,
+      "notused": 0,
+      "detail": "CORRELATED SCALAR SUBQUERY 5"
+    },
+    {
+      "id": 183,
+      "parent": 179,
+      "notused": 55,
+      "detail": "SEARCH a USING COVERING INDEX sqlite_autoindex_entity_aliases_1 (owner_id=?)"
+    },
+    {
+      "id": 193,
+      "parent": 179,
+      "notused": 0,
+      "detail": "CORRELATED SCALAR SUBQUERY 25"
+    },
+    {
+      "id": 199,
+      "parent": 193,
+      "notused": 61,
+      "detail": "SEARCH d USING INDEX alias_decision_latest (owner_id=? AND alias_id=?)"
+    },
+    {
+      "id": 221,
+      "parent": 0,
+      "notused": 0,
+      "detail": "CORRELATED SCALAR SUBQUERY 6"
+    },
+    {
+      "id": 229,
+      "parent": 221,
+      "notused": 61,
+      "detail": "SEARCH r USING INDEX automatic_source_scan (owner_id=? AND state=?)"
+    },
+    {
+      "id": 239,
+      "parent": 221,
+      "notused": 47,
+      "detail": "SEARCH s USING INDEX sqlite_autoindex_active_analysis_selections_1 (owner_id=? AND item_id=?)"
+    },
+    {
+      "id": 256,
+      "parent": 221,
+      "notused": 0,
+      "detail": "SCAN j VIRTUAL TABLE INDEX 3:"
+    },
+    {
+      "id": 280,
+      "parent": 0,
+      "notused": 0,
+      "detail": "CORRELATED SCALAR SUBQUERY 7"
+    },
+    {
+      "id": 287,
+      "parent": 280,
+      "notused": 47,
+      "detail": "SEARCH p USING INDEX sqlite_autoindex_spaces_1 (owner_id=? AND space_id=?)"
+    },
+    {
+      "id": 301,
+      "parent": 280,
+      "notused": 47,
+      "detail": "SEARCH x USING INDEX sqlite_autoindex_item_spaces_1 (owner_id=? AND item_id=? AND space_id=?)"
+    },
+    {
+      "id": 319,
+      "parent": 0,
+      "notused": 0,
+      "detail": "CORRELATED SCALAR SUBQUERY 11"
+    },
+    {
+      "id": 323,
+      "parent": 319,
+      "notused": 39,
+      "detail": "SEARCH e USING COVERING INDEX sqlite_autoindex_entities_1 (owner_id=? AND entity_id=?)"
+    },
+    {
+      "id": 331,
+      "parent": 319,
+      "notused": 0,
+      "detail": "CORRELATED SCALAR SUBQUERY 8"
+    },
+    {
+      "id": 337,
+      "parent": 331,
+      "notused": 61,
+      "detail": "SEARCH x USING INDEX identity_member_latest (owner_id=? AND entity_id=?)"
+    },
+    {
+      "id": 352,
+      "parent": 319,
+      "notused": 0,
+      "detail": "CORRELATED SCALAR SUBQUERY 10"
+    },
+    {
+      "id": 356,
+      "parent": 352,
+      "notused": 39,
+      "detail": "SEARCH t USING COVERING INDEX sqlite_autoindex_entities_1 (owner_id=? AND entity_id=?)"
+    },
+    {
+      "id": 365,
+      "parent": 352,
+      "notused": 0,
+      "detail": "CORRELATED SCALAR SUBQUERY 9"
+    },
+    {
+      "id": 371,
+      "parent": 365,
+      "notused": 61,
+      "detail": "SEARCH x USING INDEX identity_member_latest (owner_id=? AND entity_id=?)"
+    },
+    {
+      "id": 392,
+      "parent": 0,
+      "notused": 0,
+      "detail": "CORRELATED SCALAR SUBQUERY 15"
+    },
+    {
+      "id": 396,
+      "parent": 392,
+      "notused": 56,
+      "detail": "SEARCH e USING COVERING INDEX sqlite_autoindex_observation_entities_1 (owner_id=? AND observation_id=?)"
+    },
+    {
+      "id": 404,
+      "parent": 392,
+      "notused": 0,
+      "detail": "CORRELATED SCALAR SUBQUERY 12"
+    },
+    {
+      "id": 410,
+      "parent": 404,
+      "notused": 61,
+      "detail": "SEARCH x USING INDEX identity_member_latest (owner_id=? AND entity_id=?)"
+    },
+    {
+      "id": 425,
+      "parent": 392,
+      "notused": 0,
+      "detail": "CORRELATED SCALAR SUBQUERY 14"
+    },
+    {
+      "id": 429,
+      "parent": 425,
+      "notused": 39,
+      "detail": "SEARCH t USING COVERING INDEX sqlite_autoindex_entities_1 (owner_id=? AND entity_id=?)"
+    },
+    {
+      "id": 438,
+      "parent": 425,
+      "notused": 0,
+      "detail": "CORRELATED SCALAR SUBQUERY 13"
+    },
+    {
+      "id": 444,
+      "parent": 438,
+      "notused": 61,
+      "detail": "SEARCH x USING INDEX identity_member_latest (owner_id=? AND entity_id=?)"
+    },
+    {
+      "id": 465,
+      "parent": 0,
+      "notused": 46,
+      "detail": "SEARCH i USING INDEX sqlite_autoindex_items_3 (owner_id=? AND item_id=?) LEFT-JOIN"
+    },
+    {
+      "id": 477,
+      "parent": 0,
+      "notused": 47,
+      "detail": "SEARCH m USING INDEX sqlite_autoindex_item_revisions_3 (owner_id=? AND item_id=? AND revision_id=?) LEFT-JOIN"
+    }
+  ],
+  "worker_cpu": "NOT_MEASURED",
+  "gui_latency": "NOT_MEASURED",
+  "data_writes": 0,
+  "temporary_auth_session": true,
+  "provider_requests": 0,
+  "paid_services_enabled": false
+}

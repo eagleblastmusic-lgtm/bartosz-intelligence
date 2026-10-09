@@ -1,0 +1,16 @@
+{
+  "version": "GateRCase/1.0",
+  "case_id": "lease_crash",
+  "configuration_sha256": "4bd854e1242be905f59f4f7ef2a7f984ade6ed6ee3b61f35f9d1a258716e78f5",
+  "baseline_sha256": "a2dfed3c3137085ab0765fcd5c014a5727678a7714ba4512f18e653168dcca84",
+  "kind": "ACTUAL_LOCAL_D1",
+  "observed_at": "2026-10-09T14:43:52.689Z",
+  "result": "PASS",
+  "lost_jobs": 0,
+  "duplicate_effects": 0,
+  "stale_writes": 0,
+  "origins_preserved": true,
+  "recovered": true,
+  "paid_requests": 0,
+  "recovery_elapsed_ms": 13935
+}
