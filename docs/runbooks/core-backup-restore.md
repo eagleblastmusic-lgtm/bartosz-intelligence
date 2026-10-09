@@ -19,3 +19,14 @@ The private Drive archive is configured in `config/drive-backup.json`. The owner
 The optional aes256gcm format remains available. Only that format requires its dedicated recovery key under `%LOCALAPPDATA%\Bartosz Intelligence\Recovery\canonical-backup-key-v1.json`, protected for the owner and SYSTEM. Keep an independent protected copy of that key outside Drive, D1 and the repository; losing the key makes the encrypted archives unrecoverable. The key is never embedded in an archive or receipt. Existing OAuth wrapping keys are not reused as canonical backup keys.
 
 Explicit archive verification uses `tools/deployment/drive-backup.ts --backup '<private canonical JSON>'` with the pinned Node/tsx environment. The downloaded and decrypted canonical copy is saved to ignored, private `.local/drive-backups/<backup UUID>-downloaded.json`. Pass that copy to the existing `restore-core.ts` command with a new `--target-directory` under `.local`; an existing database is always refused. A PASS for archive transfer and empty restore alone does not establish full application RPO/RTO or restored service availability.
+
+## Owner-approved Drive-only revision, 2026-10-09
+
+See [retention and recovery](drive-only-retention.md). New snapshots retain the
+current working set and minimal operational/Drive mapping; deleted heavy bodies
+are not recreated in new backups. Exact historical 35/36 migration prefixes
+remain restorable into schema 37. Retention settings restore with deletion OFF
+and no approval; interrupted cleanup requires fresh remote full readback.
+Existing backups remain untouched. Any proposed rolling retention of old Drive
+backups requires separate owner approval; canonical-json remains the selected
+format with no application encryption requirement.

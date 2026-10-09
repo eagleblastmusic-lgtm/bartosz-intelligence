@@ -1,5 +1,27 @@
 # Stage 07 — current handoff
 
+## Owner-approved Drive-only checkpoint, 2026-10-09
+
+NOT_DONE for the full stage; local retention implementation verified. Read
+RELEASE_READINESS_REPORT.md and docs/verification/retention/DRIVE_ONLY_RETENTION_VERIFICATION_2026-10-09.md.
+Current schema 37; production remains 35 pending quota reset. Final FULL exact
+membership, verified+7d, fenced <=25-row cleanup, durable restart/holds/dedup,
+minimal Gate C facts, archived GUI and restore after purge implemented.
+Deletion default OFF; no first production deletion approval. Do not activate it.
+Historical 35/36 backups remain compatible by exact prefix; no old backup removal
+or new encryption requirement. Local Plan revisions are in the tracked decision
+patch, original Drive Master untouched. Stage DoD explicitly includes retention.
+
+473 unit/contract PASS, zero FAIL, one intentional skip; remaining final results
+are in docs/verification/retention/verification-summary.json. Production dry-run,
+first approved cleanup, mature C, current D/R pins, human reviews and authorized
+live AI remain outstanding. Use the existing 19 resolved IDs for approved staged
+new-only; do not repeat resolution. Updated heartbeat resumes migrations 036+037,
+minimal production measurements and remaining gates after one actual quota probe.
+No new Gemini or paid services; no repeated backup solely for a date of PASS.
+
+## Historical handoff before the retention revision
+
 ## D1 optimization checkpoint, 2026-10-09
 
 NOT_DONE. Current report: `RELEASE_READINESS_REPORT.md`; detailed measured

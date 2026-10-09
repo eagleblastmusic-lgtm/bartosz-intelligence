@@ -275,3 +275,19 @@ po zweryfikowanym końcowym eksporcie, z holds i minimalnym trwałym stanem.
 Zastępuje to wcześniejsze założenie wieloletniej historii D1; implementacja
 i kwalifikacja tej zmiany są osobnym kolejnym checkpointem. Pierwsze realne
 usunięcie produkcyjne i nowe żądania Gemini wymagają osobnych zgód.
+
+## Wdrożony lokalnie Drive-only — aktualizacja po decyzji właściciela
+
+[Raport implementacji, pomiarów i modelu](../retention/DRIVE_ONLY_RETENTION_VERIFICATION_2026-10-09.md).
+Migracja 037 dodaje default-disabled cleanup, verified+7d receipt, małe atomic
+batche i minimalne metadane. Zmniejsza długoterminowy ciężki working set, ale
+nie cofa pierwotnego daily READ root cause. Lokalny największy cleanup
+10 387→3510 reads, 369 writes; medianowy 846/95, dry-run bez zapisów.
+Nowy lokalny full backup inventory 35→37: 269725→31212 reads, wyniki i writes
+identyczne. Nie wykonano produkcyjnego capture lub DELETE.
+
+Obserwowane publikacje implikują około 34.25 filmów w 7 dniach. Dane przed
+zweryfikowanym eksportem i holds nie podlegają sztywnemu wiekowi usunięcia.
+Model wysokiego obciążenia pozostawia zbyt mały write headroom; nie deklarujemy
+20-channel Free PASS bez realnych AI/export i peak pomiarów. Pełny Gate C
+pozostaje NOT_YET_MATURE; paid_services_enabled=false.

@@ -1,0 +1,245 @@
+{
+  "version": "RetentionLocalCost/1.0",
+  "observed_at": "2026-10-09T19:57:46.162Z",
+  "status": "PASS",
+  "basis": "ACTUAL_LOCAL_WORKERD_META_REAL_SOURCE_BYTES_SYNTHETIC_ACCEPTED_EXPORT",
+  "fixture_sha256": "4d19516879277a531fbbb929032cd969f1c35b5ddceffd79a11fbf65fb42c033",
+  "source_backup_sha256": "31cd69361a6bb1342dd76726ba9aa1f430791cda36f90818dba61857cd027bd0",
+  "source_sample_items": 17,
+  "selected_sample": "MAXIMUM_OBSERVED_SOURCE_ITEM",
+  "sample_mean_logical_bytes": 604668.8823529412,
+  "median_item_logical_bytes": 7542392,
+  "source_bytes_before": {
+    "bytes": 7542395,
+    "chunks": 239
+  },
+  "source_chunks_after": {
+    "chunks": 0
+  },
+  "checkpoint": {
+    "phase": "COMPLETE",
+    "step": 16,
+    "deleted_rows": 259,
+    "deleted_bytes": 7547485
+  },
+  "steps": [
+    {
+      "table": "artifact_chunks",
+      "state": "PROGRESSED",
+      "rows_read": 1640,
+      "rows_written": 29,
+      "queries": 7
+    },
+    {
+      "table": "artifact_chunks",
+      "state": "PROGRESSED",
+      "rows_read": 1490,
+      "rows_written": 29,
+      "queries": 7
+    },
+    {
+      "table": "artifact_chunks",
+      "state": "PROGRESSED",
+      "rows_read": 1340,
+      "rows_written": 29,
+      "queries": 7
+    },
+    {
+      "table": "artifact_chunks",
+      "state": "PROGRESSED",
+      "rows_read": 1190,
+      "rows_written": 29,
+      "queries": 7
+    },
+    {
+      "table": "artifact_chunks",
+      "state": "PROGRESSED",
+      "rows_read": 1040,
+      "rows_written": 29,
+      "queries": 7
+    },
+    {
+      "table": "artifact_chunks",
+      "state": "PROGRESSED",
+      "rows_read": 890,
+      "rows_written": 29,
+      "queries": 7
+    },
+    {
+      "table": "artifact_chunks",
+      "state": "PROGRESSED",
+      "rows_read": 740,
+      "rows_written": 29,
+      "queries": 7
+    },
+    {
+      "table": "artifact_chunks",
+      "state": "PROGRESSED",
+      "rows_read": 590,
+      "rows_written": 29,
+      "queries": 7
+    },
+    {
+      "table": "artifact_chunks",
+      "state": "PROGRESSED",
+      "rows_read": 440,
+      "rows_written": 29,
+      "queries": 7
+    },
+    {
+      "table": "artifact_chunks",
+      "state": "PROGRESSED",
+      "rows_read": 213,
+      "rows_written": 18,
+      "queries": 7
+    },
+    {
+      "table": "transcript_representations",
+      "state": "PROGRESSED",
+      "rows_read": 40,
+      "rows_written": 5,
+      "queries": 7
+    },
+    {
+      "table": "candidate_repair_attempts",
+      "state": "PROGRESSED",
+      "rows_read": 31,
+      "rows_written": 4,
+      "queries": 7
+    },
+    {
+      "table": "optional_ai_results",
+      "state": "PROGRESSED",
+      "rows_read": 31,
+      "rows_written": 4,
+      "queries": 7
+    },
+    {
+      "table": "insight_observations",
+      "state": "PROGRESSED",
+      "rows_read": 31,
+      "rows_written": 4,
+      "queries": 7
+    },
+    {
+      "table": "observation_evidence",
+      "state": "PROGRESSED",
+      "rows_read": 54,
+      "rows_written": 5,
+      "queries": 7
+    },
+    {
+      "table": "observation_entities",
+      "state": "PROGRESSED",
+      "rows_read": 43,
+      "rows_written": 4,
+      "queries": 7
+    },
+    {
+      "table": "analysis_evidence",
+      "state": "PROGRESSED",
+      "rows_read": 49,
+      "rows_written": 5,
+      "queries": 7
+    },
+    {
+      "table": "observations",
+      "state": "PROGRESSED",
+      "rows_read": 49,
+      "rows_written": 5,
+      "queries": 7
+    },
+    {
+      "table": "evidence",
+      "state": "PROGRESSED",
+      "rows_read": 40,
+      "rows_written": 5,
+      "queries": 7
+    },
+    {
+      "table": "search_documents",
+      "state": "PROGRESSED",
+      "rows_read": 49,
+      "rows_written": 8,
+      "queries": 7
+    },
+    {
+      "table": "analysis_runs",
+      "state": "PROGRESSED",
+      "rows_read": 44,
+      "rows_written": 5,
+      "queries": 7
+    },
+    {
+      "table": "jobs",
+      "state": "PROGRESSED",
+      "rows_read": 43,
+      "rows_written": 5,
+      "queries": 7
+    },
+    {
+      "table": "artifacts",
+      "state": "PROGRESSED",
+      "rows_read": 164,
+      "rows_written": 14,
+      "queries": 7
+    },
+    {
+      "table": "artifacts",
+      "state": "PROGRESSED",
+      "rows_read": 40,
+      "rows_written": 5,
+      "queries": 7
+    },
+    {
+      "table": "daily_export_chunks",
+      "state": "PROGRESSED",
+      "rows_read": 60,
+      "rows_written": 5,
+      "queries": 7
+    },
+    {
+      "table": "item_revisions",
+      "state": "PROGRESSED",
+      "rows_read": 46,
+      "rows_written": 7,
+      "queries": 7
+    }
+  ],
+  "stage_count": 16,
+  "totals": {
+    "rows_read": 10387,
+    "rows_written": 369
+  },
+  "dry_run": {
+    "rows_read": 249,
+    "rows_written": 0
+  },
+  "storage_before": {
+    "page_count": "UNAVAILABLE_IN_LOCAL_D1",
+    "freelist_count": "UNAVAILABLE_IN_LOCAL_D1",
+    "page_size": [
+      {
+        "page_size": 4096
+      }
+    ],
+    "auto_vacuum": "UNAVAILABLE_IN_LOCAL_D1"
+  },
+  "storage_after": {
+    "page_count": "UNAVAILABLE_IN_LOCAL_D1",
+    "freelist_count": "UNAVAILABLE_IN_LOCAL_D1",
+    "page_size": [
+      {
+        "page_size": 4096
+      }
+    ],
+    "auto_vacuum": "UNAVAILABLE_IN_LOCAL_D1"
+  },
+  "size_before_bytes": 11513856,
+  "size_after_bytes": 1114112,
+  "simulated_drive_reads": 28,
+  "production_d1_requests": 0,
+  "live_drive_requests": 0,
+  "gemini_requests": 0,
+  "paid_services_enabled": false
+}

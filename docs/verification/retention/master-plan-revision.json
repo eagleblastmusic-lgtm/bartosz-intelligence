@@ -1,0 +1,34 @@
+{
+  "version": "MasterPlanRetentionAmendment/1.0",
+  "status": "APPLIED_LOCAL_REVISION_REVERSE_CHECK_PASS",
+  "original_drive_file_unchanged": true,
+  "patch_sha256": "d30081a4275dd43f240627be8ebc436db49c23139bc3d414dd184849c445dc0d",
+  "check_command": "git apply --check --reverse --unidiff-zero --ignore-space-change docs/decisions/drive-only-master-plan.patch",
+  "files": [
+    {
+      "path": "Plan/00_IMPLEMENTATION_MASTER_INDEX.md",
+      "historical_body_sha256": "c789034add545217212b5d3543a32f0b24dd92594ca33cc30c3f873d763aa0dd",
+      "amended_local_sha256": "09932f0f5703931136c6a4293de377f237dfa16a3f75c2ac99c44bd8c7561266"
+    },
+    {
+      "path": "Plan/05_GATE_C_ZERO_COST_CAPACITY.md",
+      "historical_body_sha256": "4c8ca1685d6bd301858092e892ff3778ccf2f0822d15df254813d1ca7e8084e5",
+      "amended_local_sha256": "b1c03ff8978e2176c087a31f4f1e0edfae458e28fe342feb916ee6a49da617c4"
+    },
+    {
+      "path": "Plan/07_V1B_INTEGRATIONS_AND_OPERATIONS.md",
+      "historical_body_sha256": "9681c4db257301104d7668f274a9c0267c1e0a099b198942d9dc7e9193bde768",
+      "amended_local_sha256": "40018f7e8c3584ae43eff0f443dd7421a86fa7ec8886bb6941ff28b1ab72d655"
+    },
+    {
+      "path": "Plan/08_V1C_HARDENING_AND_RELEASE.md",
+      "historical_body_sha256": "af706fc029f5f6018842b88bcfbdcb69f9dd7003bcdfcaba092cece4958a1bdd",
+      "amended_local_sha256": "652d7c4d38789de6af87e57d6335cd7080439d10e150e2b0d433444072cf6efd"
+    },
+    {
+      "path": "Plan/BARTOSZ_INTELLIGENCE_MASTER_ARCHITECTURE_2026_v1.1.1.md",
+      "historical_body_sha256": "7888a0113f5eb5476ca6633c911231a5f81389d91e8addc94ea63f509edb2f49",
+      "amended_local_sha256": "b586335bee418bac62b86109035fe7ab8c7eeb9a8e4ec43d6901867f2fd9dfcd"
+    }
+  ]
+}

@@ -1,0 +1,196 @@
+{
+  "version": "DriveOnlyRetentionVerification/1.0",
+  "observed_at": "2026-10-09T20:34:15.854Z",
+  "status": "LOCAL_VERIFIED_PRODUCTION_PENDING",
+  "implementation_commit": "a59d628b10d72a620a0e7db0c6b72132e7b6096e",
+  "migration_count": 37,
+  "migration_037_sha256": "01ec4e58493d74ac7ef11d93153299c018daff88532004be0d4b6af861caf03a",
+  "ledger_sha256": "3d570121fd01bc0cd1d8f7fc61685ce66870bafc6262c3264de6424384c8f253",
+  "tests": [
+    {
+      "scope": "unit_contract_final_indices",
+      "path": ".local/tests/retention-release-unit-contract.json",
+      "sha256": "23422816878700f94fac1492c574ed1930a76c433d213ceecc949f453ad78ecc",
+      "passed": 473,
+      "failed": 0,
+      "skipped": 1
+    },
+    {
+      "scope": "workers_full_before_final_index_delta",
+      "path": ".local/tests/retention-verified-workers.json",
+      "sha256": "b1ee000594100a42047046e51867851175db8772e78660943df5866a1a15e8e4",
+      "passed": 237,
+      "failed": 0,
+      "skipped": 0
+    },
+    {
+      "scope": "workers_final_indices_delta",
+      "path": ".local/tests/retention-release-targeted-workers.json",
+      "sha256": "948b37dc3efd30b98cd5222407e7c5b6c95d7958573e3b8acf15ab901968ac7d",
+      "passed": 25,
+      "failed": 0,
+      "skipped": 0
+    },
+    {
+      "scope": "workers_final_export_clock_delta",
+      "path": ".local/tests/retention-clock-workers.json",
+      "sha256": "a4c3ebcae8e2a7ebb15224831af3b7ad5eebb6abfc51a6d300149e1ed775c1cd",
+      "passed": 11,
+      "failed": 0,
+      "skipped": 0
+    }
+  ],
+  "e2e": {
+    "path": ".local/tests/retention-verified-e2e.json",
+    "sha256": "8bc5ee55464c694ea4f83b2eb330fe2bbb35df572c12e15d0de9c0dbbe30cf51",
+    "passed": 5,
+    "failed": 0,
+    "skipped": 0,
+    "flaky": 0,
+    "scope": "ARCHIVED_GUI_DAILY_SYSTEM_ITEM_DETAIL_ACCESSIBILITY_NO_PROVIDER_REQUESTS"
+  },
+  "checks": [
+    {
+      "exit_code": 0,
+      "check": "typecheck",
+      "status": "PASS"
+    },
+    {
+      "exit_code": 0,
+      "check": "lint",
+      "status": "PASS"
+    },
+    {
+      "exit_code": 0,
+      "check": "verify:migrations",
+      "status": "PASS"
+    },
+    {
+      "exit_code": 0,
+      "check": "verify:config",
+      "status": "PASS"
+    },
+    {
+      "exit_code": 0,
+      "check": "build",
+      "status": "PASS"
+    },
+    {
+      "exit_code": 0,
+      "check": "release:secrets",
+      "status": "PASS"
+    },
+    {
+      "exit_code": 0,
+      "check": "format:check",
+      "status": "PASS"
+    }
+  ],
+  "final_delta_check_logs": [
+    {
+      "check": "typecheck",
+      "path": ".local/tests/retention-final-clock-typecheck.log",
+      "sha256": "3484e9e1313ddff1d1c9b4e40dbcad87c454a36071accc0c0ddd49fc35d1682a",
+      "status": "PASS",
+      "scope": "FINAL_EXPORT_CLOCK_DELTA"
+    },
+    {
+      "check": "lint",
+      "path": ".local/tests/retention-final-clock-lint.log",
+      "sha256": "ba0fe8c02ea35565997272c100095ee8bf4e7b55a14baba5e7510c36d3dd81ae",
+      "status": "PASS",
+      "scope": "FINAL_EXPORT_CLOCK_DELTA"
+    },
+    {
+      "check": "build",
+      "path": ".local/tests/retention-final-clock-build.log",
+      "sha256": "7df7b6416d5cc65d97e02eb96badc72b02adab012fafb3a86c9868ccb3869648",
+      "status": "PASS",
+      "scope": "FINAL_EXPORT_CLOCK_DELTA"
+    },
+    {
+      "check": "secrets",
+      "path": ".local/tests/retention-final-clock-secrets.log",
+      "sha256": "ef334470a2cf15beade762be0e06d3d9d4f306366fc7d4ed65651c17c9264ee7",
+      "status": "PASS",
+      "scope": "FINAL_EXPORT_CLOCK_DELTA"
+    },
+    {
+      "check": "format",
+      "path": ".local/tests/retention-final-clock-format.log",
+      "sha256": "0b95efe7a1df96aa81440f70658e5c8169546d284587f7ba2e8d268fd1aaea15",
+      "status": "PASS",
+      "scope": "FINAL_EXPORT_CLOCK_DELTA"
+    }
+  ],
+  "checks_receipt_sha256": "1c3d46094badf1ab4e3ffa9fc0156d650129829ea44c6026ac103e05f691617d",
+  "benchmarks": [
+    {
+      "path": "docs/verification/retention/local-cost-31d6bfc3-855f-4a2e-b892-0874cc7c037b.json",
+      "sha256": "38b711eac8126da3625feb1d72f02a712a1eb2acc2aa567b707fb371a34ab20f",
+      "selected_sample": "MEDIAN_OBSERVED_SOURCE_ITEM",
+      "totals": {
+        "rows_read": 863,
+        "rows_written": 94
+      },
+      "dry_run": {
+        "rows_read": 15,
+        "rows_written": 0
+      },
+      "stage_count": 16,
+      "scope": "ACTUAL_LOCAL_WORKERD_META_REAL_SOURCE_BYTES_SYNTHETIC_ACCEPTED_EXPORT"
+    },
+    {
+      "path": "docs/verification/retention/local-cost-7c9cbb20-03d4-4920-86a1-c9f94e3b05ba.json",
+      "sha256": "ae9a3211c005fa2ae99e4737680a475b09b2ada96328b60de9fb5814c86c6a73",
+      "selected_sample": "MAXIMUM_OBSERVED_SOURCE_ITEM",
+      "totals": {
+        "rows_read": 3510,
+        "rows_written": 368
+      },
+      "dry_run": {
+        "rows_read": 248,
+        "rows_written": 0
+      },
+      "stage_count": 16,
+      "scope": "ACTUAL_LOCAL_WORKERD_META_REAL_SOURCE_BYTES_SYNTHETIC_ACCEPTED_EXPORT"
+    }
+  ],
+  "master_plan_revision": {
+    "path": "docs/verification/retention/master-plan-revision.json",
+    "sha256": "afb3a0379182000e16462b81e6aa2dfc7ef1fb24305ffd67e6964bfa2325c82c",
+    "reverse_check": "PASS"
+  },
+  "backup_35_to_37_inventory": {
+    "path": "docs/verification/release/d1-cost-comparison-2026-10-09T20-13-42.252Z.json",
+    "sha256": "48b0783f724d805eada6afd7ed1c90f7ee4f806c524c18e49c3196e17bd595ed",
+    "scope": "ACTUAL_35_BACKUP_ISOLATED_RESTORE_NEW_INVENTORY_BEFORE_FINAL_INDEX_REMOVAL"
+  },
+  "repairs": {
+    "parallel_resource_timeouts": "Sequential full 473 PASS without changing timeout/criteria",
+    "export_fixture": "Actual FULL settings and exact EXPORT_CONFLICT assertion",
+    "e2e_fixture": "Pinned local browser and new retention endpoint response",
+    "retention_clock": "90-second remote delay included before the seven-day clock"
+  },
+  "production": {
+    "applied_migrations": 35,
+    "worker_version": "93995293-fd49-4f25-b843-63f326c30a32",
+    "deployed_this_checkpoint": false,
+    "d1_requests_this_retention_checkpoint": 0,
+    "drive_file_mutations": 0,
+    "canonical_backup_capture": 0,
+    "cleanup_deleted_rows": 0,
+    "deletion_approved": false,
+    "gemini_requests": 0,
+    "paid_services_enabled": false
+  },
+  "pending": [
+    "Actual post-reset indexed quota probe, fresh account Analytics/inventory",
+    "Deploy pending migrations 036/037 and verified runtime; observation/dry-run only",
+    "Owner approval for first concrete production deletion scope",
+    "Current formal R/D-export pins and real remaining cases",
+    "Mature Gate C for 20 staged new-only channels; actual AI/write/peak cost",
+    "Separate live Gemini authorization and deferred human/Bridge acceptance",
+    "Separate approval for bounded historical backup rotation"
+  ]
+}

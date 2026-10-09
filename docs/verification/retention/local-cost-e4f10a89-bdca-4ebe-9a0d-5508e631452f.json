@@ -1,0 +1,222 @@
+{
+  "version": "RetentionLocalCost/1.0",
+  "observed_at": "2026-10-09T20:11:32.219Z",
+  "status": "PASS",
+  "basis": "ACTUAL_LOCAL_WORKERD_META_REAL_SOURCE_BYTES_SYNTHETIC_ACCEPTED_EXPORT",
+  "fixture_sha256": "b2f19528510a9eecdffc13cafc1c0a132d0ccfdd46dbabb92523a516e9ecb17a",
+  "source_backup_sha256": "31cd69361a6bb1342dd76726ba9aa1f430791cda36f90818dba61857cd027bd0",
+  "source_sample_items": 17,
+  "selected_sample": "MEDIAN_OBSERVED_SOURCE_ITEM",
+  "sample_mean_logical_bytes": 604668.8823529412,
+  "median_item_logical_bytes": 68765,
+  "source_bytes_before": {
+    "bytes": 68768,
+    "chunks": 6
+  },
+  "chunk_index_comparison": [
+    {
+      "index": "sqlite_autoindex_artifact_chunks_1",
+      "results": [
+        {
+          "bytes": 68768,
+          "chunks": 6
+        }
+      ],
+      "rows_read": 7,
+      "rows_written": 0,
+      "plan": [
+        {
+          "id": 4,
+          "parent": 0,
+          "notused": 62,
+          "detail": "SEARCH artifact_chunks USING INDEX sqlite_autoindex_artifact_chunks_1 (owner_id=?)"
+        }
+      ]
+    },
+    {
+      "index": "artifact_chunk_retention",
+      "results": [
+        {
+          "bytes": 68768,
+          "chunks": 6
+        }
+      ],
+      "rows_read": 6,
+      "rows_written": 0,
+      "plan": [
+        {
+          "id": 4,
+          "parent": 0,
+          "notused": 61,
+          "detail": "SEARCH artifact_chunks USING INDEX artifact_chunk_retention (owner_id=? AND item_id=?)"
+        }
+      ]
+    }
+  ],
+  "source_chunks_after": {
+    "chunks": 0
+  },
+  "checkpoint": {
+    "phase": "COMPLETE",
+    "step": 16,
+    "deleted_rows": 21,
+    "deleted_bytes": 71714
+  },
+  "steps": [
+    {
+      "table": "artifact_chunks",
+      "state": "PROGRESSED",
+      "rows_read": 97,
+      "rows_written": 10,
+      "queries": 8
+    },
+    {
+      "table": "transcript_representations",
+      "state": "PROGRESSED",
+      "rows_read": 40,
+      "rows_written": 5,
+      "queries": 7
+    },
+    {
+      "table": "candidate_repair_attempts",
+      "state": "PROGRESSED",
+      "rows_read": 31,
+      "rows_written": 4,
+      "queries": 7
+    },
+    {
+      "table": "optional_ai_results",
+      "state": "PROGRESSED",
+      "rows_read": 31,
+      "rows_written": 4,
+      "queries": 7
+    },
+    {
+      "table": "insight_observations",
+      "state": "PROGRESSED",
+      "rows_read": 31,
+      "rows_written": 4,
+      "queries": 7
+    },
+    {
+      "table": "observation_evidence",
+      "state": "PROGRESSED",
+      "rows_read": 54,
+      "rows_written": 5,
+      "queries": 7
+    },
+    {
+      "table": "observation_entities",
+      "state": "PROGRESSED",
+      "rows_read": 43,
+      "rows_written": 4,
+      "queries": 7
+    },
+    {
+      "table": "analysis_evidence",
+      "state": "PROGRESSED",
+      "rows_read": 49,
+      "rows_written": 5,
+      "queries": 7
+    },
+    {
+      "table": "observations",
+      "state": "PROGRESSED",
+      "rows_read": 49,
+      "rows_written": 5,
+      "queries": 7
+    },
+    {
+      "table": "evidence",
+      "state": "PROGRESSED",
+      "rows_read": 40,
+      "rows_written": 5,
+      "queries": 7
+    },
+    {
+      "table": "search_documents",
+      "state": "PROGRESSED",
+      "rows_read": 49,
+      "rows_written": 8,
+      "queries": 7
+    },
+    {
+      "table": "analysis_runs",
+      "state": "PROGRESSED",
+      "rows_read": 44,
+      "rows_written": 5,
+      "queries": 7
+    },
+    {
+      "table": "jobs",
+      "state": "PROGRESSED",
+      "rows_read": 43,
+      "rows_written": 5,
+      "queries": 7
+    },
+    {
+      "table": "artifacts",
+      "state": "PROGRESSED",
+      "rows_read": 99,
+      "rows_written": 9,
+      "queries": 7
+    },
+    {
+      "table": "artifacts",
+      "state": "PROGRESSED",
+      "rows_read": 40,
+      "rows_written": 5,
+      "queries": 7
+    },
+    {
+      "table": "daily_export_chunks",
+      "state": "PROGRESSED",
+      "rows_read": 60,
+      "rows_written": 5,
+      "queries": 7
+    },
+    {
+      "table": "item_revisions",
+      "state": "PROGRESSED",
+      "rows_read": 46,
+      "rows_written": 7,
+      "queries": 7
+    }
+  ],
+  "stage_count": 16,
+  "totals": {
+    "rows_read": 846,
+    "rows_written": 95
+  },
+  "dry_run": {
+    "rows_read": 15,
+    "rows_written": 0
+  },
+  "storage_before": {
+    "page_count": "UNAVAILABLE_IN_LOCAL_D1",
+    "freelist_count": "UNAVAILABLE_IN_LOCAL_D1",
+    "page_size": [
+      {
+        "page_size": 4096
+      }
+    ],
+    "auto_vacuum": "UNAVAILABLE_IN_LOCAL_D1"
+  },
+  "storage_after": {
+    "page_count": "UNAVAILABLE_IN_LOCAL_D1",
+    "freelist_count": "UNAVAILABLE_IN_LOCAL_D1",
+    "page_size": [
+      {
+        "page_size": 4096
+      }
+    ],
+    "auto_vacuum": "UNAVAILABLE_IN_LOCAL_D1"
+  },
+  "size_before_bytes": 1212416,
+  "size_after_bytes": 1114112,
+  "simulated_drive_reads": 19,
+  "production_d1_requests": 0,
+  "live_drive_requests": 0,
+  "gemini_requests": 0,
+  "paid_services_enabled": false
+}

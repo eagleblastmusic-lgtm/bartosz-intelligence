@@ -1,8 +1,7 @@
 # Kontrolowane wznowienie D1 — 2026-10-10
 
 Zakres: istniejący Implementation Master Plan V1. Gemini: zero wywołań bez
-osobnej zgody na materiał i liczbę prób. Kanały: bez dodawania propozycji przed
-zatwierdzeniem. `paid_services_enabled=false`. Istniejące Daily/Backups i ich
+osobnej zgody na materiał i liczbę prób. Kanały: lista zatwierdzona, staged new-only z zachowanych IDs. `paid_services_enabled=false`. Istniejące Daily/Backups i ich
 identyfikatory pozostają autorytatywne. Nie wykonujemy ponownie 8 historycznych
 PASS Gate R ani 6 PASS D-export tylko dla uzyskania nowej daty evidence.
 
@@ -23,7 +22,7 @@ Nie zastępuje unattended ChatGPT Scheduled / Voice ani ciągłej obserwacji Gat
    licznik remaining. Wymagany bieżący dzień UTC i receipt młodszy niż 15 min.
    Przy >=80% odczytów lub zapisów odraczamy testy/obserwację. Recovery i
    canonical cleanup nie mogą być porzucane przez pomocniczy budżet testu.
-3. Zastosować wyłącznie oczekującą migrację `036_d1_read_indexes.sql` po
+3. Zastosować oczekujące migracje `036_d1_read_indexes.sql` i `037_drive_only_retention.sql` po
    sprawdzeniu 35 istniejących nazw/hashów. Na lokalnej kopii koszt indeksów
    jest mierzony w benchmarku; produkcyjne metadata zachować, nie zgadywać.
    Następnie wdrożyć zweryfikowany build z obsługą daily quota i poprawionym SQL.
@@ -32,14 +31,14 @@ Nie zastępuje unattended ChatGPT Scheduled / Voice ani ciągłej obserwacji Gat
    Istniejący tryb: `node --env-file=.env tools/deployment/prepare.mjs migrate`;
    później właściwy zweryfikowany deploy przez `tools/deployment/deploy.mjs`.
    Backup cadence odmawia capture przed zgodnym applied checksum set, więc
-   nie wolno omijać preflight lub stemplować 36 na bazie z applied 35.
+   nie wolno omijać preflight lub stemplować 37 na bazie z applied 35.
 4. Minimalny pomiar produkcyjny: po jednej próbie admission, jednej stronie
    Capacity i jednej kontroli metadata-refresh; zapis `meta.rows_read/written`.
    Bez pełnego skanu danych, bez pięciu identycznych powtórek. Różnice od
    lokalnego workerd są rzeczywistymi wynikami, a nie powodem do zmiany progów.
    Gotowy runner: `node --env-file=.env --import=tsx tools/gates/d1/measure-live.ts --live --once`.
    Wymaga rzeczywistego dzisiejszego probe AVAILABLE, fresh usage, zgodnych
-   36 applied migrations oraz istniejących scoped worker credentials.
+   37 applied migrations oraz istniejących scoped worker credentials.
    Exclusive intent chroni przed replay; budget metadata zachowuje rzeczywiste
    koszty także przy częściowym wykonaniu. Due metadata job jest trwałą zwykłą
    intencją aplikacji; nie tworzy się tymczasowej sesji ani prywatnego dumpu.
@@ -146,3 +145,21 @@ jednym POST. Bez hidden retry. Sukces QUALITY_TEST nadal nie jest PRODUCTION
 accepted run: dopiero kwalifikacja/review i rzeczywista autoryzowana ścieżka
 prowadzą do Observation, Knowledge/Ledger, GUI i Daily/Drive. Zebrać te dowody
 osobno; nie deklarować pełnego E2E dla poprawnej odpowiedzi samego providera.
+
+## Drive-only: zakres wznowienia po rewizji właściciela
+
+Przeczytać docs/decisions/DRIVE_ONLY_RETENTION_V1_2026-10-09.md i
+docs/runbooks/drive-only-retention.md. Lokalne schema 37 i zmieniony runtime
+wymagają bieżących pins; historycznych 35-migration PASS nie przepisywać.
+Po migracji produkcja wyłącznie observation i dry-run: deletion_enabled=0,
+approval_reference=NULL. Pierwszy rzeczywisty DELETE pozostaje NIEZATWIERDZONY;
+przedstawić exact item/report/file/version/hash/due/dependency scope z readback
+i uzyskać osobną zgodę. Nie aktywować cleanup na podstawie samej decyzji produktu.
+Nie usuwać istniejących kopii. Przy unknown Analytics po północy wolno ponowić
+jedynie bounded metadata Analytics/inventory po niezależnej pracy; żadnego
+powtarzanego D1 SQL/capture w celu szukania quota. Integrity/recovery trwałe.
+
+Zweryfikowano lokalnie oryginalny backup 35→37 i restore po purge. Kopia z
+8 października nadal chroni swój historyczny cut, ale o 00:00 UTC ma >29h;
+świeży capture może być uzasadniony RPO/canonical delta, jeśli cadence nie ma
+już nowszej niezależnie zweryfikowanej kopii. Nie tworzyć kolejnej tylko dla PASS.

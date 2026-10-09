@@ -1,0 +1,82 @@
+diff --git a/Plan/BARTOSZ_INTELLIGENCE_MASTER_ARCHITECTURE_2026_v1.1.1.md b/Plan/BARTOSZ_INTELLIGENCE_MASTER_ARCHITECTURE_2026_v1.1.1.md
+--- a/Plan/BARTOSZ_INTELLIGENCE_MASTER_ARCHITECTURE_2026_v1.1.1.md
++++ b/Plan/BARTOSZ_INTELLIGENCE_MASTER_ARCHITECTURE_2026_v1.1.1.md
+@@ -1,1 +1,11 @@
+ # BARTOSZ INTELLIGENCE — MASTER ARCHITECTURE 2026 v1.1.1
++
++> **OWNER_APPROVED V1.1.2-retention — 2026-10-09.** Ta jawna rewizja ma pierwszeństwo
++> przed sprzecznymi zapisami historycznego packa poniżej. Drive Daily jest trwałym
++> archiwum streszczeń, ciężkie dane D1 podlegają retencji co najmniej 7 dni od
++> kompletnego, zweryfikowanego eksportu. IDs/dedup/operacyjne metadane pozostają.
++> Wcześniejsze evidence zachowują zakres. Nie ma nowej zgody na Gemini ani paid.
++> [Mapa wymagań i Definition of Done](../docs/decisions/DRIVE_ONLY_RETENTION_V1_2026-10-09.md).
++> [Cleanup/recovery](../docs/runbooks/drive-only-retention.md).
++> [Aktualne wykonanie i nierozstrzygnięte gates](../RELEASE_READINESS_REPORT.md).
++> Oryginalny Master na Drive i jego historyczny SHA pozostają niezmienione.
+diff --git a/Plan/00_IMPLEMENTATION_MASTER_INDEX.md b/Plan/00_IMPLEMENTATION_MASTER_INDEX.md
+--- a/Plan/00_IMPLEMENTATION_MASTER_INDEX.md
++++ b/Plan/00_IMPLEMENTATION_MASTER_INDEX.md
+@@ -1,1 +1,11 @@
+ # Bartosz Intelligence — Implementation Master Index
++
++> **OWNER_APPROVED V1.1.2-retention — 2026-10-09.** Ta jawna rewizja ma pierwszeństwo
++> przed sprzecznymi zapisami historycznego packa poniżej. Drive Daily jest trwałym
++> archiwum streszczeń, ciężkie dane D1 podlegają retencji co najmniej 7 dni od
++> kompletnego, zweryfikowanego eksportu. IDs/dedup/operacyjne metadane pozostają.
++> Wcześniejsze evidence zachowują zakres. Nie ma nowej zgody na Gemini ani paid.
++> [Mapa wymagań i Definition of Done](../docs/decisions/DRIVE_ONLY_RETENTION_V1_2026-10-09.md).
++> [Cleanup/recovery](../docs/runbooks/drive-only-retention.md).
++> [Aktualne wykonanie i nierozstrzygnięte gates](../RELEASE_READINESS_REPORT.md).
++> Oryginalny Master na Drive i jego historyczny SHA pozostają niezmienione.
+diff --git a/Plan/05_GATE_C_ZERO_COST_CAPACITY.md b/Plan/05_GATE_C_ZERO_COST_CAPACITY.md
+--- a/Plan/05_GATE_C_ZERO_COST_CAPACITY.md
++++ b/Plan/05_GATE_C_ZERO_COST_CAPACITY.md
+@@ -1,1 +1,13 @@
+ # Bartosz Intelligence — Gate C — Zero-Cost Capacity Validation
++
++> **OWNER_APPROVED V1.1.2-retention — 2026-10-09.** Ta jawna rewizja ma pierwszeństwo
++> przed sprzecznymi zapisami historycznego packa poniżej. Drive Daily jest trwałym
++> archiwum streszczeń, ciężkie dane D1 podlegają retencji co najmniej 7 dni od
++> kompletnego, zweryfikowanego eksportu. IDs/dedup/operacyjne metadane pozostają.
++> Wcześniejsze evidence zachowują zakres. Nie ma nowej zgody na Gemini ani paid.
++> [Mapa wymagań i Definition of Done](../docs/decisions/DRIVE_ONLY_RETENTION_V1_2026-10-09.md).
++> [Cleanup/recovery](../docs/runbooks/drive-only-retention.md).
++> [Aktualne wykonanie i nierozstrzygnięte gates](../RELEASE_READINESS_REPORT.md).
++> Oryginalny Master na Drive i jego historyczny SHA pozostają niezmienione.
++> Gate C zachowuje realne 20 kanałów/okna/SLO/λ/μ/headroom; dodaje pomiar working set,
++> koszt cleanup, backlog holds i physical high-water. Forecast nie kwalifikuje PASS.
+diff --git a/Plan/07_V1B_INTEGRATIONS_AND_OPERATIONS.md b/Plan/07_V1B_INTEGRATIONS_AND_OPERATIONS.md
+--- a/Plan/07_V1B_INTEGRATIONS_AND_OPERATIONS.md
++++ b/Plan/07_V1B_INTEGRATIONS_AND_OPERATIONS.md
+@@ -1,1 +1,13 @@
+ # Bartosz Intelligence — V1B — Integrations and Operations
++
++> **OWNER_APPROVED V1.1.2-retention — 2026-10-09.** Ta jawna rewizja ma pierwszeństwo
++> przed sprzecznymi zapisami historycznego packa poniżej. Drive Daily jest trwałym
++> archiwum streszczeń, ciężkie dane D1 podlegają retencji co najmniej 7 dni od
++> kompletnego, zweryfikowanego eksportu. IDs/dedup/operacyjne metadane pozostają.
++> Wcześniejsze evidence zachowują zakres. Nie ma nowej zgody na Gemini ani paid.
++> [Mapa wymagań i Definition of Done](../docs/decisions/DRIVE_ONLY_RETENTION_V1_2026-10-09.md).
++> [Cleanup/recovery](../docs/runbooks/drive-only-retention.md).
++> [Aktualne wykonanie i nierozstrzygnięte gates](../RELEASE_READINESS_REPORT.md).
++> Oryginalny Master na Drive i jego historyczny SHA pozostają niezmienione.
++> Stage 07 DoD: finalny FULL, exact membership, stable Drive file/version/hash,
++> zegar 7 dni, archived GUI link; historyczny COMPACT nie uprawnia do purge.
+diff --git a/Plan/08_V1C_HARDENING_AND_RELEASE.md b/Plan/08_V1C_HARDENING_AND_RELEASE.md
+--- a/Plan/08_V1C_HARDENING_AND_RELEASE.md
++++ b/Plan/08_V1C_HARDENING_AND_RELEASE.md
+@@ -1,1 +1,14 @@
+ # Bartosz Intelligence — V1C — Hardening and Release
++
++> **OWNER_APPROVED V1.1.2-retention — 2026-10-09.** Ta jawna rewizja ma pierwszeństwo
++> przed sprzecznymi zapisami historycznego packa poniżej. Drive Daily jest trwałym
++> archiwum streszczeń, ciężkie dane D1 podlegają retencji co najmniej 7 dni od
++> kompletnego, zweryfikowanego eksportu. IDs/dedup/operacyjne metadane pozostają.
++> Wcześniejsze evidence zachowują zakres. Nie ma nowej zgody na Gemini ani paid.
++> [Mapa wymagań i Definition of Done](../docs/decisions/DRIVE_ONLY_RETENTION_V1_2026-10-09.md).
++> [Cleanup/recovery](../docs/runbooks/drive-only-retention.md).
++> [Aktualne wykonanie i nierozstrzygnięte gates](../RELEASE_READINESS_REPORT.md).
++> Oryginalny Master na Drive i jego historyczny SHA pozostają niezmienione.
++> Stage 08/Gate R DoD: atomic <=25 row batches, persisted restart/checkpoint,
++> holds, brak redownload, restore minimalnego stanu po purge. Pierwszy produkcyjny
++> DELETE wymaga osobnej zgody na konkretny scope; najpierw observation/dry-run.

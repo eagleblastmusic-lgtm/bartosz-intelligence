@@ -1,5 +1,59 @@
 # Bartosz Intelligence V1 — release readiness
 
+## Aktualny checkpoint — zatwierdzone Drive-only i 7 dni retencji
+
+2026-10-09. **IMPLEMENTATION COMPLETE NO; PRODUCTION ACCEPTED NO.**
+Drive-only wdrożono lokalnie w istniejącej aplikacji: finalny FULL i exact
+accepted membership → verified Drive file/version/hash → siedem pełnych dni →
+kontrolowany cleanup ciężkich danych, z minimalnym stanem i ochroną dedup.
+Commit implementacji: `a59d628`. Migracja 037 domyślnie wyłącza deletion; produkcja nadal 35 migrations i Worker
+93995293-fd49-4f25-b843-63f326c30a32. Nie wykonano produkcyjnego DELETE lub deploy,
+nowego canonical backupu na produkcji, Gemini ani płatnych operacji.
+
+[Decyzja i mapa wymagań](docs/decisions/DRIVE_ONLY_RETENTION_V1_2026-10-09.md),
+[implementacja/pomiary/pojemność](docs/verification/retention/DRIVE_ONLY_RETENTION_VERIFICATION_2026-10-09.md),
+[runbook](docs/runbooks/drive-only-retention.md).
+Minimalne jawne rewizje zastosowano do lokalnego Master/Index/Stage 05/07/08.
+Plan/ jest zastanym ignored input; audytowalna delta jest zapisana w
+[patchu](docs/decisions/drive-only-master-plan.patch). Historyczny dokument Drive
+pozostał bez zmian; historycznych checkpointów nie oznaczono FAIL.
+
+Przyjęte zabezpieczenia: small atomic <=25 rows, maksymalnie cztery strony/cron,
+phase/checkpoint/rollback/restart, Drive revalidation, holds, brak redownload,
+restore z deletion OFF oraz archived GUI link. Bieżąca walidacja i moduły
+pozostają; wieloletnie szczegółowe D1 Knowledge/history nie są już obowiązkowe.
+Przy archiwalnym dniu korekta lub późny materiał wymagają recovery raportu;
+aplikacja chroni jego bytes przed nadpisaniem niepełnym renderem.
+
+Aktualna weryfikacja i byte hashes: [verification-summary](docs/verification/retention/verification-summary.json).
+Pełne unit/contract: **473 PASS /0 FAIL /1 platformowy skip** po sekwencyjnym
+uruchomieniu. Pełne Workers: **237 PASS**; końcowe delty indeksów i zegara: **25 i 11 targeted PASS**.
+GUI/accessibility: **5 PASS**. Zakresy i hashe są w końcowym receipt;
+wcześniejszy wynik 689 poniżej jest historyczny dla schema 36.
+Typecheck/lint/build/37 migrations/FK/integrity/empty restore PASS;
+public secret scan: 4 files/411693 bytes, zero findings.
+Lokalny największy cleanup **10 387→3510 reads**, **368 writes**; mediana
+**863 reads/94 writes**, dry-run bez zapisów. Zarchiwizowany case Gate C
+zachowuje identyczne daty/provenance/IDs po purge bez trzymania pełnej analizy.
+
+Quota root cause pozostaje potwierdzony: regularne admission/collector/metadata
+skany, wzmacniane developmentem, nie wyłącznie jednorazowy backup. Model
+7-dniowego working set redukuje wzrost ciężkiej historii, ale holds i opóźnienie
+AI/Drive nadal mogą zwiększać backlog. Wysoki model writes ~94.6k/dzień nie
+spełnia rezerwy 80k; brak pełnych realnych AI/write/peak pomiarów dla 20 kanałów.
+**Gate C NOT_YET_MATURE**, formalne R 8/10 i D-export 6/13 zachowują historyczne
+pins, Bridge/human reviews i pełny live AI E2E pozostają odroczone.
+
+Heartbeat 10 października 02:05 Europe/Warsaw zaktualizowano: jedna table quota
+probe po 00:00 UTC, fresh Analytics/inventory, migracje 036+037 i runtime,
+minimalne pomiary z budżetem, observation/dry-run cleanup, staged new-only z już
+zachowanych 19 IDs. Nie powtarza resolution/OAuth/provider PASS bez powodu.
+Pierwszy rzeczywisty cleanup wymaga osobnej zgody po przedstawieniu konkretnego
+produkcyjnego scope; obecnie nie jest zatwierdzony. Nowy Gemini nadal wymaga
+osobnej zgody. **paid_services_enabled=false**.
+
+## Historia: checkpoint przed rewizją Drive-only
+
 ## Bieżący checkpoint: D1 root cause i kontrolowana kontynuacja
 
 2026-10-09. **IMPLEMENTATION COMPLETE NO; PRODUCTION ACCEPTED NO.**
@@ -10,7 +64,7 @@ Osiągnięto daily READ limit. Admission transkrypcji (3.526 mln reads) i Gate C
 ścieżek. Nie sprowadzamy przyczyny do jednorazowych testów. Datasetów nie
 uzgadniamy sztucznie; dokładne udziały kategorii i sekunda wyczerpania nieznane.
 
-Migracja **036, wyłącznie cztery indeksy**, selektywne admission/metadata,
+Migracja **036, wyłącznie pięć indeksów**, selektywne admission/metadata,
 item-first Capacity join i rowid backup seek są zweryfikowane lokalnie.
 Actual workerd meta: **1508→4 /232713→1328 /2545→2 /3021→32 reads**;
 pełny lokalny canonical backup **269699→31184**, te same counts/hashes/writes.
