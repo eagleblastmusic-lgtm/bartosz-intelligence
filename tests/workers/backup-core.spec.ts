@@ -13,6 +13,7 @@ import {
 import { SourceRepository } from '../../packages/core/src/db/sources.js';
 import { JobStore } from '../../packages/core/src/jobs/store.js';
 import { sha256 } from '../../packages/core/src/auth/crypto.js';
+import { DriveClient } from '../../packages/core/src/drive/client.js';
 import { restoreCanonical } from '../../packages/core/src/backup/restore.js';
 import type { BackupChunk } from '../../packages/core/src/backup/snapshot.js';
 import type { Database } from '../../packages/core/src/db/boundary.js';
@@ -151,6 +152,43 @@ it('D1 mutation barrier freezes a consistent cut, rejects concurrent writer, has
     } while (cursor !== null);
   }
   const manifest = await backup.complete(started.backup_id);
+  const archive = JSON.stringify({ manifest, chunks: portableChunks });
+  let uploads = 0;
+  const drive = new DriveClient('fixture-token', async (url, options) => {
+    if (String(url).includes('/permissions'))
+      return Response.json({ permissions: [{ type: 'user', role: 'owner' }] });
+    uploads++;
+    expect(options?.body).toContain(archive);
+    expect(options?.body).not.toContain('ciphertext');
+    return Response.json({
+      id: 'reserved-backup',
+      name: manifest.backup_id + '.canonical.json',
+      mimeType: 'application/json',
+      parents: ['private-backups'],
+    });
+  });
+  const input = {
+    reserved_id: 'reserved-backup',
+    root_id: 'private-backups',
+    backup_id: manifest.backup_id,
+    envelope_json: archive,
+  };
+  expect((await drive.createCanonicalBackup(input)).id).toBe('reserved-backup');
+  const tampered = JSON.parse(archive);
+  tampered.chunks[0].rows[0].password = 'fixture-secret';
+  await expect(
+    drive.createCanonicalBackup({
+      ...input,
+      envelope_json: JSON.stringify(tampered),
+    }),
+  ).rejects.toThrow('DRIVE_FORMAT');
+  await expect(
+    drive.createCanonicalBackup({
+      ...input,
+      backup_id: '00000000-0000-0000-0000-000000000000',
+    }),
+  ).rejects.toThrow('DRIVE_FORMAT');
+  expect(uploads).toBe(1);
   expect(manifest.tables.sources?.count).toBe(1);
   expect(manifest.tables.jobs?.count).toBe(1);
   expect(await backup.manifest(started.backup_id)).toEqual(manifest);

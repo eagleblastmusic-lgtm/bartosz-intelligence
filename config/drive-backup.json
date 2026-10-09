@@ -1,6 +1,7 @@
 {
-  "enabled": false,
-  "folder_id": null,
+  "enabled": true,
+  "format": "canonical-json",
+  "folder_id": "1qulQNJMmEcFy_9o3908CNgU6Kdj7aB84",
   "recovery_key_file": "%LOCALAPPDATA%\\Bartosz Intelligence\\Recovery\\canonical-backup-key-v1.json",
   "paid_services_enabled": false
 }

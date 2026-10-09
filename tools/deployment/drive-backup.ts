@@ -35,76 +35,101 @@ if (args.length !== 2 || args[0] !== '--backup')
   throw new Error('EXPLICIT_CANONICAL_BACKUP_REQUIRED');
 const config = JSON.parse(readFileSync('config/drive-backup.json', 'utf8')) as {
   enabled: boolean;
+  format: 'canonical-json' | 'aes256gcm';
   folder_id: string;
   recovery_key_file: string;
   paid_services_enabled: false;
 };
 if (!config.enabled || config.paid_services_enabled !== false)
   throw new Error('DRIVE_BACKUP_DISABLED');
-const recoveryFile = config.recovery_key_file.startsWith('%LOCALAPPDATA%\\')
-  ? join(process.env.LOCALAPPDATA ?? '', config.recovery_key_file.slice(15))
-  : config.recovery_key_file;
-const keyPath = resolve(recoveryFile),
-  inside = relative(process.cwd(), keyPath);
-if (
-  !isAbsolute(recoveryFile) ||
-  (!inside.startsWith('..') && !isAbsolute(inside)) ||
-  !existsSync(keyPath) ||
-  lstatSync(keyPath).isSymbolicLink()
-)
-  throw new Error('EXTERNAL_RECOVERY_KEY_REQUIRED');
-const saved = JSON.parse(readFileSync(keyPath, 'utf8')) as {
-  version: string;
-  key_id: string;
-  key: string;
-};
-if (
-  saved.version !== 'canonical-backup-recovery:1' ||
-  !/^backup-[a-f0-9-]{36}$/.test(saved.key_id) ||
-  !/^[A-Za-z0-9_-]{43}$/.test(saved.key)
-)
-  throw new Error('RECOVERY_KEY_INVALID');
-// Existing owner/System-only recovery ACL must be in place before loading key.
-const acl = spawnSync(
-  'pwsh.exe',
-  [
-    '-NoProfile',
-    '-NonInteractive',
-    '-Command',
-    "$ErrorActionPreference='Stop'; try { $a=Get-Acl -LiteralPath $env:BI_BACKUP_KEY_PATH; $s=[Security.Principal.WindowsIdentity]::GetCurrent().User.Value; if (@($a.Access | Where-Object { $_.IdentityReference.Translate([Security.Principal.SecurityIdentifier]).Value -notin @($s,'S-1-5-18') -or $_.AccessControlType -ne 'Allow' }).Count) {exit 1} } catch {exit 1}",
-  ],
-  {
-    encoding: 'utf8',
-    windowsHide: true,
-    env: { ...process.env, BI_BACKUP_KEY_PATH: keyPath },
-    timeout: 15000,
-  },
-);
-if (acl.status !== 0) throw new Error('RECOVERY_KEY_ACL_REQUIRED');
-const rawKey = Buffer.from(saved.key, 'base64url');
-const key = await crypto.subtle.importKey('raw', rawKey, 'AES-GCM', false, [
-  'encrypt',
-  'decrypt',
-]);
-rawKey.fill(0);
-saved.key = '';
+if (!['canonical-json', 'aes256gcm'].includes(config.format))
+  throw new Error('EXPLICIT_BACKUP_FORMAT_REQUIRED');
+const encrypted = config.format === 'aes256gcm';
+let key: CryptoKey | undefined;
+let saved: { version: string; key_id: string; key: string } | undefined;
+if (encrypted) {
+  const recoveryFile = config.recovery_key_file.startsWith('%LOCALAPPDATA%\\')
+    ? join(process.env.LOCALAPPDATA ?? '', config.recovery_key_file.slice(15))
+    : config.recovery_key_file;
+  const keyPath = resolve(recoveryFile),
+    inside = relative(process.cwd(), keyPath);
+  if (
+    !isAbsolute(recoveryFile) ||
+    (!inside.startsWith('..') && !isAbsolute(inside)) ||
+    !existsSync(keyPath) ||
+    lstatSync(keyPath).isSymbolicLink()
+  )
+    throw new Error('EXTERNAL_RECOVERY_KEY_REQUIRED');
+  saved = JSON.parse(readFileSync(keyPath, 'utf8')) as {
+    version: string;
+    key_id: string;
+    key: string;
+  };
+  if (
+    saved.version !== 'canonical-backup-recovery:1' ||
+    !/^backup-[a-f0-9-]{36}$/.test(saved.key_id) ||
+    !/^[A-Za-z0-9_-]{43}$/.test(saved.key)
+  )
+    throw new Error('RECOVERY_KEY_INVALID');
+  // Existing owner/System-only recovery ACL must be in place before loading key.
+  const acl = spawnSync(
+    'pwsh.exe',
+    [
+      '-NoProfile',
+      '-NonInteractive',
+      '-Command',
+      "$ErrorActionPreference='Stop'; try { $a=Get-Acl -LiteralPath $env:BI_BACKUP_KEY_PATH; $s=[Security.Principal.WindowsIdentity]::GetCurrent().User.Value; if (@($a.Access | Where-Object { $_.IdentityReference.Translate([Security.Principal.SecurityIdentifier]).Value -notin @($s,'S-1-5-18') -or $_.AccessControlType -ne 'Allow' }).Count) {exit 1} } catch {exit 1}",
+    ],
+    {
+      encoding: 'utf8',
+      windowsHide: true,
+      env: { ...process.env, BI_BACKUP_KEY_PATH: keyPath },
+      timeout: 15000,
+    },
+  );
+  if (acl.status !== 0) throw new Error('RECOVERY_KEY_ACL_REQUIRED');
+  const rawKey = Buffer.from(saved.key, 'base64url');
+  key = await crypto.subtle.importKey('raw', rawKey, 'AES-GCM', false, [
+    'encrypt',
+    'decrypt',
+  ]);
+  rawKey.fill(0);
+  saved.key = '';
+}
 const original = readFileSync(resolve(args[1]!));
 if (original.length > 64 * 1024 * 1024)
   throw new Error('BACKUP_FILE_TOO_LARGE');
 const portable = JSON.parse(original.toString('utf8')) as PortableCoreBackup;
 await verifyPortableBackup(portable);
+// Refuse known reusable secrets as values too, not only forbidden field names.
+for (const [name, value] of Object.entries(process.env))
+  if (
+    /(SECRET|TOKEN|API_KEY|WRAPPING_KEY)$/.test(name) &&
+    value &&
+    value.length >= 16 &&
+    original.includes(Buffer.from(value))
+  )
+    throw new Error('BACKUP_SECRET_VALUE');
 const backupId = portable.manifest.backup_id,
   privateDirectory = resolve('.local/drive-backups');
 requirePrivateRecoveryDirectory(privateDirectory);
 mkdirSync(privateDirectory, { recursive: true });
-const envelopePath = join(privateDirectory, backupId + '.bi-backup.json'),
-  intentPath = join(privateDirectory, backupId + '-intent.json');
+const envelopePath = join(
+    privateDirectory,
+    backupId + (encrypted ? '.bi-backup.json' : '.canonical.json'),
+  ),
+  intentPath = join(
+    privateDirectory,
+    backupId + '-' + config.format + '-intent.json',
+  );
 if (!existsSync(envelopePath))
   writeFileSync(
     envelopePath,
-    JSON.stringify(
-      await encryptCanonicalBackup(original, backupId, saved.key_id, key),
-    ),
+    encrypted
+      ? JSON.stringify(
+          await encryptCanonicalBackup(original, backupId, saved!.key_id, key!),
+        )
+      : original,
     { flag: 'wx', mode: 0o600 },
   );
 const envelopeBytes = readFileSync(envelopePath),
@@ -113,7 +138,11 @@ const envelopeBytes = readFileSync(envelopePath),
   ) as EncryptedCanonicalBackup;
 const digest = (bytes: Uint8Array) =>
   createHash('sha256').update(bytes).digest('hex');
-if (digest(await decryptCanonicalBackup(envelope, key)) !== digest(original))
+if (
+  digest(
+    encrypted ? await decryptCanonicalBackup(envelope, key!) : envelopeBytes,
+  ) !== digest(original)
+)
   throw new Error('ENCRYPTED_BACKUP_SOURCE_MISMATCH');
 const db = remoteDatabase(),
   now = new Date(),
@@ -184,7 +213,11 @@ try {
   } catch (error) {
     if (!(error instanceof DriveFailure && error.category === 'NOT_FOUND'))
       throw error;
-    await client.createEncryptedBackup({
+    await (
+      encrypted
+        ? client.createEncryptedBackup.bind(client)
+        : client.createCanonicalBackup.bind(client)
+    )({
       reserved_id: intent.file_id,
       root_id: config.folder_id,
       backup_id: backupId,
@@ -206,7 +239,9 @@ try {
     digest(downloaded) !== digest(envelopeBytes)
   )
     throw new Error('BACKUP_DRIVE_READBACK_MISMATCH');
-  const plaintext = await decryptCanonicalBackup(JSON.parse(download), key);
+  const plaintext = encrypted
+    ? await decryptCanonicalBackup(JSON.parse(download), key!)
+    : downloaded;
   if (digest(plaintext) !== digest(original))
     throw new Error('BACKUP_DECRYPTED_HASH_MISMATCH');
   await verifyPortableBackup(
@@ -222,21 +257,24 @@ try {
     version: 'DriveCanonicalBackupReceipt/1.0',
     observed_at: new Date().toISOString(),
     status: 'PASS',
+    format: config.format,
     backup_id: backupId,
     captured_at: portable.manifest.created_at,
     cut_seq: portable.manifest.cut_seq,
     folder_id: config.folder_id,
     file_id: intent.file_id,
     created,
-    encrypted_bytes: envelopeBytes.length,
-    encrypted_sha256: digest(envelopeBytes),
+    archive_bytes: envelopeBytes.length,
+    archive_sha256: digest(envelopeBytes),
     canonical_sha256: digest(original),
     upload_download_hash: 'PASS',
-    authenticated_decryption: 'PASS',
+    authenticated_decryption: encrypted
+      ? 'PASS'
+      : 'NOT_REQUIRED_OWNER_SELECTED_CANONICAL_JSON',
     portable_integrity: 'PASS',
     remote_version: after.version,
-    key_outside_drive_d1_repository: true,
-    recovery_key_id: saved.key_id,
+    recovery_key_required: encrypted,
+    recovery_key_id: saved?.key_id ?? null,
     isolated_restore: 'NOT_RUN',
     full_app_rpo_rto: 'NOT_QUALIFIED',
     paid_services_enabled: false,
@@ -252,7 +290,8 @@ try {
       existing.backup_id !== backupId ||
       existing.file_id !== intent.file_id ||
       existing.folder_id !== config.folder_id ||
-      existing.encrypted_sha256 !== report.encrypted_sha256 ||
+      existing.format !== config.format ||
+      existing.archive_sha256 !== report.archive_sha256 ||
       existing.canonical_sha256 !== report.canonical_sha256
     )
       throw new Error('BACKUP_RECEIPT_CONFLICT');

@@ -109,6 +109,7 @@ export class DriveClient {
     options: RequestInit = {},
     upload = false,
     version: 'v3' | 'v2' = 'v3',
+    timeoutMs = 15000,
   ) {
     const target =
       'https://www.googleapis.com/' +
@@ -120,7 +121,7 @@ export class DriveClient {
       target,
       {
         ...options,
-        signal: AbortSignal.timeout(15000),
+        signal: AbortSignal.timeout(timeoutMs),
         headers: {
           ...options.headers,
           Authorization: 'Bearer ' + this.#accessToken,
@@ -246,8 +247,44 @@ export class DriveClient {
       !/^[A-Za-z0-9_-]+$/.test(envelope.ciphertext)
     )
       throw new DriveFailure('FORMAT');
+    return this.uploadBackupFile(input, input.backup_id + '.bi-backup.json');
+  }
+  async createCanonicalBackup(input: {
+    reserved_id: string;
+    root_id: string;
+    backup_id: string;
+    envelope_json: string;
+  }) {
+    if (new TextEncoder().encode(input.envelope_json).length > 64 * 1024 * 1024)
+      throw new DriveFailure('FORMAT');
+    const { verifyPortableBackup } = await import('../backup/restore.js');
+    try {
+      const portable = JSON.parse(input.envelope_json);
+      await verifyPortableBackup(portable);
+      if (portable.manifest.backup_id !== input.backup_id)
+        throw new Error('BACKUP_ID_MISMATCH');
+    } catch {
+      throw new DriveFailure('FORMAT');
+    }
+    return this.uploadBackupFile(input, input.backup_id + '.canonical.json');
+  }
+  private async uploadBackupFile(
+    input: {
+      reserved_id: string;
+      root_id: string;
+      backup_id: string;
+      envelope_json: string;
+    },
+    name: string,
+  ) {
+    requireDriveId(input.reserved_id);
+    requireDriveId(input.root_id);
+    if (
+      !/^[a-f0-9-]{36}$/.test(input.backup_id) ||
+      new TextEncoder().encode(input.envelope_json).length > 90 * 1024 * 1024
+    )
+      throw new DriveFailure('FORMAT');
     await this.verifyPrivateFolder(input.root_id);
-    const name = input.backup_id + '.bi-backup.json';
     const metadata = JSON.stringify({
       id: input.reserved_id,
       name,
@@ -275,6 +312,8 @@ export class DriveClient {
             body,
           },
           true,
+          'v3',
+          120000,
         ),
       ),
     );
@@ -295,7 +334,13 @@ export class DriveClient {
     )
       throw new DriveFailure('FORMAT');
     return boundedBody(
-      await this.request('files/' + requireDriveId(id) + '?alt=media'),
+      await this.request(
+        'files/' + requireDriveId(id) + '?alt=media',
+        {},
+        false,
+        'v3',
+        120000,
+      ),
       maximumBytes,
     );
   }

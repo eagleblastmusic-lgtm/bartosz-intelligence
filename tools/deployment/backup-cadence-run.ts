@@ -56,7 +56,11 @@ function archiveOnDrive(backupId: string | undefined) {
   const receiptPath = 'docs/verification/backup/drive-' + backupId + '.json';
   if (existsSync(receiptPath)) {
     const receipt = JSON.parse(readFileSync(receiptPath, 'utf8'));
-    if (receipt.status === 'PASS' && receipt.folder_id === config.folder_id)
+    if (
+      receipt.status === 'PASS' &&
+      receipt.folder_id === config.folder_id &&
+      receipt.format === config.format
+    )
       return 'ALREADY_VERIFIED';
   }
   const uploaded = spawnSync(
