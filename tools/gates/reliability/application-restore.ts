@@ -13,6 +13,7 @@ import { randomToken, sha256 } from '../../../packages/core/src/auth/crypto.js';
 import { AccessContext } from '../../../packages/core/src/db/boundary.js';
 import { SearchIndex } from '../../../packages/core/src/knowledge/search-index.js';
 import { candidatePins } from '../../release/pins.js';
+import application from '../../../config/application.json';
 
 // Extends the already verified independent Drive copy to actual application
 // handlers and derived search. Node/SQLite equivalent, not a new cloud install.
@@ -99,7 +100,10 @@ try {
   const environment = {
     DB: db,
     SESSION_SIGNING_SECRET: secret,
-    APP_ORIGIN: 'https://recovery.invalid',
+    APP_ORIGIN: application.app_origin,
+    GOOGLE_OIDC_CLIENT_ID: 'isolated-recovery',
+    GOOGLE_OIDC_CLIENT_SECRET: 'isolated-recovery',
+    GOOGLE_OIDC_OWNER_SUBJECT: process.env.GOOGLE_OIDC_OWNER_SUBJECT,
     BARTOSZ_QUEUE: {
       send: async () => {
         throw new Error('RECOVERY_PROVIDER_REQUEST_DENIED');
@@ -112,7 +116,7 @@ try {
   };
   const fetchApp = (path: string, authorized = true) =>
     worker.fetch(
-      new Request('https://recovery.invalid' + path, {
+      new Request(application.app_origin + path, {
         headers: authorized ? { Cookie: signed } : {},
       }),
       environment,
