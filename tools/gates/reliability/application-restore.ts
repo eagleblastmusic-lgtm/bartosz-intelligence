@@ -59,15 +59,14 @@ const runtime = wranglerRequire('miniflare') as {
 };
 const secret = randomToken();
 const assetsRoot = resolve('apps/web/dist');
-const mf = new runtime.Miniflare(
-  runtime.convertV4MiniflareOptions({
+const runtimeOptions = {
+  ...runtime.convertV4MiniflareOptions({
     modules: true,
     script: readFileSync('apps/api/dist/index.js', 'utf8'),
     compatibilityDate: '2026-10-01',
     host: '127.0.0.1',
     port: 0,
     d1Databases: ['DB'],
-    d1Persist: root,
     queueProducers: { BARTOSZ_QUEUE: 'isolated-recovery' },
     bindings: {
       SESSION_SIGNING_SECRET: secret,
@@ -97,7 +96,9 @@ const mf = new runtime.Miniflare(
       },
     },
   }),
-);
+  resourcePersistencePath: root,
+};
+const mf = new runtime.Miniflare(runtimeOptions);
 let disposed = false;
 try {
   await mf.ready;
@@ -211,12 +212,31 @@ try {
   } finally {
     physical.close();
   }
+  const restarted = new runtime.Miniflare(runtimeOptions);
+  let restartVerified = false;
+  try {
+    await restarted.ready;
+    const response = await restarted.dispatchFetch(
+      application.app_origin + '/api/v1/items?limit=20',
+      { headers: { Cookie: signed } },
+    );
+    const body = await response.text();
+    restartVerified = response.status === 200 && body.length > 0;
+    if (!restartVerified) throw new Error('RESTORED_RUNTIME_RESTART_FAILED');
+  } finally {
+    await restarted.dispose();
+  }
   const report = {
     version: 'ApplicationRestoreWorkerd/1.0',
     observed_at: new Date().toISOString(),
     ...pins,
     status:
-      denied && invalidated && integrity && quickCheck && foreignKeys
+      denied &&
+      invalidated &&
+      integrity &&
+      quickCheck &&
+      foreignKeys &&
+      restartVerified
         ? 'PASS'
         : 'FAIL',
     runtime: 'ACTUAL_LOCAL_WORKERD_D1_APPLICATION',
@@ -232,6 +252,7 @@ try {
     integrity,
     quick_check: quickCheck,
     integrity_basis: 'SAME_PERSISTED_ISOLATED_D1_OFFLINE_SQLITE',
+    persisted_runtime_restart: restartVerified,
     foreign_keys: foreignKeys,
     routes: checks,
     live_owner_oidc: 'NOT_RUN',
