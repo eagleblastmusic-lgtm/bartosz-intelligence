@@ -36,6 +36,9 @@ import { drillDiscovery } from './local-discovery.js';
 import { drillAuth } from './local-auth.js';
 import { drillOffline } from './local-offline.js';
 import { drillRollback } from './local-rollback.js';
+import { drillTranscript } from './local-transcript.js';
+import { drillDrive } from './local-drive.js';
+import { drillMalformed } from './local-malformed.js';
 
 // Isolated local D1 only; no production mutation or source/AI provider request.
 const args = process.argv.slice(2);
@@ -182,6 +185,9 @@ try {
       'auth_revocation',
       'quota_local_offline',
       'model_prompt_rollback',
+      'transcript_failure',
+      'drive_consumer_failure',
+      'malformed_ai',
     ],
     deadline_ms: 14400000,
     provider_requests: 0,
@@ -349,6 +355,12 @@ try {
   save('offline-observations.json', offline.observations);
   const rollback = await drillRollback(db, owner, now);
   save('rollback-observations.json', rollback.observations);
+  const transcript = await drillTranscript(db, owner, now);
+  save('transcript-observations.json', transcript.observations);
+  const drive = await drillDrive(db, owner, now);
+  save('drive-observations.json', drive.observations);
+  const malformed = await drillMalformed(db, owner, now);
+  save('malformed-observations.json', malformed.observations);
   const auth = await drillAuth(db, owner, session, now);
   save('auth-observations.json', auth.observations);
   const after = await origins();
@@ -386,7 +398,13 @@ try {
             ? offline.pass
             : caseId === 'model_prompt_rollback'
               ? rollback.pass
-              : true);
+              : caseId === 'transcript_failure'
+                ? transcript.pass
+                : caseId === 'drive_consumer_failure'
+                  ? drive.pass
+                  : caseId === 'malformed_ai'
+                    ? malformed.pass
+                    : true);
     if (
       [
         'lease_crash',
@@ -396,6 +414,9 @@ try {
         'auth_revocation',
         'quota_local_offline',
         'model_prompt_rollback',
+        'transcript_failure',
+        'drive_consumer_failure',
+        'malformed_ai',
       ].includes(caseId)
     )
       evidence = save(caseId + '.json', {
@@ -447,7 +468,16 @@ try {
       global_release_approved: false,
     }),
   );
-  if (!pass || !discovery.pass || !auth.pass || !offline.pass || !rollback.pass)
+  if (
+    !pass ||
+    !discovery.pass ||
+    !auth.pass ||
+    !offline.pass ||
+    !rollback.pass ||
+    !transcript.pass ||
+    !drive.pass ||
+    !malformed.pass
+  )
     process.exitCode = 2;
 } finally {
   await mf.dispose();

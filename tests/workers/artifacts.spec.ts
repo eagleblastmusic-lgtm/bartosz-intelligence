@@ -746,6 +746,7 @@ it.each([
   'RATE_LIMITED',
   'TEMPORARY_FAILURE',
   'REFUSED',
+  'MALFORMED',
 ] as const)(
   'verified source acceptance and %s analysis preserve source authority and fenced knowledge effects',
   async (scenario) => {
@@ -2336,7 +2337,8 @@ it.each([
     if (
       scenario !== 'QUALITY_TEST' &&
       scenario !== 'PRODUCTION' &&
-      scenario !== 'CUSTOM_PRODUCTION'
+      scenario !== 'CUSTOM_PRODUCTION' &&
+      scenario !== 'MALFORMED'
     ) {
       const retained = (await retainAnalysisResponse({
         origin: 'https://fixture.invalid',
@@ -2418,27 +2420,33 @@ it.each([
       response: {
         request_id: prepared.run_id,
         status: 'OK',
-        raw_output: JSON.stringify({
-          summary_pl: [
-            { text_pl: 'Autor przedstawia wypowiedź.', segment_refs: ['s1'] },
-          ],
-          key_points: [],
-          entity_mentions: [],
-          tools: [],
-          claims: [
-            {
-              text_pl: 'Autor przedstawia wypowiedź.',
-              segment_refs: ['s1'],
-              entity_refs: [],
-              subject_ref: null,
-              attribution: 'SOURCE_SPEAKER',
-              qualifiers: [],
-            },
-          ],
-          stance: [],
-          predictions: [],
-          source_issues: [],
-        }),
+        raw_output:
+          scenario === 'MALFORMED'
+            ? '{"summary_pl":'
+            : JSON.stringify({
+                summary_pl: [
+                  {
+                    text_pl: 'Autor przedstawia wypowiedź.',
+                    segment_refs: ['s1'],
+                  },
+                ],
+                key_points: [],
+                entity_mentions: [],
+                tools: [],
+                claims: [
+                  {
+                    text_pl: 'Autor przedstawia wypowiedź.',
+                    segment_refs: ['s1'],
+                    entity_refs: [],
+                    subject_ref: null,
+                    attribution: 'SOURCE_SPEAKER',
+                    qualifiers: [],
+                  },
+                ],
+                stance: [],
+                predictions: [],
+                source_issues: [],
+              }),
         actual_provider: 'gemini',
         actual_model: profile.model,
         finish_reason: 'completed',
@@ -2455,6 +2463,48 @@ it.each([
       new Date(),
       fixtureSecret,
     );
+    if (scenario === 'MALFORMED') {
+      expect(validated).toMatchObject({ status: 'INVALID', accepted: false });
+      const rpc = new WorkerRpc(
+        'https://fixture.invalid',
+        'q'.repeat(43),
+        analysisTransport,
+      );
+      expect(
+        await rpc.request('analysis/disposition', {
+          token: aiToken,
+          reservation_id: permit.reservation_id,
+          artifact_id: responseReceipt.artifact_id,
+        }),
+      ).toMatchObject({
+        accepted: false,
+        state: 'BLOCKED',
+        reason: 'AI_OUTPUT_REVIEW_REQUIRED',
+      });
+      expect(
+        await env.DB.prepare('SELECT COUNT(*) n FROM observations').first('n'),
+      ).toBe(0);
+      expect(
+        await env.DB.prepare(
+          "SELECT COUNT(*) n FROM analysis_runs WHERE job_id=? AND state='ACCEPTED'",
+        )
+          .bind(aiToken.job_id)
+          .first('n'),
+      ).toBe(0);
+      expect(
+        await env.DB.prepare(
+          'SELECT state FROM quota_reservations WHERE reservation_id=?',
+        )
+          .bind(permit.reservation_id)
+          .first('state'),
+      ).toBe('SETTLED');
+      expect(
+        await env.DB.prepare('SELECT state FROM analysis_runs WHERE run_id=?')
+          .bind(prepared.run_id)
+          .first('state'),
+      ).toBe('CANDIDATE');
+      return;
+    }
     expect(validated).toMatchObject({
       status: 'VALIDATED',
       mode,
