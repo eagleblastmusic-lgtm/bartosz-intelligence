@@ -1,10 +1,7 @@
-/// <reference types="@cloudflare/workers-types" />
 import { readFileSync, writeFileSync, mkdirSync } from 'node:fs';
 import { resolve, join } from 'node:path';
 import { randomUUID, createHash } from 'node:crypto';
 import { DatabaseSync } from 'node:sqlite';
-import worker from '../../../apps/api/src/index.js';
-import type { Env } from '../../../apps/api/src/env.js';
 import {
   restoreCanonical,
   type PortableCoreBackup,
@@ -20,6 +17,15 @@ import { candidatePins } from '../../release/pins.js';
 // Extends the already verified independent Drive copy to actual application
 // handlers and derived search. Node/SQLite equivalent, not a new cloud install.
 const args = process.argv.slice(2);
+// Load the Worker at runtime; its Cloudflare type project stays separate from
+// Node tooling to avoid ambient Buffer collisions.
+const workerModule = '../../../apps/api/src/index.js';
+const worker = (await import(workerModule)).default as {
+  fetch(
+    request: Request,
+    environment: Record<string, unknown>,
+  ): Promise<Response>;
+};
 if (
   args.length !== 2 ||
   args[0] !== '--drive-copy' ||
@@ -103,7 +109,7 @@ try {
       fetch: async () =>
         new Response(html, { headers: { 'Content-Type': 'text/html' } }),
     },
-  } as unknown as Env;
+  };
   const fetchApp = (path: string, authorized = true) =>
     worker.fetch(
       new Request('https://recovery.invalid' + path, {
@@ -129,7 +135,9 @@ try {
       sha256: createHash('sha256').update(body).digest('hex'),
     });
     if (response.status !== 200 || !body.length)
-      throw new Error('RESTORED_APPLICATION_ROUTE_FAILED');
+      throw new Error(
+        'RESTORED_APPLICATION_ROUTE_FAILED:' + path + ':' + response.status,
+      );
   }
   const denied = (await fetchApp('/api/v1/items', false)).status === 401;
   const source = sqlite
