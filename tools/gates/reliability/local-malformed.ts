@@ -134,6 +134,30 @@ export async function drillMalformed(
     }),
   );
   const quota = new QuotaAdmission(db, context);
+  for (const bucket of buckets) {
+    await db
+      .prepare(
+        'INSERT INTO quota_snapshots VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)',
+      )
+      .bind(
+        bucket.snapshot_id,
+        owner.ownerId,
+        'gemini',
+        snapshot.profile.model,
+        bucket.bucket,
+        'tokens-or-requests',
+        bucket.remaining,
+        0,
+        bucket.remaining,
+        bucket.reset_at,
+        'America/Los_Angeles',
+        'dashboard',
+        bucket.sampled_at,
+        bucket.expires_at,
+        'INJECTED_ISOLATED_DRILL',
+      )
+      .run();
+  }
   const permit = await quota.reserve(
     {
       request_id: prepared.run_id,
