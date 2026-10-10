@@ -210,7 +210,24 @@ try {
     const dedup =
       mode === '--archive-once'
         ? await archive.tick({ client, item_id: itemId }, new Date())
-        : null;
+        : await new TranscriptDriveArchive(
+            remoteDatabase(async (queries) => {
+              // Verification must prove IDLE without creating an archive or
+              // changing a job if a newer source appeared concurrently.
+              if (queries.some((query) => !/^SELECT\b/i.test(query.sql.trim())))
+                throw new Error('TRANSCRIPT_READ_ONLY_DEDUP_MUTATION_REFUSED');
+              return budget.execute(queries);
+            }),
+            context,
+          ).tick(
+            {
+              item_id: itemId,
+              client: async () => {
+                throw new Error('TRANSCRIPT_READ_ONLY_DEDUP_DRIVE_REFUSED');
+              },
+            },
+            new Date(),
+          );
     if (dedup && dedup.state !== 'IDLE')
       throw new Error('TRANSCRIPT_DEDUP_NOT_IDLE');
     result = {
