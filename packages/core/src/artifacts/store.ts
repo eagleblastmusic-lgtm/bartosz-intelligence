@@ -389,7 +389,7 @@ export class ArtifactRepository {
       const rows = (
         await this.db
           .prepare(
-            `SELECT * FROM artifact_chunks WHERE owner_id=? AND artifact_id=? AND chunk_index>=? AND chunk_index<? AND EXISTS(SELECT 1 FROM transcript_archives t WHERE t.owner_id=artifact_chunks.owner_id AND t.item_id=artifact_chunks.item_id AND artifact_chunks.artifact_id IN (t.source_artifact_id,t.segment_map_artifact_id) AND t.lease_until>?) ORDER BY chunk_index`,
+            `SELECT * FROM artifact_chunks WHERE owner_id=? AND artifact_id=? AND chunk_index>=? AND chunk_index<? AND EXISTS(SELECT 1 FROM transcript_archives t WHERE t.owner_id=artifact_chunks.owner_id AND t.item_id=artifact_chunks.item_id AND artifact_chunks.artifact_id IN (t.source_artifact_id,t.segment_map_artifact_id) AND ((t.state IN ('PENDING','RETRY_WAIT') AND t.lease_until>?) OR (t.state='VERIFIED' AND t.verified_source_artifact_id=t.source_artifact_id AND t.verified_hash IS NOT NULL))) ORDER BY chunk_index`,
           )
           .bind(
             this.context.ownerId,

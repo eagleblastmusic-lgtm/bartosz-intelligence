@@ -392,6 +392,25 @@ it.each([false, true])(
     expect(
       await f.archive().tick({ client: async () => f.client }, fixtureNow),
     ).toMatchObject({ state: 'VERIFIED', file_id: 'reserved' });
+    // Successful export releases its lease; independent readback still reads
+    // exactly the registered verified source, without granting arbitrary reads.
+    const repository = new ArtifactRepository(env.DB, f.worker);
+    expect(
+      (await repository.readTranscriptArchiveText('source', fixtureNow)).text,
+    ).toBe(f.text);
+    await env.DB.prepare(
+      "UPDATE transcript_archives SET state='CONFLICT',lease_until=NULL WHERE item_id=?",
+    )
+      .bind(f.item.item_id)
+      .run();
+    await expect(
+      repository.readTranscriptArchiveText('source', fixtureNow),
+    ).rejects.toThrow('ARTIFACT_CHUNK_MISSING');
+    await env.DB.prepare(
+      "UPDATE transcript_archives SET state='VERIFIED' WHERE item_id=?",
+    )
+      .bind(f.item.item_id)
+      .run();
     expect(f.markdown).toContain('Exact <b>source</b> &amp; 😀');
     expect(f.markdown!.match(/\nRepeat\n/g)).toHaveLength(2);
     expect(f.markdown).toContain(
