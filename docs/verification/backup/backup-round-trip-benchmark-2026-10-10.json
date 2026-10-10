@@ -1,0 +1,31 @@
+{
+  "version": "backup-round-trip-benchmark:1",
+  "observed_at": "2026-10-10T20:55:39.027Z",
+  "source_backup_id": "5a30668c-f9f2-4aae-b965-b9e15dc9c073",
+  "source_backup_sha256": "31cd69361a6bb1342dd76726ba9aa1f430791cda36f90818dba61857cd027bd0",
+  "scope": "OFFLINE_VERIFIED_OCT8_BACKUP_RESTORED_TO_SCHEMA39_NOT_PRODUCTION_TIMING",
+  "before_commit": "ba36a56580bb5a9c3b9fb229368d03c316a79444",
+  "before": {
+    "chunks": 369,
+    "canonical_rows": 4678,
+    "chunk_round_trips": 1138,
+    "max_chunk_bytes": 129361,
+    "canonical_row_hash": "a881c12b4b198045b23c430a29301e816680d4f7e36cec5964d9d8bd1e13965d",
+    "elapsed_ms": 704,
+    "manifest_version": 2
+  },
+  "after": {
+    "chunks": 294,
+    "canonical_rows": 4678,
+    "chunk_round_trips": 619,
+    "max_chunk_bytes": 93724,
+    "canonical_row_hash": "a881c12b4b198045b23c430a29301e816680d4f7e36cec5964d9d8bd1e13965d",
+    "elapsed_ms": 662,
+    "manifest_version": 2
+  },
+  "billed_rows_read": "NOT_MEASURED",
+  "billed_rows_written": "NOT_MEASURED",
+  "production_sql": 0,
+  "integrity": "IDENTICAL_CANONICAL_ROW_HASH_AND_COUNT",
+  "result": "PASS"
+}

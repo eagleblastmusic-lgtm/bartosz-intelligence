@@ -110,7 +110,7 @@ try {
       chunkTable = table;
       chunkCursor = cursor;
       const chunk = await recoverBackupChunk(
-        () => backup!.chunk(backupId!, table, cursor!),
+        () => backup!.chunk(backupId!, table, cursor!, 100),
         started.expires_at,
       );
       chunks.push(chunk);

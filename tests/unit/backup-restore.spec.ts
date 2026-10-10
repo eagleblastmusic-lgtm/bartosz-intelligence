@@ -131,7 +131,12 @@ it('restores an explicitly selected format 2 corpus above the measured productio
     for (const table of backupTables) {
       let cursor: number | null = 0;
       do {
-        const chunk = await backup.chunk(extended.backup_id, table, cursor);
+        const chunk = await backup.chunk(
+          extended.backup_id,
+          table,
+          cursor,
+          100,
+        );
         chunks.push(chunk);
         cursor = chunk.next_cursor;
       } while (cursor !== null);

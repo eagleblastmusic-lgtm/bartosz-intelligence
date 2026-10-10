@@ -245,21 +245,40 @@ export class CoreBackup {
     id: string,
     table: BackupTable,
     cursor: number,
+    pageRows: 25 | 100 = 25,
   ): Promise<BackupChunk> {
     if (
       !backupTables.includes(table) ||
       !Number.isSafeInteger(cursor) ||
-      cursor < 0
+      cursor < 0 ||
+      ![25, 100].includes(pageRows)
     )
       throw new Error('INVALID_BACKUP_CURSOR');
-    const snapshot = await this.snapshot(id),
-      counts = JSON.parse(snapshot.counts_json) as Record<string, number>;
-    const limits = backupLimits(snapshot.format_version);
     const spec = tableSpec(table);
+    // The local administrative runner can group small operational rows. Keep
+    // payload tables bounded separately; the byte limit remains authoritative.
+    const rowLimit =
+      pageRows === 100
+        ? ['artifact_chunks', 'daily_export_chunks'].includes(table)
+          ? 2
+          : [
+                'job_attempts',
+                'change_log',
+                'discovery_scans',
+                'discovery_scan_members',
+              ].includes(table)
+            ? 100
+            : 25
+        : 25;
     const query = this.db.prepare(
-      `SELECT rowid AS __cursor,${spec.projection} FROM ${table} NOT INDEXED WHERE rowid>?${spec.scoped ? ' AND owner_id=?' : ''} ORDER BY rowid LIMIT 25`,
+      `SELECT rowid AS __cursor,${spec.projection} FROM ${table} NOT INDEXED WHERE rowid>?${spec.scoped ? ' AND owner_id=?' : ''} ORDER BY rowid LIMIT ${rowLimit}`,
     );
     const page = await this.db.batch([
+      this.db
+        .prepare(
+          "SELECT s.*,EXISTS(SELECT 1 FROM maintenance_state WHERE singleton=1 AND barrier_token=s.backup_id AND barrier_until>strftime('%Y-%m-%dT%H:%M:%fZ','now')) AS active_permit FROM backup_snapshots s WHERE s.owner_id=? AND s.backup_id=?",
+        )
+        .bind(this.context.ownerId, id),
       query.bind(cursor, ...(spec.scoped ? [this.context.ownerId] : [])),
       this.db
         .prepare(
@@ -267,7 +286,16 @@ export class CoreBackup {
         )
         .bind(this.context.ownerId, id, table),
     ]);
-    const raw = (page[0]?.results ?? []) as Row[];
+    const snapshot = page[0]?.results?.[0] as
+      (Snapshot & { active_permit: number }) | undefined;
+    if (!snapshot) throw new Error('NOT_FOUND');
+    if (!snapshot.active_permit || snapshot.state !== 'BUILDING')
+      throw new Error('BACKUP_EXPIRED_OR_CLOSED');
+    if (pageRows === 100 && snapshot.format_version !== 2)
+      throw new Error('INVALID_BACKUP_PAGE_FORMAT');
+    const counts = JSON.parse(snapshot.counts_json) as Record<string, number>;
+    const limits = backupLimits(snapshot.format_version);
+    const raw = (page[1]?.results ?? []) as Row[];
     // Limit each hash/serialization work unit, independently of total corpus size.
     const rows: Row[] = [],
       rowCursors: number[] = [];
@@ -288,7 +316,7 @@ export class CoreBackup {
       rows.push(data);
       rowCursors.push(Number(__cursor));
     }
-    const previous = (page[1]?.results ?? []) as {
+    const previous = (page[2]?.results ?? []) as {
       cursor: number;
       next_cursor: number | null;
       chunk_index: number;

@@ -18,6 +18,40 @@ import { restoreCanonical } from '../../packages/core/src/backup/restore.js';
 import type { BackupChunk } from '../../packages/core/src/backup/snapshot.js';
 import type { Database } from '../../packages/core/src/db/boundary.js';
 beforeEach(resetCore);
+it('uses two bounded database round trips per populated chunk and preserves idempotent receipts', async () => {
+  const owner = await fixtureOwner();
+  const backup = new CoreBackup(env.DB, owner);
+  const legacy = await backup.begin();
+  await expect(
+    backup.chunk(legacy.backup_id, 'owner_users', 0, 100),
+  ).rejects.toThrow('INVALID_BACKUP_PAGE_FORMAT');
+  await backup.abort(legacy.backup_id);
+  const started = await backup.begin(2);
+  let batches = 0;
+  const counted: Database = {
+    prepare: env.DB.prepare.bind(env.DB),
+    async batch(statements) {
+      batches++;
+      return env.DB.batch(statements as D1PreparedStatement[]);
+    },
+  };
+  const bounded = new CoreBackup(counted, owner);
+  const first = await bounded.chunk(started.backup_id, 'owner_users', 0, 100);
+  expect(first.rows).toHaveLength(1);
+  expect(batches).toBe(2);
+  expect(await bounded.chunk(started.backup_id, 'owner_users', 0, 100)).toEqual(
+    first,
+  );
+  expect(batches).toBe(4);
+  expect(
+    await env.DB.prepare(
+      'SELECT count(*) n FROM backup_chunks WHERE backup_id=?',
+    )
+      .bind(started.backup_id)
+      .first('n'),
+  ).toBe(1);
+  await backup.abort(started.backup_id);
+});
 it('rejects expiry immediately before the batched receipt write without persisting a chunk', async () => {
   const owner = await fixtureOwner();
   const backup = new CoreBackup(env.DB, owner),
