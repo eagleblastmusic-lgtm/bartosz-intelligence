@@ -79,6 +79,15 @@ async function fixture(page: Page) {
           quota: [],
         },
       });
+    if (path === '/api/v1/system/retention')
+      return route.fulfill({
+        json: {
+          policy: 'DRIVE_ONLY_VERIFIED_PLUS_7_DAYS',
+          settings: { deletion_enabled: 0, approval_reference: null },
+          items: [],
+          next_cursor: null,
+        },
+      });
     throw new Error('UNEXPECTED_SHELL_API');
   });
   return origin;

@@ -1,5 +1,6 @@
 import { expect, it } from 'vitest';
-import { readFileSync } from 'node:fs';
+import { existsSync, readFileSync } from 'node:fs';
+import { createHash } from 'node:crypto';
 import Ajv2020 from 'ajv/dist/2020.js';
 import bundle from '../../config/registry/master-bundle.json';
 import {
@@ -11,14 +12,29 @@ it('matches all exact Master schemas/templates and golden content hash', async (
   expect(await verifyRegistryBundle(bundle)).toBe(
     'dd1adb0ea34ccea46b080dd1ccffef1985682a37bbd16fcb7d73ae24bb4aa0eb',
   );
-  const master = readFileSync(
-    'Plan/BARTOSZ_INTELLIGENCE_MASTER_ARCHITECTURE_2026_v1.1.1.md',
+  const section = readFileSync(
+    'tests/fixtures/registry/master-prompt-pack-v1.1.1.md',
     'utf8',
   ).replaceAll('\r\n', '\n');
-  const section = master.slice(
-    master.indexOf('## 24. Prompt Pack'),
-    master.indexOf('## 25. UX/UI'),
+  expect(bundle.master_sha256).toBe(
+    '587d082647ffdc4ba9fd9d23f4163f428746d2bf7b4bc9544e7916f6d38823ed',
   );
+  // Public, source-derived golden bytes are required on every runner. The
+  // owner's full Plan stays private; when present it must agree as well.
+  expect(createHash('sha256').update(section).digest('hex')).toBe(
+    'f37e621be98cd85293fded035294299b93e21239c40de93075bfc1a9f574a103',
+  );
+  const privateMaster =
+    'Plan/BARTOSZ_INTELLIGENCE_MASTER_ARCHITECTURE_2026_v1.1.1.md';
+  if (existsSync(privateMaster)) {
+    const master = readFileSync(privateMaster, 'utf8').replaceAll('\r\n', '\n');
+    expect(
+      master.slice(
+        master.indexOf('## 24. Prompt Pack'),
+        master.indexOf('## 25. UX/UI'),
+      ),
+    ).toBe(section);
+  }
   const schemas = [...section.matchAll(/```json\n([\s\S]*?)\n```/g)].map(
     (match) => JSON.parse(match[1]!),
   );

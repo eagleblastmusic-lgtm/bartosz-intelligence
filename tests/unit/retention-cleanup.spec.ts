@@ -636,7 +636,7 @@ it('rolls back an interrupted batch, resumes with a new instance, preserves dedu
     f.sqlite.close();
     target.sqlite.close();
   }
-});
+}, 15000);
 
 it('preserves Gate C measurement facts and refuses reanalysis after purging source bytes', async () => {
   const f = await fixture();

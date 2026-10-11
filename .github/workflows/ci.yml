@@ -1,4 +1,4 @@
-name: Stage 01 local verification
+name: Local verification
 on: [push, pull_request, workflow_dispatch]
 permissions:
   contents: read
@@ -9,15 +9,36 @@ jobs:
     env:
       WRANGLER_SEND_METRICS: 'false'
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
         with:
           node-version: '24.21.0'
       - run: npm install --global pnpm@12.9.1
       - run: pnpm install --frozen-lockfile
-      - run: pnpm lint && pnpm format:check && pnpm typecheck
-      - run: pnpm verify:config && pnpm verify:migrations
-      - run: pnpm build
-      - run: pnpm test:unit && pnpm test:contract && pnpm test:workers
-      - run: pnpm exec playwright install --with-deps chromium
-      - run: pnpm test:e2e
+      - name: ESLint
+        run: pnpm lint
+      - name: Formatting
+        run: pnpm format:check
+      - name: Typecheck
+        run: pnpm typecheck
+      - name: Configuration, migrations and Prompt Registry
+        run: pnpm verify:config && pnpm verify:migrations && pnpm verify:bundle
+      - name: Build
+        run: pnpm build
+      - name: Public build secret canary
+        run: pnpm release:secrets
+        env:
+          # Synthetic input only; the public runner has no production credentials.
+          SESSION_SIGNING_SECRET: CI_PUBLIC_BUILD_CANARY_DO_NOT_USE_AS_A_SECRET
+      - name: Unit tests
+        run: pnpm test:unit
+      - name: Contract tests
+        run: pnpm test:contract
+      - name: Isolated Workers and D1 tests
+        run: pnpm test:workers
+      - name: Install test browser
+        run: pnpm exec playwright install --with-deps chromium
+      - name: GUI, responsiveness and accessibility
+        run: pnpm test:e2e
