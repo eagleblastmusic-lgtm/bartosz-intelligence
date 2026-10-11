@@ -51,5 +51,8 @@ docs/verification/gate-ai/generate-content-rest-enum-proposal-2026-10-11.json
 docs/verification/gate-r/336a0aa0-25a5-47a9-913b-d2d476dc5e27/harness-failure.json
 docs/verification/release/resume-final-public-secret-scan-2026-10-11.json
 
+# Frozen observation of the actual successful public GitHub run and log hash.
+docs/verification/release/ci-radio-github-actions-2026-10-11.json
+
 # Exact public extract of the authoritative Prompt Pack for portable contracts.
 tests/fixtures/registry/master-prompt-pack-v1.1.1.md

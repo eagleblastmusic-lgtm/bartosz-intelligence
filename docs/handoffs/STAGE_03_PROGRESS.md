@@ -1,6 +1,27 @@
 # Stage 03 — current implementation record
 
-2026-10-11 current: owner radio standard implemented as analysis-quality:3,
+## Current consolidated CI and radio audit — 2026-10-11
+
+Implementation e54a7be is pushed and actual GitHub run38165715266 PASS;
+current production remains6089f83/schema39. New radio-narrative:2 distinguishes
+S3/EV3 source names from exact lowercase wire aliases and versions policy3
+validation cache; a seeded older immutable cached PASS cannot bypass review.
+Ordinary/chunk quality/source/coverage/acceptance regressions pass; exact
+historical policy pins, canonical/source/provider bytes and Evidence remain.
+Required public §24 fixture removes private Plan dependence without weakening
+the nine-schema/six-prompt contract. Base Published ECONOMYv2 was checked in
+retained actual snapshot/verified backup, not fresh production SQL.
+Compiled redacted template, source1071 cues, hashes/schema/scope/input estimate
+and one generateContent QUALITY_TEST are ready: AWAITING_OWNER_APPROVAL.
+No provider/model call or publication; fresh consent and Free/quota/profile/
+Registry are required before execution. Semantic quality/density and real
+policy3 model qualification remain unasserted. CP3.13 AWAITING_HUMAN_REVIEW;
+one future test cannot qualify model/CP3.13/P0. Stage remains IN_PROGRESS.
+[Audit and current evidence](../verification/release/CI_RADIO_P0_AUDIT_2026-10-11.md).
+
+Previous radio-standard implementation:
+
+2026-10-11: owner radio standard implemented as analysis-quality:3,
 code6089f83 /schema39, deployed224ba7ff… at100%. New snapshot/scope binds
 the shared substantive paragraph guidance, per-chunk share and radio checks.
 Narrative itself must cover substantive source windows; key_points cannot

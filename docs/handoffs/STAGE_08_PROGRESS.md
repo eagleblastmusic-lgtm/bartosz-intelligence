@@ -1,6 +1,25 @@
 # Stage 08 — current handoff
 
-## Current radio-standard hardening — 2026-10-11
+## Current consolidated CI, security and P0 verification — 2026-10-11
+
+Commits4874f1a/e547355/e54a7be pushed to public main without force/tag rewrite.
+Actual GitHub Actions38165715266 PASS at e54a7be:848 cases/0FAIL/2 Windows ACL
+skips. Windows849 PASS/0FAIL/1 platform skip; these are the same cases, not
+1697 distinct tests. Types/lint/format/config/39 migrations/bundle/validators/
+build and secret scan pass. Original and Linux fixture failures were fixed
+with all acceptance assertions retained; four immutable formatting receipts
+keep exact SHA. Full reachable code-history audit254 commits/2504 blobs:
+zero findings/private paths; actual-env web scan4 files/413922 bytes/0 findings.
+Workflow read-only, pinned Actions, no production credentials/deploy/AI.
+Read-only production verification still6089f83/224ba7ff…100%/schema39,
+health200/3 assets match. New radio/cache patch is not deployed. No capture
+solely for PASS, provider/model GET/SQL/Drive/DELETE/paid operations.
+One source-pinned quality3 live proposal is AWAITING_OWNER_APPROVAL; local
+semantic/density NOT_ASSERTED. No release/model/P0 or Gate C/R/D acceptance.
+CP3.13 AWAITING_HUMAN_REVIEW; screen-reader NOT_RUN/DEFERRED. Stage IN_PROGRESS.
+[Detailed current audit and next P0 steps](../verification/release/CI_RADIO_P0_AUDIT_2026-10-11.md).
+
+## Previous radio-standard hardening — 2026-10-11
 
 Code6089f83, production224ba7ff… /schema39, latest deployment100%; health200
 and all3 served assets match tested build SHA. 128 distinct tests PASS:

@@ -1,6 +1,75 @@
 # Bartosz Intelligence V1 — release readiness
 
-## Aktualny wynik: standard radiowy wdrożony — 2026-10-11
+## Aktualny wynik: naprawione publiczne CI i audyt radiowy — 2026-10-11
+
+**IMPLEMENTATION COMPLETE NO; PRODUCTION ACCEPTED NO.** Zlecony bezpieczny
+zakres CI/audytu/przygotowania został wykonany. Naprawiono formatter bez
+zmiany czterech immutable receipts, zależność kontraktu od prywatnego Plan,
+fixture retencji/session GUI i brak katalogu trwałej bazy w clean checkout.
+Radio guard odróżnia teraz nazwy S3/EV3 od wire aliases s3/ev3; wersjonowany
+cache `radio-narrative:2` zapobiega użyciu starego quality3 PASS.
+
+**849 różnych lokalnych PASS /0 FAIL /1 platform SKIP**: 462 unit,97 contracts,
+261 Workers/local D1,29 GUI. Powtórek/subsetów i wcześniejszych128/85/103
+nie doliczamy. **Rzeczywisty GitHub Actions PASS** dla
+**e54a7be508c1c133c0b2863a772d147e62ef30d6**:
+[38165715266](https://github.com/eagleblastmusic-lgtm/bartosz-intelligence/actions/runs/38165715266).
+Ubuntu:461 unit+97 contracts+261 Workers+29 GUI =848 PASS/0 FAIL/2 Windows-ACL
+SKIP; to powtórzenie tych samych przypadków. Lint/format/types/build/config/
+migrations001–039/bundle/validators i build canary również PASS. Historyczne
+nieudane run38158452306 i38165259523 zachowano. Kolejny commit dokumentacji
+ma własny przebieg GitHub; receipt tutaj wiąże sprawdzoną implementację.
+
+Prompt Registry→compile→validation→canonical→acceptance→GUI→Daily→Drive
+boundary zweryfikowano lokalnie. Base Published ECONOMYv2 pochodzi z
+zachowanego actual snapshot i verified backup; do niego dołączana jest
+quality3, z oddzielnym hashem/scope. Nie deklarujemy świeżego Registry SQL.
+Ordinary/chunk refs, review holds, source fidelity, forecast/assurance/time
+scope oraz legacy/export/recovery są zachowane. Coverage dotyczy samego
+summary, ale jest kontrolą przedziałów tekstu, nie wszystkich tematów.
+Jeden akapit i180–260 słów nie dowodzą płynności ani semantyki:
+**semantic_verification=NOT_ASSERTED; information_density=NOT_ASSERTED**.
+
+Retained rUhllpnYWR8:1071 cues, sześć input SHA bez zmian, editorial4 nadal
+7 notatek→1 akapit/182 słowa/80 powiązań Evidence. FULL/COMPACT nie obcina
+narracji. Oryginalny provider ma12 lokalnych wskazań review; jego historyczne
+receipts nie zostały przepisane. Nie zmieniono opublikowanej rewizji4 ani
+pliku Drive. GUI disclosure/keyboard/deep links/mobile/desktop/axe PASS;
+natywne zwijanie `<details>` w Google Drive **NOT_ASSERTED**.
+
+Public build secret scan PASS:4 files/413922 bytes/0 findings. Pełna osiągalna
+historia na code SHAe54a7be:254 commits/2504 blobs/2758 objects/54225767 bytes,
+0 findings/0 private paths. `.env`, `.dev.vars`, `.local`, `.tools`, cały Plan
+i test outputs pozostają poza publikacją; publiczny golden fixture zawiera
+wyłącznie specyfikację już używanego Prompt Pack. Workflow ma contents:read,
+pinned Actions, bez production credentials/deploy/AI. Osiem tagów zachowano.
+
+**Produkcja nadal6089f83 /schema39 /224ba7ff…100%**, potwierdzona ponownie
+18:54:21UTC przez control plane, health200 i3 identyczne assets.
+**Nowy patch radio/cache e547355 jest tylko w repo; nie wykonano deployu.**
+Backup fbf01a86… ma identyczny lokalny SHA i istniejące restore evidence;
+nie wykonano capture tylko dla PASS ani nowego zapewnienia aktualnego RPO.
+**0 Gemini/model GET,0 production SQL,0 Drive,0 DELETE,0 płatnych operacji.**
+Paid false; deletion0/approvalNULL. CP3.13 AWAITING_HUMAN_REVIEW, screen-reader
+NOT_RUN/DEFERRED, Gate C NOT_YET_MATURE i full R/D NOT_ACCEPTED pozostają.
+Staged19 czeka na stabilny automatyczny P0.
+
+[Jeden przygotowany QUALITY_TEST](docs/verification/gate-ai/radio-quality-test-proposal-2026-10-11.json)
+ma **AWAITING_OWNER_APPROVAL / NOT_GRANTED**: rUhllpnYWR8, gemini-3.8-flash
+Free, ECONOMYv2+quality3, dokładnie jeden diagnostic generateContent POST.
+Compiled template/prompt SHA/schema/scope/input estimate83800/output4096,
+raw retention, kryteria treści i rozróżnienie transport/model/validator/
+renderer są gotowe. Przed późniejszym wykonaniem wymagana nowa konkretna
+zgoda, świeży Free/quota/profile i current Registry check; bez retry/fallbacku/
+syntezy/publikacji. Jedna próba nie kwalifikuje modelu, CP3.13 ani P0.
+
+[Pełny audyt, wyniki i kolejność dalszego P0](docs/verification/release/CI_RADIO_P0_AUDIT_2026-10-11.md),
+[local evidence](docs/verification/release/ci-radio-regression-2026-10-11.json),
+[actual CI receipt](docs/verification/release/ci-radio-github-actions-2026-10-11.json),
+[public repository security](docs/verification/release/ci-radio-public-repository-security-2026-10-11.json),
+[read-only production baseline](docs/verification/deployment/ci-radio-baseline-2026-10-11.json).
+
+## Poprzedni wynik: standard radiowy wdrożony — 2026-10-11
 
 **IMPLEMENTATION COMPLETE NO; PRODUCTION ACCEPTED NO.** Wykonano techniczną
 zmianę FINAL RADIO NEWS SUMMARY STANDARD: nowe snapshoty analysis-quality:3

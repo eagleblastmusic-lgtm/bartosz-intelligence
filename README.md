@@ -7,6 +7,15 @@ Implementation and production acceptance are still in progress; this README
 does not declare release readiness. Paid services and automatic paid fallback
 are disabled. The canonical owner plans in `Plan/` remain read-only and outside Git.
 
+The 2026-10-11 [CI and radio audit](docs/verification/release/CI_RADIO_P0_AUDIT_2026-10-11.md)
+records actual green public GitHub Actions, source-preserving radio checks and
+the remaining automatic P0 requirements. Clean-checkout prompt contracts use
+the exact hash-pinned public [Prompt Pack section fixture](tests/fixtures/registry/README.md).
+The [one live QUALITY_TEST proposal](docs/verification/gate-ai/radio-quality-test-proposal-2026-10-11.json)
+is preparation only, AWAITING_OWNER_APPROVAL; no consent or generation is
+implied by build/tests. Current deployed code and new repository-only patches
+are distinguished in [release readiness](RELEASE_READINESS_REPORT.md).
+
 Use Node **24.21.0** and pnpm **12.9.1**. With the local tools downloaded for this run:
 
 ```powershell

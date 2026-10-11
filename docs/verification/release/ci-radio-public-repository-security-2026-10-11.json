@@ -1,0 +1,100 @@
+{
+  "version": "ci-radio-public-repository-security:1",
+  "observed_at": "2026-10-11T19:07:39.693Z",
+  "status": "PASS_AT_OBSERVATION",
+  "repository": "https://github.com/eagleblastmusic-lgtm/bartosz-intelligence",
+  "visibility": "PUBLIC",
+  "branch": "main",
+  "code_head_sha": "e54a7be508c1c133c0b2863a772d147e62ef30d6",
+  "local_remote_head_match": true,
+  "unchanged_existing_tags": 8,
+  "history": {
+    "observed_at": "2026-10-11T18:55:41.545Z",
+    "commits": 254,
+    "blobs": 2504,
+    "scanned_objects": 2758,
+    "bytes_scanned": 54225767,
+    "findings": 0,
+    "private_paths": 0,
+    "scope": "All reachable blobs, commit messages and annotated tags, including refs beyond published main"
+  },
+  "publication_delta": {
+    "observed_at": "2026-10-11T19:05:31.442Z",
+    "files_scanned": 15,
+    "paths": [
+      ".prettierignore",
+      "README.md",
+      "RELEASE_READINESS_REPORT.md",
+      "docs/handoffs/STAGE_03_PROGRESS.md",
+      "docs/handoffs/STAGE_07_PROGRESS.md",
+      "docs/handoffs/STAGE_08_PROGRESS.md",
+      "docs/operations/RELEASE_SECURITY.md",
+      "docs/handoffs/STAGE_04_PROGRESS.md",
+      "docs/verification/deployment/ci-radio-baseline-2026-10-11.json",
+      "docs/verification/gate-ai/RADIO_COMPILED_INSTRUCTIONS_2026-10-11.md",
+      "docs/verification/gate-ai/radio-quality-test-proposal-2026-10-11.json",
+      "docs/verification/gate-ai/radio-source-audit-2026-10-11.json",
+      "docs/verification/release/CI_RADIO_P0_AUDIT_2026-10-11.md",
+      "docs/verification/release/ci-radio-github-actions-2026-10-11.json",
+      "docs/verification/release/ci-radio-regression-2026-10-11.json"
+    ],
+    "private_ci_logs_checked_not_published": 2,
+    "bytes_scanned_including_logs": 404016,
+    "findings": 0,
+    "scope": "Current documentation/configuration delta at observation; this new aggregate receipt is not counted in its own input"
+  },
+  "public_build": {
+    "version": "public-build-secret-scan:1",
+    "status": "PASS",
+    "files_scanned": 4,
+    "bytes_scanned": 413922,
+    "findings": [],
+    "secret_values_recorded": false,
+    "configured_secret_input": "ACTUAL_LOCAL_ENV_IN_MEMORY_VALUES_NOT_RECORDED"
+  },
+  "credential_checks": [
+    "Configured secret/owner-subject literal, URL, JSON and base64 variants",
+    "Google API key and access-token formats",
+    "GitHub token formats",
+    "Private-key headers",
+    "AWS access-key formats"
+  ],
+  "ignored_and_not_in_history": [
+    ".env",
+    ".dev.vars",
+    ".local/",
+    ".tools/",
+    "Plan/",
+    ".codex/",
+    ".agents/"
+  ],
+  "private_browser_artifacts_published": false,
+  "full_transcripts_published": false,
+  "source_refetched": false,
+  "public_prompt_fixture": {
+    "path": "tests/fixtures/registry/master-prompt-pack-v1.1.1.md",
+    "sha256": "f37e621be98cd85293fded035294299b93e21239c40de93075bfc1a9f574a103",
+    "contains": "Already-public application schemas/prompts and their specification; no private source or credentials"
+  },
+  "workflow": {
+    "permissions": "contents: read",
+    "persist_credentials": false,
+    "pinned_actions": true,
+    "production_credentials": false,
+    "untrusted_pull_request_deploy": false,
+    "synthetic_secret_canary_only": true,
+    "provider_generation": false,
+    "remote_d1": false,
+    "drive": false
+  },
+  "limitations": [
+    "Known-value and credential-format scans do not prove absence of arbitrary unknown secrets",
+    "Sensitive-data review is separate from credential matching",
+    "CI synthetic canary does not assert actual production secret scanning",
+    "This observation is scoped to its input; final committed history is rechecked before push"
+  ],
+  "secret_values_recorded": false,
+  "rotation_required_by_findings": false,
+  "public_history_rewritten": false,
+  "paid_services_enabled": false
+}

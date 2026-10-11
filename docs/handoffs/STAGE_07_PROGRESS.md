@@ -1,6 +1,24 @@
 # Stage 07 — current handoff
 
-## Current: narrative Daily and preserved recovery — 2026-10-11
+## Current: consolidated radio/export audit — 2026-10-11
+
+Code e54a7be has actual public CI PASS; production remains6089f83/schema39.
+Full local suite includes export/readback/reserved identity/conflict/dedup,
+retention and restore; all261 isolated Workers/D1 cases pass, without adding
+overlapping historical subsets. Retained real editorial4 projects to one
+182-word paragraph with80 unchanged Evidence links in FULL/COMPACT. Input
+provider/source/canonical/revision4 pins match; no new Drive request, rewrite,
+backup capture or production SQL. GUI disclosure and keyboard/deep links pass.
+HTML details in GUI is verified; native Drive preview collapse NOT_ASSERTED.
+No current Gate R/D pin is inferred from prior canaries or local fixtures.
+Automatic accepted-run → verified Daily still requires qualified live scope
+and actual E2E. Prepared one QUALITY_TEST awaits separate owner consent;
+it is not a publication permit. Stage remains IN_PROGRESS; no endpoint
+promotion, Gemini, paid or destructive cleanup. CP3.13/screen-reader stay
+deferred, staged19 waits for stable P0, Gate C NOT_YET_MATURE.
+[Audit and receipts](../verification/release/CI_RADIO_P0_AUDIT_2026-10-11.md).
+
+## Previous: narrative Daily and preserved recovery — 2026-10-11
 
 Code6089f83 deployed224ba7ff… /schema39. Renderer1.3 presents one full
 paragraph per Item, metadata/source links outside, details in a secondary

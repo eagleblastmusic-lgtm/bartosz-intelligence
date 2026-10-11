@@ -1,0 +1,58 @@
+{
+  "version": "ci-radio-production-baseline:1",
+  "observed_at": "2026-10-11T18:54:21.667Z",
+  "scope": "READ_ONLY_BASELINE_NO_NEW_DEPLOY",
+  "production_code_commit": "6089f83e7b46fbe47869ba52316e8c26f25bedd7",
+  "deployed_version_id": "224ba7ff-a4ab-47ff-8cc1-70aadb2d91b1",
+  "latest_control_plane_deployment_100_percent": true,
+  "control_plane_created_at": "2026-10-11T16:53:23.204885Z",
+  "health": {
+    "http": 200,
+    "status": "LOCAL_READY",
+    "all_bindings_present": true,
+    "scope": "Binding presence only; no SQL or P0 execution"
+  },
+  "assets": [
+    {
+      "path": "index.html",
+      "http": 200,
+      "bytes": 403,
+      "sha256": "85fac16028949fffbacfe3170516185295af8603eccdca138afacae5a6473efd",
+      "matches_verified_local_web_build": true
+    },
+    {
+      "path": "assets/index-D8x-OnBU.js",
+      "http": 200,
+      "bytes": 402004,
+      "sha256": "fa54c203cf82e5246ce9d7eaab5058da5f428035d9d4499e52832d7f92717d98",
+      "matches_verified_local_web_build": true
+    },
+    {
+      "path": "assets/index-IVykiFMu.css",
+      "http": 200,
+      "bytes": 11066,
+      "sha256": "6d4c42c7b9128663d187bb8752b9237c22d97fb52374c88d4283b06e23b6f578",
+      "matches_verified_local_web_build": true
+    }
+  ],
+  "schema_version": 39,
+  "schema_observation": "UNCHANGED_EXISTING_DEPLOYMENT_RECEIPT_NOT_A_NEW_SQL_PROBE",
+  "repository_patch_deployed": false,
+  "new_deploy": false,
+  "production_sql": 0,
+  "gemini_requests": 0,
+  "model_get": 0,
+  "drive_requests": 0,
+  "production_delete": 0,
+  "paid_operations": 0,
+  "backup_capture": false,
+  "backup": {
+    "backup_id": "fbf01a86-3ddb-414d-bc96-05c489262fbd",
+    "sha256_rechecked": true,
+    "age_hours": 21.970566666666667,
+    "scope": "Exact retained snapshot and restore compatibility; current production RPO not reasserted",
+    "reuse_reason": "No production/schema data mutation in this audit; no capture solely to repeat PASS"
+  },
+  "original_drive_revision4_rewritten": false,
+  "gate_or_p0_acceptance": false
+}

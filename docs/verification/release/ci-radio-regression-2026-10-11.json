@@ -1,0 +1,176 @@
+{
+  "version": "ci-radio-local-regression:1",
+  "observed_at": "2026-10-11T18:57:21.996Z",
+  "code_commit": "e54a7be508c1c133c0b2863a772d147e62ef30d6",
+  "status": "PASS_LOCAL_VERIFICATION_ONLY",
+  "runtime": {
+    "os": "WINDOWS",
+    "node": "24.21.0",
+    "pnpm": "12.9.1"
+  },
+  "results": {
+    "unit": {
+      "total": 463,
+      "pass": 462,
+      "fail": 0,
+      "platform_skip": 1
+    },
+    "contracts": {
+      "total": 97,
+      "pass": 97,
+      "fail": 0,
+      "platform_skip": 0
+    },
+    "workers_and_local_d1": {
+      "total": 261,
+      "pass": 261,
+      "fail": 0,
+      "platform_skip": 0
+    },
+    "gui_e2e": {
+      "total": 29,
+      "pass": 29,
+      "fail": 0,
+      "skip": 0,
+      "flaky": 0
+    },
+    "distinct_total": {
+      "total": 850,
+      "pass": 849,
+      "fail": 0,
+      "platform_skip": 1
+    }
+  },
+  "skipped": [
+    {
+      "file": "unit/private-recovery-directory.spec.ts",
+      "test": "rejects the Windows ACL helper on another platform"
+    }
+  ],
+  "duplicate_counting": "Final status per case; subsets, retries and earlier 128/85/103 scopes are not added",
+  "required_checks": {
+    "typecheck": "PASS",
+    "eslint": "PASS",
+    "format": "PASS",
+    "build": "PASS",
+    "free_configuration": "PASS",
+    "migrations_001_to_039": "PASS",
+    "prompt_bundle_and_generated_validators": "PASS",
+    "public_build_secret_scan": "PASS"
+  },
+  "raw_report_pins": {
+    "unit_contracts": "284833848355fa05f46a8a8851611371d049438667167abe18fd924bb21218bf",
+    "workers": "0789b38ed5d28d540fb1ea49b5eb1f49f1932988f705d825dd9cdd372cb477c4",
+    "gui_full": "41bf28250639341a3a632610cdd9611bd830b99d42754b27a4e0e308816fe619",
+    "gui_session_fix": "9ddf1d64c4f55f042b122feb4e859064a82ffb2cffcfef9d7ac6c45485f2a222",
+    "retention_directory_fix": "1a3d80ee22efff8ceafac79f8b5b8e966b32b505b635bb775d61311a79a9f195"
+  },
+  "material_failures_and_fixes": [
+    {
+      "scope": "ORIGINAL_GITHUB_FORMAT",
+      "cause": "Four historical evidence files plus one mutable operational document",
+      "fix": "Exact immutable exclusions; mutable document formatted without content change"
+    },
+    {
+      "scope": "PUBLIC_CHECKOUT_CONTRACT",
+      "cause": "Master prompt contract depended on ignored private Plan",
+      "fix": "Required byte/hash-pinned public section fixture; exact bundle and optional private section comparison remain"
+    },
+    {
+      "scope": "LOCAL_RETENTION_TIMEOUT",
+      "cause": "Full destructive isolated fixture plus backup/restore exceeded default test-runner five seconds",
+      "fix": "15-second harness timeout for that one test; all recovery/data assertions unchanged"
+    },
+    {
+      "scope": "LOCAL_GUI",
+      "cause": "Shell fixture had no GET /system/retention response",
+      "failed_cases": [
+        {
+          "file": "session-shell.spec.ts",
+          "test": "deep links, history, focus and logout clear private views and preserve only the theme preference"
+        },
+        {
+          "file": "session-shell.spec.ts",
+          "test": "401 on a domain read clears the private shell and does not turn into a setup error"
+        }
+      ],
+      "fix": "Accurate deletion-disabled retention fixture; both failed cases pass, logout/401/focus assertions unchanged"
+    },
+    {
+      "scope": "GITHUB_38165259523",
+      "cause": "Persistent SQLite test assumed .local/tests already existed",
+      "fix": "Create isolated fixture directory before opening database; 22 retention tests pass"
+    },
+    {
+      "scope": "RADIO_SOURCE_ALIAS",
+      "cause": "Case-insensitive technical-alias regexp falsely blocked S3 and EV3",
+      "fix": "Exact case-sensitive wire aliases; metadata/timestamp checks remain; new validator cache namespace"
+    }
+  ],
+  "structural_radio_regressions": [
+    "Scientific/technical/news/conversation fixtures",
+    "Short/sparse/long inputs and late narrative coverage",
+    "S3/EV3 names versus s3/ev3 wire aliases",
+    "Padding, omitted central fact and invented specific explicitly do not receive semantic or density PASS",
+    "Source-qualified forecast despite standard word count",
+    "Cross-chunk repetition, exact source map, no extra synthesis",
+    "Prior quality3 cached validation cannot bypass current review hold"
+  ],
+  "gui_scope": [
+    "Desktop/mobile, both Daily densities, full paragraph",
+    "Keyboard, focus, deep links, disclosure and automated axe",
+    "Session expiry/logout, canonical page refresh and operational modules"
+  ],
+  "immutable_evidence_preserved": [
+    {
+      "sha256": "b4347b081a07a9ed8ac4295efabcf10ac1f6b63487925190554aa7adb529fb37",
+      "path": "docs/verification/gate-ai/generate-content-comparison-proposal-2026-10-11.json",
+      "after_sha256": "b4347b081a07a9ed8ac4295efabcf10ac1f6b63487925190554aa7adb529fb37",
+      "unchanged": true
+    },
+    {
+      "sha256": "f7f3f6aa9247473dc08527b264b7855e84e60f1b3b623d548dd32060f007051d",
+      "path": "docs/verification/gate-ai/generate-content-rest-enum-proposal-2026-10-11.json",
+      "after_sha256": "f7f3f6aa9247473dc08527b264b7855e84e60f1b3b623d548dd32060f007051d",
+      "unchanged": true
+    },
+    {
+      "sha256": "afc12a49c735e041ac4a48564ed3d660a65e161fdee37da0680cd03947f725b6",
+      "path": "docs/verification/gate-r/336a0aa0-25a5-47a9-913b-d2d476dc5e27/harness-failure.json",
+      "after_sha256": "afc12a49c735e041ac4a48564ed3d660a65e161fdee37da0680cd03947f725b6",
+      "unchanged": true
+    },
+    {
+      "sha256": "ad92526618a759e020d1464c32adb64d9b91d20fbe7bb30fd1dd4c2ba0c50698",
+      "path": "docs/verification/release/resume-final-public-secret-scan-2026-10-11.json",
+      "after_sha256": "ad92526618a759e020d1464c32adb64d9b91d20fbe7bb30fd1dd4c2ba0c50698",
+      "unchanged": true
+    }
+  ],
+  "mutable_operational_document": {
+    "path": "docs/verification/gate-ai/GEMINI_503_P0_2026-10-09.md",
+    "before_sha256": "0f2927d9a84b2f246d502aed162a6362f0927497cc8d6b825b9c566e1c035451",
+    "after_sha256": "cff662376d0dc8aab80bc454fa99fb7b0fb33f6022879bb26f57cb9c5774c1e0",
+    "change": "FORMATTING_ONLY"
+  },
+  "fixture_authority": {
+    "path": "tests/fixtures/registry/master-prompt-pack-v1.1.1.md",
+    "sha256": "f37e621be98cd85293fded035294299b93e21239c40de93075bfc1a9f574a103",
+    "bytes": 66940,
+    "scope": "Exact LF-normalized Master section24, not full private Plan"
+  },
+  "original_provider_source_canonical_revision4_changed": false,
+  "semantic_verification": "NOT_ASSERTED",
+  "information_density": "NOT_ASSERTED",
+  "provider_e2e": "NOT_RUN",
+  "screen_reader": "NOT_RUN_DEFERRED",
+  "gate_acceptance_changed": false,
+  "gemini_requests": 0,
+  "model_get": 0,
+  "production_sql": 0,
+  "drive_requests": 0,
+  "production_delete": 0,
+  "paid_services_enabled": false,
+  "deletion_enabled": 0,
+  "approval_reference": null
+}

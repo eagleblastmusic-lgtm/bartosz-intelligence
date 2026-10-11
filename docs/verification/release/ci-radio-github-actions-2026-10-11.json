@@ -1,0 +1,145 @@
+{
+  "version": "ci-radio-github-actions:1",
+  "observed_at": "2026-10-11T18:59:24.808Z",
+  "repository": "eagleblastmusic-lgtm/bartosz-intelligence",
+  "branch": "main",
+  "head_sha": "e54a7be508c1c133c0b2863a772d147e62ef30d6",
+  "run_id": 38165715266,
+  "url": "https://github.com/eagleblastmusic-lgtm/bartosz-intelligence/actions/runs/38165715266",
+  "status": "completed",
+  "conclusion": "success",
+  "scope": "ACTUAL_GITHUB_ACTIONS_UBUNTU_PUBLIC_CHECKOUT_NOT_PROVIDER_E2E",
+  "runtime": {
+    "node": "24.21.0",
+    "pnpm": "12.9.1"
+  },
+  "jobs": [
+    {
+      "name": "local",
+      "id": 114547731458,
+      "url": "https://github.com/eagleblastmusic-lgtm/bartosz-intelligence/actions/runs/38165715266/job/114547731458",
+      "started_at": "2026-10-11T18:53:39Z",
+      "completed_at": "2026-10-11T18:57:10Z",
+      "conclusion": "success",
+      "steps": [
+        {
+          "name": "Set up job",
+          "conclusion": "success"
+        },
+        {
+          "name": "Run actions/checkout@11d5960a326750d5838078e36cf38b85af677262",
+          "conclusion": "success"
+        },
+        {
+          "name": "Run actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020",
+          "conclusion": "success"
+        },
+        {
+          "name": "Run npm install --global pnpm@12.9.1",
+          "conclusion": "success"
+        },
+        {
+          "name": "Run pnpm install --frozen-lockfile",
+          "conclusion": "success"
+        },
+        {
+          "name": "ESLint",
+          "conclusion": "success"
+        },
+        {
+          "name": "Formatting",
+          "conclusion": "success"
+        },
+        {
+          "name": "Typecheck",
+          "conclusion": "success"
+        },
+        {
+          "name": "Configuration, migrations and Prompt Registry",
+          "conclusion": "success"
+        },
+        {
+          "name": "Build",
+          "conclusion": "success"
+        },
+        {
+          "name": "Public build secret canary",
+          "conclusion": "success"
+        },
+        {
+          "name": "Unit tests",
+          "conclusion": "success"
+        },
+        {
+          "name": "Contract tests",
+          "conclusion": "success"
+        },
+        {
+          "name": "Isolated Workers and D1 tests",
+          "conclusion": "success"
+        },
+        {
+          "name": "Install test browser",
+          "conclusion": "success"
+        },
+        {
+          "name": "GUI, responsiveness and accessibility",
+          "conclusion": "success"
+        },
+        {
+          "name": "Post Run actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020",
+          "conclusion": "success"
+        },
+        {
+          "name": "Post Run actions/checkout@11d5960a326750d5838078e36cf38b85af677262",
+          "conclusion": "success"
+        },
+        {
+          "name": "Complete job",
+          "conclusion": "success"
+        }
+      ]
+    }
+  ],
+  "test_results": {
+    "unit": {
+      "pass": 461,
+      "fail": 0,
+      "platform_skip": 2
+    },
+    "contracts": {
+      "pass": 97,
+      "fail": 0,
+      "skip": 0
+    },
+    "workers_and_local_d1": {
+      "pass": 261,
+      "fail": 0,
+      "skip": 0
+    },
+    "gui": {
+      "pass": 29,
+      "fail": 0,
+      "skip": 0
+    },
+    "distinct_total": {
+      "pass": 848,
+      "fail": 0,
+      "platform_skip": 2
+    }
+  },
+  "counting": "Linux is a repeated execution of the same test cases, not 848 additional cases. Two Windows ACL tests skip here; the non-Windows refusal test runs.",
+  "immutable_log_sha256": "84db10d58b470c327b0bd496da788e983e36e932391478db75c43c32d0c669d6",
+  "historical_failed_runs_retained": [
+    38158452306,
+    38165259523
+  ],
+  "production_credentials": false,
+  "production_deploy": false,
+  "gemini_requests": 0,
+  "production_sql": 0,
+  "drive_requests": 0,
+  "paid_services_enabled": false,
+  "public_secret_canary_scope": "Synthetic CI canary only; actual configured-secret public-build and Git-history audits are separate",
+  "gate_or_p0_acceptance": false
+}

@@ -1,5 +1,32 @@
 # Release security checks
 
+The public GitHub workflow uses Node24.21.0/pnpm12.9.1, pinned Actions commits,
+`contents: read` and checkout `persist-credentials: false`. It runs local
+build/tests including isolated D1 and browser fixtures, without production
+secrets, deployment, remote SQL, Drive or Gemini. Its build scanner receives
+only a clearly synthetic canary. A passing CI canary does not mean actual
+production secret values were available to the public runner.
+
+The 2026-10-11 consolidated audit separately checked actual local configured
+secret variants in public build assets (4 files/413922 bytes/0 findings), plus
+all reachable Git blobs, commit messages and tags at code e54a7be
+(254 commits/2504 blobs/54225767 bytes/0 findings/0 private paths).
+Patterns include configured credentials/owner subject and common Google,
+GitHub, access-token/private-key/AWS formats. Matches are never printed.
+This does not prove absence of arbitrary unknown credentials or every class
+of private data. Check publication deltas before push, and inspect report/log
+content rather than relying on a green scan alone. Keep `.env`, `.dev.vars`,
+`.local`, `.tools`, full private `Plan/` and browser artifacts ignored.
+The public Prompt Pack fixture is only the exact, hash-pinned schema/prompt
+section already used by the application; its contract runs on clean clones.
+
+If exposure is discovered, stop publishing affected material, preserve the
+sanitized evidence, identify impacted credentials and arrange rotation.
+Deleting a file only from HEAD does not remove it from public Git history.
+History rewriting, tag changes and visibility changes require the relevant
+owner decision; this audit found no exposure requiring those actions.
+[Actual CI/audit evidence](../verification/release/CI_RADIO_P0_AUDIT_2026-10-11.md).
+
 Run `pnpm release:secrets` from the repository root with the pinned runtime and
 local `.env`. This reads the public web build and compares it with configured
 secret values in memory, including literal, URL-encoded, JSON-escaped and base64
