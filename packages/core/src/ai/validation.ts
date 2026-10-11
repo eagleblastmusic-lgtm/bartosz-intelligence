@@ -23,6 +23,7 @@ import type { ChunkPlan } from './long-input/plan.js';
 import { finalizeCandidateRun } from './candidate-finalization.js';
 import { acceptedView } from '../projections/accepted-view.js';
 import { assessAnalysisQuality } from './quality.js';
+import { radioNarrativeValidationVersion } from './narrative-quality.js';
 export interface AnalysisValidationResult {
   version: 'analysis-validation:1';
   run_id: string;
@@ -294,7 +295,7 @@ export class AnalysisValidation {
     ).context_hash;
     const resultKey =
       (snapshot.prompt.quality_policy?.version === 'analysis-quality:3'
-        ? 'analysis-validation-quality3-'
+        ? `analysis-validation-quality3-${radioNarrativeValidationVersion}-`
         : 'analysis-validation-quality2-') +
       prepared.run_id +
       '-' +

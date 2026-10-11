@@ -11,6 +11,7 @@ import {
   economyChunkContextHash,
 } from '../../packages/core/src/ai/compiler.js';
 import { createChunkPlan } from '../../packages/core/src/ai/long-input/plan.js';
+import { mergeChunkOutputs } from '../../packages/core/src/ai/long-input/merge.js';
 import type { PromptSnapshot } from '../../packages/core/src/registry/store.js';
 import type { PipelineProfile } from '../../packages/contracts/src/ai.js';
 import {
@@ -162,6 +163,24 @@ it('flags teasers, filler and exact sentence repetition without deleting source-
   ]);
   expect(summaryNarrative([{ text_pl }])).toBe(text_pl);
 });
+it.each([
+  'Amazon S3 przechowuje obiekty, a odczyt kontrolny porównuje ich skróty.',
+  'Zestaw EV3 pozwala uczniom programować roboty i badać ruch silników.',
+])(
+  'keeps source product names distinct from case-sensitive wire aliases: %s',
+  (text_pl) => {
+    expect(assessSummaryNarrative([{ text_pl }]).findings).toEqual([]);
+    expect(summaryNarrative([{ text_pl }])).toBe(text_pl);
+  },
+);
+it.each(['Wskazanie s1.', 'Wskazanie ev123.'])(
+  'holds leaked lowercase technical aliases: %s',
+  (text_pl) => {
+    expect(assessSummaryNarrative([{ text_pl }]).findings).toContain(
+      'NARRATIVE_FORMAT',
+    );
+  },
+);
 it.each([40, 210, 320, 400])(
   'treats %s words as guidance rather than a word-count acceptance proof',
   (count) => {
@@ -231,6 +250,138 @@ it('holds broken narrative for review rather than throwing a retryable processin
     status: 'REVIEW_REQUIRED',
     findings: [{ code: 'BROKEN_CONTENT', module: 'summary_pl', index: 0 }],
   });
+});
+
+it('does not claim semantic information density for padding, omitted central facts or unsupported detail with valid-looking references', async () => {
+  const source = await normalizeTranscript(
+    await sha256('synthetic contrast'),
+    [
+      {
+        text: 'The membrane retained salt. This short experiment does not establish long-term durability.',
+        upstream_index: 0,
+        start_ms: 0,
+        end_ms: 10000,
+        speaker_label: null,
+      },
+    ],
+    'CUE',
+  );
+  const contrasts = [
+    Array.from({ length: 210 }, (_, i) => `ogólnik${i}`).join(' '),
+    'Badanie dotyczyło krótkiego doświadczenia z membraną.',
+    'Membrana zapewnia skuteczność 99 procent przez dziesięć lat.',
+  ];
+  for (const text_pl of contrasts) {
+    const report = assessAnalysisQuality(
+      { summary_pl: [{ text_pl, segment_refs: ['s1'] }] },
+      source.manifest.anchors,
+      { radio: true },
+    );
+    // These counterexamples pass structural checks. Neither a plausible ref
+    // nor the word guidance proves the central fact, entailment or density.
+    expect(report.semantic_verification).toBe('NOT_ASSERTED');
+    expect(report.narrative?.information_density).toBe('NOT_ASSERTED');
+    expect(report.narrative?.length_is_acceptance_gate).toBe(false);
+  }
+  const foreign = assessAnalysisQuality(
+    { summary_pl: [{ text_pl: contrasts[2]!, segment_refs: ['s999'] }] },
+    source.manifest.anchors,
+    { radio: true },
+  );
+  expect(foreign.status).toBe('REVIEW_REQUIRED');
+  expect(foreign.findings.map((finding) => finding.code)).toContain(
+    'FOREIGN_SOURCE_REF',
+  );
+});
+
+it('holds a distorted forecast even when its narrative has the standard word count', async () => {
+  const source = await normalizeTranscript(
+    await sha256('synthetic forecast'),
+    [
+      {
+        text: 'I think we will reach Mars in 2040.',
+        upstream_index: 0,
+        start_ms: 0,
+        end_ms: 10000,
+        speaker_label: null,
+      },
+    ],
+    'CUE',
+  );
+  const text_pl =
+    'Podróż nastąpi przed 2040. ' +
+    Array.from({ length: 206 }, (_, i) => `opis${i}`).join(' ');
+  const report = assessAnalysisQuality(
+    { summary_pl: [{ text_pl, segment_refs: ['s1'] }] },
+    source.manifest.anchors,
+    { radio: true },
+  );
+  expect(report.narrative?.length_guidance).toBe('STANDARD');
+  expect(report.status).toBe('REVIEW_REQUIRED');
+  expect(report.findings.map((finding) => finding.code)).toEqual(
+    expect.arrayContaining(['DEADLINE_STRENGTHENED', 'SOURCE_QUALIFIER_LOST']),
+  );
+});
+
+it('checks chunk boundaries for repeated sentences without rewriting immutable child outputs or invoking a synthesis', async () => {
+  const source = await normalizeTranscript(
+    await sha256('synthetic multi-section source'),
+    Array.from({ length: 12 }, (_, i) => ({
+      text: `Section ${i}: The membrane retained salt in a short laboratory test.`,
+      upstream_index: i,
+      start_ms: i * 10000,
+      end_ms: i * 10000 + 9000,
+      speaker_label: null,
+    })),
+    'CUE',
+  );
+  const plan = await createChunkPlan({
+    ...source,
+    context_hash: 'a'.repeat(64),
+    context_tokens: 480,
+    output_tokens: 80,
+    prompt_overhead_tokens: 100,
+    maximum_overlap_segments: 1,
+  });
+  expect(plan.plan.chunks.length).toBeGreaterThan(1);
+  const outputs = plan.plan.chunks.map((chunk) => ({
+    chunk_index: chunk.chunk_index,
+    completion: 'OK' as const,
+    raw: JSON.stringify({
+      summary_pl: [
+        {
+          text_pl: 'Membrana zatrzymuje sól w krótkiej próbie laboratoryjnej.',
+          segment_refs: [
+            chunk.aliases.find(
+              (row) => row.segment_id === chunk.primary_segment_ids[0],
+            )!.alias,
+          ],
+        },
+      ],
+      key_points: [],
+      entity_mentions: [],
+      tools: [],
+      claims: [],
+      stance: [],
+      predictions: [],
+      source_issues: [],
+    }),
+  }));
+  const before = JSON.stringify(outputs);
+  const merged = await mergeChunkOutputs({ ...source, ...plan, outputs });
+  const report = assessAnalysisQuality(
+    merged.wire as Parameters<typeof assessAnalysisQuality>[0],
+    source.manifest.anchors,
+    { radio: true },
+  );
+  expect(merged.coverage.complete).toBe(true);
+  expect(merged.wire.summary_pl).toHaveLength(outputs.length);
+  expect(report.status).toBe('REVIEW_REQUIRED');
+  expect(report.findings.map((finding) => finding.code)).toContain(
+    'NARRATIVE_REPETITION',
+  );
+  expect(merged.additional_model_requests).toBe(0);
+  expect(JSON.stringify(outputs)).toBe(before);
 });
 it('keeps exact historical policies readable and binds the new default without changing their pins', async () => {
   for (const policy of [analysisQualityPolicyV1, analysisQualityPolicyV2])

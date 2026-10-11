@@ -1,5 +1,7 @@
 import { summaryNarrative } from '../../../contracts/src/narrative.js';
 
+export const radioNarrativeValidationVersion = 'radio-narrative:2';
+
 /** Conservative structural checks. Neither word count nor these detectors
  * prove information density, entailment, fluency or semantic truth. */
 export function assessSummaryNarrative(notes: readonly { text_pl: string }[]) {
@@ -9,9 +11,12 @@ export function assessSummaryNarrative(notes: readonly { text_pl: string }[]) {
   if (
     /(?:^|\n)\s*(?:[-*•]\s|\d+[.)]\s|#{1,6}\s|\|.*\|)/u.test(raw) ||
     /https?:\/\/|www\.|\[[^\]]*\]\([^)]*\)|[`*_]|<\/?[a-z][^>]*>/iu.test(raw) ||
-    /\[\d{1,2}:\d{2}(?::\d{2})?\]|\b\d{1,2}:\d{2}:\d{2}\b|\b(?:segment_refs|evidence_ids|run_id|source_artifact_id)\b|\b(?:s|ev)[0-9]{1,6}\b/iu.test(
+    /\[\d{1,2}:\d{2}(?::\d{2})?\]|\b\d{1,2}:\d{2}:\d{2}\b|\b(?:segment_refs|evidence_ids|run_id|source_artifact_id)\b/iu.test(
       raw,
-    )
+    ) ||
+    // Wire aliases are case-sensitive. S3 storage and EV3 robotics are valid
+    // source names, not leaked source/evidence identifiers.
+    /\b(?:s|ev)[0-9]{1,6}\b/u.test(raw)
   )
     findings.push('NARRATIVE_FORMAT');
   if (
@@ -37,6 +42,7 @@ export function assessSummaryNarrative(notes: readonly { text_pl: string }[]) {
   const words =
     text.match(/[\p{L}\p{N}]+(?:[-’'][\p{L}\p{N}]+)*/gu)?.length ?? 0;
   return {
+    version: radioNarrativeValidationVersion,
     findings: [...new Set(findings)],
     word_count: words,
     length_guidance:

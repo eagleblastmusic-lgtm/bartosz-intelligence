@@ -2487,6 +2487,42 @@ it.each([
       transport: analysisTransport,
     })) as { artifact_id: string };
     const validation = new AnalysisValidation(env.DB, aiAccess);
+    if (scenario === 'QUALITY_NARRATIVE') {
+      const requestReceipt = await env.DB.prepare(
+        'SELECT payload_json FROM config_versions WHERE owner_id=? AND config_id=? AND revision=1',
+      )
+        .bind(owner.ownerId, 'analysis-request-' + prepared.run_id)
+        .first<{ payload_json: string }>();
+      const previousValidatorCache = JSON.stringify({
+        version: 'analysis-validation:1',
+        run_id: prepared.run_id,
+        response_artifact_id: responseReceipt.artifact_id,
+        context_hash: JSON.parse(requestReceipt!.payload_json).context_hash,
+        mode,
+        status: 'VALIDATED',
+        reason: null,
+        canonical_artifact_id: null,
+        canonical_hash: null,
+        semantic_verification: 'NOT_ASSERTED',
+        accepted: false,
+        chunk: null,
+      });
+      // An old validator's cached structural PASS must not stand in for the
+      // current radio checks. This synthetic receipt stays immutable in D1.
+      await env.DB.prepare('INSERT INTO config_versions VALUES(?,?,?,?,?,?)')
+        .bind(
+          'analysis-validation-quality3-' +
+            prepared.run_id +
+            '-' +
+            responseReceipt.artifact_id,
+          owner.ownerId,
+          1,
+          previousValidatorCache,
+          await sha256(previousValidatorCache),
+          new Date().toISOString(),
+        )
+        .run();
+    }
     const validated = await validation.evaluate(
       aiToken,
       permit.reservation_id,
