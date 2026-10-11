@@ -31,7 +31,7 @@ if (
   !(args.length === 1 && mode === '--start') &&
   !(
     args.length === 2 &&
-    mode === '--resume' &&
+    ['--resume', '--continue-setup'].includes(mode!) &&
     /^[a-f0-9-]{36}$/.test(args[1]!)
   )
 )
@@ -213,23 +213,47 @@ if (mode === '--start') {
   }
 } else {
   journal = JSON.parse(readFileSync(journalPath, 'utf8')) as Journal;
+  const originalPrereg = join(output, 'preregistration.json');
+  const repairedPrereg = join(output, 'preregistration-after-setup-fix.json');
   const prereg = JSON.parse(
-    readFileSync(join(output, 'preregistration.json'), 'utf8'),
+    readFileSync(
+      existsSync(repairedPrereg) ? repairedPrereg : originalPrereg,
+      'utf8',
+    ),
   );
-  if (JSON.stringify(prereg.pins) !== JSON.stringify(pins))
-    throw new Error('DRILL_CANDIDATE_CHANGED');
-  if (journal.phase !== 'WAITING_RETRY' || !journal.next_retry_at)
-    throw new Error('RESUMABLE_DRIVE_CONSUMER_REQUIRED');
-  if (Date.now() < Date.parse(journal.next_retry_at)) {
-    console.log(
-      JSON.stringify({
-        state: 'WAITING_RETRY',
-        id,
-        not_before: journal.next_retry_at,
-        provider_requests: 0,
-      }),
-    );
-    process.exit(0);
+  if (mode === '--continue-setup') {
+    if (
+      journal.phase !== 'SETUP' ||
+      journal.creates !== 0 ||
+      journal.file_id ||
+      journal.artifact_id
+    )
+      throw new Error('UNSUBMITTED_SETUP_ONLY');
+    save('preregistration-after-setup-fix.json', {
+      ...prereg,
+      pins,
+      recorded_at: new Date().toISOString(),
+      preceding_preregistration_sha256: digest(readFileSync(originalPrereg)),
+      adjustment: 'CANONICAL_ISO_TIMESTAMP_FIXED_BEFORE_FAULT_INJECTION',
+      remote_create_attempts_before_fix: 0,
+    });
+  }
+  if (mode !== '--continue-setup') {
+    if (JSON.stringify(prereg.pins) !== JSON.stringify(pins))
+      throw new Error('DRILL_CANDIDATE_CHANGED');
+    if (journal.phase !== 'WAITING_RETRY' || !journal.next_retry_at)
+      throw new Error('RESUMABLE_DRIVE_CONSUMER_REQUIRED');
+    if (Date.now() < Date.parse(journal.next_retry_at)) {
+      console.log(
+        JSON.stringify({
+          state: 'WAITING_RETRY',
+          id,
+          not_before: journal.next_retry_at,
+          provider_requests: 0,
+        }),
+      );
+      process.exit(0);
+    }
   }
 }
 const budget = d1TestBudget(queryBatch, {
@@ -275,7 +299,10 @@ const transport: typeof fetch = async (url, init) => {
   if (target.hostname !== 'www.googleapis.com' || init?.method === 'DELETE')
     throw new Error('DRILL_DRIVE_TRANSPORT_SCOPE_DENIED');
   const create = init?.method === 'POST';
-  if (create && (mode !== '--start' || journal.creates !== 0))
+  if (
+    create &&
+    (!['--start', '--continue-setup'].includes(mode!) || journal.creates !== 0)
+  )
     throw new Error('DRILL_SECOND_CREATE_REFUSED');
   if (create) {
     journal.creates++;
@@ -307,7 +334,7 @@ try {
     canonical_url: 'https://www.youtube.com/watch?v=' + video,
     item_type: 'video' as const,
     title: 'DIAGNOSTIC CANARY - synthetic pending item, no AI summary',
-    published_at: date + 'T12:00:00Z',
+    published_at: date + 'T12:00:00.000Z',
     publication_provenance: 'SOURCE' as const,
     availability: 'PUBLIC' as const,
     duration_seconds: 60,
@@ -323,7 +350,7 @@ try {
     cursor_secret: journal.cursor_secret,
     client: async () => client,
   };
-  if (mode === '--start') {
+  if (['--start', '--continue-setup'].includes(mode!)) {
     await new ItemRepository(db, owner).upsert(
       journal.source_id,
       itemInput('abcdefghijk'),
@@ -467,7 +494,13 @@ try {
       file_id: journal.file_id,
       root_id: canaryRoot,
       observations,
-      recovery_elapsed_ms: Date.now() - Date.parse(journal.started_at),
+      recovery_elapsed_ms:
+        Date.now() -
+        Date.parse(
+          JSON.parse(readFileSync(join(output, 'failure.json'), 'utf8'))
+            .observed_at,
+        ),
+      full_drill_elapsed_ms: Date.now() - Date.parse(journal.started_at),
       logical_clock: false,
       actual_remote_create_controlled_response_loss: true,
       production_d1: budget.usage,
