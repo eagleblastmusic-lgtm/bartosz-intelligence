@@ -55,9 +55,28 @@ async function providerErrorCode(response: Response): Promise<string | null> {
       503: ['service_unavailable'],
       504: ['deadline_exceeded'],
     };
-    return typeof error.code === 'string' &&
+    if (
+      typeof error.code === 'string' &&
       allowed[response.status]?.includes(error.code)
-      ? error.code
+    )
+      return error.code;
+    // generateContent uses Google RPC's numeric HTTP code and fixed status enum.
+    // Keep the same bounded diagnostic contract, never the echoed message/details.
+    const rpcAllowed: Record<number, string[]> = {
+      400: ['INVALID_ARGUMENT', 'FAILED_PRECONDITION', 'OUT_OF_RANGE'],
+      401: ['UNAUTHENTICATED'],
+      403: ['PERMISSION_DENIED'],
+      404: ['NOT_FOUND'],
+      429: ['RESOURCE_EXHAUSTED'],
+      500: ['INTERNAL', 'UNKNOWN'],
+      501: ['UNIMPLEMENTED'],
+      503: ['UNAVAILABLE'],
+      504: ['DEADLINE_EXCEEDED'],
+    };
+    return error.code === response.status &&
+      typeof error.status === 'string' &&
+      rpcAllowed[response.status]?.includes(error.status)
+      ? error.status
       : null;
   } catch {
     return null;

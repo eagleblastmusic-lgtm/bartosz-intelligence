@@ -440,6 +440,49 @@ it('retains bounded official error categories without error messages or hidden r
     expect(JSON.stringify(result)).not.toContain('message');
   }
 });
+it('keeps only a matching fixed Google RPC error status, with unknown usage and no retry', async () => {
+  for (const [http, code, status, expected] of [
+    [400, 400, 'INVALID_ARGUMENT', 'HTTP_400:INVALID_ARGUMENT'],
+    [503, 503, 'UNAVAILABLE', 'HTTP_503:UNAVAILABLE'],
+    [400, 503, 'INVALID_ARGUMENT', 'HTTP_400'],
+    [400, 400, 'private-echo', 'HTTP_400'],
+    [400, '400', 'INVALID_ARGUMENT', 'HTTP_400'],
+  ] as const) {
+    let calls = 0;
+    const adapter = new GeminiFreeProvider(
+      'fixture-private-key',
+      async () => {},
+      async () => {
+        calls++;
+        return new Response(
+          JSON.stringify({
+            error: {
+              code,
+              status,
+              message: 'fixture-private-key echoed source',
+              details: [{ field: 'private source' }],
+            },
+          }),
+          { status: http },
+        );
+      },
+      () => now,
+      'generateContent',
+    );
+    const result = await adapter.run(
+      { ...request, mode: 'QUALITY_TEST' },
+      {
+        reservation_id: 'reserved',
+        request_id: request.request_id,
+      },
+    );
+    expect(result.finish_reason).toBe(expected);
+    expect(result.raw_output).toBeNull();
+    expect(result.usage.input_tokens).toBeNull();
+    expect(calls).toBe(1);
+    expect(JSON.stringify(result)).not.toContain('private');
+  }
+});
 it('daily Gemini LA windows follow DST while Cloudflare uses UTC', () => {
   for (const [instant, hours] of [
     ['2026-03-08T12:00:00Z', 23],
