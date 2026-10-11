@@ -23,7 +23,7 @@ import defaults from '../../../config/defaults.json';
 const args = process.argv.slice(2);
 if (
   args.length !== 2 ||
-  args[0] !== '--verified-canary' ||
+  !['--verified-canary', '--resume-conflict'].includes(args[0]!) ||
   !/^[a-f0-9-]{36}$/.test(args[1]!)
 )
   throw new Error('EXPLICIT_CANARY_CONFLICT_REQUIRED');
@@ -37,6 +37,7 @@ if (
 )
   throw new Error('FRESH_D1_ANALYTICS_REQUIRED');
 const id = args[1]!,
+  resume = args[0] === '--resume-conflict',
   privateRoot = resolve('.local/drive-consumer-recovery', id),
   output = resolve('docs/verification/gate-r/provider-drive-consumer-' + id);
 requirePrivateRecoveryDirectory(privateRoot);
@@ -57,7 +58,23 @@ if (
   JSON.parse(readFileSync(predecessor, 'utf8')).status !== 'PASS'
 )
   throw new Error('VERIFIED_LATE_REVISION_REQUIRED');
-const prereg = join(output, 'manual-conflict-preregistration.json');
+const failedPath = join(output, 'manual-conflict-receipt.json');
+const previous = resume ? JSON.parse(readFileSync(failedPath, 'utf8')) : null;
+if (
+  resume &&
+  (previous?.status !== 'FAIL' ||
+    previous.observations?.reason !== 'EXPORT_STALE_FENCE_OR_REVISION' ||
+    previous.file_id !== journal.file_id ||
+    previous.observations?.explicit_canary_puts !== 1 ||
+    previous.observations?.consumer_write_attempts !== 0)
+)
+  throw new Error('RETAINED_FIXTURE_MODE_FAILURE_REQUIRED');
+const prereg = join(
+  output,
+  resume
+    ? 'manual-conflict-recovery-preregistration.json'
+    : 'manual-conflict-preregistration.json',
+);
 if (existsSync(prereg)) throw new Error('CANARY_CONFLICT_ALREADY_ATTEMPTED');
 const pins = candidatePins();
 writeFileSync(
@@ -71,8 +88,13 @@ writeFileSync(
         .digest('hex'),
       file_id: journal.file_id,
       case_id: 'manual_edit_conflict',
-      injection: 'APPEND_COMMENT_PRESERVE_EVERY_EXISTING_REPORT_BYTE',
-      maximum_explicit_canary_puts: 1,
+      injection: resume
+        ? 'REUSE_ALREADY_APPENDED_CANARY_WITH_CORRECT_FIXTURE_MODE'
+        : 'APPEND_COMMENT_PRESERVE_EVERY_EXISTING_REPORT_BYTE',
+      predecessor_failure_sha256: resume
+        ? createHash('sha256').update(readFileSync(failedPath)).digest('hex')
+        : null,
+      maximum_explicit_canary_puts: resume ? 0 : 1,
       maximum_consumer_puts: 0,
       maximum_creates: 0,
       scope:
@@ -163,20 +185,35 @@ if (
   !metadata.appProperties
 )
   throw new Error('UNRELATED_REPORT_REFUSED');
-const original = await writer.readMarkdown(journal.file_id, 8 * 1024 * 1024),
+const remoteBefore = await writer.readMarkdown(
+  journal.file_id,
+  8 * 1024 * 1024,
+);
+const original = resume
+    ? readFileSync(join(privateRoot, 'before-manual-edit.md'), 'utf8')
+    : remoteBefore,
   manual = original + '\n<!-- OWNER_EDIT_DIAGNOSTIC_CANARY ' + id + ' -->\n';
-writeFileSync(join(privateRoot, 'before-manual-edit.md'), original, {
-  flag: 'wx',
-  mode: 0o600,
-});
-await writer.updateMarkdown({
-  id: journal.file_id,
-  root_id: rootId,
-  app_properties: metadata.appProperties,
-  expected_hash: await sha256(original),
-  markdown: manual,
-  before_write: async () => {},
-});
+if (
+  resume &&
+  (remoteBefore !== manual ||
+    (await sha256(manual)) !== previous.manual_sha256 ||
+    (await sha256(original)) !== previous.original_sha256)
+)
+  throw new Error('PREVIOUS_CANARY_BYTES_CHANGED');
+if (!resume) {
+  writeFileSync(join(privateRoot, 'before-manual-edit.md'), original, {
+    flag: 'wx',
+    mode: 0o600,
+  });
+  await writer.updateMarkdown({
+    id: journal.file_id,
+    root_id: rootId,
+    app_properties: metadata.appProperties,
+    expected_hash: await sha256(original),
+    markdown: manual,
+    before_write: async () => {},
+  });
+}
 const sqlite = new DatabaseSync(join(privateRoot, 'core.sqlite'));
 try {
   sqlite.exec('PRAGMA foreign_keys=ON');
@@ -189,26 +226,46 @@ try {
     )
     .get(journal.owner_id, 'abcdefghijk')!;
   const item = JSON.parse(String(old.metadata_json)) as ItemMetadata;
-  await new ItemRepository(db, owner).upsert(
-    journal.source_id,
-    { ...item, title: item.title + ' - later conflict-test revision' },
-    new Date().toISOString(),
-  );
-  const identity = new DriveExportIdentity(db, context),
-    lease = await identity.claim(rootId, date, context.actorId, new Date());
+  if (!resume)
+    await new ItemRepository(db, owner).upsert(
+      journal.source_id,
+      { ...item, title: item.title + ' - later conflict-test revision' },
+      new Date().toISOString(),
+    );
+  const identity = new DriveExportIdentity(db, context);
   const state = sqlite
     .prepare(
-      'SELECT revision FROM export_state WHERE owner_id=? AND root_namespace=? AND publication_date=?',
+      'SELECT revision,COALESCE(desired_mode,mode) mode,lease_owner,lease_until,fencing_token FROM export_state WHERE owner_id=? AND root_namespace=? AND publication_date=?',
     )
     .get(journal.owner_id, rootId, date)!;
+  const lease =
+    resume &&
+    state.lease_owner === context.actorId &&
+    Date.parse(String(state.lease_until)) > Date.now()
+      ? {
+          root_id: rootId,
+          date,
+          lease_owner: context.actorId,
+          lease_until: String(state.lease_until),
+          fencing_token: Number(state.fencing_token),
+        }
+      : await identity.claim(rootId, date, context.actorId, new Date());
+  const highest = sqlite
+    .prepare(
+      'SELECT MAX(revision) revision FROM daily_export_artifacts WHERE owner_id=? AND root_id=? AND publication_date=?',
+    )
+    .get(journal.owner_id, rootId, date);
+  if (state.mode !== 'COMPACT' && state.mode !== 'FULL')
+    throw new Error('INVALID_FIXTURE_EXPORT_MODE');
   const report = await renderOwnerDaily(
     db,
     context,
     {
       date,
       app_origin: process.env.APP_ORIGIN!,
-      revision: Number(state.revision) + 1,
-      mode: 'FULL',
+      revision:
+        Math.max(Number(state.revision), Number(highest?.revision ?? 0)) + 1,
+      mode: state.mode,
     },
     journal.cursor_secret,
     new Date(),
@@ -259,17 +316,25 @@ try {
     observations.conflict_visible &&
     observations.manual_preserved &&
     observations.original_bytes_preserved &&
-    explicitPuts === 1 &&
+    explicitPuts === (resume ? 0 : 1) &&
     consumerWrites === 0 &&
     observations.source_job_durable &&
     observations.integrity &&
     observations.foreign_keys;
   writeFileSync(
-    join(output, 'manual-conflict-receipt.json'),
+    join(
+      output,
+      resume
+        ? 'manual-conflict-recovery-receipt.json'
+        : 'manual-conflict-receipt.json',
+    ),
     JSON.stringify(
       {
         recorded_at: new Date().toISOString(),
         pins,
+        predecessor_failure_sha256: resume
+          ? createHash('sha256').update(readFileSync(failedPath)).digest('hex')
+          : null,
         status: pass ? 'PASS' : 'FAIL',
         scope: 'ACTUAL_CANARY_CONFLICT_ONLY_NOT_FULL_D_EXPORT_OR_HUMAN_QUALITY',
         file_id: journal.file_id,
