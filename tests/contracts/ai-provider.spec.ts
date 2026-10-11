@@ -130,7 +130,7 @@ it('uses generateContent only for explicit quality comparison, preserving prompt
       ]);
       expect(body.tools).toBeUndefined();
       expect(body.generationConfig.responseFormat.text.mimeType).toBe(
-        'application/json',
+        'APPLICATION_JSON',
       );
       expect(
         Object.keys(

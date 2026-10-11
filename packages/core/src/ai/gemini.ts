@@ -163,7 +163,7 @@ export class GeminiFreeProvider implements AIProvider {
             generationConfig: {
               responseFormat: {
                 text: {
-                  mimeType: 'application/json',
+                  mimeType: 'APPLICATION_JSON',
                   schema: materializeProviderSchema(request.wire_schema),
                 },
               },
