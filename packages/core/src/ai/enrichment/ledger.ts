@@ -31,7 +31,7 @@ export class IntelligenceLedger {
     return (
       await this.db
         .prepare(
-          `SELECT a.owner_id,${effectiveEntity('a')} entity_id,e.entity_type,a.literal,(SELECT d.language FROM entity_alias_decisions d WHERE d.owner_id=a.owner_id AND d.alias_id=a.alias_id ORDER BY d.revision DESC LIMIT 1) language FROM entity_aliases a JOIN entities e ON e.owner_id=a.owner_id AND e.entity_id=a.entity_id WHERE a.owner_id=? AND ${effectiveAlias} AND ${guard.predicate}`,
+          `SELECT a.owner_id,${effectiveEntity('a')} entity_id,e.entity_type,a.literal,(SELECT n.label FROM entities n WHERE n.owner_id=a.owner_id AND n.entity_id=${effectiveEntity('a')}) canonical_label,(SELECT d.language FROM entity_alias_decisions d WHERE d.owner_id=a.owner_id AND d.alias_id=a.alias_id ORDER BY d.revision DESC LIMIT 1) language FROM entity_aliases a JOIN entities e ON e.owner_id=a.owner_id AND e.entity_id=a.entity_id WHERE a.owner_id=? AND ${effectiveAlias} AND ${guard.predicate}`,
         )
         .bind(this.context.ownerId, ...guard.bindings)
         .all<ApprovedAlias>()

@@ -6,12 +6,17 @@ import {
 import { sha256 } from '../auth/crypto.js';
 import { PromptUsage } from './usage.js';
 import {
+  analysisQualityPolicy,
+  analysisQualitySnapshot,
+} from './analysis-quality.js';
+import {
   familySchemas,
   verifyRegistryBundle,
   type RegistryBundle,
   type JsonSchema,
 } from './bundle.js';
 export interface PromptSnapshot {
+  quality_policy?: Awaited<ReturnType<typeof analysisQualitySnapshot>>;
   prompt_id: string;
   version: number;
   prompt_hash: string;
@@ -293,6 +298,9 @@ export class PromptRegistry {
       canonical: await schema(compatibility.canonical_schema_id),
       enrichment_version: '1.0',
       generation,
+      ...(analysisQualityPolicy.families.includes(promptId)
+        ? { quality_policy: await analysisQualitySnapshot() }
+        : {}),
     };
   }
 }

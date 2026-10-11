@@ -22,6 +22,7 @@ import { mergeChunkOutputs } from './long-input/merge.js';
 import type { ChunkPlan } from './long-input/plan.js';
 import { finalizeCandidateRun } from './candidate-finalization.js';
 import { acceptedView } from '../projections/accepted-view.js';
+import { assessAnalysisQuality } from './quality.js';
 export interface AnalysisValidationResult {
   version: 'analysis-validation:1';
   run_id: string;
@@ -34,6 +35,7 @@ export interface AnalysisValidationResult {
   canonical_hash: string | null;
   semantic_verification: 'NOT_ASSERTED';
   accepted: false;
+  quality?: ReturnType<typeof assessAnalysisQuality>;
   chunk: { plan_hash: string; chunk_index: number } | null;
 }
 
@@ -291,7 +293,7 @@ export class AnalysisValidation {
       JSON.parse(receipt.payload_json) as { context_hash: string }
     ).context_hash;
     const resultKey =
-      'analysis-validation-' + prepared.run_id + '-' + candidateId;
+      'analysis-validation-quality1-' + prepared.run_id + '-' + candidateId;
     const prior = await this.db
       .prepare(
         'SELECT payload_json,content_hash FROM config_versions WHERE owner_id=? AND config_id=? AND revision=1',
@@ -344,6 +346,7 @@ export class AnalysisValidation {
     const raw = await read(candidateId, 'ANALYSIS_CANDIDATE', 2 * 1024 * 1024);
     let reason: string | null = null;
     let enriched: Awaited<ReturnType<typeof enrichEconomy>> | null = null;
+    let quality: ReturnType<typeof assessAnalysisQuality> | undefined;
     if (provenance.response.status !== 'OK' || !provenance.raw_output_present)
       reason = provenance.response.status;
     else {
@@ -420,6 +423,12 @@ export class AnalysisValidation {
       }
       if (checked && !checked.valid) reason = checked.reason;
       else if (checked) {
+        quality = assessAnalysisQuality(
+          checked.value as Parameters<typeof assessAnalysisQuality>[0],
+          manifest.anchors,
+          { coverage: !snapshot.chunk },
+        );
+        if (quality.status === 'REVIEW_REQUIRED') reason = 'REVIEW_REQUIRED';
         const item = await this.db
           .prepare(
             'SELECT canonical_url FROM items WHERE owner_id=? AND item_id=?',
@@ -519,16 +528,20 @@ export class AnalysisValidation {
       response_artifact_id: candidateId,
       context_hash: contextHash,
       mode: snapshot.settings.mode,
-      status: enriched
-        ? 'VALIDATED'
-        : reason === 'REVIEW_REQUIRED'
+      status:
+        reason === 'REVIEW_REQUIRED'
           ? 'REVIEW_REQUIRED'
-          : 'INVALID',
+          : enriched
+            ? 'VALIDATED'
+            : reason === 'REVIEW_REQUIRED'
+              ? 'REVIEW_REQUIRED'
+              : 'INVALID',
       reason,
       canonical_artifact_id: canonicalId,
       canonical_hash: enriched?.canonical_hash ?? null,
       semantic_verification: 'NOT_ASSERTED',
       accepted: false,
+      ...(quality ? { quality } : {}),
       chunk: snapshot.chunk
         ? {
             plan_hash: snapshot.chunk.plan_hash,

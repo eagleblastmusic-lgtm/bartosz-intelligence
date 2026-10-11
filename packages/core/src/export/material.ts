@@ -13,7 +13,7 @@ export function materialReport(markdown: string): string {
     cut?.length !== 1 ||
     !date ||
     !header.includes('\nreport_schema_version: "1.1"\n') ||
-    !header.includes('\nrenderer_version: "daily-renderer:1.1"\n')
+    !/\nrenderer_version: "daily-renderer:1\.[12]"\n/.test(header)
   )
     throw new Error('EXPORT_PROTOCOL_INVALID');
   const footer = markdown.match(

@@ -5,6 +5,7 @@ import type {
 import type { enrichEconomy } from '../ai/enrichment/canonical.js';
 import { validateCanonical } from '../ai/repair/validate.js';
 import { sha256 } from '../auth/crypto.js';
+import { analysisText, canonicalCitations } from './analysis-view.js';
 import {
   publicationDate,
   publicationTimestamp,
@@ -40,7 +41,7 @@ export interface DailyRenderInput {
 }
 export interface DailyReport {
   schema_version: '1.1';
-  renderer_version: 'daily-renderer:1.1';
+  renderer_version: 'daily-renderer:1.2';
   date: string;
   revision: number;
   source_change_seq: number;
@@ -104,9 +105,12 @@ function renderTyped(
 ): string[] {
   if (stack.has(unit.observation_id)) throw new Error('EXPORT_RELATION_CYCLE');
   const lines = [
-    `- ${text(unit.kind)}: ${text(unit.content_pl)}`,
+    `- ${text(unit.kind)}: ${text(analysisText(unit.content_pl))}`,
     `  Atrybucja: ${text(unit.attribution)}; status epistemiczny: ${text(unit.epistemic_status)}.`,
     `  Observation: ${text(unit.observation_id)}; ${evidenceRefs(c, unit.evidence_ids)}`,
+    `  Źródła: ${canonicalCitations(c, unit.evidence_ids)
+      .map((ref) => (ref.url ? link(ref.label, ref.url) : ref.label))
+      .join('; ')}`,
   ];
   for (const key of [
     'subject_ref',
@@ -222,16 +226,22 @@ function block(
     lines.push('Podsumowanie: poza zakresem profilu.');
   if (!c.enabled_modules.includes('key_points'))
     lines.push('Najważniejsze punkty: poza zakresem profilu.');
-  const keptSummary = mode === 'FULL' ? summaries : summaries.slice(0, 1);
-  const keptPoints =
-    mode === 'FULL' ? points : points.slice(0, Math.max(1, 3 - level));
+  // Summary/topic coverage is an atomic minimum even in COMPACT exports.
+  const keptSummary = summaries;
+  const keptPoints = points;
+  const citations = (ids: readonly string[]) =>
+    canonicalCitations(c, ids, item.canonical_url)
+      .map((ref) => (ref.url ? link(ref.label, ref.url) : ref.label))
+      .join('; ');
   for (const row of keptSummary) {
-    lines.push(`Podsumowanie: ${text(row.text_pl)}`);
+    lines.push(`Podsumowanie: ${text(analysisText(row.text_pl))}`);
     if (mode === 'FULL') lines.push(`  ${evidenceRefs(c, row.evidence_ids)}`);
+    lines.push(`  Źródła: ${citations(row.evidence_ids)}`);
   }
   for (const row of keptPoints) {
-    lines.push(`- Punkt: ${text(row.text_pl)}`);
+    lines.push(`- Punkt: ${text(analysisText(row.text_pl))}`);
     if (mode === 'FULL') lines.push(`  ${evidenceRefs(c, row.evidence_ids)}`);
+    lines.push(`  Źródła: ${citations(row.evidence_ids)}`);
   }
   omitted +=
     summaries.length - keptSummary.length + points.length - keptPoints.length;
@@ -337,6 +347,12 @@ export async function renderDaily(
     );
     if (!item || item.selected_run_id !== selection.run_id)
       throw new Error('EXPORT_SELECTION_MISMATCH');
+    if (selection.canonical.evidence.length)
+      canonicalCitations(
+        selection.canonical,
+        selection.canonical.evidence.map((e) => e.evidence_id),
+        item.canonical_url,
+      );
     if (
       selection.canonical.source_issues.length &&
       item.analysis_status === 'READY'
@@ -423,7 +439,7 @@ export async function renderDaily(
         '---',
         'report_schema_version: "1.1"',
         `export_mode: ${mode}`,
-        'renderer_version: "daily-renderer:1.1"',
+        'renderer_version: "daily-renderer:1.2"',
         `date: ${snapshot.date}`,
         'timezone: Europe/Warsaw',
         `revision: ${frozen.revision}`,
@@ -454,7 +470,7 @@ export async function renderDaily(
     const measured = metric(markdown);
     return {
       schema_version: '1.1',
-      renderer_version: 'daily-renderer:1.1',
+      renderer_version: 'daily-renderer:1.2',
       date: snapshot.date,
       revision: frozen.revision,
       source_change_seq: snapshot.cut_seq,

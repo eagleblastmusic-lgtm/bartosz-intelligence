@@ -20,6 +20,7 @@ import type { ChunkPlan } from './plan.js';
 import type { LeaseToken } from '../../../../contracts/src/jobs.js';
 import type { normalizeTranscript } from '../../transcript/normalize.js';
 import { acceptedView } from '../../projections/accepted-view.js';
+import { assessAnalysisQuality } from '../quality.js';
 
 export class LongInputCompletion {
   constructor(
@@ -232,6 +233,27 @@ export class LongInputCompletion {
     });
     if (!merged.coverage.complete || merged.status !== 'COMPLETE')
       throw new Error('INCOMPLETE_CHUNK_COVERAGE');
+    const quality = assessAnalysisQuality(
+      merged.wire as Parameters<typeof assessAnalysisQuality>[0],
+      manifest.anchors,
+    );
+    if (quality.status === 'REVIEW_REQUIRED') {
+      await new JobStore(this.db, this.context).disposition(
+        token,
+        'ANALYZE',
+        'BLOCKED',
+        'AI_OUTPUT_REVIEW_REQUIRED',
+        current().toISOString(),
+        current(),
+      );
+      return {
+        accepted: false,
+        duplicate: false,
+        state: 'BLOCKED',
+        reason: 'AI_OUTPUT_REVIEW_REQUIRED',
+        quality,
+      };
+    }
     const item = await this.db
       .prepare('SELECT canonical_url FROM items WHERE owner_id=? AND item_id=?')
       .bind(this.context.ownerId, snapshot.source.item_id)
@@ -371,6 +393,7 @@ export class LongInputCompletion {
       merged_wire_hash: mergedWireHash,
       context_hash: contextHash,
       quality_scope: snapshot.quality_scope,
+      quality,
       child_receipts: receipts,
       chunk_coverage: merged.coverage,
       sectional_summaries: merged.sectional_summaries,

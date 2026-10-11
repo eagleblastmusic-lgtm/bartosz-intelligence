@@ -1,5 +1,9 @@
 import { sha256 } from '../auth/crypto.js';
 import { renderPrompt } from '../registry/bundle.js';
+import {
+  analysisPrompt,
+  analysisQualitySnapshot,
+} from '../registry/analysis-quality.js';
 import type { PromptSnapshot } from '../registry/store.js';
 import type { normalizeTranscript } from '../transcript/normalize.js';
 import type { AIRequest, PipelineProfile } from '../../../contracts/src/ai.js';
@@ -24,31 +28,34 @@ export function economyPromptOverhead(input: {
   additional_pass?: AdditionalPassSnapshot;
 }) {
   return new TextEncoder().encode(
-    renderPrompt(input.prompt.text, {
-      wire_schema_json: JSON.stringify(input.prompt.wire.schema),
-      semantic_context_json: JSON.stringify(
-        input.additional_pass
+    analysisPrompt(
+      renderPrompt(input.prompt.text, {
+        wire_schema_json: JSON.stringify(input.prompt.wire.schema),
+        semantic_context_json: JSON.stringify(
+          input.additional_pass
+            ? {
+                ...input.semantic_context,
+                additional_pass_purpose: input.additional_pass.purpose,
+              }
+            : input.semantic_context,
+        ),
+        limits_json: JSON.stringify(input.limits),
+        source_segments_with_aliases_json: '[]',
+        helper_segments_json_or_null: 'null',
+        ...(input.semantic_profile
           ? {
-              ...input.semantic_context,
-              additional_pass_purpose: input.additional_pass.purpose,
+              module_config_json: JSON.stringify(
+                input.semantic_profile.config.modules,
+              ),
+              pass_mode: input.additional_pass?.mode ?? 'EXTRACT',
+              existing_candidate_wire_json_or_null: input.additional_pass
+                ? JSON.stringify(input.additional_pass.candidate_wire)
+                : 'null',
             }
-          : input.semantic_context,
-      ),
-      limits_json: JSON.stringify(input.limits),
-      source_segments_with_aliases_json: '[]',
-      helper_segments_json_or_null: 'null',
-      ...(input.semantic_profile
-        ? {
-            module_config_json: JSON.stringify(
-              input.semantic_profile.config.modules,
-            ),
-            pass_mode: input.additional_pass?.mode ?? 'EXTRACT',
-            existing_candidate_wire_json_or_null: input.additional_pass
-              ? JSON.stringify(input.additional_pass.candidate_wire)
-              : 'null',
-          }
-        : {}),
-    }),
+          : {}),
+      }),
+      input.prompt.quality_policy,
+    ),
   ).length;
 }
 export async function analysisQualityScope(
@@ -68,6 +75,9 @@ export async function analysisQualityScope(
       provider: profile.provider_id,
       model: profile.model,
       prompt_hash: prompt.prompt_hash,
+      ...(prompt.quality_policy
+        ? { quality_policy_hash: prompt.quality_policy.hash }
+        : {}),
       wire_hash: prompt.wire.hash,
       canonical_hash: prompt.canonical.hash,
       enrichment: prompt.enrichment_version,
@@ -123,6 +133,12 @@ async function compileSource(input: {
   )
     throw new Error('INVALID_ANALYSIS_LIMITS');
   const semantic = input.semantic_profile;
+  if (
+    input.prompt.quality_policy &&
+    JSON.stringify(input.prompt.quality_policy) !==
+      JSON.stringify(await analysisQualitySnapshot())
+  )
+    throw new Error('INCOMPATIBLE_QUALITY_POLICY');
   const semanticCompatible =
     semantic &&
     semantic.config.mode !== 'ECONOMY' &&
@@ -225,31 +241,34 @@ async function compileSource(input: {
       new Set(assigned.map((a) => a.alias)),
     );
   }
-  const text = renderPrompt(input.prompt.text, {
-    wire_schema_json: JSON.stringify(input.prompt.wire.schema),
-    semantic_context_json: JSON.stringify(
-      pass
-        ? { ...input.semantic_context, additional_pass_purpose: pass.purpose }
-        : input.semantic_context,
-    ),
-    limits_json: JSON.stringify(input.limits),
-    source_segments_with_aliases_json: JSON.stringify(
-      assigned.map((anchor, index) => ({
-        segment_ref: chunk ? `s${index + 1}` : anchor.alias,
-        text: anchor.text,
-      })),
-    ),
-    helper_segments_json_or_null: 'null',
-    ...(semantic
-      ? {
-          module_config_json: JSON.stringify(semantic.config.modules),
-          pass_mode: pass?.mode ?? 'EXTRACT',
-          existing_candidate_wire_json_or_null: pass
-            ? JSON.stringify(pass.candidate_wire)
-            : 'null',
-        }
-      : {}),
-  });
+  const text = analysisPrompt(
+    renderPrompt(input.prompt.text, {
+      wire_schema_json: JSON.stringify(input.prompt.wire.schema),
+      semantic_context_json: JSON.stringify(
+        pass
+          ? { ...input.semantic_context, additional_pass_purpose: pass.purpose }
+          : input.semantic_context,
+      ),
+      limits_json: JSON.stringify(input.limits),
+      source_segments_with_aliases_json: JSON.stringify(
+        assigned.map((anchor, index) => ({
+          segment_ref: chunk ? `s${index + 1}` : anchor.alias,
+          text: anchor.text,
+        })),
+      ),
+      helper_segments_json_or_null: 'null',
+      ...(semantic
+        ? {
+            module_config_json: JSON.stringify(semantic.config.modules),
+            pass_mode: pass?.mode ?? 'EXTRACT',
+            existing_candidate_wire_json_or_null: pass
+              ? JSON.stringify(pass.candidate_wire)
+              : 'null',
+          }
+        : {}),
+    }),
+    input.prompt.quality_policy,
+  );
   // UTF-8 byte count is a conservative token upper bound, explicitly estimated.
   // A too-large source routes to a full-coverage ChunkPlan instead of truncation.
   const estimate = new TextEncoder().encode(text).length;
@@ -352,6 +371,9 @@ export async function economyChunkContextHash(input: {
     JSON.stringify({
       manifest_hash: input.manifest_hash,
       prompt_hash: input.prompt.prompt_hash,
+      ...(input.prompt.quality_policy
+        ? { quality_policy_hash: input.prompt.quality_policy.hash }
+        : {}),
       wire_hash: input.prompt.wire.hash,
       profile: input.profile,
       profile_revision: input.profile_revision,

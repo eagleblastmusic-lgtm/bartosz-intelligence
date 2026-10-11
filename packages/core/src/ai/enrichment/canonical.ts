@@ -13,6 +13,7 @@ import {
 } from './evidence.js';
 import {
   resolveEntityMention,
+  approvedNameNormalizer,
   type ApprovedAlias,
   type EntityType,
 } from './entities.js';
@@ -141,6 +142,19 @@ async function enrichAnalysis(
   );
   const entityRef = (index: number | null) =>
     index === null ? null : identities[index]!.entity_id;
+  const displayText = approvedNameNormalizer(
+    identities.flatMap((identity, index) =>
+      identity.resolution === 'APPROVED_ALIAS'
+        ? [
+            {
+              literal:
+                wire.entity_mentions[index]!.label.normalize('NFC').trim(),
+              label: identity.label,
+            },
+          ]
+        : [],
+    ),
+  );
   const entities = [];
   for (let i = 0; i < wire.entity_mentions.length; i++) {
     const identity = identities[i]!;
@@ -154,7 +168,7 @@ async function enrichAnalysis(
   const notes = async (rows: Note[]) =>
     Promise.all(
       rows.map(async (row) => ({
-        text_pl: row.text_pl,
+        text_pl: displayText(row.text_pl),
         evidence_ids: await refs(row.segment_refs),
       })),
     );
@@ -191,7 +205,7 @@ async function enrichAnalysis(
     for (const [index, row] of rows.entries()) {
       const value = {
         kind,
-        content_pl: row.text_pl,
+        content_pl: displayText(row.text_pl),
         subject_ref: entityRef(row.subject_ref),
         target_ref:
           kind === 'STANCE' || kind === 'USAGE' || kind === 'RECOMMENDATION'
@@ -207,7 +221,7 @@ async function enrichAnalysis(
             : row.attribution === 'REPORTED_OTHER'
               ? 'SOURCE_REPORT'
               : 'UNRESOLVED',
-        qualifiers: [...row.qualifiers],
+        qualifiers: row.qualifiers.map(displayText),
         temporal_text:
           kind === 'PREDICTION' ? (row as Prediction).horizon : null,
         stance_polarity: kind === 'STANCE' ? (row as Stance).polarity : null,
@@ -238,7 +252,7 @@ async function enrichAnalysis(
   for (const tool of wire.tools)
     tools.push({
       entity_ref: entityRef(tool.entity_ref)!,
-      context_pl: tool.context_pl,
+      context_pl: displayText(tool.context_pl),
       evidence_ids: await refs(tool.segment_refs),
     });
   const orderedEvidence = () =>

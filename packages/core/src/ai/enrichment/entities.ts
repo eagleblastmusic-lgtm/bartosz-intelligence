@@ -6,6 +6,7 @@ export interface ApprovedAlias {
   entity_id: string;
   entity_type: EntityType;
   literal: string;
+  canonical_label?: string;
   language?: string | null;
 }
 export async function resolveEntityMention(input: {
@@ -48,10 +49,24 @@ export async function resolveEntityMention(input: {
       )
       .map((row) => row.entity_id),
   );
-  if (ids.size === 1)
+  const approved = input.aliases.filter(
+    (a) =>
+      a.owner_id === input.owner_id &&
+      ids.has(a.entity_id) &&
+      a.entity_type === input.entity_type &&
+      a.literal.normalize('NFC').trim() === literal &&
+      (!a.language ||
+        a.language.toLowerCase() === input.language?.toLowerCase()),
+  );
+  const labels = new Set(
+    approved
+      .map((a) => a.canonical_label?.trim())
+      .filter((label): label is string => !!label),
+  );
+  if (ids.size === 1 && labels.size <= 1)
     return {
       entity_id: [...ids][0]!,
-      label: literal,
+      label: [...labels][0] ?? literal,
       entity_type: input.entity_type,
       resolution: 'APPROVED_ALIAS' as const,
     };
@@ -73,4 +88,28 @@ export async function resolveEntityMention(input: {
       ? ('AMBIGUOUS_LITERAL' as const)
       : ('UNRESOLVED_LITERAL' as const),
   };
+}
+
+export function approvedNameNormalizer(
+  pairs: readonly { literal: string; label: string }[],
+) {
+  const labels = new Map<string, Set<string>>();
+  for (const pair of pairs) {
+    const values = labels.get(pair.literal) ?? new Set<string>();
+    values.add(pair.label);
+    labels.set(pair.literal, values);
+  }
+  const names = [...labels]
+    .filter(([, values]) => values.size === 1)
+    .sort(([a], [b]) => b.length - a.length);
+  // One replacement pass: aliases cannot cascade into another entity's alias.
+  if (!names.length) return (text: string) => text;
+  const escape = (value: string) =>
+    value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+  const pattern = new RegExp(
+    `(?<![\\p{L}\\p{N}])(?:${names.map(([literal]) => escape(literal)).join('|')})(?![\\p{L}\\p{N}])`,
+    'gu',
+  );
+  return (text: string) =>
+    text.replace(pattern, (literal) => [...labels.get(literal)!][0]!);
 }

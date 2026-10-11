@@ -405,7 +405,7 @@ it('renders deterministic whole-day bytes with independent body hash, counts and
   );
   expect(report.partial).toBe(true);
   expect(report.markdown).toContain('Następna próba: null');
-  expect(report.markdown).not.toContain('Druga pełna notatka');
+  expect(report.markdown).toContain('Druga pełna notatka');
   input.snapshot.items.reverse();
   input.snapshot.freshness.sampled_at = '2026-10-08T00:00:00Z';
   expect(await renderDaily(input)).toEqual(report);
@@ -530,7 +530,7 @@ it('escapes injected protocol markers, HTML and Markdown links without losing It
   input.snapshot.items[0]!.canonical_url = 'javascript:evil';
   await expect(renderDaily(input)).rejects.toThrow('INVALID_EXPORT_LINK');
 });
-it('compacts a large corpus atomically, keeping one summary and one point and every pending Item', async () => {
+it('preserves all summary topics, points and sources when compacting a large corpus', async () => {
   const input = await fixture();
   const original = input.snapshot.items[1]!;
   for (let n = 0; n < 500; n++)
@@ -548,5 +548,37 @@ it('compacts a large corpus atomically, keeping one summary and one point and ev
   expect(readReport(report.markdown).ids).toHaveLength(504);
   expect(report.markdown).toContain('Żółć 🧠 — nie wdrożył.');
   expect(report.markdown).toContain('Pełny punkt 1 z negacją: nie.');
-  expect(report.markdown).not.toContain('Pełny punkt 2');
+  expect(report.markdown).toContain('Pełny punkt 2');
+  for (const row of input.selections[0]!.canonical.summary_pl)
+    expect(report.markdown.replaceAll('\\_', '_')).toContain(row.text_pl);
+});
+
+it('reads legacy 1.1 report envelopes and rejects future renderer versions', async () => {
+  const current = await renderDaily(await fixture());
+  const legacy = current.markdown.replace(
+    'daily-renderer:1.2',
+    'daily-renderer:1.1',
+  );
+  expect(materialReport(legacy)).toContain('daily-renderer:1.1');
+  const bytes = new TextEncoder().encode(legacy);
+  await expect(
+    verifyDailyRead({
+      root_id: 'root',
+      file_id: 'legacy',
+      date: current.date,
+      version_before: '1',
+      version_after: '1',
+      chunks: [
+        { root_id: 'root', file_id: 'legacy', version: '1', offset: 0, bytes },
+      ],
+    }),
+  ).resolves.toMatchObject({
+    full_read: 'VERIFIED',
+    item_ids: current.item_ids,
+  });
+  expect(() =>
+    materialReport(
+      current.markdown.replace('daily-renderer:1.2', 'daily-renderer:9.9'),
+    ),
+  ).toThrow('EXPORT_PROTOCOL_INVALID');
 });

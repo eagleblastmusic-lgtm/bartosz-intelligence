@@ -12,6 +12,7 @@ import {
 import { ModelRegistry } from './models.js';
 import { selectPipeline } from './selector.js';
 import { analysisQualityScope, compileSemanticAnalysis } from './compiler.js';
+import { analysisQualitySnapshot } from '../registry/analysis-quality.js';
 import { QuotaAdmission } from './admission.js';
 import { currentGeminiBuckets } from './quota-policy.js';
 import type { compileEconomy } from './compiler.js';
@@ -269,6 +270,9 @@ export class AnalysisJobs {
         prompt = semanticPrompt(semanticProfile);
       }
     } else prompt = await registry.current();
+    // Semantic draft fallback must use the same policy as registered prompts.
+    if (!prompt.quality_policy)
+      prompt = { ...prompt, quality_policy: await analysisQualitySnapshot() };
     await new PromptUsage(this.db, this.context).requireNewUse(
       prompt.prompt_id,
       prompt.version,
@@ -1251,10 +1255,16 @@ export class AnalysisJobs {
         )
           throw error;
       }
+      if (!semantic) throw new Error('INCOMPATIBLE_PROMPT_SNAPSHOT');
+      const expectedPrompt = semanticPrompt(semantic, registered ?? undefined);
+      const pinnedPrompt = { ...snapshot.prompt };
+      delete expectedPrompt.quality_policy;
+      delete pinnedPrompt.quality_policy;
       if (
-        !semantic ||
-        JSON.stringify(semanticPrompt(semantic, registered ?? undefined)) !==
-          JSON.stringify(snapshot.prompt)
+        JSON.stringify(expectedPrompt) !== JSON.stringify(pinnedPrompt) ||
+        (snapshot.prompt.quality_policy &&
+          JSON.stringify(snapshot.prompt.quality_policy) !==
+            JSON.stringify(await analysisQualitySnapshot()))
       )
         throw new Error('INCOMPATIBLE_PROMPT_SNAPSHOT');
     }

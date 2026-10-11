@@ -17,6 +17,7 @@ import {
   economyChunkContextHash,
 } from '../../packages/core/src/ai/compiler.js';
 import { AnalysisValidation } from '../../packages/core/src/ai/validation.js';
+import { analysisQualitySnapshot } from '../../packages/core/src/registry/analysis-quality.js';
 import { createExecutionContext } from 'cloudflare:test';
 import worker from '../../apps/api/src/index.js';
 import { ArtifactClient } from '../../apps/executor/src/artifact-client.js';
@@ -752,6 +753,7 @@ it.each([
   'TEMPORARY_FAILURE',
   'REFUSED',
   'MALFORMED',
+  'QUALITY_REVIEW',
 ] as const)(
   'verified source acceptance and %s analysis preserve source authority and fenced knowledge effects',
   async (scenario) => {
@@ -765,6 +767,7 @@ it.each([
       scenario === 'CHUNK_PRODUCTION' || scenario === 'CHUNK_FULL_PRODUCTION';
     const mode: 'PRODUCTION' | 'QUALITY_TEST' =
       scenario === 'PRODUCTION' ||
+      scenario === 'QUALITY_REVIEW' ||
       scenario === 'AUTOMATIC' ||
       scenario === 'CUSTOM_PRODUCTION' ||
       chunkProduction
@@ -1127,18 +1130,28 @@ it.each([
     }
     if (mode === 'PRODUCTION') {
       profile.quality_approvals = [
-        await analysisQualityScope(semanticPrompt(semanticSnapshot), profile, {
-          limits: settings.limits,
-          max_output_tokens: settings.max_output_tokens,
-          source_language: selection.source!.language_code,
-          analysis_mode: 'ORDINARY',
-        }),
+        await analysisQualityScope(
+          {
+            ...semanticPrompt(semanticSnapshot),
+            quality_policy: await analysisQualitySnapshot(),
+          },
+          profile,
+          {
+            limits: settings.limits,
+            max_output_tokens: settings.max_output_tokens,
+            source_language: selection.source!.language_code,
+            analysis_mode: 'ORDINARY',
+          },
+        ),
       ];
       if (chunkProduction) {
         for (const analysis_mode of ['ORDINARY', 'CHUNK'] as const)
           profile.quality_approvals.push(
             await analysisQualityScope(
-              semanticPrompt(semanticSnapshot),
+              {
+                ...semanticPrompt(semanticSnapshot),
+                quality_policy: await analysisQualitySnapshot(),
+              },
               profile,
               {
                 limits: settings.limits,
@@ -1252,7 +1265,11 @@ it.each([
       fixtureNow,
     ))!;
     let draftTestPreviewHash = '';
-    if (scenario === 'PRODUCTION' || scenario === 'CUSTOM_PRODUCTION') {
+    if (
+      scenario === 'PRODUCTION' ||
+      scenario === 'CUSTOM_PRODUCTION' ||
+      scenario === 'QUALITY_REVIEW'
+    ) {
       const before = await env.DB.prepare('SELECT count(*) n FROM jobs').first(
         'n',
       );
@@ -2343,7 +2360,8 @@ it.each([
       scenario !== 'QUALITY_TEST' &&
       scenario !== 'PRODUCTION' &&
       scenario !== 'CUSTOM_PRODUCTION' &&
-      scenario !== 'MALFORMED'
+      scenario !== 'MALFORMED' &&
+      scenario !== 'QUALITY_REVIEW'
     ) {
       const retained = (await retainAnalysisResponse({
         origin: 'https://fixture.invalid',
@@ -2431,7 +2449,10 @@ it.each([
             : JSON.stringify({
                 summary_pl: [
                   {
-                    text_pl: 'Autor przedstawia wypowiedź.',
+                    text_pl:
+                      scenario === 'QUALITY_REVIEW'
+                        ? 'undefined'
+                        : 'Autor przedstawia wypowiedź.',
                     segment_refs: ['s1'],
                   },
                 ],
@@ -2468,8 +2489,27 @@ it.each([
       new Date(),
       fixtureSecret,
     );
-    if (scenario === 'MALFORMED') {
-      expect(validated).toMatchObject({ status: 'INVALID', accepted: false });
+    if (scenario === 'MALFORMED' || scenario === 'QUALITY_REVIEW') {
+      expect(validated).toMatchObject({
+        status: scenario === 'QUALITY_REVIEW' ? 'REVIEW_REQUIRED' : 'INVALID',
+        accepted: false,
+      });
+      if (scenario === 'QUALITY_REVIEW') {
+        expect(validated.quality?.findings).toContainEqual({
+          code: 'BROKEN_CONTENT',
+          module: 'summary_pl',
+          index: 0,
+        });
+        await expect(
+          validation.complete(
+            aiToken,
+            permit.reservation_id,
+            responseReceipt.artifact_id,
+            new Date(),
+            fixtureSecret,
+          ),
+        ).rejects.toThrow('ANALYSIS_NOT_ACCEPTABLE');
+      }
       const rpc = new WorkerRpc(
         'https://fixture.invalid',
         'q'.repeat(43),

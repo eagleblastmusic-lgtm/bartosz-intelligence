@@ -96,7 +96,8 @@ export class AnalysisDisposition {
       decision = {
         state: 'BLOCKED',
         reason:
-          validation.status === 'REVIEW_REQUIRED'
+          validation.status === 'REVIEW_REQUIRED' &&
+          !validation.quality?.findings.length
             ? 'AI_SOURCE_REVIEW_REQUIRED'
             : 'AI_OUTPUT_REVIEW_REQUIRED',
         due_at: current().toISOString(),

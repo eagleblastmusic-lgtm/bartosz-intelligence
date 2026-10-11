@@ -86,7 +86,9 @@ export async function verifyDailyRead(input: DailyRead) {
   if (
     Object.keys(header).length !== fields.size ||
     header.report_schema_version !== '"1.1"' ||
-    header.renderer_version !== '"daily-renderer:1.1"' ||
+    !['"daily-renderer:1.1"', '"daily-renderer:1.2"'].includes(
+      header.renderer_version!,
+    ) ||
     header.date !== input.date ||
     header.timezone !== 'Europe/Warsaw' ||
     !['COMPACT', 'FULL'].includes(header.export_mode!) ||
