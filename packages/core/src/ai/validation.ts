@@ -293,7 +293,7 @@ export class AnalysisValidation {
       JSON.parse(receipt.payload_json) as { context_hash: string }
     ).context_hash;
     const resultKey =
-      'analysis-validation-quality1-' + prepared.run_id + '-' + candidateId;
+      'analysis-validation-quality2-' + prepared.run_id + '-' + candidateId;
     const prior = await this.db
       .prepare(
         'SELECT payload_json,content_hash FROM config_versions WHERE owner_id=? AND config_id=? AND revision=1',

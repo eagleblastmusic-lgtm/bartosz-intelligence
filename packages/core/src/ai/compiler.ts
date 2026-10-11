@@ -2,7 +2,7 @@ import { sha256 } from '../auth/crypto.js';
 import { renderPrompt } from '../registry/bundle.js';
 import {
   analysisPrompt,
-  analysisQualitySnapshot,
+  validAnalysisQualitySnapshot,
 } from '../registry/analysis-quality.js';
 import type { PromptSnapshot } from '../registry/store.js';
 import type { normalizeTranscript } from '../transcript/normalize.js';
@@ -135,8 +135,7 @@ async function compileSource(input: {
   const semantic = input.semantic_profile;
   if (
     input.prompt.quality_policy &&
-    JSON.stringify(input.prompt.quality_policy) !==
-      JSON.stringify(await analysisQualitySnapshot())
+    !(await validAnalysisQualitySnapshot(input.prompt.quality_policy))
   )
     throw new Error('INCOMPATIBLE_QUALITY_POLICY');
   const semanticCompatible =

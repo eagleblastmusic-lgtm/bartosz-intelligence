@@ -12,7 +12,10 @@ import {
 import { ModelRegistry } from './models.js';
 import { selectPipeline } from './selector.js';
 import { analysisQualityScope, compileSemanticAnalysis } from './compiler.js';
-import { analysisQualitySnapshot } from '../registry/analysis-quality.js';
+import {
+  analysisQualitySnapshot,
+  validAnalysisQualitySnapshot,
+} from '../registry/analysis-quality.js';
 import { QuotaAdmission } from './admission.js';
 import { currentGeminiBuckets } from './quota-policy.js';
 import type { compileEconomy } from './compiler.js';
@@ -1263,8 +1266,7 @@ export class AnalysisJobs {
       if (
         JSON.stringify(expectedPrompt) !== JSON.stringify(pinnedPrompt) ||
         (snapshot.prompt.quality_policy &&
-          JSON.stringify(snapshot.prompt.quality_policy) !==
-            JSON.stringify(await analysisQualitySnapshot()))
+          !(await validAnalysisQualitySnapshot(snapshot.prompt.quality_policy)))
       )
         throw new Error('INCOMPATIBLE_PROMPT_SNAPSHOT');
     }

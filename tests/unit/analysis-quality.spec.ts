@@ -11,7 +11,11 @@ import {
   approvedNameNormalizer,
   resolveEntityMention,
 } from '../../packages/core/src/ai/enrichment/entities.js';
-import { analysisQualitySnapshot } from '../../packages/core/src/registry/analysis-quality.js';
+import {
+  analysisQualitySnapshot,
+  analysisQualityPolicyV1,
+  validAnalysisQualitySnapshot,
+} from '../../packages/core/src/registry/analysis-quality.js';
 import {
   analysisQualityScope,
   economyPromptOverhead,
@@ -42,6 +46,138 @@ const empty = () => ({
   stance: [],
   predictions: [],
   source_issues: [],
+});
+it.each([
+  [
+    'Winston for sure you will go to space.',
+    'Winston na pewno poleci w kosmos.',
+  ],
+  ['I promise you will pass the course.', 'Uczestnik na pewno zda kurs.'],
+  ['Zapewniam, że na pewno będzie sukces.', 'Przedsięwzięcie odniesie sukces.'],
+])(
+  'holds speaker assurances stated as guaranteed events: %s',
+  async (quote, text) => {
+    const s = await source([quote]);
+    for (const module of ['predictions', 'summary_pl', 'key_points']) {
+      const wire: Parameters<typeof assessAnalysisQuality>[0] = {
+        ...empty(),
+        [module]: [
+          {
+            text_pl: text,
+            segment_refs: ['s1'],
+            attribution: 'SOURCE_SPEAKER',
+          },
+        ],
+      };
+      expect(
+        assessAnalysisQuality(wire, s.manifest.anchors).findings.map(
+          (f) => f.code,
+        ),
+      ).toContain('SPEAKER_ASSURANCE_AS_GUARANTEE');
+      wire[module]![0]!.text_pl =
+        'Rozmówca optymistycznie zapewnia o przyszłym sukcesie; jego zapewnienie nie jest gwarancją wydarzenia.';
+      expect(assessAnalysisQuality(wire, s.manifest.anchors).status).toBe(
+        'PASS',
+      );
+    }
+  },
+);
+it.each([
+  [
+    'That talk has become one of our most viewed talks of 2026 so far.',
+    'Wystąpienie należy do najpopularniejszych w 2026 roku.',
+  ],
+  ['Currently we serve 100 schools.', 'Firma obsługuje 100 szkół.'],
+  ['As of June 2030, we ranked first.', 'Zajmujemy pierwsze miejsce.'],
+  [
+    'Program jest obecnie dostępny bezpłatnie.',
+    'Program jest zawsze bezpłatny.',
+  ],
+])(
+  'holds lost temporal scope in unrelated subjects: %s',
+  async (quote, text) => {
+    const s = await source([quote]);
+    const wire = {
+      ...empty(),
+      claims: [
+        {
+          text_pl: text,
+          segment_refs: ['s1'],
+          attribution: 'SOURCE_SPEAKER',
+          qualifiers: [] as string[],
+        },
+      ],
+    };
+    expect(
+      assessAnalysisQuality(wire, s.manifest.anchors).findings.map(
+        (f) => f.code,
+      ),
+    ).toContain('SOURCE_TEMPORAL_SCOPE_LOST');
+    wire.claims[0]!.text_pl = 'Według rozmówcy, na moment rozmowy: ' + text;
+    expect(assessAnalysisQuality(wire, s.manifest.anchors).status).toBe('PASS');
+    wire.claims[0]!.text_pl = text;
+    wire.claims[0]!.qualifiers = ['Według stanu na czerwiec 2030.'];
+    expect(assessAnalysisQuality(wire, s.manifest.anchors).status).toBe('PASS');
+  },
+);
+it('does not demand time or assurance qualifiers for an unqualified source fact', async () => {
+  const s = await source(['Water freezes at the specified pressure.']);
+  expect(
+    assessAnalysisQuality(
+      {
+        ...empty(),
+        claims: [
+          {
+            text_pl: 'Woda zamarza przy podanym ciśnieniu.',
+            segment_refs: ['s1'],
+          },
+        ],
+      },
+      s.manifest.anchors,
+    ).status,
+  ).toBe('PASS');
+});
+it('does not treat an explicitly uncertain forecast as a guarantee because a wider source span also says for sure', async () => {
+  const s = await source([
+    'For sure we like exploration. I think we will arrive in 2040.',
+  ]);
+  const wire = {
+    ...empty(),
+    predictions: [
+      {
+        text_pl: 'Rozmówca uważa, że w 2040 może dojść do podróży.',
+        segment_refs: ['s1'],
+      },
+    ],
+  };
+  expect(assessAnalysisQuality(wire, s.manifest.anchors).status).toBe('PASS');
+  wire.predictions[0]!.text_pl =
+    'Według rozmówcy podróż na pewno nastąpi w 2040.';
+  expect(
+    assessAnalysisQuality(wire, s.manifest.anchors).findings.map((f) => f.code),
+  ).toContain('SPEAKER_ASSURANCE_AS_GUARANTEE');
+});
+it('preserves exact old policy pins while rejecting modified or unknown policies', async () => {
+  const old = {
+    ...analysisQualityPolicyV1,
+    hash: await sha256(JSON.stringify(analysisQualityPolicyV1)),
+  };
+  const current = await analysisQualitySnapshot();
+  expect(current.version).toBe('analysis-quality:2');
+  expect(await validAnalysisQualitySnapshot(old)).toBe(true);
+  expect(await validAnalysisQualitySnapshot(current)).toBe(true);
+  expect(
+    await validAnalysisQualitySnapshot({
+      ...old,
+      text: old.text + ' injected instruction',
+    }),
+  ).toBe(false);
+  expect(
+    await validAnalysisQualitySnapshot({
+      ...current,
+      version: 'analysis-quality:3',
+    }),
+  ).toBe(false);
 });
 it.each([
   [

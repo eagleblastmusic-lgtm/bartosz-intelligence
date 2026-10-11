@@ -20,6 +20,15 @@ const uncertainSource =
   /\b(?:i\s+(?:i\s+)?think|maybe|might|perhaps|possibly)\b|\b(?:approximately|around|about)\s+\d|\b(?:sądzę|uważam|może|około|prawdopodobnie)\b/iu;
 const uncertainPolish =
   /\b(?:sądzi|uważa|przypuszcza|ocenia|potencjał|może|mogą|mogł|jeśli|około|prawdopodob|według|zdaniem)|I\s+(?:I\s+)?think/iu;
+const assuranceSource =
+  /\b(?:for sure|i (?:promise|guarantee)|certainly|definitely|na pewno|zapewniam|obiecuję)\b/iu;
+const assurancePolish = /(?:zapewni|obiec|optymistycz|wyraża przekonanie)/iu;
+const noGuaranteePolish =
+  /(?:nie (?:jest|stanowi|oznacza) gwarancj|nie gwarantuje|bez gwarancj)/iu;
+const temporalSource =
+  /\b(?:so far|currently|as of|at (?:the|that) time|this year|to date|right now)\b|(?:dotychczas|obecnie|jak dotąd|w chwili rozmowy)/iu;
+const temporalPolish =
+  /(?:na (?:moment|chwilę)|w (?:momencie|chwili|czasie) rozmowy|do (?:chwili|momentu) rozmowy|według stanu|dotychczas|jak dotąd|wtedy|ówcześni|w tamtym (?:czasie|roku))/iu;
 export function assessAnalysisQuality(
   wire: Record<string, Row[]>,
   anchors: readonly SourceAnchor[],
@@ -57,6 +66,21 @@ export function assessAnalysisQuality(
       ].join(' ');
       // Conservative detectors, not a claim of general semantic verification.
       if (module !== 'entity_mentions' && module !== 'tools') {
+        if (
+          assuranceSource.test(quote) &&
+          (module === 'predictions' ||
+            /\b(?:will|going to)\b|(?:polecisz|będzie|nastąpi)/iu.test(
+              quote,
+            )) &&
+          !(assurancePolish.test(output) && noGuaranteePolish.test(output)) &&
+          (/\b(?:na pewno|z pewnością)|(?:gwarantuje|gwarantowan)/iu.test(
+            output,
+          ) ||
+            !uncertainPolish.test(output))
+        )
+          add('SPEAKER_ASSURANCE_AS_GUARANTEE', module, index);
+        if (temporalSource.test(quote) && !temporalPolish.test(output))
+          add('SOURCE_TEMPORAL_SCOPE_LOST', module, index);
         if (uncertainSource.test(quote) && !uncertainPolish.test(output))
           add('SOURCE_QUALIFIER_LOST', module, index);
         if (
