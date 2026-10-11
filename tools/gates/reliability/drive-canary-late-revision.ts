@@ -15,11 +15,12 @@ import { refreshDriveAccess } from '../../../packages/core/src/drive/oauth.js';
 import { DriveClient } from '../../../packages/core/src/drive/client.js';
 import { runDriveExportTick } from '../../../packages/core/src/export/runtime.js';
 import { DailyExportArtifacts } from '../../../packages/core/src/export/artifacts.js';
+import { ExportDirtyDays } from '../../../packages/core/src/export/dirty.js';
 import defaults from '../../../config/defaults.json';
 const args = process.argv.slice(2);
 if (
   args.length !== 2 ||
-  args[0] !== '--verified-canary' ||
+  !['--verified-canary', '--verify-idle'].includes(args[0]!) ||
   !/^[a-f0-9-]{36}$/.test(args[1]!)
 )
   throw new Error('EXPLICIT_VERIFIED_CANARY_REQUIRED');
@@ -59,11 +60,33 @@ if (
   journal.creates !== 1
 )
   throw new Error('VERIFIED_DIAGNOSTIC_CANARY_REQUIRED');
-const preregPath = join(output, 'late-revision-preregistration.json');
+const verifyOnly = args[0] === '--verify-idle';
+const preregPath = join(
+  output,
+  verifyOnly
+    ? 'late-revision-idle-recovery-preregistration.json'
+    : 'late-revision-preregistration.json',
+);
 if (existsSync(preregPath)) throw new Error('LATE_REVISION_ALREADY_ATTEMPTED');
 const pins = candidatePins(),
   digest = (value: Uint8Array) =>
     createHash('sha256').update(value).digest('hex');
+const previous = verifyOnly
+  ? JSON.parse(readFileSync(join(output, 'late-revision-receipt.json'), 'utf8'))
+  : null;
+if (
+  verifyOnly &&
+  (previous.status !== 'FAIL' ||
+    previous.file_id !== journal.file_id ||
+    previous.observations.state !== 'VERIFIED' ||
+    !previous.observations.same_file_id ||
+    previous.observations.updates !== 1 ||
+    previous.observations.new_revision <= previous.observations.old_revision ||
+    !previous.observations.byte_readback ||
+    !previous.observations.hash_readback ||
+    !previous.observations.late_change_acknowledged)
+)
+  throw new Error('ALREADY_VERIFIED_UPDATE_WITH_FAILED_IDLE_CHECK_REQUIRED');
 writeFileSync(
   preregPath,
   JSON.stringify(
@@ -73,7 +96,7 @@ writeFileSync(
       predecessor_receipt_sha256: digest(readFileSync(priorPath)),
       case_id: 'same_file_late_revision',
       file_id: journal.file_id,
-      maximum_canary_updates: 1,
+      maximum_canary_updates: verifyOnly ? 0 : 1,
       maximum_create_attempts: 0,
       scope:
         'ACTUAL_DRIVE_PROTOCOL_WITH_ISOLATED_PENDING_ITEM_FIXTURES_NOT_AI_QUALITY',
@@ -134,6 +157,7 @@ const client = new DriveClient(grant.access_token, async (url, options) => {
   )
     throw new Error('CANARY_CREATE_DELETE_REFUSED');
   if (options?.method === 'PUT') {
+    if (verifyOnly) throw new Error('IDLE_VERIFICATION_WRITE_REFUSED');
     if (!target.pathname.endsWith('/' + journal.file_id) || updates !== 0)
       throw new Error('CANARY_UPDATE_SCOPE_REFUSED');
     updates++;
@@ -163,105 +187,197 @@ try {
       )
       .get(journal.owner_id, rootId, date)!;
   const before = state();
-  if (
-    before.file_id !== journal.file_id ||
-    Number(before.dirty_seq) <= Number(before.exported_seq)
-  )
-    throw new Error('PERSISTED_LATE_CHANGE_REQUIRED');
-  const result = await runDriveExportTick(
-    db,
-    context,
-    {
-      app_origin: process.env.APP_ORIGIN!,
-      cursor_secret: journal.cursor_secret,
-      client: async () => client,
-    },
-    new Date(),
-  );
-  const after = state(),
-    sealed = await new DailyExportArtifacts(db, context).read(
-      String(after.rendered_artifact_id),
-    );
-  const a = await client.getFile(journal.file_id),
-    text = await client.readMarkdown(journal.file_id, 8 * 1024 * 1024),
-    b = await client.getFile(journal.file_id);
-  const repeated = await runDriveExportTick(
-    db,
-    context,
-    {
-      app_origin: process.env.APP_ORIGIN!,
-      cursor_secret: journal.cursor_secret,
-      client: async () => client,
-    },
-    new Date(),
-  );
-  const observations = {
-    state: result.state,
-    same_file_id: after.file_id === before.file_id,
-    old_revision: Number(before.revision),
-    new_revision: Number(after.revision),
-    updates,
-    creates: 0,
-    changed_hash: (await sha256(oldText)) !== (await sha256(text)),
-    byte_readback: text === new TextDecoder().decode(sealed.bytes),
-    hash_readback: (await sha256(text)) === sealed.manifest.content_hash,
-    stable_version: a.version === b.version,
-    late_change_acknowledged:
-      Number(after.exported_seq) >= Number(after.dirty_seq),
-    repeated_state: repeated.state,
-    source_job_durable:
-      sqlite
-        .prepare('SELECT state FROM jobs WHERE job_id=?')
-        .get(journal.pending_job_id)?.state === 'PENDING',
-    integrity:
-      sqlite.prepare('PRAGMA integrity_check').get()?.integrity_check === 'ok',
-    foreign_keys: sqlite.prepare('PRAGMA foreign_key_check').all().length === 0,
-  };
-  const pass =
-    result.state === 'VERIFIED' &&
-    observations.same_file_id &&
-    observations.new_revision > observations.old_revision &&
-    updates === 1 &&
-    observations.changed_hash &&
-    observations.byte_readback &&
-    observations.hash_readback &&
-    observations.stable_version &&
-    observations.late_change_acknowledged &&
-    repeated.state === 'IDLE' &&
-    observations.source_job_durable &&
-    observations.integrity &&
-    observations.foreign_keys;
-  writeFileSync(
-    join(output, 'late-revision-receipt.json'),
-    JSON.stringify(
+  // Restored days may be recreated by dirty replay. Flush it first and pause
+  // every unrelated isolated destination; never let the canary try their files.
+  const dirty = new ExportDirtyDays(db, context);
+  for (let page = 0; page < 64; page++) {
+    if (!(await dirty.sync(new Date())).more_possible) break;
+    if (page === 63) throw new Error('ISOLATED_REPLAY_LIMIT');
+  }
+  await db
+    .prepare(
+      "UPDATE export_state SET paused_reason='ISOLATED_DRILL_EXCLUDED' WHERE owner_id=? AND (root_namespace!=? OR publication_date!=?)",
+    )
+    .bind(journal.owner_id, rootId, date)
+    .run();
+  if (verifyOnly) {
+    const repeated = await runDriveExportTick(
+      db,
+      context,
       {
-        recorded_at: new Date().toISOString(),
-        pins,
-        status: pass ? 'PASS' : 'FAIL',
-        scope:
-          'ACTUAL_DRIVE_SAME_FILE_LATE_REVISION_ONLY_NOT_FULL_D_EXPORT_OR_P0',
-        file_id: journal.file_id,
-        observations,
-        production_d1: budget.usage,
-        provider_requests: providerRequests,
-        production_delete: 0,
-        gemini_requests: 0,
-        paid_services_enabled: false,
+        app_origin: process.env.APP_ORIGIN!,
+        cursor_secret: journal.cursor_secret,
+        client: async () => client,
       },
-      null,
-      2,
-    ) + '\n',
-    { flag: 'wx' },
-  );
-  if (!pass) throw new Error('CANARY_LATE_REVISION_ASSERTION_FAILED');
-  console.log(
-    JSON.stringify({
-      status: 'PASS',
-      scope: 'ACTUAL_PROTOCOL_ONLY',
-      evidence: output,
-      observations,
-    }),
-  );
+      new Date(),
+    );
+    const after = state(),
+      sealed = await new DailyExportArtifacts(db, context).read(
+        String(after.rendered_artifact_id),
+      );
+    const a = await client.getFile(journal.file_id),
+      text = await client.readMarkdown(journal.file_id, 8 * 1024 * 1024),
+      b = await client.getFile(journal.file_id);
+    const observations = {
+      repeated_state: repeated.state,
+      updates,
+      creates: 0,
+      same_file_id: after.file_id === journal.file_id,
+      revision_unchanged: after.revision === before.revision,
+      byte_readback: text === new TextDecoder().decode(sealed.bytes),
+      hash_readback: (await sha256(text)) === sealed.manifest.content_hash,
+      stable_version: a.version === b.version,
+      late_change_acknowledged:
+        Number(after.exported_seq) >= Number(after.dirty_seq),
+      source_job_durable:
+        sqlite
+          .prepare('SELECT state FROM jobs WHERE job_id=?')
+          .get(journal.pending_job_id)?.state === 'PENDING',
+    };
+    const pass =
+      repeated.state === 'IDLE' &&
+      updates === 0 &&
+      observations.same_file_id &&
+      observations.revision_unchanged &&
+      observations.byte_readback &&
+      observations.hash_readback &&
+      observations.stable_version &&
+      observations.late_change_acknowledged &&
+      observations.source_job_durable;
+    writeFileSync(
+      join(output, 'late-revision-idle-recovery-receipt.json'),
+      JSON.stringify(
+        {
+          recorded_at: new Date().toISOString(),
+          pins,
+          status: pass ? 'PASS' : 'FAIL',
+          scope:
+            'CANARY_SCOPED_POST_UPDATE_RECOVERY_VERIFICATION_NOT_FULL_D_EXPORT',
+          file_id: journal.file_id,
+          previous_receipt_sha256: digest(
+            readFileSync(join(output, 'late-revision-receipt.json')),
+          ),
+          original_update_properties: previous.observations,
+          observations,
+          production_d1: budget.usage,
+          provider_requests: providerRequests,
+          production_delete: 0,
+          gemini_requests: 0,
+          paid_services_enabled: false,
+        },
+        null,
+        2,
+      ) + '\n',
+      { flag: 'wx' },
+    );
+    if (!pass) throw new Error('CANARY_SCOPED_IDLE_NOT_VERIFIED');
+    console.log(
+      JSON.stringify({ status: 'PASS', evidence: output, observations }),
+    );
+    process.exitCode = 0;
+  } else {
+    if (
+      before.file_id !== journal.file_id ||
+      Number(before.dirty_seq) <= Number(before.exported_seq)
+    )
+      throw new Error('PERSISTED_LATE_CHANGE_REQUIRED');
+    const result = await runDriveExportTick(
+      db,
+      context,
+      {
+        app_origin: process.env.APP_ORIGIN!,
+        cursor_secret: journal.cursor_secret,
+        client: async () => client,
+      },
+      new Date(),
+    );
+    const after = state(),
+      sealed = await new DailyExportArtifacts(db, context).read(
+        String(after.rendered_artifact_id),
+      );
+    const a = await client.getFile(journal.file_id),
+      text = await client.readMarkdown(journal.file_id, 8 * 1024 * 1024),
+      b = await client.getFile(journal.file_id);
+    const repeated = await runDriveExportTick(
+      db,
+      context,
+      {
+        app_origin: process.env.APP_ORIGIN!,
+        cursor_secret: journal.cursor_secret,
+        client: async () => client,
+      },
+      new Date(),
+    );
+    const observations = {
+      state: result.state,
+      same_file_id: after.file_id === before.file_id,
+      old_revision: Number(before.revision),
+      new_revision: Number(after.revision),
+      updates,
+      creates: 0,
+      changed_hash: (await sha256(oldText)) !== (await sha256(text)),
+      byte_readback: text === new TextDecoder().decode(sealed.bytes),
+      hash_readback: (await sha256(text)) === sealed.manifest.content_hash,
+      stable_version: a.version === b.version,
+      late_change_acknowledged:
+        Number(after.exported_seq) >= Number(after.dirty_seq),
+      repeated_state: repeated.state,
+      source_job_durable:
+        sqlite
+          .prepare('SELECT state FROM jobs WHERE job_id=?')
+          .get(journal.pending_job_id)?.state === 'PENDING',
+      integrity:
+        sqlite.prepare('PRAGMA integrity_check').get()?.integrity_check ===
+        'ok',
+      foreign_keys:
+        sqlite.prepare('PRAGMA foreign_key_check').all().length === 0,
+    };
+    const pass =
+      result.state === 'VERIFIED' &&
+      observations.same_file_id &&
+      observations.new_revision > observations.old_revision &&
+      updates === 1 &&
+      observations.changed_hash &&
+      observations.byte_readback &&
+      observations.hash_readback &&
+      observations.stable_version &&
+      observations.late_change_acknowledged &&
+      repeated.state === 'IDLE' &&
+      observations.source_job_durable &&
+      observations.integrity &&
+      observations.foreign_keys;
+    writeFileSync(
+      join(output, 'late-revision-receipt.json'),
+      JSON.stringify(
+        {
+          recorded_at: new Date().toISOString(),
+          pins,
+          status: pass ? 'PASS' : 'FAIL',
+          scope:
+            'ACTUAL_DRIVE_SAME_FILE_LATE_REVISION_ONLY_NOT_FULL_D_EXPORT_OR_P0',
+          file_id: journal.file_id,
+          observations,
+          production_d1: budget.usage,
+          provider_requests: providerRequests,
+          production_delete: 0,
+          gemini_requests: 0,
+          paid_services_enabled: false,
+        },
+        null,
+        2,
+      ) + '\n',
+      { flag: 'wx' },
+    );
+    if (!pass) throw new Error('CANARY_LATE_REVISION_ASSERTION_FAILED');
+    console.log(
+      JSON.stringify({
+        status: 'PASS',
+        scope: 'ACTUAL_PROTOCOL_ONLY',
+        evidence: output,
+        observations,
+      }),
+    );
+  }
 } finally {
   sqlite.close();
 }
