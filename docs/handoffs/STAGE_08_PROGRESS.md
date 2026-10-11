@@ -1,6 +1,20 @@
 # Stage 08 — current handoff
 
-## Current quality scope and actual publication — 2026-10-11
+## Current radio-standard hardening — 2026-10-11
+
+Code6089f83, production224ba7ff… /schema39, latest deployment100%; health200
+and all3 served assets match tested build SHA. 128 distinct tests PASS:
+73 unit,50 isolated D1 integrations,5 browser; final overlapping subsets
+are not added. Typecheck/lint/build/bundle/validators and actual-env public
+secret scan PASS (4 files/413922 bytes). Existing portable backup pin matches;
+no schema/SQL change or duplicate capture. Exact source/canonical/provider/
+revision4 hashes remain unchanged. New policy3 and renderer1.3 are technical
+results only: model quality/P0/live E2E pending, CP3.13 AWAITING_HUMAN_REVIEW,
+screen-reader NOT_RUN/DEFERRED, C NOT_YET_MATURE, full R/D unaccepted.
+No new Gemini, Drive request, production SQL, cleanup, paid or endpoint change.
+[Actual receipts and limits](../../RELEASE_READINESS_REPORT.md).
+
+## Previous quality scope and actual publication — 2026-10-11
 
 Owner's two conditions are fulfilled in immutable editorial revision 4; single
 result accepted for publication and delivered to existing private Daily with

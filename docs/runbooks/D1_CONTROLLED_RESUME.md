@@ -1,6 +1,18 @@
 # Kontrolowane wznowienie D1 — 2026-10-10
 
-## Aktualny checkpoint — 2026-10-11, po decyzji właściciela
+## Aktualny checkpoint — 2026-10-11, standard radiowy
+
+Policy3/renderer1.3/code6089f83 wdrożone jako224ba7ff… /schema39. 128 local
+regressions i required checks PASS;100% latest deploy oraz3 served asset SHA
+potwierdzone. Brak migracji, production SQL, Gemini/model GET, Drive requests
+i cleanup. Istniejący portable backup sprawdzono lokalnie po SHA, bez capture.
+Jednorazowe D1 resume pozostaje zakończone; nie uruchamiać probe/migracji/
+backup/canary ponownie tylko z powodu nowego formatu. Nowe snapshoty mają inny
+quality_scope, wymagają własnej kwalifikacji i osobnej zgody przed generacją.
+Stare jobs/receipts i owner revision4 są zachowane. Retencja dry-run only,
+paid=false. Readiness opisuje kryteria i nowe offline live preparation.
+
+## Poprzedni checkpoint — 2026-10-11, po decyzji właściciela
 
 Rewizja 4 spełnia dwie korekty i została zweryfikowana na prywatnym Daily.
 One create; 18 REST /36 reads /12 writes łącznie z bounded revocation sesji.

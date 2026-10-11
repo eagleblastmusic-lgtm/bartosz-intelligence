@@ -1,5 +1,14 @@
 # P0: systemowa jakość polskich streszczeń — decyzja właściciela 2026-10-11
 
+## Obowiązujące rozszerzenie: standard radiowy
+
+[Decyzja FINAL RADIO NEWS SUMMARY STANDARD](RADIO_NEWS_SUMMARY_2026-10-11.md)
+zastępuje domyślną wielosekcyjną prezentację przyszłych streszczeń. Policy3
+zachowuje poniższe zasady źródłowe; GUI/Daily dają jeden akapit, z oddzielną
+warstwą dowodową. Historyczna akceptacja i publikacja rewizji4 są zachowane.
+Nowy scope wymaga własnej kwalifikacji; poniższe wyniki85/deploy policy2 są
+historycznymi dowodami, nie PASS nowego promptu.
+
 ## Aktualna decyzja: akceptacja jednego wyniku po dwóch korektach
 
 Właściciel zaakceptował rewizję 3 jakościowo po doprecyzowaniu zapewnienia
@@ -37,17 +46,17 @@ Knowledge ani ręcznej akceptacji każdego przyszłego poprawnego filmu.
 
 ## Zmienione kryteria i wykonanie
 
-| Obszar | Obowiązująca zasada / implementacja |
-| --- | --- |
-| Registry / szablony | Wspólna `analysis-quality:1` dla nowych Economy/Full/Custom, także draft fallback. Snapshot zapisuje pełną politykę i SHA. Hash uczestniczy w quality_scope i planie chunków; overhead obejmuje tekst polityki. Historyczne prompt v2 i Master bundle pozostają niezmienione. |
-| Schema | Lean wire nadal używa `text_pl`, canonical typed records `content_pl`. Istniejące attribution/subject/qualifiers/refs wystarczają; nie zmieniono immutable schema dla samego renderowania. Oddzielny raport jakości zapisuje wykryte braki. |
-| Daty / niepewność | Prompt wymaga zachowania negacji, warunków i siły prognoz. Detektory źródłowe zatrzymują m.in. nieuzasadnione „przed YEAR”, utracone rozpoznane zastrzeżenia i warunki. |
-| Atrybucja | Deklaracja autora nie jest niezależnie potwierdzonym faktem. `UNCLEAR` wymaga przeglądu. Typed renderer zachowuje attribution, epistemic_status i qualifiers; czytelny przegląd podaje podmiot i linki. |
-| Nazwy | Korekty wyłącznie z jednoznacznych zatwierdzonych aliasów, z izolacją owner/type/language. Canonical display może użyć nazwy zatwierdzonej; raw transcript/wire pozostają bez zmian. Brak zatwierdzonego mapowania nie jest dowodem poprawności nazwy; prompt ma zgłaszać niejednoznaczność. W tej rewizji właściciel potwierdził Class CrunchLabs, Mark Rober, OpenSciEd. |
-| Pokrycie | Prompt obejmuje cały materiał, w tym końcowe Q&A. Dla długiego tekstu deterministyczny detektor sprawdza reprezentację ośmiu kolejnych przedziałów źródła przez summary/key_points. Chunk-child pomija globalną kontrolę pokrycia; parent sprawdza pełny merge. |
-| Publikacja | Ordinary validation `REVIEW_REQUIRED` nie może commitować accepted effects. Disposition utrwala BLOCKED/AI_OUTPUT_REVIEW_REQUIRED i zachowuje źródło/kandydata. Parent chunk merge również blokuje taki wynik. Nie ma automatycznej regeneracji dla błędu jakości. Poprawny wynik w zakwalifikowanym zakresie nadal jest przyjmowany automatycznie. |
-| Daily | Renderer 1.2 zachowuje wszystkie summary/key_points i bezpośrednie source timestamp links także w COMPACT. Przy przekroczeniu budżetu raport jawnie OVERSIZE, bez obcinania tematów. Odczyt 1.1 zachowano; istniejących plików nie przepisano. |
-| Uszkodzone pola | Wspólny renderer odrzuca puste wartości i literalne undefined/null/NaN/[object Object]. Czyta rzeczywiste pola canonical; nie przypisuje błędu prezentacji utracie danych AI. |
+| Obszar              | Obowiązująca zasada / implementacja                                                                                                                                                                                                                                                                                                                                        |
+| ------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Registry / szablony | Wspólna `analysis-quality:1` dla nowych Economy/Full/Custom, także draft fallback. Snapshot zapisuje pełną politykę i SHA. Hash uczestniczy w quality_scope i planie chunków; overhead obejmuje tekst polityki. Historyczne prompt v2 i Master bundle pozostają niezmienione.                                                                                              |
+| Schema              | Lean wire nadal używa `text_pl`, canonical typed records `content_pl`. Istniejące attribution/subject/qualifiers/refs wystarczają; nie zmieniono immutable schema dla samego renderowania. Oddzielny raport jakości zapisuje wykryte braki.                                                                                                                                |
+| Daty / niepewność   | Prompt wymaga zachowania negacji, warunków i siły prognoz. Detektory źródłowe zatrzymują m.in. nieuzasadnione „przed YEAR”, utracone rozpoznane zastrzeżenia i warunki.                                                                                                                                                                                                    |
+| Atrybucja           | Deklaracja autora nie jest niezależnie potwierdzonym faktem. `UNCLEAR` wymaga przeglądu. Typed renderer zachowuje attribution, epistemic_status i qualifiers; czytelny przegląd podaje podmiot i linki.                                                                                                                                                                    |
+| Nazwy               | Korekty wyłącznie z jednoznacznych zatwierdzonych aliasów, z izolacją owner/type/language. Canonical display może użyć nazwy zatwierdzonej; raw transcript/wire pozostają bez zmian. Brak zatwierdzonego mapowania nie jest dowodem poprawności nazwy; prompt ma zgłaszać niejednoznaczność. W tej rewizji właściciel potwierdził Class CrunchLabs, Mark Rober, OpenSciEd. |
+| Pokrycie            | Prompt obejmuje cały materiał, w tym końcowe Q&A. Dla długiego tekstu deterministyczny detektor sprawdza reprezentację ośmiu kolejnych przedziałów źródła przez summary/key_points. Chunk-child pomija globalną kontrolę pokrycia; parent sprawdza pełny merge.                                                                                                            |
+| Publikacja          | Ordinary validation `REVIEW_REQUIRED` nie może commitować accepted effects. Disposition utrwala BLOCKED/AI_OUTPUT_REVIEW_REQUIRED i zachowuje źródło/kandydata. Parent chunk merge również blokuje taki wynik. Nie ma automatycznej regeneracji dla błędu jakości. Poprawny wynik w zakwalifikowanym zakresie nadal jest przyjmowany automatycznie.                        |
+| Daily               | Renderer 1.2 zachowuje wszystkie summary/key_points i bezpośrednie source timestamp links także w COMPACT. Przy przekroczeniu budżetu raport jawnie OVERSIZE, bez obcinania tematów. Odczyt 1.1 zachowano; istniejących plików nie przepisano.                                                                                                                             |
+| Uszkodzone pola     | Wspólny renderer odrzuca puste wartości i literalne undefined/null/NaN/[object Object]. Czyta rzeczywiste pola canonical; nie przypisuje błędu prezentacji utracie danych AI.                                                                                                                                                                                              |
 
 Detektory są ograniczonymi regułami, **nie pełną weryfikacją semantyczną**.
 Pokrycie przedziałów nie dowodzi uwzględnienia każdego tematu; można też mieć

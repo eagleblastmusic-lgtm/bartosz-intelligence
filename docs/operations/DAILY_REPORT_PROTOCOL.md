@@ -1,5 +1,18 @@
 # Daily Markdown protocol 1.1
 
+Current renderer **1.3** presents the complete ordered summary as one Polish
+narrative paragraph per Item. Titles, creator/date and source/transcript/app
+links are outside speech. Key points and operational/typed records are in a
+separate, closed `<details>` section; FULL also retains every existing Evidence
+record there for recovery. Markdown/HTML-aware viewers may collapse this;
+plain-text previews expose the markup. No canonical or source bytes are edited.
+New generation follows [the owner radio standard](../decisions/RADIO_NEWS_SUMMARY_2026-10-11.md),
+with word guidance rather than padding or truncation. Renderers1.1/1.2 remain
+readable, recovered historical blocks remain byte-identical, and existing
+reports are not queued for rewriting solely because the renderer changed.
+Stable file identity, conflict/readback and archive membership are unchanged.
+The earlier renderer1.2 rules below describe the compatible detail content.
+
 The server renderer projects the whole publication day in Europe/Warsaw from
 existing accepted results. It performs no AI requests. GUI filters are not inputs.
 `captureDailyExport` reads every keyset page through `DailyProjection`, verifies

@@ -1,0 +1,28 @@
+{
+  "version": "radio-summary-public-evidence-scan:1",
+  "observed_at": "2026-10-11T17:01:38.348Z",
+  "status": "PASS",
+  "files_scanned": 15,
+  "bytes_scanned": 252667,
+  "findings": [],
+  "known_secret_values_recorded": false,
+  "owner_subject_excluded": true,
+  "receipts": [
+    {
+      "file": "docs/verification/gate-ai/radio-summary-regression-2026-10-11.json",
+      "sha256": "e36c22342cd81cfc893429367df0fa977234d7dbcd2d0ca4729a0db35b67379b"
+    },
+    {
+      "file": "docs/verification/gate-ai/radio-summary-legacy-final-2026-10-11.json",
+      "sha256": "532b7809f4d5215625318fdacdfa1ef1c279711cfa53a05bf4e5c5d9d897bde8"
+    },
+    {
+      "file": "docs/verification/gate-ai/radio-summary-live-preparation-2026-10-11.json",
+      "sha256": "b24fa8788a620015315276caafff8f2de4f542d4d1990efa8ac5363ff488a7a2"
+    },
+    {
+      "file": "docs/verification/deployment/radio-summary-2026-10-11.json",
+      "sha256": "ec90705acd64becb9450f5d05bed2c0cacca73a891ff8e2e371fbb448002cde9"
+    }
+  ]
+}

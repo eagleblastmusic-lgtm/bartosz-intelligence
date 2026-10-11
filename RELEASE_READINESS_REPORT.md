@@ -1,6 +1,89 @@
 # Bartosz Intelligence V1 — release readiness
 
-## Aktualny wynik: rewizja 4 zaakceptowana i opublikowana — 2026-10-11
+## Aktualny wynik: standard radiowy wdrożony — 2026-10-11
+
+**IMPLEMENTATION COMPLETE NO; PRODUCTION ACCEPTED NO.** Wykonano techniczną
+zmianę FINAL RADIO NEWS SUMMARY STANDARD: nowe snapshoty analysis-quality:3
+wymagają treściwego polskiego akapitu, zwykle 180–260 słów, do 300–350 dla
+bogatego źródła, krócej dla ubogiego. Wskazówka długości nie uzasadnia
+wypełniaczy, automatycznego PASS ani obcinania tematów. Prompt obejmuje
+mechanizmy, liczby, argumenty, przykłady, konsekwencje, ograniczenia i późne
+tematy stosownie do źródła, z naturalną atrybucją, niepewnością i datowaniem.
+Chunk ma proporcjonalną wskazówkę długości; nie ma dodatkowej generacji syntezy.
+
+**Kod `6089f83` / schema39** wdrożono jako
+**224ba7ff-a4ab-47ff-8cc1-70aadb2d91b1**. Niezależny odczyt najnowszego
+deployment potwierdził 100%; health HTTP200 (kontrola bindings, bez SQL) i
+wszystkie 3 serwowane pliki HTML/JS/CSS HTTP200 z SHA identycznym z buildem.
+Poprzednia 59fb3c34… pozostaje wersją recovery. Brak migracji i zmian modelu/
+endpointu. New materialized snapshots domyślnie używają policy3; historyczne
+exact policy1/2 i pinned jobs są zachowane, bez masowej regeneracji. Nowy scope
+nie dziedziczy kwalifikacji starego promptu. Automatyczne AI/P0 nadal wymaga
+rzeczywistego live dowodu i własnej kwalifikacji.
+
+**GUI/Daily renderer1.3:** jeden kompletny akapit na film, tytuł/kanał/data/
+źródła poza nim. Szczegóły i źródłowe notatki/typed records dostępne po
+rozwinięciu. Deep link otwiera tę warstwę przed fokusem. FULL zachowuje cały
+dotychczasowy Evidence/recovery materiał w osobnym `<details>`; COMPACT nadal
+nie obcina summary/key_points. Surowy podgląd Markdown może pokazać znaczniki;
+nie deklarujemy nowego testu natywnego podglądu Drive. Wersje1.1/1.2 czytelne,
+odzyskane historyczne ITEM blocks przenoszone bajt w bajt. Stable ID, intent,
+dedup, conflict, SHA/version/readback i wszystkie retention guards zachowane.
+
+Nowe radio wyniki z listami, linkami/timestampami/rozpoznanymi technicznymi
+oznaczeniami, znanymi zapowiedziami/wypełniaczami lub dosłownymi powtórzeniami
+wchodzą w review przed acceptance. Długie źródło wymaga reprezentacji
+przedziałów w samym summary, nie tylko w key_points. Dotychczasowe kontrole
+atrybucji, prognoz, zapewnień, dat i zastrzeżeń pozostają. Validation3 nie używa
+historical quality2 cache dla nowych snapshotów. Krytyczny wynik zostaje
+BLOCKED/AI_OUTPUT_REVIEW_REQUIRED; job/source/response/settlement zachowane,
+zero accepted effects i automatycznej regeneracji. Format i liczba słów nie
+dowodzą semantyki, gęstości informacji ani kompletności wszystkich tematów.
+
+**128 różnych regresji PASS /0 FAIL:** 73 unit, 50 izolowanych D1 integracji,
+5 przeglądarkowych; późniejszych powtórek/subsetów nie doliczamy. Nauka,
+technika, wiadomości, rozmowa, sparse/long source, późne tematy, cztery długości,
+niepewność/atrybucja, narrative debris, legacy, public/source safety, holds,
+retention/restore oraz export readback/conflict/reserved identity. GUI:
+Daily densities, source disclosure, klawiatura/deep links/mobile/axe oraz
+istniejący odczyt paged canonical i odświeżanie. Typecheck/lint/build oraz
+immutable bundle/validators PASS. Public secret scan PASS:4 files/413922 bytes,
+zero findings. To lokalne fixtures i symulacje, **nie niezawodność live P0**.
+
+Historyczny rUhllpnYWR8: lokalna projekcja 7 notatek → **1 akapit/182 słowa**,
+**80/80 powiązań Evidence**, zero zmienionych input SHA. Pierwotny provider,
+canonical, transkrypcja, immutable Evidence i rewizja4 pozostają bez zmian.
+Nie powstała nowa rewizja redakcyjna ani plik Drive. Wstępny receipt szerszego
+detektora warunków zachowano; dodatek wycofano, bo obejmował warunki z
+obszernych refs notatek niezależnie od treści podsumowania. Final receipt ma
+PASS lokalnych reguł i prezentacji, **semantic_verification=NOT_ASSERTED**.
+Akceptacja właściciela z wcześniejszego odbioru pozostaje scoped do rewizji4.
+
+**Narzędzia tego checkpointu: 0 Gemini requests/model GET, 0 production SQL,
+0 Drive requests, 0 production DELETE; paid_services_enabled=false; deletion_enabled=0;
+approval_reference=NULL.** Nie ponowiono capture/restore/archiwizacji/canary.
+Zweryfikowany portable backup fbf01a86… ponownie porównano lokalnie z SHA;
+podczas weryfikacji deployu miał około 20 h. Brak schema/production SQL delta
+uzasadnia reuse istniejącego dowodu zamiast nowego backupu tylko dla PASS.
+
+Kontynuacja Stage03/04/07/08: nowy standard, jego local acceptance guards,
+GUI/export/recovery compatibility i release checks wykonane. Offline live
+preparation ma 1071 zachowanych cues, nowy prompt SHA/scope i dotychczasowe
+schemas/model. **NOT_GRANTED:** cached profile nie daje live admission;
+przed nowym QUALITY_TEST potrzebna osobna zgoda oraz świeży Free/quota/profile.
+Nie uruchomiono nowej generacji. CP3.13 AWAITING_HUMAN_REVIEW, screen-reader
+NOT_RUN/DEFERRED, Gate C NOT_YET_MATURE; full R/D i automatyczny P0 niezaliczone.
+19 approved staged new-only czeka na stabilny podstawowy przepływ. Skończonych
+receipts nie przepinamy na nowy deploy. Treściwy jeden akapit i lokalne PASS
+nie zastępują rzeczywistych kryteriów pozostałego V1.
+
+[Decyzja i mapa wymagań](docs/decisions/RADIO_NEWS_SUMMARY_2026-10-11.md),
+[regresje](docs/verification/gate-ai/radio-summary-regression-2026-10-11.json),
+[historyczny materiał](docs/verification/gate-ai/radio-summary-legacy-final-2026-10-11.json),
+[deploy](docs/verification/deployment/radio-summary-2026-10-11.json),
+[przygotowanie live](docs/verification/gate-ai/radio-summary-live-preparation-2026-10-11.json).
+
+## Poprzedni wynik: rewizja 4 zaakceptowana i opublikowana — 2026-10-11
 
 **IMPLEMENTATION COMPLETE NO; PRODUCTION ACCEPTED NO.** Warunkową akceptację
 właściciela spełniono przez dwie deterministyczne korekty: wypowiedź Marka

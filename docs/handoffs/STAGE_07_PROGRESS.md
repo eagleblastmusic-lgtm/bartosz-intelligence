@@ -1,6 +1,21 @@
 # Stage 07 — current handoff
 
-## Current: owner-accepted revision 4 delivered — 2026-10-11
+## Current: narrative Daily and preserved recovery — 2026-10-11
+
+Code6089f83 deployed224ba7ff… /schema39. Renderer1.3 presents one full
+paragraph per Item, metadata/source links outside, details in a secondary
+disclosure. FULL retains every existing Evidence record and recovery binding;
+COMPACT keeps full summaries/points. Consumer/material/status accept1.1/1.2/1.3.
+Historical archived blocks remain byte-identical, no source/canonical mutation.
+Isolated export/retention/restore/identity/conflict/readback integration PASS;
+GUI source access and deep links PASS. No Drive request or production SQL,
+no rewrite of old Daily or owner revision4, no new backup capture/canary.
+Existing remote receipts keep their original scope. Gate R/D, automatic P0
+and full live E2E are not accepted by local renderer checks. Stage07 continues
+from the prepared new-scope test only after separate provider permission.
+[Requirements and evidence](../decisions/RADIO_NEWS_SUMMARY_2026-10-11.md).
+
+## Previous: owner-accepted revision 4 delivered — 2026-10-11
 
 The two requested deterministic edits are complete. Scoped owner acceptance
 recorded; private actual Daily file 1_5PbE2YAYel7zJVAYf5T7o8fGKecAE_z verified

@@ -1,5 +1,18 @@
 # Stage 03 — current implementation record
 
+2026-10-11 current: owner radio standard implemented as analysis-quality:3,
+code6089f83 /schema39, deployed224ba7ff… at100%. New snapshot/scope binds
+the shared substantive paragraph guidance, per-chunk share and radio checks.
+Narrative itself must cover substantive source windows; key_points cannot
+hide gaps. Existing fidelity guards and exact old policy pins remain. New
+scope needs independent qualification; no pinned-job rewrite/extra synthesis.
+128 distinct local tests PASS; no new Gemini/model GET. Offline preparation
+retains1071 cues; cached profile is not live admission and permission is
+NOT_GRANTED. CP3.13 stays AWAITING_HUMAN_REVIEW, no model/P0 acceptance.
+See [owner standard](../decisions/RADIO_NEWS_SUMMARY_2026-10-11.md) and readiness.
+
+Previous scoped publication/quality evidence:
+
 2026-10-11: source/provider/canonical preserved; owner conditionally accepted
 revision 3, two edits fulfilled in revision 4. Actual private Daily publication
 verified, separately scoped editorial exception. Production 59fb3c34… /8b8ace8,

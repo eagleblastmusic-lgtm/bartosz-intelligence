@@ -28,3 +28,15 @@ Prywatny pakiet `.local/ai-pilot/cp-3.13-selected/corpus.json` zamraża 12 rzecz
 8. Po rzeczywistych ocenach złóż `ai-pilot-review:1` zgodny z `PilotReview`/`PilotFilm` w `tools/gates/ai-pilot-evaluation.ts`. `review-preparation.json` jest pustym arkuszem roboczym, celowo nie jest ukończonym inputem oceny. Uruchom `pnpm gate:ai <review.json> <nowy-score.json>`. CLI sprawdza pliki, identyczność hashy, quote ranges, czasy i actual metadata. Nie wykonuje provider calls ani automatycznego quality promotion.
 
 Niezmienne kryteria limited Stage 03 pilot: co najmniej 12 filmów i 40 ważnych twierdzeń, precision ≥95%, recall ≥85%, anchors 100%, zero severe hallucinations i niezależne sprawdzenie trudnych przypadków. Raport zawiera n/mianowniki i Wilson 95% CI. Pełny Gate AI wymaga co najmniej 30 filmów i 100 twierdzeń; limited pilot go nie zastępuje. Publikacja production approval dotyczy wyłącznie rzeczywiście sprawdzonego scope. Brak niezależnego recenzenta pozostaje AWAITING_HUMAN_REVIEW, a implementacja niezależnych funkcji trwa dalej.
+
+## Aktualizacja 2026-10-11: przyszły standard radiowy
+
+Nowe analysis-quality:3 wyniki oceniamy także pod kątem treściwego, płynnego
+polskiego akapitu, zwykle 180–260 słów, bez wypełnienia i utraty późnych tematów.
+Liczba słów i format nie zastępują kontroli źródeł, niepewności, warunków,
+atrybucji i zakresu czasowego. Szczegóły/Evidence kontrolujemy osobno od narracji.
+Nowy quality_scope wymaga własnego live evidence; historical kwalifikacja nie
+jest przenoszona. Nie wymagamy ręcznej akceptacji każdego poprawnego wyniku w
+zakwalifikowanym zakresie. CP3.13 i inne odroczone odbiory zachowują procedurę
+opisaną w tym dokumencie. Akceptacja/publikacja rewizji4 rUhllpnYWR8 pozostaje odrębną decyzją;
+jej dokumentu nie przepisujemy dla nowej formy. [Decyzja właściciela](../../decisions/RADIO_NEWS_SUMMARY_2026-10-11.md).
