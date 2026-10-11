@@ -22,6 +22,8 @@ export async function executePreparedAnalysis(input: {
     response: AIResponse,
   ) => Promise<unknown>;
   providerTransport?: typeof fetch;
+  // Explicit comparison only; default production transport remains interactions.
+  diagnosticEndpoint?: 'generateContent';
   clock?: () => Date;
   task_type?: 'TRANSLATE' | 'HISTORICAL_COMPARE';
 }) {
@@ -59,6 +61,7 @@ export async function executePreparedAnalysis(input: {
     },
     input.providerTransport ?? fetch,
     input.clock ?? (() => new Date()),
+    input.diagnosticEndpoint ?? 'interactions',
   );
   const result = await executeAnalysis(input.request, provider, {
     reserve: async (request) => {

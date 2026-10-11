@@ -84,6 +84,59 @@ it('denied quota and ambiguous submit each prevent provider HTTP without hidden 
     );
   }
 });
+it.each([200, 503])(
+  'wires the explicit diagnostic endpoint and retains one %s response without fallback',
+  async (httpStatus) => {
+    let calls = 0,
+      retained = 0;
+    const result = await executePreparedAnalysis({
+      request: request(),
+      token,
+      key: 'fixture-secret',
+      clock: () => now,
+      diagnosticEndpoint: 'generateContent',
+      rpc: {
+        request: async (path) =>
+          path === 'heartbeat'
+            ? { token }
+            : { reservation_id: reservation, request_id: 'request' },
+      },
+      providerTransport: async (url) => {
+        calls++;
+        expect(String(url)).toBe(
+          'https://generativelanguage.googleapis.com/v1beta/models/gemini-3.8-flash:generateContent',
+        );
+        return httpStatus === 503
+          ? new Response(null, { status: 503 })
+          : Response.json({
+              modelVersion: 'gemini-3.8-flash',
+              candidates: [
+                { finishReason: 'STOP', content: { parts: [{ text: '{}' }] } },
+              ],
+              usageMetadata: {
+                promptTokenCount: 10,
+                candidatesTokenCount: 2,
+                totalTokenCount: 12,
+              },
+            });
+      },
+      retain: async (_id, _token, response) => {
+        retained++;
+        expect(response.status).toBe(
+          httpStatus === 200 ? 'OK' : 'TEMPORARY_FAILURE',
+        );
+        return {
+          request_id: response.request_id,
+          diagnostic_only: true,
+          artifact_id: 'candidate',
+        };
+      },
+    });
+    expect(calls).toBe(1);
+    expect(retained).toBe(1);
+    expect(result.eligible_for_validation).toBe(httpStatus === 200);
+  },
+);
 it.each(['TRANSLATE', 'HISTORICAL_COMPARE'] as const)(
   'uses scoped optional admission/heartbeat for %s and retains exactly one response',
   async (task) => {

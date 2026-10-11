@@ -112,6 +112,143 @@ it.each(['FULL', 'CUSTOM'] as const)(
     expect(events).toHaveLength(2);
   },
 );
+it('uses generateContent only for explicit quality comparison, preserving prompt/schema/accounting and refusing production', async () => {
+  const events: string[] = [];
+  const provider = new GeminiFreeProvider(
+    'fixture',
+    async () => {
+      events.push('permit');
+    },
+    async (url, options) => {
+      events.push('transport');
+      expect(String(url)).toBe(
+        'https://generativelanguage.googleapis.com/v1beta/models/gemini-3.8-flash:generateContent',
+      );
+      const body = JSON.parse(String(options?.body));
+      expect(body.contents).toEqual([
+        { role: 'user', parts: [{ text: request.prompt }] },
+      ]);
+      expect(body.tools).toBeUndefined();
+      expect(body.generationConfig.responseFormat.text.mimeType).toBe(
+        'application/json',
+      );
+      expect(
+        Object.keys(
+          body.generationConfig.responseFormat.text.schema.properties,
+        ),
+      ).toEqual(
+        Object.keys(request.wire_schema.properties as Record<string, unknown>),
+      );
+      return Response.json({
+        modelVersion: request.profile.model,
+        candidates: [
+          {
+            finishReason: 'STOP',
+            content: {
+              parts: [
+                { text: 'hidden thought', thought: true },
+                { text: '{"test":true}' },
+              ],
+            },
+          },
+        ],
+        usageMetadata: {
+          promptTokenCount: 19,
+          candidatesTokenCount: 7,
+          totalTokenCount: 30,
+          thoughtsTokenCount: 4,
+        },
+      });
+    },
+    () => now,
+    'generateContent',
+  );
+  const permit = { reservation_id: 'reserved', request_id: request.request_id };
+  const response = await provider.run(request, permit);
+  expect(response).toMatchObject({
+    status: 'OK',
+    raw_output: '{"test":true}',
+    actual_model: request.profile.model,
+    usage: { input_tokens: 19, output_tokens: 7, total_tokens: 30 },
+    token_usage_numeric_fields: { total_thought_tokens: 4 },
+  });
+  expect(events).toEqual(['permit', 'transport']);
+  await expect(
+    provider.run({ ...request, mode: 'PRODUCTION' }, permit),
+  ).rejects.toThrow('DIAGNOSTIC_ENDPOINT_SCOPE_DENIED');
+  await expect(
+    provider.run(
+      { ...request, profile: { ...request.profile, billing_enabled: true } },
+      permit,
+    ),
+  ).rejects.toThrow('PAID_OR_UNQUALIFIED_ROUTE_DENIED');
+  expect(events).toHaveLength(2);
+});
+it.each([
+  'MAX_TOKENS',
+  'SAFETY',
+  'TOOL_OUTPUT',
+  'MODEL_MISMATCH',
+  'MULTIPLE',
+  'MISSING_USAGE',
+])(
+  'retains diagnostic generateContent %s without inventing success or usage',
+  async (fault) => {
+    const provider = new GeminiFreeProvider(
+      'fixture',
+      async () => {},
+      async () =>
+        Response.json({
+          modelVersion:
+            fault === 'MODEL_MISMATCH' ? 'gemini-other' : request.profile.model,
+          candidates: Array.from(
+            { length: fault === 'MULTIPLE' ? 2 : 1 },
+            () => ({
+              finishReason: ['MAX_TOKENS', 'SAFETY'].includes(fault)
+                ? fault
+                : 'STOP',
+              content: {
+                parts:
+                  fault === 'TOOL_OUTPUT'
+                    ? [{ functionCall: { name: 'forbidden' } }]
+                    : [{ text: '{}' }],
+              },
+            }),
+          ),
+          ...(fault === 'MISSING_USAGE'
+            ? {}
+            : {
+                usageMetadata: {
+                  promptTokenCount: 1,
+                  candidatesTokenCount: 2,
+                  totalTokenCount: 3,
+                },
+              }),
+        }),
+      () => now,
+      'generateContent',
+    );
+    const response = await provider.run(request, {
+      reservation_id: 'reserved',
+      request_id: request.request_id,
+    });
+    expect(response.status).toBe(
+      fault === 'MAX_TOKENS'
+        ? 'INCOMPLETE'
+        : fault === 'SAFETY'
+          ? 'REFUSED'
+          : fault === 'MISSING_USAGE'
+            ? 'OK'
+            : 'TEMPORARY_FAILURE',
+    );
+    if (fault === 'MISSING_USAGE')
+      expect(response.usage).toEqual({
+        input_tokens: null,
+        output_tokens: null,
+        total_tokens: null,
+      });
+  },
+);
 it('one lean no-tools request consumes permit before transport and captures actual metadata', async () => {
   const events: string[] = [];
   const provider = new GeminiFreeProvider(

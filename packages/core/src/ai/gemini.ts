@@ -75,6 +75,7 @@ export class GeminiFreeProvider implements AIProvider {
     ) => Promise<void>,
     private transport: typeof fetch = fetch,
     private clock: () => Date = () => new Date(),
+    private endpoint: 'interactions' | 'generateContent' = 'interactions',
   ) {}
   async run(
     request: AIRequest,
@@ -82,6 +83,11 @@ export class GeminiFreeProvider implements AIProvider {
   ): Promise<AIResponse> {
     const profile = request.profile,
       now = this.clock();
+    if (
+      !['interactions', 'generateContent'].includes(this.endpoint) ||
+      (this.endpoint === 'generateContent' && request.mode !== 'QUALITY_TEST')
+    )
+      throw new Error('DIAGNOSTIC_ENDPOINT_SCOPE_DENIED');
     if (
       request.paid_services_enabled !== false ||
       profile.billing_enabled ||
@@ -131,20 +137,35 @@ export class GeminiFreeProvider implements AIProvider {
       )
     )
       throw new Error('UNSUPPORTED_WIRE_SCHEMA');
-    const body = {
-      model: profile.model,
-      input: request.prompt,
-      store: false,
-      response_format: {
-        type: 'text',
-        mime_type: 'application/json',
-        schema: materializeProviderSchema(request.wire_schema),
-      },
-      generation_config: {
-        thinking_level: 'low',
-        max_output_tokens: request.max_output_tokens,
-      },
-    };
+    const body =
+      this.endpoint === 'generateContent'
+        ? {
+            contents: [{ role: 'user', parts: [{ text: request.prompt }] }],
+            generationConfig: {
+              responseFormat: {
+                text: {
+                  mimeType: 'application/json',
+                  schema: materializeProviderSchema(request.wire_schema),
+                },
+              },
+              maxOutputTokens: request.max_output_tokens,
+              thinkingConfig: { thinkingLevel: 'LOW' },
+            },
+          }
+        : {
+            model: profile.model,
+            input: request.prompt,
+            store: false,
+            response_format: {
+              type: 'text',
+              mime_type: 'application/json',
+              schema: materializeProviderSchema(request.wire_schema),
+            },
+            generation_config: {
+              thinking_level: 'low',
+              max_output_tokens: request.max_output_tokens,
+            },
+          };
     await this.consumePermit(permit, request);
     const base: AIResponse = {
       request_id: request.request_id,
@@ -159,7 +180,9 @@ export class GeminiFreeProvider implements AIProvider {
     };
     try {
       const response = await fetchWithoutRedirect(
-        'https://generativelanguage.googleapis.com/v1beta/interactions',
+        this.endpoint === 'generateContent'
+          ? `https://generativelanguage.googleapis.com/v1beta/models/${profile.model}:generateContent`
+          : 'https://generativelanguage.googleapis.com/v1beta/interactions',
         {
           method: 'POST',
           headers: {
@@ -228,6 +251,74 @@ export class GeminiFreeProvider implements AIProvider {
           ),
         ),
         usage = record(root.usage);
+      if (this.endpoint === 'generateContent') {
+        const candidates = Array.isArray(root.candidates)
+          ? root.candidates
+          : [];
+        const candidate = record(candidates[0]);
+        const parts = Array.isArray(record(candidate.content).parts)
+          ? (record(candidate.content).parts as unknown[])
+          : [];
+        const text = parts
+          .filter(
+            (part) =>
+              record(part).thought !== true &&
+              typeof record(part).text === 'string',
+          )
+          .map((part) => record(part).text)
+          .join('');
+        const finish =
+          typeof candidate.finishReason === 'string'
+            ? candidate.finishReason
+            : 'UNKNOWN_FINISH';
+        const refused =
+          ['SAFETY', 'RECITATION', 'BLOCKLIST', 'PROHIBITED_CONTENT'].includes(
+            finish,
+          ) || typeof record(root.promptFeedback).blockReason === 'string';
+        const model =
+          typeof root.modelVersion === 'string' &&
+          /^gemini-[a-z0-9.-]+$/.test(root.modelVersion)
+            ? root.modelVersion
+            : null;
+        const observed = record(root.usageMetadata);
+        const accounting = {
+          total_input_tokens: observed.promptTokenCount,
+          total_output_tokens: observed.candidatesTokenCount,
+          total_tokens: observed.totalTokenCount,
+          total_thought_tokens: observed.thoughtsTokenCount,
+          total_cached_tokens: observed.cachedContentTokenCount,
+        };
+        const toolOutput = parts.some(
+          (part) => record(part).functionCall !== undefined,
+        );
+        return {
+          ...base,
+          status: refused
+            ? 'REFUSED'
+            : finish === 'MAX_TOKENS'
+              ? 'INCOMPLETE'
+              : finish === 'STOP' &&
+                  candidates.length === 1 &&
+                  text &&
+                  model === profile.model &&
+                  !toolOutput
+                ? 'OK'
+                : 'TEMPORARY_FAILURE',
+          raw_output: text || null,
+          actual_model: model,
+          finish_reason: refused
+            ? 'REFUSAL'
+            : toolOutput
+              ? 'TOOL_OUTPUT_REFUSED'
+              : finish,
+          usage: {
+            input_tokens: count(observed.promptTokenCount),
+            output_tokens: count(observed.candidatesTokenCount),
+            total_tokens: count(observed.totalTokenCount),
+          },
+          token_usage_numeric_fields: extractTokenAccounting(accounting),
+        };
+      }
       const steps = Array.isArray(root.steps) ? root.steps : [];
       const contents = steps
         .filter((value) => record(value).type === 'model_output')
