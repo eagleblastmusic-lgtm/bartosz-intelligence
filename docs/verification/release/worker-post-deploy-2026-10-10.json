@@ -1,0 +1,1512 @@
+{
+  "version": "worker-post-deploy-metrics:1",
+  "observed_at": "2026-10-10T20:39:44.626Z",
+  "start": "2026-10-10T20:32:30.513Z",
+  "end": "2026-10-10T20:39:44.626Z",
+  "d1_sql_queries": 0,
+  "paid_services_enabled": false,
+  "scope": "MIXED_WORKER_INVOCATIONS_NOT_PER_TRANSCRIPT_CPU",
+  "samples": [
+    {
+      "dimensions": {
+        "datetime": "2026-10-10T20:36:11Z",
+        "status": "success"
+      },
+      "quantiles": {
+        "cpuTimeP50": 2437,
+        "cpuTimeP99": 2437
+      },
+      "sum": {
+        "errors": 0,
+        "requests": 1,
+        "subrequests": 0
+      }
+    },
+    {
+      "dimensions": {
+        "datetime": "2026-10-10T20:34:24Z",
+        "status": "success"
+      },
+      "quantiles": {
+        "cpuTimeP50": 2791,
+        "cpuTimeP99": 2791
+      },
+      "sum": {
+        "errors": 0,
+        "requests": 1,
+        "subrequests": 0
+      }
+    },
+    {
+      "dimensions": {
+        "datetime": "2026-10-10T20:36:00Z",
+        "status": "success"
+      },
+      "quantiles": {
+        "cpuTimeP50": 2475,
+        "cpuTimeP99": 2475
+      },
+      "sum": {
+        "errors": 0,
+        "requests": 1,
+        "subrequests": 0
+      }
+    },
+    {
+      "dimensions": {
+        "datetime": "2026-10-10T20:35:53Z",
+        "status": "success"
+      },
+      "quantiles": {
+        "cpuTimeP50": 2575,
+        "cpuTimeP99": 2575
+      },
+      "sum": {
+        "errors": 0,
+        "requests": 1,
+        "subrequests": 0
+      }
+    },
+    {
+      "dimensions": {
+        "datetime": "2026-10-10T20:34:32Z",
+        "status": "success"
+      },
+      "quantiles": {
+        "cpuTimeP50": 1330,
+        "cpuTimeP99": 2598
+      },
+      "sum": {
+        "errors": 0,
+        "requests": 2,
+        "subrequests": 0
+      }
+    },
+    {
+      "dimensions": {
+        "datetime": "2026-10-10T20:34:17Z",
+        "status": "success"
+      },
+      "quantiles": {
+        "cpuTimeP50": 2348,
+        "cpuTimeP99": 2348
+      },
+      "sum": {
+        "errors": 0,
+        "requests": 1,
+        "subrequests": 0
+      }
+    },
+    {
+      "dimensions": {
+        "datetime": "2026-10-10T20:34:42Z",
+        "status": "success"
+      },
+      "quantiles": {
+        "cpuTimeP50": 2447,
+        "cpuTimeP99": 2447
+      },
+      "sum": {
+        "errors": 0,
+        "requests": 1,
+        "subrequests": 0
+      }
+    },
+    {
+      "dimensions": {
+        "datetime": "2026-10-10T20:36:55Z",
+        "status": "success"
+      },
+      "quantiles": {
+        "cpuTimeP50": 2162,
+        "cpuTimeP99": 2997
+      },
+      "sum": {
+        "errors": 0,
+        "requests": 2,
+        "subrequests": 0
+      }
+    },
+    {
+      "dimensions": {
+        "datetime": "2026-10-10T20:36:12Z",
+        "status": "success"
+      },
+      "quantiles": {
+        "cpuTimeP50": 3785,
+        "cpuTimeP99": 3785
+      },
+      "sum": {
+        "errors": 0,
+        "requests": 1,
+        "subrequests": 0
+      }
+    },
+    {
+      "dimensions": {
+        "datetime": "2026-10-10T20:34:49Z",
+        "status": "success"
+      },
+      "quantiles": {
+        "cpuTimeP50": 2563,
+        "cpuTimeP99": 2563
+      },
+      "sum": {
+        "errors": 0,
+        "requests": 1,
+        "subrequests": 0
+      }
+    },
+    {
+      "dimensions": {
+        "datetime": "2026-10-10T20:32:59Z",
+        "status": "success"
+      },
+      "quantiles": {
+        "cpuTimeP50": 2853,
+        "cpuTimeP99": 4385
+      },
+      "sum": {
+        "errors": 0,
+        "requests": 2,
+        "subrequests": 0
+      }
+    },
+    {
+      "dimensions": {
+        "datetime": "2026-10-10T20:36:26Z",
+        "status": "success"
+      },
+      "quantiles": {
+        "cpuTimeP50": 2784,
+        "cpuTimeP99": 2784
+      },
+      "sum": {
+        "errors": 0,
+        "requests": 1,
+        "subrequests": 0
+      }
+    },
+    {
+      "dimensions": {
+        "datetime": "2026-10-10T20:33:04Z",
+        "status": "success"
+      },
+      "quantiles": {
+        "cpuTimeP50": 2204,
+        "cpuTimeP99": 2204
+      },
+      "sum": {
+        "errors": 0,
+        "requests": 1,
+        "subrequests": 0
+      }
+    },
+    {
+      "dimensions": {
+        "datetime": "2026-10-10T20:34:09Z",
+        "status": "success"
+      },
+      "quantiles": {
+        "cpuTimeP50": 2703,
+        "cpuTimeP99": 2703
+      },
+      "sum": {
+        "errors": 0,
+        "requests": 1,
+        "subrequests": 0
+      }
+    },
+    {
+      "dimensions": {
+        "datetime": "2026-10-10T20:34:41Z",
+        "status": "success"
+      },
+      "quantiles": {
+        "cpuTimeP50": 3009,
+        "cpuTimeP99": 3009
+      },
+      "sum": {
+        "errors": 0,
+        "requests": 1,
+        "subrequests": 0
+      }
+    },
+    {
+      "dimensions": {
+        "datetime": "2026-10-10T20:34:38Z",
+        "status": "success"
+      },
+      "quantiles": {
+        "cpuTimeP50": 2035,
+        "cpuTimeP99": 2620
+      },
+      "sum": {
+        "errors": 0,
+        "requests": 2,
+        "subrequests": 0
+      }
+    },
+    {
+      "dimensions": {
+        "datetime": "2026-10-10T20:35:50Z",
+        "status": "success"
+      },
+      "quantiles": {
+        "cpuTimeP50": 2560,
+        "cpuTimeP99": 2560
+      },
+      "sum": {
+        "errors": 0,
+        "requests": 1,
+        "subrequests": 0
+      }
+    },
+    {
+      "dimensions": {
+        "datetime": "2026-10-10T20:36:22Z",
+        "status": "success"
+      },
+      "quantiles": {
+        "cpuTimeP50": 2553,
+        "cpuTimeP99": 3032
+      },
+      "sum": {
+        "errors": 0,
+        "requests": 2,
+        "subrequests": 0
+      }
+    },
+    {
+      "dimensions": {
+        "datetime": "2026-10-10T20:32:30Z",
+        "status": "success"
+      },
+      "quantiles": {
+        "cpuTimeP50": 5112,
+        "cpuTimeP99": 5112
+      },
+      "sum": {
+        "errors": 0,
+        "requests": 1,
+        "subrequests": 0
+      }
+    },
+    {
+      "dimensions": {
+        "datetime": "2026-10-10T20:35:03Z",
+        "status": "success"
+      },
+      "quantiles": {
+        "cpuTimeP50": 2635,
+        "cpuTimeP99": 2635
+      },
+      "sum": {
+        "errors": 0,
+        "requests": 1,
+        "subrequests": 0
+      }
+    },
+    {
+      "dimensions": {
+        "datetime": "2026-10-10T20:36:47Z",
+        "status": "success"
+      },
+      "quantiles": {
+        "cpuTimeP50": 2364,
+        "cpuTimeP99": 2364
+      },
+      "sum": {
+        "errors": 0,
+        "requests": 1,
+        "subrequests": 0
+      }
+    },
+    {
+      "dimensions": {
+        "datetime": "2026-10-10T20:34:05Z",
+        "status": "success"
+      },
+      "quantiles": {
+        "cpuTimeP50": 1747,
+        "cpuTimeP99": 2898
+      },
+      "sum": {
+        "errors": 0,
+        "requests": 2,
+        "subrequests": 0
+      }
+    },
+    {
+      "dimensions": {
+        "datetime": "2026-10-10T20:34:08Z",
+        "status": "success"
+      },
+      "quantiles": {
+        "cpuTimeP50": 2945,
+        "cpuTimeP99": 2945
+      },
+      "sum": {
+        "errors": 0,
+        "requests": 1,
+        "subrequests": 0
+      }
+    },
+    {
+      "dimensions": {
+        "datetime": "2026-10-10T20:36:29Z",
+        "status": "success"
+      },
+      "quantiles": {
+        "cpuTimeP50": 2962,
+        "cpuTimeP99": 2962
+      },
+      "sum": {
+        "errors": 0,
+        "requests": 1,
+        "subrequests": 0
+      }
+    },
+    {
+      "dimensions": {
+        "datetime": "2026-10-10T20:38:42Z",
+        "status": "success"
+      },
+      "quantiles": {
+        "cpuTimeP50": 5368,
+        "cpuTimeP99": 5368
+      },
+      "sum": {
+        "errors": 0,
+        "requests": 1,
+        "subrequests": 0
+      }
+    },
+    {
+      "dimensions": {
+        "datetime": "2026-10-10T20:33:33Z",
+        "status": "success"
+      },
+      "quantiles": {
+        "cpuTimeP50": 1934,
+        "cpuTimeP99": 4233
+      },
+      "sum": {
+        "errors": 0,
+        "requests": 2,
+        "subrequests": 0
+      }
+    },
+    {
+      "dimensions": {
+        "datetime": "2026-10-10T20:34:47Z",
+        "status": "success"
+      },
+      "quantiles": {
+        "cpuTimeP50": 4217,
+        "cpuTimeP99": 4217
+      },
+      "sum": {
+        "errors": 0,
+        "requests": 1,
+        "subrequests": 0
+      }
+    },
+    {
+      "dimensions": {
+        "datetime": "2026-10-10T20:34:39Z",
+        "status": "success"
+      },
+      "quantiles": {
+        "cpuTimeP50": 2581,
+        "cpuTimeP99": 3122
+      },
+      "sum": {
+        "errors": 0,
+        "requests": 4,
+        "subrequests": 0
+      }
+    },
+    {
+      "dimensions": {
+        "datetime": "2026-10-10T20:34:13Z",
+        "status": "success"
+      },
+      "quantiles": {
+        "cpuTimeP50": 2391,
+        "cpuTimeP99": 2391
+      },
+      "sum": {
+        "errors": 0,
+        "requests": 1,
+        "subrequests": 0
+      }
+    },
+    {
+      "dimensions": {
+        "datetime": "2026-10-10T20:36:57Z",
+        "status": "success"
+      },
+      "quantiles": {
+        "cpuTimeP50": 2377,
+        "cpuTimeP99": 2377
+      },
+      "sum": {
+        "errors": 0,
+        "requests": 1,
+        "subrequests": 0
+      }
+    },
+    {
+      "dimensions": {
+        "datetime": "2026-10-10T20:34:30Z",
+        "status": "success"
+      },
+      "quantiles": {
+        "cpuTimeP50": 3198,
+        "cpuTimeP99": 3198
+      },
+      "sum": {
+        "errors": 0,
+        "requests": 1,
+        "subrequests": 0
+      }
+    },
+    {
+      "dimensions": {
+        "datetime": "2026-10-10T20:34:04Z",
+        "status": "success"
+      },
+      "quantiles": {
+        "cpuTimeP50": 1832,
+        "cpuTimeP99": 2003
+      },
+      "sum": {
+        "errors": 0,
+        "requests": 2,
+        "subrequests": 0
+      }
+    },
+    {
+      "dimensions": {
+        "datetime": "2026-10-10T20:36:50Z",
+        "status": "success"
+      },
+      "quantiles": {
+        "cpuTimeP50": 2226,
+        "cpuTimeP99": 2226
+      },
+      "sum": {
+        "errors": 0,
+        "requests": 1,
+        "subrequests": 0
+      }
+    },
+    {
+      "dimensions": {
+        "datetime": "2026-10-10T20:34:31Z",
+        "status": "success"
+      },
+      "quantiles": {
+        "cpuTimeP50": 2671,
+        "cpuTimeP99": 2671
+      },
+      "sum": {
+        "errors": 0,
+        "requests": 1,
+        "subrequests": 0
+      }
+    },
+    {
+      "dimensions": {
+        "datetime": "2026-10-10T20:34:43Z",
+        "status": "success"
+      },
+      "quantiles": {
+        "cpuTimeP50": 2208,
+        "cpuTimeP99": 2208
+      },
+      "sum": {
+        "errors": 0,
+        "requests": 1,
+        "subrequests": 0
+      }
+    },
+    {
+      "dimensions": {
+        "datetime": "2026-10-10T20:34:19Z",
+        "status": "success"
+      },
+      "quantiles": {
+        "cpuTimeP50": 2459,
+        "cpuTimeP99": 2587
+      },
+      "sum": {
+        "errors": 0,
+        "requests": 2,
+        "subrequests": 0
+      }
+    },
+    {
+      "dimensions": {
+        "datetime": "2026-10-10T20:36:32Z",
+        "status": "success"
+      },
+      "quantiles": {
+        "cpuTimeP50": 2355,
+        "cpuTimeP99": 2355
+      },
+      "sum": {
+        "errors": 0,
+        "requests": 1,
+        "subrequests": 0
+      }
+    },
+    {
+      "dimensions": {
+        "datetime": "2026-10-10T20:35:11Z",
+        "status": "success"
+      },
+      "quantiles": {
+        "cpuTimeP50": 2233,
+        "cpuTimeP99": 2378
+      },
+      "sum": {
+        "errors": 0,
+        "requests": 5,
+        "subrequests": 0
+      }
+    },
+    {
+      "dimensions": {
+        "datetime": "2026-10-10T20:35:01Z",
+        "status": "success"
+      },
+      "quantiles": {
+        "cpuTimeP50": 2460,
+        "cpuTimeP99": 2460
+      },
+      "sum": {
+        "errors": 0,
+        "requests": 1,
+        "subrequests": 0
+      }
+    },
+    {
+      "dimensions": {
+        "datetime": "2026-10-10T20:36:37Z",
+        "status": "success"
+      },
+      "quantiles": {
+        "cpuTimeP50": 2173,
+        "cpuTimeP99": 2173
+      },
+      "sum": {
+        "errors": 0,
+        "requests": 1,
+        "subrequests": 0
+      }
+    },
+    {
+      "dimensions": {
+        "datetime": "2026-10-10T20:34:54Z",
+        "status": "success"
+      },
+      "quantiles": {
+        "cpuTimeP50": 2709,
+        "cpuTimeP99": 2709
+      },
+      "sum": {
+        "errors": 0,
+        "requests": 1,
+        "subrequests": 0
+      }
+    },
+    {
+      "dimensions": {
+        "datetime": "2026-10-10T20:35:57Z",
+        "status": "success"
+      },
+      "quantiles": {
+        "cpuTimeP50": 2799,
+        "cpuTimeP99": 2799
+      },
+      "sum": {
+        "errors": 0,
+        "requests": 1,
+        "subrequests": 0
+      }
+    },
+    {
+      "dimensions": {
+        "datetime": "2026-10-10T20:36:34Z",
+        "status": "success"
+      },
+      "quantiles": {
+        "cpuTimeP50": 3177,
+        "cpuTimeP99": 3177
+      },
+      "sum": {
+        "errors": 0,
+        "requests": 1,
+        "subrequests": 0
+      }
+    },
+    {
+      "dimensions": {
+        "datetime": "2026-10-10T20:37:27Z",
+        "status": "success"
+      },
+      "quantiles": {
+        "cpuTimeP50": 4286,
+        "cpuTimeP99": 4286
+      },
+      "sum": {
+        "errors": 0,
+        "requests": 1,
+        "subrequests": 0
+      }
+    },
+    {
+      "dimensions": {
+        "datetime": "2026-10-10T20:37:01Z",
+        "status": "success"
+      },
+      "quantiles": {
+        "cpuTimeP50": 2601,
+        "cpuTimeP99": 3218
+      },
+      "sum": {
+        "errors": 0,
+        "requests": 2,
+        "subrequests": 0
+      }
+    },
+    {
+      "dimensions": {
+        "datetime": "2026-10-10T20:36:35Z",
+        "status": "success"
+      },
+      "quantiles": {
+        "cpuTimeP50": 2149,
+        "cpuTimeP99": 2149
+      },
+      "sum": {
+        "errors": 0,
+        "requests": 1,
+        "subrequests": 0
+      }
+    },
+    {
+      "dimensions": {
+        "datetime": "2026-10-10T20:36:49Z",
+        "status": "success"
+      },
+      "quantiles": {
+        "cpuTimeP50": 2503,
+        "cpuTimeP99": 3147
+      },
+      "sum": {
+        "errors": 0,
+        "requests": 2,
+        "subrequests": 0
+      }
+    },
+    {
+      "dimensions": {
+        "datetime": "2026-10-10T20:35:43Z",
+        "status": "success"
+      },
+      "quantiles": {
+        "cpuTimeP50": 1500,
+        "cpuTimeP99": 2172
+      },
+      "sum": {
+        "errors": 0,
+        "requests": 2,
+        "subrequests": 0
+      }
+    },
+    {
+      "dimensions": {
+        "datetime": "2026-10-10T20:37:59Z",
+        "status": "success"
+      },
+      "quantiles": {
+        "cpuTimeP50": 1716,
+        "cpuTimeP99": 1716
+      },
+      "sum": {
+        "errors": 0,
+        "requests": 1,
+        "subrequests": 0
+      }
+    },
+    {
+      "dimensions": {
+        "datetime": "2026-10-10T20:36:53Z",
+        "status": "success"
+      },
+      "quantiles": {
+        "cpuTimeP50": 2350,
+        "cpuTimeP99": 12569
+      },
+      "sum": {
+        "errors": 0,
+        "requests": 2,
+        "subrequests": 0
+      }
+    },
+    {
+      "dimensions": {
+        "datetime": "2026-10-10T20:36:58Z",
+        "status": "success"
+      },
+      "quantiles": {
+        "cpuTimeP50": 2742,
+        "cpuTimeP99": 2742
+      },
+      "sum": {
+        "errors": 0,
+        "requests": 1,
+        "subrequests": 0
+      }
+    },
+    {
+      "dimensions": {
+        "datetime": "2026-10-10T20:36:18Z",
+        "status": "success"
+      },
+      "quantiles": {
+        "cpuTimeP50": 2119,
+        "cpuTimeP99": 2755
+      },
+      "sum": {
+        "errors": 0,
+        "requests": 2,
+        "subrequests": 0
+      }
+    },
+    {
+      "dimensions": {
+        "datetime": "2026-10-10T20:37:02Z",
+        "status": "success"
+      },
+      "quantiles": {
+        "cpuTimeP50": 3226,
+        "cpuTimeP99": 3226
+      },
+      "sum": {
+        "errors": 0,
+        "requests": 1,
+        "subrequests": 0
+      }
+    },
+    {
+      "dimensions": {
+        "datetime": "2026-10-10T20:36:40Z",
+        "status": "success"
+      },
+      "quantiles": {
+        "cpuTimeP50": 2289,
+        "cpuTimeP99": 2391
+      },
+      "sum": {
+        "errors": 0,
+        "requests": 2,
+        "subrequests": 0
+      }
+    },
+    {
+      "dimensions": {
+        "datetime": "2026-10-10T20:35:13Z",
+        "status": "success"
+      },
+      "quantiles": {
+        "cpuTimeP50": 2784,
+        "cpuTimeP99": 2784
+      },
+      "sum": {
+        "errors": 0,
+        "requests": 1,
+        "subrequests": 0
+      }
+    },
+    {
+      "dimensions": {
+        "datetime": "2026-10-10T20:35:47Z",
+        "status": "success"
+      },
+      "quantiles": {
+        "cpuTimeP50": 4054,
+        "cpuTimeP99": 4725
+      },
+      "sum": {
+        "errors": 0,
+        "requests": 2,
+        "subrequests": 0
+      }
+    },
+    {
+      "dimensions": {
+        "datetime": "2026-10-10T20:38:31Z",
+        "status": "success"
+      },
+      "quantiles": {
+        "cpuTimeP50": 1162,
+        "cpuTimeP99": 12052
+      },
+      "sum": {
+        "errors": 0,
+        "requests": 2,
+        "subrequests": 0
+      }
+    },
+    {
+      "dimensions": {
+        "datetime": "2026-10-10T20:34:58Z",
+        "status": "success"
+      },
+      "quantiles": {
+        "cpuTimeP50": 3589,
+        "cpuTimeP99": 3589
+      },
+      "sum": {
+        "errors": 0,
+        "requests": 1,
+        "subrequests": 0
+      }
+    },
+    {
+      "dimensions": {
+        "datetime": "2026-10-10T20:36:54Z",
+        "status": "success"
+      },
+      "quantiles": {
+        "cpuTimeP50": 1816,
+        "cpuTimeP99": 2561
+      },
+      "sum": {
+        "errors": 0,
+        "requests": 2,
+        "subrequests": 0
+      }
+    },
+    {
+      "dimensions": {
+        "datetime": "2026-10-10T20:36:20Z",
+        "status": "success"
+      },
+      "quantiles": {
+        "cpuTimeP50": 1994,
+        "cpuTimeP99": 2791
+      },
+      "sum": {
+        "errors": 0,
+        "requests": 2,
+        "subrequests": 0
+      }
+    },
+    {
+      "dimensions": {
+        "datetime": "2026-10-10T20:36:38Z",
+        "status": "success"
+      },
+      "quantiles": {
+        "cpuTimeP50": 2166,
+        "cpuTimeP99": 2166
+      },
+      "sum": {
+        "errors": 0,
+        "requests": 1,
+        "subrequests": 0
+      }
+    },
+    {
+      "dimensions": {
+        "datetime": "2026-10-10T20:34:53Z",
+        "status": "success"
+      },
+      "quantiles": {
+        "cpuTimeP50": 2339,
+        "cpuTimeP99": 2339
+      },
+      "sum": {
+        "errors": 0,
+        "requests": 1,
+        "subrequests": 0
+      }
+    },
+    {
+      "dimensions": {
+        "datetime": "2026-10-10T20:33:03Z",
+        "status": "success"
+      },
+      "quantiles": {
+        "cpuTimeP50": 3053,
+        "cpuTimeP99": 4884
+      },
+      "sum": {
+        "errors": 0,
+        "requests": 3,
+        "subrequests": 0
+      }
+    },
+    {
+      "dimensions": {
+        "datetime": "2026-10-10T20:35:45Z",
+        "status": "success"
+      },
+      "quantiles": {
+        "cpuTimeP50": 1834,
+        "cpuTimeP99": 2627
+      },
+      "sum": {
+        "errors": 0,
+        "requests": 2,
+        "subrequests": 0
+      }
+    },
+    {
+      "dimensions": {
+        "datetime": "2026-10-10T20:35:00Z",
+        "status": "success"
+      },
+      "quantiles": {
+        "cpuTimeP50": 2526,
+        "cpuTimeP99": 2526
+      },
+      "sum": {
+        "errors": 0,
+        "requests": 1,
+        "subrequests": 0
+      }
+    },
+    {
+      "dimensions": {
+        "datetime": "2026-10-10T20:34:14Z",
+        "status": "success"
+      },
+      "quantiles": {
+        "cpuTimeP50": 3204,
+        "cpuTimeP99": 3204
+      },
+      "sum": {
+        "errors": 0,
+        "requests": 1,
+        "subrequests": 0
+      }
+    },
+    {
+      "dimensions": {
+        "datetime": "2026-10-10T20:32:56Z",
+        "status": "success"
+      },
+      "quantiles": {
+        "cpuTimeP50": 6070,
+        "cpuTimeP99": 6070
+      },
+      "sum": {
+        "errors": 0,
+        "requests": 1,
+        "subrequests": 0
+      }
+    },
+    {
+      "dimensions": {
+        "datetime": "2026-10-10T20:34:51Z",
+        "status": "success"
+      },
+      "quantiles": {
+        "cpuTimeP50": 2670,
+        "cpuTimeP99": 2670
+      },
+      "sum": {
+        "errors": 0,
+        "requests": 1,
+        "subrequests": 0
+      }
+    },
+    {
+      "dimensions": {
+        "datetime": "2026-10-10T20:34:50Z",
+        "status": "success"
+      },
+      "quantiles": {
+        "cpuTimeP50": 3084,
+        "cpuTimeP99": 3084
+      },
+      "sum": {
+        "errors": 0,
+        "requests": 1,
+        "subrequests": 0
+      }
+    },
+    {
+      "dimensions": {
+        "datetime": "2026-10-10T20:34:56Z",
+        "status": "success"
+      },
+      "quantiles": {
+        "cpuTimeP50": 2569,
+        "cpuTimeP99": 2569
+      },
+      "sum": {
+        "errors": 0,
+        "requests": 1,
+        "subrequests": 0
+      }
+    },
+    {
+      "dimensions": {
+        "datetime": "2026-10-10T20:35:52Z",
+        "status": "success"
+      },
+      "quantiles": {
+        "cpuTimeP50": 2646,
+        "cpuTimeP99": 2646
+      },
+      "sum": {
+        "errors": 0,
+        "requests": 1,
+        "subrequests": 0
+      }
+    },
+    {
+      "dimensions": {
+        "datetime": "2026-10-10T20:34:34Z",
+        "status": "success"
+      },
+      "quantiles": {
+        "cpuTimeP50": 2275,
+        "cpuTimeP99": 2414
+      },
+      "sum": {
+        "errors": 0,
+        "requests": 2,
+        "subrequests": 0
+      }
+    },
+    {
+      "dimensions": {
+        "datetime": "2026-10-10T20:38:23Z",
+        "status": "success"
+      },
+      "quantiles": {
+        "cpuTimeP50": 1668,
+        "cpuTimeP99": 1668
+      },
+      "sum": {
+        "errors": 0,
+        "requests": 1,
+        "subrequests": 0
+      }
+    },
+    {
+      "dimensions": {
+        "datetime": "2026-10-10T20:36:59Z",
+        "status": "success"
+      },
+      "quantiles": {
+        "cpuTimeP50": 2382,
+        "cpuTimeP99": 2382
+      },
+      "sum": {
+        "errors": 0,
+        "requests": 1,
+        "subrequests": 0
+      }
+    },
+    {
+      "dimensions": {
+        "datetime": "2026-10-10T20:34:28Z",
+        "status": "success"
+      },
+      "quantiles": {
+        "cpuTimeP50": 2992,
+        "cpuTimeP99": 4538
+      },
+      "sum": {
+        "errors": 0,
+        "requests": 2,
+        "subrequests": 0
+      }
+    },
+    {
+      "dimensions": {
+        "datetime": "2026-10-10T20:38:32Z",
+        "status": "success"
+      },
+      "quantiles": {
+        "cpuTimeP50": 3404,
+        "cpuTimeP99": 3404
+      },
+      "sum": {
+        "errors": 0,
+        "requests": 1,
+        "subrequests": 0
+      }
+    },
+    {
+      "dimensions": {
+        "datetime": "2026-10-10T20:37:58Z",
+        "status": "success"
+      },
+      "quantiles": {
+        "cpuTimeP50": 1642,
+        "cpuTimeP99": 1642
+      },
+      "sum": {
+        "errors": 0,
+        "requests": 1,
+        "subrequests": 0
+      }
+    },
+    {
+      "dimensions": {
+        "datetime": "2026-10-10T20:33:32Z",
+        "status": "success"
+      },
+      "quantiles": {
+        "cpuTimeP50": 2278,
+        "cpuTimeP99": 2278
+      },
+      "sum": {
+        "errors": 0,
+        "requests": 1,
+        "subrequests": 0
+      }
+    },
+    {
+      "dimensions": {
+        "datetime": "2026-10-10T20:35:02Z",
+        "status": "success"
+      },
+      "quantiles": {
+        "cpuTimeP50": 2291,
+        "cpuTimeP99": 2291
+      },
+      "sum": {
+        "errors": 0,
+        "requests": 1,
+        "subrequests": 0
+      }
+    },
+    {
+      "dimensions": {
+        "datetime": "2026-10-10T20:37:04Z",
+        "status": "success"
+      },
+      "quantiles": {
+        "cpuTimeP50": 2831,
+        "cpuTimeP99": 2831
+      },
+      "sum": {
+        "errors": 0,
+        "requests": 1,
+        "subrequests": 0
+      }
+    },
+    {
+      "dimensions": {
+        "datetime": "2026-10-10T20:39:03Z",
+        "status": "success"
+      },
+      "quantiles": {
+        "cpuTimeP50": 2931,
+        "cpuTimeP99": 2931
+      },
+      "sum": {
+        "errors": 0,
+        "requests": 1,
+        "subrequests": 0
+      }
+    },
+    {
+      "dimensions": {
+        "datetime": "2026-10-10T20:34:33Z",
+        "status": "success"
+      },
+      "quantiles": {
+        "cpuTimeP50": 2740,
+        "cpuTimeP99": 2740
+      },
+      "sum": {
+        "errors": 0,
+        "requests": 1,
+        "subrequests": 0
+      }
+    },
+    {
+      "dimensions": {
+        "datetime": "2026-10-10T20:35:56Z",
+        "status": "success"
+      },
+      "quantiles": {
+        "cpuTimeP50": 2888,
+        "cpuTimeP99": 2888
+      },
+      "sum": {
+        "errors": 0,
+        "requests": 1,
+        "subrequests": 0
+      }
+    },
+    {
+      "dimensions": {
+        "datetime": "2026-10-10T20:35:04Z",
+        "status": "success"
+      },
+      "quantiles": {
+        "cpuTimeP50": 2427,
+        "cpuTimeP99": 2427
+      },
+      "sum": {
+        "errors": 0,
+        "requests": 1,
+        "subrequests": 0
+      }
+    },
+    {
+      "dimensions": {
+        "datetime": "2026-10-10T20:36:02Z",
+        "status": "success"
+      },
+      "quantiles": {
+        "cpuTimeP50": 2076,
+        "cpuTimeP99": 2076
+      },
+      "sum": {
+        "errors": 0,
+        "requests": 1,
+        "subrequests": 0
+      }
+    },
+    {
+      "dimensions": {
+        "datetime": "2026-10-10T20:35:07Z",
+        "status": "success"
+      },
+      "quantiles": {
+        "cpuTimeP50": 2548,
+        "cpuTimeP99": 2775
+      },
+      "sum": {
+        "errors": 0,
+        "requests": 2,
+        "subrequests": 0
+      }
+    },
+    {
+      "dimensions": {
+        "datetime": "2026-10-10T20:36:15Z",
+        "status": "success"
+      },
+      "quantiles": {
+        "cpuTimeP50": 2537,
+        "cpuTimeP99": 2942
+      },
+      "sum": {
+        "errors": 0,
+        "requests": 3,
+        "subrequests": 0
+      }
+    },
+    {
+      "dimensions": {
+        "datetime": "2026-10-10T20:38:55Z",
+        "status": "success"
+      },
+      "quantiles": {
+        "cpuTimeP50": 2205,
+        "cpuTimeP99": 2565
+      },
+      "sum": {
+        "errors": 0,
+        "requests": 2,
+        "subrequests": 0
+      }
+    },
+    {
+      "dimensions": {
+        "datetime": "2026-10-10T20:32:33Z",
+        "status": "success"
+      },
+      "quantiles": {
+        "cpuTimeP50": 3168,
+        "cpuTimeP99": 3168
+      },
+      "sum": {
+        "errors": 0,
+        "requests": 1,
+        "subrequests": 0
+      }
+    },
+    {
+      "dimensions": {
+        "datetime": "2026-10-10T20:36:28Z",
+        "status": "success"
+      },
+      "quantiles": {
+        "cpuTimeP50": 2435,
+        "cpuTimeP99": 2435
+      },
+      "sum": {
+        "errors": 0,
+        "requests": 1,
+        "subrequests": 0
+      }
+    },
+    {
+      "dimensions": {
+        "datetime": "2026-10-10T20:35:06Z",
+        "status": "success"
+      },
+      "quantiles": {
+        "cpuTimeP50": 2577,
+        "cpuTimeP99": 2577
+      },
+      "sum": {
+        "errors": 0,
+        "requests": 1,
+        "subrequests": 0
+      }
+    },
+    {
+      "dimensions": {
+        "datetime": "2026-10-10T20:36:09Z",
+        "status": "success"
+      },
+      "quantiles": {
+        "cpuTimeP50": 2261,
+        "cpuTimeP99": 2261
+      },
+      "sum": {
+        "errors": 0,
+        "requests": 1,
+        "subrequests": 0
+      }
+    },
+    {
+      "dimensions": {
+        "datetime": "2026-10-10T20:35:12Z",
+        "status": "success"
+      },
+      "quantiles": {
+        "cpuTimeP50": 2157,
+        "cpuTimeP99": 2397
+      },
+      "sum": {
+        "errors": 0,
+        "requests": 2,
+        "subrequests": 0
+      }
+    },
+    {
+      "dimensions": {
+        "datetime": "2026-10-10T20:35:10Z",
+        "status": "success"
+      },
+      "quantiles": {
+        "cpuTimeP50": 2316,
+        "cpuTimeP99": 55862
+      },
+      "sum": {
+        "errors": 0,
+        "requests": 2,
+        "subrequests": 9
+      }
+    },
+    {
+      "dimensions": {
+        "datetime": "2026-10-10T20:37:00Z",
+        "status": "success"
+      },
+      "quantiles": {
+        "cpuTimeP50": 2872,
+        "cpuTimeP99": 2872
+      },
+      "sum": {
+        "errors": 0,
+        "requests": 1,
+        "subrequests": 0
+      }
+    },
+    {
+      "dimensions": {
+        "datetime": "2026-10-10T20:34:06Z",
+        "status": "success"
+      },
+      "quantiles": {
+        "cpuTimeP50": 4426,
+        "cpuTimeP99": 4426
+      },
+      "sum": {
+        "errors": 0,
+        "requests": 1,
+        "subrequests": 0
+      }
+    },
+    {
+      "dimensions": {
+        "datetime": "2026-10-10T20:36:43Z",
+        "status": "success"
+      },
+      "quantiles": {
+        "cpuTimeP50": 2228,
+        "cpuTimeP99": 2228
+      },
+      "sum": {
+        "errors": 0,
+        "requests": 1,
+        "subrequests": 0
+      }
+    },
+    {
+      "dimensions": {
+        "datetime": "2026-10-10T20:35:59Z",
+        "status": "success"
+      },
+      "quantiles": {
+        "cpuTimeP50": 2018,
+        "cpuTimeP99": 2018
+      },
+      "sum": {
+        "errors": 0,
+        "requests": 1,
+        "subrequests": 0
+      }
+    },
+    {
+      "dimensions": {
+        "datetime": "2026-10-10T20:35:49Z",
+        "status": "success"
+      },
+      "quantiles": {
+        "cpuTimeP50": 2982,
+        "cpuTimeP99": 2982
+      },
+      "sum": {
+        "errors": 0,
+        "requests": 1,
+        "subrequests": 0
+      }
+    },
+    {
+      "dimensions": {
+        "datetime": "2026-10-10T20:34:55Z",
+        "status": "success"
+      },
+      "quantiles": {
+        "cpuTimeP50": 2023,
+        "cpuTimeP99": 2023
+      },
+      "sum": {
+        "errors": 0,
+        "requests": 1,
+        "subrequests": 0
+      }
+    }
+  ],
+  "status": "NO_COMPLETE_DATA"
+}

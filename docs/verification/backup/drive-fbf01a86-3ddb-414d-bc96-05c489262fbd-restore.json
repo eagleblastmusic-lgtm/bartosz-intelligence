@@ -1,0 +1,20 @@
+{
+  "version": "independent-drive-copy-restore:1",
+  "observed_at": "2026-10-11T01:35:35.409Z",
+  "backup_id": "fbf01a86-3ddb-414d-bc96-05c489262fbd",
+  "file_id": "1JAjGXZlJjV52onW78dxaOHTvJCkgKIZ1",
+  "archive_sha256": "b0a9c6c6d41cc5492ddf0ca817d659242273628d0bc41acbe1d115c6983905f2",
+  "canonical_sha256": "b0a9c6c6d41cc5492ddf0ca817d659242273628d0bc41acbe1d115c6983905f2",
+  "rows": 7430,
+  "bytes": 20741605,
+  "canonical_readback": "PASS",
+  "integrity_check": "PASS",
+  "foreign_key_check": "PASS",
+  "active_sessions_restored": 0,
+  "active_worker_credentials_restored": 0,
+  "status": "PASS",
+  "scope": "INDEPENDENT_DOWNLOADED_CANONICAL_COPY_EMPTY_LOCAL_RESTORE_NOT_FULL_APP_RPO_RTO",
+  "production_d1_requests": 0,
+  "gemini_requests": 0,
+  "paid_services_enabled": false
+}

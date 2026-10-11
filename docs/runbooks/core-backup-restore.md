@@ -30,3 +30,23 @@ and no approval; interrupted cleanup requires fresh remote full readback.
 Existing backups remain untouched. Any proposed rolling retention of old Drive
 backups requires separate owner approval; canonical-json remains the selected
 format with no application encryption requirement.
+
+## Administrative snapshot window fix, 2026-10-10
+
+The schema-39 administrative capture expired at `artifact_chunks` cursor 280
+after the unchanged ten-minute format-2 barrier. It produced no verified copy
+and was aborted; its failure receipt remains evidence. Commit `89879e6` combines
+the snapshot permit and page read in one database batch. The local Windows
+runner uses up to 100 small rows for job attempts, change log and discovery
+metadata, and up to two heavy chunk rows. Other payload tables and cloud/browser
+callers keep 25-row pages. The 128 KiB chunk, 32 MiB corpus, hash chain,
+owner scope, immutable format and database expiry check before receipt writes
+remain enforced. No extension of the mutation barrier is required.
+
+An offline comparison using the already verified October-8 copy retained all
+4678 rows and an identical canonical row hash, with 1138 → 619 chunk round trips.
+This is not measured billed rows or cloud timing. Targeted backup/restore and
+expiry regression results are recorded in release readiness. A retry after this
+confirmed fix uses the existing Windows mutex and a new cut; it must pass the
+same portable verification, private readback and isolated restore. A local
+VERIFIED manifest alone still does not qualify an independent Drive copy.

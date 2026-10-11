@@ -1,0 +1,36 @@
+{
+  "version": "D1LiveCostMeasurement/1.0",
+  "observed_at": "2026-10-10T20:36:39.012Z",
+  "status": "MEASURED",
+  "basis": "ACTUAL_PRODUCTION_REST_META",
+  "operations": [
+    {
+      "operation": "transcript_admission",
+      "requests": 1,
+      "rows_read": 4,
+      "rows_written": 0
+    },
+    {
+      "operation": "capacity_page",
+      "requests": 1,
+      "rows_read": 2617,
+      "rows_written": 0
+    },
+    {
+      "operation": "metadata_refresh",
+      "requests": 1,
+      "rows_read": 2,
+      "rows_written": 0
+    }
+  ],
+  "usage": {
+    "requests": 6,
+    "rows_read": 2666,
+    "rows_written": 0,
+    "metadata_complete": true,
+    "stopped": false
+  },
+  "exact_remaining_quota": null,
+  "private_content_recorded": false,
+  "paid_services_enabled": false
+}

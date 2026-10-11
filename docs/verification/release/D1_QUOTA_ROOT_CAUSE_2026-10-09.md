@@ -322,3 +322,52 @@ zweryfikowanym eksportem i holds nie podlegają sztywnemu wiekowi usunięcia.
 Model wysokiego obciążenia pozostawia zbyt mały write headroom; nie deklarujemy
 20-channel Free PASS bez realnych AI/export i peak pomiarów. Pełny Gate C
 pozostaje NOT_YET_MATURE; paid_services_enabled=false.
+
+## Rzeczywiste wznowienie — 10/11 października
+
+Exact preflight, migracje 036–039, production quick_check/FK i deploy PASS.
+Aktualny kod `7b79a79`, Worker `9d3b376e-990d-48c7-a97e-a0877f918aa0`, schema 39.
+Każdy z dwóch indexed probes (10 października i po zmianie dnia UTC 11
+października) kosztował 1 read /0 writes. Nie powtarzano migracji ani capture
+tylko dla daty PASS. Analytics o 20:30 UTC: 3 388 930 reads /14 964 writes;
+o 20:55:49: 3 483 453 /18 960. Wszystkie widoczne hourly rows pochodziły
+z BARTOSZ_CORE; inventory nadal obejmuje dwie bazy. Najwyższy widoczny hourly
+read do tego momentu: 291 998 o 17:00 UTC. Nie jest to atrybucja do jobów.
+Końcowy zrzut nowego dnia, 11 października 01:42:37 UTC: **48 971 reads /4987
+writes**, account storage 27 738 112 bytes, core high-water 24 838 144 bytes.
+Liczników różnych dni nie sumujemy. Analytics jest opóźnione; exact remaining
+nie jest znane. Storage to working set przed pełnym AI/Daily, nie wynik cleanup.
+
+Actual SQL metadata: admission 4 reads /0 writes; Capacity page 2617 /0;
+metadata refresh 2 /0. Runner z preflight: 6 REST /2666 /0. Folder setup:
+10 REST /56 /5; archive-once 27 REST /350 /12; nieudany independent verify:
+12 REST /283 /2; diagnoza z cached backupu: 4 REST /11 /2; skuteczny receipt
+recovery: 22 REST /357 /5. Retention observation/dry-run: 7 REST /744 /0,
+pusty zakres i deletion OFF. Nie jest to pełny koszt migracji/backupu/GUI
+lub aplikacji. Jedna kontrola postępu backupu kosztowała 10 234 /0; nie była
+ponawiana. Mała kontrola po indeksach kosztowała 10 /0, lecz znalazła stary
+expired BUILDING snapshot, więc nie stanowiła dowodu bieżącego postępu.
+
+Nowy potwierdzony problem: osobny snapshot request dla każdego chunku oraz
+25-row pages małych job/change-log rekordów. Świeży backup wygasł po 10 min.
+Naprawa `89879e6` łączy snapshot/page read i grupuje wybrane małe rekordy
+do 100, heavy chunks do 2 w lokalnym admin runnerze. Byte/hash/owner/expiry
+guards i bariera pozostały bez zmian. Offline na verified kopii: **1138→619
+round trips**, identyczne 4678 rows i canonical row hash; billed rows nie
+mierzono. Aktualny production capture zakończył się w **503468 ms**, 7430
+rows /420 chunks /20741605 canonical bytes. Private copy/readback, isolated
+restore oraz późniejszy restore rzeczywiście pobranej kopii Drive PASS.
+To poprawa potwierdzonego expiry, nie procentowa oszczędność całego D1.
+
+Naprawiono też post-lease archive reader i bezpieczne uzgodnienie provider
+metadata version 1→2 przy identycznych 107148 bytes/SHA. Nie ustalono przyczyny
+zmiany wersji u providera; nie przypisujemy jej błędowi treści. Receipt CAS
+wymaga full private readback i zachowuje verified_at, bez nadpisania Drive.
+Targeted scopes: 17 Workers post-lease; 3 unit +6 Workers backup; final 20
+Workers metadata/CAS; zero FAIL. Typecheck/lint/build/public secret scan PASS.
+
+20-channel Free capacity nadal nie jest zakwalifikowane bez realnych AI,
+eksportów i peak measurements. Gemini nie był ponownie wywołany; P0 pending,
+staged new-only czeka na stabilny podstawowy przepływ. Gate C NOT_YET_MATURE,
+full R/D niezaliczone, paid_services_enabled=false. Aktualne immutable receipts
+i ograniczenia są w [release readiness](../../../RELEASE_READINESS_REPORT.md).

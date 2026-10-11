@@ -1,0 +1,40 @@
+{
+  "version": "D1UsageAnalytics/1.0",
+  "observed_at": "2026-10-11T01:42:37.365Z",
+  "start_utc": "2026-10-11T00:00:00.000Z",
+  "end_utc": "2026-10-11T01:42:37.365Z",
+  "state": "MEASURED_ANALYTICS",
+  "scope": "ALL_ACCOUNT_DATABASES",
+  "sql_queries_executed": 0,
+  "account_rows_read": 48971,
+  "account_rows_written": 4987,
+  "current_storage_bytes": 27738112,
+  "max_database_size_bytes": 24838144,
+  "paid_services_enabled": false,
+  "hourly": [
+    {
+      "hour_utc": "2026-10-11T00:00:00Z",
+      "database": "BARTOSZ_CORE",
+      "readQueries": 4248,
+      "rowsRead": 34903,
+      "rowsWritten": 4504,
+      "writeQueries": 2016
+    },
+    {
+      "hour_utc": "2026-10-11T01:00:00Z",
+      "database": "BARTOSZ_CORE",
+      "readQueries": 1996,
+      "rowsRead": 14068,
+      "rowsWritten": 483,
+      "writeQueries": 296
+    }
+  ],
+  "analytics_lag": "NOT_MEASURED_NOT_EXACT_REMAINING_QUOTA",
+  "database_inventory_count": 2,
+  "storage_basis": "ACTUAL_ACCOUNT_INVENTORY_METADATA_NO_SQL",
+  "policy": {
+    "state": "WITHIN_OBSERVED_BUDGET",
+    "noncritical_admitted": true,
+    "exact_remaining_quota": null
+  }
+}

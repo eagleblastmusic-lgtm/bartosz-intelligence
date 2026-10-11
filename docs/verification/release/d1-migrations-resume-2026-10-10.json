@@ -1,0 +1,29 @@
+{
+  "recorded_at": "2026-10-11T01:42:40.143Z",
+  "scope": "PRESERVED_ACTUAL_PREPARE_OUTPUT_EXACT_35_PREFIX_AND_39_LEDGER",
+  "operations": [
+    {
+      "migration": "036_d1_read_indexes.sql",
+      "result": "APPLIED"
+    },
+    {
+      "migration": "037_drive_only_retention.sql",
+      "result": "APPLIED"
+    },
+    {
+      "migration": "038_verified_archive_append.sql",
+      "result": "APPLIED"
+    },
+    {
+      "migration": "039_transcript_drive_archive.sql",
+      "result": "APPLIED"
+    },
+    {
+      "migrations": 39,
+      "quick_check": "PASS",
+      "foreign_key_check": "PASS"
+    }
+  ],
+  "log_sha256": "4638adc461b8859053fd10ea831aee6e0c05d19a14eb44d4b824f897d8726267",
+  "paid_services_enabled": false
+}

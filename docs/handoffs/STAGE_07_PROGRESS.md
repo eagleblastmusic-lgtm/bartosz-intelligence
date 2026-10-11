@@ -1,5 +1,33 @@
 # Stage 07 — current handoff
 
+## Completed reachable one-off resume, 2026-10-11
+
+Schema 39, code `7b79a79`, Worker `9d3b376e-990d-48c7-a97e-a0877f918aa0`.
+Actual private transcript full readback: 1071 cues/107148 bytes, original file,
+version 2, identical SHA and dedup IDLE. Metadata-only version drift reconciled
+with full private readback/source/fence CAS; 20 Workers PASS. Fresh backup
+fbf01a86 passed Drive download/hash and empty isolated restore (7430 rows).
+Retention observation/dry-run: zero candidate Items, deletion 0, approval NULL.
+One-off heartbeat deleted; separate Windows observation/cadence retained.
+Current RELEASE_READINESS_REPORT.md supersedes interim in-progress text below.
+P0 summary pending; Gemini consent and human quality reviews still outstanding.
+19-source approval retained, activation after stable P0. No full Stage/R/D/C PASS.
+
+## Actual post-reset execution, 2026-10-10
+
+Production schema 39 and a real deployment now supersede the earlier
+production-35 statements below. Private Transkrypcje exists, and the owner's
+authenticated GUI confirms the existing rUhllpnYWR8 transcript and Drive link.
+The film still has no accepted Polish Daily summary; P0 remains incomplete.
+The post-lease readback defect is fixed (`ba36a56`, 17 Workers PASS). A justified
+fresh backup expired safely; `89879e6` preserves all integrity limits while
+reducing round trips (offline actual corpus 1138→619, identical 4678 rows/hash).
+The controlled retry and final independent transcript verification are in progress.
+Read the current RELEASE_READINESS_REPORT.md before any next action; do not
+repeat probe, migrations, folder/create or the three live SQL measurements.
+No new Gemini consent, production deletion, paid services or 19-channel activation.
+Historical scopes below remain evidence, not current production state.
+
 ## Current original-transcript archive checkpoint, 2026-10-10
 
 Owner-approved V1.1.3 adds private original-language Markdown in Transkrypcje.

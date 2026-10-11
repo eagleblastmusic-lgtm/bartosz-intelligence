@@ -1,6 +1,141 @@
 # Bartosz Intelligence V1 — release readiness
 
-## Aktualny checkpoint — pełne oryginalne transkrypcje na Drive
+## Aktualny wynik wznowienia — 2026-10-11
+
+**IMPLEMENTATION COMPLETE NO; PRODUCTION ACCEPTED NO.** Wykonalny zakres
+jednorazowego technicznego wznowienia zakończono; pełny P0 AI → polskie Daily
+nadal czeka na rzeczywisty wynik i osobną zgodę. Nie nadano fikcyjnego PASS.
+Końcowy kod: **`7b79a79`**, Worker **`9d3b376e-990d-48c7-a97e-a0877f918aa0`**,
+deploy 01:42:06 UTC = 03:42:06 Europe/Warsaw, schema **39**. Health HTTP 200
+potwierdza obecność bindings, nie pełny E2E. [Zbiorczy immutable receipt](docs/verification/release/controlled-resume-completion-2026-10-11.json).
+
+**Transkrypcja `rUhllpnYWR8` rzeczywiście VERIFIED:** cały prywatny Markdown,
+**1071 cues /107148 bytes**, SHA-256
+`f74ebf78801893c5a2ca61edda9214d8c19f0c7c36c7af84fbdce126ea92de71`,
+file ID **`1t2P2F0ZzM0FgORpNdZRHJ2ZI598qoyQl`**, remote version **2**,
+pełny byte-for-byte readback oraz **dedup IDLE**, attempt_count 1/fence 1.
+GUI właściciela pokazało status i link; nie zastępuje to HUMAN_REVIEW jakości.
+Folder `1bNqbMUjrU4HEBh45nHV-embobIPuhHtt` pozostaje private-owner-only.
+[Recovery receipt](docs/verification/drive/transcript-recover-readback-2026-10-11-e1970434-b8bd-48fa-8232-c1f8d0eee60e.json).
+Druga kontrola wykryła wyłącznie zmianę wersji metadata 1→2: source,
+reconstructed Markdown i downloaded SHA były identyczne. Nie ustalono
+konkretnej przyczyny zmiany metadata u providera. Poprawka uzgadnia tylko D1
+receipt po pełnym prywatnym readback, appProperties i source/version/fence CAS.
+Nie nadpisuje pliku, nie tworzy duplikatu, zachowuje verified_at/retention clock.
+Zmiana treści, publiczne ACL, niestabilna wersja i stary fence są odrzucane.
+Historyczne failed receipts zachowano. Recovery zużyło **22 REST /357 reads
+/5 writes** (OAuth metadata i receipt); określenie `READ_ONLY_VERIFICATION`
+w polu attempt oznacza brak nowej archiwizacji, nie zerowe zapisy D1.
+
+**Świeża niezależna kopia verified:** `fbf01a86-3ddb-414d-bc96-05c489262fbd`,
+capture 10 października 20:56:07 UTC, cut 2815, schema 39, **7430 rows /420 chunks**,
+**20993111 file bytes**, SHA-256
+`b0a9c6c6d41cc5492ddf0ca817d659242273628d0bc41acbe1d115c6983905f2`.
+Capture/readback **503468 ms** mieści się w niezmienionej 10-minutowej barierze.
+Pierwszy log transferu wskazywał ARCHIVE_FAILED; późniejszy receipt 21:06:03
+potwierdził ten sam reserved ID bez nowego capture/create. Drive ID
+`1JAjGXZlJjV52onW78dxaOHTvJCkgKIZ1`, upload/download SHA i portable integrity PASS.
+Restore faktycznie pobranej kopii do pustej izolowanej bazy: canonical readback,
+7430 rows, FK/integrity PASS, 0 przywróconych sesji/aktywnych credentials.
+[Independent copy restore](docs/verification/backup/drive-fbf01a86-3ddb-414d-bc96-05c489262fbd-restore.json).
+To nie pełna kwalifikacja application RPO/RTO. Nie usunięto starych backupów.
+
+Targeted verification zachowuje osobne zakresy: **17 Workers** post-lease,
+**3 unit restore +6 Workers** backup, następnie **20 Workers** version/CAS
+(0 FAIL); nie sumujemy ponowień. Final typecheck/lint/API build i public secret
+scan PASS (4 files /413176 bytes /0 findings). Starsze pełne regresje poniżej
+zachowują swoje pins. [Production retention observation](docs/verification/retention/production-observation-2026-10-11.json):
+**7 REST /744 reads /0 writes**, pusty dry-run, deletion_enabled **0**,
+approval_reference **NULL**, 0 DELETE i 0 Drive requests. Nie ma jeszcze
+zaakceptowanego Daily membership, zatem nie ma zakresu pierwszego cleanup.
+Kolejka zachowana: ANALYZE 5 PENDING, FETCH_TRANSCRIPT 17 DEFERRED/40 SUCCEEDED,
+DISCOVER 1 RUNNING/240 SUCCEEDED; jeden enabled source. Nie usuwano jobs.
+
+Po zmianie dnia UTC jeden nowy indexed probe potwierdził bieżącą dostępność:
+**1 read /0 writes**; nie powtórzono migracji, create, benchmarków ani capture.
+Końcowe Analytics są w [aktualnym zrzucie](docs/verification/release/d1-analytics-final-resume-2026-10-11.json);
+to opóźnione zużycie całego konta, nie exact remaining ani atrybucja pełnych
+kosztów testów. Produkcyjny koszt admission/Capacity/metadata pozostaje niżej.
+CPU pojedynczego scheduled transcript i stabilny przepływ 20 kanałów nadal
+nie są zakwalifikowane. **Gate C NOT_YET_MATURE; full Gate R/D NOT_ACCEPTED.**
+Końcowe aggregate Worker Analytics 01:42–01:45 UTC: **34 requests /0 errors**,
+raw CPU P50 1830 /P99 11205; provider units nie przeliczano. To mixed
+invocations, nie dowód CPU jednego archive ani szczytowego 20-channel load.
+[Monitoring końcowego deployu](docs/verification/release/worker-final-deploy-summary-2026-10-11.json).
+
+Zatwierdzone 19 canonical kanałów/new-only nie wymaga ponownej decyzji.
+Aktywacja czeka na stabilne P0 summary delivery zgodnie z ograniczeniem
+wznowienia. Rekomendowana kolejność pozostaje: osobno zatwierdzony jednorazowy
+Gemini QUALITY_TEST, wymagany human review rzeczywistego wyniku, autoryzowany
+production AI → Daily/readback, następnie staged źródła. Nowego Gemini/model
+requestu lub fallbacku nie wykonano. CP-3.13 AWAITING_HUMAN_REVIEW;
+screen-reader NOT_RUN/DEFERRED. **paid_services_enabled=false**, deletion OFF.
+Jednorazowy heartbeat został **usunięty** po wykonaniu zakresu; Windows Capacity
+Observation i cadence backupu pozostają odrębne. [Receipt usunięcia](docs/verification/release/resume-heartbeat-deleted-2026-10-11.json).
+
+## Historia wykonania po resecie — 2026-10-10 (stan pośredni)
+
+**IMPLEMENTATION COMPLETE NO; PRODUCTION ACCEPTED NO.** Wznowienie rozpoczęło
+się faktycznie o 20:29 UTC (22:29 Europe/Warsaw), nie o planowanej 02:05.
+Jeden indexed probe potwierdził AVAILABLE: 1 request /1 rows_read /0 writes.
+Exact preflight i migracje 036–039 wykonano w kolejności; produkcyjna schema
+**39**, quick_check/FK PASS. Pierwszy rzeczywisty deploy:
+`2e3f69d6-43d8-4f30-9a98-10e7a56b69bd`, 20:32:30 UTC, kod `0df368d`;
+public health HTTP 200 bez SQL. Późniejsze poprawki są w `ba36a56`, `89879e6`
+i `bab15ea`; ich końcowy deploy/readback jest jeszcze w toku.
+
+Prywatny podfolder **Transkrypcje**: `1bNqbMUjrU4HEBh45nHV-embobIPuhHtt`,
+pod istniejącym Bartosz Intelligence. Owner-only check PASS, bez zmiany ACL
+Daily/Backups lub rozszerzenia OAuth. Plik istniejącego `rUhllpnYWR8`:
+`1t2P2F0ZzM0FgORpNdZRHJ2ZI598qoyQl`, remote version 1,
+SHA-256 `f74ebf78801893c5a2ca61edda9214d8c19f0c7c36c7af84fbdce126ea92de71`.
+Pierwszy archive-once zapisał VERIFIED, lecz jego niezależny readback ujawnił
+błąd `ARTIFACT_CHUNK_MISSING`: reader wymagał lease także po jej prawidłowym
+zwolnieniu. Naprawa `ba36a56` zachowuje scope, bytes/hash i odmowę CONFLICT;
+**17 Workers PASS /0 FAIL**, typecheck/lint/API build PASS. Nie powtórzono create.
+Po jawnej zgodzie i logowaniu właściciela GUI pokazuje verified transkrypcję
+i właściwy link Drive. To **GUI_ONLY, nie HUMAN_REVIEW**. Analiza PENDING,
+brak accepted polskiego streszczenia; film nadal **nie jest ukończony P0**.
+
+Stara verified kopia `5a30668c-f9f2-4aae-b965-b9e15dc9c073` jest poprawna dla
+fixtures, lecz jej wiek przekroczył 48 h i nie obejmuje nowego stanu archiwum.
+Świeży capture ma uzasadnienie RPO/canonical delta. Pierwsza próba wygasła po
+10 min przy artifact_chunks/cursor 280; nie powstała verified kopia ani upload.
+Failure receipt zachowano. Naprawa `89879e6` łączy odczyt snapshot/page i grupuje
+małe rekordy lokalnego runnera bez zmiany limitów/integralności/barier.
+Offline verified copy: **4678 identycznych rekordów i ten sam hash treści**,
+**1138 → 619 chunk round trips**. To nie billed rows ani cloud timing.
+Regresje: **3 unit restore +6 Workers backup PASS /0 FAIL**; types/lint/build
+PASS. Jedno uzasadnione ponowienie trwa przez istniejący mutex; nie tworzymy
+kopii tylko dla powtórzenia PASS i nie usuwamy historycznych backupów.
+
+Minimalny pomiar produkcyjny: admission **4 rows_read**, jedna strona Capacity
+**2617**, metadata-refresh **2**, każda 0 writes. Łącznie runner z preflight:
+**6 REST /2666 reads /0 writes**. Pierwsza archiwizacja: **27 REST /350 reads
+/12 writes**; folder: **10 REST /56 reads /5 writes**. Koszt jednej pomocniczej
+kontroli postępu backupu wyniósł **10234 reads /0 writes**; nie powtarzano jej.
+Późniejszy indexed lookup snapshotu: 1 read /0 writes. To częściowe zmierzone
+koszty, nie pełny licznik testów/migracji/backupów lub ruchu aplikacji.
+Analytics o 20:55:49 UTC: **3 483 453 reads /18 960 writes**, wszystkie widoczne
+w BARTOSZ_CORE; storage konto **27 181 056 bytes**, core **24 281 088 bytes**.
+Analytics ma opóźnienie; exact remaining quota jest nieznane. Zrzut 20:30 i
+live SQL metadata zachowano. Worker aggregate 20:32–20:40: 207 requests,
+0 errors, raw CPU quantiles; nie kwalifikuje CPU pojedynczego scheduled archive.
+
+**0 nowych Gemini/model requests, 0 production DELETE, paid_services_enabled=false.**
+Nowy materiał nie był ponownie pobierany z YouTube. Retencja pozostaje observation/
+dry-run, deletion OFF, bez pierwszej zgody na usuwanie. Zatwierdzone 19 IDs i
+new-only pozostają gotowe; aktywacja po stabilnym podstawowym przepływie.
+Rekomendacja P0 pozostaje konkretna: jedna wcześniej opisana, osobno zatwierdzona
+próba QUALITY_TEST → ocena rzeczywistej jakości → autoryzowane AI → Daily/readback,
+a następnie staged 20 kanałów. Pending pytanie nie jest zgodą na Gemini.
+Gate C NOT_YET_MATURE; Gate R/D nie są pełnym PASS. Zachowany nowy provider
+recovery receipt `provider-transcript-b925232f-a065-4c2b-ac31-89b710c89357`
+dotyczy własnych schema-39 pins z 9 października (18.748 s, 1071 cues, jeden
+SOURCE effect); nie został przepisany pod późniejsze poprawki lub cały Gate R.
+CP-3.13 AWAITING_HUMAN_REVIEW; screen-reader NOT_RUN/DEFERRED.
+
+## Historyczny lokalny checkpoint — pełne oryginalne transkrypcje na Drive
 
 2026-10-10, V1.1.3. **IMPLEMENTATION COMPLETE NO; PRODUCTION ACCEPTED NO.**
 Implementacja archiwum: `966da18`; ostatnia poprawka: **`1f120d1`**.

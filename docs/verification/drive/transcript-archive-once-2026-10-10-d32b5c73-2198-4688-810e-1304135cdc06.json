@@ -1,0 +1,18 @@
+{
+  "version": "transcript-archive-live:1",
+  "observed_at": "2026-10-10T20:34:07.158Z",
+  "result": {
+    "state": "RECOVERY_REQUIRED",
+    "reason": "ARTIFACT_CHUNK_MISSING"
+  },
+  "budget": {
+    "requests": 27,
+    "rows_read": 350,
+    "rows_written": 12,
+    "metadata_complete": true,
+    "stopped": false
+  },
+  "gemini_requests": 0,
+  "destructive_cleanup": 0,
+  "paid_services_enabled": false
+}

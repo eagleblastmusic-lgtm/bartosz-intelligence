@@ -135,6 +135,18 @@ operacyjnej diagnozie. Proces nie usuwa plików Drive ani historycznych backupó
 
 ## Recovery
 
+Verified transcript readback can expose a provider metadata version change even
+when all original Markdown bytes/hash remain identical. Do not overwrite that
+file or create another archive. `--recover-readback --video rUhllpnYWR8` is a
+bounded administrative continuation after an existing failed verify intent.
+It checks private folder/file permissions, identity/appProperties, full bytes,
+stable before/after version and the recorded hash, then advances only the D1
+metadata receipt with source/fence/version CAS. The original verified_at and
+seven-day retention clock remain unchanged for identical content. Different
+bytes, public permissions, a moving version or stale fence refuse reconciliation.
+The retained failure and recovery receipts are separate; neither is overwritten.
+This operation makes no Drive writes, Gemini calls or production DELETE.
+
 Przy quota przerwać nową porcję; committed checkpoint pozostaje, nie replayować
 ambiguous mutations ręcznie. Przy konflikcie Drive najpierw zabezpieczyć ręczne
 edycje i rozwiązać tożsamość raportu. Zarchiwizowanego dnia nie wolno renderować

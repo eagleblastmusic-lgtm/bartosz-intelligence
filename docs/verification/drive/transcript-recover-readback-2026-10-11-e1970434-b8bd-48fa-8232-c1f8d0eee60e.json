@@ -1,0 +1,35 @@
+{
+  "version": "transcript-archive-live:1",
+  "observed_at": "2026-10-11T01:41:45.706Z",
+  "result": {
+    "state": "VERIFIED",
+    "video_id": "rUhllpnYWR8",
+    "file_id": "1t2P2F0ZzM0FgORpNdZRHJ2ZI598qoyQl",
+    "folder_id": "1bNqbMUjrU4HEBh45nHV-embobIPuhHtt",
+    "remote_version": "2",
+    "sha256": "f74ebf78801893c5a2ca61edda9214d8c19f0c7c36c7af84fbdce126ea92de71",
+    "byte_count": 107148,
+    "cues": 1071,
+    "source_hash": "f0f0874314d88f5b19acc2abb55aa9a326425a5e1f93f42b006534d1a7c092c0",
+    "byte_for_byte_readback": true,
+    "private_folder_verified": true,
+    "attempt": {
+      "state": "READ_ONLY_VERIFICATION"
+    },
+    "dedup": {
+      "state": "IDLE"
+    },
+    "attempt_count": 1,
+    "fencing_token": 1
+  },
+  "budget": {
+    "requests": 22,
+    "rows_read": 357,
+    "rows_written": 5,
+    "metadata_complete": true,
+    "stopped": false
+  },
+  "gemini_requests": 0,
+  "destructive_cleanup": 0,
+  "paid_services_enabled": false
+}

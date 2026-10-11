@@ -1,0 +1,27 @@
+{
+  "version": "worker-post-deploy-summary:1",
+  "observed_at": "2026-10-11T01:45:20.951Z",
+  "start": "2026-10-11T01:42:06.109Z",
+  "end": "2026-10-11T01:45:20.951Z",
+  "d1_sql_queries": 0,
+  "paid_services_enabled": false,
+  "scope": "MIXED_WORKER_INVOCATIONS_NOT_PER_TRANSCRIPT_CPU",
+  "cpu_quantile_units": "RAW_PROVIDER_UNITS_NOT_CONVERTED",
+  "samples": [
+    {
+      "dimensions": {
+        "status": "success"
+      },
+      "quantiles": {
+        "cpuTimeP50": 1830,
+        "cpuTimeP99": 11205
+      },
+      "sum": {
+        "errors": 0,
+        "requests": 34,
+        "subrequests": 0
+      }
+    }
+  ],
+  "status": "MEASURED"
+}

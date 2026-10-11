@@ -1,5 +1,32 @@
 # Stage 08 — current handoff
 
+## Completed reachable one-off resume, 2026-10-11
+
+Production schema 39 and final code `7b79a79` deployed as Worker
+9d3b376e-990d-48c7-a97e-a0877f918aa0. Actual transcript readback/dedup and
+independent fresh Drive-copy restore PASS; retention dry-run empty/deletion OFF.
+Post-lease, backup expiry and metadata-only version drift were fixed and tested.
+No Gemini/model requests, Drive overwrite, production DELETE or paid service.
+One-off heartbeat deleted. See current release report/immutable completion
+receipt; do not repeat successful operations or treat interim text as current.
+P0 Polish Daily delivery remains pending. 19-source approval is retained;
+activation requires stable P0, not another list approval. Gates/human review
+retain their honest outstanding scopes; whole V1 is not accepted.
+
+## Actual post-reset execution, 2026-10-10
+
+Production schema 39, real deployment, private transcript folder/file and
+owner-authenticated GUI are confirmed. Earlier production-35 entries below are
+historical. Post-lease readback and bounded backup round trips are repaired
+with targeted regressions; the fresh backup retry and final verification are
+in progress. Use current RELEASE_READINESS_REPORT.md and the exclusive intents;
+do not replay successful probe/migrations/archive create or completed measurements.
+P0 Polish summary is still pending; no Gemini generation or model request is
+authorized. Deletion remains OFF. Gate C is NOT_YET_MATURE; historical R/D pins
+are not repinned to newer fixes. CP-3.13 awaits human review and screen-reader
+remains NOT_RUN/DEFERRED. End the one-off heartbeat after its reachable scope;
+keep the separate Windows observation/cadence.
+
 ## Current original-transcript archive checkpoint, 2026-10-10
 
 Current local schema 39, production still 35. Original acquired captions now

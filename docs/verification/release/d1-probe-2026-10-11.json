@@ -1,0 +1,11 @@
+{
+  "version": "D1AvailabilityProbe/1.0",
+  "observed_at": "2026-10-11T01:35:48.183Z",
+  "state": "AVAILABLE",
+  "requests": 1,
+  "rows_read": 1,
+  "rows_written": 0,
+  "reason": null,
+  "account_remaining_rows": null,
+  "paid_services_enabled": false
+}

@@ -1,0 +1,10 @@
+{
+  "result": "FAIL",
+  "phase": "CHUNKS",
+  "chunk_table": "artifact_chunks",
+  "chunk_cursor": 280,
+  "reason": "BACKUP_EXPIRED_OR_CLOSED",
+  "backup_id": "4bc1b6f8-0fbf-441e-97f1-9e12a7b19da0",
+  "recorded_at": "2026-10-10T20:47:41.733Z",
+  "secret_values_recorded": false
+}

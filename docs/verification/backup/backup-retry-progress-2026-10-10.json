@@ -1,0 +1,20 @@
+{
+  "observed_at": "2026-10-10T21:05:19.487Z",
+  "scope": "ONE_INDEXED_PROGRESS_CHECK_NO_COUNT_SCAN",
+  "snapshot": {
+    "backup_id": "f985f676-d486-43c9-ae8e-e5a8f7782e6c",
+    "created_at": "2026-10-09T17:05:50.454Z",
+    "expires_at": "2026-10-09T17:15:50.454Z",
+    "state": "BUILDING"
+  },
+  "pages": [
+    {
+      "table_name": "artifact_chunks",
+      "cursor": 53,
+      "next_cursor": 55,
+      "chunk_index": 25
+    }
+  ],
+  "rows_read": 10,
+  "rows_written": 0
+}

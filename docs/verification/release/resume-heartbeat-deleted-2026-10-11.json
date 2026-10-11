@@ -1,0 +1,11 @@
+{
+  "version": "one-off-resume-heartbeat-completion:1",
+  "automation_id": "bartosz-intelligence-wznowienie-po-resecie-d1",
+  "delete_status": "deleted",
+  "basis": "Successful Codex automation_update mode=delete response after reachable one-off execution",
+  "windows_capacity_observation_changed": false,
+  "backup_cadence_changed": false,
+  "implementation_complete": false,
+  "production_accepted": false,
+  "paid_services_enabled": false
+}

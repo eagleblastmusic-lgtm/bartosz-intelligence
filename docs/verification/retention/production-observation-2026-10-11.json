@@ -1,0 +1,77 @@
+{
+  "version": "retention-production-observation:1",
+  "observed_at": "2026-10-11T01:41:48.495Z",
+  "scope": "READ_ONLY_DATABASE_DRY_RUN_NOT_REMOTE_DELETION_QUALIFICATION",
+  "schema": 39,
+  "status": {
+    "policy": "DRIVE_ONLY_VERIFIED_PLUS_7_DAYS",
+    "settings": {
+      "deletion_enabled": 0,
+      "approval_reference": null,
+      "next_check_at": "2026-10-11T02:35:10.000Z",
+      "last_receipt_json": "{\"mode\":\"OBSERVATION_ONLY\",\"observed_at\":\"2026-10-10T20:35:10.000Z\",\"counts\":[],\"deleted_rows\":0,\"paid_services_enabled\":false}"
+    },
+    "items": []
+  },
+  "dry_run": {
+    "mode": "DRY_RUN",
+    "observed_at": "2026-10-11T01:41:48.187Z",
+    "items": [],
+    "deleted_rows": 0,
+    "deleted_bytes": 0
+  },
+  "queue": [
+    {
+      "task_type": "ANALYZE",
+      "state": "PENDING",
+      "jobs": 5
+    },
+    {
+      "task_type": "DISCOVER",
+      "state": "RUNNING",
+      "jobs": 1
+    },
+    {
+      "task_type": "DISCOVER",
+      "state": "SUCCEEDED",
+      "jobs": 240
+    },
+    {
+      "task_type": "FETCH_TRANSCRIPT",
+      "state": "DEFERRED",
+      "jobs": 17
+    },
+    {
+      "task_type": "FETCH_TRANSCRIPT",
+      "state": "SUCCEEDED",
+      "jobs": 40
+    },
+    {
+      "task_type": "PROJECT",
+      "state": "SUCCEEDED",
+      "jobs": 40
+    },
+    {
+      "task_type": "RECONCILE",
+      "state": "SUCCEEDED",
+      "jobs": 7
+    }
+  ],
+  "sources": [
+    {
+      "enabled": 1,
+      "sources": 1
+    }
+  ],
+  "budget": {
+    "requests": 7,
+    "rows_read": 744,
+    "rows_written": 0,
+    "metadata_complete": true,
+    "stopped": false
+  },
+  "production_delete": 0,
+  "drive_requests": 0,
+  "gemini_requests": 0,
+  "paid_services_enabled": false
+}

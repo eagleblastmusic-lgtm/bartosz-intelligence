@@ -1,0 +1,19 @@
+{
+  "version": "transcript-production-gui:1",
+  "observed_at": "2026-10-10T20:43:40.120765+00:00",
+  "method": "cua_repl AX plus screenshot, owner authenticated through existing Google login",
+  "item_id": "0831686a-fd87-493e-a389-f8f8d8ff51a9",
+  "video_id": "rUhllpnYWR8",
+  "title": "How to Make Learning Impossibly Fun | Mark Rober | TED",
+  "gui_url": "https://bartosz-intelligence.eagleblastmusic.workers.dev/items/0831686a-fd87-493e-a389-f8f8d8ff51a9",
+  "transcript_archive_visible": "VERIFIED",
+  "drive_file_id": "1t2P2F0ZzM0FgORpNdZRHJ2ZI598qoyQl",
+  "drive_link_visible": true,
+  "analysis_status": "PENDING",
+  "accepted_summary_available": false,
+  "film_completion_not_claimed": true,
+  "new_gemini_requests": 0,
+  "paid_services_enabled": false,
+  "scope": "GUI_ONLY_NOT_HUMAN_QUALITY_ACCEPTANCE",
+  "authentication": "Initial automatic review denied login; owner then explicitly approved login and completed it. No OAuth expansion or workaround."
+}

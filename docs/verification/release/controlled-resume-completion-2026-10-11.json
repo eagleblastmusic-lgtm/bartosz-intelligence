@@ -1,0 +1,58 @@
+{
+  "version": "controlled-d1-resume-completion:1",
+  "recorded_at": "2026-10-11T01:42:40.179Z",
+  "code_commit": "7b79a79812269acd3bfd48bd9e57af20aa639d3e",
+  "source_hashes": {
+    "packages/core/src/artifacts/store.ts": "f0854f17c80b8dc042bd1ce37b1096244144abccde9343f6fe015865df05f2d6",
+    "packages/core/src/backup/snapshot.ts": "2f8814460a1d6028e396d6af4e2e35f9f6f4ba90dc05f221adac2524a6c1ad8d",
+    "packages/core/src/transcript/archive.ts": "b423fd6ecf8d1f4aabc4a17b88215ac4e108a76c63aecbf49f11da44f929f3a1",
+    "tools/deployment/portable-backup.ts": "ca88b15de6fa3d6c847baaa46b0cca53d9f82e9d7b894b34cfad22133f9d1534",
+    "tools/deployment/transcript-archive-live.ts": "466ecfe7332d003074b67543ead0f81f90daa67d172d338a3e7985cc24bb69ca",
+    "db/migration-ledger.json": "389a4192a4683cf9fe2585abf612a2630b5e8c4c523ee79a9b727388a700750f"
+  },
+  "production_schema": 39,
+  "deployment": "docs/verification/deployment/2026-10-11T01-42-06.109Z.json",
+  "backup_restore": "docs/verification/backup/drive-fbf01a86-3ddb-414d-bc96-05c489262fbd-restore.json",
+  "transcript_recovery": "docs/verification/drive/transcript-recover-readback-2026-10-11-e1970434-b8bd-48fa-8232-c1f8d0eee60e.json",
+  "retention_observation": "docs/verification/retention/production-observation-2026-10-11.json",
+  "targeted_regressions": [
+    {
+      "log": ".local/tests/transcript-post-lease-workers.json",
+      "sha256": "b5dd6be1c49ba07f87addba38b0a68b644fa05414aed5a20696f7e50743dbf64",
+      "passed": 17,
+      "failed": 0
+    },
+    {
+      "log": ".local/tests/backup-roundtrip-unit.json",
+      "sha256": "ea4fcb75783e0f47e10178b5c39361ee6111bcbb62253e159edb897777233b87",
+      "passed": 3,
+      "failed": 0
+    },
+    {
+      "log": ".local/tests/backup-roundtrip-workers.json",
+      "sha256": "f1dfcc4a0e48eade4be3c3ed8e3ad81fb86fb14759cf4590f5e1479787fab513",
+      "passed": 6,
+      "failed": 0
+    },
+    {
+      "log": ".local/tests/transcript-version-final-workers.json",
+      "sha256": "a42df4986ad4c258504e865cbc0d8d8a4312bfc54e666d1e7b34ab23ff15f0ef",
+      "passed": 20,
+      "failed": 0
+    }
+  ],
+  "types_lint_api_build": "PASS",
+  "noncritical_analytics": "DELAYED_USAGE_NOT_EXACT_REMAINING",
+  "new_gemini_or_model_requests": 0,
+  "production_delete": 0,
+  "paid_services_enabled": false,
+  "channels_newly_activated": 0,
+  "channels_reason": "WAITING_FOR_STABLE_P0_SUMMARY_DELIVERY_NOT_FOR_REAPPROVAL",
+  "film_p0_completion": false,
+  "gate_c": "NOT_YET_MATURE",
+  "full_gate_r_d": "NOT_ACCEPTED",
+  "cp_3_13": "AWAITING_HUMAN_REVIEW",
+  "screen_reader": "NOT_RUN_DEFERRED",
+  "implementation_complete": false,
+  "production_accepted": false
+}

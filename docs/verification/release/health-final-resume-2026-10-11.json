@@ -1,0 +1,15 @@
+{
+  "observed_at": "2026-10-11T01:42:39.923Z",
+  "http_status": 200,
+  "health": {
+    "build": "0.0.1",
+    "status": "LOCAL_READY",
+    "bindings": {
+      "DB": true,
+      "BARTOSZ_QUEUE": true,
+      "ASSETS": true
+    }
+  },
+  "production_sql": 0,
+  "paid_services_enabled": false
+}

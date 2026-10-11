@@ -1,0 +1,10 @@
+{
+  "result": "FAIL",
+  "phase": "MIGRATIONS",
+  "chunk_table": null,
+  "chunk_cursor": null,
+  "reason": "BACKUP_SCHEMA_MIGRATION_PENDING",
+  "backup_id": null,
+  "recorded_at": "2026-10-10T01:05:51.914Z",
+  "secret_values_recorded": false
+}

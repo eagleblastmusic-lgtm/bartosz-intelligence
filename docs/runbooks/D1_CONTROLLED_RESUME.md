@@ -1,9 +1,25 @@
 # Kontrolowane wznowienie D1 — 2026-10-10
 
+## Zakończony zakres jednorazowego wykonania — 2026-10-11
+
+Schema 39, końcowy deploy `9d3b376e-990d-48c7-a97e-a0877f918aa0`, niezależny
+Drive-copy restore i pełny transcript readback/dedup PASS. Kod `7b79a79`.
+Jednorazowy heartbeat został usunięty; nie odtwarzać codziennego ciężkiego run.
+Autorytatywny wynik: RELEASE_READINESS_REPORT.md oraz
+`docs/verification/release/controlled-resume-completion-2026-10-11.json`.
+Nie ponawiać probe/migracji/folder/archive/capture. Odczyt po zmianie UTC day
+był dodatkowym pojedynczym 1-read probe dla dokończenia poprzedniego wykonania.
+Retencja read-only dry-run, deletion 0/approval NULL. P0 AI → Daily pozostaje
+pending; 19 new-only IDs są zatwierdzone i czekają na stabilne dostarczanie P0.
+Następny Gemini/model request wymaga osobnej zgody, human quality odbioru nie
+zastępuje GUI. Windows Capacity Observation i cadence backupu są odrębne.
+
 Priorytet wznowienia: **rzeczywiste AI → zweryfikowany Google Drive**.
 Nowe doprecyzowanie i lokalna delta P0 są w decyzji Drive-only oraz
 [diagnozie Gemini](../verification/gate-ai/GEMINI_503_P0_2026-10-09.md).
-Pending schema obejmuje 036/037/038/039, bez nowego ciężkiego magazynu.
+Rzeczywiste wznowienie 2026-10-10 zastosowało 036/037/038/039; produkcja ma
+schema 39. Aktualny wynik i receipts są w RELEASE_READINESS_REPORT.md.
+Poniższa sekwencja pozostaje runbookiem, nie poleceniem ponowienia wykonanych kroków.
 Zatwierdzono prywatne pełne transkrypcje. Po preflight/probe wykonać setup
 podfolderu i jeden archive-once według runbooka retencji, bez Gemini. Następnie
 P0 summary live E2E tylko po faktycznej osobnej zgodzie. Awaria archiwizacji
@@ -19,8 +35,11 @@ PASS Gate R ani 6 PASS D-export tylko dla uzyskania nowej daty evidence.
 
 ## Warunek rozpoczęcia
 
-Heartbeat tego czatu: **10 października 02:05 Europe/Warsaw**, następnie raz
-dziennie do wyczerpania wznowienia. Wymaga dostępnego środowiska aplikacji.
+Właściciel zatwierdził **jedno wznowienie 10 października 02:05 Europe/Warsaw**.
+Środowisko wykonało je faktycznie od 20:29 UTC, czyli 22:29 Europe/Warsaw.
+Nie przypisujemy wyników do planowanej godziny. Po zakończeniu wykonalnego
+zakresu usunąć ten heartbeat; nie uruchamiać codziennie ciężkich testów.
+Windows Capacity Observation i istniejąca cadence backupu są odrębne.
 Nie zastępuje unattended ChatGPT Scheduled / Voice ani ciągłej obserwacji Gate C.
 
 1. `node --env-file=.env --import=tsx tools/deployment/d1-resume.ts --probe`.
@@ -38,8 +57,9 @@ Nie zastępuje unattended ChatGPT Scheduled / Voice ani ciągłej obserwacji Gat
    sprawdzeniu 35 istniejących nazw/hashów. Na lokalnej kopii koszt indeksów
    jest mierzony w benchmarku; produkcyjne metadata zachować, nie zgadywać.
    Następnie wdrożyć zweryfikowany build z obsługą daily quota i poprawionym SQL.
-   Produkcja ma nadal 35 migracji / Worker `93995293-fd49-4f25-b843-63f326c30a32`
-   dopóki rzeczywista operacja i readback nie potwierdzą zmiany.
+   Historyczny stan przed wznowieniem: 35 migracji / Worker
+   `93995293-fd49-4f25-b843-63f326c30a32`. Aktualny stan 39 i rzeczywisty deploy
+   potwierdzają receipts z 10 października; nie ponawiać migracji dla nowej daty PASS.
    Istniejący tryb: `node --env-file=.env tools/deployment/prepare.mjs migrate`;
    później właściwy zweryfikowany deploy przez `tools/deployment/deploy.mjs`.
    Backup cadence odmawia capture przed zgodnym applied checksum set, więc
@@ -61,6 +81,8 @@ Nie zastępuje unattended ChatGPT Scheduled / Voice ani ciągłej obserwacji Gat
    provider requests. Zgoda właściciela z
    2026-10-09 jest w `docs/decisions/GATE_C_CHANNEL_PROPOSAL_2026-10-09.md`.
    Nie pytać ponownie o listę/tryb; nie uruchamiać pełnego backfill lub AI.
+   Aktywacja pozostaje po stabilnym podstawowym przepływie. Sam zapis
+   transkrypcji nie stanowi dowodu dostarczenia polskiego streszczenia P0.
 
 ## Backup: istniejąca kopia najpierw
 

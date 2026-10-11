@@ -1,0 +1,23 @@
+{
+  "observed_at": "2026-10-11T01:37:50.526Z",
+  "source": "VERIFIED_BACKUP_LOCAL_RECONSTRUCTION",
+  "file_id": "1t2P2F0ZzM0FgORpNdZRHJ2ZI598qoyQl",
+  "stored_version": "1",
+  "before_version": "2",
+  "after_version": "2",
+  "trashed": false,
+  "parent_matches": true,
+  "stored_sha256": "f74ebf78801893c5a2ca61edda9214d8c19f0c7c36c7af84fbdce126ea92de71",
+  "expected_sha256": "f74ebf78801893c5a2ca61edda9214d8c19f0c7c36c7af84fbdce126ea92de71",
+  "downloaded_sha256": "f74ebf78801893c5a2ca61edda9214d8c19f0c7c36c7af84fbdce126ea92de71",
+  "expected_bytes": 107148,
+  "downloaded_bytes": 107148,
+  "identical_bytes": true,
+  "budget": {
+    "requests": 4,
+    "rows_read": 11,
+    "rows_written": 2,
+    "metadata_complete": true,
+    "stopped": false
+  }
+}
