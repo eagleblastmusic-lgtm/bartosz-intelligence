@@ -1,6 +1,12 @@
 import { it, expect } from 'vitest';
 import { DatabaseSync } from 'node:sqlite';
-import { readFileSync, readdirSync, writeFileSync, existsSync } from 'node:fs';
+import {
+  readFileSync,
+  readdirSync,
+  writeFileSync,
+  existsSync,
+  mkdirSync,
+} from 'node:fs';
 import { sqliteAdapter } from '../../tools/db/sqlite-adapter.js';
 import { AccessContext } from '../../packages/core/src/db/boundary.js';
 import { SourceRepository } from '../../packages/core/src/db/sources.js';
@@ -459,6 +465,7 @@ it('rejects unavailable Drive and a concurrent database change after readback', 
   }
 });
 it('keeps batches at 25 rows and resumes a checkpoint after closing and reopening persistent SQLite', async () => {
+  mkdirSync('.local/tests', { recursive: true });
   const path =
     '.local/tests/retention-restart-' + crypto.randomUUID() + '.sqlite';
   const f = await fixture(false, path);
