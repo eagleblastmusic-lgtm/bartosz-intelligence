@@ -1,0 +1,85 @@
+{
+  "version": "radio-quality-test-preflight:1",
+  "recorded_at": "2026-10-11T20:10:53.309Z",
+  "status": "PREPARED_SUBJECT_TO_FINAL_RESERVATION",
+  "head": "62212e2636426196e013c99d4e8b337e138496b1",
+  "validator": "radio-narrative:2",
+  "validation_cache_prefix": "analysis-validation-quality3-radio-narrative:2-",
+  "validation_location": "CURRENT_LOCAL_CORE_EXISTING_REMOTE_DATABASE_BOUNDARY",
+  "production_worker_code_not_used_for_final_validation": true,
+  "runtime_code": [
+    {
+      "path": "packages/core/src/ai/narrative-quality.ts",
+      "sha256": "cc20a3d9ada813f2a58f5c19b536eeef1f0157bd48f399dc9a18f7e579329bb1"
+    },
+    {
+      "path": "packages/core/src/ai/validation.ts",
+      "sha256": "a7147c3238a72f0bdfd354ad9fba817bc891b79cf8ba93706a5452d92fd65c03"
+    },
+    {
+      "path": "packages/core/src/ai/gemini.ts",
+      "sha256": "863d8da8d5811b381c724e72ecea643ac4894a7a5a1681e47f0034c016949ff1"
+    },
+    {
+      "path": "packages/core/src/registry/analysis-quality.ts",
+      "sha256": "976d737dabcac61fd6bb8dca65bac4939f6cde073eaf977183e2bf3bc2b5804a"
+    },
+    {
+      "path": "apps/executor/src/analysis-transport.ts",
+      "sha256": "25e53f4bd22d1de556a7c86b78100e736d145c751678eb64901b25958c11058b"
+    },
+    {
+      "path": "apps/executor/src/analysis-preparation.ts",
+      "sha256": "b51966dfa7e10758adbdb3a978d8640abda2bf684488cd1c1b06900ccf48d911"
+    }
+  ],
+  "authorization_sha256": "69c124be52ce9c8535dab96cd97bec164eca9173814eda089586c53806bb4eab",
+  "proposal_sha256": "87683c6599bda9ddb11a49966213614b1c9edc84dc5a02e3432a320f0d35d8fb",
+  "tier_sha256": "5b2a6cccd3148c7586bc42181baaa1b1aff77de3fd5df8c5a6b94c0bc2495022",
+  "caps_sha256": "9acce8bfafb092764f0f429a302707518b8d2ad912b8726c9ffbe7b47b10ec76",
+  "quota_sha256": "351b3637337634cba07280f979186bf3a412c55e0150d7d3c7eebf65b6c8b420",
+  "quota_observation": {
+    "version": "gemini-quota-observation:1",
+    "project": "bartosz-intelligence",
+    "model": "gemini-3.8-flash",
+    "tier": "FREE",
+    "source": "GOOGLE_CLOUD_QUOTA_CURRENT",
+    "sampled_at": "2026-10-11T20:10:30.186Z",
+    "buckets": [
+      {
+        "bucket": "RPM",
+        "limit": 5,
+        "used": 0
+      },
+      {
+        "bucket": "RPD",
+        "limit": 20,
+        "used": 2
+      },
+      {
+        "bucket": "INPUT_TPM",
+        "limit": 250000,
+        "used": 0
+      }
+    ]
+  },
+  "job_id": "81d1908b-1ef1-4394-8e8c-66756ca53fab",
+  "analysis_run_id": "analysis_ea046dfc08dd178e0557def07b2a7897a902e69a8dd02cde0a73a2d4f1be187b",
+  "profile_revision": 10,
+  "registry": {
+    "prompt_id": "ECONOMY_ANALYSIS_V1",
+    "version": 2,
+    "generation": 1,
+    "prompt_hash": "636174228b5b4588c36bb42e7562a483627cb666690620a8b8813cf435b20c80",
+    "policy_hash": "1cf3fd9471e1859efbe1d67f8125cbfba69da8b3def441ae7b4fea9c7d1bd1d5"
+  },
+  "compiled_prompt_sha256": "e42c1aa8dba97b0216f3cb024569a77d3d6d636d1cc3d5c6662009fc246435bf",
+  "quality_scope": "00429fc4937e9f9289a8edb66192d2eaa5bac66fe300124893bae21aadf64486",
+  "payload_sha256": "bffa482f0d3bccfb7161874771f8eab9e4658938dfc402975b72c209897e5d4a",
+  "source_hash": "f0f0874314d88f5b19acc2abb55aa9a326425a5e1f93f42b006534d1a7c092c0",
+  "manifest_hash": "3be85a7fd1724be21b6a897224639e711727751f9e6e73afa75176585efb0a7e",
+  "source_cues": 1071,
+  "input_reservation": 83800,
+  "output_reservation": 4096,
+  "paid_services_enabled": false
+}

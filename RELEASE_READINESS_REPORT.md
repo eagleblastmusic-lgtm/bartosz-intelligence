@@ -1,6 +1,46 @@
 # Bartosz Intelligence V1 — release readiness
 
-## Aktualny wynik: naprawione publiczne CI i audyt radiowy — 2026-10-11
+## Aktualny wynik: jedna zatwierdzona próba radiowa — HTTP 503 — 2026-10-11
+
+**IMPLEMENTATION COMPLETE NO; PRODUCTION ACCEPTED NO.** Właściciel zatwierdził
+jedną próbę QUALITY_TEST według proposal v2. Po świeżym Free/model/quota/profile
+i sprawdzeniu rzeczywistego Published Registry wysłano **dokładnie jeden
+generateContent POST** o **20:10:55.370 UTC** dla rUhllpnYWR8, gemini-3.8-flash,
+ECONOMY_ANALYSIS_V1 v2 + analysis-quality:3. Odpowiedź: **HTTP 503 / UNAVAILABLE**,
+komunikat providera o aktualnym dużym zapotrzebowaniu. **Nie powstało nowe
+streszczenie: raw_output=null.** Techniczna walidacja treści, renderer i ocena
+semantyczna: **NOT_RUN_NO_PROVIDER_OUTPUT**. Zgoda na ten POST została zużyta.
+
+Przed HTTP potwierdzono zgodność sześciu uruchamianych plików z HEAD
+`62212e2636426196e013c99d4e8b337e138496b1`, radio-narrative:2 i nowy klucz cache.
+Końcową obsługę prowadził bieżący lokalny Core przez istniejącą granicę D1;
+starszego produkcyjnego walidatora nie użyto do kwalifikacji wyniku.
+Registry generation1/PUBLISHEDv2, source1071 cues i dokładny compiled prompt
+SHA `e42c1aa8…` odpowiadały propozycji. Free potwierdzono po odświeżeniu AI Studio;
+Cloud quota o20:10:30.186UTC: RPM0/5, RPD2/20, INPUT_TPM0/250000. Odczyt miał
+25184ms w chwili POST. Model GET potwierdził context1048576/output65536;
+żądanie zachowało output4096 i konserwatywny input estimate83800.
+
+Pełne198 bytes odpowiedzi HTTP zachowano prywatnie z SHA-256/readback.
+Immutable D1 receipt błędu jest VERIFIED; job81d1908b… ma1 próbę,
+RETRY_WAIT/TRANSIENT i zwolniony lease, run pozostaje CANDIDATE bez acceptance.
+Quota reservation/usage **UNKNOWN/null**, nie0. Automatyczny analysis cycle
+wybiera PRODUCTION; QUALITY_TEST wymaga jawnego job ID, a harness ma trwały
+consumed marker. **0 retry/fallback/syntezy/Drive publication/paid**.
+Sześć historycznych source/provider/canonical/editorial SHA bez zmian.
+Znane bezpośrednie admin D1:137 rows_read/43 rows_written; dodatkowe Worker RPC
+rows niezmierzone, więc liczby te nie są pełnym kosztem całej próby.
+
+[Wynik i pełny błąd providera](docs/verification/gate-ai/RADIO_QUALITY_TEST_RESULT_2026-10-11.md),
+[preflight](docs/verification/gate-ai/radio-quality-test-preflight-2026-10-11.json),
+[immutable live receipt](docs/verification/gate-ai/radio-quality-test-live-2026-10-11.json),
+[odczyt kontrolny i integralność](docs/verification/gate-ai/radio-quality-test-verification-2026-10-11.json).
+Kolejny POST wymaga nowej zgody i świeżego preflightu. Model/CP-3.13/P0 nie są
+zakwalifikowane; CP-3.13 AWAITING_HUMAN_REVIEW i odroczone odbiory pozostają.
+Paid false; deletion0/approvalNULL. Nowy patch radio/cache nadal nie jest
+wdrożony na Worker; ta próba nie wykonywała deployu ani publikacji Daily.
+
+## Poprzedni wynik: naprawione publiczne CI i audyt radiowy — 2026-10-11
 
 **IMPLEMENTATION COMPLETE NO; PRODUCTION ACCEPTED NO.** Zlecony bezpieczny
 zakres CI/audytu/przygotowania został wykonany. Naprawiono formatter bez

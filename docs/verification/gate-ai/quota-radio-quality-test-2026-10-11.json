@@ -1,0 +1,13 @@
+{
+  "version": "gemini-quota-observation:1",
+  "project": "bartosz-intelligence",
+  "model": "gemini-3.8-flash",
+  "tier": "FREE",
+  "source": "GOOGLE_CLOUD_QUOTA_CURRENT",
+  "sampled_at": "2026-10-11T20:10:30.186Z",
+  "buckets": [
+    { "bucket": "RPM", "limit": 5, "used": 0 },
+    { "bucket": "RPD", "limit": 20, "used": 2 },
+    { "bucket": "INPUT_TPM", "limit": 250000, "used": 0 }
+  ]
+}

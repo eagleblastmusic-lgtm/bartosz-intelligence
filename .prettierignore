@@ -56,3 +56,6 @@ docs/verification/release/ci-radio-github-actions-2026-10-11.json
 
 # Exact public extract of the authoritative Prompt Pack for portable contracts.
 tests/fixtures/registry/master-prompt-pack-v1.1.1.md
+
+# Exact fresh Free observation is SHA-bound by the immutable one-shot preflight.
+docs/verification/gate-ai/tier-radio-quality-test-2026-10-11.json

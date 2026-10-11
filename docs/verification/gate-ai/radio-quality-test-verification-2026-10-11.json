@@ -1,0 +1,112 @@
+{
+  "version": "radio-quality-test-verification:1",
+  "recorded_at": "2026-10-11T20:14:34.006Z",
+  "status": "PASS_TECHNICAL_FAILURE_RETENTION_ONLY",
+  "live_receipt_sha256": "30718623364b6e065b61e1a20773c9e4bbb9ec100ac12392d4a81a7c9fc00a69",
+  "provider_body": {
+    "private_path": ".local/radio-quality-test-2026-10-11-private/provider-http-body.bin",
+    "byte_size": 198,
+    "sha256": "01f5c7d4e4d8ec06c8098777e731b3d552ba518feb02b681f6c569edcd9c6f6d",
+    "readback_verified": true
+  },
+  "provider_status": "HTTP_503_UNAVAILABLE_HIGH_DEMAND",
+  "post_dispatch_at": "2026-10-11T20:10:55.369Z",
+  "quota_age_at_dispatch_ms": 25183,
+  "generation_submissions": 1,
+  "additional_provider_requests_in_verification": 0,
+  "automatic_retries": 0,
+  "automatic_cycle_quality_test_filter": "PRODUCTION_ONLY_UNLESS_EXPLICIT_JOB_ID",
+  "one_shot_authorization_consumed": true,
+  "job": {
+    "job_id": "81d1908b-1ef1-4394-8e8c-66756ca53fab",
+    "state": "RETRY_WAIT",
+    "reason_code": "TRANSIENT",
+    "attempt_count": 1,
+    "fencing_token": 1,
+    "lease_owner": null,
+    "lease_until": null,
+    "mode": "QUALITY_TEST"
+  },
+  "reservation": {
+    "reservation_id": "363969e6-0c31-497c-84ee-f2351224b5a4",
+    "request_id": "analysis_ea046dfc08dd178e0557def07b2a7897a902e69a8dd02cde0a73a2d4f1be187b",
+    "state": "UNKNOWN",
+    "input_tokens": 83800,
+    "charged_input_tokens": 83800,
+    "settled_at": "2026-10-11T20:11:05.936Z"
+  },
+  "artifact": {
+    "artifact_id": "d78c511a-2d45-451f-b70a-7a2ba3ce8568",
+    "kind": "ANALYSIS_CANDIDATE",
+    "schema_version": "provider-output:1",
+    "state": "VERIFIED",
+    "content_hash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "byte_size": 0
+  },
+  "run": {
+    "run_id": "analysis_ea046dfc08dd178e0557def07b2a7897a902e69a8dd02cde0a73a2d4f1be187b",
+    "state": "CANDIDATE",
+    "accepted_at": null,
+    "validation_outcome": null,
+    "candidate_hash": null
+  },
+  "usage": {
+    "input_tokens": null,
+    "output_tokens": null,
+    "total_tokens": null,
+    "actual_model": null,
+    "finish_reason": "HTTP_503:UNAVAILABLE"
+  },
+  "attempt": {
+    "fencing_token": 1,
+    "finished_at": "2026-10-11T20:11:08.691Z",
+    "error_code": "TRANSIENT"
+  },
+  "historical_immutable_pins": {
+    "count": 6,
+    "status": "UNCHANGED",
+    "hashes": {
+      "provider-output.json": "8af16f9b89a49d8862ef958f5099a09c071c6dea1f5296aeac8ce105d256f264",
+      "canonical.json": "bcb3d4f383964913e43e9dfc30b6028fb8515190bbe5cec82b3365a3ef83e854",
+      "source.txt": "f0f0874314d88f5b19acc2abb55aa9a326425a5e1f93f42b006534d1a7c092c0",
+      "revision-4/editorial-canonical-v4.json": "358ce86a3bc32a4a90a6e3387a14a88294db6bc220bf167fed6077bd234f4fcf",
+      "revision-4/editorial-wire-v4.json": "a779888540033135026e039cdde3e4edee316a3533e4b0e75bd5c79cb70222e7",
+      "revision-4/PRZEGLAD_JAKOSCI-v4.md": "941245fb16c743201e16917744a81ba7ab5e31d054f5162097f2c339439180ab"
+    }
+  },
+  "full_generated_radio_summary": null,
+  "summary_rendering": "NOT_RUN_NO_PROVIDER_OUTPUT",
+  "technical_content_validation": "NOT_RUN_NO_PROVIDER_OUTPUT",
+  "semantic_review": "NOT_RUN_NO_PROVIDER_OUTPUT",
+  "information_density": "NOT_ASSERTED",
+  "model_cp3_13_p0": "NOT_QUALIFIED",
+  "drive_publications": 0,
+  "paid_services_enabled": false,
+  "d1_usage": {
+    "direct_prepare": {
+      "recorded_at": "2026-10-11T20:09:46.189Z",
+      "rest_requests": 30,
+      "rows_read": 48,
+      "rows_written": 21,
+      "scope": "DIRECT_ADMINISTRATIVE_BRIDGE_ONLY_WORKER_RPC_USAGE_NOT_INCLUDED",
+      "generation_submissions": 0
+    },
+    "direct_execute": {
+      "recorded_at": "2026-10-11T20:11:08.964Z",
+      "rest_requests": 29,
+      "rows_read": 80,
+      "rows_written": 22,
+      "scope": "DIRECT_ADMINISTRATIVE_BRIDGE_ONLY_WORKER_RPC_USAGE_NOT_INCLUDED",
+      "generation_submissions": 1
+    },
+    "verification": {
+      "rest_requests": 1,
+      "statements": 6,
+      "rows_read": 9,
+      "rows_written": 0
+    },
+    "known_direct_total": { "rows_read": 137, "rows_written": 43 },
+    "scope": "DIRECT_ADMINISTRATIVE_BRIDGE_ONLY_WORKER_RPC_ROWS_UNKNOWN_NOT_ZERO"
+  },
+  "secret_values_recorded": false
+}

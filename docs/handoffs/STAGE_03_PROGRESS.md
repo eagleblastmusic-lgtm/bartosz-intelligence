@@ -1,6 +1,27 @@
 # Stage 03 — current implementation record
 
-## Current consolidated CI and radio audit — 2026-10-11
+## Current one-shot radio QUALITY_TEST — 2026-10-11 20:11 UTC
+
+Owner explicitly authorized one proposal-v2 generateContent POST. Fresh actual
+AI Studio FREE, Cloud current RPM0/5 RPD2/20 INPUT_TPM0/250000, model capabilities,
+profile10, Published ECONOMYv2/generation1 and analysis-quality:3 were verified.
+Runtime source pins matched HEAD62212e2 including radio-narrative:2/versioned
+cache; current local Core handled the diagnostic through the existing D1 boundary.
+Exact compiled prompt/source1071 cues/schema/scope match the proposal.
+
+The single POST at20:10:55.370UTC returned HTTP503 UNAVAILABLE/high demand.
+Full198-byte HTTP response retained privately with SHA/readback. No generated
+summary (raw_output=null), no content/schema/semantic/render PASS. Task81d1908b…
+retained RETRY_WAIT/TRANSIENT with attempt_count1 and released lease;
+artifact d78c511a… VERIFIED, run CANDIDATE; quota UNKNOWN with null usage.
+Historical six immutable source/provider/canonical/editorial hashes unchanged.
+No retry/fallback/synthesis/publication/paid. Authorization consumed; another
+provider POST requires new consent and fresh preflight. Normal automatic cycle
+filters PRODUCTION, while the one-shot harness refuses a consumed authorization.
+CP-3.13 AWAITING_HUMAN_REVIEW; model/P0 NOT_QUALIFIED; Stage IN_PROGRESS.
+[Attempt result and evidence](../verification/gate-ai/RADIO_QUALITY_TEST_RESULT_2026-10-11.md).
+
+## Previous consolidated CI and radio audit — 2026-10-11
 
 Implementation e54a7be is pushed and actual GitHub run38165715266 PASS;
 current production remains6089f83/schema39. New radio-narrative:2 distinguishes
