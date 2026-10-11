@@ -163,7 +163,7 @@ it('preserves exact old policy pins while rejecting modified or unknown policies
     hash: await sha256(JSON.stringify(analysisQualityPolicyV1)),
   };
   const current = await analysisQualitySnapshot();
-  expect(current.version).toBe('analysis-quality:2');
+  expect(current.version).toBe('analysis-quality:3');
   expect(await validAnalysisQualitySnapshot(old)).toBe(true);
   expect(await validAnalysisQualitySnapshot(current)).toBe(true);
   expect(
@@ -175,7 +175,7 @@ it('preserves exact old policy pins while rejecting modified or unknown policies
   expect(
     await validAnalysisQualitySnapshot({
       ...current,
-      version: 'analysis-quality:3',
+      version: 'analysis-quality:4',
     }),
   ).toBe(false);
 });

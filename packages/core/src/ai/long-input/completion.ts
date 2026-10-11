@@ -236,6 +236,9 @@ export class LongInputCompletion {
     const quality = assessAnalysisQuality(
       merged.wire as Parameters<typeof assessAnalysisQuality>[0],
       manifest.anchors,
+      {
+        radio: snapshot.prompt.quality_policy?.version === 'analysis-quality:3',
+      },
     );
     if (quality.status === 'REVIEW_REQUIRED') {
       await new JobStore(this.db, this.context).disposition(

@@ -13,6 +13,7 @@ import {
   type DailyRenderInput,
 } from '../../packages/core/src/export/renderer.js';
 import type { DailyItemView } from '../../packages/contracts/src/daily.js';
+import { summaryNarrative } from '../../packages/contracts/src/narrative.js';
 import { materialReport } from '../../packages/core/src/export/material.js';
 import {
   verifyDailyRead,
@@ -21,6 +22,53 @@ import {
 
 const hash = (value: string) =>
   createHash('sha256').update(value).digest('hex');
+it.each(['COMPACT', 'FULL'] as const)(
+  'presents one complete narrative per film in %s and keeps details outside speech',
+  async (mode) => {
+    const input = await fixture(undefined, true);
+    input.mode = mode;
+    const c = input.selections[0]!.canonical;
+    const original = JSON.stringify(c);
+    const report = await renderDaily(input);
+    const primary = report.markdown.replace(
+      /<details>[\s\S]*?<\/details>/gu,
+      '',
+    );
+    expect(primary).toContain(summaryNarrative(c.summary_pl));
+    expect(primary).not.toMatch(
+      /Podsumowanie:|- Punkt:|Evidence refs:|Observation:|### Evidence/u,
+    );
+    expect(primary).toContain('Źródła streszczenia:');
+    expect(report.markdown).toContain(
+      '<summary>Źródła i szczegóły analizy</summary>',
+    );
+    for (const row of c.key_points)
+      expect(report.markdown).toContain(row.text_pl);
+    if (mode === 'FULL') {
+      expect(report.omitted_detail_units).toBe(0);
+      for (const e of c.evidence)
+        expect(report.markdown.replaceAll('\\_', '_')).toContain(e.evidence_id);
+    }
+    expect(JSON.stringify(c)).toBe(original);
+  },
+);
+it('keeps a recovered historical ITEM block byte-for-byte instead of reformatting purged analysis', async () => {
+  const input = await fixture();
+  const item = input.snapshot.items[0]!;
+  item.selected_run_id = null;
+  item.archive = {
+    file_id: 'legacy',
+    remote_version: '1',
+    verified_at: '2026-10-10T00:00:00Z',
+    phase: 'PURGED',
+  };
+  input.selections = [];
+  input.mode = 'FULL';
+  const historical =
+    'ITEM a\n## Zachowany dawny raport\nStatus: READY\nPodsumowanie: Pierwsza historyczna notatka.\n- Punkt: Druga historyczna notatka.\n';
+  input.archived_blocks = { a: historical };
+  expect((await renderDaily(input)).markdown).toContain(historical);
+});
 it('verifies complete stable consumer reads and rejects gaps, duplicate chunks, mixed versions, missing blocks and forged counts', async () => {
   const report = await renderDaily(await fixture());
   const read = (markdown: string): DailyRead => {
@@ -553,32 +601,41 @@ it('preserves all summary topics, points and sources when compacting a large cor
     expect(report.markdown.replaceAll('\\_', '_')).toContain(row.text_pl);
 });
 
-it('reads legacy 1.1 report envelopes and rejects future renderer versions', async () => {
-  const current = await renderDaily(await fixture());
-  const legacy = current.markdown.replace(
-    'daily-renderer:1.2',
-    'daily-renderer:1.1',
-  );
-  expect(materialReport(legacy)).toContain('daily-renderer:1.1');
-  const bytes = new TextEncoder().encode(legacy);
-  await expect(
-    verifyDailyRead({
-      root_id: 'root',
-      file_id: 'legacy',
-      date: current.date,
-      version_before: '1',
-      version_after: '1',
-      chunks: [
-        { root_id: 'root', file_id: 'legacy', version: '1', offset: 0, bytes },
-      ],
-    }),
-  ).resolves.toMatchObject({
-    full_read: 'VERIFIED',
-    item_ids: current.item_ids,
-  });
-  expect(() =>
-    materialReport(
-      current.markdown.replace('daily-renderer:1.2', 'daily-renderer:9.9'),
-    ),
-  ).toThrow('EXPORT_PROTOCOL_INVALID');
-});
+it.each(['1.1', '1.2'])(
+  'reads legacy %s report envelopes and rejects future renderer versions',
+  async (version) => {
+    const current = await renderDaily(await fixture());
+    const legacy = current.markdown.replace(
+      'daily-renderer:1.3',
+      'daily-renderer:' + version,
+    );
+    expect(materialReport(legacy)).toContain('daily-renderer:' + version);
+    const bytes = new TextEncoder().encode(legacy);
+    await expect(
+      verifyDailyRead({
+        root_id: 'root',
+        file_id: 'legacy',
+        date: current.date,
+        version_before: '1',
+        version_after: '1',
+        chunks: [
+          {
+            root_id: 'root',
+            file_id: 'legacy',
+            version: '1',
+            offset: 0,
+            bytes,
+          },
+        ],
+      }),
+    ).resolves.toMatchObject({
+      full_read: 'VERIFIED',
+      item_ids: current.item_ids,
+    });
+    expect(() =>
+      materialReport(
+        current.markdown.replace('daily-renderer:1.3', 'daily-renderer:9.9'),
+      ),
+    ).toThrow('EXPORT_PROTOCOL_INVALID');
+  },
+);

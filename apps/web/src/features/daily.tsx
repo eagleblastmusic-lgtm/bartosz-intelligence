@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import type { DailySnapshot } from '../../../../packages/contracts/src/daily.js';
+import { summaryNarrative } from '../../../../packages/contracts/src/narrative.js';
 import { api, errorMessage } from '../app/api.js';
 import { AppLink, navigate, today } from '../app/router.js';
 import { DayNavigator } from '../components/day-navigator.js';
@@ -350,9 +351,11 @@ export function Daily({ route }: { route: string }) {
                           }).format(new Date(item.published_at))
                         : 'Data nieustalona'}
                     </p>
-                    {item.view?.summary_pl.map((note, index) => (
-                      <p key={index}>{note.text_pl}</p>
-                    ))}
+                    {!!item.view?.summary_pl.length && (
+                      <p className="summary-narrative">
+                        {summaryNarrative(item.view.summary_pl)}
+                      </p>
+                    )}
                     {item.delivery && (
                       <p>
                         <a

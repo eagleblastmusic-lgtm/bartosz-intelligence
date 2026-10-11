@@ -27,36 +27,43 @@ export function economyPromptOverhead(input: {
   semantic_profile?: MaterializedSemanticProfile;
   additional_pass?: AdditionalPassSnapshot;
 }) {
-  return new TextEncoder().encode(
-    analysisPrompt(
-      renderPrompt(input.prompt.text, {
-        wire_schema_json: JSON.stringify(input.prompt.wire.schema),
-        semantic_context_json: JSON.stringify(
-          input.additional_pass
+  // Reserve the bounded radio chunk metadata as part of planning too. Actual
+  // compiled requests still undergo the existing full context admission.
+  const radioReserve =
+    input.prompt.quality_policy?.version === 'analysis-quality:3' ? 512 : 0;
+  return (
+    radioReserve +
+    new TextEncoder().encode(
+      analysisPrompt(
+        renderPrompt(input.prompt.text, {
+          wire_schema_json: JSON.stringify(input.prompt.wire.schema),
+          semantic_context_json: JSON.stringify(
+            input.additional_pass
+              ? {
+                  ...input.semantic_context,
+                  additional_pass_purpose: input.additional_pass.purpose,
+                }
+              : input.semantic_context,
+          ),
+          limits_json: JSON.stringify(input.limits),
+          source_segments_with_aliases_json: '[]',
+          helper_segments_json_or_null: 'null',
+          ...(input.semantic_profile
             ? {
-                ...input.semantic_context,
-                additional_pass_purpose: input.additional_pass.purpose,
+                module_config_json: JSON.stringify(
+                  input.semantic_profile.config.modules,
+                ),
+                pass_mode: input.additional_pass?.mode ?? 'EXTRACT',
+                existing_candidate_wire_json_or_null: input.additional_pass
+                  ? JSON.stringify(input.additional_pass.candidate_wire)
+                  : 'null',
               }
-            : input.semantic_context,
-        ),
-        limits_json: JSON.stringify(input.limits),
-        source_segments_with_aliases_json: '[]',
-        helper_segments_json_or_null: 'null',
-        ...(input.semantic_profile
-          ? {
-              module_config_json: JSON.stringify(
-                input.semantic_profile.config.modules,
-              ),
-              pass_mode: input.additional_pass?.mode ?? 'EXTRACT',
-              existing_candidate_wire_json_or_null: input.additional_pass
-                ? JSON.stringify(input.additional_pass.candidate_wire)
-                : 'null',
-            }
-          : {}),
-      }),
-      input.prompt.quality_policy,
-    ),
-  ).length;
+            : {}),
+        }),
+        input.prompt.quality_policy,
+      ),
+    ).length
+  );
 }
 export async function analysisQualityScope(
   prompt: PromptSnapshot,
@@ -246,7 +253,26 @@ async function compileSource(input: {
       semantic_context_json: JSON.stringify(
         pass
           ? { ...input.semantic_context, additional_pass_purpose: pass.purpose }
-          : input.semantic_context,
+          : {
+              ...input.semantic_context,
+              ...(chunk &&
+              input.prompt.quality_policy?.version === 'analysis-quality:3'
+                ? {
+                    radio_summary_scope: {
+                      part: chunk.chunk_index + 1,
+                      parts: chunk.plan.chunks.length,
+                      whole_film_words: [180, 260],
+                      suggested_part_words: Math.ceil(
+                        260 / chunk.plan.chunks.length,
+                      ),
+                      rich_source_part_words: Math.ceil(
+                        350 / chunk.plan.chunks.length,
+                      ),
+                      word_counts_are_guidance: true,
+                    },
+                  }
+                : {}),
+            },
       ),
       limits_json: JSON.stringify(input.limits),
       source_segments_with_aliases_json: JSON.stringify(

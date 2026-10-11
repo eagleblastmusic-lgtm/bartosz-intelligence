@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import type { ItemDetail as Detail } from '../../../../packages/contracts/src/item-detail.js';
+import { summaryNarrative } from '../../../../packages/contracts/src/narrative.js';
 import type { enrichEconomy } from '../../../../packages/core/src/ai/enrichment/canonical.js';
 import { api, errorMessage } from '../app/api.js';
 import { readPinnedJSON } from '../app/artifacts.js';
@@ -99,6 +100,9 @@ export function ItemDetail({ route }: { route: string }) {
       if (!/^#observation-[A-Za-z0-9_-]{1,128}$/.test(hash)) return;
       const node = document.getElementById(hash.slice(1));
       if (!node) return;
+      // Source deep links still open the secondary layer before focusing it.
+      const disclosure = node.closest('details');
+      if (disclosure) disclosure.open = true;
       node.focus({ preventScroll: true });
       node.scrollIntoView({ block: 'start' });
     };
@@ -258,197 +262,216 @@ export function ItemDetail({ route }: { route: string }) {
                 </p>
               )}
               <section>
-                <h2>Notatki</h2>
-                {canonical.enabled_modules.includes('summary') ? (
-                  canonical.summary_pl.map((note, index) => (
-                    <div key={index}>
-                      <p>{note.text_pl}</p>
-                      <EvidenceChips
-                        ids={note.evidence_ids}
-                        evidence={canonical.evidence}
-                        runId={current.detail.selected_run_id!}
-                      />
-                    </div>
-                  ))
+                <h2>Streszczenie</h2>
+                {canonical.enabled_modules.includes('summary') &&
+                canonical.summary_pl.length ? (
+                  <p className="summary-narrative">
+                    {summaryNarrative(canonical.summary_pl)}
+                  </p>
                 ) : (
-                  <p className="muted">Podsumowanie wyłączono w profilu.</p>
+                  <p className="muted">
+                    Podsumowanie niedostępne w tym wyniku.
+                  </p>
                 )}
               </section>
-              <section>
-                <h2>Kluczowe punkty</h2>
-                {canonical.enabled_modules.includes('key_points') ? (
-                  <ul>
-                    {canonical.key_points.map((note, index) => (
-                      <li key={index}>
-                        {note.text_pl}
+              <details>
+                <summary>Źródła i szczegóły analizy</summary>
+                <section>
+                  <h2>Powiązania streszczenia ze źródłami</h2>
+                  {canonical.enabled_modules.includes('summary') ? (
+                    canonical.summary_pl.map((note, index) => (
+                      <div key={index}>
+                        <p>{note.text_pl}</p>
                         <EvidenceChips
                           ids={note.evidence_ids}
+                          evidence={canonical.evidence}
+                          runId={current.detail.selected_run_id!}
+                        />
+                      </div>
+                    ))
+                  ) : (
+                    <p className="muted">Podsumowanie wyłączono w profilu.</p>
+                  )}
+                </section>
+                <section>
+                  <h2>Kluczowe punkty</h2>
+                  {canonical.enabled_modules.includes('key_points') ? (
+                    <ul>
+                      {canonical.key_points.map((note, index) => (
+                        <li key={index}>
+                          {note.text_pl}
+                          <EvidenceChips
+                            ids={note.evidence_ids}
+                            evidence={canonical.evidence}
+                            runId={current.detail.selected_run_id!}
+                          />
+                        </li>
+                      ))}
+                    </ul>
+                  ) : (
+                    <p className="muted">
+                      Kluczowe punkty wyłączono w profilu.
+                    </p>
+                  )}
+                </section>
+                <section>
+                  <h2>
+                    {canonical.enabled_modules.includes('entities')
+                      ? 'Encje'
+                      : 'Encje referencyjne'}
+                  </h2>
+                  {!canonical.enabled_modules.includes('entities') &&
+                    canonical.entities.length > 0 && (
+                      <p className="metadata">
+                        Wzmianki potrzebne do odwołań wybranych rekordów. Moduł
+                        encji jest wyłączony.
+                      </p>
+                    )}
+                  <ul className="entity-list">
+                    {canonical.entities.map((entity) => (
+                      <li key={entity.entity_id}>
+                        {entity.label}{' '}
+                        <span className="metadata">{entity.entity_type}</span>
+                        <EvidenceChips
+                          ids={entity.evidence_ids}
                           evidence={canonical.evidence}
                           runId={current.detail.selected_run_id!}
                         />
                       </li>
                     ))}
                   </ul>
-                ) : (
-                  <p className="muted">Kluczowe punkty wyłączono w profilu.</p>
-                )}
-              </section>
-              <section>
-                <h2>
-                  {canonical.enabled_modules.includes('entities')
-                    ? 'Encje'
-                    : 'Encje referencyjne'}
-                </h2>
-                {!canonical.enabled_modules.includes('entities') &&
-                  canonical.entities.length > 0 && (
-                    <p className="metadata">
-                      Wzmianki potrzebne do odwołań wybranych rekordów. Moduł
-                      encji jest wyłączony.
+                  {!canonical.entities.length && (
+                    <p className="muted">
+                      {canonical.enabled_modules.includes('entities')
+                        ? 'Brak encji w wyniku.'
+                        : 'Encje wyłączono w profilu.'}
                     </p>
                   )}
-                <ul className="entity-list">
-                  {canonical.entities.map((entity) => (
-                    <li key={entity.entity_id}>
-                      {entity.label}{' '}
-                      <span className="metadata">{entity.entity_type}</span>
+                </section>
+                <section>
+                  <h2>Narzędzia</h2>
+                  {canonical.tools.map((tool, index) => (
+                    <div key={index}>
+                      <p>
+                        <strong>
+                          {canonical.entities.find(
+                            (entity) => entity.entity_id === tool.entity_ref,
+                          )?.label ?? 'Narzędzie'}
+                        </strong>{' '}
+                        — {tool.context_pl}
+                      </p>
                       <EvidenceChips
-                        ids={entity.evidence_ids}
+                        ids={tool.evidence_ids}
                         evidence={canonical.evidence}
                         runId={current.detail.selected_run_id!}
                       />
-                    </li>
+                    </div>
                   ))}
-                </ul>
-                {!canonical.entities.length && (
-                  <p className="muted">
-                    {canonical.enabled_modules.includes('entities')
-                      ? 'Brak encji w wyniku.'
-                      : 'Encje wyłączono w profilu.'}
-                  </p>
-                )}
-              </section>
-              <section>
-                <h2>Narzędzia</h2>
-                {canonical.tools.map((tool, index) => (
-                  <div key={index}>
-                    <p>
-                      <strong>
-                        {canonical.entities.find(
-                          (entity) => entity.entity_id === tool.entity_ref,
-                        )?.label ?? 'Narzędzie'}
-                      </strong>{' '}
-                      — {tool.context_pl}
+                  {!canonical.tools.length && (
+                    <p className="muted">
+                      {canonical.enabled_modules.includes('tools')
+                        ? 'Brak narzędzi w wyniku.'
+                        : 'Narzędzia wyłączono w profilu.'}
                     </p>
-                    <EvidenceChips
-                      ids={tool.evidence_ids}
-                      evidence={canonical.evidence}
-                      runId={current.detail.selected_run_id!}
-                    />
-                  </div>
-                ))}
-                {!canonical.tools.length && (
-                  <p className="muted">
-                    {canonical.enabled_modules.includes('tools')
-                      ? 'Brak narzędzi w wyniku.'
-                      : 'Narzędzia wyłączono w profilu.'}
-                  </p>
-                )}
-              </section>
-              {modules.map(([kind, label]) => (
-                <section key={kind}>
-                  <h2>{label}</h2>
-                  {!canonical.enabled_modules.includes(kind) ? (
-                    <p className="muted">Moduł wyłączono w profilu.</p>
-                  ) : canonical[kind].length === 0 ? (
-                    <p className="muted">Brak pozycji w wyniku.</p>
-                  ) : (
-                    canonical[kind].map((row) => (
-                      <div
-                        className="observation"
-                        id={'observation-' + row.observation_id}
-                        tabIndex={-1}
-                        key={row.observation_id}
-                      >
-                        <p className="metadata">
-                          {row.kind === 'CONTRADICTION'
-                            ? 'Możliwa sprzeczność — interpretacja analizy'
-                            : row.attribution === 'SOURCE_SPEAKER'
-                              ? 'Wypowiedź źródła'
-                              : row.attribution === 'REPORTED_OTHER'
-                                ? 'Źródło relacjonuje cudzą wypowiedź'
-                                : 'Autorstwo wypowiedzi nieustalone'}
-                        </p>
-                        <p>{row.content_pl}</p>
-                        {row.qualifiers.length > 0 && (
-                          <p>
-                            Warunki i zastrzeżenia: {row.qualifiers.join(' · ')}
-                          </p>
-                        )}
-                        {row.prediction_horizon && (
-                          <p>Horyzont: {row.prediction_horizon}</p>
-                        )}
-                        {row.stance_polarity && (
-                          <p>Stanowisko: {row.stance_polarity}</p>
-                        )}
-                        {row.usage_stage && (
-                          <p>
-                            Etap użycia:{' '}
-                            {(
-                              {
-                                TRIED: 'wypróbowano',
-                                USES: 'używa',
-                                ADOPTED: 'wdrożono',
-                                STOPPED: 'zaprzestano użycia',
-                                REJECTED: 'odrzucono',
-                                UNCLEAR: 'nieustalony',
-                              } as Record<string, string>
-                            )[row.usage_stage] ?? row.usage_stage}
-                          </p>
-                        )}
-                        {row.kind === 'CONTRADICTION' && (
-                          <div
-                            role="group"
-                            aria-label="Wypowiedzi porównywane w relacji"
-                          >
-                            {row.relation_refs.map((id, index) => {
-                              const side = modules
-                                .flatMap(([kind]) => canonical[kind])
-                                .find(
-                                  (candidate) =>
-                                    candidate.observation_id === id,
-                                );
-                              return side ? (
-                                <div key={id}>
-                                  <a href={'#observation-' + id}>
-                                    {index === 0
-                                      ? 'Pierwsza wypowiedź'
-                                      : 'Druga wypowiedź'}
-                                  </a>
-                                  <p>{side.content_pl}</p>
-                                  <EvidenceChips
-                                    ids={side.evidence_ids}
-                                    evidence={canonical.evidence}
-                                    runId={current.detail.selected_run_id!}
-                                  />
-                                </div>
-                              ) : (
-                                <p key={id} className="notice">
-                                  Wypowiedź niedostępna w tym wyniku.
-                                </p>
-                              );
-                            })}
-                          </div>
-                        )}
-                        <EvidenceChips
-                          ids={row.evidence_ids}
-                          evidence={canonical.evidence}
-                          runId={current.detail.selected_run_id!}
-                        />
-                      </div>
-                    ))
                   )}
                 </section>
-              ))}
+                {modules.map(([kind, label]) => (
+                  <section key={kind}>
+                    <h2>{label}</h2>
+                    {!canonical.enabled_modules.includes(kind) ? (
+                      <p className="muted">Moduł wyłączono w profilu.</p>
+                    ) : canonical[kind].length === 0 ? (
+                      <p className="muted">Brak pozycji w wyniku.</p>
+                    ) : (
+                      canonical[kind].map((row) => (
+                        <div
+                          className="observation"
+                          id={'observation-' + row.observation_id}
+                          tabIndex={-1}
+                          key={row.observation_id}
+                        >
+                          <p className="metadata">
+                            {row.kind === 'CONTRADICTION'
+                              ? 'Możliwa sprzeczność — interpretacja analizy'
+                              : row.attribution === 'SOURCE_SPEAKER'
+                                ? 'Wypowiedź źródła'
+                                : row.attribution === 'REPORTED_OTHER'
+                                  ? 'Źródło relacjonuje cudzą wypowiedź'
+                                  : 'Autorstwo wypowiedzi nieustalone'}
+                          </p>
+                          <p>{row.content_pl}</p>
+                          {row.qualifiers.length > 0 && (
+                            <p>
+                              Warunki i zastrzeżenia:{' '}
+                              {row.qualifiers.join(' · ')}
+                            </p>
+                          )}
+                          {row.prediction_horizon && (
+                            <p>Horyzont: {row.prediction_horizon}</p>
+                          )}
+                          {row.stance_polarity && (
+                            <p>Stanowisko: {row.stance_polarity}</p>
+                          )}
+                          {row.usage_stage && (
+                            <p>
+                              Etap użycia:{' '}
+                              {(
+                                {
+                                  TRIED: 'wypróbowano',
+                                  USES: 'używa',
+                                  ADOPTED: 'wdrożono',
+                                  STOPPED: 'zaprzestano użycia',
+                                  REJECTED: 'odrzucono',
+                                  UNCLEAR: 'nieustalony',
+                                } as Record<string, string>
+                              )[row.usage_stage] ?? row.usage_stage}
+                            </p>
+                          )}
+                          {row.kind === 'CONTRADICTION' && (
+                            <div
+                              role="group"
+                              aria-label="Wypowiedzi porównywane w relacji"
+                            >
+                              {row.relation_refs.map((id, index) => {
+                                const side = modules
+                                  .flatMap(([kind]) => canonical[kind])
+                                  .find(
+                                    (candidate) =>
+                                      candidate.observation_id === id,
+                                  );
+                                return side ? (
+                                  <div key={id}>
+                                    <a href={'#observation-' + id}>
+                                      {index === 0
+                                        ? 'Pierwsza wypowiedź'
+                                        : 'Druga wypowiedź'}
+                                    </a>
+                                    <p>{side.content_pl}</p>
+                                    <EvidenceChips
+                                      ids={side.evidence_ids}
+                                      evidence={canonical.evidence}
+                                      runId={current.detail.selected_run_id!}
+                                    />
+                                  </div>
+                                ) : (
+                                  <p key={id} className="notice">
+                                    Wypowiedź niedostępna w tym wyniku.
+                                  </p>
+                                );
+                              })}
+                            </div>
+                          )}
+                          <EvidenceChips
+                            ids={row.evidence_ids}
+                            evidence={canonical.evidence}
+                            runId={current.detail.selected_run_id!}
+                          />
+                        </div>
+                      ))
+                    )}
+                  </section>
+                ))}
+              </details>
               <details>
                 <summary>Informacje o wyniku</summary>
                 <p>

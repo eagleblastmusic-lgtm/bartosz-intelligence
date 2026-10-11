@@ -293,7 +293,12 @@ export class AnalysisValidation {
       JSON.parse(receipt.payload_json) as { context_hash: string }
     ).context_hash;
     const resultKey =
-      'analysis-validation-quality2-' + prepared.run_id + '-' + candidateId;
+      (snapshot.prompt.quality_policy?.version === 'analysis-quality:3'
+        ? 'analysis-validation-quality3-'
+        : 'analysis-validation-quality2-') +
+      prepared.run_id +
+      '-' +
+      candidateId;
     const prior = await this.db
       .prepare(
         'SELECT payload_json,content_hash FROM config_versions WHERE owner_id=? AND config_id=? AND revision=1',
@@ -426,7 +431,11 @@ export class AnalysisValidation {
         quality = assessAnalysisQuality(
           checked.value as Parameters<typeof assessAnalysisQuality>[0],
           manifest.anchors,
-          { coverage: !snapshot.chunk },
+          {
+            coverage: !snapshot.chunk,
+            radio:
+              snapshot.prompt.quality_policy?.version === 'analysis-quality:3',
+          },
         );
         if (quality.status === 'REVIEW_REQUIRED') reason = 'REVIEW_REQUIRED';
         const item = await this.db

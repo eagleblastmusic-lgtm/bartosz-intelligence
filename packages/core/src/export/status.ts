@@ -34,7 +34,7 @@ function reportMetrics(
     const header = value.slice(0, end);
     if (
       !header.includes('\nreport_schema_version: "1.1"\n') ||
-      !/\nrenderer_version: "daily-renderer:1\.[12]"\n/.test(header)
+      !/\nrenderer_version: "daily-renderer:1\.[123]"\n/.test(header)
     )
       return null;
     const field = (name: string) => {

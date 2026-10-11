@@ -13,10 +13,19 @@ Keep entity spellings faithful to verified metadata or explicitly approved alias
 Read the entire supplied source, including the ending. Summaries/key points must cover every important substantive topic throughout it, including later Q&A. Distribute the available summary budget across the source rather than spending it on its beginning. Use local, exact segment_refs supporting each statement, not unrelated references to simulate coverage. Do not invent missing content. For long input, cover every substantive chronological section; uncertainty or missing coverage belongs in source_issues.
 Return exactly the supplied wire schema. Notes use text_pl; typed wire records use text_pl (Core canonical records use content_pl). No undefined, null-as-text, empty content or placeholders. All segment/entity references must exist. Before returning, check dates, attribution, qualifiers, topic coverage and field names.`,
 });
-export const analysisQualityPolicy = Object.freeze({
+export const analysisQualityPolicyV2 = Object.freeze({
   ...analysisQualityPolicyV1,
   version: 'analysis-quality:2',
   text: `${analysisQualityPolicyV1.text}\nPreserve the distinction between a speaker's confident/optimistic assurance or promise and a guaranteed future event. Even "for sure" is the speaker's assertion, not independent certainty: explicitly describe the assurance as such and never present it as a guarantee. Keep forecasts attributed in narrative text, not merely in metadata.\nPreserve temporal scope ("so far", "currently", "as of", "this year", "at the time"). Dynamic rankings, popularity, reach and current status describe the situation at the time of the conversation unless the source specifies another date. State that time frame in Polish; do not silently present a dated observation as timeless or current at publication.`,
+});
+export const analysisQualityPolicy = Object.freeze({
+  ...analysisQualityPolicyV2,
+  version: 'analysis-quality:3',
+  text: `${analysisQualityPolicyV2.text}\nRADIO NEWS SUMMARY (default whenever the summary module is selected):
+Write a substantial, fluent Polish news paragraph that lets the listener learn the important knowledge without watching the video. Usually use 180–260 words across summary_pl; exceptionally information-rich sources may need 300–350. A genuinely sparse source needs fewer words. These are guidance, never a word quota: no padding and no loss of important details just to fit a target.
+summary_pl remains the existing array of source-grounded text_pl notes with exact local segment_refs. Write its ordered notes as consecutive sentences of ONE coherent spoken paragraph; the renderer joins them with spaces. Do not put source IDs, timestamps, URLs, Markdown, headings, tables, bullets or numbering in these texts. Keep all source links and technical Evidence in the separate structured fields. Do not repeat key_points in the paragraph; key_points and typed claims/predictions are the secondary evidence layer, not substitutes for summary coverage.
+Select the central finding, concrete numbers, mechanisms (how/why), arguments, useful examples, consequences, limitations and conclusions actually supported by the source. Read and weigh the entire source, including important late topics. Remove repetitions and digressions before valuable details. Never produce merely a trailer, a topic list, generic praise, clickbait, or phrases like "w tym filmie autor opowiada". Use natural short/medium sentences and logical transitions. Preserve necessary speaker attribution, uncertainty and temporal scope in the narrative itself; do not append a repetitive independent-verification disclaimer to every sentence.
+For a CHUNK task, radio_summary_scope gives the part/count and its share of the film-level word guidance. Write only its assigned substantive contribution to the eventual paragraph, without repeated introductions/conclusions. Share the word guidance across chunks; do not invent coverage of unseen portions. At final validation, summary_pl itself must cover substantive source sections; detailed key_points alone do not satisfy narrative coverage. Before returning, check every sentence for useful source-backed information, correct attribution and no filler.`,
 });
 export const analysisQualityPolicyHash = () =>
   sha256(JSON.stringify(analysisQualityPolicy));
@@ -26,7 +35,11 @@ export async function analysisQualitySnapshot() {
 // Historical pinned runs must remain executable without mutating their prompts.
 // Only exact known immutable policies are admitted, never arbitrary injected text.
 export async function validAnalysisQualitySnapshot(snapshot: unknown) {
-  for (const policy of [analysisQualityPolicyV1, analysisQualityPolicy]) {
+  for (const policy of [
+    analysisQualityPolicyV1,
+    analysisQualityPolicyV2,
+    analysisQualityPolicy,
+  ]) {
     const expected = { ...policy, hash: await sha256(JSON.stringify(policy)) };
     if (JSON.stringify(snapshot) === JSON.stringify(expected)) return true;
   }

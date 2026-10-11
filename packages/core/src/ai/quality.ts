@@ -1,5 +1,6 @@
 import type { SourceAnchor } from '../transcript/normalize.js';
 import { analysisQualityPolicy } from '../registry/analysis-quality.js';
+import { assessSummaryNarrative } from './narrative-quality.js';
 
 interface Row {
   text_pl?: string;
@@ -32,7 +33,7 @@ const temporalPolish =
 export function assessAnalysisQuality(
   wire: Record<string, Row[]>,
   anchors: readonly SourceAnchor[],
-  options: { coverage?: boolean } = {},
+  options: { coverage?: boolean; radio?: boolean } = {},
 ) {
   const findings: QualityFinding[] = [];
   const byAlias = new Map(anchors.map((a) => [a.alias, a]));
@@ -101,7 +102,22 @@ export function assessAnalysisQuality(
       }
     }
   }
-  const narrative = [...(wire.summary_pl ?? []), ...(wire.key_points ?? [])];
+  // Old pinned outputs retain their historical presentation contract. New
+  // summaries cannot hide missing narrative topics in secondary key points.
+  const radio =
+    options.radio &&
+    wire.summary_pl?.length &&
+    !findings.some(
+      (finding) =>
+        finding.module === 'summary_pl' && finding.code === 'BROKEN_CONTENT',
+    )
+      ? assessSummaryNarrative(wire.summary_pl as { text_pl: string }[])
+      : undefined;
+  for (const code of radio?.findings ?? []) add(code, 'summary_pl', 0);
+  const narrative =
+    options.radio && wire.summary_pl?.length
+      ? wire.summary_pl
+      : [...(wire.summary_pl ?? []), ...(wire.key_points ?? [])];
   const substantive = anchors.filter((a) => a.text.trim().length > 8);
   const start = substantive[0]?.source_start ?? 0;
   const end = substantive.at(-1)?.source_end ?? start;
@@ -139,6 +155,7 @@ export function assessAnalysisQuality(
     status: findings.length ? ('REVIEW_REQUIRED' as const) : ('PASS' as const),
     findings,
     coverage_windows: windows,
+    ...(radio ? { narrative: radio } : {}),
     semantic_verification: 'NOT_ASSERTED' as const,
   };
 }

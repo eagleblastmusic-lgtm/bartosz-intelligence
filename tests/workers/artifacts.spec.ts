@@ -754,9 +754,12 @@ it.each([
   'REFUSED',
   'MALFORMED',
   'QUALITY_REVIEW',
+  'QUALITY_NARRATIVE',
 ] as const)(
   'verified source acceptance and %s analysis preserve source authority and fenced knowledge effects',
   async (scenario) => {
+    const qualityReview =
+      scenario === 'QUALITY_REVIEW' || scenario === 'QUALITY_NARRATIVE';
     const semanticMode =
       scenario === 'CHUNK_FULL_PRODUCTION'
         ? ('FULL' as const)
@@ -767,7 +770,7 @@ it.each([
       scenario === 'CHUNK_PRODUCTION' || scenario === 'CHUNK_FULL_PRODUCTION';
     const mode: 'PRODUCTION' | 'QUALITY_TEST' =
       scenario === 'PRODUCTION' ||
-      scenario === 'QUALITY_REVIEW' ||
+      qualityReview ||
       scenario === 'AUTOMATIC' ||
       scenario === 'CUSTOM_PRODUCTION' ||
       chunkProduction
@@ -1268,7 +1271,7 @@ it.each([
     if (
       scenario === 'PRODUCTION' ||
       scenario === 'CUSTOM_PRODUCTION' ||
-      scenario === 'QUALITY_REVIEW'
+      qualityReview
     ) {
       const before = await env.DB.prepare('SELECT count(*) n FROM jobs').first(
         'n',
@@ -2361,7 +2364,7 @@ it.each([
       scenario !== 'PRODUCTION' &&
       scenario !== 'CUSTOM_PRODUCTION' &&
       scenario !== 'MALFORMED' &&
-      scenario !== 'QUALITY_REVIEW'
+      !qualityReview
     ) {
       const retained = (await retainAnalysisResponse({
         origin: 'https://fixture.invalid',
@@ -2452,7 +2455,9 @@ it.each([
                     text_pl:
                       scenario === 'QUALITY_REVIEW'
                         ? 'undefined'
-                        : 'Autor przedstawia wypowiedź.',
+                        : scenario === 'QUALITY_NARRATIVE'
+                          ? '- Autor przedstawia wypowiedź.'
+                          : 'Autor przedstawia wypowiedź.',
                     segment_refs: ['s1'],
                   },
                 ],
@@ -2489,14 +2494,17 @@ it.each([
       new Date(),
       fixtureSecret,
     );
-    if (scenario === 'MALFORMED' || scenario === 'QUALITY_REVIEW') {
+    if (scenario === 'MALFORMED' || qualityReview) {
       expect(validated).toMatchObject({
-        status: scenario === 'QUALITY_REVIEW' ? 'REVIEW_REQUIRED' : 'INVALID',
+        status: qualityReview ? 'REVIEW_REQUIRED' : 'INVALID',
         accepted: false,
       });
-      if (scenario === 'QUALITY_REVIEW') {
+      if (qualityReview) {
         expect(validated.quality?.findings).toContainEqual({
-          code: 'BROKEN_CONTENT',
+          code:
+            scenario === 'QUALITY_NARRATIVE'
+              ? 'NARRATIVE_FORMAT'
+              : 'BROKEN_CONTENT',
           module: 'summary_pl',
           index: 0,
         });

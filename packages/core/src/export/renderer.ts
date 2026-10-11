@@ -6,6 +6,7 @@ import type { enrichEconomy } from '../ai/enrichment/canonical.js';
 import { validateCanonical } from '../ai/repair/validate.js';
 import { sha256 } from '../auth/crypto.js';
 import { analysisText, canonicalCitations } from './analysis-view.js';
+import { summaryNarrative } from '../../../contracts/src/narrative.js';
 import {
   publicationDate,
   publicationTimestamp,
@@ -41,7 +42,7 @@ export interface DailyRenderInput {
 }
 export interface DailyReport {
   schema_version: '1.1';
-  renderer_version: 'daily-renderer:1.2';
+  renderer_version: 'daily-renderer:1.3';
   date: string;
   revision: number;
   source_change_seq: number;
@@ -182,7 +183,6 @@ function block(
     item.published_at
       ? `Publikacja: ${publicationTimestamp(item.published_at)}; źródłowy timestamp: ${text(item.published_at)}`
       : 'Publikacja: nieustalona; dzień raportu wynika z daty wykrycia, nie daty publikacji.',
-    `Czas trwania (sekundy): ${item.duration_seconds ?? 'null'}`,
     `Status: ${text(item.analysis_status)}`,
     link('Źródło', item.canonical_url) +
       ' · ' +
@@ -210,10 +210,11 @@ function block(
     );
     return { lines, omitted };
   }
-  lines.push(
+  const details: string[] = [
     `Profil: ${text(c.profile_id)}; revision=${text(c.profile_revision)}`,
     `Zakres: ${c.enabled_modules.map(text).join(', ') || 'pusty'}`,
-  );
+    `Czas trwania (sekundy): ${item.duration_seconds ?? 'null'}`,
+  ];
   if (item.analysis_status !== 'READY')
     lines.push(
       `Analiza częściowa; przyczyna: ${item.reason === null ? 'null' : text(item.reason)}; następna próba: ${item.retry_at === null ? 'null' : text(item.retry_at)}.`,
@@ -225,7 +226,7 @@ function block(
   if (!c.enabled_modules.includes('summary'))
     lines.push('Podsumowanie: poza zakresem profilu.');
   if (!c.enabled_modules.includes('key_points'))
-    lines.push('Najważniejsze punkty: poza zakresem profilu.');
+    details.push('Najważniejsze punkty: poza zakresem profilu.');
   // Summary/topic coverage is an atomic minimum even in COMPACT exports.
   const keptSummary = summaries;
   const keptPoints = points;
@@ -233,15 +234,24 @@ function block(
     canonicalCitations(c, ids, item.canonical_url)
       .map((ref) => (ref.url ? link(ref.label, ref.url) : ref.label))
       .join('; ');
+  if (keptSummary.length) {
+    lines.push('', text(summaryNarrative(keptSummary)), '');
+    lines.push(
+      `Źródła streszczenia: ${citations([...new Set(keptSummary.flatMap((row) => row.evidence_ids))])}`,
+    );
+  }
   for (const row of keptSummary) {
-    lines.push(`Podsumowanie: ${text(analysisText(row.text_pl))}`);
-    if (mode === 'FULL') lines.push(`  ${evidenceRefs(c, row.evidence_ids)}`);
-    lines.push(`  Źródła: ${citations(row.evidence_ids)}`);
+    if (mode === 'FULL')
+      details.push(
+        `Podsumowanie: ${text(analysisText(row.text_pl))}`,
+        `  ${evidenceRefs(c, row.evidence_ids)}`,
+        `  Źródła: ${citations(row.evidence_ids)}`,
+      );
   }
   for (const row of keptPoints) {
-    lines.push(`- Punkt: ${text(analysisText(row.text_pl))}`);
-    if (mode === 'FULL') lines.push(`  ${evidenceRefs(c, row.evidence_ids)}`);
-    lines.push(`  Źródła: ${citations(row.evidence_ids)}`);
+    details.push(`- Punkt: ${text(analysisText(row.text_pl))}`);
+    if (mode === 'FULL') details.push(`  ${evidenceRefs(c, row.evidence_ids)}`);
+    details.push(`  Źródła: ${citations(row.evidence_ids)}`);
   }
   omitted +=
     summaries.length - keptSummary.length + points.length - keptPoints.length;
@@ -250,9 +260,9 @@ function block(
   );
   const units = selectedTyped.flatMap((key) => c[key]);
   if (mode === 'FULL') {
-    for (const unit of units) lines.push(...renderTyped(unit, c, appItem));
+    for (const unit of units) details.push(...renderTyped(unit, c, appItem));
   } else if (!summaries.length && !points.length && units.length) {
-    lines.push(
+    details.push(
       'Pełna jednostka wybranego zakresu (nie zastępuje podsumowania):',
       ...renderTyped(units[0]!, c, appItem),
     );
@@ -266,20 +276,20 @@ function block(
       ? entityLabels
       : entityLabels.slice(0, level >= 3 ? 0 : 6);
   if (keptLabels.length)
-    lines.push(`Podmioty / narzędzia: ${keptLabels.map(text).join('; ')}`);
+    details.push(`Podmioty / narzędzia: ${keptLabels.map(text).join('; ')}`);
   omitted += entityLabels.length - keptLabels.length;
   if (c.enabled_modules.includes('tools') && (mode === 'FULL' || toolsOnly))
     for (const tool of c.tools) {
       const entity = c.entities.find((e) => e.entity_id === tool.entity_ref);
       if (!entity) throw new Error('EXPORT_ENTITY_MISSING');
-      lines.push(
+      details.push(
         `Kontekst narzędzia: ${text(tool.context_pl)}`,
         `  Narzędzie: ${text(entity.label)} (${text(tool.entity_ref)}); ${evidenceRefs(c, tool.evidence_ids)}`,
       );
     }
   if (mode === 'FULL' && c.enabled_modules.includes('entities'))
     for (const entity of c.entities)
-      lines.push(
+      details.push(
         `Podmiot: ${text(entity.label)} (${text(entity.entity_id)}); ${evidenceRefs(c, entity.evidence_ids)}`,
       );
   if (
@@ -291,16 +301,27 @@ function block(
   )
     lines.push('W wybranym zakresie nie znaleziono treści tych rodzajów.');
   if (mode === 'FULL') {
-    lines.push('### Evidence');
+    details.push('### Evidence');
     for (const evidence of c.evidence) {
-      lines.push(`- Evidence: ${text(evidence.evidence_id)}`);
+      details.push(`- Evidence: ${text(evidence.evidence_id)}`);
       // Preserve the entire canonical Evidence record, including null timestamps.
-      lines.push(`  ${text(JSON.stringify(evidence))}`);
+      details.push(`  ${text(JSON.stringify(evidence))}`);
     }
   } else
-    lines.push(
+    details.push(
       `Kompaktowa projekcja; pełny wynik w aplikacji. Pominięte jednostki szczegółów: ${omitted}.`,
     );
+  // FULL remains a complete recovery archive. Only its narrative is primary;
+  // structured notes, qualifiers and Evidence are accessible outside speech.
+  lines.push(
+    '',
+    '<details>',
+    '<summary>Źródła i szczegóły analizy</summary>',
+    '',
+    ...details,
+    '',
+    '</details>',
+  );
   return { lines, omitted };
 }
 
@@ -439,7 +460,7 @@ export async function renderDaily(
         '---',
         'report_schema_version: "1.1"',
         `export_mode: ${mode}`,
-        'renderer_version: "daily-renderer:1.2"',
+        'renderer_version: "daily-renderer:1.3"',
         `date: ${snapshot.date}`,
         'timezone: Europe/Warsaw',
         `revision: ${frozen.revision}`,
@@ -470,7 +491,7 @@ export async function renderDaily(
     const measured = metric(markdown);
     return {
       schema_version: '1.1',
-      renderer_version: 'daily-renderer:1.2',
+      renderer_version: 'daily-renderer:1.3',
       date: snapshot.date,
       revision: frozen.revision,
       source_change_seq: snapshot.cut_seq,

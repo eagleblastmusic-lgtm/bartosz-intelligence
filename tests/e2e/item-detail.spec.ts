@@ -297,7 +297,9 @@ test('reading verifies paged canonical bytes, preserves accepted text on failure
   await expect(
     page.getByRole('heading', { name: 'Źródłowa analiza narzędzia' }),
   ).toBeVisible();
-  await expect(page.getByText(/^Zaakceptowana notatka/)).toBeVisible();
+  await expect(page.locator('.summary-narrative')).toContainText(
+    'Zaakceptowana notatka',
+  );
   await expect(
     page.getByText('Film oczekuje na zweryfikowany zapis', { exact: false }),
   ).toBeVisible();
@@ -332,14 +334,16 @@ test('reading verifies paged canonical bytes, preserves accepted text on failure
   corrupt = true;
   await page.getByRole('button', { name: 'Odśwież wynik' }).click();
   await expect(page.getByRole('alert')).toBeVisible();
-  await expect(page.getByText(/^Zaakceptowana notatka/)).toBeVisible();
+  await expect(page.locator('.summary-narrative')).toContainText(
+    'Zaakceptowana notatka',
+  );
   corrupt = false;
   disabled = true;
   await page.getByRole('button', { name: 'Odśwież wynik' }).click();
   await expect(
     page.getByText('Podsumowanie wyłączono w profilu.'),
   ).toBeVisible();
-  await expect(page.getByText(/^Zaakceptowana notatka/)).toHaveCount(0);
+  await expect(page.locator('.summary-narrative')).toHaveCount(0);
   await expect(
     page.getByText('Wypowiedź źródła', { exact: true }),
   ).toBeVisible();
