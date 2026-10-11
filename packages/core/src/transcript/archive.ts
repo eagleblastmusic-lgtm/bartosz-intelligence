@@ -34,6 +34,74 @@ export class TranscriptDriveArchive {
     assertContext(context);
     context.requireOwnerOrTask('DRIVE_EXPORT');
   }
+  async refreshVerifiedReadback(
+    itemId: string,
+    client: DriveClient,
+    now: Date,
+  ) {
+    if (!Number.isFinite(now.getTime()))
+      throw new Error('INVALID_TRANSCRIPT_ARCHIVE_CLOCK');
+    if (this.context.kind === 'worker')
+      (
+        await AccessContext.worker(this.db, this.context.credentialHash!)
+      ).requireTask('DRIVE_EXPORT');
+    const row = await this.db
+      .prepare(
+        "SELECT * FROM transcript_archives WHERE owner_id=? AND item_id=? AND state='VERIFIED' AND verified_hash=content_hash AND verified_source_artifact_id=source_artifact_id",
+      )
+      .bind(this.context.ownerId, itemId)
+      .first<Row>();
+    if (!row?.reserved_file_id || !row.remote_version || !row.verified_hash)
+      throw new Error('TRANSCRIPT_ARCHIVE_NOT_VERIFIED');
+    await client.verifyPrivateFolder(row.folder_id);
+    await client.verifyPrivateFolder(row.reserved_file_id);
+    const before = await client.getFile(row.reserved_file_id);
+    const markdown = await client.readTranscriptMarkdown(row.reserved_file_id);
+    const after = await client.getFile(row.reserved_file_id);
+    if (
+      !after.version ||
+      before.version !== after.version ||
+      after.trashed !== false ||
+      after.mimeType !== 'text/markdown' ||
+      !after.parents?.includes(row.folder_id) ||
+      after.appProperties?.bi_owner !== (await sha256(this.context.ownerId)) ||
+      after.appProperties?.bi_transcript !== (await sha256(itemId)) ||
+      (await sha256(markdown)) !== row.verified_hash
+    )
+      throw new Error('TRANSCRIPT_ARCHIVE_CONFLICT');
+    if (after.version !== row.remote_version) {
+      if (this.context.kind === 'worker')
+        (
+          await AccessContext.worker(this.db, this.context.credentialHash!)
+        ).requireTask('DRIVE_EXPORT');
+      const saved = await this.db
+        .prepare(
+          "UPDATE transcript_archives SET remote_version=?,updated_at=? WHERE owner_id=? AND item_id=? AND state='VERIFIED' AND fencing_token=? AND remote_version=? AND verified_hash=? AND content_hash=verified_hash AND source_artifact_id=? AND verified_source_artifact_id=source_artifact_id AND (lease_until IS NULL OR lease_until<=?) AND NOT EXISTS(SELECT 1 FROM retention_items t WHERE t.owner_id=transcript_archives.owner_id AND t.item_id=transcript_archives.item_id AND t.phase IN ('PRUNING','COMPLETE'))",
+        )
+        .bind(
+          after.version,
+          now.toISOString(),
+          this.context.ownerId,
+          itemId,
+          row.fencing_token,
+          row.remote_version,
+          row.verified_hash,
+          row.source_artifact_id,
+          now.toISOString(),
+        )
+        .run();
+      if (saved.meta.changes !== 1)
+        throw new Error('TRANSCRIPT_ARCHIVE_STALE_FENCE');
+    }
+    // Identical bytes keep the original verification/retention date. Only the
+    // independently verified provider metadata version advances; no Drive write.
+    return {
+      file_id: row.reserved_file_id,
+      remote_version: after.version,
+      sha256: row.verified_hash,
+      byte_count: new TextEncoder().encode(markdown).length,
+    };
+  }
   async reconcile(now: Date, itemId?: string) {
     const source = await this.db
       .prepare(

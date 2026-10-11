@@ -241,6 +241,9 @@ async function fixture(partial = false) {
     get updates() {
       return updates;
     },
+    advanceMetadataVersion() {
+      version++;
+    },
     async addRevision() {
       const text = 'New full source.',
         hash = await sha256(text),
@@ -336,6 +339,101 @@ it('scopes an explicit archive to its item without touching another pending sour
       .bind(f.item.item_id)
       .first<string>('state'),
   ).toBe('VERIFIED');
+});
+it('reconciles a metadata-only version advance with full private readback and preserves the retention clock', async () => {
+  const f = await fixture();
+  await f
+    .archive()
+    .tick(
+      { client: async () => f.client, item_id: f.item.item_id },
+      fixtureNow,
+    );
+  const before = await env.DB.prepare(
+    'SELECT verified_at,verified_hash FROM transcript_archives WHERE item_id=?',
+  )
+    .bind(f.item.item_id)
+    .first();
+  f.advanceMetadataVersion();
+  expect(
+    await f
+      .archive()
+      .refreshVerifiedReadback(f.item.item_id, f.client, fixtureNow),
+  ).toMatchObject({ remote_version: '2' });
+  expect(
+    await env.DB.prepare(
+      'SELECT verified_at,verified_hash FROM transcript_archives WHERE item_id=?',
+    )
+      .bind(f.item.item_id)
+      .first(),
+  ).toEqual(before);
+  expect(f.creates).toBe(1);
+  expect(f.updates).toBe(0);
+  expect(
+    await f
+      .archive()
+      .tick(
+        { client: async () => f.client, item_id: f.item.item_id },
+        fixtureNow,
+      ),
+  ).toEqual({ state: 'IDLE' });
+});
+it('refuses a stale fence after remote readback before committing a metadata version', async () => {
+  const f = await fixture();
+  await f
+    .archive()
+    .tick(
+      { client: async () => f.client, item_id: f.item.item_id },
+      fixtureNow,
+    );
+  f.advanceMetadataVersion();
+  const get = f.client.getFile.bind(f.client);
+  let reads = 0;
+  f.client.getFile = async (id) => {
+    const result = await get(id);
+    if (id === 'reserved' && ++reads === 2)
+      await env.DB.prepare(
+        'UPDATE transcript_archives SET fencing_token=fencing_token+1 WHERE item_id=?',
+      )
+        .bind(f.item.item_id)
+        .run();
+    return result;
+  };
+  await expect(
+    f.archive().refreshVerifiedReadback(f.item.item_id, f.client, fixtureNow),
+  ).rejects.toThrow('TRANSCRIPT_ARCHIVE_STALE_FENCE');
+  expect(
+    await env.DB.prepare(
+      'SELECT remote_version FROM transcript_archives WHERE item_id=?',
+    )
+      .bind(f.item.item_id)
+      .first('remote_version'),
+  ).toBe('1');
+  expect(f.updates).toBe(0);
+});
+it('refuses content, privacy and concurrent version changes during verified readback without advancing the receipt', async () => {
+  const f = await fixture();
+  await f
+    .archive()
+    .tick(
+      { client: async () => f.client, item_id: f.item.item_id },
+      fixtureNow,
+    );
+  f.advanceMetadataVersion();
+  for (const fault of ['hash', 'race', 'public']) {
+    f.setFault(fault);
+    await expect(
+      f.archive().refreshVerifiedReadback(f.item.item_id, f.client, fixtureNow),
+    ).rejects.toThrow();
+    expect(
+      await env.DB.prepare(
+        'SELECT remote_version FROM transcript_archives WHERE item_id=?',
+      )
+        .bind(f.item.item_id)
+        .first('remote_version'),
+    ).toBe('1');
+  }
+  expect(f.creates).toBe(1);
+  expect(f.updates).toBe(0);
 });
 it('prefers compact captured cues over later AI maps and archives without AI completion', async () => {
   const f = await fixture(),

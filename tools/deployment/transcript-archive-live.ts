@@ -22,12 +22,26 @@ import {
 const mode = process.argv[2];
 const video = process.argv[3] === '--video' ? process.argv[4] : undefined;
 if (
-  !['--provision-folder', '--archive-once', '--verify-video'].includes(mode!) ||
+  ![
+    '--provision-folder',
+    '--archive-once',
+    '--verify-video',
+    '--recover-readback',
+  ].includes(mode!) ||
   (mode === '--provision-folder'
     ? process.argv.length !== 3
     : process.argv.length !== 5 || video !== 'rUhllpnYWR8')
 )
   throw new Error('EXPLICIT_TRANSCRIPT_ARCHIVE_ACTION_REQUIRED');
+if (
+  mode === '--recover-readback' &&
+  !existsSync(
+    '.local/d1-resume/' +
+      new Date().toISOString().slice(0, 10) +
+      '-transcript-verify-video-intent.json',
+  )
+)
+  throw new Error('PRIOR_TRANSCRIPT_VERIFICATION_REQUIRED');
 if (defaults.paid_services_enabled !== false)
   throw new Error('PAID_POLICY_DENIED');
 const now = new Date(),
@@ -144,6 +158,12 @@ try {
       .first<string>('item_id');
     if (!itemId) throw new Error('APPROVED_TRANSCRIPT_ITEM_REQUIRED');
     const archive = new TranscriptDriveArchive(db, context);
+    if (mode === '--recover-readback')
+      await archive.refreshVerifiedReadback(
+        itemId,
+        await client(row.results[0]!.connection_id),
+        new Date(),
+      );
     const attempt =
       mode === '--archive-once'
         ? await archive.tick({ client, item_id: itemId }, new Date())
