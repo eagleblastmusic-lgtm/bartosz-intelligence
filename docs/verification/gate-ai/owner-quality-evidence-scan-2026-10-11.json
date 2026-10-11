@@ -1,0 +1,29 @@
+{
+  "version": "owner-quality-public-evidence-scan:1",
+  "recorded_at": "2026-10-11T15:38:16.621Z",
+  "status": "PASS",
+  "files_scanned": 59,
+  "bytes_scanned": 329868,
+  "findings": [],
+  "known_secret_values_recorded": false,
+  "owner_subject_excluded": true,
+  "receipts": [
+    {
+      "file": "docs/verification/gate-ai/summary-quality-regression-2026-10-11.json",
+      "sha256": "c1fe40d70e255346a942c9d88d09e7e120b1cf194464c2561e87f64b18a4a093"
+    },
+    {
+      "file": "docs/verification/gate-ai/quality-review-revision-4-2026-10-11.json",
+      "sha256": "3d0eabcc13525be65c06961fede254d5e78b992b291518c01132d2c42e8f89d4"
+    },
+    {
+      "file": "docs/verification/gate-ai/owner-reviewed-publication-rUhllpnYWR8-v4.json",
+      "sha256": "df4c13c3e22a4df644d1fd841587fddd4a07bf451de0d15e9241a17ae64fe8c5"
+    },
+    {
+      "file": "docs/verification/deployment/quality-policy-v2-2026-10-11.json",
+      "sha256": "20af2007ba64c0dd1f06b3061e1f0e57d76c201e15c9f1b9789feb2a84fa4d0c"
+    }
+  ],
+  "new_gemini_requests": 0
+}

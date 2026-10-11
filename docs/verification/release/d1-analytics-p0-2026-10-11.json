@@ -1,0 +1,136 @@
+{
+  "version": "D1UsageAnalytics/1.0",
+  "observed_at": "2026-10-11T13:56:22.243Z",
+  "start_utc": "2026-10-11T00:00:00.000Z",
+  "end_utc": "2026-10-11T13:56:22.243Z",
+  "state": "MEASURED_ANALYTICS",
+  "scope": "ALL_ACCOUNT_DATABASES",
+  "sql_queries_executed": 0,
+  "account_rows_read": 198510,
+  "account_rows_written": 9348,
+  "current_storage_bytes": 28016640,
+  "max_database_size_bytes": 25116672,
+  "paid_services_enabled": false,
+  "hourly": [
+    {
+      "hour_utc": "2026-10-11T00:00:00Z",
+      "database": "BARTOSZ_CORE",
+      "readQueries": 4248,
+      "rowsRead": 34903,
+      "rowsWritten": 4504,
+      "writeQueries": 2016
+    },
+    {
+      "hour_utc": "2026-10-11T01:00:00Z",
+      "database": "BARTOSZ_CORE",
+      "readQueries": 2714,
+      "rowsRead": 19809,
+      "rowsWritten": 600,
+      "writeQueries": 395
+    },
+    {
+      "hour_utc": "2026-10-11T02:00:00Z",
+      "database": "BARTOSZ_CORE",
+      "readQueries": 320,
+      "rowsRead": 10940,
+      "rowsWritten": 315,
+      "writeQueries": 128
+    },
+    {
+      "hour_utc": "2026-10-11T03:00:00Z",
+      "database": "BARTOSZ_CORE",
+      "readQueries": 296,
+      "rowsRead": 10422,
+      "rowsWritten": 275,
+      "writeQueries": 116
+    },
+    {
+      "hour_utc": "2026-10-11T04:00:00Z",
+      "database": "BARTOSZ_CORE",
+      "readQueries": 290,
+      "rowsRead": 10525,
+      "rowsWritten": 285,
+      "writeQueries": 112
+    },
+    {
+      "hour_utc": "2026-10-11T05:00:00Z",
+      "database": "BARTOSZ_CORE",
+      "readQueries": 271,
+      "rowsRead": 10347,
+      "rowsWritten": 235,
+      "writeQueries": 96
+    },
+    {
+      "hour_utc": "2026-10-11T06:00:00Z",
+      "database": "BARTOSZ_CORE",
+      "readQueries": 280,
+      "rowsRead": 10523,
+      "rowsWritten": 253,
+      "writeQueries": 99
+    },
+    {
+      "hour_utc": "2026-10-11T07:00:00Z",
+      "database": "BARTOSZ_CORE",
+      "readQueries": 307,
+      "rowsRead": 11128,
+      "rowsWritten": 362,
+      "writeQueries": 137
+    },
+    {
+      "hour_utc": "2026-10-11T08:00:00Z",
+      "database": "BARTOSZ_CORE",
+      "readQueries": 263,
+      "rowsRead": 10540,
+      "rowsWritten": 239,
+      "writeQueries": 99
+    },
+    {
+      "hour_utc": "2026-10-11T09:00:00Z",
+      "database": "BARTOSZ_CORE",
+      "readQueries": 264,
+      "rowsRead": 10538,
+      "rowsWritten": 238,
+      "writeQueries": 98
+    },
+    {
+      "hour_utc": "2026-10-11T10:00:00Z",
+      "database": "BARTOSZ_CORE",
+      "readQueries": 298,
+      "rowsRead": 11064,
+      "rowsWritten": 327,
+      "writeQueries": 129
+    },
+    {
+      "hour_utc": "2026-10-11T11:00:00Z",
+      "database": "BARTOSZ_CORE",
+      "readQueries": 264,
+      "rowsRead": 10538,
+      "rowsWritten": 238,
+      "writeQueries": 98
+    },
+    {
+      "hour_utc": "2026-10-11T12:00:00Z",
+      "database": "BARTOSZ_CORE",
+      "readQueries": 2169,
+      "rowsRead": 18066,
+      "rowsWritten": 854,
+      "writeQueries": 375
+    },
+    {
+      "hour_utc": "2026-10-11T13:00:00Z",
+      "database": "BARTOSZ_CORE",
+      "readQueries": 2997,
+      "rowsRead": 19167,
+      "rowsWritten": 623,
+      "writeQueries": 414
+    }
+  ],
+  "analytics_lag": "NOT_MEASURED_NOT_EXACT_REMAINING_QUOTA",
+  "database_inventory_count": 2,
+  "storage_basis": "ACTUAL_ACCOUNT_INVENTORY_METADATA_NO_SQL",
+  "policy": {
+    "state": "WITHIN_OBSERVED_BUDGET",
+    "noncritical_admitted": true,
+    "exact_remaining_quota": null
+  }
+}

@@ -1,0 +1,19 @@
+{
+  "version": "GeminiHttp400ConfirmedCause/1.0",
+  "receipt": "live-http400-diagnostic-2026-10-11.json",
+  "response_sha256": "7be3c566d0ff2f9618c256da836b51f78762f944071519bee0757b25d0895038",
+  "response_bytes": 708,
+  "response_truncated": false,
+  "http_status": 400,
+  "rpc_status": "INVALID_ARGUMENT",
+  "rejected_field": "generation_config.response_format.text.mime_type",
+  "submitted_value": "application/json",
+  "rest_contract_type": "google.ai.generativelanguage.v1beta.TextResponseFormat.MimeType",
+  "required_value": "APPLICATION_JSON",
+  "primary_reference": "https://ai.google.dev/api/generate-content#TextResponseFormat",
+  "cause": "CONFIRMED_DIAGNOSTIC_ADAPTER_REST_ENUM_ENCODING_ERROR",
+  "scope": "This explains these generateContent HTTP400 attempts, not the earlier Interactions HTTP503 or transport timeout.",
+  "raw_error_message_published": false,
+  "new_generation_requests": 0,
+  "paid_services_enabled": false
+}

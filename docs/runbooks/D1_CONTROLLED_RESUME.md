@@ -1,5 +1,27 @@
 # Kontrolowane wznowienie D1 — 2026-10-10
 
+## Aktualny checkpoint — 2026-10-11, po decyzji właściciela
+
+Rewizja 4 spełnia dwie korekty i została zweryfikowana na prywatnym Daily.
+One create; 18 REST /36 reads /12 writes łącznie z bounded revocation sesji.
+Nie promowano oryginalnego QUALITY_TEST. Deploy 59fb3c34… /8b8ace8/schema39,
+policy analysis-quality:2; 85 regresji i broader checks PASS. Brak nowych
+Gemini, migracji, cleanup lub capture. Verified backup miał 18,5 h i został
+wykorzystany jako istniejący dowód restore. Nie ponawiać ukończonego wznowienia,
+canary lub archiwizacji. Standardowy automatyczny P0/nowy prompt qualification
+nadal pending; staged19 czeka na stabilny przepływ. Readiness ma pełne receipts.
+
+## Historyczna kontynuacja przed akceptacją rewizji 4 — 2026-10-11
+
+Owner requires corrections to the first candidate, no Daily acceptance yet.
+10638b7 contains local systemic fixes; production remains 7b79a79/schema39.
+Revision 3 awaits human review. New policy has a different quality_scope and
+needs separately authorized live measurement; do not reuse consumed Gemini
+consents, mutate original outputs or promote QUALITY_TEST through SQL.
+Keep the completed D1 resume/transcript/backup/canary receipts. New renderer
+does not repin their historical scope. No daily heavy repeats or activation of
+19 staged channels before stable P0. [Quality runbook](../decisions/P0_SUMMARY_QUALITY_2026-10-11.md).
+
 ## Zakończony zakres jednorazowego wykonania — 2026-10-11
 
 Schema 39, końcowy deploy `9d3b376e-990d-48c7-a97e-a0877f918aa0`, niezależny
@@ -132,6 +154,20 @@ grantu wymaga małego odczytu credential repositories po resecie. Nie eksportowa
 sekretów do backupu/evidence. Cooldown logiczny nie jest pomiarem rzeczywistego RTO.
 
 ## Minimalny zestaw: D-export — siedem brakujących przypadków
+
+Aktualizacja 2026-10-11: jeden actual-provider canary `1mJxn7y1fgIv8oaY954XGUuqlrvfmgAcT`
+w izolowanym restore istniejącej verified kopii `fbf01a86` dostarczył recovery
+consumer, stable sealed snapshot/late dirty event, niezależny intake/jobs,
+rewizję 1→2 pod tym samym ID i trwały manual edit conflict bez overwrite.
+Receipts w `docs/verification/gate-r/provider-drive-consumer-171b5923-64d6-4332-a444-33ba7ed71e11/`.
+Recovery trwał realne 342327 ms; fault był kontrolowaną utratą odpowiedzi
+rzeczywistego create, nie naturalnym błędem Google. Pending synthetic Items nie
+są streszczeniami ani HUMAN_REVIEW. Pierwsze błędy fixture zachowano; osobne
+recovery receipts usuwają ich przyczyny, bez powtórzenia create/PUT tylko dla PASS.
+Nie przepinać tych wyników do starego configuration cut/date ani pełnego Gate R:
+mają własne preregistered pins. OAuth negative nadal reuse; quota/storage actual
+denial i human compact quality pozostają bez pełnego odbioru. Nie powtarzać
+już dowiedzionych właściwości bez konkretnej zmiany, która je unieważnia.
 
 Wykorzystać jeden nowy canary i jeden izolowany runtime; nie ręcznie nadpisywać
 istniejącego Daily. Przedstawione poniżej sekwencje mogą współdzielić provider

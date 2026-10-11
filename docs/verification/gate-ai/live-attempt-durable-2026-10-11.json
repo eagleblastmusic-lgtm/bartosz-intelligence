@@ -1,0 +1,57 @@
+{
+  "version": "stage03-live-attempt:1",
+  "recorded_at": "2026-10-11T12:57:54.889Z",
+  "video_id": "rUhllpnYWR8",
+  "source_run_id": "transcript_39cfb0e1bcf555ab6cc5131d4908549af2713325a58858663832dddf0d55599a",
+  "job_id": "f93cacbf-ad04-4f95-b057-59e95c607bb7",
+  "analysis_run_id": "analysis_6051a774b8a9602c800c9d5b6595cdb2ef1fe8a2d07af91fee0e04e77f0b797a",
+  "profile_revision": 6,
+  "generation_submissions": 1,
+  "owner_authorization": "Explicit approval of exactly one request in this conversation on 2026-10-11, QUALITY_TEST, existing transcript rUhllpnYWR8, gemini-3.8-flash Free",
+  "provider_status": "TEMPORARY_FAILURE",
+  "finish_reason": "TRANSPORT_TIMEOUT",
+  "usage": {
+    "input_tokens": null,
+    "output_tokens": null,
+    "total_tokens": null
+  },
+  "validation": null,
+  "completion": null,
+  "disposition": {
+    "accepted": false,
+    "run_id": "analysis_6051a774b8a9602c800c9d5b6595cdb2ef1fe8a2d07af91fee0e04e77f0b797a",
+    "state": "RETRY_WAIT",
+    "due_at": "2026-10-11T12:58:46.072Z",
+    "reason": "TRANSIENT"
+  },
+  "automatic_hidden_retries": 0,
+  "accepted_effects": 0,
+  "paid_services_enabled": false,
+  "secret_values_recorded": false,
+  "quota_observation": "quota-live-2026-10-11.json",
+  "reconciled_at": "2026-10-11T13:04:10.699Z",
+  "durable_job": {
+    "state": "PENDING",
+    "reason_code": null,
+    "attempt_count": 1,
+    "arrival_origin_at": "2026-10-11T12:52:49.575Z",
+    "origin_kind": "MANUAL"
+  },
+  "reservations": [
+    {
+      "request_id": "analysis_6051a774b8a9602c800c9d5b6595cdb2ef1fe8a2d07af91fee0e04e77f0b797a",
+      "state": "UNKNOWN",
+      "created_at": "2026-10-11T12:55:18.002Z",
+      "settled_at": "2026-10-11T12:57:54.403Z"
+    }
+  ],
+  "quality_result": "NOT_ASSESSED",
+  "full_e2e": "INCOMPLETE",
+  "production_d1_budget": {
+    "requests": 3,
+    "rows_read": 49,
+    "rows_written": 0,
+    "metadata_complete": true,
+    "stopped": false
+  }
+}

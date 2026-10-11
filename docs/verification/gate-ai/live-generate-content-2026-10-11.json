@@ -1,0 +1,32 @@
+{
+  "version": "stage03-live-attempt:1",
+  "recorded_at": "2026-10-11T13:52:44.400Z",
+  "video_id": "rUhllpnYWR8",
+  "source_run_id": "transcript_39cfb0e1bcf555ab6cc5131d4908549af2713325a58858663832dddf0d55599a",
+  "job_id": "26961da1-ee3f-4c7f-bba2-eb5f9107419a",
+  "analysis_run_id": "analysis_2dac46429211dd48972df110e9ed23a344b9d275348619fa16d2650140a1eb34",
+  "profile_revision": 7,
+  "generation_submissions": 1,
+  "endpoint": "generateContent",
+  "owner_authorization": "Explicit additional single generateContent comparison approved by owner on 2026-10-11, QUALITY_TEST, same rUhllpnYWR8/prompt/schema/gemini-3.8-flash Free",
+  "provider_status": "INVALID_REQUEST",
+  "finish_reason": "HTTP_400",
+  "usage": {
+    "input_tokens": null,
+    "output_tokens": null,
+    "total_tokens": null
+  },
+  "validation": null,
+  "completion": null,
+  "disposition": {
+    "accepted": false,
+    "run_id": "analysis_2dac46429211dd48972df110e9ed23a344b9d275348619fa16d2650140a1eb34",
+    "state": "BLOCKED",
+    "reason": "AI_INVALID_REQUEST",
+    "due_at": "2026-10-11T13:52:44.511Z"
+  },
+  "automatic_hidden_retries": 0,
+  "accepted_effects": 0,
+  "paid_services_enabled": false,
+  "secret_values_recorded": false
+}

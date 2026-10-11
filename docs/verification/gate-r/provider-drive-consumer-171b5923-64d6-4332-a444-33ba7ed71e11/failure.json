@@ -1,0 +1,21 @@
+{
+  "observed_at": "2026-10-11T13:03:53.395Z",
+  "state": "RETRY_WAIT",
+  "early": "IDLE",
+  "file_id": "1mJxn7y1fgIv8oaY954XGUuqlrvfmgAcT",
+  "artifact_id": "a5421dd0ed6e8574d35c4cb610b126d4816f6840e550bc25aece466da6350d02",
+  "next_retry_at": "2026-10-11T13:08:50.832Z",
+  "pending_job_created": true,
+  "creates": 1,
+  "provider_requests": 4,
+  "production_d1": {
+    "requests": 4,
+    "rows_read": 11,
+    "rows_written": 2,
+    "metadata_complete": true,
+    "stopped": false
+  },
+  "scope": "ACTUAL_PROVIDER_CREATE_CONTROLLED_CONSUMER_FAULT_ISOLATED_SQLITE_NO_AI_RESULT",
+  "gemini_requests": 0,
+  "paid_services_enabled": false
+}

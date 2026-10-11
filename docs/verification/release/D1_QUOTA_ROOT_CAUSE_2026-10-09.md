@@ -371,3 +371,41 @@ eksportów i peak measurements. Gemini nie był ponownie wywołany; P0 pending,
 staged new-only czeka na stabilny podstawowy przepływ. Gate C NOT_YET_MATURE,
 full R/D niezaliczone, paid_services_enabled=false. Aktualne immutable receipts
 i ograniczenia są w [release readiness](../../../RELEASE_READINESS_REPORT.md).
+
+### Kontrolowane dalsze testy — 2026-10-11
+
+Analytics 13:56:22 UTC: całe konto 198510 rows_read /9348 rows_written;
+current storage 28016640 bytes, core/max database 25116672 bytes. Opóźniona
+metryka nie jest exact remaining; nie przypisujemy jej do pojedynczych jobs.
+Actual Drive drills korzystają z izolowanego restore verified kopii `fbf01a86`,
+bez nowego canonical capture lub produkcyjnych skanów. Typowy pojedynczy grant
+drilla: 4 REST /11 reads /2 writes (OAuth metadata). Consumer recovery i
+same-ID late revision/full readback/manual conflict mają własne scoped receipts.
+Indexed Gemini job reconciles: 3 REST /49 reads /0 writes po timeout,
+3 /50 /0 po porównaniu HTTP400, 3 /51 /0 po diagnostyce. To jawnie zmierzone
+fragmenty, nie sumaryczny koszt całych AI RPC lub testów.
+
+Nie wykonano dalszych mikrooptymalizacji D1. Potwierdzony błąd diagnostycznego
+generateContent był kodowaniem REST MIME enum, nie quota D1; naprawiono go
+lokalnie. P0/codzienna automatyzacja i 20-channel Free maturity nadal wymagają
+rzeczywistego przyjętego AI → Daily. Retention deletion OFF i paid false.
+
+Po osobnej zgodzie jedna próba generateContent z poprawnym enum dała
+STOP/VALIDATED/SUCCEEDED, 23714 input /3261 output tokens, SETTLED quota.
+Readback canonical/raw: 14 REST /64 reads /0 writes; dokładny jednorazowy
+revocation sesji harnessu: 1 /1 /1. To koszt odczytu kandydata, nie całego AI.
+Jest rzeczywisty wynik do HUMAN_REVIEW, nadal accepted=false i bez production
+Daily. Jeden film nie wyznacza częstości publikacji ani dobowej pojemności
+20 kanałów; wcześniejsza ostrożna ocena Gate C pozostaje aktualna.
+
+### Zaakceptowana publikacja redakcyjna — 2026-10-11
+
+Po dwóch korektach właściciel zaakceptował jeden wynik. Weryfikacja i prywatny
+Daily: 18 REST /36 rows_read /12 rows_written z odwołaniem sesji, pełne D1 meta.
+One create/9 Drive requests, bez production DELETE i canonical promotion.
+Nowa Analytics 15:16:50 UTC: konto 228274 reads/10325 writes, storage 28266496
+bytes/core 25366528. To opóźniony stan konta, nie exact remaining lub koszt
+pojedynczego procesu. Regresje nowych reguł jakości lokalne; deploy verification
+bez SQL. Bez nowego backup capture (verified copy ~18,5 h), ponownego source
+fetch lub Gemini. Auto delivery/current prompt qualification i Gate C nadal
+otwarte; nie mierzymy dobowego budżetu 20 kanałów jednym owner-reviewed filmem.

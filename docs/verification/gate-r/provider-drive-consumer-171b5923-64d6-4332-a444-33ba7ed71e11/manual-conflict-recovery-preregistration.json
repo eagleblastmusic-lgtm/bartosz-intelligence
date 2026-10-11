@@ -1,0 +1,21 @@
+{
+  "recorded_at": "2026-10-11T13:56:44.624Z",
+  "pins": {
+    "candidate_sha256": "07431c38b0f276770111ee9fae056c11865283944d1ef2187d06f5da2eb7fcb0",
+    "migration_set_sha256": "8dfc2e806a177ae30ccb630da29bec46b174e1f1dc906ed57ee6b79d9737b7e7",
+    "migration_count": 39,
+    "file_count": 636
+  },
+  "predecessor_sha256": "a969c459ce4538ee66bcb393bda88bc7e551748a7839bc46f4a7da95a0136c29",
+  "file_id": "1mJxn7y1fgIv8oaY954XGUuqlrvfmgAcT",
+  "case_id": "manual_edit_conflict",
+  "injection": "REUSE_ALREADY_APPENDED_CANARY_WITH_CORRECT_FIXTURE_MODE",
+  "predecessor_failure_sha256": "24836145e2ea35982f63c8315d271335c9d950dd4bf2afc3c4f34cc50ad6a68e",
+  "maximum_explicit_canary_puts": 0,
+  "maximum_consumer_puts": 0,
+  "maximum_creates": 0,
+  "scope": "ACTUAL_CANARY_MANUAL_CONFLICT_WITH_ISOLATED_CANONICAL_FIXTURES_NOT_HUMAN_QUALITY",
+  "existing_user_reports_modified": false,
+  "gemini_requests": 0,
+  "paid_services_enabled": false
+}

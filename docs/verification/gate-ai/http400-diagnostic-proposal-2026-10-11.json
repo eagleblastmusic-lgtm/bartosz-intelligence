@@ -1,0 +1,20 @@
+{
+  "version": "GeminiHttp400DiagnosticProposal/1.0",
+  "authorization": "NOT_GRANTED",
+  "reason": "The approved generateContent comparison returned HTTP_400. The old adapter discarded error messages/details, so the rejected parameter is unknown. Do not assume payload, model, quota or key causality.",
+  "video_id": "rUhllpnYWR8",
+  "model": "gemini-3.8-flash",
+  "purpose": "QUALITY_TEST",
+  "endpoint": "generateContent",
+  "payload_sha256": "325e56a3bb90449b526ebc8d129e5ba8d05a952d9b23c29d1a6a9246f392a35a",
+  "prompt_sha256": "e17e2d3586a07535f1e2c75140395e9a89197728553eb35e8eb6bbe00c35360c",
+  "maximum_generation_submissions": 1,
+  "preflight": "Fresh actual same-model capabilities, project FREE and current RPM/RPD/INPUT_TPM before dispatch. Unknown usage remains unknown; transport five-minute deadline begins after preflight.",
+  "diagnostic_delta": "Retain up to 8192 bytes of a non-success HTTP response only in the existing Owner/System-protected .local diagnostic directory. Public evidence contains status, byte length/hash and reviewed fixed categories, never raw message/details or credentials.",
+  "automatic_retry": false,
+  "fallback": false,
+  "model_change": false,
+  "production_promotion": false,
+  "paid_services_enabled": false,
+  "performed_generation_requests": 0
+}

@@ -1,0 +1,32 @@
+{
+  "version": "DriveConsumerProviderRecovery/1.0",
+  "pins": {
+    "candidate_sha256": "7790ebdd0121f912b818b920361270734435b25e79adbc0dd04497aabe42d5f7",
+    "migration_set_sha256": "8dfc2e806a177ae30ccb630da29bec46b174e1f1dc906ed57ee6b79d9737b7e7",
+    "migration_count": 39,
+    "file_count": 634
+  },
+  "recorded_at": "2026-10-11T13:03:28.993Z",
+  "backup_id": "fbf01a86-3ddb-414d-bc96-05c489262fbd",
+  "backup_sha256": "b0a9c6c6d41cc5492ddf0ca817d659242273628d0bc41acbe1d115c6983905f2",
+  "case_id": "drive_consumer_failure",
+  "root_id": "1rn_5auxY_8HAeADc1RgGKQ6h9JimD7WM",
+  "maximum_create_attempts": 1,
+  "injection": "DISCARD_ACTUAL_CREATE_SUCCESS_AND_INTERRUPT_CONSUMER_RECONCILIATION",
+  "targets": [
+    "SAME_SEALED_ARTIFACT",
+    "DURABLE_PROCESS_RESTART",
+    "SAME_FILE_ID",
+    "NO_SECOND_CREATE",
+    "CORE_INTAKE_DURING_FAILURE",
+    "LATE_CHANGE_REMAINS_DIRTY"
+  ],
+  "fixture": "ISOLATED_SYNTHETIC_PENDING_ITEMS_NO_AI_RESULT",
+  "production_reports_or_source_data_modified": false,
+  "logical_clock": false,
+  "gemini_requests": 0,
+  "paid_services_enabled": false,
+  "preceding_preregistration_sha256": "581f89ae4bc7678805f2cd1d4c071f3583bf066f0a6af13d9c578a3ea61fc836",
+  "adjustment": "CANONICAL_ISO_TIMESTAMP_FIXED_BEFORE_FAULT_INJECTION",
+  "remote_create_attempts_before_fix": 0
+}

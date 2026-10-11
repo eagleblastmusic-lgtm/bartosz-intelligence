@@ -1,5 +1,54 @@
 # Stage 08 — current handoff
 
+## Current quality scope and actual publication — 2026-10-11
+
+Owner's two conditions are fulfilled in immutable editorial revision 4; single
+result accepted for publication and delivered to existing private Daily with
+full readback/SHA/version/ACL. Original QUALITY_TEST remains CANDIDATE. This
+is an owner-reviewed exception, not automatic accepted-run E2E/model/CP-3.13 PASS.
+Production now 59fb3c34… /8b8ace8/schema39. Shared policy v2 detects certainty
+and temporal-scope loss. 47 unit +38 isolated D1 integrations PASS, broader
+types/lint/build/bundle/secret scan PASS; no sum with earlier repeated scopes.
+No Gemini/paid/cleanup/capture, verified backup reused. Full R/D/C and release
+remain unaccepted; current prompt still needs separately authorized live
+qualification. Do not repin old evidence or claim general quality from one film.
+[Decision and receipts](../decisions/P0_SUMMARY_QUALITY_2026-10-11.md).
+
+## Historical quality delta before revision 4 — 2026-10-11
+
+10638b7 locally implements shared quality policy/holds/name normalization and
+complete versioned renderers. 103 distinct regressions PASS; production unchanged
+7b79a79/schema39. Owner rejected first candidate pending corrections, not whole
+Gemini model. Revision 3 is source-backed editorial work, AWAITING_HUMAN_REVIEW,
+accepted=false; original response/evidence unchanged. No new Gemini or production
+mutations. Current policy still needs separately authorized live qualification;
+P0 AI→verified Daily, full R/D/C and release remain unaccepted. CP-3.13 and
+screen-reader deferred state unchanged. Do not repin old Drive receipts to this
+code or fabricate a final score from prior configuration cuts.
+[Updated DoD](../decisions/P0_SUMMARY_QUALITY_2026-10-11.md).
+
+## P0 comparison and actual Drive recovery, 2026-10-11
+
+Local code 8188a95 adds explicit QUALITY_TEST-only generateContent comparison;
+production default/deploy remains 7b79a79/schema39. Individually approved
+Interactions timed out; two generateContent POSTs returned HTTP400. Diagnostic
+confirmed wrong REST MIME enum, now fixed without prompt/schema/model changes.
+27 regressions/build PASS; source/jobs preserved. One post-fix request (owner:
+zezwalam) succeeded STOP/VALIDATED/SUCCEEDED, reservation SETTLED,
+23714 input/3261 output tokens. Read live-rest-enum-2026-10-11.json and durable
+candidate readback; four distinct approvals consumed, never replay them.
+Real Polish review ready in private .local/ai-pilot/review-2026-10-11-rUhllpnYWR8,
+AWAITING_HUMAN_REVIEW, accepted=false. Review flags remain; no production Daily.
+
+Actual private Drive canary proved sealed-snapshot/restart recovery (342327 ms),
+late dirty event/Core independence, one same-ID late revision and manual-edit
+conflict with zero automatic overwrite. Isolated synthetic pending fixtures;
+original harness FAIL retained and corrected without repeated PUT/create.
+Receipts retain separate pins, not full formal R/D acceptance or human quality.
+Existing verified backup reused. Gate C NOT_YET_MATURE; staged19 remains approved
+but waits for stable P0; deletion OFF/approval NULL/paid false. No final V1 PASS.
+See current release report before historical text below.
+
 ## Completed reachable one-off resume, 2026-10-11
 
 Production schema 39 and final code `7b79a79` deployed as Worker

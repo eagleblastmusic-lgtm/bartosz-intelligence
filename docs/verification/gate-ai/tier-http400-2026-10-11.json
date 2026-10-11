@@ -1,0 +1,9 @@
+{
+  "project": "bartosz-intelligence",
+  "model": "gemini-3.8-flash",
+  "tier": "FREE",
+  "recorded_at_utc": "2026-10-11T14:02:26.335Z",
+  "source": "OWNER_AUTHENTICATED_GOOGLE_AI_STUDIO_SELECTED_PROJECT",
+  "generation_requests": 0,
+  "paid_services_enabled": false
+}

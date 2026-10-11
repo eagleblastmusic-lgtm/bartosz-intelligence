@@ -1,5 +1,19 @@
 # CP-3.13 — procedura ludzkiej oceny
 
+## Osobna decyzja właściciela o publikacji pojedynczej rewizji
+
+Właścicielska akceptacja treści jednego filmu jest zapisywana jako
+`owner-result-publication-decision:1`: scope ONE_EDITORIALLY_REVISED_RESULT,
+oryginalny run, hash ocenionej rewizji, warunki i dowód ich spełnienia.
+Nie wpisujemy fikcyjnego niezależnego recenzenta, labels per element ani
+model approval. W przypadku rUhllpnYWR8 właściciel zaakceptował rewizję 3
+po dwóch korektach; rewizja 4 i verified prywatny Daily mają oddzielne receipts.
+Oryginalny provider/canonical/evidence pozostają immutable; redakcja ma nowy
+manifest/hash. Publikacja nie jest dowodem CP-3.13 lub całego modelu.
+[Decyzja i procedura publikacji](../../decisions/P0_SUMMARY_QUALITY_2026-10-11.md).
+
+## Niezmieniona procedura kwalifikacji pilota
+
 Anotator: **OWNER_A**. Niezależny recenzent: obecnie niedostępny, **AWAITING_HUMAN_REVIEW**. Decyzja właściciela pozwala kontynuować prace niezależne od tej oceny; nie daje Gate AI PASS ani production quality approval.
 
 Prywatny pakiet `.local/ai-pilot/cp-3.13-selected/corpus.json` zamraża 12 rzeczywistych źródeł przed pilotem AI. Materiały zawierają dokładny SOURCE_ORIGINAL, manifest offsetów i czasów, oryginalny RAW captions, receipt źródła oraz formularze HTML. Publiczny receipt zawiera tylko identyfikatory i hashe. Przypadki bez potwierdzonej authority pozostają w historii puli źródeł; nie są przedstawiane jako gotowy oryginał. To dobór źródeł przed oceną/model generation, nie usuwanie niekorzystnych wyników modelu.

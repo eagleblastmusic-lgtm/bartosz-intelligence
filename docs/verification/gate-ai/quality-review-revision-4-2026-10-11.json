@@ -1,0 +1,116 @@
+{
+  "recorded_at": "2026-10-11T15:09:53.201Z",
+  "version": 4,
+  "status": "OWNER_ACCEPTED_FOR_PUBLICATION",
+  "owner_decision": {
+    "version": "owner-result-publication-decision:1",
+    "reference": "owner-2026-10-11-revision3-two-corrections",
+    "scope": "ONE_EDITORIALLY_REVISED_RESULT",
+    "video_id": "rUhllpnYWR8",
+    "original_run_id": "analysis_9a24d2252fcf28735262858d1820dae22d4819f28893c55a31a171e698ab2820",
+    "reviewed_revision_hash": "25c40c4feaa8242d67df211a9e013c896fcccd9bb9225252f020093a35a7272c",
+    "decision": "ACCEPTABLE_FOR_PUBLICATION_AFTER_TWO_DETERMINISTIC_CORRECTIONS",
+    "conditions": [
+      "Owner conditional acceptance: distinguish optimistic speaker assurance from a guaranteed future event.",
+      "Owner conditional acceptance: preserve so far and the time of the conversation."
+    ],
+    "conditions_fulfilled": true,
+    "model_qualification": false,
+    "cp3_13_accepted": false,
+    "new_ai_requests_authorized": 0,
+    "recorded_at": "2026-10-11T15:09:53.023Z"
+  },
+  "original_run_id": "analysis_9a24d2252fcf28735262858d1820dae22d4819f28893c55a31a171e698ab2820",
+  "original_canonical_sha256": "bcb3d4f383964913e43e9dfc30b6028fb8515190bbe5cec82b3365a3ef83e854",
+  "previous_revision_hash": "25c40c4feaa8242d67df211a9e013c896fcccd9bb9225252f020093a35a7272c",
+  "revision_hash": "7b0bb949f1f35d490240c19224d07a1104556837e40e9d513e5fcf8123f96e9e",
+  "canonical_revision_sha256": "69e846c95a45616230efaaae78dba0d4b241a8f72f6437bfc0e9c695630f7b73",
+  "review_file": "C:/Projekty/Aplikacje/Bartosz Intelligence/.local/ai-pilot/review-2026-10-11-rUhllpnYWR8/revision-4/PRZEGLAD_JAKOSCI-v4.md",
+  "files": [
+    {
+      "file": "PRZEGLAD_JAKOSCI-v4.md",
+      "bytes": 9877,
+      "sha256": "941245fb16c743201e16917744a81ba7ab5e31d054f5162097f2c339439180ab"
+    },
+    {
+      "file": "editorial-wire-v4.json",
+      "bytes": 9580,
+      "sha256": "a779888540033135026e039cdde3e4edee316a3533e4b0e75bd5c79cb70222e7"
+    },
+    {
+      "file": "editorial-canonical-v4.json",
+      "bytes": 89939,
+      "sha256": "358ce86a3bc32a4a90a6e3387a14a88294db6bc220bf167fed6077bd234f4fcf"
+    },
+    {
+      "file": "revision-manifest-v4.json",
+      "bytes": 2463,
+      "sha256": "f5d2a64bda065900a71271a15c7b3cc2c0a63c5f850c1788c43f559a75c67031"
+    }
+  ],
+  "changes": [
+    {
+      "module": "predictions",
+      "index": 1,
+      "key": "text_pl",
+      "before": "Ośmioletni Winston K na pewno poleci w przyszłości w kosmos.",
+      "after": "Mark Rober optymistycznie zapewnia ośmioletniego Winstona K., że ten poleci w przyszłości w kosmos. Jest to zapewnienie rozmówcy, nie jest gwarancją wydarzenia.",
+      "reason": "Owner conditional acceptance: distinguish optimistic speaker assurance from a guaranteed future event."
+    },
+    {
+      "module": "claims",
+      "index": 0,
+      "key": "text_pl",
+      "before": "Whitney Pennington Rogers — deklaracja w rozmowie: Wykład Marka Robera na konferencji TED stał się jednym z najczęściej oglądanych wystąpień 2026 roku.",
+      "after": "Whitney Pennington Rogers — deklaracja w rozmowie: według stanu na moment rozmowy wystąpienie Marka Robera na konferencji TED należało do najczęściej oglądanych wystąpień TED w 2026 roku.",
+      "reason": "Owner conditional acceptance: preserve so far and the time of the conversation."
+    }
+  ],
+  "revised_audit": {
+    "version": "analysis-quality:2",
+    "status": "PASS",
+    "findings": [],
+    "coverage_windows": [
+      {
+        "index": 0,
+        "covered": true
+      },
+      {
+        "index": 1,
+        "covered": true
+      },
+      {
+        "index": 2,
+        "covered": true
+      },
+      {
+        "index": 3,
+        "covered": true
+      },
+      {
+        "index": 4,
+        "covered": true
+      },
+      {
+        "index": 5,
+        "covered": true
+      },
+      {
+        "index": 6,
+        "covered": true
+      },
+      {
+        "index": 7,
+        "covered": true
+      }
+    ],
+    "semantic_verification": "NOT_ASSERTED"
+  },
+  "immutable_inputs_unchanged": true,
+  "source_refetched": false,
+  "new_gemini_requests": 0,
+  "production_writes": 0,
+  "accepted_effects": 0,
+  "drive_delivery": "NOT_YET_VERIFIED",
+  "paid_services_enabled": false
+}

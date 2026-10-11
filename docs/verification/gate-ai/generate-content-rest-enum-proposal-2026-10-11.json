@@ -1,0 +1,37 @@
+{
+  "version": "generate-content-comparison-proposal:1",
+  "recorded_at": "2026-10-11T14:06:23.241Z",
+  "model": "gemini-3.8-flash",
+  "video_id": "rUhllpnYWR8",
+  "purpose": "QUALITY_TEST",
+  "endpoint": "https://generativelanguage.googleapis.com/v1beta/models/gemini-3.8-flash:generateContent",
+  "source_run_id": "transcript_39cfb0e1bcf555ab6cc5131d4908549af2713325a58858663832dddf0d55599a",
+  "source_hash": "f0f0874314d88f5b19acc2abb55aa9a326425a5e1f93f42b006534d1a7c092c0",
+  "prompt_sha256": "e17e2d3586a07535f1e2c75140395e9a89197728553eb35e8eb6bbe00c35360c",
+  "payload_sha256": "90cd666b248e427fef3691c8ba6588011968b6bf985404c891fcb3f630279486",
+  "payload_bytes": 91750,
+  "wire_schema_id": "urn:bartosz:schema:economy-wire:1.0",
+  "max_output_tokens": 4096,
+  "estimated_input_tokens": 79025,
+  "request_body_fields": [
+    "contents",
+    "generationConfig"
+  ],
+  "schema_route": "generationConfig.responseFormat.text",
+  "thinking_level": "LOW",
+  "maximum_proposed_generation_submissions": 1,
+  "live_authorization": "NOT_GRANTED",
+  "live_generation_submissions": 0,
+  "actual_provider_requests": 0,
+  "automatic_retry": false,
+  "automatic_fallback": false,
+  "model_change": false,
+  "production_route_changed": false,
+  "paid_services_enabled": false,
+  "scope": "OFFLINE_CURRENT_PROVIDER_BODY_PREPARATION_NOT_LIVE_ADMISSION",
+  "preflight": "FRESH_ACTUAL_FREE_MODEL_QUOTA_AND_NEW_DISTINCT_MANUAL_QUALITY_JOB_REQUIRED",
+  "primary_docs": [
+    "https://ai.google.dev/gemini-api/docs/generate-content/structured-output",
+    "https://ai.google.dev/api/generate-content"
+  ]
+}

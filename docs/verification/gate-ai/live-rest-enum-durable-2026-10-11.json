@@ -1,0 +1,81 @@
+{
+  "version": "stage03-live-attempt:1",
+  "recorded_at": "2026-10-11T14:15:22.715Z",
+  "video_id": "rUhllpnYWR8",
+  "source_run_id": "transcript_39cfb0e1bcf555ab6cc5131d4908549af2713325a58858663832dddf0d55599a",
+  "job_id": "16c1b11d-a407-47eb-8115-74bbfbfdbafa",
+  "analysis_run_id": "analysis_9a24d2252fcf28735262858d1820dae22d4819f28893c55a31a171e698ab2820",
+  "profile_revision": 9,
+  "generation_submissions": 1,
+  "endpoint": "generateContent",
+  "error_capture": null,
+  "owner_authorization": "Owner explicitly authorized one post-fix QUALITY_TEST and preflight on 2026-10-11: zezwalam. Same rUhllpnYWR8/prompt/schema/gemini-3.8-flash Free; only REST MIME enum corrected; no retry/fallback/promotion",
+  "provider_status": "OK",
+  "finish_reason": "STOP",
+  "usage": {
+    "input_tokens": 23714,
+    "output_tokens": 3261,
+    "total_tokens": 26975
+  },
+  "validation": {
+    "version": "analysis-validation:1",
+    "run_id": "analysis_9a24d2252fcf28735262858d1820dae22d4819f28893c55a31a171e698ab2820",
+    "response_artifact_id": "66da19af-589f-41f5-a696-e796c7e774cb",
+    "context_hash": "7abc658236ede4c721a250c10ea33f28a7a1340aaa76a04698caca0394abc1f0",
+    "mode": "QUALITY_TEST",
+    "status": "VALIDATED",
+    "reason": null,
+    "canonical_artifact_id": "9678ee4c-fc7b-4baa-9dd9-c198d7c47f6e",
+    "canonical_hash": "bcb3d4f383964913e43e9dfc30b6028fb8515190bbe5cec82b3365a3ef83e854",
+    "semantic_verification": "NOT_ASSERTED",
+    "accepted": false,
+    "chunk": null
+  },
+  "completion": {
+    "accepted": false,
+    "run_id": "analysis_9a24d2252fcf28735262858d1820dae22d4819f28893c55a31a171e698ab2820",
+    "state": "SUCCEEDED",
+    "candidate_status": "VALIDATED"
+  },
+  "disposition": null,
+  "automatic_hidden_retries": 0,
+  "accepted_effects": 0,
+  "paid_services_enabled": false,
+  "secret_values_recorded": false,
+  "reconciled_at": "2026-10-11T14:19:35.467Z",
+  "durable_job": {
+    "state": "SUCCEEDED",
+    "reason_code": "QUALITY_TEST_COMPLETE",
+    "attempt_count": 1,
+    "arrival_origin_at": "2026-10-11T14:12:19.268Z"
+  },
+  "reservations": [
+    {
+      "request_id": "analysis_9a24d2252fcf28735262858d1820dae22d4819f28893c55a31a171e698ab2820",
+      "state": "SETTLED",
+      "created_at": "2026-10-11T14:13:05.220Z",
+      "settled_at": "2026-10-11T14:15:11.327Z"
+    }
+  ],
+  "canonical_readback_sha256": "bcb3d4f383964913e43e9dfc30b6028fb8515190bbe5cec82b3365a3ef83e854",
+  "provider_output_sha256": "8af16f9b89a49d8862ef958f5099a09c071c6dea1f5296aeac8ce105d256f264",
+  "private_review_directory": ".local/ai-pilot/review-2026-10-11-rUhllpnYWR8",
+  "source_reused": true,
+  "source_refetched": false,
+  "human_review": "AWAITING_HUMAN_REVIEW",
+  "full_e2e": "INCOMPLETE",
+  "production_d1_budget": {
+    "requests": 14,
+    "rows_read": 64,
+    "rows_written": 0,
+    "metadata_complete": true,
+    "stopped": false
+  },
+  "session_revocation_budget": {
+    "requests": 1,
+    "rows_read": 1,
+    "rows_written": 1,
+    "metadata_complete": true,
+    "stopped": false
+  }
+}

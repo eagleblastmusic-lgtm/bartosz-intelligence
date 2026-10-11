@@ -1,0 +1,16 @@
+{
+  "version": "model-capabilities:1",
+  "sampled_at": "2026-10-11T14:02:02.568Z",
+  "model": "gemini-3.8-flash",
+  "input_tokens": 1048576,
+  "output_tokens": 65536,
+  "supported_methods": [
+    "generateContent",
+    "countTokens",
+    "createCachedContent",
+    "batchGenerateContent"
+  ],
+  "response_sha256": "7a8c0bd8943bd89b4559cbffb2279a7be1a386aec0664c971bd5e9ed48204ffe",
+  "generation_requests": 0,
+  "secret_values_recorded": false
+}

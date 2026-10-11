@@ -1,0 +1,18 @@
+{
+  "recorded_at": "2026-10-11T13:26:05.254Z",
+  "pins": {
+    "candidate_sha256": "6be7ca782ef5561b4079987f01c9566449cbcd58d3cca23c41ffe3d84af33df3",
+    "migration_set_sha256": "8dfc2e806a177ae30ccb630da29bec46b174e1f1dc906ed57ee6b79d9737b7e7",
+    "migration_count": 39,
+    "file_count": 635
+  },
+  "predecessor_receipt_sha256": "260435986505367b6a40fde8eee1a59ac465a65eba38108c3128589e7753dcf2",
+  "case_id": "same_file_late_revision",
+  "file_id": "1mJxn7y1fgIv8oaY954XGUuqlrvfmgAcT",
+  "maximum_canary_updates": 1,
+  "maximum_create_attempts": 0,
+  "scope": "ACTUAL_DRIVE_PROTOCOL_WITH_ISOLATED_PENDING_ITEM_FIXTURES_NOT_AI_QUALITY",
+  "existing_user_reports_modified": false,
+  "gemini_requests": 0,
+  "paid_services_enabled": false
+}

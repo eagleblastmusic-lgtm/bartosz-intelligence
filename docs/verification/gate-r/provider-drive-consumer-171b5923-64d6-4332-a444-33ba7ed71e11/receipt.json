@@ -1,0 +1,45 @@
+{
+  "version": "DriveConsumerProviderRecovery/1.0",
+  "observed_at": "2026-10-11T13:09:35.722Z",
+  "status": "PASS",
+  "pins": {
+    "candidate_sha256": "7790ebdd0121f912b818b920361270734435b25e79adbc0dd04497aabe42d5f7",
+    "migration_set_sha256": "8dfc2e806a177ae30ccb630da29bec46b174e1f1dc906ed57ee6b79d9737b7e7",
+    "migration_count": 39,
+    "file_count": 634
+  },
+  "scope": "ACTUAL_PROVIDER_CONSUMER_RECOVERY_ONLY_NOT_FULL_GATE_R_OR_P0_QUALITY",
+  "file_id": "1mJxn7y1fgIv8oaY954XGUuqlrvfmgAcT",
+  "root_id": "1rn_5auxY_8HAeADc1RgGKQ6h9JimD7WM",
+  "observations": {
+    "recovered_state": "VERIFIED",
+    "process_restarted": true,
+    "same_sealed_artifact": true,
+    "same_file_id": true,
+    "creates": 1,
+    "fence_advanced": true,
+    "independent_byte_readback": true,
+    "independent_hash": "b248acca81cedf14a61a320592f8c45e537cb40416c717e6882bccf72aee9077",
+    "sealed_hash": "b248acca81cedf14a61a320592f8c45e537cb40416c717e6882bccf72aee9077",
+    "stable_remote_version": true,
+    "late_change_retained": true,
+    "source_job_durable": true,
+    "canonical_integrity": true,
+    "foreign_keys": true
+  },
+  "recovery_elapsed_ms": 342327,
+  "full_drill_elapsed_ms": 611542,
+  "logical_clock": false,
+  "actual_remote_create_controlled_response_loss": true,
+  "production_d1": {
+    "requests": 4,
+    "rows_read": 11,
+    "rows_written": 2,
+    "metadata_complete": true,
+    "stopped": false
+  },
+  "provider_requests": 7,
+  "production_delete": 0,
+  "gemini_requests": 0,
+  "paid_services_enabled": false
+}

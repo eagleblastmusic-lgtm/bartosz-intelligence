@@ -22,21 +22,29 @@ rendering. Observation links use the actual `#observation-<id>` Item anchor; the
 GUI focuses and scrolls to the unit after asynchronous canonical loading and on
 fragment navigation. These projections do not alter source timestamps or quotes.
 
-COMPACT retains the first complete summary, up to three complete key points and
-six existing entity/tool labels. Optional typed additions are off. When no summary
+Renderer 1.2 COMPACT retains every complete summary and key point, with direct
+source timestamp links. Up to six existing entity/tool labels are optional.
+Optional typed additions are off. When no summary
 or points exist, one complete selected typed unit is retained in canonical module
 order, including attribution, qualifiers and kind-specific fields. A relation
 retains both complete sides and SOURCE_INFERENCE attribution. Tools-only Custom
 retains contexts and labels. No unit is rewritten or cut within its text.
 
-Compaction levels are deterministic: 0 = three points, 1 = two, 2 = one,
-3 = one and no optional entity labels. First summary, first available point,
-Custom fallback and every Item's metadata remain. The default soft target is
+Compaction levels never truncate summary/topic coverage; level 3 omits optional
+entity labels. Every summary/key point, Custom fallback and every Item's metadata
+remain. The default soft target is
 16,000 estimated tokens. If the minimum is larger, the whole report remains and
 `bridge_size_state` is OVERSIZE. This does not establish consumer capacity.
 FULL includes existing selected modules and canonical Evidence; it does not
 generate broader analysis or copy transcripts. Export mode is content, not file
 identity. Durable Drive mapping and publication are separate integration work.
+
+Legacy renderer 1.1 reports remain readable and are not rewritten merely for
+this renderer change. An explicitly owner-approved editorial revision may be
+archived as a separate Markdown in Daily through publish-reviewed-summary.ts.
+Its durable ID/create intent/full readback/private ACL are distinct from the
+standard whole-day export identity. It does not promote a QUALITY_TEST run or
+replace a day report; model qualification and ordinary delivery stay separate.
 
 The UTF-8 file uses LF, frontmatter delimited by `---`, a blank line, body and
 `END_REPORT` footer. Body starts at `# Bartosz Intelligence` and ends with the LF

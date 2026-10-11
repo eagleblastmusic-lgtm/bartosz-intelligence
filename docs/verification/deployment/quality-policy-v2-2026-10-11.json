@@ -1,0 +1,37 @@
+{
+  "version": "quality-policy-deployment-verification:1",
+  "observed_at": "2026-10-11T15:26:03.498Z",
+  "code_commit": "8b8ace8",
+  "deployed_version_id": "59fb3c34-eddd-4930-adf7-3ac129d5f29e",
+  "previous_version_id": "9d3b376e-990d-48c7-a97e-a0877f918aa0",
+  "control_plane_active_100_percent": true,
+  "health": {
+    "http": 200,
+    "build": "0.0.1",
+    "status": "LOCAL_READY",
+    "bindings": {
+      "DB": true,
+      "BARTOSZ_QUEUE": true,
+      "ASSETS": true
+    }
+  },
+  "assets": {
+    "http": 200,
+    "html_sha256": "540cc3acd1387eff2a388ee700dd213e6ca9f935d869c1759b4d1cdb6d1a8732"
+  },
+  "schema_version": 39,
+  "migration_delta": 0,
+  "quality_policy": "analysis-quality:2",
+  "quality_qualification": "NOT_ASSERTED",
+  "gemini_requests": 0,
+  "production_sql_for_verification": 0,
+  "paid_services_enabled": false,
+  "backup_capture": false,
+  "backup_reuse": {
+    "backup_id": "fbf01a86-3ddb-414d-bc96-05c489262fbd",
+    "canonical_cut_at": "2026-10-10T20:56:07.629Z",
+    "age_hours": 18.498853055555557,
+    "reason": "No schema/SQL change; same backward-compatible backup/restore remains valid. Source artifacts are retained; new editorial summary independently archived and minimal receipt is recorded separately."
+  },
+  "rollback_command": "node node_modules/wrangler/bin/wrangler.js rollback 9d3b376e-990d-48c7-a97e-a0877f918aa0 --config apps/api/wrangler.production.json"
+}

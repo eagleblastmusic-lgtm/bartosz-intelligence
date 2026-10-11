@@ -1,0 +1,38 @@
+{
+  "version": "stage03-live-attempt:1",
+  "recorded_at": "2026-10-11T14:04:04.159Z",
+  "video_id": "rUhllpnYWR8",
+  "source_run_id": "transcript_39cfb0e1bcf555ab6cc5131d4908549af2713325a58858663832dddf0d55599a",
+  "job_id": "931beb18-3550-4fa0-b991-2b372e57b899",
+  "analysis_run_id": "analysis_2060b650883067d453872195d5623a459af20ba1c60fbba48e1b7c331071ecdf",
+  "profile_revision": 8,
+  "generation_submissions": 1,
+  "endpoint": "generateContent",
+  "error_capture": {
+    "status": 400,
+    "captured_bytes": 708,
+    "sha256": "7be3c566d0ff2f9618c256da836b51f78762f944071519bee0757b25d0895038",
+    "truncated": false
+  },
+  "owner_authorization": "Explicit additional single HTTP400 diagnostic and preflight approved by owner on 2026-10-11, same QUALITY_TEST rUhllpnYWR8/prompt/schema/gemini-3.8-flash Free, up to 8192 private error bytes",
+  "provider_status": "INVALID_REQUEST",
+  "finish_reason": "HTTP_400:INVALID_ARGUMENT",
+  "usage": {
+    "input_tokens": null,
+    "output_tokens": null,
+    "total_tokens": null
+  },
+  "validation": null,
+  "completion": null,
+  "disposition": {
+    "accepted": false,
+    "run_id": "analysis_2060b650883067d453872195d5623a459af20ba1c60fbba48e1b7c331071ecdf",
+    "state": "BLOCKED",
+    "reason": "AI_INVALID_REQUEST",
+    "due_at": "2026-10-11T14:04:04.275Z"
+  },
+  "automatic_hidden_retries": 0,
+  "accepted_effects": 0,
+  "paid_services_enabled": false,
+  "secret_values_recorded": false
+}

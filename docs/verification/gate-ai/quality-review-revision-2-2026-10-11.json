@@ -1,0 +1,159 @@
+{
+  "recorded_at": "2026-10-11T14:46:16.208Z",
+  "version": 2,
+  "status": "AWAITING_HUMAN_REVIEW",
+  "owner_decision": "REQUIRES_CORRECTIONS_NOT_ACCEPTED_FOR_DAILY",
+  "original_run_id": "analysis_9a24d2252fcf28735262858d1820dae22d4819f28893c55a31a171e698ab2820",
+  "original_canonical_sha256": "bcb3d4f383964913e43e9dfc30b6028fb8515190bbe5cec82b3365a3ef83e854",
+  "revision_hash": "04737a7a6a19dc115dcbe11335823dae38a7f0eafedca8cc1e8d95aa26560a0a",
+  "canonical_revision_sha256": "d7198fab3b94c3b321e08319fd685f7f7dd811ef6c4d1d46c21df966aeaa5aff",
+  "review_file": "C:/Projekty/Aplikacje/Bartosz Intelligence/.local/ai-pilot/review-2026-10-11-rUhllpnYWR8/revision-2/PRZEGLAD_JAKOSCI-v2.md",
+  "files": [
+    {
+      "file": "PRZEGLAD_JAKOSCI-v2.md",
+      "bytes": 9302,
+      "sha256": "d70d06a26b01ce7636d3ed14c83b0bdcdc16126ff50ca94d55447097ef1c8817"
+    },
+    {
+      "file": "editorial-wire-v2.json",
+      "bytes": 9496,
+      "sha256": "c609e19777d52a57e34a2bbd6b53b7ecdcf8bae3581e8bd1e799dfbac970e3f0"
+    },
+    {
+      "file": "editorial-canonical-v2.json",
+      "bytes": 89855,
+      "sha256": "ed12db8ac4940846ac79d705a0cea32e8dcdc369010015dd2884ee4e73a70014"
+    },
+    {
+      "file": "revision-manifest-v2.json",
+      "bytes": 12195,
+      "sha256": "8f89269c483fcf70c70ef4e318d5f47c24bc7ad1e21c139272cec467f41ddbf7"
+    }
+  ],
+  "original_audit": {
+    "version": "analysis-quality:1",
+    "status": "REVIEW_REQUIRED",
+    "findings": [
+      {
+        "code": "SOURCE_QUALIFIER_LOST",
+        "module": "key_points",
+        "index": 4
+      },
+      {
+        "code": "DEADLINE_STRENGTHENED",
+        "module": "key_points",
+        "index": 4
+      },
+      {
+        "code": "SOURCE_CONDITION_LOST",
+        "module": "stance",
+        "index": 1
+      },
+      {
+        "code": "SOURCE_QUALIFIER_LOST",
+        "module": "predictions",
+        "index": 0
+      },
+      {
+        "code": "DEADLINE_STRENGTHENED",
+        "module": "predictions",
+        "index": 0
+      },
+      {
+        "code": "SOURCE_CONDITION_LOST",
+        "module": "predictions",
+        "index": 2
+      },
+      {
+        "code": "NARRATIVE_COVERAGE_GAP",
+        "module": "summary_pl",
+        "index": 7
+      }
+    ],
+    "coverage_windows": [
+      {
+        "index": 0,
+        "covered": true
+      },
+      {
+        "index": 1,
+        "covered": true
+      },
+      {
+        "index": 2,
+        "covered": true
+      },
+      {
+        "index": 3,
+        "covered": true
+      },
+      {
+        "index": 4,
+        "covered": true
+      },
+      {
+        "index": 5,
+        "covered": true
+      },
+      {
+        "index": 6,
+        "covered": true
+      },
+      {
+        "index": 7,
+        "covered": false
+      }
+    ],
+    "semantic_verification": "NOT_ASSERTED"
+  },
+  "revised_audit": {
+    "version": "analysis-quality:1",
+    "status": "PASS",
+    "findings": [],
+    "coverage_windows": [
+      {
+        "index": 0,
+        "covered": true
+      },
+      {
+        "index": 1,
+        "covered": true
+      },
+      {
+        "index": 2,
+        "covered": true
+      },
+      {
+        "index": 3,
+        "covered": true
+      },
+      {
+        "index": 4,
+        "covered": true
+      },
+      {
+        "index": 5,
+        "covered": true
+      },
+      {
+        "index": 6,
+        "covered": true
+      },
+      {
+        "index": 7,
+        "covered": true
+      }
+    ],
+    "semantic_verification": "NOT_ASSERTED"
+  },
+  "summary_points": 7,
+  "claims": 7,
+  "predictions": 3,
+  "editorial_supplement_count": 3,
+  "immutable_inputs_unchanged": true,
+  "source_refetched": false,
+  "new_gemini_requests": 0,
+  "production_writes": 0,
+  "accepted_effects": 0,
+  "paid_services_enabled": false
+}

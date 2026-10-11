@@ -1,5 +1,66 @@
 # Stage 07 — current handoff
 
+## Current: owner-accepted revision 4 delivered — 2026-10-11
+
+The two requested deterministic edits are complete. Scoped owner acceptance
+recorded; private actual Daily file 1_5PbE2YAYel7zJVAYf5T7o8fGKecAE_z verified
+by full download/SHA/version/owner-only ACL, one create, 36 D1 reads/12 writes
+including session revocation. No Gemini or source/provider/canonical mutation.
+This separate editorial document does not replace a normal day report or promote
+QUALITY_TEST. Automated accepted-run delivery/GUI still needs qualified live E2E.
+Code 8b8ace8/10638b7 deployed as 59fb3c34…/schema39; health/control-plane PASS.
+Policy v2 and source holds now include speaker assurances and temporal scope;
+85 relevant regressions PASS, types/lint/build/bundle/secret scan PASS.
+New prompt live qualification remains separate, no old consent reuse. Do not
+activate staged19 before stable automated P0 or repeat completed D/R canaries.
+CP-3.13/screen-reader deferred; no full V1 acceptance. See release report and
+[owner decision](../decisions/P0_SUMMARY_QUALITY_2026-10-11.md).
+Offline current-policy smoke input is compiled/source-pinned under
+quality-policy-v2-live-smoke-proposal-2026-10-11.json (zero requests/SQL,
+NOT_GRANTED). Cached profile is not live admission; fresh consent/preflight
+is required. No generation is needed for accepted editorial revision 4.
+
+## Historical review before revision 4 — 2026-10-11
+
+Code 10638b7; production remains 7b79a79/schema39. Owner: original rUhllpnYWR8
+REQUIRES_CORRECTIONS, NOT_ACCEPTED_FOR_DAILY, no negative whole-model verdict.
+Shared Registry policy hashes new scopes including semantic draft fallback;
+source quality holds before acceptance, approved display aliases, canonical
+content_pl renderer, complete COMPACT narrative/source links and 1.1 reader.
+49 unit/contracts +54 isolated D1 integrations PASS, types/lint/build/bundle PASS.
+Private revision-3/PRZEGLAD_JAKOSCI-v3.md awaits renewed human review; original
+raw/source/canonical unchanged. Three late topics are labeled editorial source
+supplements, zero new AI. New prompt live qualification and verified accepted
+Daily remain outstanding; no automatic promotion. Keep staged channels until
+stable P0. Do not repeat completed Drive canary or capture a new backup for it.
+[Acceptance map](../decisions/P0_SUMMARY_QUALITY_2026-10-11.md).
+
+## P0 comparison and actual Drive recovery, 2026-10-11
+
+Current local diagnostic code 8188a95; deployed Worker remains 7b79a79/schema39.
+Three individually approved Gemini POSTs: Interactions transport timeout;
+generateContent HTTP400; diagnostic HTTP400 INVALID_ARGUMENT. Durable jobs,
+UNKNOWN usage, zero accepted results. Confirmed REST MIME enum mismatch fixed:
+APPLICATION_JSON replaces application/json, identical prompt/schema/model.
+27 targeted regressions and API build PASS; typecheck/lint retained. The further
+post-fix request explicitly approved (owner: zezwalam) succeeded: STOP/VALIDATED/
+SUCCEEDED, 23714 input/3261 output/26975 total, reservation SETTLED, one POST.
+Read live-rest-enum-2026-10-11.json and durable readback receipt. Four separate
+approvals consumed; no automatic retry, fallback or production promotion.
+Private real Polish review ready, AWAITING_HUMAN_REVIEW, accepted=false.
+Review flags: Mars deadline/I think, caption names, speaker declarations.
+No accepted Daily/P0 delivery. Temporary read session revoked by one bounded
+exact-identity UPDATE after harness SQL/budget cleanup was corrected.
+
+Actual private canary consumer recovery, late revision same ID and manual edit
+conflict now have scoped PASS receipts under gate-r/provider-drive-consumer-171b5923-64d6-4332-a444-33ba7ed71e11.
+One create, one revision PUT, one manual-comment PUT; recovery checks read only.
+Restored canonical fixtures isolated, no real summary or human quality implied.
+Original harness failures retained; each receipt keeps its own pins. Do not
+repin to old D-export configuration or call whole D/R PASS. Existing verified
+backup reused; no fresh capture. P0/20-channel maturity/human reviews still open.
+Current RELEASE_READINESS_REPORT.md is authoritative over historical text below.
+
 ## Completed reachable one-off resume, 2026-10-11
 
 Schema 39, code `7b79a79`, Worker `9d3b376e-990d-48c7-a97e-a0877f918aa0`.

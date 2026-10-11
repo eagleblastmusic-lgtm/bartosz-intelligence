@@ -1,6 +1,234 @@
 # Bartosz Intelligence V1 — release readiness
 
-## Aktualny wynik wznowienia — 2026-10-11
+## Aktualny wynik: rewizja 4 zaakceptowana i opublikowana — 2026-10-11
+
+**IMPLEMENTATION COMPLETE NO; PRODUCTION ACCEPTED NO.** Warunkową akceptację
+właściciela spełniono przez dwie deterministyczne korekty: wypowiedź Marka
+Robera do Winstona K. to optymistyczne zapewnienie, bez gwarancji wydarzenia;
+popularność TED dotyczy stanu na moment rozmowy. Formalna decyzja
+`owner-2026-10-11-revision3-two-corrections` dotyczy **jednego wyniku**.
+Provider output, pierwotny canonical, source, immutable evidence i rewizje 2/3
+pozostają bez zmian. Brak nowej generacji lub promocji QUALITY_TEST.
+
+**Rzeczywista publikacja VERIFIED:** prywatny Markdown w istniejącym Daily,
+file ID `1_5PbE2YAYel7zJVAYf5T7o8fGKecAE_z`, version **1**, **10307 bytes**,
+SHA-256 `567e0be9353977d336996d9402c279c77c289c921e9c2a903e41d910b5905a91`.
+Pełny download/readback, identyczna treść, wersja, metadata i owner-only ACL
+PASS. Raport ma tytuł, kanał, datę źródła, ID/URL, poprawione sekcje i link
+do pełnej oryginalnej transkrypcji. **1 create /9 Drive requests**; bez
+PUT/PATCH/DELETE istniejących plików. Decyzja, reserved ID, create intent i
+VERIFIED receipt są wersjonowane w D1. Koszt z odwołaniem sesji:
+**18 REST /36 rows_read /12 rows_written**, metadata complete. To koszt tej
+publikacji, nie całej doby. Sesja odwołana.
+
+To **osobna publikacja właścicielskiej rewizji redakcyjnej**; zwykły raport
+całego dnia nie został nadpisany. Pierwotny run pozostaje CANDIDATE/QUALITY_TEST.
+Automatyczny accepted-run → standardowy Daily/GUI delivery nadal wymaga
+kwalifikacji i live E2E; nie zaliczamy go na podstawie tego wyjątku.
+
+Kod **8b8ace8** i wcześniejsze **10638b7** wdrożono jako Worker
+**59fb3c34-eddd-4930-adf7-3ac129d5f29e /schema39**. Control-plane potwierdził
+100% tej wersji; health/assets HTTP200. Nowe snapshoty mają
+`analysis-quality:2`: zachowują siłę zapewnień i zakres czasowy twierdzeń.
+`SPEAKER_ASSURANCE_AS_GUARANTEE` i `SOURCE_TEMPORAL_SCOPE_LOST` korzystają
+z istniejących review holds przed acceptance. Jawnie niepewna prognoza nie
+jest blokowana tylko przez inne „for sure” w szerszych refs. Dokładne
+historyczne snapshoty v1 są ważne; zmienione/nieznane są odrzucane.
+Nowy validation receipt nie korzysta ze starego cache PASS.
+
+**85 aktualnych regresji PASS /0 FAIL:** 47 unit i 38 izolowanych integracji D1.
+Obejmują zapewnienia, kurs/edukację, rankingi, zasięg, statusy EN/PL,
+historical pins, write intent, utraconą odpowiedź, zero-write resume, błędny
+hash/wersję i odmowę shared Drive. Typecheck, lint, build, bundle/validators
+i public secret scan PASS (4 files /413176 bytes /0 findings). Wcześniejsze
+103 testy pozostają osobnym evidence; nie sumujemy powtórek. Rewizja 4 ma
+zero wskazań detektorów, **semantic_verification=NOT_ASSERTED**. Reguły są
+heurystykami; nie dowodzą pełnej semantyki ani skuteczności nowego promptu
+na przyszłych live wynikach.
+
+Verified backup `fbf01a86…` miał około **18,5 h** podczas kontroli deployu.
+Brak migracji i zachowana zgodność restore; źródło nadal zachowane, nowy
+raport ma niezależne archiwum i receipt. Nie powtórzono capture, restore,
+transcript archive ani ukończonych canary. Analytics 15:16:50 UTC: konto
+**228274 reads /10325 writes**, storage **28266496 bytes**, core/max
+**25366528 bytes**. Opóźniona obserwacja, **exact remaining unknown**.
+
+**0 nowych Gemini requests; paid_services_enabled=false; deletion_enabled=0;
+approval_reference=NULL.** Model quality i CP-3.13 niezaliczone tą decyzją;
+CP-3.13 AWAITING_HUMAN_REVIEW, screen-reader NOT_RUN/DEFERRED. Gate C
+NOT_YET_MATURE, full R/D niezaakceptowane. 19 approved staged new-only czeka
+na stabilny automatyczny P0. Cztery wcześniejsze zgody POST są zużyte.
+Kontynuacja Stage03/07/08: offline skompilowano nowy prompt z tymi samymi
+1071 oryginalnymi cues i wire schema, z odrębnym quality_scope. [Przygotowanie
+live smoke](docs/verification/gate-ai/quality-policy-v2-live-smoke-proposal-2026-10-11.json)
+ma zero provider/SQL calls i NOT_GRANTED; wymagane świeże Free/quota/profile
+oraz osobna zgoda przed wykonaniem. Nie jest ono potrzebne do już opublikowanej
+rewizji 4; pojedynczy smoke nie zastąpi kwalifikacji całego modelu.
+
+[Rewizja i decyzja](docs/verification/gate-ai/quality-review-revision-4-2026-10-11.json),
+[publikacja](docs/verification/gate-ai/owner-reviewed-publication-rUhllpnYWR8-v4.json),
+[deploy](docs/verification/deployment/quality-policy-v2-2026-10-11.json),
+[regresje](docs/verification/gate-ai/summary-quality-regression-2026-10-11.json),
+[procedura](docs/decisions/P0_SUMMARY_QUALITY_2026-10-11.md).
+
+## Stan historyczny przed akceptacją rewizji 3 — 2026-10-11
+
+**IMPLEMENTATION COMPLETE NO; PRODUCTION ACCEPTED NO.** Właściciel ocenił
+pierwotny rUhllpnYWR8: **WYMAGA KOREKT — NIE AKCEPTUJĘ DO DAILY**. To odbiór
+jednego wyniku, bez negatywnej kwalifikacji całego modelu. Historyczny techniczny
+VALIDATED oznaczał strukturę/provenance; nie stanowił odbioru znaczenia.
+
+Kod **10638b7** wdraża wspólną politykę `analysis-quality:1`, źródłowe detektory
+dat/zastrzeżeń/warunków/atrybucji i pokrycia późnych części, bezpieczne aliasy oraz
+wspólny renderer canonical. Nowe snapshoty Registry i draft fallback mają hash
+polityki w quality_scope; stare prompt v2/schemas i snapshots pozostają czytelne.
+Ordinary i chunk parent zatrzymują wykryte błędy przed accepted effects.
+Poprawne wyniki w zakwalifikowanym zakresie nadal nie wymagają odbioru per film.
+Daily renderer **1.2** zachowuje wszystkie summary/key_points i źródła w COMPACT,
+czyta pliki **1.1**. Przekroczenie budżetu daje jawne OVERSIZE bez obcięcia tematów.
+
+**103 odrębne testy PASS /0 FAIL:** 49 unit/contracts oraz 54 lokalne integracje
+izolowanego D1. Dodatkowe sprawdzenie pełnego legacy reader 1.1 PASS, bez
+sumowania ponowionych testów. Typecheck, lint, pełny build i immutable bundle
+verification PASS. Skan publicznego builda z rzeczywistym `.env`: **4 pliki,
+413176 bytes, 0 findings**. Regresje obejmują ten przypadek i inne EN/PL daty,
+poprawne/niepoprawne prognozy, niepewność, alias isolation/ambiguity, końcowe
+pokrycie, wszystkie dziesięć typed texts, źródła, poprawną autoakceptację oraz
+blokadę wadliwego production kandydata bez Ledger/accepted effects.
+
+[Rewizja 3](docs/verification/gate-ai/quality-review-revision-3-2026-10-11.json)
+jest gotowa do ponownego **AWAITING_HUMAN_REVIEW**. Prywatny dokument:
+`.local/ai-pilot/review-2026-10-11-rUhllpnYWR8/revision-3/PRZEGLAD_JAKOSCI-v3.md`.
+Siedem summary points, siedem claims, trzy predictions; Mars „2040, I think”,
+zatwierdzone nazwy i jawne deklaracje rozmówców. Trzy późne tematy dodano
+redakcyjnie z istniejącej transkrypcji i oznaczono pochodzenie. Oryginalne raw,
+canonical, source i immutable receipts zachowano; rewizja 2 także pozostaje.
+Pierwotny wynik ma **7 wskazań detektorów**, rewizja **0**; nie jest to pomiar
+pełnej jakości semantycznej. Wszystkie 7 claims i 3 predictions są renderowane
+z `content_pl`; wcześniejsze undefined były błędem prezentacji, nie utratą AI.
+
+**Granice:** nowe reguły są ograniczonymi heurystykami EN/PL; reprezentacja ośmiu
+przedziałów nie dowodzi pełnego pokrycia tematów. Nowy prompt nie został jeszcze
+zmierzony na kolejnym live wyniku. `semantic_verification=NOT_ASSERTED`; brak
+promocji modelu/endpointu/editorial do produkcji i brak zweryfikowanego Daily
+streszczenia. Produkcyjny Worker nadal **9d3b376e… /7b79a79/schema39**.
+
+Od decyzji jakościowej wykonano **0 Gemini requests, 0 production SQL/Drive
+mutations, 0 backup captures, 0 production DELETE**. Nowe wywołanie Gemini nadal
+wymaga osobnej zgody; poprzednie cztery są zużyte. Nie ponowiono archiwizacji
+transkrypcji ani ukończonych canary Gate R/D. 19 zatwierdzonych staged new-only
+kanałów czeka na stabilny podstawowy P0, bez backfillu/automatic AI. Gate C
+NOT_YET_MATURE, formalne R/D nieuznane za pełny PASS; CP-3.13
+AWAITING_HUMAN_REVIEW, screen-reader NOT_RUN/DEFERRED. Paid false; deletion 0,
+approval_reference NULL.
+
+[Decyzja, mapa kryteriów i runbook jakości](docs/decisions/P0_SUMMARY_QUALITY_2026-10-11.md).
+[Regresje i hashe](docs/verification/gate-ai/summary-quality-regression-2026-10-11.json).
+
+## P0 i testy Drive — stan sprzed odbioru jakości, 2026-10-11
+
+**IMPLEMENTATION COMPLETE NO; PRODUCTION ACCEPTED NO.** Aktualny lokalny kod
+diagnostyczny **8188a95**, schema 39; produkcyjny Worker nadal
+**9d3b376e-990d-48c7-a97e-a0877f918aa0 /7b79a79**. generateContent jest tylko
+jawną opcją QUALITY_TEST lokalnego executora; produkcyjny default Interactions
+pozostaje bez zmiany, nie ma fallbacku ani automatycznej promocji.
+
+Właściciel osobno zatwierdził trzy wykonane próby: Interactions zakończyło się
+`TRANSPORT_TIMEOUT`; porównanie generateContent zwróciło `HTTP_400`; dodatkowa
+diagnostyka zwróciła `HTTP_400:INVALID_ARGUMENT`. Każda wykonała dokładnie jeden
+POST, zero hidden retries/accepted effects. Jobs i źródło są trwałe; usage null
+pozostaje UNKNOWN. Timeout nie jest HTTP 503. Jego przyczyna nadal nie jest
+ustalona; po UI preflight zostało około 155 s z absolute deadline ustalonego
+podczas preparation. Kolejne próby zaczynają zwykłe 300 s transportu po preflight.
+
+**Potwierdzono i naprawiono przyczynę generateContent HTTP 400:** pole REST
+`generation_config.response_format.text.mime_type` wymaga enum
+`APPLICATION_JSON`, a adapter wysyłał `application/json`. Prywatny błąd 708 bytes
+jednoznacznie wskazał field/type; [kontrakt REST](https://ai.google.dev/api/generate-content#TextResponseFormat)
+potwierdza wymaganie. Naprawa **8188a95** zmienia wyłącznie tę wartość;
+offline porównanie payloadów potwierdziło identyczny model/prompt/schema.
+Nie przypisujemy tej przyczyny wcześniejszym HTTP 503/timeoutom Interactions.
+[Confirmed cause](docs/verification/gate-ai/http400-confirmed-cause-2026-10-11.json).
+**Jedna próba po naprawie**, osobno zatwierdzona odpowiedzią „zezwalam”, zakończyła
+się **OK /STOP /VALIDATED /SUCCEEDED** o **14:15:22 UTC =16:15:22 Europe/Warsaw**.
+Model ten sam `gemini-3.8-flash` Free, profile 9; **1 POST**, input **23714**,
+output **3261**, total **26975** tokens. Trwały reservation **SETTLED**;
+run `analysis_9a24d2252fcf28735262858d1820dae22d4819f28893c55a31a171e698ab2820`.
+Canonical **71640 bytes** i raw output **8657 bytes** pobrano oraz zweryfikowano
+hash. [Live receipt](docs/verification/gate-ai/live-rest-enum-2026-10-11.json),
+[durable/readback](docs/verification/gate-ai/live-rest-enum-durable-2026-10-11.json).
+Kandydat zawiera 4 summary points/5 key points/7 claims/3 predictions.
+Prywatny `.local/ai-pilot/review-2026-10-11-rUhllpnYWR8/PRZEGLAD_JAKOSCI.md`
+z rzeczywistymi źródłami jest gotowy i przekazany do **AWAITING_HUMAN_REVIEW**.
+[Pakiet odbioru](docs/verification/gate-ai/quality-review-package-corrected-2026-10-11.json)
+potwierdza obecność wszystkich twierdzeń/prognoz. Błąd lokalnego renderera
+(`text_pl` zamiast canonical `content_pl`) poprawiono; oryginalny dokument i
+receipt zachowano, wynik modelu nie został zmieniony.
+Uwagi: termin Marsa „przed 2040” wobec „2040, I think”, błędy nazw z pozyskanych
+napisów, deklaracje rozmówcy wymagające przypisania. Wyniku nie redagowano ani
+nie uznano automatycznie za poprawny semantycznie. **accepted=false**, zero
+production selection/Daily effects; wszystkie cztery zgody są zużyte.
+Nie pobrano transkryptu ponownie i nie nadano akceptacji jakości. To rzeczywisty
+success AI → validated candidate, **jeszcze nie pełny P0 AI → verified Daily**.
+
+**Actual-provider Drive canary** `1mJxn7y1fgIv8oaY954XGUuqlrvfmgAcT`:
+izolowany restore już verified kopii `fbf01a86`, synthetic pending Items bez AI,
+prywatny Daily, jeden create. Kontrolowana utrata odpowiedzi prawdziwego create
+i przerwanie reconcile utrwaliły RETRY_WAIT; nowy proces odzyskał tę samą
+SEALED rewizję/file ID po rzeczywistym cooldown, **342327 ms** recovery.
+Pełne bytes/SHA/stabilna wersja, fence advance, late dirty event, niezależny
+intake/trwały SOURCE job i SQLite FK/integrity PASS. Fixture miała początkowo
+postarzony first_dirty_at do kwalifikacji scheduler; sam recovery clock był
+rzeczywisty. Nie twierdzimy, że Google rzeczywiście zwrócił outage.
+[Receipt](docs/verification/gate-r/provider-drive-consumer-171b5923-64d6-4332-a444-33ba7ed71e11/receipt.json).
+
+Następnie jeden PUT z rewizją **1→2**, tym samym ID i nowym hashem potwierdził
+late update/readback. Fixture replay wybierał także inny restored day;
+naprawiono izolację, flushując bounded dirty replay i wyłączając obce daty.
+Osobna kontrola **IDLE /0 PUT /0 create** potwierdziła already-updated canary.
+Test manual edit dopisał jeden komentarz, zachowując każdy istniejący bajt.
+Pierwszy harness błędnie wybrał FULL wobec COMPACT; poprawiony harness użył
+rzeczywistego mode i następnej wolnej rewizji, bez ponownego PUT.
+**EXPORT_CONFLICT /CONFLICT**, komentarz i pierwotne bytes zachowane,
+**0 automatic writes**, jobs/FK/integrity PASS.
+[Late revision recovery](docs/verification/gate-r/provider-drive-consumer-171b5923-64d6-4332-a444-33ba7ed71e11/late-revision-idle-recovery-receipt.json),
+[manual conflict recovery](docs/verification/gate-r/provider-drive-consumer-171b5923-64d6-4332-a444-33ba7ed71e11/manual-conflict-recovery-receipt.json).
+Wszystkie pierwotne FAIL/preregistrations pozostają immutable. Każdy receipt
+zachowuje własne pins; nie przeniesiono ich na starszy configuration cut/date.
+To scoped technical PASS, **nie pełny Gate R/D, HUMAN_REVIEW ani real summary P0**.
+
+Final targeted AI regressions: **27 PASS /0 FAIL**, API build PASS; poprzednie
+typecheck i lint PASS obejmują diagnostykę i poprawiony harness. Prywatny capture
+przeszedł sześć lokalnych własności (0 network), limit 8192 bytes i ACL Owner/System.
+Nie sumujemy powtórnych uruchomień jako dodatkowych testów. Analytics
+**13:56:22 UTC /15:56:22 Europe/Warsaw**: całe konto **198510 reads /9348 writes**,
+storage **28016640 bytes**, max/core **25116672 bytes**
+([snapshot](docs/verification/release/d1-analytics-p0-2026-10-11.json)). Opóźnione metryki nie są
+exact remaining ani atrybucją kosztu AI. Indexed reconcile po porównaniu:
+3 REST /50 reads /0 writes; po diagnostyce: 3 /51 /0. Udany candidate readback:
+14 REST /64 reads /0 writes, osobny exact-session revocation: 1 /1 /1.
+Pomocniczy harness początkowo pytał o output_tokens/total_tokens w reservations
+zamiast usage_records; budget guard zatrzymał żądania i zamaskował błąd podczas
+revocation. Próba nieograniczonego finally została odrzucona przez automatic
+approval review. Poprawiono zapytanie; readonly metadata zidentyfikowało wyłącznie
+15-minutową sesję tego harnessu. Reuse i osobno ograniczony jednorazowy revocation
+zakończyły się poprawnie, bez nowej sesji. Wcześniejsze niepełne metryki nie są
+przedstawiane jako koszt całości. Public build scan PASS: 4 files /413176 bytes
+/0 findings; nowe publiczne JSON evidence sprawdzono także względem sekretów
+rzeczywiście załadowanej konfiguracji.
+
+Nie wykonano nowego canonical capture: verified Drive-copy `fbf01a86` z
+10 października 20:56 UTC wystarczyła dla izolowanych drills i ma <24h;
+cadence/RPO pozostaje osobnym mechanizmem. Transkrypcja zachowuje wcześniejszy
+verified receipt 1071 cues/107148 bytes. 19 zatwierdzonych kanałów/new-only czeka
+na stabilny P0. **Gate C NOT_YET_MATURE; pełne Gate R/D NOT_ACCEPTED**;
+quota/storage actual denial i human compact quality pozostają bez odbioru.
+CP-3.13 AWAITING_HUMAN_REVIEW; screen-reader NOT_RUN/DEFERRED.
+**paid_services_enabled=false; deletion_enabled=0; approval_reference=NULL**.
+Nie usunięto produkcyjnych danych/backupów, nie zmieniono ACL/OAuth/modelu.
+Jednorazowy heartbeat pozostaje usunięty; Windows Capacity/cadence są odrębne.
+
+## Wynik wcześniejszego jednorazowego wznowienia — 2026-10-11
 
 **IMPLEMENTATION COMPLETE NO; PRODUCTION ACCEPTED NO.** Wykonalny zakres
 jednorazowego technicznego wznowienia zakończono; pełny P0 AI → polskie Daily

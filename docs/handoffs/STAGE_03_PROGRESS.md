@@ -1,5 +1,14 @@
 # Stage 03 — current implementation record
 
+2026-10-11: source/provider/canonical preserved; owner conditionally accepted
+revision 3, two edits fulfilled in revision 4. Actual private Daily publication
+verified, separately scoped editorial exception. Production 59fb3c34… /8b8ace8,
+schema39. Shared analysis-quality:2 holds lost certainty/temporal scope and
+earlier quality errors; old exact policy pins remain readable. 85 relevant
+regressions and broader checks PASS. No new Gemini. One-result acceptance is
+neither general model qualification nor CP-3.13; current prompt live proof
+remains separately authorized. See P0_SUMMARY_QUALITY_2026-10-11.md and release.
+
 2026-10-09 independent continuation: actual yt-dlp process-failure recovery
 and full SOURCE acceptance on persisted isolated D1 PASS. Preregistered timeout
 configuration 1ms, real preflight/list/fetch, durable RETRY_WAIT, runtime restart,
