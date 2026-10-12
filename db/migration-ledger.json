@@ -194,6 +194,11 @@
       "name": "039_transcript_drive_archive.sql",
       "depends_on": ["038_verified_archive_append.sql"],
       "sha256": "31a74aa0cf39c8f2a0b248daf38206834ed6cd9774b3faa4646a8a7c2ebad3e7"
+    },
+    {
+      "name": "040_daily_tasks_workflow.sql",
+      "depends_on": ["039_transcript_drive_archive.sql"],
+      "sha256": "40604831a70238bd90923af505efabaa502a91816a702e9ae77eb75ba72bce80"
     }
   ],
   "version": 1

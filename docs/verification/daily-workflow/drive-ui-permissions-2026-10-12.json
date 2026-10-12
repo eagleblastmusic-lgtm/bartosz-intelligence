@@ -1,0 +1,26 @@
+{
+  "observed_on": "2026-10-12",
+  "basis": "AUTHENTICATED_GOOGLE_DRIVE_UI_READ_ONLY",
+  "permissions_changed": false,
+  "files_created": 0,
+  "folders": [
+    {
+      "folder_id": "12dfjXGqDL7hFKsGvTxp_3CVi78V8YdSP",
+      "name": "Transkrypcje",
+      "general_access": "Anyone with the link",
+      "role": "Viewer",
+      "ui_explanation": "Every internet user with this link can view the content",
+      "publication_status": "BLOCKED_PUBLIC_CONTENT_ACCESS"
+    },
+    {
+      "folder_id": "1dpd-8GV-S675Jhv4zWdlldaIiJOy5XDt",
+      "name": "Streszczenia",
+      "general_access": "Anyone with the link",
+      "role": "Viewer",
+      "ui_explanation": "Every internet user with this link can view the content",
+      "publication_status": "BLOCKED_PUBLIC_CONTENT_ACCESS"
+    }
+  ],
+  "application_oauth_result": "drive.file cannot see either canonical folder (DRIVE_NOT_FOUND)",
+  "owner_action": "Restrict general access on both folders and explicitly authorize these folders/files for the application. Repeat the API permission audit before any private write."
+}

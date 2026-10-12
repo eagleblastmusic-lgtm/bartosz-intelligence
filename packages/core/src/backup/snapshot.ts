@@ -69,10 +69,20 @@ export const retentionBackupTables = [
     legacyBackupTables.indexOf('drive_export_attempts'),
   ),
 ] as const;
-export const backupTables = [
+export const transcriptBackupTables = [
   ...retentionBackupTables,
   'transcript_archive_folders',
   'transcript_archives',
+] as const;
+export const backupTables = [
+  ...transcriptBackupTables,
+  'daily_workflow_settings',
+  'daily_materials',
+  'daily_collections',
+  'daily_drive_folders',
+  'daily_drive_files',
+  'daily_reports',
+  'daily_report_inbox',
 ] as const;
 export type BackupTable = (typeof backupTables)[number];
 type Row = Record<string, string | number | null>;

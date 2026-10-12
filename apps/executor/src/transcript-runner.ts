@@ -11,6 +11,10 @@ import {
 import { normalizeTranscript } from '../../../packages/core/src/transcript/normalize.js';
 import { sha256 } from '../../../packages/core/src/auth/crypto.js';
 import { captionArchiveCoverage } from '../../../packages/core/src/transcript/archive-renderer.js';
+import {
+  freeTranscriptAdmission,
+  type FreeTranscriptObservation,
+} from '../../../packages/core/src/transcript/free-budget.js';
 import type { ArtifactClient } from './artifact-client.js';
 export interface TranscriptLifecycle {
   admission(): Promise<{ available: boolean; reason: string | null }>;
@@ -34,18 +38,28 @@ export async function executeTranscript(
   artifacts: Pick<ArtifactClient, 'upload'>,
   lifecycle: TranscriptLifecycle,
   heartbeatMs = 60000,
+  cloudObservation: FreeTranscriptObservation | null = null,
 ) {
-  if (context.runtime_id !== 'local' || heartbeatMs < 10 || heartbeatMs > 60000)
+  if (
+    !['local', 'cloud'].includes(context.runtime_id) ||
+    heartbeatMs < 10 ||
+    heartbeatMs > 60000
+  )
     throw new Error('INVALID_TRANSCRIPT_RUNTIME');
-  const capabilities = provider.capabilities('local');
+  const capabilities = provider.capabilities(context.runtime_id);
   if (
     !capabilities.free_eligibility ||
     capabilities.paid_services_enabled !== false ||
     !capabilities.track_listing ||
     capabilities.provider_version !== context.provider_version ||
+    capabilities.runtime_id !== context.runtime_id ||
     context.max_bytes > capabilities.max_input_bytes
   )
     throw new Error('TRANSCRIPT_PROVIDER_NOT_QUALIFIED');
+  if (context.runtime_id === 'cloud') {
+    const budget = freeTranscriptAdmission(cloudObservation, new Date());
+    if (!budget.available) return { accepted: false, reason: budget.reason };
+  }
   const admitted = await lifecycle.admission();
   if (!admitted.available) return { accepted: false, reason: admitted.reason };
   let lost = false,

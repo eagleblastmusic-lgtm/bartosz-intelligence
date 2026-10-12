@@ -1,0 +1,2 @@
+$ tsx tools/verify-config.ts
+{"result":"PASS","paid_services_enabled":false,"public":{"config_version":"1","timezone":"Europe/Warsaw"},"active_routes":[]}

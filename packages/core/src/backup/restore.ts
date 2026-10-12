@@ -3,6 +3,7 @@ import {
   backupTables,
   legacyBackupTables,
   retentionBackupTables,
+  transcriptBackupTables,
   assertSecretFree,
 } from './snapshot.js';
 import type { BackupManifest, BackupChunk } from './snapshot.js';
@@ -41,7 +42,9 @@ export async function verifyPortableBackup(input: PortableCoreBackup) {
         ? legacyBackupTables
         : body.migrations.length < 39
           ? retentionBackupTables
-          : backupTables),
+          : body.migrations.length < 40
+            ? transcriptBackupTables
+            : backupTables),
     ]
       .sort()
       .join(',')
@@ -53,7 +56,9 @@ export async function verifyPortableBackup(input: PortableCoreBackup) {
     ? legacyBackupTables
     : body.migrations.length < 39
       ? retentionBackupTables
-      : backupTables) {
+      : body.migrations.length < 40
+        ? transcriptBackupTables
+        : backupTables) {
     const specification = body.tables[table]!;
     if (
       !specification ||
@@ -138,8 +143,9 @@ function compatibleBackupMigrations(migrations: typeof ledger.migrations) {
   return (
     JSON.stringify(migrations) === JSON.stringify(ledger.migrations) ||
     (Array.isArray(migrations) &&
-      [35, 36, 37, 38].includes(migrations.length) &&
-      ledger.migrations.at(-1)?.name === '039_transcript_drive_archive.sql' &&
+      [35, 36, 37, 38, 39].includes(migrations.length) &&
+      ledger.migrations.at(-1)?.name === '040_daily_tasks_workflow.sql' &&
+      ledger.migrations[38]?.name === '039_transcript_drive_archive.sql' &&
       ledger.migrations[37]?.name === '038_verified_archive_append.sql' &&
       ledger.migrations[36]?.name === '037_drive_only_retention.sql' &&
       ledger.migrations[35]?.name === '036_d1_read_indexes.sql' &&
@@ -204,6 +210,12 @@ export async function restoreCanonical(
             'revoked-restore:' + crypto.randomUUID(),
           );
           row.revoked_at = restoredAt;
+        }
+        if (table === 'daily_workflow_settings') {
+          row.enabled = 0;
+          row.lease_owner = null;
+          row.lease_until = null;
+          row.fencing_token = Number(row.fencing_token) + 1;
         }
         if (table === 'drive_connections') {
           // Offline credentials and wrapping recovery keys are deliberately

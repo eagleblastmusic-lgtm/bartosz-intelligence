@@ -5,6 +5,7 @@ import type { LanguageSelection } from './language.js';
 import { RunRepository } from '../jobs/acceptance.js';
 import { sha256 } from '../auth/crypto.js';
 import type { LeaseToken } from '../../../contracts/src/jobs.js';
+import { dailyMaterialEffects } from '../daily/enrollment.js';
 export interface TranscriptSourceCompletion {
   raw_artifact_id: string;
   source_artifact_id: string;
@@ -18,6 +19,7 @@ export class TranscriptAcceptance {
   constructor(
     private db: Database,
     private context: AccessContext,
+    private remoteCaptionsEnabled = false,
   ) {
     assertContext(context);
   }
@@ -134,7 +136,11 @@ export class TranscriptAcceptance {
           unknown
         >;
         if (
-          provenance.provider_id !== 'local_ytdlp' ||
+          !(
+            provenance.provider_id === 'local_ytdlp' ||
+            (this.remoteCaptionsEnabled &&
+              provenance.provider_id === 'youtube_data_api')
+          ) ||
           provenance.upstream_track_id !== track.track_id ||
           provenance.language_code !== track.language_code ||
           provenance.track_kind !== track.track_kind ||
@@ -168,7 +174,10 @@ export class TranscriptAcceptance {
         const archiveIdentity =
           ':archive-source:1:' +
           (await sha256(JSON.stringify(sourceProvenance)));
-        const providerVersion = 'yt-dlp@2026.08.19+yt-dlp-ejs@0.8.0';
+        const providerVersion =
+          provenance.provider_id === 'youtube_data_api'
+            ? 'youtube-captions-api:v3:1'
+            : 'yt-dlp@2026.08.19+yt-dlp-ejs@0.8.0';
         const qualifiedArchive =
           provenance.provider_version === providerVersion &&
           typeof provenance.raw_payload_hash === 'string' &&
@@ -228,6 +237,16 @@ export class TranscriptAcceptance {
       outcome,
       null,
       now,
+      (guard, bindings) =>
+        dailyMaterialEffects(
+          this.db,
+          this.context,
+          input,
+          JSON.parse(artifacts[1]!.provenance_json) as Record<string, unknown>,
+          now,
+          guard,
+          bindings,
+        ),
     );
     return { ...result, run_id: runId };
   }

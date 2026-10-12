@@ -1,0 +1,38 @@
+
+ RUN  v4.1.11 C:/Projekty/Aplikacje/Bartosz Intelligence
+
+ ❯ |workers| tests/workers/artifacts.spec.ts (31 tests | 1 failed | 29 skipped) 5891ms
+   × local poller consumes durable caption backlog through the real Worker API (daily workflow enabled: true) 959ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |workers| tests/workers/artifacts.spec.ts > local poller consumes durable caption backlog through the real Worker API (daily workflow enabled: true)
+AssertionError: expected { …(6) } to match object { item_id: undefined, …(3) }
+(2 matching properties omitted from actual)
+
+- Expected
++ Received
+
+  {
+-   "item_id": undefined,
++   "item_id": "aeb10517-475f-42a0-a69e-60a05d90a233",
+    "source_artifact_id": "af67b862-e129-4f54-8d13-a6a11d4f2cf5",
+    "source_hash": "d3150141629ca3dd405d3fa86348b966268ac81792ff24c8c583f64c2ecd7a2a",
+    "video_id": "artifact001",
+  }
+
+ ❯ tests/workers/artifacts.spec.ts:539:28
+    537|       ).results;
+    538|       expect(materials).toHaveLength(1);
+    539|       expect(materials[0]).toMatchObject({
+       |                            ^
+    540|         item_id: token.item_id,
+    541|         video_id: 'artifact001',
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  1 failed | 1 passed | 29 skipped (31)
+   Start at  12:13:13
+   Duration  10.86s (transform 1.98s, setup 0ms, import 3.35s, tests 5.89s, environment 0ms)

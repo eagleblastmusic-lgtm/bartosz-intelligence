@@ -57,6 +57,8 @@ are recorded in `db/migration-ledger.json`; `db/fixtures/smoke.sql` is test-only
 
 Operations references:
 
+- [Daily reports, manual ChatGPT Tasks and Radio](docs/operations/DAILY_REPORTS_AND_RADIO.md)
+- [Cloudflare Free transcript engine: audit, PoC and actual blockers](docs/decisions/CLOUDFLARE_TRANSCRIPT_ENGINE_2026-10-12.md)
 - [Local executor and startup](docs/operations/LOCAL_EXECUTOR_RUNBOOK.md)
 - [Drive authorization, root verification and export](docs/operations/DRIVE_OFFLINE_AUTH.md)
 - [Backup and restore](docs/operations/BACKUP_RESTORE_RUNBOOK.md)

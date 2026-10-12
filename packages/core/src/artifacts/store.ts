@@ -247,7 +247,8 @@ export class ArtifactRepository {
       !task
     ) {
       this.context.requireTask('DRIVE_EXPORT');
-      filter = ` AND state='VERIFIED' AND ((kind='ANALYSIS_CANDIDATE' AND schema_version='intelligence-canonical:1.2' AND EXISTS(SELECT 1 FROM analysis_runs r WHERE r.owner_id=artifacts.owner_id AND r.item_id=artifacts.item_id AND r.state='ACCEPTED' AND json_extract(r.outcome_json,'$.version')='intelligence-accepted:1' AND json_extract(r.outcome_json,'$.canonical_artifact_id')=artifacts.artifact_id AND json_extract(r.outcome_json,'$.canonical_hash')=artifacts.content_hash)) OR (kind IN ('SOURCE_ORIGINAL','SEGMENT_MAP') AND EXISTS(SELECT 1 FROM transcript_archives t WHERE t.owner_id=artifacts.owner_id AND t.item_id=artifacts.item_id AND artifacts.artifact_id IN (t.source_artifact_id,t.segment_map_artifact_id))))`;
+      filter = ` AND state='VERIFIED' AND ((kind='ANALYSIS_CANDIDATE' AND schema_version='intelligence-canonical:1.2' AND EXISTS(SELECT 1 FROM analysis_runs r WHERE r.owner_id=artifacts.owner_id AND r.item_id=artifacts.item_id AND r.state='ACCEPTED' AND json_extract(r.outcome_json,'$.version')='intelligence-accepted:1' AND json_extract(r.outcome_json,'$.canonical_artifact_id')=artifacts.artifact_id AND json_extract(r.outcome_json,'$.canonical_hash')=artifacts.content_hash)) OR (kind IN ('SOURCE_ORIGINAL','SEGMENT_MAP') AND (EXISTS(SELECT 1 FROM transcript_archives t WHERE t.owner_id=artifacts.owner_id AND t.item_id=artifacts.item_id AND artifacts.artifact_id IN (t.source_artifact_id,t.segment_map_artifact_id)) OR EXISTS(SELECT 1 FROM daily_materials d JOIN daily_workflow_settings w USING(owner_id) WHERE d.owner_id=artifacts.owner_id AND d.item_id=artifacts.item_id AND artifacts.artifact_id IN (d.source_artifact_id,d.segment_map_artifact_id) AND w.enabled=1 AND w.lease_owner=? AND w.lease_until>?))))`;
+      bindings = [this.context.actorId, now.toISOString()];
     } else if (this.context.kind === 'worker') {
       if (!token || !task) throw new Error('FORBIDDEN');
       const guard = this.guard(token, task, now);
@@ -375,7 +376,7 @@ export class ArtifactRepository {
    * registered identity gate remains mandatory; no unrestricted worker reader. */
   async readTranscriptArchiveText(id: string, now: Date) {
     this.context.requireOwnerOrTask('DRIVE_EXPORT');
-    const header = await this.get(id);
+    const header = await this.get(id, undefined, undefined, now);
     if (
       header.state !== 'VERIFIED' ||
       !['SOURCE_ORIGINAL', 'SEGMENT_MAP'].includes(header.kind) ||
@@ -389,13 +390,15 @@ export class ArtifactRepository {
       const rows = (
         await this.db
           .prepare(
-            `SELECT * FROM artifact_chunks WHERE owner_id=? AND artifact_id=? AND chunk_index>=? AND chunk_index<? AND EXISTS(SELECT 1 FROM transcript_archives t WHERE t.owner_id=artifact_chunks.owner_id AND t.item_id=artifact_chunks.item_id AND artifact_chunks.artifact_id IN (t.source_artifact_id,t.segment_map_artifact_id) AND ((t.state IN ('PENDING','RETRY_WAIT') AND t.lease_until>?) OR (t.state='VERIFIED' AND t.verified_source_artifact_id=t.source_artifact_id AND t.verified_hash IS NOT NULL))) ORDER BY chunk_index`,
+            `SELECT * FROM artifact_chunks WHERE owner_id=? AND artifact_id=? AND chunk_index>=? AND chunk_index<? AND (EXISTS(SELECT 1 FROM transcript_archives t WHERE t.owner_id=artifact_chunks.owner_id AND t.item_id=artifact_chunks.item_id AND artifact_chunks.artifact_id IN (t.source_artifact_id,t.segment_map_artifact_id) AND ((t.state IN ('PENDING','RETRY_WAIT') AND t.lease_until>?) OR (t.state='VERIFIED' AND t.verified_source_artifact_id=t.source_artifact_id AND t.verified_hash IS NOT NULL))) OR EXISTS(SELECT 1 FROM daily_materials d JOIN daily_workflow_settings w USING(owner_id) WHERE d.owner_id=artifact_chunks.owner_id AND d.item_id=artifact_chunks.item_id AND artifact_chunks.artifact_id IN (d.source_artifact_id,d.segment_map_artifact_id) AND w.enabled=1 AND w.lease_owner=? AND w.lease_until>?)) ORDER BY chunk_index`,
           )
           .bind(
             this.context.ownerId,
             id,
             start,
             Math.min(header.chunk_count, start + 64),
+            now.toISOString(),
+            this.context.actorId,
             now.toISOString(),
           )
           .all<ArtifactChunk>()

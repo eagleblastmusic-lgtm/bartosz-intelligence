@@ -1,0 +1,6 @@
+$ prettier --check .
+Checking formatting...
+[error] Unable to expand directory: ".".
+[error] EPERM: operation not permitted, scandir 'C:\Projekty\Aplikacje\Bartosz Intelligence\.tools\gate0-python\bin'
+All matched files use Prettier code style!
+[ELIFECYCLE] Command failed with exit code 2.

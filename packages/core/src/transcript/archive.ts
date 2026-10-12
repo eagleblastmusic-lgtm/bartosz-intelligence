@@ -113,6 +113,7 @@ export class TranscriptDriveArchive {
  LEFT JOIN channels c ON c.owner_id=i.owner_id AND c.source_id=i.source_id
  LEFT JOIN transcript_archives t ON t.owner_id=a.owner_id AND t.item_id=a.item_id
  WHERE a.owner_id=? AND a.kind='SOURCE_ORIGINAL' AND a.state='VERIFIED'
+ AND NOT EXISTS(SELECT 1 FROM daily_materials d WHERE d.owner_id=a.owner_id AND d.item_id=a.item_id)
  AND (? IS NULL OR a.item_id=?)
  AND (t.item_id IS NULL OR (t.source_artifact_id!=a.artifact_id AND t.state='VERIFIED' AND (t.lease_until IS NULL OR t.lease_until<=?)))
  AND NOT EXISTS(SELECT 1 FROM retention_items p WHERE p.owner_id=a.owner_id AND p.item_id=a.item_id AND p.phase IN ('PRUNING','COMPLETE'))

@@ -1,0 +1,28 @@
+{
+  "observed_at": "2026-10-12T08:58:03.065Z",
+  "production_mutations": 0,
+  "drive_mutations": 0,
+  "ai_requests": 0,
+  "paid_services_activated": false,
+  "worker_account_settings": {
+    "default_usage_model": "standard"
+  },
+  "subscription_read_status": "NOT_AUTHORIZED",
+  "subscriptions": [],
+  "deployment_inventory_available": true,
+  "schema_count": 39,
+  "oauth_scopes": ["https://www.googleapis.com/auth/drive.file", "openid"],
+  "folders": [
+    {
+      "folder_id": "12dfjXGqDL7hFKsGvTxp_3CVi78V8YdSP",
+      "status": "BLOCKED",
+      "reason": "DRIVE_NOT_FOUND"
+    },
+    {
+      "folder_id": "1dpd-8GV-S675Jhv4zWdlldaIiJOy5XDt",
+      "status": "BLOCKED",
+      "reason": "DRIVE_NOT_FOUND"
+    }
+  ],
+  "state": "READ_ONLY_AUDIT_COMPLETE"
+}

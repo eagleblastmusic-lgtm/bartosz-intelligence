@@ -21,6 +21,7 @@ export class LocalTranscriptWorker {
     private credential: string,
     private provider: TranscriptProvider = new YtdlpTranscriptProvider(),
     private transport: typeof fetch = fetch,
+    private providerVersion: string = ytdlpProviderVersion,
   ) {
     this.rpc = new WorkerRpc(origin, credential, transport);
   }
@@ -92,7 +93,7 @@ export class LocalTranscriptWorker {
             deadline: new Date(Date.now() + 180000).toISOString(),
             max_bytes: 4 * 1024 * 1024,
             quota_reservation_id: null,
-            provider_version: ytdlpProviderVersion,
+            provider_version: this.providerVersion,
             request_id: crypto.randomUUID(),
           },
           this.provider,

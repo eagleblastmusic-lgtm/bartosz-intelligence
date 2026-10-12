@@ -1,0 +1,35 @@
+{
+  "observed_at": "2026-10-12T09:07:56.711Z",
+  "environment": "ACTUAL_CLOUDFLARE_REMOTE_PREVIEW",
+  "billing_basis": "Workers Free Active observed in authenticated Billing/Subscriptions UI",
+  "production_deployment": false,
+  "production_sql": 0,
+  "drive_writes": 0,
+  "ai_requests": 0,
+  "paid_services_activated": false,
+  "maximum_probe_invocations": 1,
+  "result": {
+    "runtime": "CLOUDFLARE_REMOTE",
+    "colo": "WAW",
+    "video_id": "rUhllpnYWR8",
+    "provider_version": "youtube-web-captions:1",
+    "listed_at": "2026-10-12T09:08:02.392Z",
+    "status": "AUTH_REQUIRED",
+    "reason": "PROOF_OF_ORIGIN_REQUIRED",
+    "tracks": [
+      {
+        "language": "en",
+        "kind": "GENERATED"
+      }
+    ],
+    "production_ready": false,
+    "last_response": {
+      "http_status": 200,
+      "byte_count": 1456389,
+      "content_type": "text/html; charset=utf-8",
+      "format": "MARKUP"
+    }
+  },
+  "state": "BLOCKED",
+  "reason": "PROOF_OF_ORIGIN_REQUIRED"
+}

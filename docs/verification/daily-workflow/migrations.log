@@ -1,0 +1,2 @@
+$ tsx tools/db/verify-migrations.ts
+{"result":"PASS","count":40,"next_number":41,"fresh_install":"PASS","independent_empty_restore":"PASS","integrity_check":"PASS","foreign_key_check":"PASS"}

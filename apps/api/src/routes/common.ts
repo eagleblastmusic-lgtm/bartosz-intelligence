@@ -56,6 +56,8 @@ export function apiRouter() {
       ? 'BACKUP_BUSY'
       : error.message;
     const forbidden = [
+      'DRIVE_DENIED',
+      'DAILY_DRIVE_PERMISSION_HOLD',
       'FORBIDDEN',
       'CSRF_DENIED',
       'DRIVE_AUTH_DENIED',
@@ -65,6 +67,8 @@ export function apiRouter() {
       raw.startsWith('ANALYSIS_PROFILE_') ||
       raw.startsWith('OPTIONAL_PROFILE_') ||
       [
+        'DAILY_CONNECTION_REQUIRED',
+        'DAILY_MANIFEST_NOT_READY',
         'AUTH_CONFIGURATION_REQUIRED',
         'DRIVE_CONFIGURATION_REQUIRED',
         'DRIVE_ROOT_CREATE_AMBIGUOUS',
@@ -102,6 +106,12 @@ export function apiRouter() {
         'QUOTA_LAB_ACCOUNT_MISMATCH',
       ].includes(raw);
     const conflict = [
+      'DAILY_SETTINGS_CONFLICT',
+      'DAILY_FOLDER_CONFLICT',
+      'DAILY_FILE_CONFLICT',
+      'DAILY_REPORT_CONFLICT',
+      'DAILY_DAY_OPEN',
+      'DAILY_STALE_FENCE',
       'PROMPT_DEPRECATED',
       'LAB_EXPERIMENT_CANCELLED',
       'LAB_PREVIEW_CONTROL_MISMATCH',

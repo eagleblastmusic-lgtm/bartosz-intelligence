@@ -27,6 +27,8 @@ import { optionalApp } from './routes/optional.js';
 import { reprocessApp } from './routes/reprocess.js';
 import { promptsApp } from './routes/prompts.js';
 import { driveApp } from './routes/drive.js';
+import { dailyReportsApp } from './routes/daily-reports.js';
+import { scheduleDailyReports } from './daily-workflow.js';
 export type { Env } from './env.js';
 
 const buildVersion = '0.0.1';
@@ -40,6 +42,7 @@ app.route('/api/v1/evidence', evidenceApp);
 app.route('/api/v1/jobs', jobsApp);
 app.route('/api/v1/system', systemApp);
 app.route('/api/v1/backup', backupApp);
+app.route('/api/v1/daily/reports', dailyReportsApp);
 app.route('/api/v1/daily', dailyApp);
 app.route('/api/v1/ledger', ledgerApp);
 app.route('/api/v1/entities', entitiesApp);
@@ -99,6 +102,9 @@ export default {
         // summary for the invocation's CPU/memory budget. Each keeps its retry.
         await Promise.allSettled([
           scheduleDriveExport(environment, new Date(controller.scheduledTime)),
+        ]);
+        await Promise.allSettled([
+          scheduleDailyReports(environment, new Date(controller.scheduledTime)),
         ]);
         await Promise.allSettled([
           scheduleTranscriptArchive(

@@ -1,0 +1,33 @@
+{
+  "record_kind": "RETROSPECTIVE_ATTEMPT_HISTORY_FROM_THIS_TASK_TOOL_OUTPUT",
+  "production_mutations": 0,
+  "drive_writes": 0,
+  "ai_requests": 0,
+  "paid_services_activated": false,
+  "attempts": [
+    {
+      "observed_at": "2026-10-12T09:05:09.170Z",
+      "environment": "ACTUAL_CLOUDFLARE_REMOTE_PREVIEW",
+      "colo": "WAW",
+      "video_id": "rUhllpnYWR8",
+      "status": "PARSE_ERROR",
+      "reason": "INVALID_CAPTION_JSON",
+      "track": { "language": "en", "kind": "GENERATED" },
+      "full_transcript_acquired": false,
+      "follow_up": "Inspected pinned upstream source; added explicit exp=xpe attestation hold and an empty-body classification. Local compilation/configuration failures were repaired before the remote attempt."
+    },
+    {
+      "observed_at": "2026-10-12T09:07:56.711Z",
+      "environment": "ACTUAL_CLOUDFLARE_REMOTE_PREVIEW",
+      "colo": "WAW",
+      "video_id": "rUhllpnYWR8",
+      "status": "AUTH_REQUIRED",
+      "reason": "PROOF_OF_ORIGIN_REQUIRED",
+      "full_transcript_acquired": false,
+      "receipt": "cloudflare-transcript-poc-2026-10-12.json",
+      "follow_up": "Stopped before fetching the protected caption resource; no identity rotation, cookies, proxy or PoToken workaround."
+    }
+  ],
+  "result": "BLOCKED_SOURCE_AUTHORIZATION",
+  "full_readback_or_drive_pass": false
+}

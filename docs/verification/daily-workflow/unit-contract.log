@@ -1,0 +1,26 @@
+
+ RUN  v4.1.11 C:/Projekty/Aplikacje/Bartosz Intelligence
+
+ ❯ |unit| tests/unit/backup-restore.spec.ts (3 tests | 1 failed) 1912ms
+   × independent canonical restore preserves cyclic revision refs/origins and invalidates sessions, leases and worker credentials 345ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |unit| tests/unit/backup-restore.spec.ts > independent canonical restore preserves cyclic revision refs/origins and invalidates sessions, leases and worker credentials
+Error: BACKUP_TABLES_MISMATCH
+
+ ❯ verifyPortableBackup packages/core/src/backup/restore.ts:52:11
+ Test Files  1 failed | 93 passed (94)
+      Tests  1 failed | 573 passed | 1 skipped (575)
+   Start at  11:29:42
+   Duration  123.23s (transform 3.85s, setup 0ms, import 15.01s, tests 80.09s, environment 15ms)
+
+     50|       .join(',')
+     51|   )
+     52|     throw new Error('BACKUP_TABLES_MISMATCH');
+       |           ^
+     53|   let total = 0,
+     54|     consumed = 0;
+ ❯ tests/unit/backup-restore.spec.ts:507:13
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯

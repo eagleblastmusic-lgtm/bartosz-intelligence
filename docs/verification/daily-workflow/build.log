@@ -1,0 +1,31 @@
+$ pnpm --filter @bartosz/web build && pnpm --filter @bartosz/api build && pnpm -r --filter @bartosz/contracts --filter @bartosz/core --filter @bartosz/telemetry build
+$ vite build
+vite v8.3.2 building client environment for production...
+transforming...
+✓ 75 modules transformed.
+rendering chunks...
+computing gzip size...
+dist/index.html                   0.40 kB │ gzip:   0.27 kB
+dist/assets/index-IVykiFMu.css   11.06 kB │ gzip:   3.06 kB
+dist/assets/index-Dm1R8xDQ.js   406.77 kB │ gzip: 120.96 kB
+
+✓ built in 415ms
+$ wrangler deploy --dry-run --config wrangler.jsonc --outdir dist
+
+ ⛅️ wrangler 4.147.0 (update available 4.149.0)
+───────────────────────────────────────────────
+✨ Read 5 files from the assets directory C:\Projekty\Aplikacje\Bartosz Intelligence\apps\web\dist
+Total Upload: 1661.47 KiB / gzip: 282.95 KiB
+Your Worker has access to the following bindings:
+Binding                                        Resource
+env.BARTOSZ_QUEUE (stage01-local-fixture)      Queue
+env.DB (stage01-local-fixture)                 D1 Database
+env.ASSETS                                     Assets
+
+--dry-run: exiting now.
+packages/contracts build$ tsc -p tsconfig.json
+packages/core build$ tsc -p tsconfig.json
+packages/telemetry build$ tsc -p tsconfig.json
+packages/contracts build: Done
+packages/telemetry build: Done
+packages/core build: Done

@@ -98,6 +98,7 @@ import {
   TranscriptAcceptance,
   type TranscriptSourceCompletion,
 } from '../../packages/core/src/transcript/acceptance.js';
+import { dailyFixture } from './daily-workflow-fixture.js';
 beforeEach(resetCore);
 it('late submitted AI response can retain only diagnostic candidate bytes after lease expiry, never source or accepted effects', async () => {
   const { access, token, item } = await setup('ANALYZE');
@@ -396,347 +397,394 @@ it('bounded response RPC retains a null failure output and unknown usage after l
     }),
   ).rejects.toThrow();
 });
-it('local poller consumes durable caption backlog through the real Worker API and leaves accepted source ready for later AI', async () => {
-  const { token } = await setup();
-  const credential = 'e'.repeat(43);
-  await env.DB.prepare(
-    'UPDATE worker_identities SET credential_hash=? WHERE worker_id=?',
-  )
-    .bind(await sha256(credential), 'artifact-worker')
-    .run();
-  await sweep(env.DB, new Date(), () => true);
-  const raw =
-    '{"events":[{"tStartMs":250,"dDurationMs":70000,"segs":[{"utf8":"Exact original."}]}]}';
-  const track = {
-    language_code: 'en',
-    track_kind: 'MANUAL',
-    is_generated: false,
-    is_translated: false,
-    source_language: null,
-    is_translatable: false,
-    is_original: null,
-    extension: 'json3',
-  };
-  let providerCalls = 0;
-  const provider = new YtdlpTranscriptProvider(async () => {
-    providerCalls++;
-    return {
-      status: 'OK',
-      failure_code: null,
-      provider_version: '2026.8.19',
-      python_version: '3.14.4',
-      tracks: [
-        track,
-        {
-          ...track,
-          track_kind: 'GENERATED',
-          is_generated: true,
-          is_original: true,
-        },
-      ],
-      video_language: 'en',
-      selected: track,
-      segments: [
-        {
-          upstream_index: 0,
-          start_ms: 250,
-          end_ms: 70250,
-          text: 'Exact original.',
-          speaker_label: null,
-        },
-      ],
-      raw_payload_base64: btoa(raw),
-      raw_payload_hash: await sha256(raw),
-      upstream_requests: 1,
-      bytes_received: raw.length,
-    };
-  });
-  const transport: typeof fetch = async (input, init) =>
-    worker.fetch(
-      new Request(input, init),
-      { ...env, SESSION_SIGNING_SECRET: fixtureSecret },
-      createExecutionContext(),
-    );
-  const local = new LocalTranscriptWorker(
-    'https://executor-fixture.invalid',
-    credential,
-    provider,
-    transport,
-  );
-  expect(await local.cycle()).toEqual({
-    accepted: true,
-    reason: null,
-    idle: false,
-  });
-  expect(providerCalls).toBe(2);
-  const representation = await env.DB.prepare(
-    'SELECT flags_json FROM transcript_representations',
-  ).first<{ flags_json: string }>();
-  expect(JSON.parse(representation!.flags_json)).toMatchObject({
-    selection: {
-      authority_basis: 'EXPLICIT_ORIGINAL',
-      source: { is_original: null, track_kind: 'MANUAL' },
-    },
-  });
-  expect(
-    await env.DB.prepare('SELECT state FROM jobs WHERE job_id=?')
-      .bind(token.job_id)
-      .first('state'),
-  ).toBe('SUCCEEDED');
-  expect(
+it.each([false, true])(
+  'local poller consumes durable caption backlog through the real Worker API (daily workflow enabled: %s)',
+  async (dailyEnabled) => {
+    if (dailyEnabled) {
+      await dailyFixture();
+      await env.DB.prepare(
+        "UPDATE daily_workflow_settings SET started_at=? WHERE owner_id='a'",
+      )
+        .bind(fixtureNow.toISOString())
+        .run();
+    }
+    const { token, item } = await setup();
+    const credential = 'e'.repeat(43);
     await env.DB.prepare(
-      "SELECT count(*) AS n FROM artifacts WHERE state='VERIFIED'",
-    ).first('n'),
-  ).toBe(6);
-  const run = await env.DB.prepare(
-    "SELECT outcome_json FROM analysis_runs WHERE job_id=? AND state='ACCEPTED'",
-  )
-    .bind(token.job_id)
-    .first<{ outcome_json: string }>();
-  expect(JSON.parse(run!.outcome_json).warnings).toEqual([
-    'SOURCE_DURATION_OVERRUN',
-  ]);
-  expect(
-    await env.DB.prepare('SELECT count(*) AS n FROM observations').first('n'),
-  ).toBe(0);
-  expect(await local.cycle()).toEqual({
-    accepted: false,
-    reason: null,
-    idle: true,
-  });
-  expect(providerCalls).toBe(2);
-  const sourceRun = await env.DB.prepare(
-    "SELECT run_id,outcome_json FROM analysis_runs WHERE job_id=? AND state='ACCEPTED'",
-  )
-    .bind(token.job_id)
-    .first<{ run_id: string; outcome_json: string }>();
-  const before = sourceRun!.outcome_json;
-  const owner = await fixtureOwner();
-  expect(
-    await new AnalysisJobs(env.DB, owner).sourceForOwner(sourceRun!.run_id),
-  ).toMatchObject({
-    source_artifact_id: JSON.parse(before).source_artifact_id,
-  });
-  const corrections = new SourceCorrectionJobs(env.DB, owner);
-  const nonce = crypto.randomUUID();
-  const patches = [
-    {
-      source_start: 0,
-      source_end: 5,
-      old_value: 'Exact',
-      new_value: 'Corrected',
-    },
-  ];
-  const correctedJob = await corrections.enqueue(
-    sourceRun!.run_id,
-    patches,
-    'Owner corrected transcription',
-    nonce,
-    new Date(),
-  );
-  expect(
-    (await corrections.enqueue(
+      'UPDATE worker_identities SET credential_hash=? WHERE worker_id=?',
+    )
+      .bind(await sha256(credential), 'artifact-worker')
+      .run();
+    await sweep(env.DB, new Date(), () => true);
+    const raw =
+      '{"events":[{"tStartMs":250,"dDurationMs":70000,"segs":[{"utf8":"Exact original."}]}]}';
+    const track = {
+      language_code: 'en',
+      track_kind: 'MANUAL',
+      is_generated: false,
+      is_translated: false,
+      source_language: null,
+      is_translatable: false,
+      is_original: null,
+      extension: 'json3',
+    };
+    let providerCalls = 0;
+    const provider = new YtdlpTranscriptProvider(async () => {
+      providerCalls++;
+      return {
+        status: 'OK',
+        failure_code: null,
+        provider_version: '2026.8.19',
+        python_version: '3.14.4',
+        tracks: [
+          track,
+          {
+            ...track,
+            track_kind: 'GENERATED',
+            is_generated: true,
+            is_original: true,
+          },
+        ],
+        video_language: 'en',
+        selected: track,
+        segments: [
+          {
+            upstream_index: 0,
+            start_ms: 250,
+            end_ms: 70250,
+            text: 'Exact original.',
+            speaker_label: null,
+          },
+        ],
+        raw_payload_base64: btoa(raw),
+        raw_payload_hash: await sha256(raw),
+        upstream_requests: 1,
+        bytes_received: raw.length,
+      };
+    });
+    const transport: typeof fetch = async (input, init) =>
+      worker.fetch(
+        new Request(input, init),
+        { ...env, SESSION_SIGNING_SECRET: fixtureSecret },
+        createExecutionContext(),
+      );
+    const local = new LocalTranscriptWorker(
+      'https://executor-fixture.invalid',
+      credential,
+      provider,
+      transport,
+    );
+    expect(await local.cycle()).toEqual({
+      accepted: true,
+      reason: null,
+      idle: false,
+    });
+    expect(providerCalls).toBe(2);
+    const representation = await env.DB.prepare(
+      'SELECT flags_json FROM transcript_representations',
+    ).first<{ flags_json: string }>();
+    expect(JSON.parse(representation!.flags_json)).toMatchObject({
+      selection: {
+        authority_basis: 'EXPLICIT_ORIGINAL',
+        source: { is_original: null, track_kind: 'MANUAL' },
+      },
+    });
+    expect(
+      await env.DB.prepare('SELECT state FROM jobs WHERE job_id=?')
+        .bind(token.job_id)
+        .first('state'),
+    ).toBe('SUCCEEDED');
+    expect(
+      await env.DB.prepare(
+        "SELECT count(*) AS n FROM artifacts WHERE state='VERIFIED'",
+      ).first('n'),
+    ).toBe(6);
+    const run = await env.DB.prepare(
+      "SELECT outcome_json FROM analysis_runs WHERE job_id=? AND state='ACCEPTED'",
+    )
+      .bind(token.job_id)
+      .first<{ outcome_json: string }>();
+    expect(JSON.parse(run!.outcome_json).warnings).toEqual([
+      'SOURCE_DURATION_OVERRUN',
+    ]);
+    expect(
+      await env.DB.prepare('SELECT count(*) AS n FROM observations').first('n'),
+    ).toBe(0);
+    expect(await local.cycle()).toEqual({
+      accepted: false,
+      reason: null,
+      idle: true,
+    });
+    expect(providerCalls).toBe(2);
+    const sourceRun = await env.DB.prepare(
+      "SELECT run_id,outcome_json FROM analysis_runs WHERE job_id=? AND state='ACCEPTED'",
+    )
+      .bind(token.job_id)
+      .first<{ run_id: string; outcome_json: string }>();
+    const before = sourceRun!.outcome_json;
+    if (dailyEnabled) {
+      const materials = (
+        await env.DB.prepare(
+          "SELECT item_id,video_id,source_artifact_id,source_hash,material_date,acquired_at FROM daily_materials WHERE owner_id='a'",
+        ).all<{
+          item_id: string;
+          video_id: string;
+          source_artifact_id: string;
+          source_hash: string;
+          material_date: string;
+          acquired_at: string;
+        }>()
+      ).results;
+      expect(materials).toHaveLength(1);
+      expect(materials[0]).toMatchObject({
+        item_id: item.item_id,
+        video_id: 'artifact001',
+        source_artifact_id: JSON.parse(before).source_artifact_id,
+        source_hash: await sha256('Exact original.'),
+      });
+      expect(materials[0]!.material_date).toBe(
+        new Intl.DateTimeFormat('en-CA', {
+          timeZone: 'Europe/Warsaw',
+          year: 'numeric',
+          month: '2-digit',
+          day: '2-digit',
+        }).format(new Date(materials[0]!.acquired_at)),
+      );
+      // The source approval and enrollment occurred through the actual RPC,
+      // scoped artifact uploads, integrity checks and fenced acceptance batch.
+      return;
+    }
+    const owner = await fixtureOwner();
+    expect(
+      await new AnalysisJobs(env.DB, owner).sourceForOwner(sourceRun!.run_id),
+    ).toMatchObject({
+      source_artifact_id: JSON.parse(before).source_artifact_id,
+    });
+    const corrections = new SourceCorrectionJobs(env.DB, owner);
+    const nonce = crypto.randomUUID();
+    const patches = [
+      {
+        source_start: 0,
+        source_end: 5,
+        old_value: 'Exact',
+        new_value: 'Corrected',
+      },
+    ];
+    const correctedJob = await corrections.enqueue(
       sourceRun!.run_id,
       patches,
       'Owner corrected transcription',
       nonce,
       new Date(),
-    ))!.job_id,
-  ).toBe(correctedJob!.job_id);
-  await expect(
-    corrections.enqueue(
+    );
+    expect(
+      (await corrections.enqueue(
+        sourceRun!.run_id,
+        patches,
+        'Owner corrected transcription',
+        nonce,
+        new Date(),
+      ))!.job_id,
+    ).toBe(correctedJob!.job_id);
+    await expect(
+      corrections.enqueue(
+        sourceRun!.run_id,
+        patches,
+        'Changed reason',
+        nonce,
+        new Date(),
+      ),
+    ).rejects.toThrow('IDEMPOTENCY_CONFLICT');
+    await expect(
+      new SourceCorrectionJobs(env.DB, await fixtureOwner('b')).enqueue(
+        sourceRun!.run_id,
+        patches,
+        'Cross-owner',
+        crypto.randomUUID(),
+        new Date(),
+      ),
+    ).rejects.toThrow('ANALYSIS_SOURCE_NOT_ACCEPTED');
+    expect(
+      await env.DB.prepare('SELECT state FROM jobs WHERE job_id=?')
+        .bind(correctedJob!.job_id)
+        .first('state'),
+    ).toBe('PENDING');
+    const correctionCredential = 'c'.repeat(43);
+    await env.DB.prepare('INSERT INTO worker_identities VALUES(?,?,?,?,?,NULL)')
+      .bind(
+        'correction-worker',
+        'a',
+        await sha256(correctionCredential),
+        '["NORMALIZE"]',
+        new Date().toISOString(),
+      )
+      .run();
+    const correctionWorker = new LocalSourceCorrectionWorker(
+      'https://executor-fixture.invalid',
+      correctionCredential,
+      transport,
+    );
+    const correctionAccess = await AccessContext.worker(
+      env.DB,
+      await sha256(correctionCredential),
+    );
+    expect(
+      await new JobStore(env.DB, correctionAccess).lease(
+        correctedJob!.job_id,
+        'NORMALIZE',
+        new Date(),
+        'cloud',
+      ),
+    ).toBeNull();
+    expect(await correctionWorker.cycle()).toMatchObject({
+      accepted: true,
+      idle: false,
+    });
+    const correctionRun = await env.DB.prepare(
+      "SELECT outcome_json FROM analysis_runs WHERE job_id=? AND state='ACCEPTED'",
+    )
+      .bind(correctedJob!.job_id)
+      .first<string>('outcome_json');
+    const outcome = JSON.parse(correctionRun!);
+    expect(outcome).toMatchObject({
+      kind: 'CORRECTED_SOURCE',
+      original_hash: JSON.parse(before).source_hash,
+      authored_by: 'a',
+    });
+    const correctedMap = await new ArtifactRepository(
+      env.DB,
+      owner,
+    ).readVerifiedText(outcome.segment_map_artifact_id, 1024 * 1024);
+    expect(JSON.parse(correctedMap.text).coverage[0]).toMatchObject({
+      start_ms: 250,
+      end_ms: 70250,
+    });
+    expect(
+      await env.DB.prepare(
+        'SELECT outcome_json FROM analysis_runs WHERE run_id=?',
+      )
+        .bind(sourceRun!.run_id)
+        .first('outcome_json'),
+    ).toBe(before);
+    expect(
+      await env.DB.prepare('SELECT COUNT(*) n FROM observations').first('n'),
+    ).toBe(0);
+    expect(
+      await env.DB.prepare(
+        'SELECT COUNT(*) n FROM active_analysis_selections',
+      ).first('n'),
+    ).toBe(0);
+    expect(await correctionWorker.cycle()).toMatchObject({
+      accepted: false,
+      idle: true,
+    });
+    await verifyCorrectedInput(
+      env.DB,
+      owner,
+      await fixtureOwner('b'),
+      correctedJob!.job_id,
+      transport,
+    );
+    const badJob = await corrections.enqueue(
       sourceRun!.run_id,
-      patches,
-      'Changed reason',
-      nonce,
-      new Date(),
-    ),
-  ).rejects.toThrow('IDEMPOTENCY_CONFLICT');
-  await expect(
-    new SourceCorrectionJobs(env.DB, await fixtureOwner('b')).enqueue(
-      sourceRun!.run_id,
-      patches,
-      'Cross-owner',
+      [{ ...patches[0]!, old_value: 'Wrong' }],
+      'Wrong source fragment',
       crypto.randomUUID(),
       new Date(),
-    ),
-  ).rejects.toThrow('ANALYSIS_SOURCE_NOT_ACCEPTED');
-  expect(
-    await env.DB.prepare('SELECT state FROM jobs WHERE job_id=?')
+    );
+    expect(await correctionWorker.cycle()).toMatchObject({
+      accepted: false,
+      idle: false,
+      state: 'BLOCKED',
+    });
+    expect(
+      await env.DB.prepare('SELECT state FROM jobs WHERE job_id=?')
+        .bind(badJob!.job_id)
+        .first('state'),
+    ).toBe('BLOCKED');
+    expect(
+      await env.DB.prepare(
+        "SELECT COUNT(*) n FROM analysis_runs WHERE job_id=? AND state='ACCEPTED'",
+      )
+        .bind(badJob!.job_id)
+        .first('n'),
+    ).toBe(0);
+    const completedAttempt = await env.DB.prepare(
+      'SELECT fencing_token,executor_id FROM job_attempts WHERE job_id=? AND finished_at IS NOT NULL',
+    )
       .bind(correctedJob!.job_id)
-      .first('state'),
-  ).toBe('PENDING');
-  const correctionCredential = 'c'.repeat(43);
-  await env.DB.prepare('INSERT INTO worker_identities VALUES(?,?,?,?,?,NULL)')
-    .bind(
-      'correction-worker',
-      'a',
-      await sha256(correctionCredential),
-      '["NORMALIZE"]',
-      new Date().toISOString(),
+      .first<{ fencing_token: number; executor_id: string }>();
+    const completedToken = {
+      job_id: correctedJob!.job_id,
+      lease_owner: completedAttempt!.executor_id,
+      fencing_token: completedAttempt!.fencing_token,
+      lease_until: new Date().toISOString(),
+    };
+    const workerCorrections = new SourceCorrectionJobs(
+      env.DB,
+      correctionAccess,
+    );
+    expect(
+      await workerCorrections.complete(
+        completedToken,
+        outcome.source_artifact_id,
+        outcome.segment_map_artifact_id,
+        new Date(),
+      ),
+    ).toMatchObject({ accepted: true, duplicate: true });
+    await expect(
+      workerCorrections.complete(
+        completedToken,
+        'wrong-artifact',
+        outcome.segment_map_artifact_id,
+        new Date(),
+      ),
+    ).rejects.toThrow('IDEMPOTENCY_CONFLICT');
+    const acceptedAnalysis = await env.DB.prepare(
+      "SELECT r.run_id,e.evidence_id FROM analysis_runs r JOIN analysis_evidence e ON e.owner_id=r.owner_id AND e.run_id=r.run_id WHERE r.owner_id=? AND r.state='ACCEPTED' AND json_extract(r.outcome_json,'$.source_artifact_id')=?",
     )
-    .run();
-  const correctionWorker = new LocalSourceCorrectionWorker(
-    'https://executor-fixture.invalid',
-    correctionCredential,
-    transport,
-  );
-  const correctionAccess = await AccessContext.worker(
-    env.DB,
-    await sha256(correctionCredential),
-  );
-  expect(
-    await new JobStore(env.DB, correctionAccess).lease(
-      correctedJob!.job_id,
-      'NORMALIZE',
-      new Date(),
-      'cloud',
-    ),
-  ).toBeNull();
-  expect(await correctionWorker.cycle()).toMatchObject({
-    accepted: true,
-    idle: false,
-  });
-  const correctionRun = await env.DB.prepare(
-    "SELECT outcome_json FROM analysis_runs WHERE job_id=? AND state='ACCEPTED'",
-  )
-    .bind(correctedJob!.job_id)
-    .first<string>('outcome_json');
-  const outcome = JSON.parse(correctionRun!);
-  expect(outcome).toMatchObject({
-    kind: 'CORRECTED_SOURCE',
-    original_hash: JSON.parse(before).source_hash,
-    authored_by: 'a',
-  });
-  const correctedMap = await new ArtifactRepository(
-    env.DB,
-    owner,
-  ).readVerifiedText(outcome.segment_map_artifact_id, 1024 * 1024);
-  expect(JSON.parse(correctedMap.text).coverage[0]).toMatchObject({
-    start_ms: 250,
-    end_ms: 70250,
-  });
-  expect(
-    await env.DB.prepare(
-      'SELECT outcome_json FROM analysis_runs WHERE run_id=?',
-    )
-      .bind(sourceRun!.run_id)
-      .first('outcome_json'),
-  ).toBe(before);
-  expect(
-    await env.DB.prepare('SELECT COUNT(*) n FROM observations').first('n'),
-  ).toBe(0);
-  expect(
-    await env.DB.prepare(
-      'SELECT COUNT(*) n FROM active_analysis_selections',
-    ).first('n'),
-  ).toBe(0);
-  expect(await correctionWorker.cycle()).toMatchObject({
-    accepted: false,
-    idle: true,
-  });
-  await verifyCorrectedInput(
-    env.DB,
-    owner,
-    await fixtureOwner('b'),
-    correctedJob!.job_id,
-    transport,
-  );
-  const badJob = await corrections.enqueue(
-    sourceRun!.run_id,
-    [{ ...patches[0]!, old_value: 'Wrong' }],
-    'Wrong source fragment',
-    crypto.randomUUID(),
-    new Date(),
-  );
-  expect(await correctionWorker.cycle()).toMatchObject({
-    accepted: false,
-    idle: false,
-    state: 'BLOCKED',
-  });
-  expect(
-    await env.DB.prepare('SELECT state FROM jobs WHERE job_id=?')
-      .bind(badJob!.job_id)
-      .first('state'),
-  ).toBe('BLOCKED');
-  expect(
-    await env.DB.prepare(
-      "SELECT COUNT(*) n FROM analysis_runs WHERE job_id=? AND state='ACCEPTED'",
-    )
-      .bind(badJob!.job_id)
-      .first('n'),
-  ).toBe(0);
-  const completedAttempt = await env.DB.prepare(
-    'SELECT fencing_token,executor_id FROM job_attempts WHERE job_id=? AND finished_at IS NOT NULL',
-  )
-    .bind(correctedJob!.job_id)
-    .first<{ fencing_token: number; executor_id: string }>();
-  const completedToken = {
-    job_id: correctedJob!.job_id,
-    lease_owner: completedAttempt!.executor_id,
-    fencing_token: completedAttempt!.fencing_token,
-    lease_until: new Date().toISOString(),
-  };
-  const workerCorrections = new SourceCorrectionJobs(env.DB, correctionAccess);
-  expect(
-    await workerCorrections.complete(
-      completedToken,
-      outcome.source_artifact_id,
-      outcome.segment_map_artifact_id,
-      new Date(),
-    ),
-  ).toMatchObject({ accepted: true, duplicate: true });
-  await expect(
-    workerCorrections.complete(
-      completedToken,
-      'wrong-artifact',
-      outcome.segment_map_artifact_id,
-      new Date(),
-    ),
-  ).rejects.toThrow('IDEMPOTENCY_CONFLICT');
-  const acceptedAnalysis = await env.DB.prepare(
-    "SELECT r.run_id,e.evidence_id FROM analysis_runs r JOIN analysis_evidence e ON e.owner_id=r.owner_id AND e.run_id=r.run_id WHERE r.owner_id=? AND r.state='ACCEPTED' AND json_extract(r.outcome_json,'$.source_artifact_id')=?",
-  )
-    .bind(owner.ownerId, outcome.source_artifact_id)
-    .first<{ run_id: string; evidence_id: string }>();
-  const readBeforeRestore = await new EvidenceProjection(env.DB, owner).read(
-    acceptedAnalysis!.evidence_id,
-    acceptedAnalysis!.run_id,
-  );
-  const backup = new CoreBackup(env.DB, owner),
-    backupStart = await backup.begin(),
-    chunks: BackupChunk[] = [];
-  for (const table of backupTables) {
-    let cursor: number | null = 0;
-    do {
-      const chunk = await backup.chunk(backupStart.backup_id, table, cursor);
-      chunks.push(chunk);
-      cursor = chunk.next_cursor;
-    } while (cursor !== null);
-  }
-  const portable = {
-    manifest: await backup.complete(backupStart.backup_id),
-    chunks,
-  };
-  await resetSchema();
-  await restoreCanonical(env.DB, portable, 'subject-a');
-  expect(
-    await new EvidenceProjection(env.DB, await fixtureOwner()).read(
+      .bind(owner.ownerId, outcome.source_artifact_id)
+      .first<{ run_id: string; evidence_id: string }>();
+    const readBeforeRestore = await new EvidenceProjection(env.DB, owner).read(
       acceptedAnalysis!.evidence_id,
       acceptedAnalysis!.run_id,
-    ),
-  ).toEqual(readBeforeRestore);
-  expect(
-    await env.DB.prepare(
-      'SELECT outcome_json FROM analysis_runs WHERE run_id=?',
-    )
-      .bind(sourceRun!.run_id)
-      .first('outcome_json'),
-  ).toBe(before);
-  // This compound functional scenario includes both local workers, correction
-  // provenance, accepted Evidence and portable backup/restore. Wall-clock timeout
-  // is a harness bound, not a CPU/performance acceptance criterion.
-}, 15000);
+    );
+    const backup = new CoreBackup(env.DB, owner),
+      backupStart = await backup.begin(),
+      chunks: BackupChunk[] = [];
+    for (const table of backupTables) {
+      let cursor: number | null = 0;
+      do {
+        const chunk = await backup.chunk(backupStart.backup_id, table, cursor);
+        chunks.push(chunk);
+        cursor = chunk.next_cursor;
+      } while (cursor !== null);
+    }
+    const portable = {
+      manifest: await backup.complete(backupStart.backup_id),
+      chunks,
+    };
+    await resetSchema();
+    await restoreCanonical(env.DB, portable, 'subject-a');
+    expect(
+      await new EvidenceProjection(env.DB, await fixtureOwner()).read(
+        acceptedAnalysis!.evidence_id,
+        acceptedAnalysis!.run_id,
+      ),
+    ).toEqual(readBeforeRestore);
+    expect(
+      await env.DB.prepare(
+        'SELECT outcome_json FROM analysis_runs WHERE run_id=?',
+      )
+        .bind(sourceRun!.run_id)
+        .first('outcome_json'),
+    ).toBe(before);
+    // This compound functional scenario includes both local workers, correction
+    // provenance, accepted Evidence and portable backup/restore. Wall-clock timeout
+    // is a harness bound, not a CPU/performance acceptance criterion.
+  },
+  15000,
+);
 it.each([
   'QUALITY_TEST',
   'CHUNKED',

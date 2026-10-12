@@ -10,6 +10,7 @@ import { RunRepository } from '../../packages/core/src/jobs/acceptance.js';
 import {
   CoreBackup,
   backupTables,
+  transcriptBackupTables,
 } from '../../packages/core/src/backup/snapshot.js';
 import {
   restoreCanonical,
@@ -488,6 +489,8 @@ it('independent canonical restore preserves cyclic revision refs/origins and inv
       manifest: await backup.complete(started.backup_id),
       chunks,
     };
+    const priorTables = new Set<string>(transcriptBackupTables),
+      dailyTables = backupTables.filter((table) => !priorTables.has(table));
     // Qualified additive retention upgrade also restores the old inventory.
     const legacy = structuredClone(portable);
     legacy.manifest.migrations = legacy.manifest.migrations.slice(0, 36);
@@ -497,6 +500,7 @@ it('independent canonical restore preserves cyclic revision refs/origins and inv
       'retention_items',
       'transcript_archive_folders',
       'transcript_archives',
+      ...dailyTables,
     ]) {
       delete legacy.manifest.tables[table];
       legacy.chunks = legacy.chunks.filter((chunk) => chunk.table !== table);
@@ -510,7 +514,11 @@ it('independent canonical restore preserves cyclic revision refs/origins and inv
     const retentionBackup = structuredClone(portable);
     retentionBackup.manifest.migrations =
       retentionBackup.manifest.migrations.slice(0, 37);
-    for (const table of ['transcript_archive_folders', 'transcript_archives']) {
+    for (const table of [
+      'transcript_archive_folders',
+      'transcript_archives',
+      ...dailyTables,
+    ]) {
       delete retentionBackup.manifest.tables[table];
       retentionBackup.chunks = retentionBackup.chunks.filter(
         (chunk) => chunk.table !== table,
@@ -533,6 +541,25 @@ it('independent canonical restore preserves cyclic revision refs/origins and inv
     void appendHash;
     appendBackup.manifest.sha256 = await sha256(JSON.stringify(appendBody));
     expect((await verifyPortableBackup(appendBackup)).rows).toBe(
+      (await verifyPortableBackup(portable)).rows,
+    );
+    const transcriptBackup = structuredClone(portable);
+    transcriptBackup.manifest.migrations = portable.manifest.migrations.slice(
+      0,
+      39,
+    );
+    for (const table of dailyTables) {
+      delete transcriptBackup.manifest.tables[table];
+      transcriptBackup.chunks = transcriptBackup.chunks.filter(
+        (chunk) => chunk.table !== table,
+      );
+    }
+    const { sha256: priorHash, ...transcriptBody } = transcriptBackup.manifest;
+    void priorHash;
+    transcriptBackup.manifest.sha256 = await sha256(
+      JSON.stringify(transcriptBody),
+    );
+    expect((await verifyPortableBackup(transcriptBackup)).rows).toBe(
       (await verifyPortableBackup(portable)).rows,
     );
     const drifted = structuredClone(legacy);

@@ -7,9 +7,13 @@ import { navigate, today } from '../app/router.js';
 export function DayNavigator({
   date,
   sources,
+  calendarEndpoint = '/daily/calendar',
+  calendarLabel = 'Kalendarz publikacji',
 }: {
   date: string;
   sources: string;
+  calendarEndpoint?: string;
+  calendarLabel?: string;
 }) {
   const [open, setOpen] = useState(false),
     [month, setMonth] = useState(date.slice(0, 7)),
@@ -32,7 +36,7 @@ export function DayNavigator({
     const query = new URLSearchParams({ month, timezone: 'Europe/Warsaw' });
     if (sources) query.set('source_ids', sources);
     api<CalendarSnapshot>(
-      '/daily/calendar?' + query,
+      calendarEndpoint + '?' + query,
       undefined,
       undefined,
       controller.signal,
@@ -44,7 +48,7 @@ export function DayNavigator({
         if (!controller.signal.aborted) setError(errorMessage(error));
       });
     return () => controller.abort();
-  }, [open, month, sources]);
+  }, [open, month, sources, calendarEndpoint]);
   useEffect(() => {
     if (open && calendar)
       grid.current
@@ -112,7 +116,7 @@ export function DayNavigator({
         <section
           id="day-calendar"
           className="calendar panel"
-          aria-label="Kalendarz publikacji"
+          aria-label={calendarLabel}
           onKeyDown={(event) => {
             if (event.key === 'Escape') {
               event.preventDefault();

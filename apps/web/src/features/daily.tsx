@@ -5,7 +5,16 @@ import { api, errorMessage } from '../app/api.js';
 import { AppLink, navigate, today } from '../app/router.js';
 import { DayNavigator } from '../components/day-navigator.js';
 import { statusLabels, reasonLabel } from '../app/status.js';
+import { DailyReports } from './daily-reports.js';
 export function Daily({ route }: { route: string }) {
+  return new URL(route, location.origin).searchParams.get('view') ===
+    'reports' ? (
+    <DailyReports route={route} />
+  ) : (
+    <PublicationsDaily route={route} />
+  );
+}
+function PublicationsDaily({ route }: { route: string }) {
   const url = new URL(route, location.origin),
     date = url.pathname.slice('/daily/'.length),
     undated = date === 'undated',
@@ -183,6 +192,13 @@ export function Daily({ route }: { route: string }) {
           Odśwież
         </button>
       </div>
+      {!undated && (
+        <p>
+          <AppLink href={'/daily/' + date + '?view=reports'}>
+            Raport dzienny z Google Drive
+          </AppLink>
+        </p>
+      )}
       {/^(20\d\d)-\d\d-\d\d$/.test(date) && !Number.isNaN(Date.parse(date)) && (
         <DayNavigator date={date} sources={sources} />
       )}

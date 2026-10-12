@@ -812,7 +812,11 @@ workersApp.post('/transcript/accept', async (c) => {
   ])
     text(source[key], 128);
   return c.json(
-    await new TranscriptAcceptance(c.env.DB, access).accept(
+    await new TranscriptAcceptance(
+      c.env.DB,
+      access,
+      c.env.REMOTE_CAPTIONS_ENABLED === 'true',
+    ).accept(
       source as unknown as TranscriptSourceCompletion,
       token(input.token, access.actorId),
       new Date(),

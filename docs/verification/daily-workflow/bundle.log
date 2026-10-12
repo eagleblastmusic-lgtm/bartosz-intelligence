@@ -1,0 +1,3 @@
+$ tsx tools/registry/verify-bundle.ts && tsx tools/registry/generate-validators.ts --check
+{"result":"PASS","schemas":9,"prompts":6,"bundle_hash":"dd1adb0ea34ccea46b080dd1ccffef1985682a37bbd16fcb7d73ae24bb4aa0eb"}
+{"result":"PASS","validators":9,"bytes":372186}

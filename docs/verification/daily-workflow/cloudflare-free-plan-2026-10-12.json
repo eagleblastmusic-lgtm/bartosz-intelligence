@@ -1,0 +1,11 @@
+{
+  "observed_on": "2026-10-12",
+  "basis": "AUTHENTICATED_CLOUDFLARE_UI_READ_ONLY",
+  "surface": "Billing / Subscriptions / Subscribed",
+  "workers_plan": "Workers Free",
+  "workers_status": "Active",
+  "new_billing_activated": false,
+  "r2": "Existing R2 Paid is unrelated and will not be bound or used by this workflow",
+  "api_subscriptions_read": "403; UI read used instead",
+  "private_account_and_payment_metadata_recorded": false
+}

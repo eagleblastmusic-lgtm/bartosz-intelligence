@@ -20,6 +20,11 @@ export class DriveFailure extends Error {
     super('DRIVE_' + category);
   }
 }
+export class DriveBudgetWait extends DriveFailure {
+  constructor() {
+    super('TRANSIENT', 300);
+  }
+}
 export interface DriveFile {
   id: string;
   name: string;
@@ -98,11 +103,23 @@ function file(value: unknown): DriveFile {
 export class DriveClient {
   readonly #accessToken: string;
   readonly #transport: typeof fetch;
-  constructor(accessToken: string, transport: typeof fetch = fetch) {
+  #remainingRequests: number;
+  constructor(
+    accessToken: string,
+    transport: typeof fetch = fetch,
+    requestBudget = 10000,
+  ) {
     if (!/^[\x21-\x7e]{1,8192}$/.test(accessToken))
       throw new DriveFailure('AUTH');
     this.#accessToken = accessToken;
     this.#transport = transport;
+    if (
+      !Number.isSafeInteger(requestBudget) ||
+      requestBudget < 1 ||
+      requestBudget > 10000
+    )
+      throw new DriveFailure('FORMAT');
+    this.#remainingRequests = requestBudget;
   }
   private async request(
     path: string,
@@ -111,6 +128,7 @@ export class DriveClient {
     version: 'v3' | 'v2' = 'v3',
     timeoutMs = 15000,
   ) {
+    if (this.#remainingRequests-- <= 0) throw new DriveBudgetWait();
     const target =
       'https://www.googleapis.com/' +
       (upload ? 'upload/drive/' : 'drive/') +
@@ -467,6 +485,43 @@ export class DriveClient {
       throw new DriveFailure('FORMAT');
     return result.files.map(file);
   }
+  /** Exact-name, bounded lookup. No account-wide search or arbitrary Drive query. */
+  async findNamedChildren(parentId: string, name: string) {
+    requireDriveId(parentId);
+    if (!name.trim() || name.length > 200 || /[\u0000-\u001f]/.test(name))
+      throw new DriveFailure('FORMAT');
+    const escaped = name.replaceAll('\\', '\\\\').replaceAll("'", "\\'");
+    const params = new URLSearchParams({
+      q: `'${parentId}' in parents and trashed=false and name='${escaped}'`,
+      pageSize: '100',
+      fields: 'nextPageToken,files(' + fileFields + ')',
+    });
+    const result = await this.json(await this.request('files?' + params));
+    if (result.nextPageToken || !Array.isArray(result.files))
+      throw new DriveFailure('FORMAT');
+    return result.files.map(file);
+  }
+  async readDailyDocument(id: string) {
+    const metadata = await this.getFile(id);
+    if (
+      metadata.trashed !== false ||
+      metadata.capabilities?.canDownload === false
+    )
+      throw new DriveFailure('DENIED');
+    if (
+      metadata.mimeType === 'text/markdown' ||
+      metadata.mimeType === 'text/plain'
+    )
+      return this.readMarkdown(id, 1048576);
+    if (metadata.mimeType !== 'application/vnd.google-apps.document')
+      throw new DriveFailure('FORMAT');
+    return boundedBody(
+      await this.request(
+        'files/' + requireDriveId(id) + '/export?mimeType=text%2Fplain',
+      ),
+      1048576,
+    );
+  }
   async createFolder(input: {
     reserved_id: string;
     name: string;
@@ -519,7 +574,7 @@ export class DriveClient {
       throw new DriveFailure('FORMAT');
     return result;
   }
-  async verifyPrivateFolder(id: string) {
+  async inspectContentPermissions(id: string) {
     const result = await this.json(
       await this.request(
         'files/' +
@@ -545,11 +600,19 @@ export class DriveClient {
         return false;
       return permission.deleted !== true;
     });
-    if (
-      active.length !== 1 ||
-      active[0]?.type !== 'user' ||
-      active[0]?.role !== 'owner'
-    )
+    return {
+      private_owner_only:
+        active.length === 1 &&
+        active[0]?.type === 'user' &&
+        active[0]?.role === 'owner',
+      permissions: active.map((value) => {
+        const p = value as Record<string, unknown>;
+        return { type: p.type, role: p.role };
+      }),
+    };
+  }
+  async verifyPrivateFolder(id: string) {
+    if (!(await this.inspectContentPermissions(id)).private_owner_only)
       throw new DriveFailure('DENIED');
     return { private_owner_only: true as const };
   }

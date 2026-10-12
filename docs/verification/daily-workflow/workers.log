@@ -1,0 +1,8 @@
+
+ RUN  v4.1.11 C:/Projekty/Aplikacje/Bartosz Intelligence
+
+
+ Test Files  64 passed (64)
+      Tests  274 passed (274)
+   Start at  11:29:28
+   Duration  334.41s (transform 3.48s, setup 0ms, import 22.00s, tests 239.56s, environment 11ms)

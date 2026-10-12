@@ -1,0 +1,13 @@
+$ pnpm -r typecheck && tsc -p tsconfig.tools.json && tsc -p tests/workers/tsconfig.json
+apps/executor typecheck$ tsc -p tsconfig.json
+apps/api typecheck$ tsc -p tsconfig.json
+apps/web typecheck$ tsc -p tsconfig.json
+packages/contracts typecheck$ tsc -p tsconfig.json
+packages/contracts typecheck: Done
+packages/core typecheck$ tsc -p tsconfig.json
+apps/executor typecheck: Done
+packages/telemetry typecheck$ tsc -p tsconfig.json
+packages/telemetry typecheck: Done
+packages/core typecheck: Done
+apps/api typecheck: Done
+apps/web typecheck: Done

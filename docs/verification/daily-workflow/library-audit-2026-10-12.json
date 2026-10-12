@@ -1,0 +1,743 @@
+{
+  "observed_at": "2026-10-12T00:10:04.094Z",
+  "method": "Public GitHub REST metadata, pinned source reads, PyPI metadata; no downloaded project executed",
+  "libraries": [
+    {
+      "repo": "jdepoix/youtube-transcript-api",
+      "url": "https://github.com/jdepoix/youtube-transcript-api",
+      "archived": false,
+      "disabled": false,
+      "license": "MIT",
+      "created_at": "2018-04-20T13:55:04Z",
+      "pushed_at": "2026-09-10T14:20:32Z",
+      "updated_at": "2026-10-11T22:31:52Z",
+      "stars": 8443,
+      "open_issues": 34,
+      "default_branch": "master",
+      "head_sha": "8f150ba8836da30a36bcd40e8fca226ed179ba72",
+      "commits": [
+        {
+          "sha": "8f150ba8836da30a36bcd40e8fca226ed179ba72",
+          "date": "2026-09-09T10:26:59Z",
+          "message": "Update README.md"
+        },
+        {
+          "sha": "72d79711ec4db95262660029b4d63298b0820502",
+          "date": "2026-05-13T14:51:14Z",
+          "message": "Update README.md"
+        },
+        {
+          "sha": "85c859450c014d860297ab9fd4f88145c47ff2e2",
+          "date": "2026-05-06T10:38:59Z",
+          "message": "Update README.md"
+        }
+      ],
+      "issues": [
+        {
+          "number": 619,
+          "title": "ci: support Python 3.15",
+          "url": "https://github.com/jdepoix/youtube-transcript-api/pull/619",
+          "updated_at": "2026-10-10T04:25:27Z",
+          "is_pr": true
+        },
+        {
+          "number": 618,
+          "title": "Regional issues using proxy but not locally",
+          "url": "https://github.com/jdepoix/youtube-transcript-api/issues/618",
+          "updated_at": "2026-09-28T06:47:58Z",
+          "is_pr": false
+        },
+        {
+          "number": 616,
+          "title": "Added new sponsor AnyAPI to README.md!",
+          "url": "https://github.com/jdepoix/youtube-transcript-api/pull/616",
+          "updated_at": "2026-09-10T14:22:34Z",
+          "is_pr": true
+        },
+        {
+          "number": 614,
+          "title": "Retry InnerTube POST on HTTP 429 so rotating proxies can switch IPs",
+          "url": "https://github.com/jdepoix/youtube-transcript-api/pull/614",
+          "updated_at": "2026-09-09T08:47:00Z",
+          "is_pr": true
+        },
+        {
+          "number": 612,
+          "title": "Retry on 429 never rotates IP for InnerTube POST (urllib3 Retry excludes POST by default)",
+          "url": "https://github.com/jdepoix/youtube-transcript-api/issues/612",
+          "updated_at": "2026-08-27T16:52:18Z",
+          "is_pr": false
+        }
+      ],
+      "source_reads": [
+        {
+          "file": "jdepoix_youtube-transcript-api__LICENSE",
+          "byte_count": 1069,
+          "sha256": "e7608cc316ea65729d6ce63cd619fb185ae44d329740388d30099fe7e4b16a4d"
+        },
+        {
+          "file": "jdepoix_youtube-transcript-api__pyproject.toml",
+          "byte_count": 2806,
+          "sha256": "905c70e6af6541b9a74eef3af1c30260844008b0ace10e7504ab215d5d066f39"
+        },
+        {
+          "file": "jdepoix_youtube-transcript-api__youtube_transcript_api__errors.py",
+          "byte_count": 10620,
+          "sha256": "5422cecec23d27d6cb402408133bde4f1fd36fe597f4614baac227dc7d3cabe6"
+        },
+        {
+          "file": "jdepoix_youtube-transcript-api__youtube_transcript_api__transcripts.py",
+          "byte_count": 18422,
+          "sha256": "d25c20da90fb7effe40f61dc047c0d297214710c87cf93ea30dd603bc8e864cd"
+        }
+      ]
+    },
+    {
+      "repo": "yt-dlp/yt-dlp",
+      "url": "https://github.com/yt-dlp/yt-dlp",
+      "archived": false,
+      "disabled": false,
+      "license": "Unlicense",
+      "created_at": "2020-10-26T04:22:55Z",
+      "pushed_at": "2026-10-10T21:15:52Z",
+      "updated_at": "2026-10-12T00:05:10Z",
+      "stars": 196940,
+      "open_issues": 2685,
+      "default_branch": "master",
+      "head_sha": "897341241f2bfb2439fe0367f4c7c9ccd29a3828",
+      "commits": [
+        {
+          "sha": "897341241f2bfb2439fe0367f4c7c9ccd29a3828",
+          "date": "2026-10-10T21:15:52Z",
+          "message": "[ie/youtube] Set `tv_samsung` as a default client (#17805)"
+        },
+        {
+          "sha": "817450d28d72e12c9fbac6b4c435ee97e68083ef",
+          "date": "2026-10-10T19:56:51Z",
+          "message": "[ie/youtube] Add `tv_samsung` client  (#17723)"
+        },
+        {
+          "sha": "51bab8a0116f4d8004c315706d809782607d5847",
+          "date": "2026-09-27T22:09:13Z",
+          "message": "[ie/odnoklassniki] Fix extractor (#17739)"
+        }
+      ],
+      "issues": [
+        {
+          "number": 17807,
+          "title": "[ie/youtube:tab] Support show and course lockups",
+          "url": "https://github.com/yt-dlp/yt-dlp/pull/17807",
+          "updated_at": "2026-10-11T15:02:13Z",
+          "is_pr": true
+        },
+        {
+          "number": 17806,
+          "title": "NBC Failed to resolve 'friendship.nbc.co' from JSON",
+          "url": "https://github.com/yt-dlp/yt-dlp/issues/17806",
+          "updated_at": "2026-10-11T12:35:08Z",
+          "is_pr": false
+        },
+        {
+          "number": 17804,
+          "title": "unable to download https://tver.jp/episodes/eptnfju9a7",
+          "url": "https://github.com/yt-dlp/yt-dlp/issues/17804",
+          "updated_at": "2026-10-10T21:22:39Z",
+          "is_pr": false
+        },
+        {
+          "number": 17803,
+          "title": "XHamsterIE: fix category extraction",
+          "url": "https://github.com/yt-dlp/yt-dlp/pull/17803",
+          "updated_at": "2026-10-10T14:31:22Z",
+          "is_pr": true
+        },
+        {
+          "number": 17802,
+          "title": "Epidemic Sound URL update breaks extractor syntax",
+          "url": "https://github.com/yt-dlp/yt-dlp/issues/17802",
+          "updated_at": "2026-10-11T10:53:43Z",
+          "is_pr": false
+        }
+      ],
+      "source_reads": [
+        {
+          "file": "yt-dlp_yt-dlp__LICENSE",
+          "byte_count": 1211,
+          "sha256": "7e12e5df4bae12cb21581ba157ced20e1986a0508dd10d0e8a4ab9a4cf94e85c"
+        },
+        {
+          "file": "yt-dlp_yt-dlp__pyproject.toml",
+          "byte_count": 12720,
+          "sha256": "99da60db7b4fe4505b2beec157fa5515065be073cadb78d5331fc2fd934a4020"
+        },
+        {
+          "file": "yt-dlp_yt-dlp__yt_dlp_extractor_youtube__video.py",
+          "byte_count": 217580,
+          "sha256": "ea220b8f9e94c8ec10b7f1e0de297986f35dfe4afa18b5ddc1519bb84979a0b0"
+        }
+      ]
+    },
+    {
+      "repo": "Akash9078/youtube-transcript-extractor",
+      "url": "https://github.com/Akash9078/youtube-transcript-extractor",
+      "archived": false,
+      "disabled": false,
+      "license": null,
+      "created_at": "2026-02-28T12:22:02Z",
+      "pushed_at": "2026-03-07T04:04:10Z",
+      "updated_at": "2026-04-22T12:11:57Z",
+      "stars": 1,
+      "open_issues": 0,
+      "default_branch": "main",
+      "head_sha": "04b8d974f9b008281fa6163f39ce7b90f3d796f3",
+      "commits": [
+        {
+          "sha": "04b8d974f9b008281fa6163f39ce7b90f3d796f3",
+          "date": "2026-03-07T04:03:46Z",
+          "message": "Update README with detailed integration examples and add n8n workflow"
+        },
+        {
+          "sha": "11e7a964486b2ad028839db94eaaa53b14ee5a50",
+          "date": "2026-02-28T12:40:23Z",
+          "message": "Add detailed README for YouTube Transcript Extractor Actor"
+        }
+      ],
+      "issues": [],
+      "source_reads": [
+        {
+          "file": "Akash9078_youtube-transcript-extractor__README.md",
+          "byte_count": 11611,
+          "sha256": "c58d5932db2360b8de088e0e36cecb6051553040462c99a123fddb875c8b5aa4"
+        }
+      ]
+    },
+    {
+      "repo": "nonioAlber/youtube-full-channel-transcripts-extractor",
+      "url": "https://github.com/nonioAlber/youtube-full-channel-transcripts-extractor",
+      "archived": false,
+      "disabled": false,
+      "license": "MIT",
+      "created_at": "2025-11-11T09:20:31Z",
+      "pushed_at": "2025-11-11T09:23:19Z",
+      "updated_at": "2026-08-19T21:46:44Z",
+      "stars": 1,
+      "open_issues": 0,
+      "default_branch": "main",
+      "head_sha": "8e8f78c78c598ab1d3f8a412985cf65bdeb32149",
+      "commits": [
+        {
+          "sha": "8e8f78c78c598ab1d3f8a412985cf65bdeb32149",
+          "date": "2025-11-11T09:23:19Z",
+          "message": "feat: add youtube-full-channel-transcripts-extractor-scraper/src/runner.py"
+        },
+        {
+          "sha": "57475a94d8983c63b07f7c2c8c61f78c85991e4b",
+          "date": "2025-11-11T09:23:12Z",
+          "message": "feat: add youtube-full-channel-transcripts-extractor-scraper/src/outputs/exporters.py"
+        },
+        {
+          "sha": "fc8e270018f5de5d1be533714263829c873a6284",
+          "date": "2025-11-11T09:23:04Z",
+          "message": "feat: add youtube-full-channel-transcripts-extractor-scraper/src/extractors/youtube_parser.py"
+        }
+      ],
+      "issues": [],
+      "source_reads": [
+        {
+          "file": "nonioAlber_youtube-full-channel-transcripts-extractor__youtube-full-channel-transcripts-extractor-scraper_requirements.txt",
+          "byte_count": 39,
+          "sha256": "4fc7e412c45c9d151040f44ce969c14c21da4e82bc167303a6b1fcd3260951d8"
+        },
+        {
+          "file": "nonioAlber_youtube-full-channel-transcripts-extractor__youtube-full-channel-transcripts-extractor-scraper_src_extractors_youtube_parser.py",
+          "byte_count": 1124,
+          "sha256": "48fd03ceacb93bba51fa9d2e056f6e3d73ab3a34dadb93b24087b601946819ed"
+        },
+        {
+          "file": "nonioAlber_youtube-full-channel-transcripts-extractor__youtube-full-channel-transcripts-extractor-scraper_src_runner.py",
+          "byte_count": 563,
+          "sha256": "a4fb0775c2462c089523f8c1cfe8f89bc2885a19b2f20d5fa9b617c2bf2d9e32"
+        }
+      ]
+    },
+    {
+      "repo": "Ptyktos/youtube-transcript-mcp",
+      "url": "https://github.com/Ptyktos/youtube-transcript-mcp",
+      "archived": false,
+      "disabled": false,
+      "license": "MIT",
+      "created_at": "2026-05-05T10:03:08Z",
+      "pushed_at": "2026-10-11T10:46:59Z",
+      "updated_at": "2026-10-11T10:46:56Z",
+      "stars": 0,
+      "open_issues": 0,
+      "default_branch": "main",
+      "head_sha": "67e5a65308c5fd9c649a34f8e9c6aa0fcff09825",
+      "commits": [
+        {
+          "sha": "67e5a65308c5fd9c649a34f8e9c6aa0fcff09825",
+          "date": "2026-10-11T10:46:50Z",
+          "message": "chore(deps): bump github/codeql-action/upload-sarif (#17)"
+        },
+        {
+          "sha": "14221d61deec0a26a949e39ae2536195f0eb4691",
+          "date": "2026-10-11T10:46:19Z",
+          "message": "chore(deps): bump the rust-dependencies group with 2 updates (#16)"
+        },
+        {
+          "sha": "913ba39162796c541e9a79ebbf52c9b26a405234",
+          "date": "2026-10-04T10:44:49Z",
+          "message": "chore(deps): bump rmcp (#15)"
+        }
+      ],
+      "issues": [],
+      "source_reads": [
+        {
+          "file": "Ptyktos_youtube-transcript-mcp__Cargo.toml",
+          "byte_count": 734,
+          "sha256": "312cffe7147cd2a94283ef0f8b66bec9593c1c42a53e193e0e416caf482977be"
+        },
+        {
+          "file": "Ptyktos_youtube-transcript-mcp__LICENSE",
+          "byte_count": 1067,
+          "sha256": "e7d4c9eb847448f26fdcb1b0d30eff13886bdc3ff16bbf4e332344a95d949b60"
+        },
+        {
+          "file": "Ptyktos_youtube-transcript-mcp__README.md",
+          "byte_count": 10067,
+          "sha256": "9ddf2e58518475d37c1d07540c4012be53a1c049fbe611658dc826d506ab5492"
+        },
+        {
+          "file": "Ptyktos_youtube-transcript-mcp__bench_mock_server.py",
+          "byte_count": 2676,
+          "sha256": "2578438ddde5755ea96161129456aaacf0fdd2534a6b900ed7db2322fedc1a4c"
+        },
+        {
+          "file": "Ptyktos_youtube-transcript-mcp__bench_python-jdepoix_main.py",
+          "byte_count": 3910,
+          "sha256": "b42f02b6897ca6e153371afa732dd6a87dbdfab3bad2d6ff91c855e494b15f8f"
+        },
+        {
+          "file": "Ptyktos_youtube-transcript-mcp__bench_run.py",
+          "byte_count": 23983,
+          "sha256": "a63f95ec379de18ac858179fbf0a215ee0336318d842d4e455db90ae483fd417"
+        },
+        {
+          "file": "Ptyktos_youtube-transcript-mcp__bench_ts-client_src_main.ts",
+          "byte_count": 3965,
+          "sha256": "3b3a0d80c71863cbaddf0a4b8a4e335b5ddb95696fc6b70304a42b5c9f04bffc"
+        },
+        {
+          "file": "Ptyktos_youtube-transcript-mcp__bench_ts-client_src_transcript.ts",
+          "byte_count": 4744,
+          "sha256": "eb087ef9b93a187f982ac840d116600975a39f0a1481a152c6c6b05c3f7d7b2d"
+        },
+        {
+          "file": "Ptyktos_youtube-transcript-mcp__crates_core_src_lib.rs",
+          "byte_count": 501,
+          "sha256": "9c85d05ccef076ecdb8d322b0633c6e04021925609bdb6e9e6f1780ceec95100"
+        },
+        {
+          "file": "Ptyktos_youtube-transcript-mcp__crates_core_src_youtube.rs",
+          "byte_count": 18403,
+          "sha256": "c8b070c6720882e2939fdf44d8f9326a0b6172dfdd7c3abaeb3ff43ef3f74d9b"
+        },
+        {
+          "file": "Ptyktos_youtube-transcript-mcp__crates_worker_Cargo.toml",
+          "byte_count": 481,
+          "sha256": "4b0760fa8a654f721407aa432de6770f70d4540c33e3bf5eae51c405a6f08d66"
+        },
+        {
+          "file": "Ptyktos_youtube-transcript-mcp__crates_worker_src_lib.rs",
+          "byte_count": 14341,
+          "sha256": "a375bc254dc8872efd7c7ec1a7e3c5ac3adf5e71649fba01047a40a56136d6b5"
+        }
+      ]
+    },
+    {
+      "repo": "franckferman/whispr",
+      "url": "https://github.com/franckferman/whispr",
+      "archived": false,
+      "disabled": false,
+      "license": "AGPL-3.0",
+      "created_at": "2024-11-09T04:02:48Z",
+      "pushed_at": "2026-09-19T00:22:50Z",
+      "updated_at": "2026-08-20T08:26:49Z",
+      "stars": 3,
+      "open_issues": 2,
+      "default_branch": "stable",
+      "head_sha": "6cfdb6cfe86b515e95ca81a8cd69dba4d9efa9cf",
+      "commits": [
+        {
+          "sha": "6cfdb6cfe86b515e95ca81a8cd69dba4d9efa9cf",
+          "date": "2026-08-20T08:25:26Z",
+          "message": "Initial commit"
+        }
+      ],
+      "issues": [
+        {
+          "number": 16,
+          "title": "deps: update tqdm requirement from >=4.67.0 to >=4.70.1",
+          "url": "https://github.com/franckferman/whispr/pull/16",
+          "updated_at": "2026-09-19T00:22:51Z",
+          "is_pr": true
+        },
+        {
+          "number": 15,
+          "title": "deps: update yt-dlp requirement from >=2024.1.0 to >=2026.8.19",
+          "url": "https://github.com/franckferman/whispr/pull/15",
+          "updated_at": "2026-08-29T00:22:55Z",
+          "is_pr": true
+        }
+      ],
+      "source_reads": [
+        {
+          "file": "franckferman_whispr__LICENSE",
+          "byte_count": 34523,
+          "sha256": "8486a10c4393cee1c25392769ddd3b2d6c242d6ec7928e1414efff7dfb2f07ef"
+        },
+        {
+          "file": "franckferman_whispr__README.md",
+          "byte_count": 33528,
+          "sha256": "d163c842248a1c30d085ebf61dfce9e52416066b78a79cb856dd304200ee0dc5"
+        },
+        {
+          "file": "franckferman_whispr__main.py",
+          "byte_count": 12783,
+          "sha256": "7570a2d72a459fe1dfab3294418c162b5458870db75ff1838fbbe251262082f0"
+        },
+        {
+          "file": "franckferman_whispr__requirements.txt",
+          "byte_count": 276,
+          "sha256": "b9e514544239797fc3e1c59c392c8da649c09fc7488d8e6dc4807a1f330e1540"
+        },
+        {
+          "file": "franckferman_whispr__transcriber___init__.py",
+          "byte_count": 237,
+          "sha256": "cc71d10f52ceb4b5e0d9f675b12fea5e9ccfbff630219e36c41361debbd09b2e"
+        },
+        {
+          "file": "franckferman_whispr__transcriber_backends___init__.py",
+          "byte_count": 320,
+          "sha256": "ae7cc6fedf13fdf10edea57917b50ac5f215b5d8aa2674736f282aa3e6bbefb3"
+        },
+        {
+          "file": "franckferman_whispr__transcriber_backends_base.py",
+          "byte_count": 2646,
+          "sha256": "8ebd5e97e80cd8189b987628ff1707011efb8e2defdf4b6e39cd1fa73eb18817"
+        },
+        {
+          "file": "franckferman_whispr__transcriber_backends_faster_whisper.py",
+          "byte_count": 5665,
+          "sha256": "590977c9a0583bd99ff40499eb468c33a27b633d97e12720239a020384c82005"
+        },
+        {
+          "file": "franckferman_whispr__transcriber_backends_mega_asr.py",
+          "byte_count": 12706,
+          "sha256": "7cdbf20d42fd0e4dd90ced6f638c3f74505165aa00112c0a475ce94417cbf749"
+        },
+        {
+          "file": "franckferman_whispr__transcriber_backends_openai_api.py",
+          "byte_count": 7619,
+          "sha256": "bcf42f4437de2d934a89c2df9806c44ca2147b06afc4d25da03bc53fa4fb5f67"
+        },
+        {
+          "file": "franckferman_whispr__transcriber_backends_whisper_cpp.py",
+          "byte_count": 9390,
+          "sha256": "2f08575d98d8ef3d2e1308e98399813033f5b6f1f1ba7ae9983131452061a92e"
+        },
+        {
+          "file": "franckferman_whispr__transcriber_config.py",
+          "byte_count": 10729,
+          "sha256": "22580d0872a80a01a8a762030b56563c2b5bafd0a3335b1d1281e97d8ce7f7fd"
+        },
+        {
+          "file": "franckferman_whispr__transcriber_formatters___init__.py",
+          "byte_count": 155,
+          "sha256": "56ddfd8785cda31777b776656c9df8147b3ddda703f47c29b4803d72268d561b"
+        },
+        {
+          "file": "franckferman_whispr__transcriber_formatters_output.py",
+          "byte_count": 6167,
+          "sha256": "fcb4ff489437a9293f9d7ef773a9192e18a5eff16f5c404c53e24e945208d599"
+        },
+        {
+          "file": "franckferman_whispr__transcriber_logger.py",
+          "byte_count": 2159,
+          "sha256": "ed4585f8330ce6426052b55825d23c631f8c4569b4baf456b1c2944d7723b3bc"
+        },
+        {
+          "file": "franckferman_whispr__transcriber_managers___init__.py",
+          "byte_count": 163,
+          "sha256": "3990ce3e711753ec5a7fbb7ab3e46f90395cd3f7f4450089df0b9a29ba761995"
+        },
+        {
+          "file": "franckferman_whispr__transcriber_managers_transcription.py",
+          "byte_count": 22412,
+          "sha256": "ae6da819473f8984ca7f3f4264bee79304f5ac251899cd72c5305c3a7e4f7bb0"
+        },
+        {
+          "file": "franckferman_whispr__transcriber_processors___init__.py",
+          "byte_count": 167,
+          "sha256": "196352280037548ad7847b8df81ddf5e6e049b282894ad2fd9a574d4b5726c08"
+        },
+        {
+          "file": "franckferman_whispr__transcriber_processors_audio.py",
+          "byte_count": 4114,
+          "sha256": "020322e918a0c7101d82ae3006159579d707bdc1f87e0ead675a36a72e98d948"
+        },
+        {
+          "file": "franckferman_whispr__transcriber_processors_translate.py",
+          "byte_count": 12435,
+          "sha256": "2e7071082c6e16e40ee5d3e70806047cc38372bf21b0ff85eade0744f639d4a2"
+        },
+        {
+          "file": "franckferman_whispr__transcriber_processors_video.py",
+          "byte_count": 9891,
+          "sha256": "396d066227f87f998f53ff2be465e41e4f11f6172ddae377908e7e105776d7b0"
+        },
+        {
+          "file": "franckferman_whispr__transcriber_processors_word_timestamps.py",
+          "byte_count": 7815,
+          "sha256": "ab939ad508b197ffaf3bcfe56e51f3d09d562f8cd0f340af405ee4e3c4ef5583"
+        },
+        {
+          "file": "franckferman_whispr__web_app.py",
+          "byte_count": 20204,
+          "sha256": "30ef59f325c7f3529ccf6c5f7a814efbb93885876006a9904e6dc61962ef617e"
+        },
+        {
+          "file": "franckferman_whispr__web_security.py",
+          "byte_count": 4922,
+          "sha256": "b3e6614a7a64b507ba1d594f582bc2f0362be7d79c039951c3da1bc6502120b4"
+        }
+      ]
+    },
+    {
+      "repo": "InvictusNavarchus/youtube-transcript-edge",
+      "url": "https://github.com/InvictusNavarchus/youtube-transcript-edge",
+      "archived": false,
+      "disabled": false,
+      "license": null,
+      "created_at": "2026-03-06T13:32:17Z",
+      "pushed_at": "2026-06-28T08:04:55Z",
+      "updated_at": "2026-06-28T08:04:58Z",
+      "stars": 0,
+      "open_issues": 1,
+      "default_branch": "main",
+      "head_sha": "9faf2a97fb9e10a33011b8d82d89e0f2de88b4de",
+      "commits": [
+        {
+          "sha": "9faf2a97fb9e10a33011b8d82d89e0f2de88b4de",
+          "date": "2026-04-03T13:21:17Z",
+          "message": "feat(server): enable --debug by default"
+        },
+        {
+          "sha": "a2d747fa3f4bb2ae85ff4ccff8bd6ff887025b87",
+          "date": "2026-03-31T23:43:44Z",
+          "message": "feat(cli): log success message with video ID upon successful transcript retrieval"
+        },
+        {
+          "sha": "699ee8f984105fbb3b6e77e8f7127792e171c024",
+          "date": "2026-03-31T23:36:09Z",
+          "message": "fix: save player response to debug before throwing LOGIN_REQUIRED error"
+        }
+      ],
+      "issues": [
+        {
+          "number": 11,
+          "title": "update README to reflect current state of codebase and usage",
+          "url": "https://github.com/InvictusNavarchus/youtube-transcript-edge/issues/11",
+          "updated_at": "2026-03-07T05:29:32Z",
+          "is_pr": false
+        }
+      ],
+      "source_reads": [
+        {
+          "file": "InvictusNavarchus_youtube-transcript-edge__package.json",
+          "byte_count": 1391,
+          "sha256": "e5b826cfae186958d61e2ae663d2a6a70f34164833eb7dc364a9d2b909239f2c"
+        },
+        {
+          "file": "InvictusNavarchus_youtube-transcript-edge__src_index.ts",
+          "byte_count": 4610,
+          "sha256": "a04b2e64cd7738859130b4802013e4ee2ea12763cd0b71363956b0e00759d6b0"
+        }
+      ]
+    },
+    {
+      "repo": "LuanRT/YouTube.js",
+      "url": "https://github.com/LuanRT/YouTube.js",
+      "archived": false,
+      "disabled": false,
+      "license": "MIT",
+      "created_at": "2021-09-27T21:36:05Z",
+      "pushed_at": "2026-10-07T13:04:05Z",
+      "updated_at": "2026-10-10T08:02:04Z",
+      "stars": 5372,
+      "open_issues": 114,
+      "default_branch": "main",
+      "head_sha": "bad89d2657e88f907011655f199fba9fb615c339",
+      "commits": [
+        {
+          "sha": "bad89d2657e88f907011655f199fba9fb615c339",
+          "date": "2026-09-24T01:20:10Z",
+          "message": "feat(parser): Add `PlayerInterstitial` and `InterstitialView` class (#1269)"
+        },
+        {
+          "sha": "4d8638ff696ef3d4f8a536a94b0dd093a46d6d03",
+          "date": "2026-09-23T16:02:56Z",
+          "message": "chore(deps-dev): bump replace from 0.2.2 to 1.2.2 (#1267)"
+        },
+        {
+          "sha": "0da42d302bc33a1a69f7a8278986a6cd86dd1c5c",
+          "date": "2026-09-23T16:01:54Z",
+          "message": "chore(deps-dev): bump vitest from 4.1.11 to 5.0.1 (#1268)"
+        }
+      ],
+      "issues": [
+        {
+          "number": 1290,
+          "title": "Add support for searching watch history",
+          "url": "https://github.com/LuanRT/YouTube.js/pull/1290",
+          "updated_at": "2026-10-11T18:34:34Z",
+          "is_pr": true
+        },
+        {
+          "number": 1289,
+          "title": "Add support for removing shorts from watch history",
+          "url": "https://github.com/LuanRT/YouTube.js/pull/1289",
+          "updated_at": "2026-10-11T16:33:26Z",
+          "is_pr": true
+        },
+        {
+          "number": 1288,
+          "title": "chore(deps-dev): bump the development-dependencies group across 1 directory with 8 updates",
+          "url": "https://github.com/LuanRT/YouTube.js/pull/1288",
+          "updated_at": "2026-10-07T13:04:26Z",
+          "is_pr": true
+        },
+        {
+          "number": 1287,
+          "title": "chore(deps): bump @bufbuild/protobuf from 2.15.0 to 2.16.0 in the production-dependencies group",
+          "url": "https://github.com/LuanRT/YouTube.js/pull/1287",
+          "updated_at": "2026-10-07T13:03:22Z",
+          "is_pr": true
+        },
+        {
+          "number": 1285,
+          "title": "fix(LockupView): make `content_id` and `content_type` optional",
+          "url": "https://github.com/LuanRT/YouTube.js/pull/1285",
+          "updated_at": "2026-10-04T17:01:38Z",
+          "is_pr": true
+        }
+      ],
+      "source_reads": [
+        {
+          "file": "LuanRT_YouTube.js__LICENSE",
+          "byte_count": 1062,
+          "sha256": "bf82e28381c6256138322a79da2082db5ddb040b4b7009b520f08a419d722c69"
+        },
+        {
+          "file": "LuanRT_YouTube.js__package.json",
+          "byte_count": 5381,
+          "sha256": "b8bbce3b7afc3ff9ce0cc9af6ba0c3cc94d5b02d9ec980dce57c0de0f8419775"
+        },
+        {
+          "file": "LuanRT_YouTube.js__src_parser_youtube_VideoInfo.ts",
+          "byte_count": 20718,
+          "sha256": "2fa9a9184e5bc089bf90085bf49f310798624918e60803c49166e0536ec135e7"
+        },
+        {
+          "file": "LuanRT_YouTube.js__src_platform_cf-worker.ts",
+          "byte_count": 1427,
+          "sha256": "24541361689ced9b7b7a37b4a786e442797a930d376e6962df0d77fd992cbcf9"
+        }
+      ]
+    },
+    {
+      "repo": "hallelx2/youtube-transcript-ts",
+      "url": "https://github.com/hallelx2/youtube-transcript-ts",
+      "archived": false,
+      "disabled": false,
+      "license": "NOASSERTION",
+      "created_at": "2026-04-12T20:31:39Z",
+      "pushed_at": "2026-04-13T23:48:48Z",
+      "updated_at": "2026-09-04T12:00:16Z",
+      "stars": 3,
+      "open_issues": 0,
+      "default_branch": "main",
+      "head_sha": "3f1cf87566d0003b715a6530aab06e8ea889a004",
+      "commits": [
+        {
+          "sha": "3f1cf87566d0003b715a6530aab06e8ea889a004",
+          "date": "2026-04-13T23:48:48Z",
+          "message": "Align serverless CORS fallback docs with `transcriptFetchFallback` behavior (#8)"
+        },
+        {
+          "sha": "a8d8edd3053af766d7ec44351f9caed266f1bfff",
+          "date": "2026-04-13T22:10:01Z",
+          "message": "0.2.0"
+        },
+        {
+          "sha": "37c5954961c853b0e8072591940eed40bec407e9",
+          "date": "2026-04-13T21:46:51Z",
+          "message": "Export TranscriptFetchFallback type from public barrel"
+        }
+      ],
+      "issues": [],
+      "source_reads": [
+        {
+          "file": "hallelx2_youtube-transcript-ts__LICENSE",
+          "byte_count": 1288,
+          "sha256": "7b63ddea7d105825742a81f1fb3d621b5e4f23bea1ab3ea6c214cc443ae06326"
+        },
+        {
+          "file": "hallelx2_youtube-transcript-ts__package.json",
+          "byte_count": 1955,
+          "sha256": "ce7a431af98b9ba606cf85556249a09681663a924252b1f58ea2cb5efe19eeb8"
+        },
+        {
+          "file": "hallelx2_youtube-transcript-ts__src_settings.ts",
+          "byte_count": 549,
+          "sha256": "3dd66a7b56df959c86d81cca9fd81e883b27cb36e2cc1e75005e5581153c97e7"
+        },
+        {
+          "file": "hallelx2_youtube-transcript-ts__src_transcripts_fetcher.ts",
+          "byte_count": 6614,
+          "sha256": "4e74c283dcda5bdc4fbc30ea61e9805ece3bd1ebebe65816c9cf35239c2b6ae2"
+        },
+        {
+          "file": "hallelx2_youtube-transcript-ts__src_transcripts_parser.ts",
+          "byte_count": 1943,
+          "sha256": "5692c8a5ee0132e659c1b61efa9f8bf1389a56ee7281d64c32ce5c6e909bf13e"
+        },
+        {
+          "file": "hallelx2_youtube-transcript-ts__src_utils_httpClient.ts",
+          "byte_count": 4956,
+          "sha256": "e0be9135fd84548c3eb8f6c35af736713a316f4c7e59286e92709b44b77730e9"
+        }
+      ]
+    }
+  ],
+  "pypi": {
+    "version": "1.2.4",
+    "requires_python": "<3.15,>=3.8",
+    "requires_dist": ["requests", "defusedxml<0.8.0,>=0.7.1"],
+    "license": "MIT",
+    "license_expression": null,
+    "urls": [
+      {
+        "filename": "youtube_transcript_api-1.2.4-py3-none-any.whl",
+        "uploaded": "2026-01-29T09:09:15.427624Z",
+        "sha256": "03878759356da5caf5edac77431780b91448fb3d8c21d4496015bdc8a7bc43ff"
+      },
+      {
+        "filename": "youtube_transcript_api-1.2.4.tar.gz",
+        "uploaded": "2026-01-29T09:09:17.088468Z",
+        "sha256": "b72d0e96a335df599d67cee51d49e143cff4f45b84bcafc202ff51291603ddcd"
+      }
+    ],
+    "metadata_sha256": "a0fa7886ada0dda5db3569a890f3d0ad45ab3d6a5ed76b3760102695dd09a189"
+  }
+}

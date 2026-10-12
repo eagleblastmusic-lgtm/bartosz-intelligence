@@ -1,0 +1,50 @@
+[WebServer] $ vite build
+[WebServer] (node:29268) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] $ wrangler dev --local --config apps/api/wrangler.jsonc --persist-to .local/worker
+[WebServer] ▲ [WARNING] Scheduled Workers are not automatically triggered during local development.
+[WebServer]
+[WebServer]   To manually trigger a scheduled event, run:
+[WebServer]     curl "http://127.0.0.1:8787/cdn-cgi/local/scheduled"
+[WebServer]   For more details, see https://developers.cloudflare.com/workers/configuration/cron-triggers/#test-cron-triggers-locally
+[WebServer]
+[WebServer]
+
+Running 32 tests using 1 worker
+
+(node:26836) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ok  1 tests\e2e\ai-pilot-annotation.spec.ts:6:1 › private annotation form freezes an exact source quote without executing source markup (746ms)
+  ok  2 tests\e2e\bootstrap.spec.ts:2:1 › same-origin Assets shell, health, API boundary (379ms)
+  ok  3 tests\e2e\core-onboarding.spec.ts:3:1 › onboarding preserves preview window/idempotency on retry and renders metadata as text (953ms)
+  ok  4 tests\e2e\core-onboarding.spec.ts:155:1 › unauthenticated screen exposes login without private source data (237ms)
+  ok  5 tests\e2e\daily-reports.spec.ts:114:1 › shows the complete daily report, filters the four-category contract, opens summaries and preserves source links (1.5s)
+  ok  6 tests\e2e\daily-reports.spec.ts:163:1 › keeps report dates in the existing navigator and explains missing or partial reports on mobile (533ms)
+  ok  7 tests\e2e\daily-reports.spec.ts:190:1 › shows a partial report with its exact unprocessed film and reason without inventing a summary (510ms)
+  ok  8 tests\e2e\daily.spec.ts:6:1 › undated publications use their separate endpoint across refresh and pagination and preserve filters (519ms)
+  ok  9 tests\e2e\daily.spec.ts:90:1 › day/filter URLs, calendar keyboard, delayed responses and retained refresh results (1.9s)
+  ok 10 tests\e2e\drive-connections.spec.ts:8:1 › Drive settings disclose unavailable export, preserve escaped private mapping and clear data on session loss (6.0s)
+  ok 11 tests\e2e\entity-aliases.spec.ts:3:1 › owner previews, confirms and reverses an alias without claiming identity was resolved by AI (1.7s)
+  ok 12 tests\e2e\entity-identity.spec.ts:3:1 › identity merge, split and undo require owner preview and confirmation (2.0s)
+  ok 13 tests\e2e\item-detail.spec.ts:4:1 › reading verifies paged canonical bytes, preserves accepted text on failure and renders source attribution (5.3s)
+  ok 14 tests\e2e\item-organization.spec.ts:4:1 › owner organizes one item into Spaces, preserves reading state after new analysis and authors inert notes (2.7s)
+  ok 15 tests\e2e\knowledge-corrections.spec.ts:3:1 › owner annotation uses a preview, preserves raw text and reverts without deleting history (1.8s)
+  ok 16 tests\e2e\knowledge-ledger.spec.ts:3:1 › Ledger renders attributed rows, source/date filters and pagination without generation requests (1.5s)
+  ok 17 tests\e2e\knowledge-search.spec.ts:3:1 › entity source chronology and owner decision history page independently without AI calls (1.6s)
+  ok 18 tests\e2e\knowledge-search.spec.ts:118:1 › search reports unknown and stale coverage, renders literal text, pages read-only and supports keyboard (1.6s)
+  ok 19 tests\e2e\optional-tasks.spec.ts:4:1 › optional tasks require preview/confirm, reuse nonce after a lost reply and read pinned helper/history safely (3.0s)
+  ok 20 tests\e2e\prompt-drafts.spec.ts:3:1 › Prompt Studio edits a new draft, preserves original text and retries a lost response safely (1.5s)
+  ok 21 tests\e2e\prompt-lab.spec.ts:3:1 › Lab prepares controlled pairs without AI, explicitly submits with retry, preserves history and reviews cancellation/budget (2.8s)
+  ok 22 tests\e2e\prompt-publication.spec.ts:4:1 › publication requires review, preserves confirmation nonce after a lost response, and supports explicit rollback (1.8s)
+  ok 23 tests\e2e\prompt-test-run.spec.ts:4:3 › QUALITY_TEST selects exact source, semantic scope and Free revision with review before durable enqueue (1.6s)
+  ok 24 tests\e2e\prompt-test-run.spec.ts:4:3 › PRODUCTION selects exact source, semantic scope and Free revision with review before durable enqueue (1.6s)
+  ok 25 tests\e2e\radio-summary.spec.ts:30:1 › Daily keeps one complete paragraph per film with metadata outside it in both densities (498ms)
+  ok 26 tests\e2e\radio-summary.spec.ts:102:1 › item narration is primary; evidence is collapsed, keyboard accessible and opens for a deep link (1.3s)
+  ok 27 tests\e2e\retention.spec.ts:3:1 › archived material links to Drive without fetching deleted canonical data or scheduling analysis (962ms)
+  ok 28 tests\e2e\semantic-profiles.spec.ts:10:1 › profile editor materializes exact Custom scope and retries a lost save without invoking AI (3.1s)
+  ok 29 tests\e2e\session-shell.spec.ts:95:1 › deep links, history, focus and logout clear private views and preserve only the theme preference (583ms)
+  ok 30 tests\e2e\session-shell.spec.ts:133:1 › 401 on a domain read clears the private shell and does not turn into a setup error (391ms)
+  ok 31 tests\e2e\session-shell.spec.ts:155:1 › light and dark shell have measured AA token contrast, keyboard focus and narrow reflow (942ms)
+  ok 32 tests\e2e\system.spec.ts:5:1 › System preserves unknown capacity, stale quota, failed age and incomplete usage without invoking AI (732ms)
+
+  32 passed (60.0s)
