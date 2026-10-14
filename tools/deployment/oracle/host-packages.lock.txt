@@ -1,0 +1,10 @@
+# Wersje bazowe odczytane 13.10.2026 na Ubuntu 24.04 ARM64.
+# Zastane nowsze pakiety systemowe nie są obniżane; runtime sprawdza upstream.
+ca-certificates=20260601~24.04.1
+curl=8.5.0-2ubuntu10.15
+ffmpeg=7:6.1.1-3ubuntu5
+python3.12=3.12.3-1ubuntu0.17
+python3.12-venv=3.12.3-1ubuntu0.17
+unzip=6.0-28ubuntu4.1
+util-linux=2.39.3-9ubuntu6.6
+xz-utils=5.6.1+really5.4.5-1ubuntu0.3

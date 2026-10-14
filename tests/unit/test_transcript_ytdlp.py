@@ -7,6 +7,26 @@ spec=importlib.util.spec_from_file_location('production_captions',ROOT/'apps/exe
 adapter=importlib.util.module_from_spec(spec)
 spec.loader.exec_module(adapter)
 class TranscriptAdapterTests(unittest.TestCase):
+    def test_json3_malformed_source_row_never_succeeds_with_only_the_valid_prefix(self):
+        for invalid in [ {'segs': 'lost source'}, {'segs': [{'utf8': 1}]}, {'segs': [{'missing_text': True}]} ]:
+            payload=json.dumps({'events':[{'tStartMs':0,'dDurationMs':1000,'segs':[{'utf8':'prefix'}]},invalid]}).encode()
+            self.assertIsNone(adapter.decode_segments(payload,'json3'))
+    def test_repeated_real_utterances_are_retained_in_order(self):
+        payload=json.dumps({'events':[{'tStartMs':i*1000,'dDurationMs':1000,'segs':[{'utf8':'Tak.'}]} for i in range(3)]}).encode()
+        cues=adapter.decode_segments(payload,'json3')
+        self.assertEqual([cue['text'] for cue in cues],['Tak.']*3)
+        self.assertEqual([cue['upstream_index'] for cue in cues],[0,1,2])
+    def test_vtt_truncated_final_block_fails_and_multiline_is_preserved(self):
+        payload=b'WEBVTT\n\n00:00.000 --> 00:01.000\nFirst\nSecond\n\n00:01.000 --> 00:02.000\nAgain\n'
+        cues=adapter.decode_segments(payload,'vtt')
+        self.assertEqual(cues[0]['text'],'First\nSecond')
+        for suffix in [b'\n\n00:03.000', b'\n\n00:03.000 --> 00:04.000', b'\n\nmissing timestamp\nText']:
+            self.assertIsNone(adapter.decode_segments(payload.rstrip()+suffix,'vtt'))
+    def test_srv3_milliseconds_and_xml_seconds_are_not_confused(self):
+        self.assertEqual(adapter.decode_segments(b'<timedtext><body><p t="250" d="3250"><s>Exact</s> text</p></body></timedtext>','srv3')[0]['end_ms'],3500)
+        cue=adapter.decode_segments(b'<transcript><text start="0.25" dur="3.25">A &amp; B</text></transcript>','xml')[0]
+        self.assertEqual((cue['start_ms'],cue['end_ms'],cue['text']),(250,3500,'A & B'))
+        self.assertIsNone(adapter.decode_segments(b'<timedtext><p t="0" d="100">Prefix</p><p t="1">lost source</p></timedtext>','srv3'))
     def test_json3_format_only_final_append_does_not_reject_source_or_invent_time(self):
         payload=json.dumps({'events':[
             {'tStartMs':0,'dDurationMs':1000,'segs':[{'utf8':'  Exact source.  '}]},

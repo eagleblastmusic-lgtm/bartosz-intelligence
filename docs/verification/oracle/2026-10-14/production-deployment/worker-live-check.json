@@ -1,0 +1,19 @@
+{
+  "schema": "oracle-production-worker-live-check:1",
+  "status": "PASS_LIVE_HEALTH_AUTH_BOUNDARY",
+  "observed_utc": "2026-10-14T17:55:42.473Z",
+  "health_http_status": 200,
+  "bindings": {
+    "DB": true,
+    "BARTOSZ_QUEUE": true,
+    "ASSETS": true
+  },
+  "unauthenticated_intake_http_status": 401,
+  "unauthenticated_intake_code": "UNAUTHENTICATED",
+  "active_version": "39edd639-eba3-40bb-93c7-022f1aec31d6",
+  "active_percentage": 100,
+  "authorized_owner_job_submitted": false,
+  "source_requests": 0,
+  "production_job_writes": 0,
+  "secrets_uploaded": false
+}

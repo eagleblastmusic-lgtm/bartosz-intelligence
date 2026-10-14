@@ -1,0 +1,358 @@
+{
+  "schema": "production-oracle-final-collected-canary:1",
+  "status": "API_READ_PASS_TWO_CREATORS_PENDING_D1_EXECUTOR_PROVENANCE",
+  "cases": [
+    {
+      "schema": "production-oracle-e2e:1",
+      "status": "PASS_ACTUAL_PRODUCTION_API_SOURCE_READ",
+      "started_at": "2026-10-14T17:59:18.916Z",
+      "finished_at": "2026-10-14T17:59:50.830Z",
+      "origin": "https://bartosz-intelligence.eagleblastmusic.workers.dev",
+      "video_id": "uEztHu4NHrs",
+      "item_id": "c66b5b93-d046-48b3-82c0-ed6d74d1434e",
+      "job_id": "9bf8bac4-1d3d-4b62-80f8-0cde55d34c73",
+      "job_state": "SUCCEEDED",
+      "artifacts": {
+        "source": {
+          "artifact_id": "bcd26573-73d5-4ca0-9c83-100e2522a8a1",
+          "content_hash": "8b967ac776aba9ef41010c3c9703aa18b943736f772aba9e35de8e7b6b03041a",
+          "byte_size": 9876,
+          "chunk_count": 1,
+          "schema_version": "decoded-cue-text:1",
+          "kind": "SOURCE_ORIGINAL",
+          "provenance": {
+            "provider_id": "local_ytdlp",
+            "provider_version": "yt-dlp@2026.08.19+yt-dlp-ejs@0.8.0",
+            "raw_payload_hash": "e1e512e81f6a364ac9a38d7790c0df4465cc991b7a8eba5a529d1f6a93f2adff",
+            "upstream_track_id": "dcb19df3ff108f05883f3dc78712feed42960b0df985c8ed38749e7258147763",
+            "language_code": "en",
+            "track_kind": "MANUAL",
+            "is_generated": false,
+            "is_translated": false,
+            "is_original": null,
+            "video_language": "en",
+            "original_language": "en",
+            "archive_source_status": "AVAILABLE_FULL",
+            "missing_ranges": [],
+            "timestamp_precision": "CUE",
+            "warnings": []
+          },
+          "authority": {
+            "track_id": "dcb19df3ff108f05883f3dc78712feed42960b0df985c8ed38749e7258147763",
+            "language_code": "en",
+            "track_kind": "MANUAL",
+            "authority_basis": "EXPLICIT_ORIGINAL",
+            "authority_confidence": "CONFIRMED"
+          },
+          "warnings": [],
+          "sha256": "8b967ac776aba9ef41010c3c9703aa18b943736f772aba9e35de8e7b6b03041a",
+          "bytes": 9876,
+          "path": "/root/bartosz-oracle-production-20261014/canary/case2-source.txt"
+        },
+        "segments": {
+          "artifact_id": "6f6383bb-78fd-4a48-a351-a6629d0a9e12",
+          "content_hash": "8d850a97f18c0eb8bdb0473a731b4613696ca1a307cb9c7f91c156f1e6113e34",
+          "byte_size": 154145,
+          "chunk_count": 5,
+          "schema_version": "segment-map:1",
+          "kind": "SEGMENT_MAP",
+          "provenance": {
+            "provider_id": "local_ytdlp",
+            "provider_version": "yt-dlp@2026.08.19+yt-dlp-ejs@0.8.0",
+            "raw_payload_hash": "e1e512e81f6a364ac9a38d7790c0df4465cc991b7a8eba5a529d1f6a93f2adff",
+            "upstream_track_id": "dcb19df3ff108f05883f3dc78712feed42960b0df985c8ed38749e7258147763",
+            "language_code": "en",
+            "track_kind": "MANUAL",
+            "is_generated": false,
+            "is_translated": false,
+            "is_original": null,
+            "video_language": "en",
+            "original_language": "en",
+            "archive_source_status": "AVAILABLE_FULL",
+            "missing_ranges": [],
+            "timestamp_precision": "CUE",
+            "warnings": [],
+            "source_revision": "8b967ac776aba9ef41010c3c9703aa18b943736f772aba9e35de8e7b6b03041a"
+          },
+          "authority": {
+            "track_id": "dcb19df3ff108f05883f3dc78712feed42960b0df985c8ed38749e7258147763",
+            "language_code": "en",
+            "track_kind": "MANUAL",
+            "authority_basis": "EXPLICIT_ORIGINAL",
+            "authority_confidence": "CONFIRMED"
+          },
+          "warnings": [],
+          "sha256": "8d850a97f18c0eb8bdb0473a731b4613696ca1a307cb9c7f91c156f1e6113e34",
+          "bytes": 154145,
+          "path": "/root/bartosz-oracle-production-20261014/canary/case2-segments.json"
+        }
+      },
+      "coverage": {
+        "coverage_count": 241,
+        "anchor_count": 241,
+        "first_start_ms": 3833,
+        "last_end_ms": 790870,
+        "all_source_text_offsets_and_cue_times_verified": true,
+        "completeness_scope": "STORED_NORMALIZATION_COVERAGE_ONLY",
+        "independent_upstream_full_film_reference_checked": false
+      },
+      "track_id": "dcb19df3ff108f05883f3dc78712feed42960b0df985c8ed38749e7258147763",
+      "language_code": "en",
+      "track_kind": "MANUAL",
+      "authority_basis": "EXPLICIT_ORIGINAL",
+      "authority_confidence": "CONFIRMED",
+      "exchanges": [
+        {
+          "path": "/api/v1/jobs/transcript",
+          "method": "POST",
+          "status": 201
+        },
+        {
+          "path": "/api/v1/jobs/9bf8bac4-1d3d-4b62-80f8-0cde55d34c73",
+          "method": "GET",
+          "status": 200
+        },
+        {
+          "path": "/api/v1/jobs/9bf8bac4-1d3d-4b62-80f8-0cde55d34c73",
+          "method": "GET",
+          "status": 200
+        },
+        {
+          "path": "/api/v1/jobs/9bf8bac4-1d3d-4b62-80f8-0cde55d34c73",
+          "method": "GET",
+          "status": 200
+        },
+        {
+          "path": "/api/v1/jobs/9bf8bac4-1d3d-4b62-80f8-0cde55d34c73",
+          "method": "GET",
+          "status": 200
+        },
+        {
+          "path": "/api/v1/items/c66b5b93-d046-48b3-82c0-ed6d74d1434e/transcript?kind=source&start=0",
+          "method": "GET",
+          "status": 200
+        },
+        {
+          "path": "/api/v1/items/c66b5b93-d046-48b3-82c0-ed6d74d1434e/transcript?kind=segments&start=0",
+          "method": "GET",
+          "status": 200
+        },
+        {
+          "path": "/api/v1/items/c66b5b93-d046-48b3-82c0-ed6d74d1434e/transcript?kind=segments&start=4",
+          "method": "GET",
+          "status": 200
+        }
+      ],
+      "execution_host": {
+        "platform": "linux",
+        "arch": "arm64",
+        "node": "24.21.0",
+        "pid": 62357,
+        "parent_pid": 62324
+      },
+      "normal_owner_session": true,
+      "synthetic_owner_created": false,
+      "source_transport": "ORACLE_EXECUTOR",
+      "private_credentials_logged": false
+    },
+    {
+      "schema": "production-oracle-e2e:1",
+      "status": "PASS_ACTUAL_PRODUCTION_API_SOURCE_READ",
+      "started_at": "2026-10-14T18:17:05.118Z",
+      "finished_at": "2026-10-14T18:17:37.431Z",
+      "origin": "https://bartosz-intelligence.eagleblastmusic.workers.dev",
+      "video_id": "IHZwWFHWa-w",
+      "item_id": "db6b96b5-76c2-4505-bb3c-2aa8037367a0",
+      "job_id": "831ee595-e8d3-45eb-af47-b592841b82a1",
+      "job_state": "SUCCEEDED",
+      "artifacts": {
+        "source": {
+          "artifact_id": "c709af44-881a-464f-ab33-257562ac67f5",
+          "content_hash": "90dcefde04bf5df5e01a8b6c799c0e58b471fb9408575e7d5d4cb2870a87ad94",
+          "byte_size": 20165,
+          "chunk_count": 1,
+          "schema_version": "decoded-cue-text:1",
+          "kind": "SOURCE_ORIGINAL",
+          "provenance": {
+            "provider_id": "local_ytdlp",
+            "provider_version": "yt-dlp@2026.08.19+yt-dlp-ejs@0.8.0",
+            "raw_payload_hash": "7dd91ad97c38e2ddd848feed20d53cc4f25e85dd1eaf2d66c565880ab19a510b",
+            "upstream_track_id": "46a55ce9160059972ea1d0ebde737a1d2c50f881ed581c5722766342769dfd08",
+            "language_code": "en",
+            "track_kind": "MANUAL",
+            "is_generated": false,
+            "is_translated": false,
+            "is_original": null,
+            "video_language": "en",
+            "original_language": "en",
+            "archive_source_status": "AVAILABLE_FULL",
+            "missing_ranges": [],
+            "timestamp_precision": "CUE",
+            "warnings": []
+          },
+          "authority": {
+            "track_id": "46a55ce9160059972ea1d0ebde737a1d2c50f881ed581c5722766342769dfd08",
+            "language_code": "en",
+            "track_kind": "MANUAL",
+            "authority_basis": "EXPLICIT_ORIGINAL",
+            "authority_confidence": "CONFIRMED"
+          },
+          "warnings": [],
+          "sha256": "90dcefde04bf5df5e01a8b6c799c0e58b471fb9408575e7d5d4cb2870a87ad94",
+          "bytes": 20165,
+          "path": "/root/bartosz-oracle-production-20261014/canary-final/case1-source.txt"
+        },
+        "segments": {
+          "artifact_id": "45a01560-dd40-42ed-bdb0-94197019c71d",
+          "content_hash": "da0b69b72eb519a52a50cfc490fc1908183f62a661e020eb60293e212400f579",
+          "byte_size": 204446,
+          "chunk_count": 7,
+          "schema_version": "segment-map:1",
+          "kind": "SEGMENT_MAP",
+          "provenance": {
+            "provider_id": "local_ytdlp",
+            "provider_version": "yt-dlp@2026.08.19+yt-dlp-ejs@0.8.0",
+            "raw_payload_hash": "7dd91ad97c38e2ddd848feed20d53cc4f25e85dd1eaf2d66c565880ab19a510b",
+            "upstream_track_id": "46a55ce9160059972ea1d0ebde737a1d2c50f881ed581c5722766342769dfd08",
+            "language_code": "en",
+            "track_kind": "MANUAL",
+            "is_generated": false,
+            "is_translated": false,
+            "is_original": null,
+            "video_language": "en",
+            "original_language": "en",
+            "archive_source_status": "AVAILABLE_FULL",
+            "missing_ranges": [],
+            "timestamp_precision": "CUE",
+            "warnings": [],
+            "source_revision": "90dcefde04bf5df5e01a8b6c799c0e58b471fb9408575e7d5d4cb2870a87ad94"
+          },
+          "authority": {
+            "track_id": "46a55ce9160059972ea1d0ebde737a1d2c50f881ed581c5722766342769dfd08",
+            "language_code": "en",
+            "track_kind": "MANUAL",
+            "authority_basis": "EXPLICIT_ORIGINAL",
+            "authority_confidence": "CONFIRMED"
+          },
+          "warnings": [],
+          "sha256": "da0b69b72eb519a52a50cfc490fc1908183f62a661e020eb60293e212400f579",
+          "bytes": 204446,
+          "path": "/root/bartosz-oracle-production-20261014/canary-final/case1-segments.json"
+        }
+      },
+      "coverage": {
+        "coverage_count": 306,
+        "anchor_count": 306,
+        "first_start_ms": 4180,
+        "last_end_ms": 1212780,
+        "all_source_text_offsets_and_cue_times_verified": true,
+        "completeness_scope": "STORED_NORMALIZATION_COVERAGE_ONLY",
+        "independent_upstream_full_film_reference_checked": false
+      },
+      "track_id": "46a55ce9160059972ea1d0ebde737a1d2c50f881ed581c5722766342769dfd08",
+      "language_code": "en",
+      "track_kind": "MANUAL",
+      "authority_basis": "EXPLICIT_ORIGINAL",
+      "authority_confidence": "CONFIRMED",
+      "exchanges": [
+        {
+          "path": "/api/v1/jobs/transcript",
+          "method": "POST",
+          "status": 201
+        },
+        {
+          "path": "/api/v1/jobs/831ee595-e8d3-45eb-af47-b592841b82a1",
+          "method": "GET",
+          "status": 200
+        },
+        {
+          "path": "/api/v1/jobs/831ee595-e8d3-45eb-af47-b592841b82a1",
+          "method": "GET",
+          "status": 200
+        },
+        {
+          "path": "/api/v1/jobs/831ee595-e8d3-45eb-af47-b592841b82a1",
+          "method": "GET",
+          "status": 200
+        },
+        {
+          "path": "/api/v1/jobs/831ee595-e8d3-45eb-af47-b592841b82a1",
+          "method": "GET",
+          "status": 200
+        },
+        {
+          "path": "/api/v1/items/db6b96b5-76c2-4505-bb3c-2aa8037367a0/transcript?kind=source&start=0",
+          "method": "GET",
+          "status": 200
+        },
+        {
+          "path": "/api/v1/items/db6b96b5-76c2-4505-bb3c-2aa8037367a0/transcript?kind=segments&start=0",
+          "method": "GET",
+          "status": 200
+        },
+        {
+          "path": "/api/v1/items/db6b96b5-76c2-4505-bb3c-2aa8037367a0/transcript?kind=segments&start=4",
+          "method": "GET",
+          "status": 200
+        }
+      ],
+      "execution_host": {
+        "platform": "linux",
+        "arch": "arm64",
+        "node": "24.21.0",
+        "pid": 63726,
+        "parent_pid": 63702
+      },
+      "normal_owner_session": true,
+      "synthetic_owner_created": false,
+      "source_transport": "ORACLE_EXECUTOR",
+      "private_credentials_logged": false
+    }
+  ],
+  "excluded_cases": [
+    {
+      "video_id": "aircAruvnKk",
+      "job_id": "a8344bdc-e3d4-43da-83b5-5994536f5d12",
+      "reason": "ACTUAL_EXECUTOR_LOCAL_TRANSCRIPT_WINDOWS"
+    },
+    {
+      "video_id": "zfR_Jj4grZE",
+      "job_id": "5deec4c6-6a94-4841-93d8-cd2ce81fab50",
+      "reason": "UNVERIFIED_REFERENCE_AND_ARTIFACT_WRITE_503_BLOCKED_INVALID_INPUT"
+    }
+  ],
+  "primary_reference_receipt": ".local/production-deployment/ihzw-primary-reference.json",
+  "executor_restart_before_verified_case": {
+    "before_pid": 63618,
+    "after_pid": 63718,
+    "exit_code": 0
+  },
+  "ephemeral_owner_auth_removed": true,
+  "temporary_driver_removed": true,
+  "permanent_services": {
+    "bartosz-caption-broker.service": {
+      "MainPID": "62168",
+      "CPUQuotaPerSecUSec": "500ms",
+      "MemoryMax": "201326592",
+      "MemorySwapMax": "0",
+      "ActiveState": "active",
+      "SubState": "running",
+      "UnitFileState": "enabled"
+    },
+    "bartosz-executor.service": {
+      "MainPID": "63718",
+      "CPUQuotaPerSecUSec": "500ms",
+      "MemoryMax": "402653184",
+      "MemorySwapMax": "0",
+      "ActiveState": "active",
+      "SubState": "running",
+      "UnitFileState": "enabled"
+    }
+  },
+  "uid30000_processes": [],
+  "canonical_session_metadata": {
+    "uid": 30000,
+    "mode": "0o600",
+    "values_read": false
+  }
+}

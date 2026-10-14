@@ -22,19 +22,34 @@ export class LocalTranscriptWorker {
     private provider: TranscriptProvider = new YtdlpTranscriptProvider(),
     private transport: typeof fetch = fetch,
     private providerVersion: string = ytdlpProviderVersion,
+    private workerId?: string,
   ) {
     this.rpc = new WorkerRpc(origin, credential, transport);
   }
-  async cycle() {
-    await this.rpc.request('heartbeat', { runtime: 'local' });
-    const admission = (await this.rpc.request(
+  async cycle(signal?: AbortSignal) {
+    signal?.throwIfAborted();
+    const transport: typeof fetch = (input, init) =>
+      this.transport(input, {
+        ...init,
+        ...(signal
+          ? {
+              signal: AbortSignal.any([
+                signal,
+                ...(init?.signal ? [init.signal] : []),
+              ]),
+            }
+          : {}),
+      });
+    const rpc = new WorkerRpc(this.origin, this.credential, transport);
+    await rpc.request('heartbeat', { runtime: 'local' });
+    const admission = (await rpc.request(
       'transcript/admission',
       { runtime: 'local' },
       'GET',
     )) as { available: boolean; reason: string | null };
     if (!admission.available)
       return { accepted: false, reason: admission.reason, idle: true };
-    const pulled = (await this.rpc.request('lease', {
+    const pulled = (await rpc.request('lease', {
       runtime: 'local',
       task_type: 'FETCH_TRANSCRIPT',
     })) as {
@@ -45,8 +60,10 @@ export class LocalTranscriptWorker {
     const leased = pulled.leases[0];
     if (!leased) return { accepted: false, reason: null, idle: true };
     let token = leased.token;
+    if (this.workerId && token.lease_owner !== this.workerId)
+      throw new Error('EXECUTOR_AUTH_DENIED');
     const task = leased.job.task_type;
-    await this.rpc.request('start', { task_type: task, token });
+    await rpc.request('start', { task_type: task, token });
     // This worker's credential must expose only implemented task capabilities.
     if (task !== 'FETCH_TRANSCRIPT') {
       await this.rpc.request('retry', {
@@ -58,7 +75,7 @@ export class LocalTranscriptWorker {
     }
     let completed = false;
     const heartbeat = async () => {
-      const result = (await this.rpc.request('heartbeat', {
+      const result = (await rpc.request('heartbeat', {
         runtime: 'local',
         task_type: task,
         token,
@@ -77,10 +94,10 @@ export class LocalTranscriptWorker {
       this.credential,
       () => token,
       task,
-      this.transport,
+      transport,
     );
     try {
-      const item = (await this.rpc.request('transcript/input', {
+      const item = (await rpc.request('transcript/input', {
         token,
       })) as SourceItemRef;
       return {
@@ -95,12 +112,13 @@ export class LocalTranscriptWorker {
             quota_reservation_id: null,
             provider_version: this.providerVersion,
             request_id: crypto.randomUUID(),
+            ...(signal ? { signal } : {}),
           },
           this.provider,
           artifacts,
           {
             admission: async () => {
-              const admitted = (await this.rpc.request(
+              const admitted = (await rpc.request(
                 'transcript/admission',
                 { runtime: 'local' },
                 'GET',
@@ -110,7 +128,7 @@ export class LocalTranscriptWorker {
                 next_check_at: string | null;
               };
               if (!admitted.available) {
-                await this.rpc.request('defer', {
+                await rpc.request('defer', {
                   token,
                   task_type: task,
                   reason: 'PROVIDER_UNAVAILABLE',
@@ -124,12 +142,12 @@ export class LocalTranscriptWorker {
             },
             heartbeat,
             outcome: async (status) => {
-              await this.rpc.request('transcript/outcome', { token, status });
+              await rpc.request('transcript/outcome', { token, status });
               completed = true;
             },
             diagnostic: async (code) => {
               if (code === 'STALE_TRANSCRIPT_LEASE') return;
-              await this.rpc.request('defer', {
+              await rpc.request('defer', {
                 token,
                 task_type: task,
                 reason: 'PROVIDER_UNAVAILABLE',
@@ -138,7 +156,7 @@ export class LocalTranscriptWorker {
               completed = true;
             },
             accept: async (source) => {
-              const result = (await this.rpc.request('transcript/accept', {
+              const result = (await rpc.request('transcript/accept', {
                 token,
                 source,
               })) as { accepted: boolean };

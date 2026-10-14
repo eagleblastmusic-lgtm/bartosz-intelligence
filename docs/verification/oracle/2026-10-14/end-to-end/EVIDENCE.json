@@ -1,0 +1,371 @@
+{
+  "schema": "bartosz-e2e-acceptance:1",
+  "status": "READY_FOR_FINAL_APPROVAL",
+  "environment": "ORACLE_ARM64_REAL_YOUTUBE_WITH_EXISTING_WORKER_LOCAL_D1_EMULATOR",
+  "production_ready": false,
+  "production_mutations": 0,
+  "windows_required_during_job_processing": false,
+  "session_imports": 0,
+  "executor_restarted_between_creators": true,
+  "cases": [
+    {
+      "schema": "oracle-e2e-read-verification:1",
+      "status": "PASS_ACCEPTED_ARTIFACT_HTTP_READ",
+      "video_id": "aircAruvnKk",
+      "job_id": "5b2b4845-79cb-477a-a16c-5bdf55e7e5c9",
+      "item_id": "7830c4a4-07cd-475b-ab2c-c4ca67bebf0a",
+      "job_state": "SUCCEEDED",
+      "artifacts": {
+        "source": {
+          "artifact_id": "374a1e19-1ca4-4e8a-a727-73320d0f6434",
+          "content_hash": "7c8d84caf112368a56b80bedb8fa5dbb48928973ad7f6628bd7b16a3356cf03a",
+          "byte_size": 18430,
+          "chunk_count": 1,
+          "schema_version": "decoded-cue-text:1",
+          "kind": "SOURCE_ORIGINAL",
+          "provenance": {
+            "provider_id": "local_ytdlp",
+            "provider_version": "yt-dlp@2026.08.19+yt-dlp-ejs@0.8.0",
+            "raw_payload_hash": "ecbd75e8d72ec09d39a644018e462ed4e34db5a35f791839271f868ee276aa45",
+            "upstream_track_id": "f218f2528ba5eb953bfb98d57fe4272ade85ceb634eb766c9533b48c4058d805",
+            "language_code": "en",
+            "track_kind": "MANUAL",
+            "is_generated": false,
+            "is_translated": false,
+            "is_original": null,
+            "video_language": "en",
+            "original_language": "en",
+            "archive_source_status": "AVAILABLE_FULL",
+            "missing_ranges": [],
+            "timestamp_precision": "CUE",
+            "warnings": []
+          },
+          "authority": {
+            "track_id": "f218f2528ba5eb953bfb98d57fe4272ade85ceb634eb766c9533b48c4058d805",
+            "language_code": "en",
+            "track_kind": "MANUAL",
+            "authority_basis": "EXPLICIT_ORIGINAL",
+            "authority_confidence": "CONFIRMED"
+          },
+          "warnings": [],
+          "sha256": "7c8d84caf112368a56b80bedb8fa5dbb48928973ad7f6628bd7b16a3356cf03a",
+          "bytes": 18430,
+          "path": "/var/lib/bartosz-executor/e2e-a8abd813/read-proof-1-source.txt"
+        },
+        "segments": {
+          "artifact_id": "3ad17b0c-c19c-4a90-82ac-01efbbd5f97e",
+          "content_hash": "07e5f6f6f3962c887eac38e0aa5802cce5686cabe0924db71ddaf9ecfd5250ee",
+          "byte_size": 190458,
+          "chunk_count": 6,
+          "schema_version": "segment-map:1",
+          "kind": "SEGMENT_MAP",
+          "provenance": {
+            "provider_id": "local_ytdlp",
+            "provider_version": "yt-dlp@2026.08.19+yt-dlp-ejs@0.8.0",
+            "raw_payload_hash": "ecbd75e8d72ec09d39a644018e462ed4e34db5a35f791839271f868ee276aa45",
+            "upstream_track_id": "f218f2528ba5eb953bfb98d57fe4272ade85ceb634eb766c9533b48c4058d805",
+            "language_code": "en",
+            "track_kind": "MANUAL",
+            "is_generated": false,
+            "is_translated": false,
+            "is_original": null,
+            "video_language": "en",
+            "original_language": "en",
+            "archive_source_status": "AVAILABLE_FULL",
+            "missing_ranges": [],
+            "timestamp_precision": "CUE",
+            "warnings": [],
+            "source_revision": "7c8d84caf112368a56b80bedb8fa5dbb48928973ad7f6628bd7b16a3356cf03a"
+          },
+          "authority": {
+            "track_id": "f218f2528ba5eb953bfb98d57fe4272ade85ceb634eb766c9533b48c4058d805",
+            "language_code": "en",
+            "track_kind": "MANUAL",
+            "authority_basis": "EXPLICIT_ORIGINAL",
+            "authority_confidence": "CONFIRMED"
+          },
+          "warnings": [],
+          "sha256": "07e5f6f6f3962c887eac38e0aa5802cce5686cabe0924db71ddaf9ecfd5250ee",
+          "bytes": 190458,
+          "path": "/var/lib/bartosz-executor/e2e-a8abd813/read-proof-1-segments.json"
+        }
+      },
+      "coverage": {
+        "coverage_count": 286,
+        "anchor_count": 286,
+        "first_start_ms": 4220,
+        "last_end_ms": 1105640,
+        "all_source_text_offsets_and_cue_times_verified": true,
+        "completeness_scope": "STORED_NORMALIZATION_COVERAGE_ONLY",
+        "independent_upstream_full_film_reference_checked": false
+      },
+      "language_code": "en",
+      "track_kind": "MANUAL",
+      "production_mutations": 0,
+      "source_transport": "ORACLE_EXECUTOR",
+      "private_credentials_logged": false
+    },
+    {
+      "schema": "oracle-e2e-read-verification:1",
+      "status": "PASS_ACCEPTED_ARTIFACT_HTTP_READ",
+      "video_id": "uEztHu4NHrs",
+      "job_id": "59372b56-6eb0-4449-9edb-40b6b8e2e6ea",
+      "item_id": "0c6ddeeb-a6ac-4ebf-855e-89b43539933a",
+      "job_state": "SUCCEEDED",
+      "artifacts": {
+        "source": {
+          "artifact_id": "c74e3a4b-169e-442a-bf4f-d8ec89a81e1f",
+          "content_hash": "8b967ac776aba9ef41010c3c9703aa18b943736f772aba9e35de8e7b6b03041a",
+          "byte_size": 9876,
+          "chunk_count": 1,
+          "schema_version": "decoded-cue-text:1",
+          "kind": "SOURCE_ORIGINAL",
+          "provenance": {
+            "provider_id": "local_ytdlp",
+            "provider_version": "yt-dlp@2026.08.19+yt-dlp-ejs@0.8.0",
+            "raw_payload_hash": "e1e512e81f6a364ac9a38d7790c0df4465cc991b7a8eba5a529d1f6a93f2adff",
+            "upstream_track_id": "fb8ad67f4a524bba5f71b928c0a1b754c993d0be03a043abca97f6e59f751425",
+            "language_code": "en",
+            "track_kind": "MANUAL",
+            "is_generated": false,
+            "is_translated": false,
+            "is_original": null,
+            "video_language": "en",
+            "original_language": "en",
+            "archive_source_status": "AVAILABLE_FULL",
+            "missing_ranges": [],
+            "timestamp_precision": "CUE",
+            "warnings": []
+          },
+          "authority": {
+            "track_id": "fb8ad67f4a524bba5f71b928c0a1b754c993d0be03a043abca97f6e59f751425",
+            "language_code": "en",
+            "track_kind": "MANUAL",
+            "authority_basis": "EXPLICIT_ORIGINAL",
+            "authority_confidence": "CONFIRMED"
+          },
+          "warnings": [],
+          "sha256": "8b967ac776aba9ef41010c3c9703aa18b943736f772aba9e35de8e7b6b03041a",
+          "bytes": 9876,
+          "path": "/var/lib/bartosz-executor/e2e-a8abd813/read-proof-2-source.txt"
+        },
+        "segments": {
+          "artifact_id": "d1a0a537-fab6-4f86-a865-258b80f7a7e3",
+          "content_hash": "8d850a97f18c0eb8bdb0473a731b4613696ca1a307cb9c7f91c156f1e6113e34",
+          "byte_size": 154145,
+          "chunk_count": 5,
+          "schema_version": "segment-map:1",
+          "kind": "SEGMENT_MAP",
+          "provenance": {
+            "provider_id": "local_ytdlp",
+            "provider_version": "yt-dlp@2026.08.19+yt-dlp-ejs@0.8.0",
+            "raw_payload_hash": "e1e512e81f6a364ac9a38d7790c0df4465cc991b7a8eba5a529d1f6a93f2adff",
+            "upstream_track_id": "fb8ad67f4a524bba5f71b928c0a1b754c993d0be03a043abca97f6e59f751425",
+            "language_code": "en",
+            "track_kind": "MANUAL",
+            "is_generated": false,
+            "is_translated": false,
+            "is_original": null,
+            "video_language": "en",
+            "original_language": "en",
+            "archive_source_status": "AVAILABLE_FULL",
+            "missing_ranges": [],
+            "timestamp_precision": "CUE",
+            "warnings": [],
+            "source_revision": "8b967ac776aba9ef41010c3c9703aa18b943736f772aba9e35de8e7b6b03041a"
+          },
+          "authority": {
+            "track_id": "fb8ad67f4a524bba5f71b928c0a1b754c993d0be03a043abca97f6e59f751425",
+            "language_code": "en",
+            "track_kind": "MANUAL",
+            "authority_basis": "EXPLICIT_ORIGINAL",
+            "authority_confidence": "CONFIRMED"
+          },
+          "warnings": [],
+          "sha256": "8d850a97f18c0eb8bdb0473a731b4613696ca1a307cb9c7f91c156f1e6113e34",
+          "bytes": 154145,
+          "path": "/var/lib/bartosz-executor/e2e-a8abd813/read-proof-2-segments.json"
+        }
+      },
+      "coverage": {
+        "coverage_count": 241,
+        "anchor_count": 241,
+        "first_start_ms": 3833,
+        "last_end_ms": 790870,
+        "all_source_text_offsets_and_cue_times_verified": true,
+        "completeness_scope": "STORED_NORMALIZATION_COVERAGE_ONLY",
+        "independent_upstream_full_film_reference_checked": false
+      },
+      "language_code": "en",
+      "track_kind": "MANUAL",
+      "production_mutations": 0,
+      "source_transport": "ORACLE_EXECUTOR",
+      "private_credentials_logged": false
+    }
+  ],
+  "raw_d1_comparison": [
+    {
+      "video_id": "aircAruvnKk",
+      "job_id": "5b2b4845-79cb-477a-a16c-5bdf55e7e5c9",
+      "status": "PASS_ALL_D1_RAW_CUES_TEXT_TIMESTAMPS_LANGUAGE",
+      "cue_count": 286,
+      "raw_sha256": "ecbd75e8d72ec09d39a644018e462ed4e34db5a35f791839271f868ee276aa45",
+      "raw_bytes": 46010,
+      "source_sha256": "7c8d84caf112368a56b80bedb8fa5dbb48928973ad7f6628bd7b16a3356cf03a",
+      "source_bytes": 18430,
+      "first_start_ms": 4220,
+      "last_end_ms": 1105640,
+      "comparison_scope": "EVERY_RECEIVED_SOURCE_CUE_NOT_INDEPENDENT_FULL_FILM_REFERENCE"
+    },
+    {
+      "video_id": "uEztHu4NHrs",
+      "job_id": "59372b56-6eb0-4449-9edb-40b6b8e2e6ea",
+      "status": "PASS_ALL_D1_RAW_CUES_TEXT_TIMESTAMPS_LANGUAGE",
+      "cue_count": 241,
+      "raw_sha256": "e1e512e81f6a364ac9a38d7790c0df4465cc991b7a8eba5a529d1f6a93f2adff",
+      "raw_bytes": 33217,
+      "source_sha256": "8b967ac776aba9ef41010c3c9703aa18b943736f772aba9e35de8e7b6b03041a",
+      "source_bytes": 9876,
+      "first_start_ms": 3833,
+      "last_end_ms": 790870,
+      "comparison_scope": "EVERY_RECEIVED_SOURCE_CUE_NOT_INDEPENDENT_FULL_FILM_REFERENCE"
+    }
+  ],
+  "source_capture_receipts": [
+    {
+      "run": "login-caption-broker-d662deb1",
+      "video_id": "uEztHu4NHrs",
+      "cue_count": 241,
+      "elapsed_ms": 18005,
+      "authentication_status": "AUTHENTICATED",
+      "session_updated": true,
+      "session_imported": false,
+      "session_file_mode": "0o600",
+      "session_directory_mode": "0o700",
+      "source_http": [
+        {
+          "path": "/api/timedtext",
+          "http_status": 200,
+          "bytes": 33217,
+          "sha256": "e1e512e81f6a364ac9a38d7790c0df4465cc991b7a8eba5a529d1f6a93f2adff"
+        }
+      ],
+      "descendants_remaining": 0,
+      "boundary": {
+        "memory.max": "805306368",
+        "memory.swap.max": "0",
+        "cpu.max": "50000 100000"
+      },
+      "temporary_cookie_removed": true,
+      "pot_state_removed": true,
+      "duplicate_caption_artifacts_removed": true
+    },
+    {
+      "run": "login-caption-broker-40a5c5d0",
+      "video_id": "aircAruvnKk",
+      "cue_count": 286,
+      "elapsed_ms": 17499,
+      "authentication_status": "AUTHENTICATED",
+      "session_updated": true,
+      "session_imported": false,
+      "session_file_mode": "0o600",
+      "session_directory_mode": "0o700",
+      "source_http": [
+        {
+          "path": "/api/timedtext",
+          "http_status": 200,
+          "bytes": 46010,
+          "sha256": "ecbd75e8d72ec09d39a644018e462ed4e34db5a35f791839271f868ee276aa45"
+        }
+      ],
+      "descendants_remaining": 0,
+      "boundary": {
+        "memory.max": "805306368",
+        "memory.swap.max": "0",
+        "cpu.max": "50000 100000"
+      },
+      "temporary_cookie_removed": true,
+      "pot_state_removed": true,
+      "duplicate_caption_artifacts_removed": true
+    }
+  ],
+  "controlled_failure": {
+    "status": "PASS",
+    "simulated": true,
+    "job_state": "BLOCKED",
+    "reason_code": "LOCAL_YTDLP_AUTH_REQUIRED",
+    "attempt_count": 1,
+    "actual_youtube_requests": 0,
+    "canonical_session_touched": false
+  },
+  "cleanup": {
+    "private_fixture_credentials_removed": true,
+    "broker_socket_removed": true,
+    "stopped_units": [
+      {
+        "unit": "bartosz-e2e-worker-1-a8abd813.service",
+        "exit_code": 0
+      },
+      {
+        "unit": "bartosz-e2e-worker-2-a8abd813.service",
+        "exit_code": 0
+      },
+      {
+        "unit": "bartosz-e2e-worker-auth-failure-a8abd813.service",
+        "exit_code": 0
+      },
+      {
+        "unit": "bartosz-e2e-auth-fixture-a8abd813.service",
+        "exit_code": 5
+      },
+      {
+        "unit": "bartosz-e2e-worker-2-a8abd813.service",
+        "exit_code": 5
+      },
+      {
+        "unit": "bartosz-e2e-worker-1-a8abd813.service",
+        "exit_code": 5
+      },
+      {
+        "unit": "bartosz-e2e-api-a8abd813.service",
+        "exit_code": 0
+      },
+      {
+        "unit": "bartosz-e2e-broker-a8abd813.service",
+        "exit_code": 0
+      }
+    ]
+  },
+  "source_uid_processes_remaining": [],
+  "canonical_session_permissions": "0700/0600 UID30000",
+  "prepared_units_analysis_exit_code": 0,
+  "production_schema": {
+    "production_applied_migration_count": 39,
+    "repo_migration_count": 40,
+    "all_applied_names_and_hashes_match_repo": true,
+    "unapplied_repo_migrations": [
+      {
+        "name": "040_daily_tasks_workflow.sql",
+        "sha256": "40604831a70238bd90923af505efabaa502a91816a702e9ae77eb75ba72bce80"
+      }
+    ]
+  },
+  "rollback": {
+    "id": "bd3cbb53-e8e0-438f-9d32-8bc45b3f8d23",
+    "created_on": "2026-10-11T16:53:23.204885Z",
+    "source": "wrangler",
+    "strategy": "percentage",
+    "versions": [
+      {
+        "version_id": "224ba7ff-a4ab-47ff-8cc1-70aadb2d91b1",
+        "percentage": 100
+      }
+    ]
+  },
+  "release_candidate": {
+    "path": ".local/oracle-deployment/e2e-final-candidate-20261014/executor.tar.gz",
+    "sha256": "e089c6874d6bb420b3123930f0d68418543672551c17053d12b0df9af725300b"
+  },
+  "session_long_term_stability": "NOT_YET_MEASURED_24_72_HOURS",
+  "upstream_completeness_scope": "ALL_RECEIVED_SOURCE_CUES_NOT_INDEPENDENT_FULL_FILM_REFERENCE"
+}

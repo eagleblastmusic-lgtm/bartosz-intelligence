@@ -27,21 +27,44 @@ export class ArtifactClient {
     this.connection = new WorkerRpc(origin, credential, transport);
   }
   private async rpc(path: string, input: Record<string, unknown>) {
-    try {
-      return await this.connection.request('artifacts/' + path, {
-        task_type: this.task,
-        token: this.lease(),
-        ...(this.diagnosticReservationId === null
-          ? {}
-          : { reservation_id: this.diagnosticReservationId }),
-        ...input,
-      });
-    } catch (error) {
-      if (error instanceof Error && error.message === 'WORKER_RPC_FAILED')
-        throw error instanceof WorkerRpcError
-          ? new WorkerRpcError('ARTIFACT_RPC_FAILED', error.route, error.status)
-          : new Error('ARTIFACT_RPC_FAILED');
-      throw error;
+    for (let attempt = 0; ; attempt++) {
+      try {
+        return await this.connection.request('artifacts/' + path, {
+          task_type: this.task,
+          token: this.lease(),
+          ...(this.diagnosticReservationId === null
+            ? {}
+            : { reservation_id: this.diagnosticReservationId }),
+          ...input,
+        });
+      } catch (error) {
+        // Chunk INSERT is content-addressed and verifies an existing duplicate.
+        // Other RPC mutations and explicit quota/auth/fence failures never retry.
+        if (
+          path === 'write' &&
+          attempt < 2 &&
+          error instanceof WorkerRpcError &&
+          [429, 502, 503, 504].includes(error.status) &&
+          (error.code === null ||
+            error.code === 'TRANSIENT' ||
+            error.code === 'BACKUP_BUSY')
+        ) {
+          await new Promise((resolve) =>
+            setTimeout(resolve, [500, 1500][attempt]),
+          );
+          continue;
+        }
+        if (error instanceof Error && error.message === 'WORKER_RPC_FAILED')
+          throw error instanceof WorkerRpcError
+            ? new WorkerRpcError(
+                'ARTIFACT_RPC_FAILED',
+                error.route,
+                error.status,
+                error.code,
+              )
+            : new Error('ARTIFACT_RPC_FAILED');
+        throw error;
+      }
     }
   }
   async upload(

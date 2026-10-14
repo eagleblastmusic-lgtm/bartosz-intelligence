@@ -1,0 +1,9 @@
+{
+  "schema": "production-owner-session-revocation-verification:1",
+  "exact_existing_owner_and_ephemeral_expiry_match": true,
+  "matched_sessions": 1,
+  "revoked_sessions": 1,
+  "active_sessions": 0,
+  "revoked_at": "2026-10-14T18:21:24.801Z",
+  "session_values_recorded": false
+}

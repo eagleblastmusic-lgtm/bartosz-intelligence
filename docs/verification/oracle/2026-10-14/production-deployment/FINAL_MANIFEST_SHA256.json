@@ -1,0 +1,62 @@
+{
+  "schema": "bartosz-production-final-evidence-manifest:1",
+  "original_cloudflare_manifest_verified": true,
+  "private_secrets_and_backup_excluded": true,
+  "files": [
+    {
+      "path": "FINAL_REPORT_PL.md",
+      "bytes": 6827,
+      "sha256": "1205581e37c3f269302733c554e1855b2690e8bf1a03bb7855739ee52aa1d929"
+    },
+    {
+      "path": "FINAL_EVIDENCE.json",
+      "bytes": 5534,
+      "sha256": "6ad3ad162d18fe29e812c199d34cbe028b9897715751625e7d0b6ed406fac839"
+    },
+    {
+      "path": "MANIFEST_SHA256.json",
+      "bytes": 1715,
+      "sha256": "370aa05e340444a6395c82324491f8c654f1ff37031b839e6d7407467273daf4"
+    },
+    {
+      "path": "d1-live-verification.json",
+      "bytes": 2265,
+      "sha256": "09a211887b208f6d32a8e058d507798ce03cbdec3ba878468cf51fc906b22d3d"
+    },
+    {
+      "path": "oracle-api-canary.json",
+      "bytes": 13847,
+      "sha256": "66a4cb2fb5cea639395ea3da3257b6c8ae8eed0848410362a27777f6c3baf93e"
+    },
+    {
+      "path": "oracle-source-captures.json",
+      "bytes": 13782,
+      "sha256": "5101fab77dc1ff50643242a3f4776de0661e9c8113d09f2b7c7a9d33f3677d56"
+    },
+    {
+      "path": "oracle-service-state.json",
+      "bytes": 2085,
+      "sha256": "b2d9b2fd08d1d255dd56d6449f0ba8626c83f837ea2e716da7d4976635c77e01"
+    },
+    {
+      "path": "oracle-release-activation.json",
+      "bytes": 2449,
+      "sha256": "0b12eb6619f51609d7aa21029851f9a6e61dced667c72e5713b082c09638aae9"
+    },
+    {
+      "path": "transcript-worker-switch.json",
+      "bytes": 551,
+      "sha256": "183da1b05c5891e3eea0e9900942c1888e0b329bf947c5acaad1f8b462e45f5a"
+    },
+    {
+      "path": "test-app-session-revocation.json",
+      "bytes": 282,
+      "sha256": "20c8c26ac519b8ecd5dc8e0ed5a3140d519710158f7b930ad25a7d5f822c7c63"
+    },
+    {
+      "path": "second-creator-reference.json",
+      "bytes": 449,
+      "sha256": "6b6f83e0c437ceeaecd34666a2a114331afd11bf2c179b2bb61c78e8e830f227"
+    }
+  ]
+}

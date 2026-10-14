@@ -1,0 +1,57 @@
+{
+  "schema": "oracle-production-deployment-manifest:1",
+  "private_backup_excluded": true,
+  "secrets_excluded": true,
+  "files": [
+    {
+      "path": "backup-rehearsal.json",
+      "bytes": 1094,
+      "sha256": "4982a15da4824cc8883f7d2830e0230882bb8d1a518cdd1bf43b9a7a222b60ed"
+    },
+    {
+      "path": "d1-storage-before.json",
+      "bytes": 344,
+      "sha256": "5e1293fd665a759dcfd9bd277847ad26a7c71cd840e18917144cc61a110ac51a"
+    },
+    {
+      "path": "migration.json",
+      "bytes": 399,
+      "sha256": "cedeafd4e03ccde3bb1c774b6afbf3186df6ea8de25200a2861e0e1d2186ff20"
+    },
+    {
+      "path": "preflight.json",
+      "bytes": 482,
+      "sha256": "b3d130e69704656e268dc4c4ef404279b126baed7740deb9f5c5cd235cc68132"
+    },
+    {
+      "path": "REPORT_PL.md",
+      "bytes": 3480,
+      "sha256": "1fd1d8d438eed4651b53f087b0004297994f44bae09c04880548d81e16ec0278"
+    },
+    {
+      "path": "schema-before.json",
+      "bytes": 4034,
+      "sha256": "8eb7bec3bdc3f3f77d740c7354f100ccd12cf148518b398f7d11bcb39ccb2a99"
+    },
+    {
+      "path": "worker-before.json",
+      "bytes": 536,
+      "sha256": "4300c5cdcb6ef0985fccfda4fc9d8cba2ccb91fa384c187582c35ff5da29db14"
+    },
+    {
+      "path": "worker-deploy.json",
+      "bytes": 531,
+      "sha256": "b4b12eae305b4bde10bb702628794752a20349c4e89b01aeb9d6016843735640"
+    },
+    {
+      "path": "worker-dryrun.json",
+      "bytes": 233,
+      "sha256": "ff3440d3c1461646911d5cfd0c759fe5844787617d4273cf7d2791d9aa69179c"
+    },
+    {
+      "path": "worker-live-check.json",
+      "bytes": 571,
+      "sha256": "2416c2ee0c0f6d4ce45a3d1ea72fdd6c31e7a9fdc71215b0549e4ae50a34835b"
+    }
+  ]
+}

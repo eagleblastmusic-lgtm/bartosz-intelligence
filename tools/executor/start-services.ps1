@@ -8,9 +8,11 @@ $taskReceipt = Join-Path $taskLocal 'local-services-start.json'
 Set-Location -LiteralPath $taskRoot
 if (!(Test-Path -LiteralPath $taskNode) -or !(Test-Path -LiteralPath (Join-Path $taskRoot '.env'))) { throw 'LOCAL_SERVICE_CONFIGURATION_REQUIRED' }
 $env:PATH = (Split-Path -Parent $taskNode) + ';' + $env:PATH
-$taskProbe = & $taskNode '--import' 'tsx' '--env-file=.env' '--input-type=module' '-e' 'import {localServices,serviceEnvironment} from "./apps/executor/src/services.ts"; const selected=localServices.filter(s=>!!process.env[s.credential]); if(!selected.length) process.exit(1); for(const s of selected) serviceEnvironment(s,process.env); console.log(JSON.stringify({services:selected.map(s=>s.name)}));' 2>$null
+if (!$env:BARTOSZ_PYTHONPATH) { $env:BARTOSZ_PYTHONPATH = Join-Path $taskRoot '.tools/gate0-python' }
+$taskProbe = & $taskNode '--import' 'tsx' '--env-file=.env' '--input-type=module' '-e' 'import {localServices,serviceEnvironment} from "./apps/executor/src/services.ts"; import {isAbsolute} from "node:path"; import {existsSync} from "node:fs"; const selected=localServices.filter(s=>!!process.env[s.credential]); if(!selected.length) process.exit(1); const transcript=selected.some(s=>s.name==="transcript"); if(transcript) { const python=process.env.BARTOSZ_PYTHON??"C:/Python314/python.exe"; if(!isAbsolute(python)||!existsSync(python)) process.exit(1); process.env.BARTOSZ_PYTHON=python; } for(const s of selected) serviceEnvironment(s,process.env); console.log(JSON.stringify({services:selected.map(s=>s.name),...(transcript?{python:process.env.BARTOSZ_PYTHON}:{})}));' 2>$null
 if ($LASTEXITCODE -ne 0) { throw 'LOCAL_SERVICE_CONFIGURATION_REQUIRED' }
 $taskConfiguration = $taskProbe | ConvertFrom-Json
+if ($taskConfiguration.python) { $env:BARTOSZ_PYTHON = $taskConfiguration.python }
 $taskExisting = $null
 if (Test-Path -LiteralPath $taskReceipt) {
   $taskRecorded = Get-Content -LiteralPath $taskReceipt -Raw | ConvertFrom-Json

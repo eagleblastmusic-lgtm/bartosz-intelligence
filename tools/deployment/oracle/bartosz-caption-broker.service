@@ -1,0 +1,36 @@
+[Unit]
+Description=Bartosz Intelligence - protected caption process bridge
+After=network-online.target
+Wants=network-online.target
+StartLimitIntervalSec=600
+StartLimitBurst=5
+
+[Service]
+Type=exec
+User=root
+Group=bartosz-executor
+WorkingDirectory=/opt/bartosz-intelligence/current
+ExecStart=/usr/bin/python3 -I -B tools/transcript-engine/caption-broker.py --socket /run/bartosz-caption-broker/caption.sock
+RuntimeDirectory=bartosz-caption-broker
+RuntimeDirectoryMode=0750
+UMask=0077
+Restart=on-failure
+RestartSec=10s
+KillMode=control-group
+TimeoutStopSec=40s
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectSystem=strict
+ProtectHome=false
+ReadWritePaths=/opt/bartosz-intelligence/browser-runtime /home/bartosz-browser-runtime/snap/chromium/common/jobs /home/bartosz-browser-runtime/youtube-session /root/bartosz-ote-chromium-deployment-20261014
+ProtectKernelTunables=true
+ProtectKernelModules=true
+RestrictAddressFamilies=AF_UNIX
+MemoryHigh=128M
+MemoryMax=192M
+MemorySwapMax=0
+CPUQuota=50%
+TasksMax=32
+
+[Install]
+WantedBy=multi-user.target

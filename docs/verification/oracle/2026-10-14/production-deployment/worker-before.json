@@ -1,0 +1,19 @@
+{
+  "schema": "oracle-e2e-production-worker-rollback:1",
+  "status": "PASS_READ_ONLY_CURRENT_DEPLOYMENT",
+  "observed_utc": "2026-10-14T16:39:27.523Z",
+  "script_name": "bartosz-intelligence",
+  "production_mutations": 0,
+  "latest_deployment": {
+    "id": "bd3cbb53-e8e0-438f-9d32-8bc45b3f8d23",
+    "created_on": "2026-10-11T16:53:23.204885Z",
+    "source": "wrangler",
+    "strategy": "percentage",
+    "versions": [
+      {
+        "version_id": "224ba7ff-a4ab-47ff-8cc1-70aadb2d91b1",
+        "percentage": 100
+      }
+    ]
+  }
+}

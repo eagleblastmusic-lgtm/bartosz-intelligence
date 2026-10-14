@@ -2,6 +2,12 @@ import { expect, it } from 'vitest';
 import { localWorkerConfiguration } from '../../tools/deployment/local-worker-config.mjs';
 it.each([
   [[], 'local-transcript', 'LOCAL_WORKER_CREDENTIAL', 'FETCH_TRANSCRIPT'],
+  [
+    ['--oracle'],
+    'oracle-frankfurt-transcript-1',
+    'ORACLE_TRANSCRIPT_WORKER_CREDENTIAL',
+    'FETCH_TRANSCRIPT',
+  ],
   [['--analysis'], 'local-analysis', 'LOCAL_AI_WORKER_CREDENTIAL', 'ANALYZE'],
   [
     ['--source-corrections'],
@@ -22,6 +28,7 @@ it.each([
 );
 it.each([
   ['--analysis', '--search'],
+  ['--oracle', '--analysis'],
   ['--search', '--search'],
   ['--unknown'],
   ['--source-corrections', '--search'],

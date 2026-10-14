@@ -1,0 +1,7 @@
+# Exact root-managed executable; scoped userns exception, not filesystem confinement.
+abi <abi/4.0>,
+include <tunables/global>
+
+profile bartosz-ote-chromium-153_0_8010_12 /opt/bartosz-intelligence/browser-runtimes/chromium-headless-shell-153.0.8010.12/chrome-headless-shell flags=(unconfined) {
+  userns,
+}

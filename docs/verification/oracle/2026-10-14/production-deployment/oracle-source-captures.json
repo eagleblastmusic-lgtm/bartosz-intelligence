@@ -1,0 +1,342 @@
+{
+  "schema": "oracle-production-two-creator-source-proof:1",
+  "status": "PASS_TWO_ACTUAL_ORACLE_CAPTURES_NO_IMPORT",
+  "api_case1_legacy_executor_does_not_prove_oracle": true,
+  "captures": [
+    {
+      "run_name": "login-caption-broker-c3e666bb",
+      "status": "COMPLETED",
+      "video_id": "uEztHu4NHrs",
+      "mode": "ytdlp",
+      "client": "mweb",
+      "script_sha256": "c6c48de3ba62a3f5e9daaaad85e938a33ee9dea2a013aab6ea4c174f1342fda0",
+      "persistent_session": true,
+      "session_imported": false,
+      "authentication_status": "AUTHENTICATED",
+      "session_updated": true,
+      "persistent_session_retained": true,
+      "session_directory_mode": "0o700",
+      "session_file_mode": "0o600",
+      "pending_session_cleanup_count": 0,
+      "session_secret_removed": true,
+      "pot_state_removed": true,
+      "browser_state_removed": null,
+      "parser_assets_removed": true,
+      "staged_script_removed": true,
+      "broker_duplicate_caption_artifacts_removed": true,
+      "boundary": {
+        "memory.max": "805306368",
+        "memory.swap.max": "0",
+        "cpu.max": "50000 100000"
+      },
+      "error_code": null,
+      "cleanup_error": null,
+      "receipt": "/root/bartosz-ote-chromium-deployment-20261014/login-caption-broker-c3e666bb/receipt.json",
+      "receipt_sha256": "89a1a5797ee8a6cde9021d0d1524ec843b9d579e5ef98714d0f2cb9a2e91f1be",
+      "result": {
+        "status": "CAPTIONS_RECEIVED",
+        "observed_utc": "2026-10-14T17:59:21.735185+00:00",
+        "architecture": "aarch64",
+        "python_version": "3.12.3",
+        "package_version": "2026.8.19",
+        "anonymous": false,
+        "watch_logged_in": true,
+        "cue_count": 241,
+        "caption_bytes": 33217,
+        "caption_format": "json3",
+        "elapsed_ms": 17087,
+        "selected": {
+          "language_code": "en",
+          "kind": "MANUAL",
+          "client": "MWEB",
+          "po_token_present": true
+        },
+        "caption_socket_timeout_seconds": 20,
+        "caption_advertised_header_count": 0
+      },
+      "http_requests": [
+        {
+          "host": "www.youtube.com",
+          "path": "/watch",
+          "http_status": 200,
+          "bytes": 2273528,
+          "sha256": "e4ca4dfce47bb16a0016e42e1f91713fd7eab2552edeec511b9c4be564995f12"
+        },
+        {
+          "host": "m.youtube.com",
+          "path": "/",
+          "http_status": 200,
+          "bytes": 872975,
+          "sha256": "a2320f8cdb87f553fd8f0217fad4621888e0d5a4fe3637ba695d2fdb97a154f1"
+        },
+        {
+          "host": "www.youtube.com",
+          "path": "/youtubei/v1/player",
+          "http_status": 200,
+          "bytes": 409271,
+          "sha256": "838294ed1af0ec967bd92dba3f8577b663763bf33e4485459dc92fd179e71794"
+        },
+        {
+          "host": "www.youtube.com",
+          "path": "/s/player/21090930/player_ias.vflset/en_US/base.js",
+          "http_status": 200,
+          "bytes": 2960053,
+          "sha256": "036911b028785c604d80ce6154e446899e331faa0962d7ec535cbb9c53cdb8a5"
+        },
+        {
+          "host": "www.youtube.com",
+          "path": "/api/timedtext",
+          "http_status": 200,
+          "bytes": 33217,
+          "sha256": "e1e512e81f6a364ac9a38d7790c0df4465cc991b7a8eba5a529d1f6a93f2adff"
+        }
+      ],
+      "resources": {
+        "category": "NONE",
+        "exit_code": 0,
+        "elapsed_ms": 17450,
+        "peak_tree_rss_bytes": 387792896,
+        "tree_cpu_ms": 4930.0,
+        "memory_limit_bytes": 805306368,
+        "memory_enforcement": "LINUX_CGROUP_V2_KERNEL_HARD_RSS_DIAGNOSTIC",
+        "cgroup_before": {
+          "memory.current": "13537280",
+          "memory.peak": "13537280",
+          "memory.max": "805306368",
+          "memory.swap.max": "0",
+          "memory.events": "low 0\nhigh 0\nmax 0\noom 0\noom_kill 0\noom_group_kill 0\nsock_throttled 0"
+        },
+        "cgroup_after": {
+          "memory.current": "16150528",
+          "memory.peak": "388775936",
+          "memory.max": "805306368",
+          "memory.swap.max": "0",
+          "memory.events": "low 0\nhigh 0\nmax 0\noom 0\noom_kill 0\noom_group_kill 0\nsock_throttled 0"
+        },
+        "descendants_remaining": 0
+      },
+      "artifact_hashes": {
+        "caption.raw": {
+          "sha256": "e1e512e81f6a364ac9a38d7790c0df4465cc991b7a8eba5a529d1f6a93f2adff",
+          "bytes": 33217
+        },
+        "provider-transport.json": {
+          "sha256": "a031a77e346cb3f92dba6df46db88d6acd64c0227f7b606b9d64b081e4703531",
+          "bytes": 652
+        },
+        "resources.json": {
+          "sha256": "6534b3ce5c96cb11bf1d44b1ee2de01739b61a4b371524da709d41c7cd787152",
+          "bytes": 6043
+        },
+        "result.json": {
+          "sha256": "ad971ae832588a81f3c61023f7e3f996c9351a4acaec600a731f64c21beb6b09",
+          "bytes": 76082
+        },
+        "segments.json": {
+          "sha256": "ac22b96885fa1ea81b26322f9e951873cbf222a1caa8034a69ff6dfd2624cdf1",
+          "bytes": 39459
+        },
+        "transcript.txt": {
+          "sha256": "0fc6941fee56be52e11e31dcca448e6bb0a07efb695eb91eae22acb252477a98",
+          "bytes": 9877
+        }
+      },
+      "residual_paths": {
+        "/opt/bartosz-intelligence/browser-runtime/login-caption-broker-c3e666bb.cookies": false,
+        "/opt/bartosz-intelligence/browser-runtime/login-caption-broker-c3e666bb.py": false,
+        "/opt/bartosz-intelligence/browser-runtime/login-caption-broker-c3e666bb-source": false,
+        "/home/bartosz-browser-runtime/snap/chromium/common/jobs/login-caption-broker-c3e666bb/pot-private": false,
+        "/home/bartosz-browser-runtime/snap/chromium/common/jobs/login-caption-broker-c3e666bb/browser-tmp": false,
+        "/root/bartosz-ote-chromium-deployment-20261014/login-caption-broker-c3e666bb/caption.raw": false,
+        "/root/bartosz-ote-chromium-deployment-20261014/login-caption-broker-c3e666bb/segments.json": false,
+        "/root/bartosz-ote-chromium-deployment-20261014/login-caption-broker-c3e666bb/transcript.txt": false,
+        "/home/bartosz-browser-runtime/snap/chromium/common/jobs/login-caption-broker-c3e666bb/caption.raw": false,
+        "/home/bartosz-browser-runtime/snap/chromium/common/jobs/login-caption-broker-c3e666bb/segments.json": false,
+        "/home/bartosz-browser-runtime/snap/chromium/common/jobs/login-caption-broker-c3e666bb/transcript.txt": false
+      }
+    },
+    {
+      "run_name": "login-caption-broker-a8a13a82",
+      "status": "COMPLETED",
+      "video_id": "IHZwWFHWa-w",
+      "mode": "ytdlp",
+      "client": "mweb",
+      "script_sha256": "c6c48de3ba62a3f5e9daaaad85e938a33ee9dea2a013aab6ea4c174f1342fda0",
+      "persistent_session": true,
+      "session_imported": false,
+      "authentication_status": "AUTHENTICATED",
+      "session_updated": true,
+      "persistent_session_retained": true,
+      "session_directory_mode": "0o700",
+      "session_file_mode": "0o600",
+      "pending_session_cleanup_count": 0,
+      "session_secret_removed": true,
+      "pot_state_removed": true,
+      "browser_state_removed": null,
+      "parser_assets_removed": true,
+      "staged_script_removed": true,
+      "broker_duplicate_caption_artifacts_removed": true,
+      "boundary": {
+        "memory.max": "805306368",
+        "memory.swap.max": "0",
+        "cpu.max": "50000 100000"
+      },
+      "error_code": null,
+      "cleanup_error": null,
+      "receipt": "/root/bartosz-ote-chromium-deployment-20261014/login-caption-broker-a8a13a82/receipt.json",
+      "receipt_sha256": "bc3670f27a3d305766e0874860808b533948dd53a476eae509f32de95d0eaeac",
+      "result": {
+        "status": "CAPTIONS_RECEIVED",
+        "observed_utc": "2026-10-14T18:17:07.930188+00:00",
+        "architecture": "aarch64",
+        "python_version": "3.12.3",
+        "package_version": "2026.8.19",
+        "anonymous": false,
+        "watch_logged_in": true,
+        "cue_count": 306,
+        "caption_bytes": 49690,
+        "caption_format": "json3",
+        "elapsed_ms": 17879,
+        "selected": {
+          "language_code": "en",
+          "kind": "MANUAL",
+          "client": "MWEB",
+          "po_token_present": true
+        },
+        "caption_socket_timeout_seconds": 20,
+        "caption_advertised_header_count": 0
+      },
+      "http_requests": [
+        {
+          "host": "www.youtube.com",
+          "path": "/watch",
+          "http_status": 200,
+          "bytes": 2283680,
+          "sha256": "3c0c7c3569a108df066b6be8e985b9347948154e949f864048d2a160a03e6e73"
+        },
+        {
+          "host": "m.youtube.com",
+          "path": "/",
+          "http_status": 200,
+          "bytes": 904322,
+          "sha256": "15d6f5bdf78fb28a399cfafb5fcdc00aba934a010d0f3da5229f7b6805bec5ad"
+        },
+        {
+          "host": "www.youtube.com",
+          "path": "/youtubei/v1/player",
+          "http_status": 200,
+          "bytes": 396548,
+          "sha256": "2fc1b52b282c98528af2a3469c92f3e690cf51a799b9df9ca6ccff3381d5028a"
+        },
+        {
+          "host": "www.youtube.com",
+          "path": "/s/player/21090930/player_ias.vflset/en_US/base.js",
+          "http_status": 200,
+          "bytes": 2960053,
+          "sha256": "036911b028785c604d80ce6154e446899e331faa0962d7ec535cbb9c53cdb8a5"
+        },
+        {
+          "host": "www.youtube.com",
+          "path": "/api/timedtext",
+          "http_status": 200,
+          "bytes": 49690,
+          "sha256": "7dd91ad97c38e2ddd848feed20d53cc4f25e85dd1eaf2d66c565880ab19a510b"
+        }
+      ],
+      "resources": {
+        "category": "NONE",
+        "exit_code": 0,
+        "elapsed_ms": 18286,
+        "peak_tree_rss_bytes": 385486848,
+        "tree_cpu_ms": 5150.0,
+        "memory_limit_bytes": 805306368,
+        "memory_enforcement": "LINUX_CGROUP_V2_KERNEL_HARD_RSS_DIAGNOSTIC",
+        "cgroup_before": {
+          "memory.current": "13549568",
+          "memory.peak": "13549568",
+          "memory.max": "805306368",
+          "memory.swap.max": "0",
+          "memory.events": "low 0\nhigh 0\nmax 0\noom 0\noom_kill 0\noom_group_kill 0\nsock_throttled 0"
+        },
+        "cgroup_after": {
+          "memory.current": "13402112",
+          "memory.peak": "389562368",
+          "memory.max": "805306368",
+          "memory.swap.max": "0",
+          "memory.events": "low 0\nhigh 0\nmax 0\noom 0\noom_kill 0\noom_group_kill 0\nsock_throttled 0"
+        },
+        "descendants_remaining": 0
+      },
+      "artifact_hashes": {
+        "caption.raw": {
+          "sha256": "7dd91ad97c38e2ddd848feed20d53cc4f25e85dd1eaf2d66c565880ab19a510b",
+          "bytes": 49690
+        },
+        "provider-transport.json": {
+          "sha256": "ab6acf64032705d09a9646474c0de39f873e430ff13928f94b1d2a8351ef04cb",
+          "bytes": 652
+        },
+        "resources.json": {
+          "sha256": "beddc8526c1cd6955e5cbcdb1a06aad5e01d5b93eaa31dcda9fed3c0196fd809",
+          "bytes": 9131
+        },
+        "result.json": {
+          "sha256": "18e7358cbf95c1307cda06070bf2a31f6d348eb1dda9d64c3a4a3249fb03af49",
+          "bytes": 83991
+        },
+        "segments.json": {
+          "sha256": "79810fd16b7496a747dabebc4b510fa3530e8bdf6d024c6a2860c66e834b5555",
+          "bytes": 57752
+        },
+        "transcript.txt": {
+          "sha256": "dc1dded9ee110c15e023a4e2df3676bdc7ead25451698ddc345de71f4db6974a",
+          "bytes": 20166
+        }
+      },
+      "residual_paths": {
+        "/opt/bartosz-intelligence/browser-runtime/login-caption-broker-a8a13a82.cookies": false,
+        "/opt/bartosz-intelligence/browser-runtime/login-caption-broker-a8a13a82.py": false,
+        "/opt/bartosz-intelligence/browser-runtime/login-caption-broker-a8a13a82-source": false,
+        "/home/bartosz-browser-runtime/snap/chromium/common/jobs/login-caption-broker-a8a13a82/pot-private": false,
+        "/home/bartosz-browser-runtime/snap/chromium/common/jobs/login-caption-broker-a8a13a82/browser-tmp": false,
+        "/root/bartosz-ote-chromium-deployment-20261014/login-caption-broker-a8a13a82/caption.raw": false,
+        "/root/bartosz-ote-chromium-deployment-20261014/login-caption-broker-a8a13a82/segments.json": false,
+        "/root/bartosz-ote-chromium-deployment-20261014/login-caption-broker-a8a13a82/transcript.txt": false,
+        "/home/bartosz-browser-runtime/snap/chromium/common/jobs/login-caption-broker-a8a13a82/caption.raw": false,
+        "/home/bartosz-browser-runtime/snap/chromium/common/jobs/login-caption-broker-a8a13a82/segments.json": false,
+        "/home/bartosz-browser-runtime/snap/chromium/common/jobs/login-caption-broker-a8a13a82/transcript.txt": false
+      }
+    }
+  ],
+  "uid30000_processes": [],
+  "services": {
+    "bartosz-caption-broker.service": {
+      "MainPID": "62168",
+      "CPUQuotaPerSecUSec": "500ms",
+      "MemoryMax": "201326592",
+      "MemorySwapMax": "0",
+      "ActiveState": "active",
+      "SubState": "running",
+      "UnitFileState": "enabled"
+    },
+    "bartosz-executor.service": {
+      "MainPID": "63718",
+      "CPUQuotaPerSecUSec": "500ms",
+      "MemoryMax": "402653184",
+      "MemorySwapMax": "0",
+      "ActiveState": "active",
+      "SubState": "running",
+      "UnitFileState": "enabled"
+    }
+  },
+  "canonical_session_metadata": {
+    "uid": 30000,
+    "mode": "0600",
+    "directory_mode": "0o700",
+    "abandoned_new_file": false,
+    "values_read": false
+  },
+  "ephemeral_owner_auth_exists": false,
+  "temporary_driver_exists": false,
+  "ssh_exit_code": 0
+}

@@ -1,0 +1,11 @@
+{
+  "schema": "ote-source:1",
+  "diagnostic_video_id": "aircAruvnKk",
+  "diagnostic_url": "https://www.youtube.com/watch?v=aircAruvnKk",
+  "author": "3Blue1Brown",
+  "access": {
+    "confirmed": false,
+    "method": "BLOCKED_AUTHORIZATION — ID diagnostyczny wskazany, podstawa automatycznego dostępu do YouTube niepotwierdzona",
+    "content": "Nie wywodzić podstawy dostępu z historycznego sukcesu DOM lub publiczności filmu."
+  }
+}

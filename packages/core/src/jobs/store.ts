@@ -99,11 +99,15 @@ export class JobStore {
   async replay(jobId: string, now: string, correlation: string) {
     this.context.requireOwner();
     const nonce = crypto.randomUUID();
+    // After normal reauthentication the owner may resume the same transcript
+    // job. Other access refusals remain blocked and are not automatically retried.
+    const replayable =
+      "((state='FAILED' AND COALESCE(reason_code,'')<>'PROFILE_SUPERSEDED') OR (state='BLOCKED' AND task_type='FETCH_TRANSCRIPT' AND reason_code='LOCAL_YTDLP_AUTH_REQUIRED'))";
     const results = await this.db.batch([
       this.db
         .prepare(
           `INSERT INTO audit_events(event_id,owner_id,actor_id,event_type,target_id,correlation_id,created_at)
-        SELECT ?,owner_id,?,'JOB_REPLAY',job_id,?,? FROM jobs WHERE owner_id=? AND job_id=? AND state='FAILED' AND COALESCE(reason_code,'')<>'PROFILE_SUPERSEDED'`,
+        SELECT ?,owner_id,?,'JOB_REPLAY',job_id,?,? FROM jobs WHERE owner_id=? AND job_id=? AND ${replayable}`,
         )
         .bind(
           nonce,
@@ -116,7 +120,7 @@ export class JobStore {
       this.db
         .prepare(
           `UPDATE jobs SET state='PENDING',reason_code=NULL,due_at=?,updated_at=?,lease_owner=NULL,lease_until=NULL
-        WHERE owner_id=? AND job_id=? AND state='FAILED' AND COALESCE(reason_code,'')<>'PROFILE_SUPERSEDED' AND EXISTS(SELECT 1 FROM audit_events WHERE event_id=?) RETURNING job_id`,
+        WHERE owner_id=? AND job_id=? AND ${replayable} AND EXISTS(SELECT 1 FROM audit_events WHERE event_id=?) RETURNING job_id`,
         )
         .bind(now, now, this.context.ownerId, jobId, nonce),
     ]);

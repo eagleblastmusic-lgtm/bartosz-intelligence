@@ -1,5 +1,5 @@
-import { execFile } from 'node:child_process';
-import { resolve } from 'node:path';
+import { spawn } from 'node:child_process';
+import { isAbsolute, resolve } from 'node:path';
 import { createHash } from 'node:crypto';
 import type {
   TranscriptProvider,
@@ -18,6 +18,7 @@ import { transcriptStatuses } from '../../../../packages/contracts/src/transcrip
 export const ytdlpProviderVersion = 'yt-dlp@2026.08.19+yt-dlp-ejs@0.8.0';
 type ProcessInput = {
   operation: 'list' | 'fetch';
+  item_id: string;
   video_id: string;
   max_bytes: number;
   language_code?: string;
@@ -27,65 +28,147 @@ type ProcessInput = {
 export type CaptionProcessRunner = (
   input: ProcessInput,
   timeoutMs: number,
+  signal?: AbortSignal,
 ) => Promise<unknown>;
 export { runner as runYtdlpProcess };
 const digest = (value: string | Uint8Array) =>
   createHash('sha256').update(value).digest('hex');
-const runner: CaptionProcessRunner = async (input, timeoutMs) => {
-  const inherited: Record<string, string> = {};
-  for (const [key, value] of Object.entries(process.env))
-    if (
-      typeof value === 'string' &&
-      value &&
-      [
-        'PATH',
-        'SYSTEMROOT',
-        'TEMP',
-        'TMP',
-        'HOME',
-        'USERPROFILE',
-        'LOCALAPPDATA',
-        'APPDATA',
-        'COMSPEC',
-        'SYSTEMDRIVE',
-        'WINDIR',
-      ].includes(key.toUpperCase())
-    )
-      inherited[key] = value;
-  const raw = await new Promise<string>((resolveOutput, reject) => {
-    const child = execFile(
-      'python',
-      [resolve('apps/executor/python/transcript_ytdlp.py')],
-      {
-        encoding: 'utf8',
-        timeout: timeoutMs,
-        maxBuffer: 32 * 1024 * 1024,
-        windowsHide: true,
-        env: {
-          ...inherited,
-          PYTHONPATH: resolve('.tools/gate0-python'),
-          PYTHONNOUSERSITE: '1',
-          PYTHONIOENCODING: 'utf-8',
+export function captionProcessRunner(options: {
+  python: string;
+  pythonPath?: string;
+  deno?: string;
+  ffmpeg?: string;
+  script?: string;
+}): CaptionProcessRunner {
+  for (const path of [
+    options.python,
+    options.pythonPath,
+    options.deno,
+    options.ffmpeg,
+    options.script,
+  ])
+    if (path !== undefined && (!isAbsolute(path) || /[\r\n\0]/.test(path)))
+      throw new Error('LOCAL_CAPTION_CONFIGURATION_REQUIRED');
+  return async (input, timeoutMs, signal) => {
+    if (!Number.isSafeInteger(timeoutMs) || timeoutMs < 1 || signal?.aborted)
+      throw new Error('LOCAL_CAPTION_PROCESS_FAILURE');
+    const inherited: Record<string, string> = {};
+    for (const [key, value] of Object.entries(process.env))
+      if (
+        typeof value === 'string' &&
+        value &&
+        [
+          'PATH',
+          'SYSTEMROOT',
+          'TEMP',
+          'TMP',
+          'TMPDIR',
+          'DENO_DIR',
+          'HOME',
+          'USERPROFILE',
+          'LOCALAPPDATA',
+          'APPDATA',
+          'COMSPEC',
+          'SYSTEMDRIVE',
+          'WINDIR',
+        ].includes(key.toUpperCase())
+      )
+        inherited[key] = value;
+    const raw = await new Promise<string>((resolveOutput, reject) => {
+      let killTimer: ReturnType<typeof setTimeout> | undefined;
+      let failed = false,
+        size = 0;
+      const chunks: Buffer[] = [];
+      const kill = (signal: NodeJS.Signals) => {
+        try {
+          if (process.platform === 'linux' && child.pid)
+            process.kill(-child.pid, signal);
+          else child.kill(signal);
+        } catch {
+          /* Already exited. */
+        }
+      };
+      const stop = () => {
+        kill('SIGTERM');
+        killTimer ??= setTimeout(() => kill('SIGKILL'), 2000);
+      };
+      const child = spawn(
+        options.python,
+        [
+          '-B',
+          options.script ?? resolve('apps/executor/python/transcript_ytdlp.py'),
+        ],
+        {
+          windowsHide: true,
+          detached: process.platform === 'linux',
+          env: {
+            ...inherited,
+            ...(options.pythonPath ? { PYTHONPATH: options.pythonPath } : {}),
+            ...(options.deno ? { BARTOSZ_DENO: options.deno } : {}),
+            ...(options.ffmpeg ? { BARTOSZ_FFMPEG: options.ffmpeg } : {}),
+            PYTHONNOUSERSITE: '1',
+            PYTHONIOENCODING: 'utf-8',
+          },
         },
-      },
-      (error, stdout) => {
-        // Child errors can contain captured transcript/stderr. Never propagate
-        // those bodies to runtime diagnostics or logs.
-        if (error) reject(new Error('LOCAL_CAPTION_PROCESS_FAILURE'));
-        else resolveOutput(stdout);
-      },
-    );
-    child.stdin?.on('error', () =>
-      reject(new Error('LOCAL_CAPTION_PROCESS_FAILURE')),
-    );
-    child.stdin?.end(JSON.stringify(input));
-  });
-  try {
-    return JSON.parse(raw);
-  } catch {
-    throw new Error('LOCAL_CAPTION_PROCESS_FORMAT');
-  }
-};
+      );
+      const timeout = setTimeout(() => {
+        failed = true;
+        stop();
+      }, timeoutMs);
+      const cleanup = () => {
+        clearTimeout(timeout);
+        if (killTimer) clearTimeout(killTimer);
+        if (failed || signal?.aborted) kill('SIGKILL');
+        signal?.removeEventListener('abort', stop);
+      };
+      child.once('error', () => {
+        failed = true;
+        cleanup();
+        reject(new Error('LOCAL_CAPTION_PROCESS_FAILURE'));
+      });
+      child.stdout.on('data', (chunk: Buffer) => {
+        size += chunk.length;
+        if (size > 32 * 1024 * 1024) {
+          failed = true;
+          stop();
+        } else chunks.push(chunk);
+      });
+      // Consume and bound stderr without retaining or exposing its content.
+      child.stderr.on('data', (chunk: Buffer) => {
+        size += chunk.length;
+        if (size > 32 * 1024 * 1024) {
+          failed = true;
+          stop();
+        }
+      });
+      child.once('close', (code) => {
+        cleanup();
+        if (code !== 0 || failed || signal?.aborted)
+          reject(new Error('LOCAL_CAPTION_PROCESS_FAILURE'));
+        else resolveOutput(Buffer.concat(chunks).toString('utf8'));
+      });
+      signal?.addEventListener('abort', stop, { once: true });
+      if (signal?.aborted) stop();
+      child.stdin?.on('error', () => {
+        failed = true;
+        stop();
+      });
+      child.stdin?.end(JSON.stringify(input));
+    });
+    try {
+      return JSON.parse(raw);
+    } catch {
+      throw new Error('LOCAL_CAPTION_PROCESS_FORMAT');
+    }
+  };
+}
+const runner: CaptionProcessRunner = (input, timeoutMs, signal) =>
+  captionProcessRunner({
+    python: process.env.BARTOSZ_PYTHON ?? '',
+    pythonPath: process.env.BARTOSZ_PYTHONPATH,
+    deno: process.env.BARTOSZ_DENO,
+    ffmpeg: process.env.BARTOSZ_FFMPEG,
+  })(input, timeoutMs, signal);
 function object(value: unknown): Record<string, unknown> {
   if (!value || typeof value !== 'object' || Array.isArray(value))
     throw new Error('PARSE_ERROR');
@@ -169,6 +252,7 @@ export class YtdlpTranscriptProvider implements TranscriptProvider {
   constructor(
     private runProcess: CaptionProcessRunner = runner,
     private clock: () => Date = () => new Date(),
+    private processLimitMs = 60000,
   ) {}
   capabilities(runtime: 'local' | 'cloud'): TranscriptCapabilities {
     return {
@@ -189,8 +273,8 @@ export class YtdlpTranscriptProvider implements TranscriptProvider {
   }
   private async execute(
     item: SourceItemRef,
-    context: TranscriptRequestContext,
-    input: Omit<ProcessInput, 'video_id' | 'max_bytes'>,
+    context: TranscriptRequestContext & { signal?: AbortSignal },
+    input: Omit<ProcessInput, 'video_id' | 'max_bytes' | 'item_id'>,
   ) {
     if (context.runtime_id !== 'local')
       return { status: 'UNAVAILABLE', failure_code: 'LOCAL_EXECUTOR_REQUIRED' };
@@ -223,9 +307,11 @@ export class YtdlpTranscriptProvider implements TranscriptProvider {
           {
             ...input,
             video_id: item.external_id,
+            item_id: item.item_id,
             max_bytes: context.max_bytes,
           },
-          Math.min(remaining, 60000),
+          Math.min(remaining, this.processLimitMs),
+          context.signal,
         ),
       );
       if (this.clock().getTime() >= deadline)
@@ -238,7 +324,7 @@ export class YtdlpTranscriptProvider implements TranscriptProvider {
       if (
         response.status === 'OK' &&
         (response.provider_version !== '2026.8.19' ||
-          response.python_version !== '3.14.4')
+          !/^3\.(?:12|14)\.\d+$/.test(String(response.python_version)))
       )
         return {
           status: 'TEMPORARY_FAILURE',
@@ -256,7 +342,7 @@ export class YtdlpTranscriptProvider implements TranscriptProvider {
   }
   async list_tracks(
     item: SourceItemRef,
-    context: TranscriptRequestContext,
+    context: TranscriptRequestContext & { signal?: AbortSignal },
   ): Promise<TrackListResult> {
     const response = await this.execute(item, context, { operation: 'list' }),
       now = this.clock();
@@ -301,7 +387,7 @@ export class YtdlpTranscriptProvider implements TranscriptProvider {
   async fetch(
     item: SourceItemRef,
     selected: TrackRef,
-    context: TranscriptRequestContext,
+    context: TranscriptRequestContext & { signal?: AbortSignal },
   ): Promise<TranscriptFetch> {
     const empty: TranscriptResult = {
       status: 'UPSTREAM_CHANGED',
@@ -389,14 +475,18 @@ export class YtdlpTranscriptProvider implements TranscriptProvider {
           },
           raw_payload: null,
         };
-      if (digest(raw) !== response.raw_payload_hash)
+      if (!raw.length || digest(raw) !== response.raw_payload_hash)
         throw new Error('PARSE_ERROR');
       const actual = track(response.selected, item, this.clock());
       if (actual.track_id !== selected.track_id) throw new Error('PARSE_ERROR');
       const segments = response.segments.map(segment);
       if (
-        new Set(segments.map((value) => value.upstream_index)).size !==
-        segments.length
+        segments.some(
+          (value, index) =>
+            value.upstream_index !== index ||
+            value.start_ms === null ||
+            value.end_ms === null,
+        )
       )
         throw new Error('PARSE_ERROR');
       const timed = segments.every(

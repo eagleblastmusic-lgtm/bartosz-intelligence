@@ -1,0 +1,47 @@
+{
+  "schema": "source-probe-input:1",
+  "cases": [
+    {
+      "video": "aircAruvnKk",
+      "format": "recorded-en",
+      "path": "../../../tools/firefox-transcript-diagnostic-2026-10-12/evidence/aircAruvnKk.reference.json"
+    },
+    {
+      "video": "IHZwWFHWa-w",
+      "format": "recorded-en",
+      "path": "../../../tools/firefox-transcript-diagnostic-2026-10-12/evidence/IHZwWFHWa-w.reference.json"
+    },
+    {
+      "video": "LPZh9BOjkQs",
+      "format": "recorded-en",
+      "path": "../../../tools/firefox-transcript-diagnostic-2026-10-12/evidence/LPZh9BOjkQs.reference.json"
+    },
+    {
+      "video": "aircAruvnKk",
+      "format": "recorded-dom",
+      "path": "../../../tools/firefox-transcript-v0.4.2/evidence/bartosz-transcript-aircAruvnKk.json",
+      "reference": {
+        "format": "recorded-dom",
+        "path": "../../../tools/firefox-transcript-v0.4.2/evidence/fixture-export-aircAruvnKk.json"
+      }
+    },
+    {
+      "video": "aircAruvnKk",
+      "format": "panel-segments",
+      "path": "panel-segments.json",
+      "reference": { "format": "srt", "path": "same-cues.srt" }
+    },
+    {
+      "video": "aircAruvnKk",
+      "format": "supadata-native",
+      "path": "native-api.json",
+      "reference": { "format": "srt", "path": "same-cues.srt" }
+    },
+    {
+      "video": "aircAruvnKk",
+      "format": "json3",
+      "path": "same-cues.json3",
+      "reference": { "format": "srt", "path": "same-cues.srt" }
+    }
+  ]
+}

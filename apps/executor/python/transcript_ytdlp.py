@@ -5,6 +5,7 @@ import hashlib
 import importlib.metadata
 import importlib.util
 import json
+import os
 from pathlib import Path
 import re
 import sys
@@ -20,13 +21,65 @@ def decode_segments(body: bytes, extension: str):
     # JSON3 includes window/newline-only control events, sometimes without a
     # duration. They carry no utterance. Preserve all source-bearing cue bytes
     # verbatim, including their surrounding whitespace; RAW preserves controls.
+    if len(body) > qualified.MAX_RESPONSE_BYTES:
+        raise qualified.TooLargeResponse()
     qualified.normalize_text = lambda text: text if text.strip() else ""
     def cue(start, end, text):
-        if not isinstance(start,int) or not isinstance(end,int) or start<0 or end<start:
+        if type(start) is not int or type(end) is not int or start<0 or end<start:
             raise ValueError("invalid timestamp")
         return {"start_ms":start,"end_ms":end,"text":text,"speaker_label":None}
     qualified.make_cue = cue
-    parsed = qualified.parse_caption_payload(body, extension)
+    if extension == 'json3':
+        # Fail on malformed source-bearing rows instead of silently dropping them.
+        try:
+            parsed_json = json.loads(body.decode('utf-8-sig'))
+        except (UnicodeError, ValueError): return None
+        if not isinstance(parsed_json, dict) or not isinstance(parsed_json.get('events'), list): return None
+        for event in parsed_json['events']:
+            if not isinstance(event, dict): return None
+            if 'segs' in event:
+                if not isinstance(event['segs'], list): return None
+                if any(not isinstance(row, dict) or not isinstance(row.get('utf8'), str) for row in event['segs']): return None
+    if extension == 'vtt':
+        try: source = body.decode('utf-8-sig')
+        except UnicodeError: return None
+        blocks = re.split(r'\r?\n\s*\r?\n', source.strip())
+        if not blocks or not re.match(r'^WEBVTT(?:\s|$)', blocks[0]): return None
+        parsed = []
+        for block in blocks[1:]:
+            if re.match(r'^(?:NOTE(?:\s|$)|STYLE(?:\s|$)|REGION(?:\s|$))', block): continue
+            lines = block.splitlines()
+            at = 0 if '-->' in lines[0] else 1
+            if at >= len(lines) or '-->' not in lines[at]: return None
+            timing = re.fullmatch(r'([^ ]+)\s+-->\s+([^ ]+)(?:\s+.*)?', lines[at])
+            if not timing: return None
+            start, end = map(qualified.parse_vtt_time, timing.groups())
+            text = '\n'.join(lines[at+1:])
+            if start is None or end is None or end < start or not text.strip(): return None
+            parsed.append(cue(start,end,text))
+    elif extension in {'srv3', 'xml', 'ttml'}:
+        try:
+            from defusedxml import ElementTree
+            xml = ElementTree.fromstring(body)
+            parsed = []
+            for node in xml.iter():
+                if node.tag.rsplit('}',1)[-1] not in {'text','p'}: continue
+                text = ''.join(node.itertext())
+                if not text.strip(): continue
+                if 't' in node.attrib:
+                    start, duration = int(node.attrib['t']), int(node.attrib['d'])
+                    end = start + duration
+                elif 'start' in node.attrib:
+                    start = qualified.decimal_seconds_to_ms(node.attrib['start'])
+                    duration = qualified.decimal_seconds_to_ms(node.attrib['dur'])
+                    end = start + duration
+                else:
+                    start = qualified.parse_vtt_time(node.attrib['begin'])
+                    end = qualified.parse_vtt_time(node.attrib['end'])
+                parsed.append(cue(start,end,text))
+        except Exception: return None
+    else:
+        parsed = qualified.parse_caption_payload(body, extension)
     if parsed is None:
         return None
     return [{"upstream_index":index, **segment} for index,segment in enumerate(parsed)]
@@ -80,6 +133,11 @@ def execute(request):
         return result
     observations=[]
     options={"ignoreconfig":True,"quiet":True,"no_warnings":True,"noplaylist":True,"skip_download":True,"socket_timeout":10,"retries":0,"fragment_retries":0,"extractor_retries":0,"file_access_retries":0,"writesubtitles":False,"writeautomaticsubtitles":False,"logger":qualified.QuietLogger(),"cachedir":False,"extractor_args":{"youtube":{"player_client":["default"]}}}
+    if os.environ.get('BARTOSZ_DENO'):
+        options['js_runtimes'] = {'deno': {'path': os.environ['BARTOSZ_DENO']}}
+    if os.environ.get('BARTOSZ_FFMPEG'):
+        options['ffmpeg_location'] = os.environ['BARTOSZ_FFMPEG']
+    options['remote_components'] = []
     try:
         with yt_dlp.YoutubeDL(options) as ydl:
             ydl.urlopen=qualified.capture_ytdlp_urlopen(ydl.urlopen,observations)

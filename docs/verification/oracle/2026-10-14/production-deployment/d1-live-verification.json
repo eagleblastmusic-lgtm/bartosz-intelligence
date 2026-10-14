@@ -1,0 +1,63 @@
+{
+  "schema": "production-d1-accepted-source-verification:1",
+  "status": "PASS_REAL_D1_RAW_IDENTITY_AND_ALL_CUES",
+  "observed_at": "2026-10-14T18:22:19.910Z",
+  "cases": [
+    {
+      "video_id": "uEztHu4NHrs",
+      "job_id": "9bf8bac4-1d3d-4b62-80f8-0cde55d34c73",
+      "state": "SUCCEEDED",
+      "executor_id": "oracle-frankfurt-transcript-1",
+      "attempts": [
+        {
+          "executor_id": "oracle-frankfurt-transcript-1",
+          "fencing_token": 1,
+          "started_at": "2026-10-14T17:59:20.475Z",
+          "finished_at": "2026-10-14T17:59:46.288Z",
+          "error_code": null
+        }
+      ],
+      "language_code": "en",
+      "track_kind": "MANUAL",
+      "provider_version": "yt-dlp@2026.08.19+yt-dlp-ejs@0.8.0",
+      "status": "PASS_EVERY_RECEIVED_RAW_CUE_TEXT_AND_TIME",
+      "cue_count": 241,
+      "raw_bytes": 33217,
+      "raw_sha256": "e1e512e81f6a364ac9a38d7790c0df4465cc991b7a8eba5a529d1f6a93f2adff",
+      "source_bytes": 9876,
+      "source_sha256": "8b967ac776aba9ef41010c3c9703aa18b943736f772aba9e35de8e7b6b03041a",
+      "first_start_ms": 3833,
+      "last_end_ms": 790870,
+      "independent_full_film_completeness_asserted": false
+    },
+    {
+      "video_id": "IHZwWFHWa-w",
+      "job_id": "831ee595-e8d3-45eb-af47-b592841b82a1",
+      "state": "SUCCEEDED",
+      "executor_id": "oracle-frankfurt-transcript-1",
+      "attempts": [
+        {
+          "executor_id": "oracle-frankfurt-transcript-1",
+          "fencing_token": 1,
+          "started_at": "2026-10-14T18:17:06.563Z",
+          "finished_at": "2026-10-14T18:17:35.557Z",
+          "error_code": null
+        }
+      ],
+      "language_code": "en",
+      "track_kind": "MANUAL",
+      "provider_version": "yt-dlp@2026.08.19+yt-dlp-ejs@0.8.0",
+      "status": "PASS_EVERY_RECEIVED_RAW_CUE_TEXT_AND_TIME",
+      "cue_count": 306,
+      "raw_bytes": 49690,
+      "raw_sha256": "7dd91ad97c38e2ddd848feed20d53cc4f25e85dd1eaf2d66c565880ab19a510b",
+      "source_bytes": 20165,
+      "source_sha256": "90dcefde04bf5df5e01a8b6c799c0e58b471fb9408575e7d5d4cb2870a87ad94",
+      "first_start_ms": 4180,
+      "last_end_ms": 1212780,
+      "independent_full_film_completeness_asserted": false
+    }
+  ],
+  "source_requests": 0,
+  "google_session_read": false
+}

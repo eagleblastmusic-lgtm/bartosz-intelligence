@@ -1,0 +1,11 @@
+{
+  "schema": "ote-source:1",
+  "diagnostic_video_id": "aircAruvnKk",
+  "browser_executable": "/opt/bartosz-intelligence/browser-runtimes/chromium-headless-shell-153.0.8010.12/launcher.py",
+  "sandbox": true,
+  "access": {
+    "confirmed": false,
+    "method": "Automatyczny dostęp do natywnego panelu YouTube niepotwierdzony",
+    "content": "Podstawa automatycznego użycia treści aircAruvnKk niepotwierdzona"
+  }
+}

@@ -1,0 +1,21 @@
+{
+  "$schema": "../../../node_modules/wrangler/config-schema.json",
+  "name": "bartosz-oracle-local-e2e",
+  "main": "../../../apps/api/src/index.ts",
+  "compatibility_date": "2026-10-01",
+  "workers_dev": false,
+  "d1_databases": [
+    {
+      "binding": "DB",
+      "database_name": "oracle-local-e2e",
+      "database_id": "00000000-0000-0000-0000-000000000001",
+      "migrations_dir": "../../../db/migrations"
+    }
+  ],
+  "queues": {
+    "producers": [
+      { "binding": "BARTOSZ_QUEUE", "queue": "oracle-local-e2e" }
+    ]
+  },
+  "dev": { "ip": "127.0.0.1", "port": 8789 }
+}

@@ -1,0 +1,13 @@
+{
+  "schema": "source-probe-input:1",
+  "cases": [
+    {
+      "video": "aircAruvnKk",
+      "access": {
+        "confirmed": true,
+        "method": "Publiczny oEmbed GET; https://oembed.com/#section5.1",
+        "content": "Wyłącznie publiczna reprezentacja embed filmu wskazanego przez użytkownika; bez pobierania napisów"
+      }
+    }
+  ]
+}

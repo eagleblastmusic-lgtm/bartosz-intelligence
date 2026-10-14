@@ -33,7 +33,7 @@ export interface TranscriptLifecycle {
 }
 export async function executeTranscript(
   item: SourceItemRef,
-  context: TranscriptRequestContext,
+  context: TranscriptRequestContext & { signal?: AbortSignal },
   provider: TranscriptProvider,
   artifacts: Pick<ArtifactClient, 'upload'>,
   lifecycle: TranscriptLifecycle,
@@ -72,6 +72,7 @@ export async function executeTranscript(
       });
   }, heartbeatMs);
   const requireLease = async () => {
+    context.signal?.throwIfAborted();
     await pending;
     if (lost) throw new Error('STALE_TRANSCRIPT_LEASE');
     try {
@@ -94,6 +95,7 @@ export async function executeTranscript(
     }
     const fetched = await provider.fetch(item, selected.source!, context),
       result = fetched.result;
+    context.signal?.throwIfAborted();
     const partial =
       result.status === 'PARTIAL' || result.missing_ranges.length > 0;
     if (result.status !== 'OK' && result.status !== 'PARTIAL') {
@@ -102,12 +104,14 @@ export async function executeTranscript(
     }
     if (
       !fetched.raw_payload ||
+      !fetched.raw_payload.length ||
       result.upstream_track_id !== selected.source!.track_id ||
       result.language_code !== selected.source!.language_code ||
       result.is_translated !== false ||
       result.track_kind !== selected.source!.track_kind ||
       result.is_generated !== selected.source!.is_generated ||
-      !result.segments.length
+      !result.segments.length ||
+      result.segments.some((cue) => !cue.text.trim())
     )
       throw new Error('INVALID_TRANSCRIPT_AUTHORITY');
     const rawText = new TextDecoder('utf-8', {
@@ -225,6 +229,7 @@ export async function executeTranscript(
     });
     return { accepted: true, reason: null };
   } catch (error) {
+    if (context.signal?.aborted) throw error;
     if (lost) {
       await lifecycle.diagnostic('STALE_TRANSCRIPT_LEASE');
       return { accepted: false, reason: 'STALE_TRANSCRIPT_LEASE' };

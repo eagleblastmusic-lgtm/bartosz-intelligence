@@ -1,0 +1,59 @@
+{
+  "schema": "ote-browser-isolation-candidate:1",
+  "architecture": "A_CANONICAL_SNAP_PLUS_MINIMAL_C",
+  "runtime": {
+    "entrypoint": "/snap/bin/chromium",
+    "publisher": "canonical",
+    "confinement": "strict",
+    "channel": "latest/stable",
+    "candidate_revision": 3555,
+    "candidate_version": "155.0.8059.39",
+    "candidate_base": "core24"
+  },
+  "account": {
+    "name": "bartosz-browser",
+    "group": "bartosz-browser",
+    "home": "/home/bartosz-browser",
+    "shell": "/usr/sbin/nologin",
+    "supplementary_groups": [],
+    "sudo": false,
+    "mode": "0700"
+  },
+  "work": {
+    "code_root": "/opt/bartosz-intelligence/browser-trial",
+    "profile_parent": "/home/bartosz-browser/snap/chromium/common/jobs",
+    "inherit_environment": false,
+    "inherit_production_secrets": false,
+    "ipc": "BOUNDED_REQUEST_RESULT_NO_RAW_CDP_OR_COMMANDS",
+    "concurrency": 1
+  },
+  "limits": {
+    "memory_high_mib": 640,
+    "memory_max_mib": 768,
+    "memory_swap_max_bytes": 0,
+    "cpu_quota_percent": 50,
+    "tasks_max": 256,
+    "runtime_max_sec": 100,
+    "timeout_stop_sec": 10,
+    "scope_parent": "user-BROWSER_UID.slice"
+  },
+  "network": {
+    "phase": "LOCAL_HARNESS_ONLY",
+    "private_network": true,
+    "live_authorized": false,
+    "future_egress_policy": "SEPARATE_APPROVAL_AND_EFFECTIVE_KERNEL_FILTER_TEST_REQUIRED"
+  },
+  "acceptance": {
+    "requires_active_snap_pipe": true,
+    "requires_renderer_namespace_seccomp_evidence": true,
+    "requires_effective_parent_cgroup_limits": true,
+    "requires_browser_net_namespace_private": true,
+    "requires_all_dedicated_uid_processes_cleaned": true,
+    "requires_denied_production_canary_access": true,
+    "sandbox_required": true,
+    "accepted": false
+  },
+  "deployment_allowed": false,
+  "v2_installer_remains_blocked": true,
+  "BROWSER_ISOLATION_ARCHITECTURE": "A_PLUS_C_SELECTED_PENDING_OWNER_APPROVAL_AND_ACTIVE_ACCEPTANCE"
+}

@@ -1,0 +1,10 @@
+{
+  "schema": "oracle-production-worker-dryrun:1",
+  "status": "PASS",
+  "exit_code": 0,
+  "spawn_error_code": null,
+  "api_error_codes": [],
+  "secrets_uploaded": false,
+  "keep_vars": true,
+  "remote_deployment_performed": false
+}

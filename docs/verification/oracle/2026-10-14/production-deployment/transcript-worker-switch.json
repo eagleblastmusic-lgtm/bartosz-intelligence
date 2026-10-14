@@ -1,0 +1,13 @@
+{
+  "schema": "production-transcript-runtime-switch:1",
+  "status": "PASS_ORACLE_REPLACES_LEGACY_WINDOWS_TRANSCRIPT",
+  "observed_at": "2026-10-14T18:03:30.135Z",
+  "legacy_worker": "local-transcript",
+  "legacy_previous_revoked_at": null,
+  "oracle_worker": "oracle-frankfurt-transcript-1",
+  "scope": "FETCH_TRANSCRIPT",
+  "other_worker_scopes_changed": false,
+  "credentials_rotated": false,
+  "data_deleted": false,
+  "rollback": "Restore only prior revoked_at metadata for local-transcript if rolling back Oracle activation; no data rollback."
+}

@@ -1,0 +1,47 @@
+[Unit]
+Description=Bartosz Intelligence - executor transkrypcji
+Wants=network-online.target bartosz-caption-broker.service
+After=network-online.target bartosz-caption-broker.service
+StartLimitIntervalSec=600
+StartLimitBurst=5
+
+[Service]
+Type=exec
+User=bartosz-executor
+Group=bartosz-executor
+WorkingDirectory=/opt/bartosz-intelligence/current
+EnvironmentFile=/etc/bartosz-executor/executor.env
+Environment=PATH=/opt/bartosz-intelligence/runtime/node-24.21.0/bin:/usr/bin:/bin
+Environment=PYTHONNOUSERSITE=1
+ExecStart=/opt/bartosz-intelligence/runtime/node-24.21.0/bin/node --max-old-space-size=192 --import tsx tools/executor/run-oracle.ts
+Restart=on-failure
+RestartSec=30s
+RestartPreventExitStatus=78
+KillMode=mixed
+TimeoutStopSec=240s
+StandardOutput=journal
+StandardError=journal
+SyslogIdentifier=bartosz-executor
+StateDirectory=bartosz-executor
+CacheDirectory=bartosz-executor
+UMask=0077
+NoNewPrivileges=true
+ProtectSystem=strict
+ProtectHome=true
+PrivateTmp=true
+PrivateDevices=true
+ProtectKernelTunables=true
+ProtectKernelModules=true
+ProtectControlGroups=true
+RestrictSUIDSGID=true
+RestrictAddressFamilies=AF_UNIX AF_INET AF_INET6
+CapabilityBoundingSet=
+MemoryHigh=256M
+MemoryMax=384M
+MemorySwapMax=0
+CPUQuota=50%
+TasksMax=64
+LimitNOFILE=1024
+
+[Install]
+WantedBy=multi-user.target

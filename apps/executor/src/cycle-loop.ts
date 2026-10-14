@@ -39,7 +39,11 @@ export async function runExecutorLoop(input: {
             ? 'LOCAL_EXECUTOR_AUTH_DENIED'
             : 'LOCAL_EXECUTOR_CYCLE_FAILED',
           ...(error instanceof WorkerRpcError
-            ? { route: error.route, status: error.status }
+            ? {
+                route: error.route,
+                status: error.status,
+                ...(error.code ? { code: error.code } : {}),
+              }
             : {}),
         },
         true,

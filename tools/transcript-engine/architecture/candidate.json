@@ -1,0 +1,96 @@
+{
+  "schema": "ote-browser-isolation-candidate:1",
+  "architecture": "A_PLUS_MINIMAL_C",
+  "accepted": false,
+  "state": "UNINSTALLED_ACTIVE_ACCEPTANCE_REQUIRED",
+  "runtime": {
+    "type": "canonical-chromium-snap",
+    "command": "/snap/bin/chromium",
+    "snap": "chromium",
+    "channel": "latest/stable",
+    "revision": 3555,
+    "version": "155.0.8059.39",
+    "base": "core24",
+    "architecture": "arm64",
+    "confinement": "strict",
+    "publisher_id": "canonical",
+    "publisher_validation": "verified",
+    "download_bytes": 195907584,
+    "download_sha3_384": "0e947935cbea615ad1f48ec9b67996212c8297f73e0bad499909e1ff3ae643c5379e72109ddbe1554e0c066ee770e0d0",
+    "store_response_sha256": "8f3aff152c4091a0b86c11836c386cfd3e6a12bd5b82d8250b43d7be6281affb",
+    "installed_assertion_verified": false,
+    "snap_confine_repair": "FORBIDDEN_NO_SUID_OR_CAPABILITY_CHANGES"
+  },
+  "account": {
+    "user": "bartosz-browser",
+    "group": "bartosz-browser",
+    "home": "/home/bartosz-browser",
+    "shell": "/usr/sbin/nologin",
+    "supplementary_groups": [],
+    "executor_uid_excluded": 997,
+    "sudo": false,
+    "login": false,
+    "secrets": false
+  },
+  "launch": {
+    "worker": "/opt/bartosz-intelligence/browser-trial/run-local-trial.py",
+    "worker_owner": "root",
+    "job_root": "/home/bartosz-browser/snap/chromium/common/jobs",
+    "environment": {
+      "PATH": "/usr/bin:/bin",
+      "HOME": "/home/bartosz-browser",
+      "LANG": "C.UTF-8",
+      "TMPDIR": "/home/bartosz-browser/snap/chromium/common/jobs"
+    },
+    "inherit_environment": false,
+    "fd_allowlist": [0, 1, 2, 3, 4],
+    "transport": "CDP_PIPE_FD3_FD4",
+    "arbitrary_command_or_argv": false,
+    "initial_url": "about:blank",
+    "required_flags": ["--headless=new", "--remote-debugging-pipe"],
+    "forbidden_flags": ["--no-sandbox", "--disable-setuid-sandbox", "--disable-namespace-sandbox", "--disable-seccomp-filter-sandbox", "--single-process", "--renderer-cmd-prefix"],
+    "ipc": "BOUNDED_TRIAL_INPUT_OUTPUT_NO_PRODUCTION_SECRETS"
+  },
+  "resources": {
+    "memory_high_mib": 640,
+    "memory_max_mib": 768,
+    "memory_swap_max_bytes": 0,
+    "cpu_quota_percent": 50,
+    "tasks_max": 256,
+    "timeout_seconds": 100,
+    "stop_timeout_seconds": 10,
+    "concurrency": 1,
+    "common_parent": "user-BROWSER_UID.slice",
+    "cgroup_movement_proof": "NOT_RUN",
+    "cleanup_scope": "ENTIRE_DEDICATED_UID_SLICE_NOT_OUTER_SERVICE_ONLY"
+  },
+  "network": {
+    "mode": "LOCAL_HARNESS_ONLY",
+    "private_network": true,
+    "harness_location": "SAME_TRIAL_UNIT_NETWORK_NAMESPACE",
+    "host_namespace_rejoin": "MUST_BE_REJECTED_BY_ACTIVE_ACCEPTANCE",
+    "proof": "NOT_RUN",
+    "live_source_access": "BLOCKED_AUTHORIZATION"
+  },
+  "acceptance": {
+    "chromium_started": "NOT_RUN",
+    "cdp_pipe": "NOT_RUN",
+    "snap_apparmor_enforce": "NOT_RUN",
+    "renderer_namespaces_seccomp": "NOT_RUN",
+    "browser_no_host_capabilities": "NOT_RUN",
+    "filesystem_and_secret_boundary": "NOT_RUN",
+    "effective_cgroup_limits": "NOT_RUN",
+    "cancellation_and_cleanup": "NOT_RUN",
+    "native_sandbox": "NOT_PROVEN_BY_STATIC_CONFIGURATION"
+  },
+  "host_changes": {
+    "performed": false,
+    "sysctl": false,
+    "custom_apparmor": false,
+    "v2_installer_unblocked": false,
+    "snapd_install": false,
+    "production_executor": false,
+    "d1": false,
+    "youtube": false
+  }
+}

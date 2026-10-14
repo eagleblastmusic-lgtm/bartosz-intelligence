@@ -1,5 +1,10 @@
 export function localWorkerConfiguration(args) {
   const modes = {
+    '--oracle': [
+      'oracle-frankfurt-transcript-1',
+      'ORACLE_TRANSCRIPT_WORKER_CREDENTIAL',
+      'FETCH_TRANSCRIPT',
+    ],
     '--analysis': ['local-analysis', 'LOCAL_AI_WORKER_CREDENTIAL', 'ANALYZE'],
     '--source-corrections': [
       'local-source-corrections',

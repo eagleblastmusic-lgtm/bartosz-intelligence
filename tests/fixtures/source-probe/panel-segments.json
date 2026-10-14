@@ -1,0 +1,15 @@
+{
+  "fixture_scope": "SYNTHETIC_PROTOCOL_CONTROL_NOT_LIVE_EVIDENCE",
+  "segments": [
+    {
+      "startMs": "4220",
+      "endMs": "5400",
+      "snippet": { "runs": [{ "text": "fixture alpha" }] }
+    },
+    {
+      "startMs": "6060",
+      "endMs": "10713",
+      "snippet": { "simpleText": "fixture alpha" }
+    }
+  ]
+}

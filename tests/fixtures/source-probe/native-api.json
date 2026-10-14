@@ -1,0 +1,9 @@
+{
+  "fixture_scope": "SYNTHETIC_CONTRACT_CONTROL_NOT_LIVE_EVIDENCE",
+  "lang": "en",
+  "availableLangs": ["en", "pl"],
+  "content": [
+    { "lang": "en", "offset": 4220, "duration": 1180, "text": "fixture alpha" },
+    { "lang": "en", "offset": 6060, "duration": 4653, "text": "fixture alpha" }
+  ]
+}

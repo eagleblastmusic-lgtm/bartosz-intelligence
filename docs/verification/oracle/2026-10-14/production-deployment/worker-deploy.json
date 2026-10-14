@@ -1,0 +1,15 @@
+{
+  "schema": "oracle-production-worker-deployment:1",
+  "status": "PASS_WORKER_DEPLOYED",
+  "deployed_utc": "2026-10-14T17:55:11.958Z",
+  "origin": "https://bartosz-intelligence.eagleblastmusic.workers.dev",
+  "worker": "bartosz-intelligence",
+  "version_id": "39edd639-eba3-40bb-93c7-022f1aec31d6",
+  "rollback_version": "224ba7ff-a4ab-47ff-8cc1-70aadb2d91b1",
+  "exit_code": 0,
+  "api_error_codes": [],
+  "keep_vars": true,
+  "secrets_uploaded": false,
+  "paid_features_enabled": false,
+  "new_cloud_resources_created": false
+}

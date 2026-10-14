@@ -1,0 +1,13 @@
+{
+  "schema": "primary-video-reference:1",
+  "source_url": "https://www.3blue1brown.com/lessons/gradient-descent/",
+  "http_status": 200,
+  "title": "Gradient descent, how neural networks learn",
+  "publisher": "3Blue1Brown",
+  "observed_utc": "2026-10-14T18:14:10.5004746Z",
+  "youtube_ids": [
+    "IHZwWFHWa-w"
+  ],
+  "correct_id_confirmed": true,
+  "page_sha256": "2dc7fa04c710914a922e36f5d0d5c1d1cf3b021399eec11bced2e0d8f296e6d4"
+}

@@ -1,0 +1,58 @@
+{
+  "schema": "oracle-production-final-service-state:1",
+  "status": "PASS_ENABLED_ACTIVE_24H_READY",
+  "current_target": "/opt/bartosz-intelligence/releases/7a6339c1dcafdd1d825c35b8daa609795ff1cb85ea8ca6d614844800f1a41505",
+  "manifest_sha256": "d2f690e1887d4e27ee81c6cbceb65a1eff3be22f09a8f179b87a5da41737432a",
+  "services": {
+    "bartosz-caption-broker.service": {
+      "MainPID": "62168",
+      "CPUQuotaPerSecUSec": "500ms",
+      "MemoryHigh": "134217728",
+      "MemoryMax": "201326592",
+      "MemorySwapMax": "0",
+      "User": "root",
+      "Group": "bartosz-executor",
+      "PrivateTmp": "yes",
+      "ProtectHome": "no",
+      "ProtectSystem": "strict",
+      "NoNewPrivileges": "yes",
+      "RestrictAddressFamilies": "AF_UNIX",
+      "ActiveState": "active",
+      "SubState": "running",
+      "UnitFileState": "enabled",
+      "actual_uid": 0,
+      "actual_cwd": "/opt/bartosz-intelligence/releases/e089c6874d6bb420b3123930f0d68418543672551c17053d12b0df9af725300b"
+    },
+    "bartosz-executor.service": {
+      "MainPID": "63718",
+      "CPUQuotaPerSecUSec": "500ms",
+      "MemoryHigh": "268435456",
+      "MemoryMax": "402653184",
+      "MemorySwapMax": "0",
+      "User": "bartosz-executor",
+      "Group": "bartosz-executor",
+      "PrivateTmp": "yes",
+      "ProtectHome": "yes",
+      "ProtectSystem": "strict",
+      "NoNewPrivileges": "yes",
+      "RestrictAddressFamilies": "AF_INET AF_INET6 AF_UNIX",
+      "ActiveState": "active",
+      "SubState": "running",
+      "UnitFileState": "enabled",
+      "actual_uid": 997,
+      "actual_cwd": "/opt/bartosz-intelligence/releases/7a6339c1dcafdd1d825c35b8daa609795ff1cb85ea8ca6d614844800f1a41505"
+    }
+  },
+  "source_slice": {
+    "CPUQuotaPerSecUSec": "500ms",
+    "MemoryMax": "805306368",
+    "MemorySwapMax": "0"
+  },
+  "source_uid_processes": [],
+  "source_concurrency": 1,
+  "ephemeral_owner_auth_remaining": false,
+  "canary_drivers_remaining": false,
+  "no_source_requests": true,
+  "source_cookie_values_read": false,
+  "ssh_exit_code": 0
+}

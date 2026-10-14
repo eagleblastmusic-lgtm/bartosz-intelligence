@@ -1,0 +1,14 @@
+{
+  "schema": "oracle-production-d1-migration:1",
+  "status": "PASS_PRODUCTION_D1_040_APPLIED",
+  "observed_utc": "2026-10-14T17:54:47.050Z",
+  "applied_count": 40,
+  "all_names_hashes_match_repo": true,
+  "applied_new": [
+    "040_daily_tasks_workflow.sql"
+  ],
+  "quick_check": "PASS",
+  "foreign_key_check": "PASS",
+  "existing_backup_restore_rehearsal": "PASS",
+  "destructive_changes": false
+}

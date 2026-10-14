@@ -19,10 +19,20 @@ backlog recovery.
 
 ```powershell
 $env:PATH="$PWD\.tools\node-v24.21.0-win-x64;$env:PATH"
+$env:BARTOSZ_PYTHON='C:\Python314\python.exe'
+$env:BARTOSZ_PYTHONPATH="$PWD\.tools\gate0-python"
 & .\.tools\node-v24.21.0-win-x64\node.exe --import tsx --env-file=.env tools/executor/run-local.ts
 ```
 
 The default mode runs the qualified local yt-dlp transcript path using `LOCAL_WORKER_CREDENTIAL`. One process performs one cycle at a time. Cloud intake remains available while this process is offline; durable jobs, retries and fenced leases stay in D1. Restarting the process resumes normal admission/pull rather than recreating source requests.
+
+Od 13.10.2026 provider wymaga jawnego `BARTOSZ_PYTHON` (ścieżka absolutna).
+`BARTOSZ_PYTHONPATH` wskazuje zastany katalog pakietów na Windows; dla venv pozostaje
+nieustawione. `BARTOSZ_DENO` i `BARTOSZ_FFMPEG` przyjmują ścieżki absolutne.
+Autostart Windows odczytuje `BARTOSZ_PYTHON` z prywatnego `.env`; przy jego braku
+sprawdza zastaną ścieżkę `C:/Python314/python.exe` i przekazuje ją jawnie, bez szukania w PATH.
+Instrukcja Oracle i odrębna rejestracja `--oracle` znajdują się w
+[pakiecie Oracle](../../tools/deployment/oracle/README_PL.md).
 
 `--source-corrections`, `--search`, `--analysis`, `--translation` and `--history` are separate modes with their scoped credentials. Provider modes additionally require the current qualified profile and conservative quota admission. A configured key alone does not qualify a pipeline. Paid fallback remains disabled. Do not start background analysis as a substitute for an explicitly bounded quality test.
 

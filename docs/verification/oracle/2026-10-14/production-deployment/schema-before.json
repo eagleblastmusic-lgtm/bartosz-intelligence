@@ -1,0 +1,203 @@
+{
+  "schema": "oracle-e2e-production-readonly-schema:1",
+  "status": "PASS_READ_ONLY_SCHEMA_INSPECTION",
+  "observed_utc": "2026-10-14T16:34:46.360Z",
+  "official_wrangler_refresh_used": true,
+  "production_mutations": 0,
+  "production_applied_migration_count": 39,
+  "repo_migration_count": 40,
+  "last_applied": {
+    "name": "039_transcript_drive_archive.sql",
+    "sha256": "31a74aa0cf39c8f2a0b248daf38206834ed6cd9774b3faa4646a8a7c2ebad3e7"
+  },
+  "all_applied_names_and_hashes_match_repo": true,
+  "unapplied_repo_migrations": [
+    {
+      "name": "040_daily_tasks_workflow.sql",
+      "sha256": "40604831a70238bd90923af505efabaa502a91816a702e9ae77eb75ba72bce80"
+    }
+  ],
+  "target_tables_and_indexes": [
+    {
+      "name": "artifact_chunk_retention",
+      "type": "index"
+    },
+    {
+      "name": "artifact_item",
+      "type": "index"
+    },
+    {
+      "name": "artifact_retention_children",
+      "type": "index"
+    },
+    {
+      "name": "automatic_analysis_source",
+      "type": "index"
+    },
+    {
+      "name": "automatic_source_scan",
+      "type": "index"
+    },
+    {
+      "name": "capacity_accepted_item",
+      "type": "index"
+    },
+    {
+      "name": "items_discovery",
+      "type": "index"
+    },
+    {
+      "name": "items_publication",
+      "type": "index"
+    },
+    {
+      "name": "items_source",
+      "type": "index"
+    },
+    {
+      "name": "items_source_publication",
+      "type": "index"
+    },
+    {
+      "name": "jobs_due",
+      "type": "index"
+    },
+    {
+      "name": "jobs_expired",
+      "type": "index"
+    },
+    {
+      "name": "jobs_item_recent",
+      "type": "index"
+    },
+    {
+      "name": "jobs_origin",
+      "type": "index"
+    },
+    {
+      "name": "metadata_refresh_active",
+      "type": "index"
+    },
+    {
+      "name": "run_item_cleanup",
+      "type": "index"
+    },
+    {
+      "name": "search_item_cursor",
+      "type": "index"
+    },
+    {
+      "name": "search_summary_cursor",
+      "type": "index"
+    },
+    {
+      "name": "source_correction_request_nonce",
+      "type": "index"
+    },
+    {
+      "name": "sqlite_autoindex_analysis_runs_1",
+      "type": "index"
+    },
+    {
+      "name": "sqlite_autoindex_analysis_runs_2",
+      "type": "index"
+    },
+    {
+      "name": "sqlite_autoindex_analysis_runs_3",
+      "type": "index"
+    },
+    {
+      "name": "sqlite_autoindex_artifact_chunks_1",
+      "type": "index"
+    },
+    {
+      "name": "sqlite_autoindex_artifacts_1",
+      "type": "index"
+    },
+    {
+      "name": "sqlite_autoindex_artifacts_2",
+      "type": "index"
+    },
+    {
+      "name": "sqlite_autoindex_artifacts_3",
+      "type": "index"
+    },
+    {
+      "name": "sqlite_autoindex_items_1",
+      "type": "index"
+    },
+    {
+      "name": "sqlite_autoindex_items_2",
+      "type": "index"
+    },
+    {
+      "name": "sqlite_autoindex_items_3",
+      "type": "index"
+    },
+    {
+      "name": "sqlite_autoindex_jobs_1",
+      "type": "index"
+    },
+    {
+      "name": "sqlite_autoindex_jobs_2",
+      "type": "index"
+    },
+    {
+      "name": "sqlite_autoindex_jobs_3",
+      "type": "index"
+    },
+    {
+      "name": "transcript_archive_sources",
+      "type": "index"
+    },
+    {
+      "name": "analysis_runs",
+      "type": "table"
+    },
+    {
+      "name": "artifact_chunks",
+      "type": "table"
+    },
+    {
+      "name": "artifacts",
+      "type": "table"
+    },
+    {
+      "name": "item_revisions",
+      "type": "table"
+    },
+    {
+      "name": "items",
+      "type": "table"
+    },
+    {
+      "name": "job_attempts",
+      "type": "table"
+    },
+    {
+      "name": "jobs",
+      "type": "table"
+    },
+    {
+      "name": "owner_sessions",
+      "type": "table"
+    },
+    {
+      "name": "owner_users",
+      "type": "table"
+    },
+    {
+      "name": "sources",
+      "type": "table"
+    },
+    {
+      "name": "transcript_representations",
+      "type": "table"
+    },
+    {
+      "name": "worker_identities",
+      "type": "table"
+    }
+  ],
+  "changed_API_requires_new_migration": false
+}

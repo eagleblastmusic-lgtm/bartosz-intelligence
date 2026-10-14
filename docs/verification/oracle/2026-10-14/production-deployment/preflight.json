@@ -1,0 +1,12 @@
+{
+  "schema": "oracle-production-preflight:1",
+  "status": "PASS_EXACT_PRE_UPGRADE_STATE",
+  "observed_utc": "2026-10-14T17:51:41.086Z",
+  "applied_count": 39,
+  "target_count": 40,
+  "only_pending": "040_daily_tasks_workflow.sql",
+  "only_pending_sha256": "40604831a70238bd90923af505efabaa502a91816a702e9ae77eb75ba72bce80",
+  "rollback_version": "224ba7ff-a4ab-47ff-8cc1-70aadb2d91b1",
+  "previous_deployment": "bd3cbb53-e8e0-438f-9d32-8bc45b3f8d23",
+  "production_mutations": 0
+}

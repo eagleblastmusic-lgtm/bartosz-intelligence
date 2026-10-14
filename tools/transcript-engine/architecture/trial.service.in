@@ -1,0 +1,32 @@
+# UNINSTALLED CANDIDATE. Owner approval and real acceptance are required.
+# Snap owns its privilege setup: do not add NNP/seccomp/mount hardening here.
+[Unit]
+Description=Bartosz OTE local Chromium Snap isolation trial
+
+[Service]
+Type=exec
+User=bartosz-browser
+Group=bartosz-browser
+SupplementaryGroups=
+Slice=user-@BROWSER_UID@.slice
+WorkingDirectory=/home/bartosz-browser
+UMask=0077
+ExecStart=/usr/bin/env -i PATH=/usr/bin:/bin HOME=/home/bartosz-browser LANG=C.UTF-8 TMPDIR=/home/bartosz-browser/snap/chromium/common/jobs /usr/bin/python3 -I /opt/bartosz-intelligence/browser-trial/run-local-trial.py
+PrivateNetwork=yes
+MemoryAccounting=yes
+MemoryHigh=640M
+MemoryMax=768M
+MemorySwapMax=0
+CPUAccounting=yes
+CPUQuota=50%
+TasksAccounting=yes
+TasksMax=256
+RuntimeMaxSec=100s
+TimeoutStopSec=10s
+KillMode=control-group
+Restart=no
+StandardInput=null
+StandardOutput=journal
+StandardError=journal
+# No [Install], EnvironmentFile or production entry point.
+# If Snap moved into a sibling scope, cancellation must stop the whole UID slice.

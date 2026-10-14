@@ -1,0 +1,14 @@
+# UNINSTALLED CANDIDATE. Limits cover the worker and Snap user-manager scopes.
+[Unit]
+Description=Dedicated Bartosz browser UID resource boundary
+
+[Slice]
+MemoryAccounting=yes
+MemoryHigh=640M
+MemoryMax=768M
+MemorySwapMax=0
+CPUAccounting=yes
+CPUQuota=50%
+TasksAccounting=yes
+TasksMax=256
+# Actual /proc/PID/cgroup membership must be proved after authorized deployment.

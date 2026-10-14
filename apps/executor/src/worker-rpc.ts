@@ -13,6 +13,8 @@ export class WorkerRpcError extends Error {
       | 'OPTIONAL_PROFILE_QUALITY_SCOPE'
       | 'D1_DAILY_READ_LIMIT'
       | 'D1_DAILY_WRITE_LIMIT'
+      | 'TRANSIENT'
+      | 'BACKUP_BUSY'
       | null = null,
   ) {
     super(message);
@@ -114,7 +116,9 @@ export class WorkerRpc {
                 value.code === 'OPTIONAL_PROFILE_ACCOUNT_PURPOSE_REGION' ||
                 value.code === 'OPTIONAL_PROFILE_QUALITY_SCOPE' ||
                 value.code === 'D1_DAILY_READ_LIMIT' ||
-                value.code === 'D1_DAILY_WRITE_LIMIT')
+                value.code === 'D1_DAILY_WRITE_LIMIT' ||
+                value.code === 'TRANSIENT' ||
+                value.code === 'BACKUP_BUSY')
             )
               code = value.code;
           }

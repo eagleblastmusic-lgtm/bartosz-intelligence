@@ -59,6 +59,15 @@ export function serviceEnvironment(
   }
   output.APP_ORIGIN = input.APP_ORIGIN;
   output[service.credential] = input[service.credential]!;
+  if (service.name === 'transcript')
+    for (const key of [
+      'BARTOSZ_PYTHON',
+      'BARTOSZ_PYTHONPATH',
+      'BARTOSZ_DENO',
+      'BARTOSZ_FFMPEG',
+      'BARTOSZ_CAPTION_SOCKET',
+    ])
+      if (input[key]) output[key] = input[key]!;
   return output;
 }
 

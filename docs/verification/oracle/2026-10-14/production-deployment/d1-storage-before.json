@@ -1,0 +1,11 @@
+{
+  "schema": "oracle-e2e-existing-d1-storage:1",
+  "status": "PASS_READ_ONLY_D1_STORAGE_METADATA",
+  "observed_utc": "2026-10-14T16:40:20.890Z",
+  "database_name": "bartosz-intelligence-core",
+  "file_size_bytes": 27836416,
+  "num_tables": 76,
+  "version": "production",
+  "production_mutations": 0,
+  "account_billing_plan_asserted": false
+}

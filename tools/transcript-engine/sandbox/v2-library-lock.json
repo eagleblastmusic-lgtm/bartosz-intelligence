@@ -1,0 +1,6637 @@
+{
+  "schema": "ote-executable-mappings:2",
+  "files": {
+    "/opt/bartosz-intelligence/browser-runtimes/chromium-headless-shell-153.0.8010.12/chrome-headless-shell": {
+      "kind": "runtime",
+      "sha256": "f5d89353cc9ef8dc1541268bbee1f05ee40a31ce3d9799b3a274e5147f6a8cdb",
+      "bytes": 189402512,
+      "uid": 0,
+      "gid": 988,
+      "mode": 488,
+      "nlink": 1,
+      "type": "file",
+      "acl": false,
+      "file_capabilities": false,
+      "target": null,
+      "elf": {
+        "needed": [
+          "libdl.so.2",
+          "libpthread.so.0",
+          "libglib-2.0.so.0",
+          "libgobject-2.0.so.0",
+          "libnspr4.so",
+          "libnss3.so",
+          "libnssutil3.so",
+          "libgio-2.0.so.0",
+          "libatk-1.0.so.0",
+          "libdbus-1.so.3",
+          "libm.so.6",
+          "libX11.so.6",
+          "libXcomposite.so.1",
+          "libXdamage.so.1",
+          "libXext.so.6",
+          "libXfixes.so.3",
+          "libXrandr.so.2",
+          "libgbm.so.1",
+          "libexpat.so.1",
+          "libxcb.so.1",
+          "libxkbcommon.so.0",
+          "libudev.so.1",
+          "libasound.so.2",
+          "libatspi.so.0",
+          "libgcc_s.so.1",
+          "libc.so.6",
+          "ld-linux-aarch64.so.1"
+        ],
+        "interpreter": "/lib/ld-linux-aarch64.so.1",
+        "soname": null,
+        "rpath_runpath": []
+      },
+      "source": "pinned archive; not installed"
+    },
+    "/opt/bartosz-intelligence/browser-runtimes/chromium-headless-shell-153.0.8010.12/libEGL.so": {
+      "kind": "runtime",
+      "sha256": "22bee8c947329dbd831e5ca6e5a95a8262f03d7f1a06c0081cf953e11f4d7919",
+      "bytes": 237224,
+      "uid": 0,
+      "gid": 988,
+      "mode": 416,
+      "nlink": 1,
+      "type": "file",
+      "acl": false,
+      "file_capabilities": false,
+      "target": null,
+      "elf": {
+        "needed": [
+          "libpthread.so.0",
+          "libgcc_s.so.1",
+          "libc.so.6",
+          "ld-linux-aarch64.so.1"
+        ],
+        "interpreter": null,
+        "soname": "libEGL.so",
+        "rpath_runpath": []
+      },
+      "source": "pinned archive; not installed"
+    },
+    "/opt/bartosz-intelligence/browser-runtimes/chromium-headless-shell-153.0.8010.12/libGLESv2.so": {
+      "kind": "runtime",
+      "sha256": "fb473532af125975e10e8da81cbf0e51c47e0b4e43d08c649ca5c26c0129d14c",
+      "bytes": 237232,
+      "uid": 0,
+      "gid": 988,
+      "mode": 416,
+      "nlink": 1,
+      "type": "file",
+      "acl": false,
+      "file_capabilities": false,
+      "target": null,
+      "elf": {
+        "needed": [
+          "libpthread.so.0",
+          "libgcc_s.so.1",
+          "libc.so.6",
+          "ld-linux-aarch64.so.1"
+        ],
+        "interpreter": null,
+        "soname": "libGLESv2.so",
+        "rpath_runpath": []
+      },
+      "source": "pinned archive; not installed"
+    },
+    "/opt/bartosz-intelligence/browser-runtimes/chromium-headless-shell-153.0.8010.12/libvk_swiftshader.so": {
+      "kind": "runtime",
+      "sha256": "dcc2e3935ab0cfb05c1a4a26222629ca69b5f8c40744c8e14c13a0db6f5c0906",
+      "bytes": 16936776,
+      "uid": 0,
+      "gid": 988,
+      "mode": 416,
+      "nlink": 1,
+      "type": "file",
+      "acl": false,
+      "file_capabilities": false,
+      "target": null,
+      "elf": {
+        "needed": [
+          "libdl.so.2",
+          "libpthread.so.0",
+          "libm.so.6",
+          "libgcc_s.so.1",
+          "libc.so.6",
+          "ld-linux-aarch64.so.1"
+        ],
+        "interpreter": null,
+        "soname": "libvk_swiftshader.so",
+        "rpath_runpath": []
+      },
+      "source": "pinned archive; not installed"
+    },
+    "/opt/bartosz-intelligence/browser-runtimes/chromium-headless-shell-153.0.8010.12/libvulkan.so.1": {
+      "kind": "runtime",
+      "sha256": "3caabca3715b03a4930ff045e5239238db8b780bb2f26e7f4504051a3bf73b96",
+      "bytes": 703248,
+      "uid": 0,
+      "gid": 988,
+      "mode": 416,
+      "nlink": 1,
+      "type": "file",
+      "acl": false,
+      "file_capabilities": false,
+      "target": null,
+      "elf": {
+        "needed": [
+          "libdl.so.2",
+          "libpthread.so.0",
+          "libgcc_s.so.1",
+          "libc.so.6",
+          "ld-linux-aarch64.so.1"
+        ],
+        "interpreter": null,
+        "soname": "libvulkan.so.1",
+        "rpath_runpath": []
+      },
+      "source": "pinned archive; not installed"
+    },
+    "/usr/lib/aarch64-linux-gnu/ld-linux-aarch64.so.1": {
+      "uid": 0,
+      "gid": 0,
+      "mode": 493,
+      "nlink": 1,
+      "type": "file",
+      "acl": false,
+      "file_capabilities": false,
+      "target": null,
+      "kind": "system",
+      "bytes": 203968,
+      "sha256": "390027e5f45f236bd1838bc54bf464c5ff01d260ab9f8b415ea8276641bce505",
+      "elf": {
+        "needed": [],
+        "interpreter": null,
+        "soname": "ld-linux-aarch64.so.1",
+        "rpath_runpath": []
+      }
+    },
+    "/usr/lib/aarch64-linux-gnu/libX11.so.6.4.0": {
+      "uid": 0,
+      "gid": 0,
+      "mode": 420,
+      "nlink": 1,
+      "type": "file",
+      "acl": false,
+      "file_capabilities": false,
+      "target": null,
+      "kind": "system",
+      "bytes": 1390984,
+      "sha256": "f26491f53363c4597d4e3928d780d2f16fd174c60e9fccb24f51b6b2e72acbe5",
+      "elf": {
+        "needed": [
+          "libxcb.so.1",
+          "libc.so.6",
+          "ld-linux-aarch64.so.1"
+        ],
+        "interpreter": null,
+        "soname": "libX11.so.6",
+        "rpath_runpath": []
+      }
+    },
+    "/usr/lib/aarch64-linux-gnu/libXcomposite.so.1.0.0": {
+      "uid": 0,
+      "gid": 0,
+      "mode": 420,
+      "nlink": 1,
+      "type": "file",
+      "acl": false,
+      "file_capabilities": false,
+      "target": null,
+      "kind": "system",
+      "bytes": 67504,
+      "sha256": "c39c385d0c9892ade2374ee8b06b432a4ca7cf21bb5e6a9febb7d9699abb2395",
+      "elf": {
+        "needed": [
+          "libX11.so.6",
+          "libc.so.6",
+          "ld-linux-aarch64.so.1"
+        ],
+        "interpreter": null,
+        "soname": "libXcomposite.so.1",
+        "rpath_runpath": []
+      }
+    },
+    "/usr/lib/aarch64-linux-gnu/libXdamage.so.1.1.0": {
+      "uid": 0,
+      "gid": 0,
+      "mode": 420,
+      "nlink": 1,
+      "type": "file",
+      "acl": false,
+      "file_capabilities": false,
+      "target": null,
+      "kind": "system",
+      "bytes": 67528,
+      "sha256": "c28f8f0d2a0d3667635079f5e37d25b1489916b3f52941ae3d6eb4fd42bc72f1",
+      "elf": {
+        "needed": [
+          "libX11.so.6",
+          "libc.so.6",
+          "ld-linux-aarch64.so.1"
+        ],
+        "interpreter": null,
+        "soname": "libXdamage.so.1",
+        "rpath_runpath": []
+      }
+    },
+    "/usr/lib/aarch64-linux-gnu/libXext.so.6.4.0": {
+      "uid": 0,
+      "gid": 0,
+      "mode": 420,
+      "nlink": 1,
+      "type": "file",
+      "acl": false,
+      "file_capabilities": false,
+      "target": null,
+      "kind": "system",
+      "bytes": 134600,
+      "sha256": "9201e1e51d6dccd7934d4e74883e9c5fa8628c332ae79fbe163e40d73825bb6e",
+      "elf": {
+        "needed": [
+          "libX11.so.6",
+          "libc.so.6",
+          "ld-linux-aarch64.so.1"
+        ],
+        "interpreter": null,
+        "soname": "libXext.so.6",
+        "rpath_runpath": []
+      }
+    },
+    "/usr/lib/aarch64-linux-gnu/libXfixes.so.3.1.0": {
+      "uid": 0,
+      "gid": 0,
+      "mode": 420,
+      "nlink": 1,
+      "type": "file",
+      "acl": false,
+      "file_capabilities": false,
+      "target": null,
+      "kind": "system",
+      "bytes": 67624,
+      "sha256": "9648a5d60429081376126a707a342ebf83c0df535aa99eb56e77327a071dbf0d",
+      "elf": {
+        "needed": [
+          "libX11.so.6",
+          "libc.so.6",
+          "ld-linux-aarch64.so.1"
+        ],
+        "interpreter": null,
+        "soname": "libXfixes.so.3",
+        "rpath_runpath": []
+      }
+    },
+    "/usr/lib/aarch64-linux-gnu/libXrandr.so.2.2.0": {
+      "uid": 0,
+      "gid": 0,
+      "mode": 420,
+      "nlink": 1,
+      "type": "file",
+      "acl": false,
+      "file_capabilities": false,
+      "target": null,
+      "kind": "system",
+      "bytes": 67752,
+      "sha256": "15d767d672acc63335db50327129668d858261f88773d6f4d630a2b3a55f8a4a",
+      "elf": {
+        "needed": [
+          "libXext.so.6",
+          "libXrender.so.1",
+          "libX11.so.6",
+          "libc.so.6",
+          "ld-linux-aarch64.so.1"
+        ],
+        "interpreter": null,
+        "soname": "libXrandr.so.2",
+        "rpath_runpath": []
+      }
+    },
+    "/usr/lib/aarch64-linux-gnu/libasound.so.2.0.0": {
+      "uid": 0,
+      "gid": 0,
+      "mode": 420,
+      "nlink": 1,
+      "type": "file",
+      "acl": false,
+      "file_capabilities": false,
+      "target": null,
+      "kind": "system",
+      "bytes": 1182176,
+      "sha256": "ffcf03bddf79f3a3d9b9b93b3548cec3a8bd6f6f495dcf0e3bff2dd7e6e34d2f",
+      "elf": {
+        "needed": [
+          "libm.so.6",
+          "libc.so.6",
+          "ld-linux-aarch64.so.1"
+        ],
+        "interpreter": null,
+        "soname": "libasound.so.2",
+        "rpath_runpath": []
+      }
+    },
+    "/usr/lib/aarch64-linux-gnu/libatk-1.0.so.0.25209.1": {
+      "uid": 0,
+      "gid": 0,
+      "mode": 420,
+      "nlink": 1,
+      "type": "file",
+      "acl": false,
+      "file_capabilities": false,
+      "target": null,
+      "kind": "system",
+      "bytes": 198584,
+      "sha256": "d33bd498c2051470bc563a911471438868d3a5c4b0bbb65e9645b3a1647e71a3",
+      "elf": {
+        "needed": [
+          "libglib-2.0.so.0",
+          "libgobject-2.0.so.0",
+          "libc.so.6",
+          "ld-linux-aarch64.so.1"
+        ],
+        "interpreter": null,
+        "soname": "libatk-1.0.so.0",
+        "rpath_runpath": []
+      }
+    },
+    "/usr/lib/aarch64-linux-gnu/libatspi.so.0.0.1": {
+      "uid": 0,
+      "gid": 0,
+      "mode": 420,
+      "nlink": 1,
+      "type": "file",
+      "acl": false,
+      "file_capabilities": false,
+      "target": null,
+      "kind": "system",
+      "bytes": 264344,
+      "sha256": "132198bf622a466ce55bd091145e5175a6542a803fd7635e5c7784bd084d54df",
+      "elf": {
+        "needed": [
+          "libdbus-1.so.3",
+          "libgobject-2.0.so.0",
+          "libglib-2.0.so.0",
+          "libX11.so.6",
+          "libXi.so.6",
+          "libc.so.6",
+          "ld-linux-aarch64.so.1"
+        ],
+        "interpreter": null,
+        "soname": "libatspi.so.0",
+        "rpath_runpath": []
+      }
+    },
+    "/usr/lib/aarch64-linux-gnu/libc.so.6": {
+      "uid": 0,
+      "gid": 0,
+      "mode": 493,
+      "nlink": 1,
+      "type": "file",
+      "acl": false,
+      "file_capabilities": false,
+      "target": null,
+      "kind": "system",
+      "bytes": 1722920,
+      "sha256": "0f1905dc27dbc6715875c70527bc8da846a10084c9c483e9d8ff76dce8d69d0e",
+      "elf": {
+        "needed": [
+          "ld-linux-aarch64.so.1"
+        ],
+        "interpreter": "/lib/ld-linux-aarch64.so.1",
+        "soname": "libc.so.6",
+        "rpath_runpath": []
+      }
+    },
+    "/usr/lib/aarch64-linux-gnu/libdbus-1.so.3.32.4": {
+      "uid": 0,
+      "gid": 0,
+      "mode": 420,
+      "nlink": 1,
+      "type": "file",
+      "acl": false,
+      "file_capabilities": false,
+      "target": null,
+      "kind": "system",
+      "bytes": 395336,
+      "sha256": "9b8d0d8b10bdffc68f6699b03e7be99d4dc40552aca189be43b55c5f84753241",
+      "elf": {
+        "needed": [
+          "libsystemd.so.0",
+          "libc.so.6",
+          "ld-linux-aarch64.so.1"
+        ],
+        "interpreter": null,
+        "soname": "libdbus-1.so.3",
+        "rpath_runpath": []
+      }
+    },
+    "/usr/lib/aarch64-linux-gnu/libdl.so.2": {
+      "uid": 0,
+      "gid": 0,
+      "mode": 420,
+      "nlink": 1,
+      "type": "file",
+      "acl": false,
+      "file_capabilities": false,
+      "target": null,
+      "kind": "system",
+      "bytes": 67440,
+      "sha256": "1c16b2692a155191c97d7fdc5ce937d37c242435f05745046a794a9832b16af4",
+      "elf": {
+        "needed": [
+          "libc.so.6"
+        ],
+        "interpreter": null,
+        "soname": "libdl.so.2",
+        "rpath_runpath": []
+      }
+    },
+    "/usr/lib/aarch64-linux-gnu/libexpat.so.1.9.1": {
+      "uid": 0,
+      "gid": 0,
+      "mode": 420,
+      "nlink": 1,
+      "type": "file",
+      "acl": false,
+      "file_capabilities": false,
+      "target": null,
+      "kind": "system",
+      "bytes": 198712,
+      "sha256": "b4b445a092ad711e535cfa7241974f709b716194c58227abc75b05e3a3bec7f7",
+      "elf": {
+        "needed": [
+          "libc.so.6",
+          "ld-linux-aarch64.so.1"
+        ],
+        "interpreter": null,
+        "soname": "libexpat.so.1",
+        "rpath_runpath": []
+      }
+    },
+    "/usr/lib/aarch64-linux-gnu/libgbm.so.1.0.0": {
+      "uid": 0,
+      "gid": 0,
+      "mode": 420,
+      "nlink": 1,
+      "type": "file",
+      "acl": false,
+      "file_capabilities": false,
+      "target": null,
+      "kind": "system",
+      "bytes": 67824,
+      "sha256": "be9ebce17a6790b1233356b8501e4f47412fc61e09e008db6b2c7d49c620bc8f",
+      "elf": {
+        "needed": [
+          "libdrm.so.2",
+          "libexpat.so.1",
+          "libm.so.6",
+          "libc.so.6",
+          "ld-linux-aarch64.so.1"
+        ],
+        "interpreter": null,
+        "soname": "libgbm.so.1",
+        "rpath_runpath": []
+      }
+    },
+    "/usr/lib/aarch64-linux-gnu/libgcc_s.so.1": {
+      "uid": 0,
+      "gid": 0,
+      "mode": 420,
+      "nlink": 1,
+      "type": "file",
+      "acl": false,
+      "file_capabilities": false,
+      "target": null,
+      "kind": "system",
+      "bytes": 133696,
+      "sha256": "f2d3ad2bf0b61f6bc944cc37d7b6ab7f88d2582b41ff989ca164803f56cc5f20",
+      "elf": {
+        "needed": [
+          "libc.so.6"
+        ],
+        "interpreter": null,
+        "soname": "libgcc_s.so.1",
+        "rpath_runpath": []
+      }
+    },
+    "/usr/lib/aarch64-linux-gnu/libgio-2.0.so.0.8000.0": {
+      "uid": 0,
+      "gid": 0,
+      "mode": 420,
+      "nlink": 1,
+      "type": "file",
+      "acl": false,
+      "file_capabilities": false,
+      "target": null,
+      "kind": "system",
+      "bytes": 2100760,
+      "sha256": "bd460cbc01b68777901408ad8c7c110365d7d740e8e43486a8789955769a5867",
+      "elf": {
+        "needed": [
+          "libglib-2.0.so.0",
+          "libgobject-2.0.so.0",
+          "libgmodule-2.0.so.0",
+          "libz.so.1",
+          "libmount.so.1",
+          "libselinux.so.1",
+          "libc.so.6",
+          "ld-linux-aarch64.so.1"
+        ],
+        "interpreter": null,
+        "soname": "libgio-2.0.so.0",
+        "rpath_runpath": []
+      }
+    },
+    "/usr/lib/aarch64-linux-gnu/libglib-2.0.so.0.8000.0": {
+      "uid": 0,
+      "gid": 0,
+      "mode": 420,
+      "nlink": 1,
+      "type": "file",
+      "acl": false,
+      "file_capabilities": false,
+      "target": null,
+      "kind": "system",
+      "bytes": 1445440,
+      "sha256": "75df2de8cef893e4ae32dd151eda7f4f23587fbb18d3c19cb33615d964db1ecd",
+      "elf": {
+        "needed": [
+          "libm.so.6",
+          "libpcre2-8.so.0",
+          "libc.so.6",
+          "ld-linux-aarch64.so.1"
+        ],
+        "interpreter": null,
+        "soname": "libglib-2.0.so.0",
+        "rpath_runpath": []
+      }
+    },
+    "/usr/lib/aarch64-linux-gnu/libgobject-2.0.so.0.8000.0": {
+      "uid": 0,
+      "gid": 0,
+      "mode": 420,
+      "nlink": 1,
+      "type": "file",
+      "acl": false,
+      "file_capabilities": false,
+      "target": null,
+      "kind": "system",
+      "bytes": 462704,
+      "sha256": "fe41448f7b832ffcb460035d5b92cfdd29125d2b45766e23774a33390d145d79",
+      "elf": {
+        "needed": [
+          "libglib-2.0.so.0",
+          "libffi.so.8",
+          "libc.so.6",
+          "ld-linux-aarch64.so.1"
+        ],
+        "interpreter": null,
+        "soname": "libgobject-2.0.so.0",
+        "rpath_runpath": []
+      }
+    },
+    "/usr/lib/aarch64-linux-gnu/libm.so.6": {
+      "uid": 0,
+      "gid": 0,
+      "mode": 420,
+      "nlink": 1,
+      "type": "file",
+      "acl": false,
+      "file_capabilities": false,
+      "target": null,
+      "kind": "system",
+      "bytes": 591800,
+      "sha256": "5e0391562de36de323fb9cb0f2c1b6bd6d034c840b1dac018499f5fe4ded1b4a",
+      "elf": {
+        "needed": [
+          "libc.so.6",
+          "ld-linux-aarch64.so.1"
+        ],
+        "interpreter": null,
+        "soname": "libm.so.6",
+        "rpath_runpath": []
+      }
+    },
+    "/usr/lib/aarch64-linux-gnu/libnspr4.so": {
+      "uid": 0,
+      "gid": 0,
+      "mode": 420,
+      "nlink": 1,
+      "type": "file",
+      "acl": false,
+      "file_capabilities": false,
+      "target": null,
+      "kind": "system",
+      "bytes": 266608,
+      "sha256": "badea3d75474ee560b3f6a1f04f07d451ad7dbd2f83a041b0f6588c972697667",
+      "elf": {
+        "needed": [
+          "libc.so.6",
+          "ld-linux-aarch64.so.1"
+        ],
+        "interpreter": null,
+        "soname": "libnspr4.so",
+        "rpath_runpath": []
+      }
+    },
+    "/usr/lib/aarch64-linux-gnu/libnss3.so": {
+      "uid": 0,
+      "gid": 0,
+      "mode": 420,
+      "nlink": 1,
+      "type": "file",
+      "acl": false,
+      "file_capabilities": false,
+      "target": null,
+      "kind": "system",
+      "bytes": 1184392,
+      "sha256": "859fed168a3801cfd51ca707c770f4ac18bfe514866284f024ace2b0b2622e0a",
+      "elf": {
+        "needed": [
+          "libnssutil3.so",
+          "libplc4.so",
+          "libplds4.so",
+          "libnspr4.so",
+          "libc.so.6",
+          "ld-linux-aarch64.so.1"
+        ],
+        "interpreter": null,
+        "soname": "libnss3.so",
+        "rpath_runpath": []
+      }
+    },
+    "/usr/lib/aarch64-linux-gnu/libnssutil3.so": {
+      "uid": 0,
+      "gid": 0,
+      "mode": 420,
+      "nlink": 1,
+      "type": "file",
+      "acl": false,
+      "file_capabilities": false,
+      "target": null,
+      "kind": "system",
+      "bytes": 264432,
+      "sha256": "c4b5e4e873e47a6e3768ea62d8eae8d141a6e43093e6736a9a57bf7455667957",
+      "elf": {
+        "needed": [
+          "libplc4.so",
+          "libplds4.so",
+          "libnspr4.so",
+          "libc.so.6",
+          "ld-linux-aarch64.so.1"
+        ],
+        "interpreter": null,
+        "soname": "libnssutil3.so",
+        "rpath_runpath": []
+      }
+    },
+    "/usr/lib/aarch64-linux-gnu/libpthread.so.0": {
+      "uid": 0,
+      "gid": 0,
+      "mode": 420,
+      "nlink": 1,
+      "type": "file",
+      "acl": false,
+      "file_capabilities": false,
+      "target": null,
+      "kind": "system",
+      "bytes": 67440,
+      "sha256": "6f1ab9e7d7de142dc5e2feaf6d19faceff0a0f40d5e225c922899f5362b8c353",
+      "elf": {
+        "needed": [
+          "libc.so.6"
+        ],
+        "interpreter": null,
+        "soname": "libpthread.so.0",
+        "rpath_runpath": []
+      }
+    },
+    "/usr/lib/aarch64-linux-gnu/libudev.so.1.7.8": {
+      "uid": 0,
+      "gid": 0,
+      "mode": 420,
+      "nlink": 1,
+      "type": "file",
+      "acl": false,
+      "file_capabilities": false,
+      "target": null,
+      "kind": "system",
+      "bytes": 264712,
+      "sha256": "8bc3e61d93877d05dd4efc8a4b36a2c8559afbd1d154c7b95a662b5e83e1f740",
+      "elf": {
+        "needed": [
+          "libcap.so.2",
+          "libc.so.6",
+          "ld-linux-aarch64.so.1"
+        ],
+        "interpreter": null,
+        "soname": "libudev.so.1",
+        "rpath_runpath": []
+      }
+    },
+    "/usr/lib/aarch64-linux-gnu/libxcb.so.1.1.0": {
+      "uid": 0,
+      "gid": 0,
+      "mode": 420,
+      "nlink": 1,
+      "type": "file",
+      "acl": false,
+      "file_capabilities": false,
+      "target": null,
+      "kind": "system",
+      "bytes": 199048,
+      "sha256": "cc570b1aff9e2ffe32c1add5aa23cb65b041a3615810566bb32efcc0c3f83f28",
+      "elf": {
+        "needed": [
+          "libXau.so.6",
+          "libXdmcp.so.6",
+          "libc.so.6",
+          "ld-linux-aarch64.so.1"
+        ],
+        "interpreter": null,
+        "soname": "libxcb.so.1",
+        "rpath_runpath": []
+      }
+    },
+    "/usr/lib/aarch64-linux-gnu/libxkbcommon.so.0.0.0": {
+      "uid": 0,
+      "gid": 0,
+      "mode": 420,
+      "nlink": 1,
+      "type": "file",
+      "acl": false,
+      "file_capabilities": false,
+      "target": null,
+      "kind": "system",
+      "bytes": 330088,
+      "sha256": "1dc9466c1328e7bf5dc2f46cc454e68800b950325572f48a81902af8d5c25aa0",
+      "elf": {
+        "needed": [
+          "libc.so.6",
+          "ld-linux-aarch64.so.1"
+        ],
+        "interpreter": null,
+        "soname": "libxkbcommon.so.0",
+        "rpath_runpath": []
+      }
+    },
+    "/usr/lib/aarch64-linux-gnu/libnss_files.so.2": {
+      "uid": 0,
+      "gid": 0,
+      "mode": 420,
+      "nlink": 1,
+      "type": "file",
+      "acl": false,
+      "file_capabilities": false,
+      "target": null,
+      "kind": "system",
+      "bytes": 67440,
+      "sha256": "5e07670b49907e670850519ef13bfe49d86306d836ecd5af759e5d051a0a8aea",
+      "elf": {
+        "needed": [
+          "libc.so.6"
+        ],
+        "interpreter": null,
+        "soname": "libnss_files.so.2",
+        "rpath_runpath": []
+      }
+    },
+    "/usr/lib/aarch64-linux-gnu/libnss_dns.so.2": {
+      "uid": 0,
+      "gid": 0,
+      "mode": 420,
+      "nlink": 1,
+      "type": "file",
+      "acl": false,
+      "file_capabilities": false,
+      "target": null,
+      "kind": "system",
+      "bytes": 67440,
+      "sha256": "eb3d7a4f0b47991c54030f5e330f0007dee051999546cc669ef7c1967bf1dc35",
+      "elf": {
+        "needed": [
+          "libc.so.6"
+        ],
+        "interpreter": null,
+        "soname": "libnss_dns.so.2",
+        "rpath_runpath": []
+      }
+    },
+    "/usr/lib/aarch64-linux-gnu/libresolv.so.2": {
+      "uid": 0,
+      "gid": 0,
+      "mode": 420,
+      "nlink": 1,
+      "type": "file",
+      "acl": false,
+      "file_capabilities": false,
+      "target": null,
+      "kind": "system",
+      "bytes": 67720,
+      "sha256": "92890287859788043628489a25fa39a623119328f6c0ac8e91f9ca60ab90650e",
+      "elf": {
+        "needed": [
+          "libc.so.6",
+          "ld-linux-aarch64.so.1"
+        ],
+        "interpreter": null,
+        "soname": "libresolv.so.2",
+        "rpath_runpath": []
+      }
+    },
+    "/usr/lib/aarch64-linux-gnu/libnss_compat.so.2": {
+      "uid": 0,
+      "gid": 0,
+      "mode": 420,
+      "nlink": 1,
+      "type": "file",
+      "acl": false,
+      "file_capabilities": false,
+      "target": null,
+      "kind": "system",
+      "bytes": 67904,
+      "sha256": "0b14214f10648b57e72cd736395f79548690b5da31fe5c1d1865dfd411418696",
+      "elf": {
+        "needed": [
+          "libc.so.6",
+          "ld-linux-aarch64.so.1"
+        ],
+        "interpreter": null,
+        "soname": "libnss_compat.so.2",
+        "rpath_runpath": []
+      }
+    },
+    "/usr/lib/aarch64-linux-gnu/libnss_systemd.so.2": {
+      "uid": 0,
+      "gid": 0,
+      "mode": 420,
+      "nlink": 1,
+      "type": "file",
+      "acl": false,
+      "file_capabilities": false,
+      "target": null,
+      "kind": "system",
+      "bytes": 395960,
+      "sha256": "7912e1f1e4de5cf1b997b984205b8ad32286ce75f54d1a540384db3ef40cac6a",
+      "elf": {
+        "needed": [
+          "libcap.so.2",
+          "libm.so.6",
+          "libc.so.6",
+          "ld-linux-aarch64.so.1"
+        ],
+        "interpreter": null,
+        "soname": "libnss_systemd.so.2",
+        "rpath_runpath": []
+      }
+    },
+    "/usr/lib/aarch64-linux-gnu/libXrender.so.1.3.0": {
+      "uid": 0,
+      "gid": 0,
+      "mode": 420,
+      "nlink": 1,
+      "type": "file",
+      "acl": false,
+      "file_capabilities": false,
+      "target": null,
+      "kind": "system",
+      "bytes": 67952,
+      "sha256": "ec225f2428e5759c5087c0b3fd7233256935da1c2a7dcc2a0e6c3f9b25a44979",
+      "elf": {
+        "needed": [
+          "libX11.so.6",
+          "libc.so.6",
+          "ld-linux-aarch64.so.1"
+        ],
+        "interpreter": null,
+        "soname": "libXrender.so.1",
+        "rpath_runpath": []
+      }
+    },
+    "/usr/lib/aarch64-linux-gnu/libXi.so.6.1.0": {
+      "uid": 0,
+      "gid": 0,
+      "mode": 420,
+      "nlink": 1,
+      "type": "file",
+      "acl": false,
+      "file_capabilities": false,
+      "target": null,
+      "kind": "system",
+      "bytes": 67888,
+      "sha256": "be081f920c99e38c2cfa0075c322219892fdce2a1c2f185777136a78662427f5",
+      "elf": {
+        "needed": [
+          "libX11.so.6",
+          "libXext.so.6",
+          "libc.so.6",
+          "ld-linux-aarch64.so.1"
+        ],
+        "interpreter": null,
+        "soname": "libXi.so.6",
+        "rpath_runpath": []
+      }
+    },
+    "/usr/lib/aarch64-linux-gnu/libsystemd.so.0.38.0": {
+      "uid": 0,
+      "gid": 0,
+      "mode": 420,
+      "nlink": 1,
+      "type": "file",
+      "acl": false,
+      "file_capabilities": false,
+      "target": null,
+      "kind": "system",
+      "bytes": 989464,
+      "sha256": "f0574d5aa73fb8ef26d159d909751c1cf4555ce8679ac5c1ebac76bbdddaec7f",
+      "elf": {
+        "needed": [
+          "libcap.so.2",
+          "libgcrypt.so.20",
+          "liblz4.so.1",
+          "liblzma.so.5",
+          "libzstd.so.1",
+          "libc.so.6",
+          "ld-linux-aarch64.so.1"
+        ],
+        "interpreter": null,
+        "soname": "libsystemd.so.0",
+        "rpath_runpath": []
+      }
+    },
+    "/usr/lib/aarch64-linux-gnu/libdrm.so.2.125.0": {
+      "uid": 0,
+      "gid": 0,
+      "mode": 420,
+      "nlink": 1,
+      "type": "file",
+      "acl": false,
+      "file_capabilities": false,
+      "target": null,
+      "kind": "system",
+      "bytes": 133616,
+      "sha256": "efa8992c21c657acb37e3fa63653161b53a9d73a0828851c9b725fa5e35cadf3",
+      "elf": {
+        "needed": [
+          "libc.so.6",
+          "ld-linux-aarch64.so.1"
+        ],
+        "interpreter": null,
+        "soname": "libdrm.so.2",
+        "rpath_runpath": []
+      }
+    },
+    "/usr/lib/aarch64-linux-gnu/libgmodule-2.0.so.0.8000.0": {
+      "uid": 0,
+      "gid": 0,
+      "mode": 420,
+      "nlink": 1,
+      "type": "file",
+      "acl": false,
+      "file_capabilities": false,
+      "target": null,
+      "kind": "system",
+      "bytes": 67584,
+      "sha256": "a625ea5d90693e73966b93a1f8776cbf208a48babfb2e17f1443c01fd0ab4b64",
+      "elf": {
+        "needed": [
+          "libglib-2.0.so.0",
+          "libc.so.6",
+          "ld-linux-aarch64.so.1"
+        ],
+        "interpreter": null,
+        "soname": "libgmodule-2.0.so.0",
+        "rpath_runpath": []
+      }
+    },
+    "/usr/lib/aarch64-linux-gnu/libz.so.1.3": {
+      "uid": 0,
+      "gid": 0,
+      "mode": 420,
+      "nlink": 1,
+      "type": "file",
+      "acl": false,
+      "file_capabilities": false,
+      "target": null,
+      "kind": "system",
+      "bytes": 133272,
+      "sha256": "e3bc90ee8cce46778c2f46c2a3e580d3b930f7b455910f25ea400a0b797fb9dc",
+      "elf": {
+        "needed": [
+          "libc.so.6",
+          "ld-linux-aarch64.so.1"
+        ],
+        "interpreter": null,
+        "soname": "libz.so.1",
+        "rpath_runpath": []
+      }
+    },
+    "/usr/lib/aarch64-linux-gnu/libmount.so.1.1.0": {
+      "uid": 0,
+      "gid": 0,
+      "mode": 420,
+      "nlink": 1,
+      "type": "file",
+      "acl": false,
+      "file_capabilities": false,
+      "target": null,
+      "kind": "system",
+      "bytes": 330272,
+      "sha256": "cfa453687fb8eee3c6f8e06de6ab2c1f9dfc59b94d05477593fae99fe7fe1e6d",
+      "elf": {
+        "needed": [
+          "libblkid.so.1",
+          "libselinux.so.1",
+          "libc.so.6",
+          "ld-linux-aarch64.so.1"
+        ],
+        "interpreter": null,
+        "soname": "libmount.so.1",
+        "rpath_runpath": []
+      }
+    },
+    "/usr/lib/aarch64-linux-gnu/libselinux.so.1": {
+      "uid": 0,
+      "gid": 0,
+      "mode": 420,
+      "nlink": 1,
+      "type": "file",
+      "acl": false,
+      "file_capabilities": false,
+      "target": null,
+      "kind": "system",
+      "bytes": 198800,
+      "sha256": "bc36fbbc9f066f882948ba3429f272cc75840a096e0a3e3461c3badaed18c5ba",
+      "elf": {
+        "needed": [
+          "libpcre2-8.so.0",
+          "libc.so.6",
+          "ld-linux-aarch64.so.1"
+        ],
+        "interpreter": null,
+        "soname": "libselinux.so.1",
+        "rpath_runpath": []
+      }
+    },
+    "/usr/lib/aarch64-linux-gnu/libpcre2-8.so.0.11.2": {
+      "uid": 0,
+      "gid": 0,
+      "mode": 420,
+      "nlink": 1,
+      "type": "file",
+      "acl": false,
+      "file_capabilities": false,
+      "target": null,
+      "kind": "system",
+      "bytes": 592328,
+      "sha256": "aa4e91ff910dbb8e40472ed4fcaaeebfef19ad13fe925d9ed8e22e87d45ce13b",
+      "elf": {
+        "needed": [
+          "libc.so.6",
+          "ld-linux-aarch64.so.1"
+        ],
+        "interpreter": null,
+        "soname": "libpcre2-8.so.0",
+        "rpath_runpath": []
+      }
+    },
+    "/usr/lib/aarch64-linux-gnu/libffi.so.8.1.4": {
+      "uid": 0,
+      "gid": 0,
+      "mode": 420,
+      "nlink": 1,
+      "type": "file",
+      "acl": false,
+      "file_capabilities": false,
+      "target": null,
+      "kind": "system",
+      "bytes": 67944,
+      "sha256": "9dd873a938c4d7df76912d01f6a28aa4aa73d583bd20485a0dbfe5aa9673a191",
+      "elf": {
+        "needed": [
+          "libc.so.6",
+          "ld-linux-aarch64.so.1"
+        ],
+        "interpreter": null,
+        "soname": "libffi.so.8",
+        "rpath_runpath": []
+      }
+    },
+    "/usr/lib/aarch64-linux-gnu/libplc4.so": {
+      "uid": 0,
+      "gid": 0,
+      "mode": 420,
+      "nlink": 1,
+      "type": "file",
+      "acl": false,
+      "file_capabilities": false,
+      "target": null,
+      "kind": "system",
+      "bytes": 67600,
+      "sha256": "791660a393fa9c7d3159beb8e9be0a6e5125a9491ec132cab56504982e0fa841",
+      "elf": {
+        "needed": [
+          "libnspr4.so",
+          "libc.so.6"
+        ],
+        "interpreter": null,
+        "soname": "libplc4.so",
+        "rpath_runpath": []
+      }
+    },
+    "/usr/lib/aarch64-linux-gnu/libplds4.so": {
+      "uid": 0,
+      "gid": 0,
+      "mode": 420,
+      "nlink": 1,
+      "type": "file",
+      "acl": false,
+      "file_capabilities": false,
+      "target": null,
+      "kind": "system",
+      "bytes": 67632,
+      "sha256": "4d3e273e173eb68922f80ab77dd7c1cb5bffca03ff12a1c95f20f84abe662b9d",
+      "elf": {
+        "needed": [
+          "libnspr4.so",
+          "libc.so.6",
+          "ld-linux-aarch64.so.1"
+        ],
+        "interpreter": null,
+        "soname": "libplds4.so",
+        "rpath_runpath": []
+      }
+    },
+    "/usr/lib/aarch64-linux-gnu/libcap.so.2.66": {
+      "uid": 0,
+      "gid": 0,
+      "mode": 420,
+      "nlink": 1,
+      "type": "file",
+      "acl": false,
+      "file_capabilities": false,
+      "target": null,
+      "kind": "system",
+      "bytes": 67704,
+      "sha256": "1b6d3932cf8b60b2f27f80cdd26d9a296b8a9608fc02b4eccb8fb2fdab73fea2",
+      "elf": {
+        "needed": [
+          "libc.so.6",
+          "ld-linux-aarch64.so.1"
+        ],
+        "interpreter": "/lib/ld-linux-aarch64.so.1",
+        "soname": "libcap.so.2",
+        "rpath_runpath": []
+      }
+    },
+    "/usr/lib/aarch64-linux-gnu/libXau.so.6.0.0": {
+      "uid": 0,
+      "gid": 0,
+      "mode": 420,
+      "nlink": 1,
+      "type": "file",
+      "acl": false,
+      "file_capabilities": false,
+      "target": null,
+      "kind": "system",
+      "bytes": 67640,
+      "sha256": "6fff1a9d4b5bc4d91df752b12600f8aedcd8ac33ea01a48295326675243d68c0",
+      "elf": {
+        "needed": [
+          "libc.so.6",
+          "ld-linux-aarch64.so.1"
+        ],
+        "interpreter": null,
+        "soname": "libXau.so.6",
+        "rpath_runpath": []
+      }
+    },
+    "/usr/lib/aarch64-linux-gnu/libXdmcp.so.6.0.0": {
+      "uid": 0,
+      "gid": 0,
+      "mode": 420,
+      "nlink": 1,
+      "type": "file",
+      "acl": false,
+      "file_capabilities": false,
+      "target": null,
+      "kind": "system",
+      "bytes": 67528,
+      "sha256": "84b6623297efd8eb43f98af678acbb68ca31de7617dab042a1dcc7c6feb8a2ea",
+      "elf": {
+        "needed": [
+          "libbsd.so.0",
+          "libc.so.6",
+          "ld-linux-aarch64.so.1"
+        ],
+        "interpreter": null,
+        "soname": "libXdmcp.so.6",
+        "rpath_runpath": []
+      }
+    },
+    "/usr/lib/aarch64-linux-gnu/libgcrypt.so.20.4.3": {
+      "uid": 0,
+      "gid": 0,
+      "mode": 420,
+      "nlink": 1,
+      "type": "file",
+      "acl": false,
+      "file_capabilities": false,
+      "target": null,
+      "kind": "system",
+      "bytes": 1000536,
+      "sha256": "0021b10f8cf217477b73eb3721ed5711c02f77d9251a346552f6099928329151",
+      "elf": {
+        "needed": [
+          "libgpg-error.so.0",
+          "libc.so.6",
+          "ld-linux-aarch64.so.1"
+        ],
+        "interpreter": null,
+        "soname": "libgcrypt.so.20",
+        "rpath_runpath": []
+      }
+    },
+    "/usr/lib/aarch64-linux-gnu/liblz4.so.1.9.4": {
+      "uid": 0,
+      "gid": 0,
+      "mode": 420,
+      "nlink": 1,
+      "type": "file",
+      "acl": false,
+      "file_capabilities": false,
+      "target": null,
+      "kind": "system",
+      "bytes": 133136,
+      "sha256": "d1482a2f74152881d8b83708fedae7bca039f5608024f1178dc21a17df9887a7",
+      "elf": {
+        "needed": [
+          "libc.so.6",
+          "ld-linux-aarch64.so.1"
+        ],
+        "interpreter": null,
+        "soname": "liblz4.so.1",
+        "rpath_runpath": []
+      }
+    },
+    "/usr/lib/aarch64-linux-gnu/liblzma.so.5.4.5": {
+      "uid": 0,
+      "gid": 0,
+      "mode": 420,
+      "nlink": 1,
+      "type": "file",
+      "acl": false,
+      "file_capabilities": false,
+      "target": null,
+      "kind": "system",
+      "bytes": 198584,
+      "sha256": "47ea0f43683ef829cda43bfe1862c1b06f085fbd813bb58d2d142477f5380139",
+      "elf": {
+        "needed": [
+          "libc.so.6",
+          "ld-linux-aarch64.so.1"
+        ],
+        "interpreter": null,
+        "soname": "liblzma.so.5",
+        "rpath_runpath": []
+      }
+    },
+    "/usr/lib/aarch64-linux-gnu/libzstd.so.1.5.5": {
+      "uid": 0,
+      "gid": 0,
+      "mode": 420,
+      "nlink": 1,
+      "type": "file",
+      "acl": false,
+      "file_capabilities": false,
+      "target": null,
+      "kind": "system",
+      "bytes": 657432,
+      "sha256": "fe726238b170b83aa83bf1f8a79109b8b61b9eb45234304511d093bbe5f5fb20",
+      "elf": {
+        "needed": [
+          "libc.so.6",
+          "ld-linux-aarch64.so.1"
+        ],
+        "interpreter": null,
+        "soname": "libzstd.so.1",
+        "rpath_runpath": []
+      }
+    },
+    "/usr/lib/aarch64-linux-gnu/libblkid.so.1.1.0": {
+      "uid": 0,
+      "gid": 0,
+      "mode": 420,
+      "nlink": 1,
+      "type": "file",
+      "acl": false,
+      "file_capabilities": false,
+      "target": null,
+      "kind": "system",
+      "bytes": 265064,
+      "sha256": "4b0c0835eecf17b9b900f02f7ed76352b7746de7c63ca3e027cbb9df44868dfb",
+      "elf": {
+        "needed": [
+          "libc.so.6",
+          "ld-linux-aarch64.so.1"
+        ],
+        "interpreter": null,
+        "soname": "libblkid.so.1",
+        "rpath_runpath": []
+      }
+    },
+    "/usr/lib/aarch64-linux-gnu/libbsd.so.0.12.1": {
+      "uid": 0,
+      "gid": 0,
+      "mode": 420,
+      "nlink": 1,
+      "type": "file",
+      "acl": false,
+      "file_capabilities": false,
+      "target": null,
+      "kind": "system",
+      "bytes": 133944,
+      "sha256": "6c5348ee0e1777f13e148b7492fa311b6f65adb0dc21a001a67ebc18948e6b3e",
+      "elf": {
+        "needed": [
+          "libmd.so.0",
+          "libc.so.6",
+          "ld-linux-aarch64.so.1"
+        ],
+        "interpreter": null,
+        "soname": "libbsd.so.0",
+        "rpath_runpath": []
+      }
+    },
+    "/usr/lib/aarch64-linux-gnu/libgpg-error.so.0.34.0": {
+      "uid": 0,
+      "gid": 0,
+      "mode": 420,
+      "nlink": 1,
+      "type": "file",
+      "acl": false,
+      "file_capabilities": false,
+      "target": null,
+      "kind": "system",
+      "bytes": 198648,
+      "sha256": "ff2dccba4993ef97775b70c1ed1144f70dfe8581ee48c1eb25c76878c6cdfdf7",
+      "elf": {
+        "needed": [
+          "libc.so.6",
+          "ld-linux-aarch64.so.1"
+        ],
+        "interpreter": null,
+        "soname": "libgpg-error.so.0",
+        "rpath_runpath": []
+      }
+    },
+    "/usr/lib/aarch64-linux-gnu/libmd.so.0.1.0": {
+      "uid": 0,
+      "gid": 0,
+      "mode": 420,
+      "nlink": 1,
+      "type": "file",
+      "acl": false,
+      "file_capabilities": false,
+      "target": null,
+      "kind": "system",
+      "bytes": 67584,
+      "sha256": "30d117046ce9405745e0d0d4722cff121f532913180bbb9425b38d076319ac08",
+      "elf": {
+        "needed": [
+          "libc.so.6",
+          "ld-linux-aarch64.so.1"
+        ],
+        "interpreter": null,
+        "soname": "libmd.so.0",
+        "rpath_runpath": []
+      }
+    }
+  },
+  "aliases": {
+    "/lib/aarch64-linux-gnu/ld-linux-aarch64.so.1": {
+      "requested": "/lib/aarch64-linux-gnu/ld-linux-aarch64.so.1",
+      "resolved": "/usr/lib/aarch64-linux-gnu/ld-linux-aarch64.so.1",
+      "components": {
+        "/": {
+          "uid": 0,
+          "gid": 0,
+          "mode": 493,
+          "nlink": 22,
+          "type": "directory",
+          "acl": false,
+          "file_capabilities": false,
+          "target": null
+        },
+        "/lib": {
+          "uid": 0,
+          "gid": 0,
+          "mode": 511,
+          "nlink": 1,
+          "type": "symlink",
+          "acl": false,
+          "file_capabilities": false,
+          "target": "usr/lib"
+        },
+        "/lib/aarch64-linux-gnu": {
+          "uid": 0,
+          "gid": 0,
+          "mode": 493,
+          "nlink": 55,
+          "type": "directory",
+          "acl": false,
+          "file_capabilities": false,
+          "target": null
+        },
+        "/lib/aarch64-linux-gnu/ld-linux-aarch64.so.1": {
+          "uid": 0,
+          "gid": 0,
+          "mode": 493,
+          "nlink": 1,
+          "type": "file",
+          "acl": false,
+          "file_capabilities": false,
+          "target": null
+        },
+        "/usr": {
+          "uid": 0,
+          "gid": 0,
+          "mode": 493,
+          "nlink": 12,
+          "type": "directory",
+          "acl": false,
+          "file_capabilities": false,
+          "target": null
+        },
+        "/usr/lib": {
+          "uid": 0,
+          "gid": 0,
+          "mode": 493,
+          "nlink": 81,
+          "type": "directory",
+          "acl": false,
+          "file_capabilities": false,
+          "target": null
+        },
+        "/usr/lib/aarch64-linux-gnu": {
+          "uid": 0,
+          "gid": 0,
+          "mode": 493,
+          "nlink": 55,
+          "type": "directory",
+          "acl": false,
+          "file_capabilities": false,
+          "target": null
+        },
+        "/usr/lib/aarch64-linux-gnu/ld-linux-aarch64.so.1": {
+          "uid": 0,
+          "gid": 0,
+          "mode": 493,
+          "nlink": 1,
+          "type": "file",
+          "acl": false,
+          "file_capabilities": false,
+          "target": null
+        }
+      }
+    },
+    "/lib/aarch64-linux-gnu/libX11.so.6": {
+      "requested": "/lib/aarch64-linux-gnu/libX11.so.6",
+      "resolved": "/usr/lib/aarch64-linux-gnu/libX11.so.6.4.0",
+      "components": {
+        "/": {
+          "uid": 0,
+          "gid": 0,
+          "mode": 493,
+          "nlink": 22,
+          "type": "directory",
+          "acl": false,
+          "file_capabilities": false,
+          "target": null
+        },
+        "/lib": {
+          "uid": 0,
+          "gid": 0,
+          "mode": 511,
+          "nlink": 1,
+          "type": "symlink",
+          "acl": false,
+          "file_capabilities": false,
+          "target": "usr/lib"
+        },
+        "/lib/aarch64-linux-gnu": {
+          "uid": 0,
+          "gid": 0,
+          "mode": 493,
+          "nlink": 55,
+          "type": "directory",
+          "acl": false,
+          "file_capabilities": false,
+          "target": null
+        },
+        "/lib/aarch64-linux-gnu/libX11.so.6": {
+          "uid": 0,
+          "gid": 0,
+          "mode": 511,
+          "nlink": 1,
+          "type": "symlink",
+          "acl": false,
+          "file_capabilities": false,
+          "target": "libX11.so.6.4.0"
+        },
+        "/lib/aarch64-linux-gnu/libX11.so.6.4.0": {
+          "uid": 0,
+          "gid": 0,
+          "mode": 420,
+          "nlink": 1,
+          "type": "file",
+          "acl": false,
+          "file_capabilities": false,
+          "target": null
+        },
+        "/usr": {
+          "uid": 0,
+          "gid": 0,
+          "mode": 493,
+          "nlink": 12,
+          "type": "directory",
+          "acl": false,
+          "file_capabilities": false,
+          "target": null
+        },
+        "/usr/lib": {
+          "uid": 0,
+          "gid": 0,
+          "mode": 493,
+          "nlink": 81,
+          "type": "directory",
+          "acl": false,
+          "file_capabilities": false,
+          "target": null
+        },
+        "/usr/lib/aarch64-linux-gnu": {
+          "uid": 0,
+          "gid": 0,
+          "mode": 493,
+          "nlink": 55,
+          "type": "directory",
+          "acl": false,
+          "file_capabilities": false,
+          "target": null
+        },
+        "/usr/lib/aarch64-linux-gnu/libX11.so.6.4.0": {
+          "uid": 0,
+          "gid": 0,
+          "mode": 420,
+          "nlink": 1,
+          "type": "file",
+          "acl": false,
+          "file_capabilities": false,
+          "target": null
+        }
+      }
+    },
+    "/lib/aarch64-linux-gnu/libXcomposite.so.1": {
+      "requested": "/lib/aarch64-linux-gnu/libXcomposite.so.1",
+      "resolved": "/usr/lib/aarch64-linux-gnu/libXcomposite.so.1.0.0",
+      "components": {
+        "/": {
+          "uid": 0,
+          "gid": 0,
+          "mode": 493,
+          "nlink": 22,
+          "type": "directory",
+          "acl": false,
+          "file_capabilities": false,
+          "target": null
+        },
+        "/lib": {
+          "uid": 0,
+          "gid": 0,
+          "mode": 511,
+          "nlink": 1,
+          "type": "symlink",
+          "acl": false,
+          "file_capabilities": false,
+          "target": "usr/lib"
+        },
+        "/lib/aarch64-linux-gnu": {
+          "uid": 0,
+          "gid": 0,
+          "mode": 493,
+          "nlink": 55,
+          "type": "directory",
+          "acl": false,
+          "file_capabilities": false,
+          "target": null
+        },
+        "/lib/aarch64-linux-gnu/libXcomposite.so.1": {
+          "uid": 0,
+          "gid": 0,
+          "mode": 511,
+          "nlink": 1,
+          "type": "symlink",
+          "acl": false,
+          "file_capabilities": false,
+          "target": "libXcomposite.so.1.0.0"
+        },
+        "/lib/aarch64-linux-gnu/libXcomposite.so.1.0.0": {
+          "uid": 0,
+          "gid": 0,
+          "mode": 420,
+          "nlink": 1,
+          "type": "file",
+          "acl": false,
+          "file_capabilities": false,
+          "target": null
+        },
+        "/usr": {
+          "uid": 0,
+          "gid": 0,
+          "mode": 493,
+          "nlink": 12,
+          "type": "directory",
+          "acl": false,
+          "file_capabilities": false,
+          "target": null
+        },
+        "/usr/lib": {
+          "uid": 0,
+          "gid": 0,
+          "mode": 493,
+          "nlink": 81,
+          "type": "directory",
+          "acl": false,
+          "file_capabilities": false,
+          "target": null
+        },
+        "/usr/lib/aarch64-linux-gnu": {
+          "uid": 0,
+          "gid": 0,
+          "mode": 493,
+          "nlink": 55,
+          "type": "directory",
+          "acl": false,
+          "file_capabilities": false,
+          "target": null
+        },
+        "/usr/lib/aarch64-linux-gnu/libXcomposite.so.1.0.0": {
+          "uid": 0,
+          "gid": 0,
+          "mode": 420,
+          "nlink": 1,
+          "type": "file",
+          "acl": false,
+          "file_capabilities": false,
+          "target": null
+        }
+      }
+    },
+    "/lib/aarch64-linux-gnu/libXdamage.so.1": {
+      "requested": "/lib/aarch64-linux-gnu/libXdamage.so.1",
+      "resolved": "/usr/lib/aarch64-linux-gnu/libXdamage.so.1.1.0",
+      "components": {
+        "/": {
+          "uid": 0,
+          "gid": 0,
+          "mode": 493,
+          "nlink": 22,
+          "type": "directory",
+          "acl": false,
+          "file_capabilities": false,
+          "target": null
+        },
+        "/lib": {
+          "uid": 0,
+          "gid": 0,
+          "mode": 511,
+          "nlink": 1,
+          "type": "symlink",
+          "acl": false,
+          "file_capabilities": false,
+          "target": "usr/lib"
+        },
+        "/lib/aarch64-linux-gnu": {
+          "uid": 0,
+          "gid": 0,
+          "mode": 493,
+          "nlink": 55,
+          "type": "directory",
+          "acl": false,
+          "file_capabilities": false,
+          "target": null
+        },
+        "/lib/aarch64-linux-gnu/libXdamage.so.1": {
+          "uid": 0,
+          "gid": 0,
+          "mode": 511,
+          "nlink": 1,
+          "type": "symlink",
+          "acl": false,
+          "file_capabilities": false,
+          "target": "libXdamage.so.1.1.0"
+        },
+        "/lib/aarch64-linux-gnu/libXdamage.so.1.1.0": {
+          "uid": 0,
+          "gid": 0,
+          "mode": 420,
+          "nlink": 1,
+          "type": "file",
+          "acl": false,
+          "file_capabilities": false,
+          "target": null
+        },
+        "/usr": {
+          "uid": 0,
+          "gid": 0,
+          "mode": 493,
+          "nlink": 12,
+          "type": "directory",
+          "acl": false,
+          "file_capabilities": false,
+          "target": null
+        },
+        "/usr/lib": {
+          "uid": 0,
+          "gid": 0,
+          "mode": 493,
+          "nlink": 81,
+          "type": "directory",
+          "acl": false,
+          "file_capabilities": false,
+          "target": null
+        },
+        "/usr/lib/aarch64-linux-gnu": {
+          "uid": 0,
+          "gid": 0,
+          "mode": 493,
+          "nlink": 55,
+          "type": "directory",
+          "acl": false,
+          "file_capabilities": false,
+          "target": null
+        },
+        "/usr/lib/aarch64-linux-gnu/libXdamage.so.1.1.0": {
+          "uid": 0,
+          "gid": 0,
+          "mode": 420,
+          "nlink": 1,
+          "type": "file",
+          "acl": false,
+          "file_capabilities": false,
+          "target": null
+        }
+      }
+    },
+    "/lib/aarch64-linux-gnu/libXext.so.6": {
+      "requested": "/lib/aarch64-linux-gnu/libXext.so.6",
+      "resolved": "/usr/lib/aarch64-linux-gnu/libXext.so.6.4.0",
+      "components": {
+        "/": {
+          "uid": 0,
+          "gid": 0,
+          "mode": 493,
+          "nlink": 22,
+          "type": "directory",
+          "acl": false,
+          "file_capabilities": false,
+          "target": null
+        },
+        "/lib": {
+          "uid": 0,
+          "gid": 0,
+          "mode": 511,
+          "nlink": 1,
+          "type": "symlink",
+          "acl": false,
+          "file_capabilities": false,
+          "target": "usr/lib"
+        },
+        "/lib/aarch64-linux-gnu": {
+          "uid": 0,
+          "gid": 0,
+          "mode": 493,
+          "nlink": 55,
+          "type": "directory",
+          "acl": false,
+          "file_capabilities": false,
+          "target": null
+        },
+        "/lib/aarch64-linux-gnu/libXext.so.6": {
+          "uid": 0,
+          "gid": 0,
+          "mode": 511,
+          "nlink": 1,
+          "type": "symlink",
+          "acl": false,
+          "file_capabilities": false,
+          "target": "libXext.so.6.4.0"
+        },
+        "/lib/aarch64-linux-gnu/libXext.so.6.4.0": {
+          "uid": 0,
+          "gid": 0,
+          "mode": 420,
+          "nlink": 1,
+          "type": "file",
+          "acl": false,
+          "file_capabilities": false,
+          "target": null
+        },
+        "/usr": {
+          "uid": 0,
+          "gid": 0,
+          "mode": 493,
+          "nlink": 12,
+          "type": "directory",
+          "acl": false,
+          "file_capabilities": false,
+          "target": null
+        },
+        "/usr/lib": {
+          "uid": 0,
+          "gid": 0,
+          "mode": 493,
+          "nlink": 81,
+          "type": "directory",
+          "acl": false,
+          "file_capabilities": false,
+          "target": null
+        },
+        "/usr/lib/aarch64-linux-gnu": {
+          "uid": 0,
+          "gid": 0,
+          "mode": 493,
+          "nlink": 55,
+          "type": "directory",
+          "acl": false,
+          "file_capabilities": false,
+          "target": null
+        },
+        "/usr/lib/aarch64-linux-gnu/libXext.so.6.4.0": {
+          "uid": 0,
+          "gid": 0,
+          "mode": 420,
+          "nlink": 1,
+          "type": "file",
+          "acl": false,
+          "file_capabilities": false,
+          "target": null
+        }
+      }
+    },
+    "/lib/aarch64-linux-gnu/libXfixes.so.3": {
+      "requested": "/lib/aarch64-linux-gnu/libXfixes.so.3",
+      "resolved": "/usr/lib/aarch64-linux-gnu/libXfixes.so.3.1.0",
+      "components": {
+        "/": {
+          "uid": 0,
+          "gid": 0,
+          "mode": 493,
+          "nlink": 22,
+          "type": "directory",
+          "acl": false,
+          "file_capabilities": false,
+          "target": null
+        },
+        "/lib": {
+          "uid": 0,
+          "gid": 0,
+          "mode": 511,
+          "nlink": 1,
+          "type": "symlink",
+          "acl": false,
+          "file_capabilities": false,
+          "target": "usr/lib"
+        },
+        "/lib/aarch64-linux-gnu": {
+          "uid": 0,
+          "gid": 0,
+          "mode": 493,
+          "nlink": 55,
+          "type": "directory",
+          "acl": false,
+          "file_capabilities": false,
+          "target": null
+        },
+        "/lib/aarch64-linux-gnu/libXfixes.so.3": {
+          "uid": 0,
+          "gid": 0,
+          "mode": 511,
+          "nlink": 1,
+          "type": "symlink",
+          "acl": false,
+          "file_capabilities": false,
+          "target": "libXfixes.so.3.1.0"
+        },
+        "/lib/aarch64-linux-gnu/libXfixes.so.3.1.0": {
+          "uid": 0,
+          "gid": 0,
+          "mode": 420,
+          "nlink": 1,
+          "type": "file",
+          "acl": false,
+          "file_capabilities": false,
+          "target": null
+        },
+        "/usr": {
+          "uid": 0,
+          "gid": 0,
+          "mode": 493,
+          "nlink": 12,
+          "type": "directory",
+          "acl": false,
+          "file_capabilities": false,
+          "target": null
+        },
+        "/usr/lib": {
+          "uid": 0,
+          "gid": 0,
+          "mode": 493,
+          "nlink": 81,
+          "type": "directory",
+          "acl": false,
+          "file_capabilities": false,
+          "target": null
+        },
+        "/usr/lib/aarch64-linux-gnu": {
+          "uid": 0,
+          "gid": 0,
+          "mode": 493,
+          "nlink": 55,
+          "type": "directory",
+          "acl": false,
+          "file_capabilities": false,
+          "target": null
+        },
+        "/usr/lib/aarch64-linux-gnu/libXfixes.so.3.1.0": {
+          "uid": 0,
+          "gid": 0,
+          "mode": 420,
+          "nlink": 1,
+          "type": "file",
+          "acl": false,
+          "file_capabilities": false,
+          "target": null
+        }
+      }
+    },
+    "/lib/aarch64-linux-gnu/libXrandr.so.2": {
+      "requested": "/lib/aarch64-linux-gnu/libXrandr.so.2",
+      "resolved": "/usr/lib/aarch64-linux-gnu/libXrandr.so.2.2.0",
+      "components": {
+        "/": {
+          "uid": 0,
+          "gid": 0,
+          "mode": 493,
+          "nlink": 22,
+          "type": "directory",
+          "acl": false,
+          "file_capabilities": false,
+          "target": null
+        },
+        "/lib": {
+          "uid": 0,
+          "gid": 0,
+          "mode": 511,
+          "nlink": 1,
+          "type": "symlink",
+          "acl": false,
+          "file_capabilities": false,
+          "target": "usr/lib"
+        },
+        "/lib/aarch64-linux-gnu": {
+          "uid": 0,
+          "gid": 0,
+          "mode": 493,
+          "nlink": 55,
+          "type": "directory",
+          "acl": false,
+          "file_capabilities": false,
+          "target": null
+        },
+        "/lib/aarch64-linux-gnu/libXrandr.so.2": {
+          "uid": 0,
+          "gid": 0,
+          "mode": 511,
+          "nlink": 1,
+          "type": "symlink",
+          "acl": false,
+          "file_capabilities": false,
+          "target": "libXrandr.so.2.2.0"
+        },
+        "/lib/aarch64-linux-gnu/libXrandr.so.2.2.0": {
+          "uid": 0,
+          "gid": 0,
+          "mode": 420,
+          "nlink": 1,
+          "type": "file",
+          "acl": false,
+          "file_capabilities": false,
+          "target": null
+        },
+        "/usr": {
+          "uid": 0,
+          "gid": 0,
+          "mode": 493,
+          "nlink": 12,
+          "type": "directory",
+          "acl": false,
+          "file_capabilities": false,
+          "target": null
+        },
+        "/usr/lib": {
+          "uid": 0,
+          "gid": 0,
+          "mode": 493,
+          "nlink": 81,
+          "type": "directory",
+          "acl": false,
+          "file_capabilities": false,
+          "target": null
+        },
+        "/usr/lib/aarch64-linux-gnu": {
+          "uid": 0,
+          "gid": 0,
+          "mode": 493,
+          "nlink": 55,
+          "type": "directory",
+          "acl": false,
+          "file_capabilities": false,
+          "target": null
+        },
+        "/usr/lib/aarch64-linux-gnu/libXrandr.so.2.2.0": {
+          "uid": 0,
+          "gid": 0,
+          "mode": 420,
+          "nlink": 1,
+          "type": "file",
+          "acl": false,
+          "file_capabilities": false,
+          "target": null
+        }
+      }
+    },
+    "/lib/aarch64-linux-gnu/libasound.so.2": {
+      "requested": "/lib/aarch64-linux-gnu/libasound.so.2",
+      "resolved": "/usr/lib/aarch64-linux-gnu/libasound.so.2.0.0",
+      "components": {
+        "/": {
+          "uid": 0,
+          "gid": 0,
+          "mode": 493,
+          "nlink": 22,
+          "type": "directory",
+          "acl": false,
+          "file_capabilities": false,
+          "target": null
+        },
+        "/lib": {
+          "uid": 0,
+          "gid": 0,
+          "mode": 511,
+          "nlink": 1,
+          "type": "symlink",
+          "acl": false,
+          "file_capabilities": false,
+          "target": "usr/lib"
+        },
+        "/lib/aarch64-linux-gnu": {
+          "uid": 0,
+          "gid": 0,
+          "mode": 493,
+          "nlink": 55,
+          "type": "directory",
+          "acl": false,
+          "file_capabilities": false,
+          "target": null
+        },
+        "/lib/aarch64-linux-gnu/libasound.so.2": {
+          "uid": 0,
+          "gid": 0,
+          "mode": 511,
+          "nlink": 1,
+          "type": "symlink",
+          "acl": false,
+          "file_capabilities": false,
+          "target": "libasound.so.2.0.0"
+        },
+        "/lib/aarch64-linux-gnu/libasound.so.2.0.0": {
+          "uid": 0,
+          "gid": 0,
+          "mode": 420,
+          "nlink": 1,
+          "type": "file",
+          "acl": false,
+          "file_capabilities": false,
+          "target": null
+        },
+        "/usr": {
+          "uid": 0,
+          "gid": 0,
+          "mode": 493,
+          "nlink": 12,
+          "type": "directory",
+          "acl": false,
+          "file_capabilities": false,
+          "target": null
+        },
+        "/usr/lib": {
+          "uid": 0,
+          "gid": 0,
+          "mode": 493,
+          "nlink": 81,
+          "type": "directory",
+          "acl": false,
+          "file_capabilities": false,
+          "target": null
+        },
+        "/usr/lib/aarch64-linux-gnu": {
+          "uid": 0,
+          "gid": 0,
+          "mode": 493,
+          "nlink": 55,
+          "type": "directory",
+          "acl": false,
+          "file_capabilities": false,
+          "target": null
+        },
+        "/usr/lib/aarch64-linux-gnu/libasound.so.2.0.0": {
+          "uid": 0,
+          "gid": 0,
+          "mode": 420,
+          "nlink": 1,
+          "type": "file",
+          "acl": false,
+          "file_capabilities": false,
+          "target": null
+        }
+      }
+    },
+    "/lib/aarch64-linux-gnu/libatk-1.0.so.0": {
+      "requested": "/lib/aarch64-linux-gnu/libatk-1.0.so.0",
+      "resolved": "/usr/lib/aarch64-linux-gnu/libatk-1.0.so.0.25209.1",
+      "components": {
+        "/": {
+          "uid": 0,
+          "gid": 0,
+          "mode": 493,
+          "nlink": 22,
+          "type": "directory",
+          "acl": false,
+          "file_capabilities": false,
+          "target": null
+        },
+        "/lib": {
+          "uid": 0,
+          "gid": 0,
+          "mode": 511,
+          "nlink": 1,
+          "type": "symlink",
+          "acl": false,
+          "file_capabilities": false,
+          "target": "usr/lib"
+        },
+        "/lib/aarch64-linux-gnu": {
+          "uid": 0,
+          "gid": 0,
+          "mode": 493,
+          "nlink": 55,
+          "type": "directory",
+          "acl": false,
+          "file_capabilities": false,
+          "target": null
+        },
+        "/lib/aarch64-linux-gnu/libatk-1.0.so.0": {
+          "uid": 0,
+          "gid": 0,
+          "mode": 511,
+          "nlink": 1,
+          "type": "symlink",
+          "acl": false,
+          "file_capabilities": false,
+          "target": "libatk-1.0.so.0.25209.1"
+        },
+        "/lib/aarch64-linux-gnu/libatk-1.0.so.0.25209.1": {
+          "uid": 0,
+          "gid": 0,
+          "mode": 420,
+          "nlink": 1,
+          "type": "file",
+          "acl": false,
+          "file_capabilities": false,
+          "target": null
+        },
+        "/usr": {
+          "uid": 0,
+          "gid": 0,
+          "mode": 493,
+          "nlink": 12,
+          "type": "directory",
+          "acl": false,
+          "file_capabilities": false,
+          "target": null
+        },
+        "/usr/lib": {
+          "uid": 0,
+          "gid": 0,
+          "mode": 493,
+          "nlink": 81,
+          "type": "directory",
+          "acl": false,
+          "file_capabilities": false,
+          "target": null
+        },
+        "/usr/lib/aarch64-linux-gnu": {
+          "uid": 0,
+          "gid": 0,
+          "mode": 493,
+          "nlink": 55,
+          "type": "directory",
+          "acl": false,
+          "file_capabilities": false,
+          "target": null
+        },
+        "/usr/lib/aarch64-linux-gnu/libatk-1.0.so.0.25209.1": {
+          "uid": 0,
+          "gid": 0,
+          "mode": 420,
+          "nlink": 1,
+          "type": "file",
+          "acl": false,
+          "file_capabilities": false,
+          "target": null
+        }
+      }
+    },
+    "/lib/aarch64-linux-gnu/libatspi.so.0": {
+      "requested": "/lib/aarch64-linux-gnu/libatspi.so.0",
+      "resolved": "/usr/lib/aarch64-linux-gnu/libatspi.so.0.0.1",
+      "components": {
+        "/": {
+          "uid": 0,
+          "gid": 0,
+          "mode": 493,
+          "nlink": 22,
+          "type": "directory",
+          "acl": false,
+          "file_capabilities": false,
+          "target": null
+        },
+        "/lib": {
+          "uid": 0,
+          "gid": 0,
+          "mode": 511,
+          "nlink": 1,
+          "type": "symlink",
+          "acl": false,
+          "file_capabilities": false,
+          "target": "usr/lib"
+        },
+        "/lib/aarch64-linux-gnu": {
+          "uid": 0,
+          "gid": 0,
+          "mode": 493,
+          "nlink": 55,
+          "type": "directory",
+          "acl": false,
+          "file_capabilities": false,
+          "target": null
+        },
+        "/lib/aarch64-linux-gnu/libatspi.so.0": {
+          "uid": 0,
+          "gid": 0,
+          "mode": 511,
+          "nlink": 1,
+          "type": "symlink",
+          "acl": false,
+          "file_capabilities": false,
+          "target": "libatspi.so.0.0.1"
+        },
+        "/lib/aarch64-linux-gnu/libatspi.so.0.0.1": {
+          "uid": 0,
+          "gid": 0,
+          "mode": 420,
+          "nlink": 1,
+          "type": "file",
+          "acl": false,
+          "file_capabilities": false,
+          "target": null
+        },
+        "/usr": {
+          "uid": 0,
+          "gid": 0,
+          "mode": 493,
+          "nlink": 12,
+          "type": "directory",
+          "acl": false,
+          "file_capabilities": false,
+          "target": null
+        },
+        "/usr/lib": {
+          "uid": 0,
+          "gid": 0,
+          "mode": 493,
+          "nlink": 81,
+          "type": "directory",
+          "acl": false,
+          "file_capabilities": false,
+          "target": null
+        },
+        "/usr/lib/aarch64-linux-gnu": {
+          "uid": 0,
+          "gid": 0,
+          "mode": 493,
+          "nlink": 55,
+          "type": "directory",
+          "acl": false,
+          "file_capabilities": false,
+          "target": null
+        },
+        "/usr/lib/aarch64-linux-gnu/libatspi.so.0.0.1": {
+          "uid": 0,
+          "gid": 0,
+          "mode": 420,
+          "nlink": 1,
+          "type": "file",
+          "acl": false,
+          "file_capabilities": false,
+          "target": null
+        }
+      }
+    },
+    "/lib/aarch64-linux-gnu/libc.so.6": {
+      "requested": "/lib/aarch64-linux-gnu/libc.so.6",
+      "resolved": "/usr/lib/aarch64-linux-gnu/libc.so.6",
+      "components": {
+        "/": {
+          "uid": 0,
+          "gid": 0,
+          "mode": 493,
+          "nlink": 22,
+          "type": "directory",
+          "acl": false,
+          "file_capabilities": false,
+          "target": null
+        },
+        "/lib": {
+          "uid": 0,
+          "gid": 0,
+          "mode": 511,
+          "nlink": 1,
+          "type": "symlink",
+          "acl": false,
+          "file_capabilities": false,
+          "target": "usr/lib"
+        },
+        "/lib/aarch64-linux-gnu": {
+          "uid": 0,
+          "gid": 0,
+          "mode": 493,
+          "nlink": 55,
+          "type": "directory",
+          "acl": false,
+          "file_capabilities": false,
+          "target": null
+        },
+        "/lib/aarch64-linux-gnu/libc.so.6": {
+          "uid": 0,
+          "gid": 0,
+          "mode": 493,
+          "nlink": 1,
+          "type": "file",
+          "acl": false,
+          "file_capabilities": false,
+          "target": null
+        },
+        "/usr": {
+          "uid": 0,
+          "gid": 0,
+          "mode": 493,
+          "nlink": 12,
+          "type": "directory",
+          "acl": false,
+          "file_capabilities": false,
+          "target": null
+        },
+        "/usr/lib": {
+          "uid": 0,
+          "gid": 0,
+          "mode": 493,
+          "nlink": 81,
+          "type": "directory",
+          "acl": false,
+          "file_capabilities": false,
+          "target": null
+        },
+        "/usr/lib/aarch64-linux-gnu": {
+          "uid": 0,
+          "gid": 0,
+          "mode": 493,
+          "nlink": 55,
+          "type": "directory",
+          "acl": false,
+          "file_capabilities": false,
+          "target": null
+        },
+        "/usr/lib/aarch64-linux-gnu/libc.so.6": {
+          "uid": 0,
+          "gid": 0,
+          "mode": 493,
+          "nlink": 1,
+          "type": "file",
+          "acl": false,
+          "file_capabilities": false,
+          "target": null
+        }
+      }
+    },
+    "/lib/aarch64-linux-gnu/libdbus-1.so.3": {
+      "requested": "/lib/aarch64-linux-gnu/libdbus-1.so.3",
+      "resolved": "/usr/lib/aarch64-linux-gnu/libdbus-1.so.3.32.4",
+      "components": {
+        "/": {
+          "uid": 0,
+          "gid": 0,
+          "mode": 493,
+          "nlink": 22,
+          "type": "directory",
+          "acl": false,
+          "file_capabilities": false,
+          "target": null
+        },
+        "/lib": {
+          "uid": 0,
+          "gid": 0,
+          "mode": 511,
+          "nlink": 1,
+          "type": "symlink",
+          "acl": false,
+          "file_capabilities": false,
+          "target": "usr/lib"
+        },
+        "/lib/aarch64-linux-gnu": {
+          "uid": 0,
+          "gid": 0,
+          "mode": 493,
+          "nlink": 55,
+          "type": "directory",
+          "acl": false,
+          "file_capabilities": false,
+          "target": null
+        },
+        "/lib/aarch64-linux-gnu/libdbus-1.so.3": {
+          "uid": 0,
+          "gid": 0,
+          "mode": 511,
+          "nlink": 1,
+          "type": "symlink",
+          "acl": false,
+          "file_capabilities": false,
+          "target": "libdbus-1.so.3.32.4"
+        },
+        "/lib/aarch64-linux-gnu/libdbus-1.so.3.32.4": {
+          "uid": 0,
+          "gid": 0,
+          "mode": 420,
+          "nlink": 1,
+          "type": "file",
+          "acl": false,
+          "file_capabilities": false,
+          "target": null
+        },
+        "/usr": {
+          "uid": 0,
+          "gid": 0,
+          "mode": 493,
+          "nlink": 12,
+          "type": "directory",
+          "acl": false,
+          "file_capabilities": false,
+          "target": null
+        },
+        "/usr/lib": {
+          "uid": 0,
+          "gid": 0,
+          "mode": 493,
+          "nlink": 81,
+          "type": "directory",
+          "acl": false,
+          "file_capabilities": false,
+          "target": null
+        },
+        "/usr/lib/aarch64-linux-gnu": {
+          "uid": 0,
+          "gid": 0,
+          "mode": 493,
+          "nlink": 55,
+          "type": "directory",
+          "acl": false,
+          "file_capabilities": false,
+          "target": null
+        },
+        "/usr/lib/aarch64-linux-gnu/libdbus-1.so.3.32.4": {
+          "uid": 0,
+          "gid": 0,
+          "mode": 420,
+          "nlink": 1,
+          "type": "file",
+          "acl": false,
+          "file_capabilities": false,
+          "target": null
+        }
+      }
+    },
+    "/lib/aarch64-linux-gnu/libdl.so.2": {
+      "requested": "/lib/aarch64-linux-gnu/libdl.so.2",
+      "resolved": "/usr/lib/aarch64-linux-gnu/libdl.so.2",
+      "components": {
+        "/": {
+          "uid": 0,
+          "gid": 0,
+          "mode": 493,
+          "nlink": 22,
+          "type": "directory",
+          "acl": false,
+          "file_capabilities": false,
+          "target": null
+        },
+        "/lib": {
+          "uid": 0,
+          "gid": 0,
+          "mode": 511,
+          "nlink": 1,
+          "type": "symlink",
+          "acl": false,
+          "file_capabilities": false,
+          "target": "usr/lib"
+        },
+        "/lib/aarch64-linux-gnu": {
+          "uid": 0,
+          "gid": 0,
+          "mode": 493,
+          "nlink": 55,
+          "type": "directory",
+          "acl": false,
+          "file_capabilities": false,
+          "target": null
+        },
+        "/lib/aarch64-linux-gnu/libdl.so.2": {
+          "uid": 0,
+          "gid": 0,
+          "mode": 420,
+          "nlink": 1,
+          "type": "file",
+          "acl": false,
+          "file_capabilities": false,
+          "target": null
+        },
+        "/usr": {
+          "uid": 0,
+          "gid": 0,
+          "mode": 493,
+          "nlink": 12,
+          "type": "directory",
+          "acl": false,
+          "file_capabilities": false,
+          "target": null
+        },
+        "/usr/lib": {
+          "uid": 0,
+          "gid": 0,
+          "mode": 493,
+          "nlink": 81,
+          "type": "directory",
+          "acl": false,
+          "file_capabilities": false,
+          "target": null
+        },
+        "/usr/lib/aarch64-linux-gnu": {
+          "uid": 0,
+          "gid": 0,
+          "mode": 493,
+          "nlink": 55,
+          "type": "directory",
+          "acl": false,
+          "file_capabilities": false,
+          "target": null
+        },
+        "/usr/lib/aarch64-linux-gnu/libdl.so.2": {
+          "uid": 0,
+          "gid": 0,
+          "mode": 420,
+          "nlink": 1,
+          "type": "file",
+          "acl": false,
+          "file_capabilities": false,
+          "target": null
+        }
+      }
+    },
+    "/lib/aarch64-linux-gnu/libexpat.so.1": {
+      "requested": "/lib/aarch64-linux-gnu/libexpat.so.1",
+      "resolved": "/usr/lib/aarch64-linux-gnu/libexpat.so.1.9.1",
+      "components": {
+        "/": {
+          "uid": 0,
+          "gid": 0,
+          "mode": 493,
+          "nlink": 22,
+          "type": "directory",
+          "acl": false,
+          "file_capabilities": false,
+          "target": null
+        },
+        "/lib": {
+          "uid": 0,
+          "gid": 0,
+          "mode": 511,
+          "nlink": 1,
+          "type": "symlink",
+          "acl": false,
+          "file_capabilities": false,
+          "target": "usr/lib"
+        },
+        "/lib/aarch64-linux-gnu": {
+          "uid": 0,
+          "gid": 0,
+          "mode": 493,
+          "nlink": 55,
+          "type": "directory",
+          "acl": false,
+          "file_capabilities": false,
+          "target": null
+        },
+        "/lib/aarch64-linux-gnu/libexpat.so.1": {
+          "uid": 0,
+          "gid": 0,
+          "mode": 511,
+          "nlink": 1,
+          "type": "symlink",
+          "acl": false,
+          "file_capabilities": false,
+          "target": "libexpat.so.1.9.1"
+        },
+        "/lib/aarch64-linux-gnu/libexpat.so.1.9.1": {
+          "uid": 0,
+          "gid": 0,
+          "mode": 420,
+          "nlink": 1,
+          "type": "file",
+          "acl": false,
+          "file_capabilities": false,
+          "target": null
+        },
+        "/usr": {
+          "uid": 0,
+          "gid": 0,
+          "mode": 493,
+          "nlink": 12,
+          "type": "directory",
+          "acl": false,
+          "file_capabilities": false,
+          "target": null
+        },
+        "/usr/lib": {
+          "uid": 0,
+          "gid": 0,
+          "mode": 493,
+          "nlink": 81,
+          "type": "directory",
+          "acl": false,
+          "file_capabilities": false,
+          "target": null
+        },
+        "/usr/lib/aarch64-linux-gnu": {
+          "uid": 0,
+          "gid": 0,
+          "mode": 493,
+          "nlink": 55,
+          "type": "directory",
+          "acl": false,
+          "file_capabilities": false,
+          "target": null
+        },
+        "/usr/lib/aarch64-linux-gnu/libexpat.so.1.9.1": {
+          "uid": 0,
+          "gid": 0,
+          "mode": 420,
+          "nlink": 1,
+          "type": "file",
+          "acl": false,
+          "file_capabilities": false,
+          "target": null
+        }
+      }
+    },
+    "/lib/aarch64-linux-gnu/libgbm.so.1": {
+      "requested": "/lib/aarch64-linux-gnu/libgbm.so.1",
+      "resolved": "/usr/lib/aarch64-linux-gnu/libgbm.so.1.0.0",
+      "components": {
+        "/": {
+          "uid": 0,
+          "gid": 0,
+          "mode": 493,
+          "nlink": 22,
+          "type": "directory",
+          "acl": false,
+          "file_capabilities": false,
+          "target": null
+        },
+        "/lib": {
+          "uid": 0,
+          "gid": 0,
+          "mode": 511,
+          "nlink": 1,
+          "type": "symlink",
+          "acl": false,
+          "file_capabilities": false,
+          "target": "usr/lib"
+        },
+        "/lib/aarch64-linux-gnu": {
+          "uid": 0,
+          "gid": 0,
+          "mode": 493,
+          "nlink": 55,
+          "type": "directory",
+          "acl": false,
+          "file_capabilities": false,
+          "target": null
+        },
+        "/lib/aarch64-linux-gnu/libgbm.so.1": {
+          "uid": 0,
+          "gid": 0,
+          "mode": 511,
+          "nlink": 1,
+          "type": "symlink",
+          "acl": false,
+          "file_capabilities": false,
+          "target": "libgbm.so.1.0.0"
+        },
+        "/lib/aarch64-linux-gnu/libgbm.so.1.0.0": {
+          "uid": 0,
+          "gid": 0,
+          "mode": 420,
+          "nlink": 1,
+          "type": "file",
+          "acl": false,
+          "file_capabilities": false,
+          "target": null
+        },
+        "/usr": {
+          "uid": 0,
+          "gid": 0,
+          "mode": 493,
+          "nlink": 12,
+          "type": "directory",
+          "acl": false,
+          "file_capabilities": false,
+          "target": null
+        },
+        "/usr/lib": {
+          "uid": 0,
+          "gid": 0,
+          "mode": 493,
+          "nlink": 81,
+          "type": "directory",
+          "acl": false,
+          "file_capabilities": false,
+          "target": null
+        },
+        "/usr/lib/aarch64-linux-gnu": {
+          "uid": 0,
+          "gid": 0,
+          "mode": 493,
+          "nlink": 55,
+          "type": "directory",
+          "acl": false,
+          "file_capabilities": false,
+          "target": null
+        },
+        "/usr/lib/aarch64-linux-gnu/libgbm.so.1.0.0": {
+          "uid": 0,
+          "gid": 0,
+          "mode": 420,
+          "nlink": 1,
+          "type": "file",
+          "acl": false,
+          "file_capabilities": false,
+          "target": null
+        }
+      }
+    },
+    "/lib/aarch64-linux-gnu/libgcc_s.so.1": {
+      "requested": "/lib/aarch64-linux-gnu/libgcc_s.so.1",
+      "resolved": "/usr/lib/aarch64-linux-gnu/libgcc_s.so.1",
+      "components": {
+        "/": {
+          "uid": 0,
+          "gid": 0,
+          "mode": 493,
+          "nlink": 22,
+          "type": "directory",
+          "acl": false,
+          "file_capabilities": false,
+          "target": null
+        },
+        "/lib": {
+          "uid": 0,
+          "gid": 0,
+          "mode": 511,
+          "nlink": 1,
+          "type": "symlink",
+          "acl": false,
+          "file_capabilities": false,
+          "target": "usr/lib"
+        },
+        "/lib/aarch64-linux-gnu": {
+          "uid": 0,
+          "gid": 0,
+          "mode": 493,
+          "nlink": 55,
+          "type": "directory",
+          "acl": false,
+          "file_capabilities": false,
+          "target": null
+        },
+        "/lib/aarch64-linux-gnu/libgcc_s.so.1": {
+          "uid": 0,
+          "gid": 0,
+          "mode": 420,
+          "nlink": 1,
+          "type": "file",
+          "acl": false,
+          "file_capabilities": false,
+          "target": null
+        },
+        "/usr": {
+          "uid": 0,
+          "gid": 0,
+          "mode": 493,
+          "nlink": 12,
+          "type": "directory",
+          "acl": false,
+          "file_capabilities": false,
+          "target": null
+        },
+        "/usr/lib": {
+          "uid": 0,
+          "gid": 0,
+          "mode": 493,
+          "nlink": 81,
+          "type": "directory",
+          "acl": false,
+          "file_capabilities": false,
+          "target": null
+        },
+        "/usr/lib/aarch64-linux-gnu": {
+          "uid": 0,
+          "gid": 0,
+          "mode": 493,
+          "nlink": 55,
+          "type": "directory",
+          "acl": false,
+          "file_capabilities": false,
+          "target": null
+        },
+        "/usr/lib/aarch64-linux-gnu/libgcc_s.so.1": {
+          "uid": 0,
+          "gid": 0,
+          "mode": 420,
+          "nlink": 1,
+          "type": "file",
+          "acl": false,
+          "file_capabilities": false,
+          "target": null
+        }
+      }
+    },
+    "/lib/aarch64-linux-gnu/libgio-2.0.so.0": {
+      "requested": "/lib/aarch64-linux-gnu/libgio-2.0.so.0",
+      "resolved": "/usr/lib/aarch64-linux-gnu/libgio-2.0.so.0.8000.0",
+      "components": {
+        "/": {
+          "uid": 0,
+          "gid": 0,
+          "mode": 493,
+          "nlink": 22,
+          "type": "directory",
+          "acl": false,
+          "file_capabilities": false,
+          "target": null
+        },
+        "/lib": {
+          "uid": 0,
+          "gid": 0,
+          "mode": 511,
+          "nlink": 1,
+          "type": "symlink",
+          "acl": false,
+          "file_capabilities": false,
+          "target": "usr/lib"
+        },
+        "/lib/aarch64-linux-gnu": {
+          "uid": 0,
+          "gid": 0,
+          "mode": 493,
+          "nlink": 55,
+          "type": "directory",
+          "acl": false,
+          "file_capabilities": false,
+          "target": null
+        },
+        "/lib/aarch64-linux-gnu/libgio-2.0.so.0": {
+          "uid": 0,
+          "gid": 0,
+          "mode": 511,
+          "nlink": 1,
+          "type": "symlink",
+          "acl": false,
+          "file_capabilities": false,
+          "target": "libgio-2.0.so.0.8000.0"
+        },
+        "/lib/aarch64-linux-gnu/libgio-2.0.so.0.8000.0": {
+          "uid": 0,
+          "gid": 0,
+          "mode": 420,
+          "nlink": 1,
+          "type": "file",
+          "acl": false,
+          "file_capabilities": false,
+          "target": null
+        },
+        "/usr": {
+          "uid": 0,
+          "gid": 0,
+          "mode": 493,
+          "nlink": 12,
+          "type": "directory",
+          "acl": false,
+          "file_capabilities": false,
+          "target": null
+        },
+        "/usr/lib": {
+          "uid": 0,
+          "gid": 0,
+          "mode": 493,
+          "nlink": 81,
+          "type": "directory",
+          "acl": false,
+          "file_capabilities": false,
+          "target": null
+        },
+        "/usr/lib/aarch64-linux-gnu": {
+          "uid": 0,
+          "gid": 0,
+          "mode": 493,
+          "nlink": 55,
+          "type": "directory",
+          "acl": false,
+          "file_capabilities": false,
+          "target": null
+        },
+        "/usr/lib/aarch64-linux-gnu/libgio-2.0.so.0.8000.0": {
+          "uid": 0,
+          "gid": 0,
+          "mode": 420,
+          "nlink": 1,
+          "type": "file",
+          "acl": false,
+          "file_capabilities": false,
+          "target": null
+        }
+      }
+    },
+    "/lib/aarch64-linux-gnu/libglib-2.0.so.0": {
+      "requested": "/lib/aarch64-linux-gnu/libglib-2.0.so.0",
+      "resolved": "/usr/lib/aarch64-linux-gnu/libglib-2.0.so.0.8000.0",
+      "components": {
+        "/": {
+          "uid": 0,
+          "gid": 0,
+          "mode": 493,
+          "nlink": 22,
+          "type": "directory",
+          "acl": false,
+          "file_capabilities": false,
+          "target": null
+        },
+        "/lib": {
+          "uid": 0,
+          "gid": 0,
+          "mode": 511,
+          "nlink": 1,
+          "type": "symlink",
+          "acl": false,
+          "file_capabilities": false,
+          "target": "usr/lib"
+        },
+        "/lib/aarch64-linux-gnu": {
+          "uid": 0,
+          "gid": 0,
+          "mode": 493,
+          "nlink": 55,
+          "type": "directory",
+          "acl": false,
+          "file_capabilities": false,
+          "target": null
+        },
+        "/lib/aarch64-linux-gnu/libglib-2.0.so.0": {
+          "uid": 0,
+          "gid": 0,
+          "mode": 511,
+          "nlink": 1,
+          "type": "symlink",
+          "acl": false,
+          "file_capabilities": false,
+          "target": "libglib-2.0.so.0.8000.0"
+        },
+        "/lib/aarch64-linux-gnu/libglib-2.0.so.0.8000.0": {
+          "uid": 0,
+          "gid": 0,
+          "mode": 420,
+          "nlink": 1,
+          "type": "file",
+          "acl": false,
+          "file_capabilities": false,
+          "target": null
+        },
+        "/usr": {
+          "uid": 0,
+          "gid": 0,
+          "mode": 493,
+          "nlink": 12,
+          "type": "directory",
+          "acl": false,
+          "file_capabilities": false,
+          "target": null
+        },
+        "/usr/lib": {
+          "uid": 0,
+          "gid": 0,
+          "mode": 493,
+          "nlink": 81,
+          "type": "directory",
+          "acl": false,
+          "file_capabilities": false,
+          "target": null
+        },
+        "/usr/lib/aarch64-linux-gnu": {
+          "uid": 0,
+          "gid": 0,
+          "mode": 493,
+          "nlink": 55,
+          "type": "directory",
+          "acl": false,
+          "file_capabilities": false,
+          "target": null
+        },
+        "/usr/lib/aarch64-linux-gnu/libglib-2.0.so.0.8000.0": {
+          "uid": 0,
+          "gid": 0,
+          "mode": 420,
+          "nlink": 1,
+          "type": "file",
+          "acl": false,
+          "file_capabilities": false,
+          "target": null
+        }
+      }
+    },
+    "/lib/aarch64-linux-gnu/libgobject-2.0.so.0": {
+      "requested": "/lib/aarch64-linux-gnu/libgobject-2.0.so.0",
+      "resolved": "/usr/lib/aarch64-linux-gnu/libgobject-2.0.so.0.8000.0",
+      "components": {
+        "/": {
+          "uid": 0,
+          "gid": 0,
+          "mode": 493,
+          "nlink": 22,
+          "type": "directory",
+          "acl": false,
+          "file_capabilities": false,
+          "target": null
+        },
+        "/lib": {
+          "uid": 0,
+          "gid": 0,
+          "mode": 511,
+          "nlink": 1,
+          "type": "symlink",
+          "acl": false,
+          "file_capabilities": false,
+          "target": "usr/lib"
+        },
+        "/lib/aarch64-linux-gnu": {
+          "uid": 0,
+          "gid": 0,
+          "mode": 493,
+          "nlink": 55,
+          "type": "directory",
+          "acl": false,
+          "file_capabilities": false,
+          "target": null
+        },
+        "/lib/aarch64-linux-gnu/libgobject-2.0.so.0": {
+          "uid": 0,
+          "gid": 0,
+          "mode": 511,
+          "nlink": 1,
+          "type": "symlink",
+          "acl": false,
+          "file_capabilities": false,
+          "target": "libgobject-2.0.so.0.8000.0"
+        },
+        "/lib/aarch64-linux-gnu/libgobject-2.0.so.0.8000.0": {
+          "uid": 0,
+          "gid": 0,
+          "mode": 420,
+          "nlink": 1,
+          "type": "file",
+          "acl": false,
+          "file_capabilities": false,
+          "target": null
+        },
+        "/usr": {
+          "uid": 0,
+          "gid": 0,
+          "mode": 493,
+          "nlink": 12,
+          "type": "directory",
+          "acl": false,
+          "file_capabilities": false,
+          "target": null
+        },
+        "/usr/lib": {
+          "uid": 0,
+          "gid": 0,
+          "mode": 493,
+          "nlink": 81,
+          "type": "directory",
+          "acl": false,
+          "file_capabilities": false,
+          "target": null
+        },
+        "/usr/lib/aarch64-linux-gnu": {
+          "uid": 0,
+          "gid": 0,
+          "mode": 493,
+          "nlink": 55,
+          "type": "directory",
+          "acl": false,
+          "file_capabilities": false,
+          "target": null
+        },
+        "/usr/lib/aarch64-linux-gnu/libgobject-2.0.so.0.8000.0": {
+          "uid": 0,
+          "gid": 0,
+          "mode": 420,
+          "nlink": 1,
+          "type": "file",
+          "acl": false,
+          "file_capabilities": false,
+          "target": null
+        }
+      }
+    },
+    "/lib/aarch64-linux-gnu/libm.so.6": {
+      "requested": "/lib/aarch64-linux-gnu/libm.so.6",
+      "resolved": "/usr/lib/aarch64-linux-gnu/libm.so.6",
+      "components": {
+        "/": {
+          "uid": 0,
+          "gid": 0,
+          "mode": 493,
+          "nlink": 22,
+          "type": "directory",
+          "acl": false,
+          "file_capabilities": false,
+          "target": null
+        },
+        "/lib": {
+          "uid": 0,
+          "gid": 0,
+          "mode": 511,
+          "nlink": 1,
+          "type": "symlink",
+          "acl": false,
+          "file_capabilities": false,
+          "target": "usr/lib"
+        },
+        "/lib/aarch64-linux-gnu": {
+          "uid": 0,
+          "gid": 0,
+          "mode": 493,
+          "nlink": 55,
+          "type": "directory",
+          "acl": false,
+          "file_capabilities": false,
+          "target": null
+        },
+        "/lib/aarch64-linux-gnu/libm.so.6": {
+          "uid": 0,
+          "gid": 0,
+          "mode": 420,
+          "nlink": 1,
+          "type": "file",
+          "acl": false,
+          "file_capabilities": false,
+          "target": null
+        },
+        "/usr": {
+          "uid": 0,
+          "gid": 0,
+          "mode": 493,
+          "nlink": 12,
+          "type": "directory",
+          "acl": false,
+          "file_capabilities": false,
+          "target": null
+        },
+        "/usr/lib": {
+          "uid": 0,
+          "gid": 0,
+          "mode": 493,
+          "nlink": 81,
+          "type": "directory",
+          "acl": false,
+          "file_capabilities": false,
+          "target": null
+        },
+        "/usr/lib/aarch64-linux-gnu": {
+          "uid": 0,
+          "gid": 0,
+          "mode": 493,
+          "nlink": 55,
+          "type": "directory",
+          "acl": false,
+          "file_capabilities": false,
+          "target": null
+        },
+        "/usr/lib/aarch64-linux-gnu/libm.so.6": {
+          "uid": 0,
+          "gid": 0,
+          "mode": 420,
+          "nlink": 1,
+          "type": "file",
+          "acl": false,
+          "file_capabilities": false,
+          "target": null
+        }
+      }
+    },
+    "/lib/aarch64-linux-gnu/libnspr4.so": {
+      "requested": "/lib/aarch64-linux-gnu/libnspr4.so",
+      "resolved": "/usr/lib/aarch64-linux-gnu/libnspr4.so",
+      "components": {
+        "/": {
+          "uid": 0,
+          "gid": 0,
+          "mode": 493,
+          "nlink": 22,
+          "type": "directory",
+          "acl": false,
+          "file_capabilities": false,
+          "target": null
+        },
+        "/lib": {
+          "uid": 0,
+          "gid": 0,
+          "mode": 511,
+          "nlink": 1,
+          "type": "symlink",
+          "acl": false,
+          "file_capabilities": false,
+          "target": "usr/lib"
+        },
+        "/lib/aarch64-linux-gnu": {
+          "uid": 0,
+          "gid": 0,
+          "mode": 493,
+          "nlink": 55,
+          "type": "directory",
+          "acl": false,
+          "file_capabilities": false,
+          "target": null
+        },
+        "/lib/aarch64-linux-gnu/libnspr4.so": {
+          "uid": 0,
+          "gid": 0,
+          "mode": 420,
+          "nlink": 1,
+          "type": "file",
+          "acl": false,
+          "file_capabilities": false,
+          "target": null
+        },
+        "/usr": {
+          "uid": 0,
+          "gid": 0,
+          "mode": 493,
+          "nlink": 12,
+          "type": "directory",
+          "acl": false,
+          "file_capabilities": false,
+          "target": null
+        },
+        "/usr/lib": {
+          "uid": 0,
+          "gid": 0,
+          "mode": 493,
+          "nlink": 81,
+          "type": "directory",
+          "acl": false,
+          "file_capabilities": false,
+          "target": null
+        },
+        "/usr/lib/aarch64-linux-gnu": {
+          "uid": 0,
+          "gid": 0,
+          "mode": 493,
+          "nlink": 55,
+          "type": "directory",
+          "acl": false,
+          "file_capabilities": false,
+          "target": null
+        },
+        "/usr/lib/aarch64-linux-gnu/libnspr4.so": {
+          "uid": 0,
+          "gid": 0,
+          "mode": 420,
+          "nlink": 1,
+          "type": "file",
+          "acl": false,
+          "file_capabilities": false,
+          "target": null
+        }
+      }
+    },
+    "/lib/aarch64-linux-gnu/libnss3.so": {
+      "requested": "/lib/aarch64-linux-gnu/libnss3.so",
+      "resolved": "/usr/lib/aarch64-linux-gnu/libnss3.so",
+      "components": {
+        "/": {
+          "uid": 0,
+          "gid": 0,
+          "mode": 493,
+          "nlink": 22,
+          "type": "directory",
+          "acl": false,
+          "file_capabilities": false,
+          "target": null
+        },
+        "/lib": {
+          "uid": 0,
+          "gid": 0,
+          "mode": 511,
+          "nlink": 1,
+          "type": "symlink",
+          "acl": false,
+          "file_capabilities": false,
+          "target": "usr/lib"
+        },
+        "/lib/aarch64-linux-gnu": {
+          "uid": 0,
+          "gid": 0,
+          "mode": 493,
+          "nlink": 55,
+          "type": "directory",
+          "acl": false,
+          "file_capabilities": false,
+          "target": null
+        },
+        "/lib/aarch64-linux-gnu/libnss3.so": {
+          "uid": 0,
+          "gid": 0,
+          "mode": 420,
+          "nlink": 1,
+          "type": "file",
+          "acl": false,
+          "file_capabilities": false,
+          "target": null
+        },
+        "/usr": {
+          "uid": 0,
+          "gid": 0,
+          "mode": 493,
+          "nlink": 12,
+          "type": "directory",
+          "acl": false,
+          "file_capabilities": false,
+          "target": null
+        },
+        "/usr/lib": {
+          "uid": 0,
+          "gid": 0,
+          "mode": 493,
+          "nlink": 81,
+          "type": "directory",
+          "acl": false,
+          "file_capabilities": false,
+          "target": null
+        },
+        "/usr/lib/aarch64-linux-gnu": {
+          "uid": 0,
+          "gid": 0,
+          "mode": 493,
+          "nlink": 55,
+          "type": "directory",
+          "acl": false,
+          "file_capabilities": false,
+          "target": null
+        },
+        "/usr/lib/aarch64-linux-gnu/libnss3.so": {
+          "uid": 0,
+          "gid": 0,
+          "mode": 420,
+          "nlink": 1,
+          "type": "file",
+          "acl": false,
+          "file_capabilities": false,
+          "target": null
+        }
+      }
+    },
+    "/lib/aarch64-linux-gnu/libnssutil3.so": {
+      "requested": "/lib/aarch64-linux-gnu/libnssutil3.so",
+      "resolved": "/usr/lib/aarch64-linux-gnu/libnssutil3.so",
+      "components": {
+        "/": {
+          "uid": 0,
+          "gid": 0,
+          "mode": 493,
+          "nlink": 22,
+          "type": "directory",
+          "acl": false,
+          "file_capabilities": false,
+          "target": null
+        },
+        "/lib": {
+          "uid": 0,
+          "gid": 0,
+          "mode": 511,
+          "nlink": 1,
+          "type": "symlink",
+          "acl": false,
+          "file_capabilities": false,
+          "target": "usr/lib"
+        },
+        "/lib/aarch64-linux-gnu": {
+          "uid": 0,
+          "gid": 0,
+          "mode": 493,
+          "nlink": 55,
+          "type": "directory",
+          "acl": false,
+          "file_capabilities": false,
+          "target": null
+        },
+        "/lib/aarch64-linux-gnu/libnssutil3.so": {
+          "uid": 0,
+          "gid": 0,
+          "mode": 420,
+          "nlink": 1,
+          "type": "file",
+          "acl": false,
+          "file_capabilities": false,
+          "target": null
+        },
+        "/usr": {
+          "uid": 0,
+          "gid": 0,
+          "mode": 493,
+          "nlink": 12,
+          "type": "directory",
+          "acl": false,
+          "file_capabilities": false,
+          "target": null
+        },
+        "/usr/lib": {
+          "uid": 0,
+          "gid": 0,
+          "mode": 493,
+          "nlink": 81,
+          "type": "directory",
+          "acl": false,
+          "file_capabilities": false,
+          "target": null
+        },
+        "/usr/lib/aarch64-linux-gnu": {
+          "uid": 0,
+          "gid": 0,
+          "mode": 493,
+          "nlink": 55,
+          "type": "directory",
+          "acl": false,
+          "file_capabilities": false,
+          "target": null
+        },
+        "/usr/lib/aarch64-linux-gnu/libnssutil3.so": {
+          "uid": 0,
+          "gid": 0,
+          "mode": 420,
+          "nlink": 1,
+          "type": "file",
+          "acl": false,
+          "file_capabilities": false,
+          "target": null
+        }
+      }
+    },
+    "/lib/aarch64-linux-gnu/libpthread.so.0": {
+      "requested": "/lib/aarch64-linux-gnu/libpthread.so.0",
+      "resolved": "/usr/lib/aarch64-linux-gnu/libpthread.so.0",
+      "components": {
+        "/": {
+          "uid": 0,
+          "gid": 0,
+          "mode": 493,
+          "nlink": 22,
+          "type": "directory",
+          "acl": false,
+          "file_capabilities": false,
+          "target": null
+        },
+        "/lib": {
+          "uid": 0,
+          "gid": 0,
+          "mode": 511,
+          "nlink": 1,
+          "type": "symlink",
+          "acl": false,
+          "file_capabilities": false,
+          "target": "usr/lib"
+        },
+        "/lib/aarch64-linux-gnu": {
+          "uid": 0,
+          "gid": 0,
+          "mode": 493,
+          "nlink": 55,
+          "type": "directory",
+          "acl": false,
+          "file_capabilities": false,
+          "target": null
+        },
+        "/lib/aarch64-linux-gnu/libpthread.so.0": {
+          "uid": 0,
+          "gid": 0,
+          "mode": 420,
+          "nlink": 1,
+          "type": "file",
+          "acl": false,
+          "file_capabilities": false,
+          "target": null
+        },
+        "/usr": {
+          "uid": 0,
+          "gid": 0,
+          "mode": 493,
+          "nlink": 12,
+          "type": "directory",
+          "acl": false,
+          "file_capabilities": false,
+          "target": null
+        },
+        "/usr/lib": {
+          "uid": 0,
+          "gid": 0,
+          "mode": 493,
+          "nlink": 81,
+          "type": "directory",
+          "acl": false,
+          "file_capabilities": false,
+          "target": null
+        },
+        "/usr/lib/aarch64-linux-gnu": {
+          "uid": 0,
+          "gid": 0,
+          "mode": 493,
+          "nlink": 55,
+          "type": "directory",
+          "acl": false,
+          "file_capabilities": false,
+          "target": null
+        },
+        "/usr/lib/aarch64-linux-gnu/libpthread.so.0": {
+          "uid": 0,
+          "gid": 0,
+          "mode": 420,
+          "nlink": 1,
+          "type": "file",
+          "acl": false,
+          "file_capabilities": false,
+          "target": null
+        }
+      }
+    },
+    "/lib/aarch64-linux-gnu/libudev.so.1": {
+      "requested": "/lib/aarch64-linux-gnu/libudev.so.1",
+      "resolved": "/usr/lib/aarch64-linux-gnu/libudev.so.1.7.8",
+      "components": {
+        "/": {
+          "uid": 0,
+          "gid": 0,
+          "mode": 493,
+          "nlink": 22,
+          "type": "directory",
+          "acl": false,
+          "file_capabilities": false,
+          "target": null
+        },
+        "/lib": {
+          "uid": 0,
+          "gid": 0,
+          "mode": 511,
+          "nlink": 1,
+          "type": "symlink",
+          "acl": false,
+          "file_capabilities": false,
+          "target": "usr/lib"
+        },
+        "/lib/aarch64-linux-gnu": {
+          "uid": 0,
+          "gid": 0,
+          "mode": 493,
+          "nlink": 55,
+          "type": "directory",
+          "acl": false,
+          "file_capabilities": false,
+          "target": null
+        },
+        "/lib/aarch64-linux-gnu/libudev.so.1": {
+          "uid": 0,
+          "gid": 0,
+          "mode": 511,
+          "nlink": 1,
+          "type": "symlink",
+          "acl": false,
+          "file_capabilities": false,
+          "target": "libudev.so.1.7.8"
+        },
+        "/lib/aarch64-linux-gnu/libudev.so.1.7.8": {
+          "uid": 0,
+          "gid": 0,
+          "mode": 420,
+          "nlink": 1,
+          "type": "file",
+          "acl": false,
+          "file_capabilities": false,
+          "target": null
+        },
+        "/usr": {
+          "uid": 0,
+          "gid": 0,
+          "mode": 493,
+          "nlink": 12,
+          "type": "directory",
+          "acl": false,
+          "file_capabilities": false,
+          "target": null
+        },
+        "/usr/lib": {
+          "uid": 0,
+          "gid": 0,
+          "mode": 493,
+          "nlink": 81,
+          "type": "directory",
+          "acl": false,
+          "file_capabilities": false,
+          "target": null
+        },
+        "/usr/lib/aarch64-linux-gnu": {
+          "uid": 0,
+          "gid": 0,
+          "mode": 493,
+          "nlink": 55,
+          "type": "directory",
+          "acl": false,
+          "file_capabilities": false,
+          "target": null
+        },
+        "/usr/lib/aarch64-linux-gnu/libudev.so.1.7.8": {
+          "uid": 0,
+          "gid": 0,
+          "mode": 420,
+          "nlink": 1,
+          "type": "file",
+          "acl": false,
+          "file_capabilities": false,
+          "target": null
+        }
+      }
+    },
+    "/lib/aarch64-linux-gnu/libxcb.so.1": {
+      "requested": "/lib/aarch64-linux-gnu/libxcb.so.1",
+      "resolved": "/usr/lib/aarch64-linux-gnu/libxcb.so.1.1.0",
+      "components": {
+        "/": {
+          "uid": 0,
+          "gid": 0,
+          "mode": 493,
+          "nlink": 22,
+          "type": "directory",
+          "acl": false,
+          "file_capabilities": false,
+          "target": null
+        },
+        "/lib": {
+          "uid": 0,
+          "gid": 0,
+          "mode": 511,
+          "nlink": 1,
+          "type": "symlink",
+          "acl": false,
+          "file_capabilities": false,
+          "target": "usr/lib"
+        },
+        "/lib/aarch64-linux-gnu": {
+          "uid": 0,
+          "gid": 0,
+          "mode": 493,
+          "nlink": 55,
+          "type": "directory",
+          "acl": false,
+          "file_capabilities": false,
+          "target": null
+        },
+        "/lib/aarch64-linux-gnu/libxcb.so.1": {
+          "uid": 0,
+          "gid": 0,
+          "mode": 511,
+          "nlink": 1,
+          "type": "symlink",
+          "acl": false,
+          "file_capabilities": false,
+          "target": "libxcb.so.1.1.0"
+        },
+        "/lib/aarch64-linux-gnu/libxcb.so.1.1.0": {
+          "uid": 0,
+          "gid": 0,
+          "mode": 420,
+          "nlink": 1,
+          "type": "file",
+          "acl": false,
+          "file_capabilities": false,
+          "target": null
+        },
+        "/usr": {
+          "uid": 0,
+          "gid": 0,
+          "mode": 493,
+          "nlink": 12,
+          "type": "directory",
+          "acl": false,
+          "file_capabilities": false,
+          "target": null
+        },
+        "/usr/lib": {
+          "uid": 0,
+          "gid": 0,
+          "mode": 493,
+          "nlink": 81,
+          "type": "directory",
+          "acl": false,
+          "file_capabilities": false,
+          "target": null
+        },
+        "/usr/lib/aarch64-linux-gnu": {
+          "uid": 0,
+          "gid": 0,
+          "mode": 493,
+          "nlink": 55,
+          "type": "directory",
+          "acl": false,
+          "file_capabilities": false,
+          "target": null
+        },
+        "/usr/lib/aarch64-linux-gnu/libxcb.so.1.1.0": {
+          "uid": 0,
+          "gid": 0,
+          "mode": 420,
+          "nlink": 1,
+          "type": "file",
+          "acl": false,
+          "file_capabilities": false,
+          "target": null
+        }
+      }
+    },
+    "/lib/aarch64-linux-gnu/libxkbcommon.so.0": {
+      "requested": "/lib/aarch64-linux-gnu/libxkbcommon.so.0",
+      "resolved": "/usr/lib/aarch64-linux-gnu/libxkbcommon.so.0.0.0",
+      "components": {
+        "/": {
+          "uid": 0,
+          "gid": 0,
+          "mode": 493,
+          "nlink": 22,
+          "type": "directory",
+          "acl": false,
+          "file_capabilities": false,
+          "target": null
+        },
+        "/lib": {
+          "uid": 0,
+          "gid": 0,
+          "mode": 511,
+          "nlink": 1,
+          "type": "symlink",
+          "acl": false,
+          "file_capabilities": false,
+          "target": "usr/lib"
+        },
+        "/lib/aarch64-linux-gnu": {
+          "uid": 0,
+          "gid": 0,
+          "mode": 493,
+          "nlink": 55,
+          "type": "directory",
+          "acl": false,
+          "file_capabilities": false,
+          "target": null
+        },
+        "/lib/aarch64-linux-gnu/libxkbcommon.so.0": {
+          "uid": 0,
+          "gid": 0,
+          "mode": 511,
+          "nlink": 1,
+          "type": "symlink",
+          "acl": false,
+          "file_capabilities": false,
+          "target": "libxkbcommon.so.0.0.0"
+        },
+        "/lib/aarch64-linux-gnu/libxkbcommon.so.0.0.0": {
+          "uid": 0,
+          "gid": 0,
+          "mode": 420,
+          "nlink": 1,
+          "type": "file",
+          "acl": false,
+          "file_capabilities": false,
+          "target": null
+        },
+        "/usr": {
+          "uid": 0,
+          "gid": 0,
+          "mode": 493,
+          "nlink": 12,
+          "type": "directory",
+          "acl": false,
+          "file_capabilities": false,
+          "target": null
+        },
+        "/usr/lib": {
+          "uid": 0,
+          "gid": 0,
+          "mode": 493,
+          "nlink": 81,
+          "type": "directory",
+          "acl": false,
+          "file_capabilities": false,
+          "target": null
+        },
+        "/usr/lib/aarch64-linux-gnu": {
+          "uid": 0,
+          "gid": 0,
+          "mode": 493,
+          "nlink": 55,
+          "type": "directory",
+          "acl": false,
+          "file_capabilities": false,
+          "target": null
+        },
+        "/usr/lib/aarch64-linux-gnu/libxkbcommon.so.0.0.0": {
+          "uid": 0,
+          "gid": 0,
+          "mode": 420,
+          "nlink": 1,
+          "type": "file",
+          "acl": false,
+          "file_capabilities": false,
+          "target": null
+        }
+      }
+    },
+    "/lib/aarch64-linux-gnu/libnss_files.so.2": {
+      "requested": "/lib/aarch64-linux-gnu/libnss_files.so.2",
+      "resolved": "/usr/lib/aarch64-linux-gnu/libnss_files.so.2",
+      "components": {
+        "/": {
+          "uid": 0,
+          "gid": 0,
+          "mode": 493,
+          "nlink": 22,
+          "type": "directory",
+          "acl": false,
+          "file_capabilities": false,
+          "target": null
+        },
+        "/lib": {
+          "uid": 0,
+          "gid": 0,
+          "mode": 511,
+          "nlink": 1,
+          "type": "symlink",
+          "acl": false,
+          "file_capabilities": false,
+          "target": "usr/lib"
+        },
+        "/lib/aarch64-linux-gnu": {
+          "uid": 0,
+          "gid": 0,
+          "mode": 493,
+          "nlink": 55,
+          "type": "directory",
+          "acl": false,
+          "file_capabilities": false,
+          "target": null
+        },
+        "/lib/aarch64-linux-gnu/libnss_files.so.2": {
+          "uid": 0,
+          "gid": 0,
+          "mode": 420,
+          "nlink": 1,
+          "type": "file",
+          "acl": false,
+          "file_capabilities": false,
+          "target": null
+        },
+        "/usr": {
+          "uid": 0,
+          "gid": 0,
+          "mode": 493,
+          "nlink": 12,
+          "type": "directory",
+          "acl": false,
+          "file_capabilities": false,
+          "target": null
+        },
+        "/usr/lib": {
+          "uid": 0,
+          "gid": 0,
+          "mode": 493,
+          "nlink": 81,
+          "type": "directory",
+          "acl": false,
+          "file_capabilities": false,
+          "target": null
+        },
+        "/usr/lib/aarch64-linux-gnu": {
+          "uid": 0,
+          "gid": 0,
+          "mode": 493,
+          "nlink": 55,
+          "type": "directory",
+          "acl": false,
+          "file_capabilities": false,
+          "target": null
+        },
+        "/usr/lib/aarch64-linux-gnu/libnss_files.so.2": {
+          "uid": 0,
+          "gid": 0,
+          "mode": 420,
+          "nlink": 1,
+          "type": "file",
+          "acl": false,
+          "file_capabilities": false,
+          "target": null
+        }
+      }
+    },
+    "/lib/aarch64-linux-gnu/libnss_dns.so.2": {
+      "requested": "/lib/aarch64-linux-gnu/libnss_dns.so.2",
+      "resolved": "/usr/lib/aarch64-linux-gnu/libnss_dns.so.2",
+      "components": {
+        "/": {
+          "uid": 0,
+          "gid": 0,
+          "mode": 493,
+          "nlink": 22,
+          "type": "directory",
+          "acl": false,
+          "file_capabilities": false,
+          "target": null
+        },
+        "/lib": {
+          "uid": 0,
+          "gid": 0,
+          "mode": 511,
+          "nlink": 1,
+          "type": "symlink",
+          "acl": false,
+          "file_capabilities": false,
+          "target": "usr/lib"
+        },
+        "/lib/aarch64-linux-gnu": {
+          "uid": 0,
+          "gid": 0,
+          "mode": 493,
+          "nlink": 55,
+          "type": "directory",
+          "acl": false,
+          "file_capabilities": false,
+          "target": null
+        },
+        "/lib/aarch64-linux-gnu/libnss_dns.so.2": {
+          "uid": 0,
+          "gid": 0,
+          "mode": 420,
+          "nlink": 1,
+          "type": "file",
+          "acl": false,
+          "file_capabilities": false,
+          "target": null
+        },
+        "/usr": {
+          "uid": 0,
+          "gid": 0,
+          "mode": 493,
+          "nlink": 12,
+          "type": "directory",
+          "acl": false,
+          "file_capabilities": false,
+          "target": null
+        },
+        "/usr/lib": {
+          "uid": 0,
+          "gid": 0,
+          "mode": 493,
+          "nlink": 81,
+          "type": "directory",
+          "acl": false,
+          "file_capabilities": false,
+          "target": null
+        },
+        "/usr/lib/aarch64-linux-gnu": {
+          "uid": 0,
+          "gid": 0,
+          "mode": 493,
+          "nlink": 55,
+          "type": "directory",
+          "acl": false,
+          "file_capabilities": false,
+          "target": null
+        },
+        "/usr/lib/aarch64-linux-gnu/libnss_dns.so.2": {
+          "uid": 0,
+          "gid": 0,
+          "mode": 420,
+          "nlink": 1,
+          "type": "file",
+          "acl": false,
+          "file_capabilities": false,
+          "target": null
+        }
+      }
+    },
+    "/lib/aarch64-linux-gnu/libresolv.so.2": {
+      "requested": "/lib/aarch64-linux-gnu/libresolv.so.2",
+      "resolved": "/usr/lib/aarch64-linux-gnu/libresolv.so.2",
+      "components": {
+        "/": {
+          "uid": 0,
+          "gid": 0,
+          "mode": 493,
+          "nlink": 22,
+          "type": "directory",
+          "acl": false,
+          "file_capabilities": false,
+          "target": null
+        },
+        "/lib": {
+          "uid": 0,
+          "gid": 0,
+          "mode": 511,
+          "nlink": 1,
+          "type": "symlink",
+          "acl": false,
+          "file_capabilities": false,
+          "target": "usr/lib"
+        },
+        "/lib/aarch64-linux-gnu": {
+          "uid": 0,
+          "gid": 0,
+          "mode": 493,
+          "nlink": 55,
+          "type": "directory",
+          "acl": false,
+          "file_capabilities": false,
+          "target": null
+        },
+        "/lib/aarch64-linux-gnu/libresolv.so.2": {
+          "uid": 0,
+          "gid": 0,
+          "mode": 420,
+          "nlink": 1,
+          "type": "file",
+          "acl": false,
+          "file_capabilities": false,
+          "target": null
+        },
+        "/usr": {
+          "uid": 0,
+          "gid": 0,
+          "mode": 493,
+          "nlink": 12,
+          "type": "directory",
+          "acl": false,
+          "file_capabilities": false,
+          "target": null
+        },
+        "/usr/lib": {
+          "uid": 0,
+          "gid": 0,
+          "mode": 493,
+          "nlink": 81,
+          "type": "directory",
+          "acl": false,
+          "file_capabilities": false,
+          "target": null
+        },
+        "/usr/lib/aarch64-linux-gnu": {
+          "uid": 0,
+          "gid": 0,
+          "mode": 493,
+          "nlink": 55,
+          "type": "directory",
+          "acl": false,
+          "file_capabilities": false,
+          "target": null
+        },
+        "/usr/lib/aarch64-linux-gnu/libresolv.so.2": {
+          "uid": 0,
+          "gid": 0,
+          "mode": 420,
+          "nlink": 1,
+          "type": "file",
+          "acl": false,
+          "file_capabilities": false,
+          "target": null
+        }
+      }
+    },
+    "/lib/aarch64-linux-gnu/libnss_compat.so.2": {
+      "requested": "/lib/aarch64-linux-gnu/libnss_compat.so.2",
+      "resolved": "/usr/lib/aarch64-linux-gnu/libnss_compat.so.2",
+      "components": {
+        "/": {
+          "uid": 0,
+          "gid": 0,
+          "mode": 493,
+          "nlink": 22,
+          "type": "directory",
+          "acl": false,
+          "file_capabilities": false,
+          "target": null
+        },
+        "/lib": {
+          "uid": 0,
+          "gid": 0,
+          "mode": 511,
+          "nlink": 1,
+          "type": "symlink",
+          "acl": false,
+          "file_capabilities": false,
+          "target": "usr/lib"
+        },
+        "/lib/aarch64-linux-gnu": {
+          "uid": 0,
+          "gid": 0,
+          "mode": 493,
+          "nlink": 55,
+          "type": "directory",
+          "acl": false,
+          "file_capabilities": false,
+          "target": null
+        },
+        "/lib/aarch64-linux-gnu/libnss_compat.so.2": {
+          "uid": 0,
+          "gid": 0,
+          "mode": 420,
+          "nlink": 1,
+          "type": "file",
+          "acl": false,
+          "file_capabilities": false,
+          "target": null
+        },
+        "/usr": {
+          "uid": 0,
+          "gid": 0,
+          "mode": 493,
+          "nlink": 12,
+          "type": "directory",
+          "acl": false,
+          "file_capabilities": false,
+          "target": null
+        },
+        "/usr/lib": {
+          "uid": 0,
+          "gid": 0,
+          "mode": 493,
+          "nlink": 81,
+          "type": "directory",
+          "acl": false,
+          "file_capabilities": false,
+          "target": null
+        },
+        "/usr/lib/aarch64-linux-gnu": {
+          "uid": 0,
+          "gid": 0,
+          "mode": 493,
+          "nlink": 55,
+          "type": "directory",
+          "acl": false,
+          "file_capabilities": false,
+          "target": null
+        },
+        "/usr/lib/aarch64-linux-gnu/libnss_compat.so.2": {
+          "uid": 0,
+          "gid": 0,
+          "mode": 420,
+          "nlink": 1,
+          "type": "file",
+          "acl": false,
+          "file_capabilities": false,
+          "target": null
+        }
+      }
+    },
+    "/lib/aarch64-linux-gnu/libnss_systemd.so.2": {
+      "requested": "/lib/aarch64-linux-gnu/libnss_systemd.so.2",
+      "resolved": "/usr/lib/aarch64-linux-gnu/libnss_systemd.so.2",
+      "components": {
+        "/": {
+          "uid": 0,
+          "gid": 0,
+          "mode": 493,
+          "nlink": 22,
+          "type": "directory",
+          "acl": false,
+          "file_capabilities": false,
+          "target": null
+        },
+        "/lib": {
+          "uid": 0,
+          "gid": 0,
+          "mode": 511,
+          "nlink": 1,
+          "type": "symlink",
+          "acl": false,
+          "file_capabilities": false,
+          "target": "usr/lib"
+        },
+        "/lib/aarch64-linux-gnu": {
+          "uid": 0,
+          "gid": 0,
+          "mode": 493,
+          "nlink": 55,
+          "type": "directory",
+          "acl": false,
+          "file_capabilities": false,
+          "target": null
+        },
+        "/lib/aarch64-linux-gnu/libnss_systemd.so.2": {
+          "uid": 0,
+          "gid": 0,
+          "mode": 420,
+          "nlink": 1,
+          "type": "file",
+          "acl": false,
+          "file_capabilities": false,
+          "target": null
+        },
+        "/usr": {
+          "uid": 0,
+          "gid": 0,
+          "mode": 493,
+          "nlink": 12,
+          "type": "directory",
+          "acl": false,
+          "file_capabilities": false,
+          "target": null
+        },
+        "/usr/lib": {
+          "uid": 0,
+          "gid": 0,
+          "mode": 493,
+          "nlink": 81,
+          "type": "directory",
+          "acl": false,
+          "file_capabilities": false,
+          "target": null
+        },
+        "/usr/lib/aarch64-linux-gnu": {
+          "uid": 0,
+          "gid": 0,
+          "mode": 493,
+          "nlink": 55,
+          "type": "directory",
+          "acl": false,
+          "file_capabilities": false,
+          "target": null
+        },
+        "/usr/lib/aarch64-linux-gnu/libnss_systemd.so.2": {
+          "uid": 0,
+          "gid": 0,
+          "mode": 420,
+          "nlink": 1,
+          "type": "file",
+          "acl": false,
+          "file_capabilities": false,
+          "target": null
+        }
+      }
+    },
+    "/lib/aarch64-linux-gnu/libXrender.so.1": {
+      "requested": "/lib/aarch64-linux-gnu/libXrender.so.1",
+      "resolved": "/usr/lib/aarch64-linux-gnu/libXrender.so.1.3.0",
+      "components": {
+        "/": {
+          "uid": 0,
+          "gid": 0,
+          "mode": 493,
+          "nlink": 22,
+          "type": "directory",
+          "acl": false,
+          "file_capabilities": false,
+          "target": null
+        },
+        "/lib": {
+          "uid": 0,
+          "gid": 0,
+          "mode": 511,
+          "nlink": 1,
+          "type": "symlink",
+          "acl": false,
+          "file_capabilities": false,
+          "target": "usr/lib"
+        },
+        "/lib/aarch64-linux-gnu": {
+          "uid": 0,
+          "gid": 0,
+          "mode": 493,
+          "nlink": 55,
+          "type": "directory",
+          "acl": false,
+          "file_capabilities": false,
+          "target": null
+        },
+        "/lib/aarch64-linux-gnu/libXrender.so.1": {
+          "uid": 0,
+          "gid": 0,
+          "mode": 511,
+          "nlink": 1,
+          "type": "symlink",
+          "acl": false,
+          "file_capabilities": false,
+          "target": "libXrender.so.1.3.0"
+        },
+        "/lib/aarch64-linux-gnu/libXrender.so.1.3.0": {
+          "uid": 0,
+          "gid": 0,
+          "mode": 420,
+          "nlink": 1,
+          "type": "file",
+          "acl": false,
+          "file_capabilities": false,
+          "target": null
+        },
+        "/usr": {
+          "uid": 0,
+          "gid": 0,
+          "mode": 493,
+          "nlink": 12,
+          "type": "directory",
+          "acl": false,
+          "file_capabilities": false,
+          "target": null
+        },
+        "/usr/lib": {
+          "uid": 0,
+          "gid": 0,
+          "mode": 493,
+          "nlink": 81,
+          "type": "directory",
+          "acl": false,
+          "file_capabilities": false,
+          "target": null
+        },
+        "/usr/lib/aarch64-linux-gnu": {
+          "uid": 0,
+          "gid": 0,
+          "mode": 493,
+          "nlink": 55,
+          "type": "directory",
+          "acl": false,
+          "file_capabilities": false,
+          "target": null
+        },
+        "/usr/lib/aarch64-linux-gnu/libXrender.so.1.3.0": {
+          "uid": 0,
+          "gid": 0,
+          "mode": 420,
+          "nlink": 1,
+          "type": "file",
+          "acl": false,
+          "file_capabilities": false,
+          "target": null
+        }
+      }
+    },
+    "/lib/aarch64-linux-gnu/libXi.so.6": {
+      "requested": "/lib/aarch64-linux-gnu/libXi.so.6",
+      "resolved": "/usr/lib/aarch64-linux-gnu/libXi.so.6.1.0",
+      "components": {
+        "/": {
+          "uid": 0,
+          "gid": 0,
+          "mode": 493,
+          "nlink": 22,
+          "type": "directory",
+          "acl": false,
+          "file_capabilities": false,
+          "target": null
+        },
+        "/lib": {
+          "uid": 0,
+          "gid": 0,
+          "mode": 511,
+          "nlink": 1,
+          "type": "symlink",
+          "acl": false,
+          "file_capabilities": false,
+          "target": "usr/lib"
+        },
+        "/lib/aarch64-linux-gnu": {
+          "uid": 0,
+          "gid": 0,
+          "mode": 493,
+          "nlink": 55,
+          "type": "directory",
+          "acl": false,
+          "file_capabilities": false,
+          "target": null
+        },
+        "/lib/aarch64-linux-gnu/libXi.so.6": {
+          "uid": 0,
+          "gid": 0,
+          "mode": 511,
+          "nlink": 1,
+          "type": "symlink",
+          "acl": false,
+          "file_capabilities": false,
+          "target": "libXi.so.6.1.0"
+        },
+        "/lib/aarch64-linux-gnu/libXi.so.6.1.0": {
+          "uid": 0,
+          "gid": 0,
+          "mode": 420,
+          "nlink": 1,
+          "type": "file",
+          "acl": false,
+          "file_capabilities": false,
+          "target": null
+        },
+        "/usr": {
+          "uid": 0,
+          "gid": 0,
+          "mode": 493,
+          "nlink": 12,
+          "type": "directory",
+          "acl": false,
+          "file_capabilities": false,
+          "target": null
+        },
+        "/usr/lib": {
+          "uid": 0,
+          "gid": 0,
+          "mode": 493,
+          "nlink": 81,
+          "type": "directory",
+          "acl": false,
+          "file_capabilities": false,
+          "target": null
+        },
+        "/usr/lib/aarch64-linux-gnu": {
+          "uid": 0,
+          "gid": 0,
+          "mode": 493,
+          "nlink": 55,
+          "type": "directory",
+          "acl": false,
+          "file_capabilities": false,
+          "target": null
+        },
+        "/usr/lib/aarch64-linux-gnu/libXi.so.6.1.0": {
+          "uid": 0,
+          "gid": 0,
+          "mode": 420,
+          "nlink": 1,
+          "type": "file",
+          "acl": false,
+          "file_capabilities": false,
+          "target": null
+        }
+      }
+    },
+    "/lib/aarch64-linux-gnu/libsystemd.so.0": {
+      "requested": "/lib/aarch64-linux-gnu/libsystemd.so.0",
+      "resolved": "/usr/lib/aarch64-linux-gnu/libsystemd.so.0.38.0",
+      "components": {
+        "/": {
+          "uid": 0,
+          "gid": 0,
+          "mode": 493,
+          "nlink": 22,
+          "type": "directory",
+          "acl": false,
+          "file_capabilities": false,
+          "target": null
+        },
+        "/lib": {
+          "uid": 0,
+          "gid": 0,
+          "mode": 511,
+          "nlink": 1,
+          "type": "symlink",
+          "acl": false,
+          "file_capabilities": false,
+          "target": "usr/lib"
+        },
+        "/lib/aarch64-linux-gnu": {
+          "uid": 0,
+          "gid": 0,
+          "mode": 493,
+          "nlink": 55,
+          "type": "directory",
+          "acl": false,
+          "file_capabilities": false,
+          "target": null
+        },
+        "/lib/aarch64-linux-gnu/libsystemd.so.0": {
+          "uid": 0,
+          "gid": 0,
+          "mode": 511,
+          "nlink": 1,
+          "type": "symlink",
+          "acl": false,
+          "file_capabilities": false,
+          "target": "libsystemd.so.0.38.0"
+        },
+        "/lib/aarch64-linux-gnu/libsystemd.so.0.38.0": {
+          "uid": 0,
+          "gid": 0,
+          "mode": 420,
+          "nlink": 1,
+          "type": "file",
+          "acl": false,
+          "file_capabilities": false,
+          "target": null
+        },
+        "/usr": {
+          "uid": 0,
+          "gid": 0,
+          "mode": 493,
+          "nlink": 12,
+          "type": "directory",
+          "acl": false,
+          "file_capabilities": false,
+          "target": null
+        },
+        "/usr/lib": {
+          "uid": 0,
+          "gid": 0,
+          "mode": 493,
+          "nlink": 81,
+          "type": "directory",
+          "acl": false,
+          "file_capabilities": false,
+          "target": null
+        },
+        "/usr/lib/aarch64-linux-gnu": {
+          "uid": 0,
+          "gid": 0,
+          "mode": 493,
+          "nlink": 55,
+          "type": "directory",
+          "acl": false,
+          "file_capabilities": false,
+          "target": null
+        },
+        "/usr/lib/aarch64-linux-gnu/libsystemd.so.0.38.0": {
+          "uid": 0,
+          "gid": 0,
+          "mode": 420,
+          "nlink": 1,
+          "type": "file",
+          "acl": false,
+          "file_capabilities": false,
+          "target": null
+        }
+      }
+    },
+    "/lib/aarch64-linux-gnu/libdrm.so.2": {
+      "requested": "/lib/aarch64-linux-gnu/libdrm.so.2",
+      "resolved": "/usr/lib/aarch64-linux-gnu/libdrm.so.2.125.0",
+      "components": {
+        "/": {
+          "uid": 0,
+          "gid": 0,
+          "mode": 493,
+          "nlink": 22,
+          "type": "directory",
+          "acl": false,
+          "file_capabilities": false,
+          "target": null
+        },
+        "/lib": {
+          "uid": 0,
+          "gid": 0,
+          "mode": 511,
+          "nlink": 1,
+          "type": "symlink",
+          "acl": false,
+          "file_capabilities": false,
+          "target": "usr/lib"
+        },
+        "/lib/aarch64-linux-gnu": {
+          "uid": 0,
+          "gid": 0,
+          "mode": 493,
+          "nlink": 55,
+          "type": "directory",
+          "acl": false,
+          "file_capabilities": false,
+          "target": null
+        },
+        "/lib/aarch64-linux-gnu/libdrm.so.2": {
+          "uid": 0,
+          "gid": 0,
+          "mode": 511,
+          "nlink": 1,
+          "type": "symlink",
+          "acl": false,
+          "file_capabilities": false,
+          "target": "libdrm.so.2.125.0"
+        },
+        "/lib/aarch64-linux-gnu/libdrm.so.2.125.0": {
+          "uid": 0,
+          "gid": 0,
+          "mode": 420,
+          "nlink": 1,
+          "type": "file",
+          "acl": false,
+          "file_capabilities": false,
+          "target": null
+        },
+        "/usr": {
+          "uid": 0,
+          "gid": 0,
+          "mode": 493,
+          "nlink": 12,
+          "type": "directory",
+          "acl": false,
+          "file_capabilities": false,
+          "target": null
+        },
+        "/usr/lib": {
+          "uid": 0,
+          "gid": 0,
+          "mode": 493,
+          "nlink": 81,
+          "type": "directory",
+          "acl": false,
+          "file_capabilities": false,
+          "target": null
+        },
+        "/usr/lib/aarch64-linux-gnu": {
+          "uid": 0,
+          "gid": 0,
+          "mode": 493,
+          "nlink": 55,
+          "type": "directory",
+          "acl": false,
+          "file_capabilities": false,
+          "target": null
+        },
+        "/usr/lib/aarch64-linux-gnu/libdrm.so.2.125.0": {
+          "uid": 0,
+          "gid": 0,
+          "mode": 420,
+          "nlink": 1,
+          "type": "file",
+          "acl": false,
+          "file_capabilities": false,
+          "target": null
+        }
+      }
+    },
+    "/lib/aarch64-linux-gnu/libgmodule-2.0.so.0": {
+      "requested": "/lib/aarch64-linux-gnu/libgmodule-2.0.so.0",
+      "resolved": "/usr/lib/aarch64-linux-gnu/libgmodule-2.0.so.0.8000.0",
+      "components": {
+        "/": {
+          "uid": 0,
+          "gid": 0,
+          "mode": 493,
+          "nlink": 22,
+          "type": "directory",
+          "acl": false,
+          "file_capabilities": false,
+          "target": null
+        },
+        "/lib": {
+          "uid": 0,
+          "gid": 0,
+          "mode": 511,
+          "nlink": 1,
+          "type": "symlink",
+          "acl": false,
+          "file_capabilities": false,
+          "target": "usr/lib"
+        },
+        "/lib/aarch64-linux-gnu": {
+          "uid": 0,
+          "gid": 0,
+          "mode": 493,
+          "nlink": 55,
+          "type": "directory",
+          "acl": false,
+          "file_capabilities": false,
+          "target": null
+        },
+        "/lib/aarch64-linux-gnu/libgmodule-2.0.so.0": {
+          "uid": 0,
+          "gid": 0,
+          "mode": 511,
+          "nlink": 1,
+          "type": "symlink",
+          "acl": false,
+          "file_capabilities": false,
+          "target": "libgmodule-2.0.so.0.8000.0"
+        },
+        "/lib/aarch64-linux-gnu/libgmodule-2.0.so.0.8000.0": {
+          "uid": 0,
+          "gid": 0,
+          "mode": 420,
+          "nlink": 1,
+          "type": "file",
+          "acl": false,
+          "file_capabilities": false,
+          "target": null
+        },
+        "/usr": {
+          "uid": 0,
+          "gid": 0,
+          "mode": 493,
+          "nlink": 12,
+          "type": "directory",
+          "acl": false,
+          "file_capabilities": false,
+          "target": null
+        },
+        "/usr/lib": {
+          "uid": 0,
+          "gid": 0,
+          "mode": 493,
+          "nlink": 81,
+          "type": "directory",
+          "acl": false,
+          "file_capabilities": false,
+          "target": null
+        },
+        "/usr/lib/aarch64-linux-gnu": {
+          "uid": 0,
+          "gid": 0,
+          "mode": 493,
+          "nlink": 55,
+          "type": "directory",
+          "acl": false,
+          "file_capabilities": false,
+          "target": null
+        },
+        "/usr/lib/aarch64-linux-gnu/libgmodule-2.0.so.0.8000.0": {
+          "uid": 0,
+          "gid": 0,
+          "mode": 420,
+          "nlink": 1,
+          "type": "file",
+          "acl": false,
+          "file_capabilities": false,
+          "target": null
+        }
+      }
+    },
+    "/lib/aarch64-linux-gnu/libz.so.1": {
+      "requested": "/lib/aarch64-linux-gnu/libz.so.1",
+      "resolved": "/usr/lib/aarch64-linux-gnu/libz.so.1.3",
+      "components": {
+        "/": {
+          "uid": 0,
+          "gid": 0,
+          "mode": 493,
+          "nlink": 22,
+          "type": "directory",
+          "acl": false,
+          "file_capabilities": false,
+          "target": null
+        },
+        "/lib": {
+          "uid": 0,
+          "gid": 0,
+          "mode": 511,
+          "nlink": 1,
+          "type": "symlink",
+          "acl": false,
+          "file_capabilities": false,
+          "target": "usr/lib"
+        },
+        "/lib/aarch64-linux-gnu": {
+          "uid": 0,
+          "gid": 0,
+          "mode": 493,
+          "nlink": 55,
+          "type": "directory",
+          "acl": false,
+          "file_capabilities": false,
+          "target": null
+        },
+        "/lib/aarch64-linux-gnu/libz.so.1": {
+          "uid": 0,
+          "gid": 0,
+          "mode": 511,
+          "nlink": 1,
+          "type": "symlink",
+          "acl": false,
+          "file_capabilities": false,
+          "target": "libz.so.1.3"
+        },
+        "/lib/aarch64-linux-gnu/libz.so.1.3": {
+          "uid": 0,
+          "gid": 0,
+          "mode": 420,
+          "nlink": 1,
+          "type": "file",
+          "acl": false,
+          "file_capabilities": false,
+          "target": null
+        },
+        "/usr": {
+          "uid": 0,
+          "gid": 0,
+          "mode": 493,
+          "nlink": 12,
+          "type": "directory",
+          "acl": false,
+          "file_capabilities": false,
+          "target": null
+        },
+        "/usr/lib": {
+          "uid": 0,
+          "gid": 0,
+          "mode": 493,
+          "nlink": 81,
+          "type": "directory",
+          "acl": false,
+          "file_capabilities": false,
+          "target": null
+        },
+        "/usr/lib/aarch64-linux-gnu": {
+          "uid": 0,
+          "gid": 0,
+          "mode": 493,
+          "nlink": 55,
+          "type": "directory",
+          "acl": false,
+          "file_capabilities": false,
+          "target": null
+        },
+        "/usr/lib/aarch64-linux-gnu/libz.so.1.3": {
+          "uid": 0,
+          "gid": 0,
+          "mode": 420,
+          "nlink": 1,
+          "type": "file",
+          "acl": false,
+          "file_capabilities": false,
+          "target": null
+        }
+      }
+    },
+    "/lib/aarch64-linux-gnu/libmount.so.1": {
+      "requested": "/lib/aarch64-linux-gnu/libmount.so.1",
+      "resolved": "/usr/lib/aarch64-linux-gnu/libmount.so.1.1.0",
+      "components": {
+        "/": {
+          "uid": 0,
+          "gid": 0,
+          "mode": 493,
+          "nlink": 22,
+          "type": "directory",
+          "acl": false,
+          "file_capabilities": false,
+          "target": null
+        },
+        "/lib": {
+          "uid": 0,
+          "gid": 0,
+          "mode": 511,
+          "nlink": 1,
+          "type": "symlink",
+          "acl": false,
+          "file_capabilities": false,
+          "target": "usr/lib"
+        },
+        "/lib/aarch64-linux-gnu": {
+          "uid": 0,
+          "gid": 0,
+          "mode": 493,
+          "nlink": 55,
+          "type": "directory",
+          "acl": false,
+          "file_capabilities": false,
+          "target": null
+        },
+        "/lib/aarch64-linux-gnu/libmount.so.1": {
+          "uid": 0,
+          "gid": 0,
+          "mode": 511,
+          "nlink": 1,
+          "type": "symlink",
+          "acl": false,
+          "file_capabilities": false,
+          "target": "libmount.so.1.1.0"
+        },
+        "/lib/aarch64-linux-gnu/libmount.so.1.1.0": {
+          "uid": 0,
+          "gid": 0,
+          "mode": 420,
+          "nlink": 1,
+          "type": "file",
+          "acl": false,
+          "file_capabilities": false,
+          "target": null
+        },
+        "/usr": {
+          "uid": 0,
+          "gid": 0,
+          "mode": 493,
+          "nlink": 12,
+          "type": "directory",
+          "acl": false,
+          "file_capabilities": false,
+          "target": null
+        },
+        "/usr/lib": {
+          "uid": 0,
+          "gid": 0,
+          "mode": 493,
+          "nlink": 81,
+          "type": "directory",
+          "acl": false,
+          "file_capabilities": false,
+          "target": null
+        },
+        "/usr/lib/aarch64-linux-gnu": {
+          "uid": 0,
+          "gid": 0,
+          "mode": 493,
+          "nlink": 55,
+          "type": "directory",
+          "acl": false,
+          "file_capabilities": false,
+          "target": null
+        },
+        "/usr/lib/aarch64-linux-gnu/libmount.so.1.1.0": {
+          "uid": 0,
+          "gid": 0,
+          "mode": 420,
+          "nlink": 1,
+          "type": "file",
+          "acl": false,
+          "file_capabilities": false,
+          "target": null
+        }
+      }
+    },
+    "/lib/aarch64-linux-gnu/libselinux.so.1": {
+      "requested": "/lib/aarch64-linux-gnu/libselinux.so.1",
+      "resolved": "/usr/lib/aarch64-linux-gnu/libselinux.so.1",
+      "components": {
+        "/": {
+          "uid": 0,
+          "gid": 0,
+          "mode": 493,
+          "nlink": 22,
+          "type": "directory",
+          "acl": false,
+          "file_capabilities": false,
+          "target": null
+        },
+        "/lib": {
+          "uid": 0,
+          "gid": 0,
+          "mode": 511,
+          "nlink": 1,
+          "type": "symlink",
+          "acl": false,
+          "file_capabilities": false,
+          "target": "usr/lib"
+        },
+        "/lib/aarch64-linux-gnu": {
+          "uid": 0,
+          "gid": 0,
+          "mode": 493,
+          "nlink": 55,
+          "type": "directory",
+          "acl": false,
+          "file_capabilities": false,
+          "target": null
+        },
+        "/lib/aarch64-linux-gnu/libselinux.so.1": {
+          "uid": 0,
+          "gid": 0,
+          "mode": 420,
+          "nlink": 1,
+          "type": "file",
+          "acl": false,
+          "file_capabilities": false,
+          "target": null
+        },
+        "/usr": {
+          "uid": 0,
+          "gid": 0,
+          "mode": 493,
+          "nlink": 12,
+          "type": "directory",
+          "acl": false,
+          "file_capabilities": false,
+          "target": null
+        },
+        "/usr/lib": {
+          "uid": 0,
+          "gid": 0,
+          "mode": 493,
+          "nlink": 81,
+          "type": "directory",
+          "acl": false,
+          "file_capabilities": false,
+          "target": null
+        },
+        "/usr/lib/aarch64-linux-gnu": {
+          "uid": 0,
+          "gid": 0,
+          "mode": 493,
+          "nlink": 55,
+          "type": "directory",
+          "acl": false,
+          "file_capabilities": false,
+          "target": null
+        },
+        "/usr/lib/aarch64-linux-gnu/libselinux.so.1": {
+          "uid": 0,
+          "gid": 0,
+          "mode": 420,
+          "nlink": 1,
+          "type": "file",
+          "acl": false,
+          "file_capabilities": false,
+          "target": null
+        }
+      }
+    },
+    "/lib/aarch64-linux-gnu/libpcre2-8.so.0": {
+      "requested": "/lib/aarch64-linux-gnu/libpcre2-8.so.0",
+      "resolved": "/usr/lib/aarch64-linux-gnu/libpcre2-8.so.0.11.2",
+      "components": {
+        "/": {
+          "uid": 0,
+          "gid": 0,
+          "mode": 493,
+          "nlink": 22,
+          "type": "directory",
+          "acl": false,
+          "file_capabilities": false,
+          "target": null
+        },
+        "/lib": {
+          "uid": 0,
+          "gid": 0,
+          "mode": 511,
+          "nlink": 1,
+          "type": "symlink",
+          "acl": false,
+          "file_capabilities": false,
+          "target": "usr/lib"
+        },
+        "/lib/aarch64-linux-gnu": {
+          "uid": 0,
+          "gid": 0,
+          "mode": 493,
+          "nlink": 55,
+          "type": "directory",
+          "acl": false,
+          "file_capabilities": false,
+          "target": null
+        },
+        "/lib/aarch64-linux-gnu/libpcre2-8.so.0": {
+          "uid": 0,
+          "gid": 0,
+          "mode": 511,
+          "nlink": 1,
+          "type": "symlink",
+          "acl": false,
+          "file_capabilities": false,
+          "target": "libpcre2-8.so.0.11.2"
+        },
+        "/lib/aarch64-linux-gnu/libpcre2-8.so.0.11.2": {
+          "uid": 0,
+          "gid": 0,
+          "mode": 420,
+          "nlink": 1,
+          "type": "file",
+          "acl": false,
+          "file_capabilities": false,
+          "target": null
+        },
+        "/usr": {
+          "uid": 0,
+          "gid": 0,
+          "mode": 493,
+          "nlink": 12,
+          "type": "directory",
+          "acl": false,
+          "file_capabilities": false,
+          "target": null
+        },
+        "/usr/lib": {
+          "uid": 0,
+          "gid": 0,
+          "mode": 493,
+          "nlink": 81,
+          "type": "directory",
+          "acl": false,
+          "file_capabilities": false,
+          "target": null
+        },
+        "/usr/lib/aarch64-linux-gnu": {
+          "uid": 0,
+          "gid": 0,
+          "mode": 493,
+          "nlink": 55,
+          "type": "directory",
+          "acl": false,
+          "file_capabilities": false,
+          "target": null
+        },
+        "/usr/lib/aarch64-linux-gnu/libpcre2-8.so.0.11.2": {
+          "uid": 0,
+          "gid": 0,
+          "mode": 420,
+          "nlink": 1,
+          "type": "file",
+          "acl": false,
+          "file_capabilities": false,
+          "target": null
+        }
+      }
+    },
+    "/lib/aarch64-linux-gnu/libffi.so.8": {
+      "requested": "/lib/aarch64-linux-gnu/libffi.so.8",
+      "resolved": "/usr/lib/aarch64-linux-gnu/libffi.so.8.1.4",
+      "components": {
+        "/": {
+          "uid": 0,
+          "gid": 0,
+          "mode": 493,
+          "nlink": 22,
+          "type": "directory",
+          "acl": false,
+          "file_capabilities": false,
+          "target": null
+        },
+        "/lib": {
+          "uid": 0,
+          "gid": 0,
+          "mode": 511,
+          "nlink": 1,
+          "type": "symlink",
+          "acl": false,
+          "file_capabilities": false,
+          "target": "usr/lib"
+        },
+        "/lib/aarch64-linux-gnu": {
+          "uid": 0,
+          "gid": 0,
+          "mode": 493,
+          "nlink": 55,
+          "type": "directory",
+          "acl": false,
+          "file_capabilities": false,
+          "target": null
+        },
+        "/lib/aarch64-linux-gnu/libffi.so.8": {
+          "uid": 0,
+          "gid": 0,
+          "mode": 511,
+          "nlink": 1,
+          "type": "symlink",
+          "acl": false,
+          "file_capabilities": false,
+          "target": "libffi.so.8.1.4"
+        },
+        "/lib/aarch64-linux-gnu/libffi.so.8.1.4": {
+          "uid": 0,
+          "gid": 0,
+          "mode": 420,
+          "nlink": 1,
+          "type": "file",
+          "acl": false,
+          "file_capabilities": false,
+          "target": null
+        },
+        "/usr": {
+          "uid": 0,
+          "gid": 0,
+          "mode": 493,
+          "nlink": 12,
+          "type": "directory",
+          "acl": false,
+          "file_capabilities": false,
+          "target": null
+        },
+        "/usr/lib": {
+          "uid": 0,
+          "gid": 0,
+          "mode": 493,
+          "nlink": 81,
+          "type": "directory",
+          "acl": false,
+          "file_capabilities": false,
+          "target": null
+        },
+        "/usr/lib/aarch64-linux-gnu": {
+          "uid": 0,
+          "gid": 0,
+          "mode": 493,
+          "nlink": 55,
+          "type": "directory",
+          "acl": false,
+          "file_capabilities": false,
+          "target": null
+        },
+        "/usr/lib/aarch64-linux-gnu/libffi.so.8.1.4": {
+          "uid": 0,
+          "gid": 0,
+          "mode": 420,
+          "nlink": 1,
+          "type": "file",
+          "acl": false,
+          "file_capabilities": false,
+          "target": null
+        }
+      }
+    },
+    "/lib/aarch64-linux-gnu/libplc4.so": {
+      "requested": "/lib/aarch64-linux-gnu/libplc4.so",
+      "resolved": "/usr/lib/aarch64-linux-gnu/libplc4.so",
+      "components": {
+        "/": {
+          "uid": 0,
+          "gid": 0,
+          "mode": 493,
+          "nlink": 22,
+          "type": "directory",
+          "acl": false,
+          "file_capabilities": false,
+          "target": null
+        },
+        "/lib": {
+          "uid": 0,
+          "gid": 0,
+          "mode": 511,
+          "nlink": 1,
+          "type": "symlink",
+          "acl": false,
+          "file_capabilities": false,
+          "target": "usr/lib"
+        },
+        "/lib/aarch64-linux-gnu": {
+          "uid": 0,
+          "gid": 0,
+          "mode": 493,
+          "nlink": 55,
+          "type": "directory",
+          "acl": false,
+          "file_capabilities": false,
+          "target": null
+        },
+        "/lib/aarch64-linux-gnu/libplc4.so": {
+          "uid": 0,
+          "gid": 0,
+          "mode": 420,
+          "nlink": 1,
+          "type": "file",
+          "acl": false,
+          "file_capabilities": false,
+          "target": null
+        },
+        "/usr": {
+          "uid": 0,
+          "gid": 0,
+          "mode": 493,
+          "nlink": 12,
+          "type": "directory",
+          "acl": false,
+          "file_capabilities": false,
+          "target": null
+        },
+        "/usr/lib": {
+          "uid": 0,
+          "gid": 0,
+          "mode": 493,
+          "nlink": 81,
+          "type": "directory",
+          "acl": false,
+          "file_capabilities": false,
+          "target": null
+        },
+        "/usr/lib/aarch64-linux-gnu": {
+          "uid": 0,
+          "gid": 0,
+          "mode": 493,
+          "nlink": 55,
+          "type": "directory",
+          "acl": false,
+          "file_capabilities": false,
+          "target": null
+        },
+        "/usr/lib/aarch64-linux-gnu/libplc4.so": {
+          "uid": 0,
+          "gid": 0,
+          "mode": 420,
+          "nlink": 1,
+          "type": "file",
+          "acl": false,
+          "file_capabilities": false,
+          "target": null
+        }
+      }
+    },
+    "/lib/aarch64-linux-gnu/libplds4.so": {
+      "requested": "/lib/aarch64-linux-gnu/libplds4.so",
+      "resolved": "/usr/lib/aarch64-linux-gnu/libplds4.so",
+      "components": {
+        "/": {
+          "uid": 0,
+          "gid": 0,
+          "mode": 493,
+          "nlink": 22,
+          "type": "directory",
+          "acl": false,
+          "file_capabilities": false,
+          "target": null
+        },
+        "/lib": {
+          "uid": 0,
+          "gid": 0,
+          "mode": 511,
+          "nlink": 1,
+          "type": "symlink",
+          "acl": false,
+          "file_capabilities": false,
+          "target": "usr/lib"
+        },
+        "/lib/aarch64-linux-gnu": {
+          "uid": 0,
+          "gid": 0,
+          "mode": 493,
+          "nlink": 55,
+          "type": "directory",
+          "acl": false,
+          "file_capabilities": false,
+          "target": null
+        },
+        "/lib/aarch64-linux-gnu/libplds4.so": {
+          "uid": 0,
+          "gid": 0,
+          "mode": 420,
+          "nlink": 1,
+          "type": "file",
+          "acl": false,
+          "file_capabilities": false,
+          "target": null
+        },
+        "/usr": {
+          "uid": 0,
+          "gid": 0,
+          "mode": 493,
+          "nlink": 12,
+          "type": "directory",
+          "acl": false,
+          "file_capabilities": false,
+          "target": null
+        },
+        "/usr/lib": {
+          "uid": 0,
+          "gid": 0,
+          "mode": 493,
+          "nlink": 81,
+          "type": "directory",
+          "acl": false,
+          "file_capabilities": false,
+          "target": null
+        },
+        "/usr/lib/aarch64-linux-gnu": {
+          "uid": 0,
+          "gid": 0,
+          "mode": 493,
+          "nlink": 55,
+          "type": "directory",
+          "acl": false,
+          "file_capabilities": false,
+          "target": null
+        },
+        "/usr/lib/aarch64-linux-gnu/libplds4.so": {
+          "uid": 0,
+          "gid": 0,
+          "mode": 420,
+          "nlink": 1,
+          "type": "file",
+          "acl": false,
+          "file_capabilities": false,
+          "target": null
+        }
+      }
+    },
+    "/lib/aarch64-linux-gnu/libcap.so.2": {
+      "requested": "/lib/aarch64-linux-gnu/libcap.so.2",
+      "resolved": "/usr/lib/aarch64-linux-gnu/libcap.so.2.66",
+      "components": {
+        "/": {
+          "uid": 0,
+          "gid": 0,
+          "mode": 493,
+          "nlink": 22,
+          "type": "directory",
+          "acl": false,
+          "file_capabilities": false,
+          "target": null
+        },
+        "/lib": {
+          "uid": 0,
+          "gid": 0,
+          "mode": 511,
+          "nlink": 1,
+          "type": "symlink",
+          "acl": false,
+          "file_capabilities": false,
+          "target": "usr/lib"
+        },
+        "/lib/aarch64-linux-gnu": {
+          "uid": 0,
+          "gid": 0,
+          "mode": 493,
+          "nlink": 55,
+          "type": "directory",
+          "acl": false,
+          "file_capabilities": false,
+          "target": null
+        },
+        "/lib/aarch64-linux-gnu/libcap.so.2": {
+          "uid": 0,
+          "gid": 0,
+          "mode": 511,
+          "nlink": 1,
+          "type": "symlink",
+          "acl": false,
+          "file_capabilities": false,
+          "target": "libcap.so.2.66"
+        },
+        "/lib/aarch64-linux-gnu/libcap.so.2.66": {
+          "uid": 0,
+          "gid": 0,
+          "mode": 420,
+          "nlink": 1,
+          "type": "file",
+          "acl": false,
+          "file_capabilities": false,
+          "target": null
+        },
+        "/usr": {
+          "uid": 0,
+          "gid": 0,
+          "mode": 493,
+          "nlink": 12,
+          "type": "directory",
+          "acl": false,
+          "file_capabilities": false,
+          "target": null
+        },
+        "/usr/lib": {
+          "uid": 0,
+          "gid": 0,
+          "mode": 493,
+          "nlink": 81,
+          "type": "directory",
+          "acl": false,
+          "file_capabilities": false,
+          "target": null
+        },
+        "/usr/lib/aarch64-linux-gnu": {
+          "uid": 0,
+          "gid": 0,
+          "mode": 493,
+          "nlink": 55,
+          "type": "directory",
+          "acl": false,
+          "file_capabilities": false,
+          "target": null
+        },
+        "/usr/lib/aarch64-linux-gnu/libcap.so.2.66": {
+          "uid": 0,
+          "gid": 0,
+          "mode": 420,
+          "nlink": 1,
+          "type": "file",
+          "acl": false,
+          "file_capabilities": false,
+          "target": null
+        }
+      }
+    },
+    "/lib/aarch64-linux-gnu/libXau.so.6": {
+      "requested": "/lib/aarch64-linux-gnu/libXau.so.6",
+      "resolved": "/usr/lib/aarch64-linux-gnu/libXau.so.6.0.0",
+      "components": {
+        "/": {
+          "uid": 0,
+          "gid": 0,
+          "mode": 493,
+          "nlink": 22,
+          "type": "directory",
+          "acl": false,
+          "file_capabilities": false,
+          "target": null
+        },
+        "/lib": {
+          "uid": 0,
+          "gid": 0,
+          "mode": 511,
+          "nlink": 1,
+          "type": "symlink",
+          "acl": false,
+          "file_capabilities": false,
+          "target": "usr/lib"
+        },
+        "/lib/aarch64-linux-gnu": {
+          "uid": 0,
+          "gid": 0,
+          "mode": 493,
+          "nlink": 55,
+          "type": "directory",
+          "acl": false,
+          "file_capabilities": false,
+          "target": null
+        },
+        "/lib/aarch64-linux-gnu/libXau.so.6": {
+          "uid": 0,
+          "gid": 0,
+          "mode": 511,
+          "nlink": 1,
+          "type": "symlink",
+          "acl": false,
+          "file_capabilities": false,
+          "target": "libXau.so.6.0.0"
+        },
+        "/lib/aarch64-linux-gnu/libXau.so.6.0.0": {
+          "uid": 0,
+          "gid": 0,
+          "mode": 420,
+          "nlink": 1,
+          "type": "file",
+          "acl": false,
+          "file_capabilities": false,
+          "target": null
+        },
+        "/usr": {
+          "uid": 0,
+          "gid": 0,
+          "mode": 493,
+          "nlink": 12,
+          "type": "directory",
+          "acl": false,
+          "file_capabilities": false,
+          "target": null
+        },
+        "/usr/lib": {
+          "uid": 0,
+          "gid": 0,
+          "mode": 493,
+          "nlink": 81,
+          "type": "directory",
+          "acl": false,
+          "file_capabilities": false,
+          "target": null
+        },
+        "/usr/lib/aarch64-linux-gnu": {
+          "uid": 0,
+          "gid": 0,
+          "mode": 493,
+          "nlink": 55,
+          "type": "directory",
+          "acl": false,
+          "file_capabilities": false,
+          "target": null
+        },
+        "/usr/lib/aarch64-linux-gnu/libXau.so.6.0.0": {
+          "uid": 0,
+          "gid": 0,
+          "mode": 420,
+          "nlink": 1,
+          "type": "file",
+          "acl": false,
+          "file_capabilities": false,
+          "target": null
+        }
+      }
+    },
+    "/lib/aarch64-linux-gnu/libXdmcp.so.6": {
+      "requested": "/lib/aarch64-linux-gnu/libXdmcp.so.6",
+      "resolved": "/usr/lib/aarch64-linux-gnu/libXdmcp.so.6.0.0",
+      "components": {
+        "/": {
+          "uid": 0,
+          "gid": 0,
+          "mode": 493,
+          "nlink": 22,
+          "type": "directory",
+          "acl": false,
+          "file_capabilities": false,
+          "target": null
+        },
+        "/lib": {
+          "uid": 0,
+          "gid": 0,
+          "mode": 511,
+          "nlink": 1,
+          "type": "symlink",
+          "acl": false,
+          "file_capabilities": false,
+          "target": "usr/lib"
+        },
+        "/lib/aarch64-linux-gnu": {
+          "uid": 0,
+          "gid": 0,
+          "mode": 493,
+          "nlink": 55,
+          "type": "directory",
+          "acl": false,
+          "file_capabilities": false,
+          "target": null
+        },
+        "/lib/aarch64-linux-gnu/libXdmcp.so.6": {
+          "uid": 0,
+          "gid": 0,
+          "mode": 511,
+          "nlink": 1,
+          "type": "symlink",
+          "acl": false,
+          "file_capabilities": false,
+          "target": "libXdmcp.so.6.0.0"
+        },
+        "/lib/aarch64-linux-gnu/libXdmcp.so.6.0.0": {
+          "uid": 0,
+          "gid": 0,
+          "mode": 420,
+          "nlink": 1,
+          "type": "file",
+          "acl": false,
+          "file_capabilities": false,
+          "target": null
+        },
+        "/usr": {
+          "uid": 0,
+          "gid": 0,
+          "mode": 493,
+          "nlink": 12,
+          "type": "directory",
+          "acl": false,
+          "file_capabilities": false,
+          "target": null
+        },
+        "/usr/lib": {
+          "uid": 0,
+          "gid": 0,
+          "mode": 493,
+          "nlink": 81,
+          "type": "directory",
+          "acl": false,
+          "file_capabilities": false,
+          "target": null
+        },
+        "/usr/lib/aarch64-linux-gnu": {
+          "uid": 0,
+          "gid": 0,
+          "mode": 493,
+          "nlink": 55,
+          "type": "directory",
+          "acl": false,
+          "file_capabilities": false,
+          "target": null
+        },
+        "/usr/lib/aarch64-linux-gnu/libXdmcp.so.6.0.0": {
+          "uid": 0,
+          "gid": 0,
+          "mode": 420,
+          "nlink": 1,
+          "type": "file",
+          "acl": false,
+          "file_capabilities": false,
+          "target": null
+        }
+      }
+    },
+    "/lib/aarch64-linux-gnu/libgcrypt.so.20": {
+      "requested": "/lib/aarch64-linux-gnu/libgcrypt.so.20",
+      "resolved": "/usr/lib/aarch64-linux-gnu/libgcrypt.so.20.4.3",
+      "components": {
+        "/": {
+          "uid": 0,
+          "gid": 0,
+          "mode": 493,
+          "nlink": 22,
+          "type": "directory",
+          "acl": false,
+          "file_capabilities": false,
+          "target": null
+        },
+        "/lib": {
+          "uid": 0,
+          "gid": 0,
+          "mode": 511,
+          "nlink": 1,
+          "type": "symlink",
+          "acl": false,
+          "file_capabilities": false,
+          "target": "usr/lib"
+        },
+        "/lib/aarch64-linux-gnu": {
+          "uid": 0,
+          "gid": 0,
+          "mode": 493,
+          "nlink": 55,
+          "type": "directory",
+          "acl": false,
+          "file_capabilities": false,
+          "target": null
+        },
+        "/lib/aarch64-linux-gnu/libgcrypt.so.20": {
+          "uid": 0,
+          "gid": 0,
+          "mode": 511,
+          "nlink": 1,
+          "type": "symlink",
+          "acl": false,
+          "file_capabilities": false,
+          "target": "libgcrypt.so.20.4.3"
+        },
+        "/lib/aarch64-linux-gnu/libgcrypt.so.20.4.3": {
+          "uid": 0,
+          "gid": 0,
+          "mode": 420,
+          "nlink": 1,
+          "type": "file",
+          "acl": false,
+          "file_capabilities": false,
+          "target": null
+        },
+        "/usr": {
+          "uid": 0,
+          "gid": 0,
+          "mode": 493,
+          "nlink": 12,
+          "type": "directory",
+          "acl": false,
+          "file_capabilities": false,
+          "target": null
+        },
+        "/usr/lib": {
+          "uid": 0,
+          "gid": 0,
+          "mode": 493,
+          "nlink": 81,
+          "type": "directory",
+          "acl": false,
+          "file_capabilities": false,
+          "target": null
+        },
+        "/usr/lib/aarch64-linux-gnu": {
+          "uid": 0,
+          "gid": 0,
+          "mode": 493,
+          "nlink": 55,
+          "type": "directory",
+          "acl": false,
+          "file_capabilities": false,
+          "target": null
+        },
+        "/usr/lib/aarch64-linux-gnu/libgcrypt.so.20.4.3": {
+          "uid": 0,
+          "gid": 0,
+          "mode": 420,
+          "nlink": 1,
+          "type": "file",
+          "acl": false,
+          "file_capabilities": false,
+          "target": null
+        }
+      }
+    },
+    "/lib/aarch64-linux-gnu/liblz4.so.1": {
+      "requested": "/lib/aarch64-linux-gnu/liblz4.so.1",
+      "resolved": "/usr/lib/aarch64-linux-gnu/liblz4.so.1.9.4",
+      "components": {
+        "/": {
+          "uid": 0,
+          "gid": 0,
+          "mode": 493,
+          "nlink": 22,
+          "type": "directory",
+          "acl": false,
+          "file_capabilities": false,
+          "target": null
+        },
+        "/lib": {
+          "uid": 0,
+          "gid": 0,
+          "mode": 511,
+          "nlink": 1,
+          "type": "symlink",
+          "acl": false,
+          "file_capabilities": false,
+          "target": "usr/lib"
+        },
+        "/lib/aarch64-linux-gnu": {
+          "uid": 0,
+          "gid": 0,
+          "mode": 493,
+          "nlink": 55,
+          "type": "directory",
+          "acl": false,
+          "file_capabilities": false,
+          "target": null
+        },
+        "/lib/aarch64-linux-gnu/liblz4.so.1": {
+          "uid": 0,
+          "gid": 0,
+          "mode": 511,
+          "nlink": 1,
+          "type": "symlink",
+          "acl": false,
+          "file_capabilities": false,
+          "target": "liblz4.so.1.9.4"
+        },
+        "/lib/aarch64-linux-gnu/liblz4.so.1.9.4": {
+          "uid": 0,
+          "gid": 0,
+          "mode": 420,
+          "nlink": 1,
+          "type": "file",
+          "acl": false,
+          "file_capabilities": false,
+          "target": null
+        },
+        "/usr": {
+          "uid": 0,
+          "gid": 0,
+          "mode": 493,
+          "nlink": 12,
+          "type": "directory",
+          "acl": false,
+          "file_capabilities": false,
+          "target": null
+        },
+        "/usr/lib": {
+          "uid": 0,
+          "gid": 0,
+          "mode": 493,
+          "nlink": 81,
+          "type": "directory",
+          "acl": false,
+          "file_capabilities": false,
+          "target": null
+        },
+        "/usr/lib/aarch64-linux-gnu": {
+          "uid": 0,
+          "gid": 0,
+          "mode": 493,
+          "nlink": 55,
+          "type": "directory",
+          "acl": false,
+          "file_capabilities": false,
+          "target": null
+        },
+        "/usr/lib/aarch64-linux-gnu/liblz4.so.1.9.4": {
+          "uid": 0,
+          "gid": 0,
+          "mode": 420,
+          "nlink": 1,
+          "type": "file",
+          "acl": false,
+          "file_capabilities": false,
+          "target": null
+        }
+      }
+    },
+    "/lib/aarch64-linux-gnu/liblzma.so.5": {
+      "requested": "/lib/aarch64-linux-gnu/liblzma.so.5",
+      "resolved": "/usr/lib/aarch64-linux-gnu/liblzma.so.5.4.5",
+      "components": {
+        "/": {
+          "uid": 0,
+          "gid": 0,
+          "mode": 493,
+          "nlink": 22,
+          "type": "directory",
+          "acl": false,
+          "file_capabilities": false,
+          "target": null
+        },
+        "/lib": {
+          "uid": 0,
+          "gid": 0,
+          "mode": 511,
+          "nlink": 1,
+          "type": "symlink",
+          "acl": false,
+          "file_capabilities": false,
+          "target": "usr/lib"
+        },
+        "/lib/aarch64-linux-gnu": {
+          "uid": 0,
+          "gid": 0,
+          "mode": 493,
+          "nlink": 55,
+          "type": "directory",
+          "acl": false,
+          "file_capabilities": false,
+          "target": null
+        },
+        "/lib/aarch64-linux-gnu/liblzma.so.5": {
+          "uid": 0,
+          "gid": 0,
+          "mode": 511,
+          "nlink": 1,
+          "type": "symlink",
+          "acl": false,
+          "file_capabilities": false,
+          "target": "liblzma.so.5.4.5"
+        },
+        "/lib/aarch64-linux-gnu/liblzma.so.5.4.5": {
+          "uid": 0,
+          "gid": 0,
+          "mode": 420,
+          "nlink": 1,
+          "type": "file",
+          "acl": false,
+          "file_capabilities": false,
+          "target": null
+        },
+        "/usr": {
+          "uid": 0,
+          "gid": 0,
+          "mode": 493,
+          "nlink": 12,
+          "type": "directory",
+          "acl": false,
+          "file_capabilities": false,
+          "target": null
+        },
+        "/usr/lib": {
+          "uid": 0,
+          "gid": 0,
+          "mode": 493,
+          "nlink": 81,
+          "type": "directory",
+          "acl": false,
+          "file_capabilities": false,
+          "target": null
+        },
+        "/usr/lib/aarch64-linux-gnu": {
+          "uid": 0,
+          "gid": 0,
+          "mode": 493,
+          "nlink": 55,
+          "type": "directory",
+          "acl": false,
+          "file_capabilities": false,
+          "target": null
+        },
+        "/usr/lib/aarch64-linux-gnu/liblzma.so.5.4.5": {
+          "uid": 0,
+          "gid": 0,
+          "mode": 420,
+          "nlink": 1,
+          "type": "file",
+          "acl": false,
+          "file_capabilities": false,
+          "target": null
+        }
+      }
+    },
+    "/lib/aarch64-linux-gnu/libzstd.so.1": {
+      "requested": "/lib/aarch64-linux-gnu/libzstd.so.1",
+      "resolved": "/usr/lib/aarch64-linux-gnu/libzstd.so.1.5.5",
+      "components": {
+        "/": {
+          "uid": 0,
+          "gid": 0,
+          "mode": 493,
+          "nlink": 22,
+          "type": "directory",
+          "acl": false,
+          "file_capabilities": false,
+          "target": null
+        },
+        "/lib": {
+          "uid": 0,
+          "gid": 0,
+          "mode": 511,
+          "nlink": 1,
+          "type": "symlink",
+          "acl": false,
+          "file_capabilities": false,
+          "target": "usr/lib"
+        },
+        "/lib/aarch64-linux-gnu": {
+          "uid": 0,
+          "gid": 0,
+          "mode": 493,
+          "nlink": 55,
+          "type": "directory",
+          "acl": false,
+          "file_capabilities": false,
+          "target": null
+        },
+        "/lib/aarch64-linux-gnu/libzstd.so.1": {
+          "uid": 0,
+          "gid": 0,
+          "mode": 511,
+          "nlink": 1,
+          "type": "symlink",
+          "acl": false,
+          "file_capabilities": false,
+          "target": "libzstd.so.1.5.5"
+        },
+        "/lib/aarch64-linux-gnu/libzstd.so.1.5.5": {
+          "uid": 0,
+          "gid": 0,
+          "mode": 420,
+          "nlink": 1,
+          "type": "file",
+          "acl": false,
+          "file_capabilities": false,
+          "target": null
+        },
+        "/usr": {
+          "uid": 0,
+          "gid": 0,
+          "mode": 493,
+          "nlink": 12,
+          "type": "directory",
+          "acl": false,
+          "file_capabilities": false,
+          "target": null
+        },
+        "/usr/lib": {
+          "uid": 0,
+          "gid": 0,
+          "mode": 493,
+          "nlink": 81,
+          "type": "directory",
+          "acl": false,
+          "file_capabilities": false,
+          "target": null
+        },
+        "/usr/lib/aarch64-linux-gnu": {
+          "uid": 0,
+          "gid": 0,
+          "mode": 493,
+          "nlink": 55,
+          "type": "directory",
+          "acl": false,
+          "file_capabilities": false,
+          "target": null
+        },
+        "/usr/lib/aarch64-linux-gnu/libzstd.so.1.5.5": {
+          "uid": 0,
+          "gid": 0,
+          "mode": 420,
+          "nlink": 1,
+          "type": "file",
+          "acl": false,
+          "file_capabilities": false,
+          "target": null
+        }
+      }
+    },
+    "/lib/aarch64-linux-gnu/libblkid.so.1": {
+      "requested": "/lib/aarch64-linux-gnu/libblkid.so.1",
+      "resolved": "/usr/lib/aarch64-linux-gnu/libblkid.so.1.1.0",
+      "components": {
+        "/": {
+          "uid": 0,
+          "gid": 0,
+          "mode": 493,
+          "nlink": 22,
+          "type": "directory",
+          "acl": false,
+          "file_capabilities": false,
+          "target": null
+        },
+        "/lib": {
+          "uid": 0,
+          "gid": 0,
+          "mode": 511,
+          "nlink": 1,
+          "type": "symlink",
+          "acl": false,
+          "file_capabilities": false,
+          "target": "usr/lib"
+        },
+        "/lib/aarch64-linux-gnu": {
+          "uid": 0,
+          "gid": 0,
+          "mode": 493,
+          "nlink": 55,
+          "type": "directory",
+          "acl": false,
+          "file_capabilities": false,
+          "target": null
+        },
+        "/lib/aarch64-linux-gnu/libblkid.so.1": {
+          "uid": 0,
+          "gid": 0,
+          "mode": 511,
+          "nlink": 1,
+          "type": "symlink",
+          "acl": false,
+          "file_capabilities": false,
+          "target": "libblkid.so.1.1.0"
+        },
+        "/lib/aarch64-linux-gnu/libblkid.so.1.1.0": {
+          "uid": 0,
+          "gid": 0,
+          "mode": 420,
+          "nlink": 1,
+          "type": "file",
+          "acl": false,
+          "file_capabilities": false,
+          "target": null
+        },
+        "/usr": {
+          "uid": 0,
+          "gid": 0,
+          "mode": 493,
+          "nlink": 12,
+          "type": "directory",
+          "acl": false,
+          "file_capabilities": false,
+          "target": null
+        },
+        "/usr/lib": {
+          "uid": 0,
+          "gid": 0,
+          "mode": 493,
+          "nlink": 81,
+          "type": "directory",
+          "acl": false,
+          "file_capabilities": false,
+          "target": null
+        },
+        "/usr/lib/aarch64-linux-gnu": {
+          "uid": 0,
+          "gid": 0,
+          "mode": 493,
+          "nlink": 55,
+          "type": "directory",
+          "acl": false,
+          "file_capabilities": false,
+          "target": null
+        },
+        "/usr/lib/aarch64-linux-gnu/libblkid.so.1.1.0": {
+          "uid": 0,
+          "gid": 0,
+          "mode": 420,
+          "nlink": 1,
+          "type": "file",
+          "acl": false,
+          "file_capabilities": false,
+          "target": null
+        }
+      }
+    },
+    "/lib/aarch64-linux-gnu/libbsd.so.0": {
+      "requested": "/lib/aarch64-linux-gnu/libbsd.so.0",
+      "resolved": "/usr/lib/aarch64-linux-gnu/libbsd.so.0.12.1",
+      "components": {
+        "/": {
+          "uid": 0,
+          "gid": 0,
+          "mode": 493,
+          "nlink": 22,
+          "type": "directory",
+          "acl": false,
+          "file_capabilities": false,
+          "target": null
+        },
+        "/lib": {
+          "uid": 0,
+          "gid": 0,
+          "mode": 511,
+          "nlink": 1,
+          "type": "symlink",
+          "acl": false,
+          "file_capabilities": false,
+          "target": "usr/lib"
+        },
+        "/lib/aarch64-linux-gnu": {
+          "uid": 0,
+          "gid": 0,
+          "mode": 493,
+          "nlink": 55,
+          "type": "directory",
+          "acl": false,
+          "file_capabilities": false,
+          "target": null
+        },
+        "/lib/aarch64-linux-gnu/libbsd.so.0": {
+          "uid": 0,
+          "gid": 0,
+          "mode": 511,
+          "nlink": 1,
+          "type": "symlink",
+          "acl": false,
+          "file_capabilities": false,
+          "target": "libbsd.so.0.12.1"
+        },
+        "/lib/aarch64-linux-gnu/libbsd.so.0.12.1": {
+          "uid": 0,
+          "gid": 0,
+          "mode": 420,
+          "nlink": 1,
+          "type": "file",
+          "acl": false,
+          "file_capabilities": false,
+          "target": null
+        },
+        "/usr": {
+          "uid": 0,
+          "gid": 0,
+          "mode": 493,
+          "nlink": 12,
+          "type": "directory",
+          "acl": false,
+          "file_capabilities": false,
+          "target": null
+        },
+        "/usr/lib": {
+          "uid": 0,
+          "gid": 0,
+          "mode": 493,
+          "nlink": 81,
+          "type": "directory",
+          "acl": false,
+          "file_capabilities": false,
+          "target": null
+        },
+        "/usr/lib/aarch64-linux-gnu": {
+          "uid": 0,
+          "gid": 0,
+          "mode": 493,
+          "nlink": 55,
+          "type": "directory",
+          "acl": false,
+          "file_capabilities": false,
+          "target": null
+        },
+        "/usr/lib/aarch64-linux-gnu/libbsd.so.0.12.1": {
+          "uid": 0,
+          "gid": 0,
+          "mode": 420,
+          "nlink": 1,
+          "type": "file",
+          "acl": false,
+          "file_capabilities": false,
+          "target": null
+        }
+      }
+    },
+    "/lib/aarch64-linux-gnu/libgpg-error.so.0": {
+      "requested": "/lib/aarch64-linux-gnu/libgpg-error.so.0",
+      "resolved": "/usr/lib/aarch64-linux-gnu/libgpg-error.so.0.34.0",
+      "components": {
+        "/": {
+          "uid": 0,
+          "gid": 0,
+          "mode": 493,
+          "nlink": 22,
+          "type": "directory",
+          "acl": false,
+          "file_capabilities": false,
+          "target": null
+        },
+        "/lib": {
+          "uid": 0,
+          "gid": 0,
+          "mode": 511,
+          "nlink": 1,
+          "type": "symlink",
+          "acl": false,
+          "file_capabilities": false,
+          "target": "usr/lib"
+        },
+        "/lib/aarch64-linux-gnu": {
+          "uid": 0,
+          "gid": 0,
+          "mode": 493,
+          "nlink": 55,
+          "type": "directory",
+          "acl": false,
+          "file_capabilities": false,
+          "target": null
+        },
+        "/lib/aarch64-linux-gnu/libgpg-error.so.0": {
+          "uid": 0,
+          "gid": 0,
+          "mode": 511,
+          "nlink": 1,
+          "type": "symlink",
+          "acl": false,
+          "file_capabilities": false,
+          "target": "libgpg-error.so.0.34.0"
+        },
+        "/lib/aarch64-linux-gnu/libgpg-error.so.0.34.0": {
+          "uid": 0,
+          "gid": 0,
+          "mode": 420,
+          "nlink": 1,
+          "type": "file",
+          "acl": false,
+          "file_capabilities": false,
+          "target": null
+        },
+        "/usr": {
+          "uid": 0,
+          "gid": 0,
+          "mode": 493,
+          "nlink": 12,
+          "type": "directory",
+          "acl": false,
+          "file_capabilities": false,
+          "target": null
+        },
+        "/usr/lib": {
+          "uid": 0,
+          "gid": 0,
+          "mode": 493,
+          "nlink": 81,
+          "type": "directory",
+          "acl": false,
+          "file_capabilities": false,
+          "target": null
+        },
+        "/usr/lib/aarch64-linux-gnu": {
+          "uid": 0,
+          "gid": 0,
+          "mode": 493,
+          "nlink": 55,
+          "type": "directory",
+          "acl": false,
+          "file_capabilities": false,
+          "target": null
+        },
+        "/usr/lib/aarch64-linux-gnu/libgpg-error.so.0.34.0": {
+          "uid": 0,
+          "gid": 0,
+          "mode": 420,
+          "nlink": 1,
+          "type": "file",
+          "acl": false,
+          "file_capabilities": false,
+          "target": null
+        }
+      }
+    },
+    "/lib/aarch64-linux-gnu/libmd.so.0": {
+      "requested": "/lib/aarch64-linux-gnu/libmd.so.0",
+      "resolved": "/usr/lib/aarch64-linux-gnu/libmd.so.0.1.0",
+      "components": {
+        "/": {
+          "uid": 0,
+          "gid": 0,
+          "mode": 493,
+          "nlink": 22,
+          "type": "directory",
+          "acl": false,
+          "file_capabilities": false,
+          "target": null
+        },
+        "/lib": {
+          "uid": 0,
+          "gid": 0,
+          "mode": 511,
+          "nlink": 1,
+          "type": "symlink",
+          "acl": false,
+          "file_capabilities": false,
+          "target": "usr/lib"
+        },
+        "/lib/aarch64-linux-gnu": {
+          "uid": 0,
+          "gid": 0,
+          "mode": 493,
+          "nlink": 55,
+          "type": "directory",
+          "acl": false,
+          "file_capabilities": false,
+          "target": null
+        },
+        "/lib/aarch64-linux-gnu/libmd.so.0": {
+          "uid": 0,
+          "gid": 0,
+          "mode": 511,
+          "nlink": 1,
+          "type": "symlink",
+          "acl": false,
+          "file_capabilities": false,
+          "target": "libmd.so.0.1.0"
+        },
+        "/lib/aarch64-linux-gnu/libmd.so.0.1.0": {
+          "uid": 0,
+          "gid": 0,
+          "mode": 420,
+          "nlink": 1,
+          "type": "file",
+          "acl": false,
+          "file_capabilities": false,
+          "target": null
+        },
+        "/usr": {
+          "uid": 0,
+          "gid": 0,
+          "mode": 493,
+          "nlink": 12,
+          "type": "directory",
+          "acl": false,
+          "file_capabilities": false,
+          "target": null
+        },
+        "/usr/lib": {
+          "uid": 0,
+          "gid": 0,
+          "mode": 493,
+          "nlink": 81,
+          "type": "directory",
+          "acl": false,
+          "file_capabilities": false,
+          "target": null
+        },
+        "/usr/lib/aarch64-linux-gnu": {
+          "uid": 0,
+          "gid": 0,
+          "mode": 493,
+          "nlink": 55,
+          "type": "directory",
+          "acl": false,
+          "file_capabilities": false,
+          "target": null
+        },
+        "/usr/lib/aarch64-linux-gnu/libmd.so.0.1.0": {
+          "uid": 0,
+          "gid": 0,
+          "mode": 420,
+          "nlink": 1,
+          "type": "file",
+          "acl": false,
+          "file_capabilities": false,
+          "target": null
+        }
+      }
+    },
+    "/lib/ld-linux-aarch64.so.1": {
+      "requested": "/lib/ld-linux-aarch64.so.1",
+      "resolved": "/usr/lib/aarch64-linux-gnu/ld-linux-aarch64.so.1",
+      "components": {
+        "/": {
+          "uid": 0,
+          "gid": 0,
+          "mode": 493,
+          "nlink": 22,
+          "type": "directory",
+          "acl": false,
+          "file_capabilities": false,
+          "target": null
+        },
+        "/lib": {
+          "uid": 0,
+          "gid": 0,
+          "mode": 511,
+          "nlink": 1,
+          "type": "symlink",
+          "acl": false,
+          "file_capabilities": false,
+          "target": "usr/lib"
+        },
+        "/lib/ld-linux-aarch64.so.1": {
+          "uid": 0,
+          "gid": 0,
+          "mode": 511,
+          "nlink": 1,
+          "type": "symlink",
+          "acl": false,
+          "file_capabilities": false,
+          "target": "aarch64-linux-gnu/ld-linux-aarch64.so.1"
+        },
+        "/lib/aarch64-linux-gnu": {
+          "uid": 0,
+          "gid": 0,
+          "mode": 493,
+          "nlink": 55,
+          "type": "directory",
+          "acl": false,
+          "file_capabilities": false,
+          "target": null
+        },
+        "/lib/aarch64-linux-gnu/ld-linux-aarch64.so.1": {
+          "uid": 0,
+          "gid": 0,
+          "mode": 493,
+          "nlink": 1,
+          "type": "file",
+          "acl": false,
+          "file_capabilities": false,
+          "target": null
+        },
+        "/usr": {
+          "uid": 0,
+          "gid": 0,
+          "mode": 493,
+          "nlink": 12,
+          "type": "directory",
+          "acl": false,
+          "file_capabilities": false,
+          "target": null
+        },
+        "/usr/lib": {
+          "uid": 0,
+          "gid": 0,
+          "mode": 493,
+          "nlink": 81,
+          "type": "directory",
+          "acl": false,
+          "file_capabilities": false,
+          "target": null
+        },
+        "/usr/lib/aarch64-linux-gnu": {
+          "uid": 0,
+          "gid": 0,
+          "mode": 493,
+          "nlink": 55,
+          "type": "directory",
+          "acl": false,
+          "file_capabilities": false,
+          "target": null
+        },
+        "/usr/lib/aarch64-linux-gnu/ld-linux-aarch64.so.1": {
+          "uid": 0,
+          "gid": 0,
+          "mode": 493,
+          "nlink": 1,
+          "type": "file",
+          "acl": false,
+          "file_capabilities": false,
+          "target": null
+        }
+      }
+    }
+  },
+  "dynamic_observation": "NOT_RUN_ACTIVE_POLICY_REQUIRED",
+  "declared_late_candidates": [
+    "libnss_files.so.2",
+    "libnss_dns.so.2",
+    "libresolv.so.2",
+    "libnss_compat.so.2",
+    "libnss_systemd.so.2"
+  ],
+  "host_settings": {
+    "/proc/sys/kernel/unprivileged_userns_clone": "1",
+    "/proc/sys/kernel/apparmor_restrict_unprivileged_userns": "1",
+    "/proc/sys/kernel/apparmor_restrict_unprivileged_unconfined": "0"
+  },
+  "archive_sha256": "d433c45172c7836e38124fe545f767b02210bfb43a6262f08a297473a8e91c99"
+}

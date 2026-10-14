@@ -1,0 +1,19 @@
+{
+  "schema": "ote-managed-browser:1",
+  "version": "153.0.8010.12",
+  "archive_url": "https://cdn.playwright.dev/builds/cft/153.0.8010.12/linux-arm64/chrome-headless-shell-linux-arm64.zip",
+  "archive_sha256": "d433c45172c7836e38124fe545f767b02210bfb43a6262f08a297473a8e91c99",
+  "executable_sha256": "f5d89353cc9ef8dc1541268bbee1f05ee40a31ce3d9799b3a274e5147f6a8cdb",
+  "runtime_root": "/opt/bartosz-intelligence/browser-runtimes/chromium-headless-shell-153.0.8010.12",
+  "executable": "/opt/bartosz-intelligence/browser-runtimes/chromium-headless-shell-153.0.8010.12/chrome-headless-shell",
+  "launcher": "/opt/bartosz-intelligence/browser-runtimes/chromium-headless-shell-153.0.8010.12/launcher.py",
+  "apparmor_profile_name": "bartosz-ote-chromium-153_0_8010_12",
+  "apparmor_profile_path": "/etc/apparmor.d/bartosz-ote-chromium-153_0_8010_12",
+  "account": "bartosz-executor",
+  "uid": 997,
+  "gid": 988,
+  "sandbox_required": true,
+  "profile_parent": "/tmp",
+  "profile_prefix": "bartosz-ote-profile-",
+  "node_executable": "/opt/bartosz-intelligence/runtime/node-24.21.0/bin/node"
+}

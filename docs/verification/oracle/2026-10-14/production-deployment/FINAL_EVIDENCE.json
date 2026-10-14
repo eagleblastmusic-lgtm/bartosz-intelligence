@@ -1,0 +1,138 @@
+{
+  "schema": "bartosz-production-completion:1",
+  "status": "PRODUCTION_READY",
+  "verified_at": "2026-10-14T18:25:04.942Z",
+  "statuses": {
+    "PRODUCTION_DEPLOYMENT": "PASS",
+    "D1_MIGRATION": "PASS_040_40_OF_40",
+    "EXECUTOR_24_7": "ACTIVE_ENABLED",
+    "END_TO_END_LIVE": "PASS_TWO_CREATORS_ORACLE_TO_PRODUCTION_D1_AND_API",
+    "SESSION_STATUS": "AUTHENTICATED_PERSISTENT_REUSED_WITHOUT_REIMPORT",
+    "COST_STATUS": "NO_NEW_PAID_RESOURCES"
+  },
+  "production_origin": "https://bartosz-intelligence.eagleblastmusic.workers.dev",
+  "worker_version_id": "39edd639-eba3-40bb-93c7-022f1aec31d6",
+  "executor_release_sha256": "7a6339c1dcafdd1d825c35b8daa609795ff1cb85ea8ca6d614844800f1a41505",
+  "executor_worker_id": "oracle-frankfurt-transcript-1",
+  "broker_running_previous_immutable_release_with_identical_source": true,
+  "executor_restart": {
+    "before_pid": 63618,
+    "after_pid": 63718,
+    "exit_code": 0
+  },
+  "windows_required_for_submission_processing_storage_or_read": false,
+  "initial_test_ssh_closed_before_enqueue": true,
+  "cases": [
+    {
+      "video_id": "uEztHu4NHrs",
+      "job_id": "9bf8bac4-1d3d-4b62-80f8-0cde55d34c73",
+      "state": "SUCCEEDED",
+      "executor_id": "oracle-frankfurt-transcript-1",
+      "attempts": [
+        {
+          "executor_id": "oracle-frankfurt-transcript-1",
+          "fencing_token": 1,
+          "started_at": "2026-10-14T17:59:20.475Z",
+          "finished_at": "2026-10-14T17:59:46.288Z",
+          "error_code": null
+        }
+      ],
+      "language_code": "en",
+      "track_kind": "MANUAL",
+      "provider_version": "yt-dlp@2026.08.19+yt-dlp-ejs@0.8.0",
+      "status": "PASS_EVERY_RECEIVED_RAW_CUE_TEXT_AND_TIME",
+      "cue_count": 241,
+      "raw_bytes": 33217,
+      "raw_sha256": "e1e512e81f6a364ac9a38d7790c0df4465cc991b7a8eba5a529d1f6a93f2adff",
+      "source_bytes": 9876,
+      "source_sha256": "8b967ac776aba9ef41010c3c9703aa18b943736f772aba9e35de8e7b6b03041a",
+      "first_start_ms": 3833,
+      "last_end_ms": 790870,
+      "independent_full_film_completeness_asserted": false,
+      "item_id": "c66b5b93-d046-48b3-82c0-ed6d74d1434e",
+      "production_api": true,
+      "normal_owner_session": true,
+      "source_http_status": 200,
+      "session_imported": false,
+      "session_updated": true,
+      "authentication_status": "AUTHENTICATED",
+      "per_job_subs_token_generated": true
+    },
+    {
+      "video_id": "IHZwWFHWa-w",
+      "job_id": "831ee595-e8d3-45eb-af47-b592841b82a1",
+      "state": "SUCCEEDED",
+      "executor_id": "oracle-frankfurt-transcript-1",
+      "attempts": [
+        {
+          "executor_id": "oracle-frankfurt-transcript-1",
+          "fencing_token": 1,
+          "started_at": "2026-10-14T18:17:06.563Z",
+          "finished_at": "2026-10-14T18:17:35.557Z",
+          "error_code": null
+        }
+      ],
+      "language_code": "en",
+      "track_kind": "MANUAL",
+      "provider_version": "yt-dlp@2026.08.19+yt-dlp-ejs@0.8.0",
+      "status": "PASS_EVERY_RECEIVED_RAW_CUE_TEXT_AND_TIME",
+      "cue_count": 306,
+      "raw_bytes": 49690,
+      "raw_sha256": "7dd91ad97c38e2ddd848feed20d53cc4f25e85dd1eaf2d66c565880ab19a510b",
+      "source_bytes": 20165,
+      "source_sha256": "90dcefde04bf5df5e01a8b6c799c0e58b471fb9408575e7d5d4cb2870a87ad94",
+      "first_start_ms": 4180,
+      "last_end_ms": 1212780,
+      "independent_full_film_completeness_asserted": false,
+      "item_id": "db6b96b5-76c2-4505-bb3c-2aa8037367a0",
+      "production_api": true,
+      "normal_owner_session": true,
+      "source_http_status": 200,
+      "session_imported": false,
+      "session_updated": true,
+      "authentication_status": "AUTHENTICATED",
+      "per_job_subs_token_generated": true
+    }
+  ],
+  "total_received_cues_verified_text_and_times": 547,
+  "ephemeral_test_app_session_revoked": true,
+  "source_processes_remaining": 0,
+  "source_limits": {
+    "memory_bytes": 805306368,
+    "cpu_quota_percent": 50,
+    "swap_bytes": 0,
+    "concurrency": 1
+  },
+  "retained_source_session": {
+    "directory_mode": "0700",
+    "file_mode": "0600",
+    "uid": 30000,
+    "values_recorded": false
+  },
+  "regression": {
+    "artifact_retry_tests_passed": 9,
+    "cycle_loop_tests_passed": 6,
+    "typecheck_lint_format": "PASS",
+    "api_and_jobs_regressions_reference": "REPORT_PL.md"
+  },
+  "controlled_auth_failure_reference": "../end-to-end/REPORT_PL.md",
+  "excluded_early_tests": [
+    "aircAruvnKk: previous Windows worker; excluded from Oracle production proof",
+    "zfR_Jj4grZE: incorrect reference video and transient artifact write failure; retained BLOCKED/INVALID_INPUT"
+  ],
+  "fixed_deployment_failure": "Bounded idempotent artifact-write retries and preserved typed RPC code; no client/parser/provider replacement",
+  "observation_limits": [
+    "No measured 24-72 hour soak",
+    "Google/YouTube can invalidate retained session; normal reauthentication then existing replay is required",
+    "Host reboot not forced; enabled units and executor process restart verified",
+    "Received-response completeness verified; independent full-film completeness not asserted",
+    "No new paid resources or plan changes; account-wide invoice not measured"
+  ],
+  "rollback": {
+    "worker_version_id": "224ba7ff-a4ab-47ff-8cc1-70aadb2d91b1",
+    "oracle": "Stop new services or restore previous immutable release; preserve D1 data and additive migration040",
+    "destructive_database_rollback": false
+  },
+  "no_commit_push_or_merge": true,
+  "source_cookie_token_or_password_values_in_evidence": false
+}

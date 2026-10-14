@@ -1,6 +1,7 @@
 import { ownerRouter, body, queryFields, text } from './common.js';
 import { JobStore } from '../../../../packages/core/src/jobs/store.js';
 import { RunRepository } from '../../../../packages/core/src/jobs/acceptance.js';
+import { enqueueYoutubeTranscript } from '../../../../packages/core/src/transcript/intake.js';
 import {
   AnalysisJobs,
   type AnalysisSettings,
@@ -15,6 +16,18 @@ import {
   pageLimit,
 } from '../../../../packages/core/src/db/cursor.js';
 export const jobsApp = ownerRouter();
+jobsApp.post('/transcript', async (c) => {
+  const input = await body(c, ['locator']);
+  return c.json(
+    await enqueueYoutubeTranscript(
+      c.env.DB,
+      c.get('access'),
+      text(input.locator, 2048),
+      new Date(),
+    ),
+    201,
+  );
+});
 jobsApp.post('/analysis-selection', async (c) => {
   const input = await body(c, ['run_id', 'item_id']),
     access = c.get('access');
