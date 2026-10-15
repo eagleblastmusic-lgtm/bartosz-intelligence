@@ -8,6 +8,7 @@ import {
   repairMissingIntents,
 } from '../../packages/core/src/sources/youtube/reconcile.js';
 import { scheduleControlPlane } from '../../apps/api/src/scheduled.js';
+import { enrollMonitoringBatch } from '../../packages/core/src/sources/youtube/cycles.js';
 import { scheduleMetadataRefresh } from '../../packages/core/src/sources/youtube/refresh.js';
 import { AccessContext } from '../../packages/core/src/db/boundary.js';
 import { JobStore } from '../../packages/core/src/jobs/store.js';
@@ -146,6 +147,7 @@ it('actual cron control-plane entry schedules a source and retains durable inten
     (await scheduleControlPlane(env.DB, env.BARTOSZ_QUEUE, fixtureNow)).sources
       .scheduled,
   ).toBe(1);
+  await enrollMonitoringBatch(env.DB, fixtureNow);
   expect(
     await env.DB.prepare('SELECT COUNT(*) n FROM discovery_scans').first('n'),
   ).toBe(1);

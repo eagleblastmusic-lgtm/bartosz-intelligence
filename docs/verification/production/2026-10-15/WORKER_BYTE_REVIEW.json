@@ -1,0 +1,32 @@
+{
+  "observed_at": "2026-10-15T01:21:16.857Z",
+  "result": "PASS",
+  "download": {
+    "http_status": 200,
+    "success": true,
+    "bytes": 1753175,
+    "sha256": "6d081293107fa552ae12177527d10a765affefbd24b7f4229931e58394d38188",
+    "content_type": "multipart/form-data; boundary=99013e7c9a4de210a3a749308a57e75034366eeed3bbf7997579b42ecdb7",
+    "cf_entrypoint": "index.js"
+  },
+  "modules": [
+    {
+      "name": "index.js",
+      "bytes": 1752926,
+      "sha256": "a6b8458d86021fcfa499bf0c95bf718fe3d3961172e643e33cadeb217e5ee00d"
+    }
+  ],
+  "candidate_bundle_sha256": "a6b8458d86021fcfa499bf0c95bf718fe3d3961172e643e33cadeb217e5ee00d",
+  "exact_compiled_module_bytes_match": true,
+  "health_http_status": 200,
+  "health": {
+    "build": "0.0.1",
+    "status": "LOCAL_READY",
+    "bindings": {
+      "DB": true,
+      "BARTOSZ_QUEUE": true,
+      "ASSETS": true
+    }
+  },
+  "production_writes": 0
+}

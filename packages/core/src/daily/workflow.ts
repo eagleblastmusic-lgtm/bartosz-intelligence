@@ -1,4 +1,5 @@
 import { AccessContext, type Database } from '../db/boundary.js';
+import { TranscriptPayloadArchive } from '../transcript/payload-archive.js';
 import {
   DriveClient,
   DriveFailure,
@@ -421,9 +422,38 @@ export class DailyTasksWorkflow {
       file_id: file.reserved_file_id,
     };
   }
-  async tick(client: DriveClient, now: Date) {
+  async hasReadyTranscript(now: Date) {
+    return Boolean(
+      await this.db
+        .prepare(
+          `SELECT 1 FROM daily_materials m LEFT JOIN daily_drive_files f ON f.owner_id=m.owner_id AND f.object_key='transcript:'||m.video_id
+      WHERE m.owner_id=? AND m.archive_attempt_count<8 AND (m.archive_due_at IS NULL OR m.archive_due_at<=?) AND (f.object_key IS NULL OR (f.state IN ('PENDING','RETRY_WAIT') AND f.due_at<=?)) AND NOT EXISTS(SELECT 1 FROM daily_materials blocked WHERE blocked.owner_id=m.owner_id AND blocked.archive_reason='DRIVE_QUOTA' AND blocked.archive_due_at>?) LIMIT 1`,
+        )
+        .bind(
+          this.context.ownerId,
+          now.toISOString(),
+          now.toISOString(),
+          now.toISOString(),
+        )
+        .first(),
+    );
+  }
+  async tick(
+    client: DriveClient,
+    now: Date,
+    mode: 'ALL' | 'TRANSCRIPT' | 'REPORTS' = 'ALL',
+  ) {
     const settings = await this.settings();
     if (!settings?.enabled) return { state: 'DISABLED' };
+    if (
+      await this.db
+        .prepare(
+          "SELECT 1 FROM daily_materials WHERE owner_id=? AND archive_reason='DRIVE_QUOTA' AND archive_due_at>? LIMIT 1",
+        )
+        .bind(this.context.ownerId, now.toISOString())
+        .first()
+    )
+      return { state: 'QUOTA_WAIT' };
     if (this.context.kind === 'worker')
       (
         await AccessContext.worker(this.db, this.context.credentialHash!)
@@ -492,14 +522,38 @@ export class DailyTasksWorkflow {
           reason: 'DAILY_DRIVE_PERMISSION_HOLD',
         };
       }
-      const material = await this.db
-        .prepare(
-          `SELECT m.* FROM daily_materials m LEFT JOIN daily_drive_files f ON f.owner_id=m.owner_id AND f.object_key='transcript:'||m.video_id WHERE m.owner_id=? AND m.archive_attempt_count<8 AND (m.archive_due_at IS NULL OR m.archive_due_at<=?) AND (f.object_key IS NULL OR (f.state IN ('PENDING','RETRY_WAIT') AND f.due_at<=?)) ORDER BY m.acquired_at,m.video_id LIMIT 1`,
-        )
-        .bind(this.context.ownerId, now.toISOString(), now.toISOString())
-        .first<Material>();
+      const material =
+        mode === 'REPORTS'
+          ? null
+          : await this.db
+              .prepare(
+                `SELECT m.* FROM daily_materials m LEFT JOIN daily_drive_files f ON f.owner_id=m.owner_id AND f.object_key='transcript:'||m.video_id WHERE m.owner_id=? AND m.archive_attempt_count<8 AND (m.archive_due_at IS NULL OR m.archive_due_at<=?) AND (f.object_key IS NULL OR (f.state IN ('PENDING','RETRY_WAIT') AND f.due_at<=?)) ORDER BY m.acquired_at,m.video_id LIMIT 1`,
+              )
+              .bind(this.context.ownerId, now.toISOString(), now.toISOString())
+              .first<Material>();
       if (material) {
         try {
+          const folder = await storage.folder(
+            settings.transcript_root_id,
+            material.material_date,
+            now,
+          );
+          if (mode === 'TRANSCRIPT' && storage.createdFolders > 0) {
+            return { state: 'TRANSCRIPT_PREPARED' };
+          }
+          const technical = await new TranscriptPayloadArchive(
+            this.db,
+            this.context,
+          ).ensure(
+            material.source_artifact_id,
+            client,
+            folder,
+            settings.connection_id,
+            now,
+            guard,
+          );
+          if (mode === 'TRANSCRIPT' && technical && !technical.already_verified)
+            return { state: 'TRANSCRIPT_PREPARED' };
           const artifacts = new ArtifactRepository(this.db, this.context),
             source = await artifacts.readTranscriptArchiveText(
               material.source_artifact_id,
@@ -526,11 +580,6 @@ export class DailyTasksWorkflow {
             source_hash: material.source_hash,
             manifest: JSON.parse(map.text) as TranscriptArchiveManifest,
           });
-          const folder = await storage.folder(
-            settings.transcript_root_id,
-            material.material_date,
-            now,
-          );
           outcomes.transcript = await storage
             .publish(
               {
@@ -566,7 +615,12 @@ export class DailyTasksWorkflow {
               retry ? attempt : 8,
               new Date(
                 now.getTime() +
-                  Math.min(3600, 30 * 2 ** Math.min(attempt - 1, 7)) * 1000,
+                  Math.max(
+                    Math.min(3600, 30 * 2 ** Math.min(attempt - 1, 7)) * 1000,
+                    error instanceof DriveFailure
+                      ? (error.retry_after_seconds ?? 0) * 1000
+                      : 0,
+                  ),
               ).toISOString(),
               reason,
               this.context.ownerId,
@@ -579,6 +633,8 @@ export class DailyTasksWorkflow {
           };
         }
       }
+      if (mode === 'TRANSCRIPT')
+        return { state: 'TRANSCRIPT_TICK', ...outcomes };
       const previous = previousMaterialDate(now);
       if (previous >= publicationDate(settings.started_at)) {
         await guard();

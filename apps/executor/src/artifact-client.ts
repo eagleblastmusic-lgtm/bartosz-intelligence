@@ -23,6 +23,8 @@ export class ArtifactClient {
     private task: TaskType,
     transport: typeof fetch = fetch,
     private diagnosticReservationId: string | null = null,
+    private wait: (milliseconds: number) => Promise<void> = (ms) =>
+      new Promise((resolve) => setTimeout(resolve, ms)),
   ) {
     this.connection = new WorkerRpc(origin, credential, transport);
   }
@@ -49,8 +51,11 @@ export class ArtifactClient {
             error.code === 'TRANSIENT' ||
             error.code === 'BACKUP_BUSY')
         ) {
-          await new Promise((resolve) =>
-            setTimeout(resolve, [500, 1500][attempt]),
+          await this.wait(
+            Math.max(
+              [500, 1500][attempt]!,
+              error.retry_after_ms ?? (error.status === 429 ? 30000 : 0),
+            ),
           );
           continue;
         }
@@ -61,6 +66,7 @@ export class ArtifactClient {
                 error.route,
                 error.status,
                 error.code,
+                error.retry_after_ms,
               )
             : new Error('ARTIFACT_RPC_FAILED');
         throw error;

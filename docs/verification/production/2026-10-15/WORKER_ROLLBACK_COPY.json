@@ -1,0 +1,25 @@
+{
+  "observed_at": "2026-10-14T23:26:44.946Z",
+  "production_mutations": 0,
+  "version_id": "39edd639-eba3-40bb-93c7-022f1aec31d6",
+  "copy": {
+    "http_status": 200,
+    "success": true,
+    "bytes": 1707486,
+    "sha256": "344e0c606b4241550d8efe950c2bc29afad60069cebea17a2037647eb7a3de04",
+    "content_type": "multipart/form-data; boundary=6d6ba4e048227a5ba07740e2fb40381016df3c295eb9c79de2d177274969",
+    "cf_entrypoint": "index.js"
+  },
+  "health": {
+    "http_status": 200,
+    "body": {
+      "build": "0.0.1",
+      "status": "LOCAL_READY",
+      "bindings": {
+        "DB": true,
+        "BARTOSZ_QUEUE": true,
+        "ASSETS": true
+      }
+    }
+  }
+}

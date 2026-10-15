@@ -6,6 +6,7 @@ import { oracleCaptionRunner } from '../../apps/executor/src/providers/oracle-ca
 import {
   YtdlpTranscriptProvider,
   ytdlpProviderVersion,
+  type CaptionProcessRunner,
 } from '../../apps/executor/src/providers/ytdlp.js';
 import { selectTranscriptLanguage } from '../../packages/core/src/transcript/language.js';
 
@@ -171,4 +172,63 @@ it('core chooses the same captured regional manual track for the authoritative i
     track_id:
       '4a2a720787b44c6451c01675d5c734c813730997bb7e0ca75bfd23895f2daf28',
   });
+});
+
+it('forwards verified audio language only to listing and rejects malformed authority', async () => {
+  const at = new Date('2026-10-14T00:00:00.000Z');
+  const run = vi.fn<CaptionProcessRunner>(async () => ({
+    status: 'UNAVAILABLE',
+    failure_code: 'FIXTURE_NO_CAPTURE',
+  }));
+  const provider = new YtdlpTranscriptProvider(run, () => at);
+  const item = {
+    item_id: input.item_id,
+    namespace: 'youtube' as const,
+    external_id: input.video_id,
+    duration_ms: null,
+    default_audio_language: 'de-DE',
+  };
+  const context = {
+    job_id: 'fixture-job',
+    item_id: input.item_id,
+    runtime_id: 'local' as const,
+    deadline: new Date(at.getTime() + 60000).toISOString(),
+    max_bytes: input.max_bytes,
+    quota_reservation_id: null,
+    provider_version: ytdlpProviderVersion,
+    request_id: 'fixture-request',
+  };
+  await provider.list_tracks(item, context);
+  expect(run).toHaveBeenCalledWith(
+    { ...input, default_audio_language: 'de-DE' },
+    60000,
+    undefined,
+  );
+  await provider.fetch(
+    item,
+    {
+      track_id: 'fixture',
+      item_id: input.item_id,
+      language_code: 'de',
+      track_kind: 'MANUAL',
+      is_generated: false,
+      is_translated: false,
+      source_language: null,
+      translation_source_track_id: null,
+      is_translatable: null,
+      translation_languages: [],
+      is_original: null,
+      extension: 'json3',
+      expires_at: context.deadline,
+    },
+    context,
+  );
+  expect(run.mock.calls[1]![0]).not.toHaveProperty('default_audio_language');
+  run.mockClear();
+  const invalid = await provider.list_tracks(
+    { ...item, default_audio_language: 'en;id' },
+    context,
+  );
+  expect(invalid.failure_code).toBe('INVALID_LOCAL_INPUT');
+  expect(run).not.toHaveBeenCalled();
 });

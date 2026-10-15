@@ -1,0 +1,427 @@
+{
+  "observed_at": "2026-10-15T11:30:51.685486+00:00",
+  "collector": "Official Wrangler bounded tail",
+  "retained_headers": false,
+  "retained_logs": false,
+  "stderr_bytes": 0,
+  "events": [
+    {
+      "outcome": "ok",
+      "event_type": "HTTP",
+      "path": "/internal/workers/heartbeat",
+      "cpuTime": 6,
+      "wallTime": 81,
+      "scriptVersion": {
+        "id": "901e9506-5924-4e96-9735-19f43ee9a1d3"
+      },
+      "top_level_fields": [
+        "cpuTime",
+        "diagnosticsChannelEvents",
+        "event",
+        "eventTimestamp",
+        "exceptions",
+        "executionModel",
+        "logs",
+        "outcome",
+        "scriptName",
+        "scriptVersion",
+        "truncated",
+        "wallTime"
+      ],
+      "exception_count": 0,
+      "log_count": 0
+    },
+    {
+      "outcome": "ok",
+      "event_type": "HTTP",
+      "path": "/internal/workers/transcript/admission",
+      "cpuTime": 10,
+      "wallTime": 109,
+      "scriptVersion": {
+        "id": "901e9506-5924-4e96-9735-19f43ee9a1d3"
+      },
+      "top_level_fields": [
+        "cpuTime",
+        "diagnosticsChannelEvents",
+        "event",
+        "eventTimestamp",
+        "exceptions",
+        "executionModel",
+        "logs",
+        "outcome",
+        "scriptName",
+        "scriptVersion",
+        "truncated",
+        "wallTime"
+      ],
+      "exception_count": 0,
+      "log_count": 0
+    },
+    {
+      "outcome": "ok",
+      "event_type": "HTTP",
+      "path": "/internal/workers/lease",
+      "cpuTime": 10,
+      "wallTime": 100,
+      "scriptVersion": {
+        "id": "901e9506-5924-4e96-9735-19f43ee9a1d3"
+      },
+      "top_level_fields": [
+        "cpuTime",
+        "diagnosticsChannelEvents",
+        "event",
+        "eventTimestamp",
+        "exceptions",
+        "executionModel",
+        "logs",
+        "outcome",
+        "scriptName",
+        "scriptVersion",
+        "truncated",
+        "wallTime"
+      ],
+      "exception_count": 0,
+      "log_count": 0
+    },
+    {
+      "outcome": "ok",
+      "event_type": "HTTP",
+      "path": "/internal/workers/heartbeat",
+      "cpuTime": 2,
+      "wallTime": 81,
+      "scriptVersion": {
+        "id": "901e9506-5924-4e96-9735-19f43ee9a1d3"
+      },
+      "top_level_fields": [
+        "cpuTime",
+        "diagnosticsChannelEvents",
+        "event",
+        "eventTimestamp",
+        "exceptions",
+        "executionModel",
+        "logs",
+        "outcome",
+        "scriptName",
+        "scriptVersion",
+        "truncated",
+        "wallTime"
+      ],
+      "exception_count": 0,
+      "log_count": 0
+    },
+    {
+      "outcome": "ok",
+      "event_type": "HTTP",
+      "path": "/internal/workers/lease",
+      "cpuTime": 2,
+      "wallTime": 79,
+      "scriptVersion": {
+        "id": "901e9506-5924-4e96-9735-19f43ee9a1d3"
+      },
+      "top_level_fields": [
+        "cpuTime",
+        "diagnosticsChannelEvents",
+        "event",
+        "eventTimestamp",
+        "exceptions",
+        "executionModel",
+        "logs",
+        "outcome",
+        "scriptName",
+        "scriptVersion",
+        "truncated",
+        "wallTime"
+      ],
+      "exception_count": 0,
+      "log_count": 0
+    },
+    {
+      "outcome": "ok",
+      "event_type": "HTTP",
+      "path": "/internal/workers/heartbeat",
+      "cpuTime": 2,
+      "wallTime": 75,
+      "scriptVersion": {
+        "id": "901e9506-5924-4e96-9735-19f43ee9a1d3"
+      },
+      "top_level_fields": [
+        "cpuTime",
+        "diagnosticsChannelEvents",
+        "event",
+        "eventTimestamp",
+        "exceptions",
+        "executionModel",
+        "logs",
+        "outcome",
+        "scriptName",
+        "scriptVersion",
+        "truncated",
+        "wallTime"
+      ],
+      "exception_count": 0,
+      "log_count": 0
+    },
+    {
+      "outcome": "ok",
+      "event_type": "HTTP",
+      "path": "/internal/workers/search/step",
+      "cpuTime": 3,
+      "wallTime": 215,
+      "scriptVersion": {
+        "id": "901e9506-5924-4e96-9735-19f43ee9a1d3"
+      },
+      "top_level_fields": [
+        "cpuTime",
+        "diagnosticsChannelEvents",
+        "event",
+        "eventTimestamp",
+        "exceptions",
+        "executionModel",
+        "logs",
+        "outcome",
+        "scriptName",
+        "scriptVersion",
+        "truncated",
+        "wallTime"
+      ],
+      "exception_count": 0,
+      "log_count": 0
+    },
+    {
+      "outcome": "ok",
+      "event_type": "SCHEDULED",
+      "path": "",
+      "cpuTime": 0,
+      "wallTime": 370,
+      "scriptVersion": {
+        "id": "901e9506-5924-4e96-9735-19f43ee9a1d3"
+      },
+      "top_level_fields": [
+        "cpuTime",
+        "diagnosticsChannelEvents",
+        "event",
+        "eventTimestamp",
+        "exceptions",
+        "executionModel",
+        "logs",
+        "outcome",
+        "scriptName",
+        "scriptVersion",
+        "tailAttributes",
+        "truncated",
+        "wallTime"
+      ],
+      "exception_count": 0,
+      "log_count": 0
+    },
+    {
+      "outcome": "ok",
+      "event_type": "QUEUE",
+      "path": "",
+      "cpuTime": 7,
+      "wallTime": 1085,
+      "scriptVersion": {
+        "id": "901e9506-5924-4e96-9735-19f43ee9a1d3"
+      },
+      "top_level_fields": [
+        "cpuTime",
+        "diagnosticsChannelEvents",
+        "event",
+        "eventTimestamp",
+        "exceptions",
+        "executionModel",
+        "logs",
+        "outcome",
+        "scriptName",
+        "scriptVersion",
+        "truncated",
+        "wallTime"
+      ],
+      "exception_count": 0,
+      "log_count": 0
+    },
+    {
+      "outcome": "ok",
+      "event_type": "QUEUE",
+      "path": "",
+      "cpuTime": 6,
+      "wallTime": 2005,
+      "scriptVersion": {
+        "id": "901e9506-5924-4e96-9735-19f43ee9a1d3"
+      },
+      "top_level_fields": [
+        "cpuTime",
+        "diagnosticsChannelEvents",
+        "event",
+        "eventTimestamp",
+        "exceptions",
+        "executionModel",
+        "logs",
+        "outcome",
+        "scriptName",
+        "scriptVersion",
+        "truncated",
+        "wallTime"
+      ],
+      "exception_count": 0,
+      "log_count": 0
+    },
+    {
+      "outcome": "ok",
+      "event_type": "HTTP",
+      "path": "/internal/workers/heartbeat",
+      "cpuTime": 1,
+      "wallTime": 89,
+      "scriptVersion": {
+        "id": "901e9506-5924-4e96-9735-19f43ee9a1d3"
+      },
+      "top_level_fields": [
+        "cpuTime",
+        "diagnosticsChannelEvents",
+        "event",
+        "eventTimestamp",
+        "exceptions",
+        "executionModel",
+        "logs",
+        "outcome",
+        "scriptName",
+        "scriptVersion",
+        "truncated",
+        "wallTime"
+      ],
+      "exception_count": 0,
+      "log_count": 0
+    },
+    {
+      "outcome": "ok",
+      "event_type": "HTTP",
+      "path": "/internal/workers/heartbeat",
+      "cpuTime": 11,
+      "wallTime": 91,
+      "scriptVersion": {
+        "id": "901e9506-5924-4e96-9735-19f43ee9a1d3"
+      },
+      "top_level_fields": [
+        "cpuTime",
+        "diagnosticsChannelEvents",
+        "event",
+        "eventTimestamp",
+        "exceptions",
+        "executionModel",
+        "logs",
+        "outcome",
+        "scriptName",
+        "scriptVersion",
+        "truncated",
+        "wallTime"
+      ],
+      "exception_count": 0,
+      "log_count": 0
+    },
+    {
+      "outcome": "ok",
+      "event_type": "HTTP",
+      "path": "/internal/workers/lease",
+      "cpuTime": 2,
+      "wallTime": 64,
+      "scriptVersion": {
+        "id": "901e9506-5924-4e96-9735-19f43ee9a1d3"
+      },
+      "top_level_fields": [
+        "cpuTime",
+        "diagnosticsChannelEvents",
+        "event",
+        "eventTimestamp",
+        "exceptions",
+        "executionModel",
+        "logs",
+        "outcome",
+        "scriptName",
+        "scriptVersion",
+        "truncated",
+        "wallTime"
+      ],
+      "exception_count": 0,
+      "log_count": 0
+    },
+    {
+      "outcome": "ok",
+      "event_type": "HTTP",
+      "path": "/internal/workers/transcript/admission",
+      "cpuTime": 6,
+      "wallTime": 84,
+      "scriptVersion": {
+        "id": "901e9506-5924-4e96-9735-19f43ee9a1d3"
+      },
+      "top_level_fields": [
+        "cpuTime",
+        "diagnosticsChannelEvents",
+        "event",
+        "eventTimestamp",
+        "exceptions",
+        "executionModel",
+        "logs",
+        "outcome",
+        "scriptName",
+        "scriptVersion",
+        "truncated",
+        "wallTime"
+      ],
+      "exception_count": 0,
+      "log_count": 0
+    },
+    {
+      "outcome": "ok",
+      "event_type": "HTTP",
+      "path": "/internal/workers/lease",
+      "cpuTime": 9,
+      "wallTime": 99,
+      "scriptVersion": {
+        "id": "901e9506-5924-4e96-9735-19f43ee9a1d3"
+      },
+      "top_level_fields": [
+        "cpuTime",
+        "diagnosticsChannelEvents",
+        "event",
+        "eventTimestamp",
+        "exceptions",
+        "executionModel",
+        "logs",
+        "outcome",
+        "scriptName",
+        "scriptVersion",
+        "truncated",
+        "wallTime"
+      ],
+      "exception_count": 0,
+      "log_count": 0
+    },
+    {
+      "outcome": "ok",
+      "event_type": "HTTP",
+      "path": "/internal/workers/search/step",
+      "cpuTime": 4,
+      "wallTime": 202,
+      "scriptVersion": {
+        "id": "901e9506-5924-4e96-9735-19f43ee9a1d3"
+      },
+      "top_level_fields": [
+        "cpuTime",
+        "diagnosticsChannelEvents",
+        "event",
+        "eventTimestamp",
+        "exceptions",
+        "executionModel",
+        "logs",
+        "outcome",
+        "scriptName",
+        "scriptVersion",
+        "truncated",
+        "wallTime"
+      ],
+      "exception_count": 0,
+      "log_count": 0
+    }
+  ],
+  "per_invocation_cpu_available": true
+}

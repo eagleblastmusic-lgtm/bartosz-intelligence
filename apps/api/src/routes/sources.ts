@@ -15,6 +15,17 @@ import {
 import type { Env } from '../env.js';
 import { DailyProjection } from '../../../../packages/core/src/projections/daily.js';
 export const sourcesApp = ownerRouter();
+sourcesApp.get('/monitoring-cycles', async (c) => {
+  return c.json(
+    (
+      await c.env.DB.prepare(
+        'SELECT cycle_id,local_date,slot,state,total,cursor,completed,failed,started_at,finished_at FROM monitoring_cycles WHERE owner_id=? ORDER BY started_at DESC,cycle_id DESC LIMIT 20',
+      )
+        .bind(c.get('access').ownerId)
+        .all()
+    ).results,
+  );
+});
 function client(env: Env) {
   if (!env.YOUTUBE_API_KEY) throw new Error('PROVIDER_CONFIGURATION_REQUIRED');
   return new YoutubeClient(env.YOUTUBE_API_KEY, 8);

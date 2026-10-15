@@ -1,0 +1,17 @@
+{
+  "recorded_at": "2026-10-15T11:25:00.993744+00:00",
+  "source": "Explicit human GO reply call_72646be5c6a840589727ce53475e141e",
+  "answer": "tak",
+  "plan": "FREE_CPU_REPAIR_PLAN_PL.md",
+  "candidate_worker_sha256": "0057d2cd14b00e693cac5cf379de01ac1064940d8bd6d73c70a102ce5d5ffaff",
+  "authorized": "Cron maintenance to existing Queue with separate clocks and equivalent TrieRouter; actual CPU/readback acceptance; conditional original19NEW_ONLY andMANUAL20 only after full data/Free acceptance",
+  "forbidden": [
+    "new migrations",
+    "Oracle/session changes",
+    "DELETE",
+    "paid resources",
+    "new canary YouTube acquisition",
+    "backfill",
+    "commit/push/merge"
+  ]
+}

@@ -370,7 +370,7 @@ it.each([
       }
       if (kind === 'job')
         f.sqlite.exec(
-          "INSERT INTO jobs SELECT 'pending',owner_id,item_id,source_id,task_type,input_revision,profile_revision,prompt_snapshot_id,routing_policy_version,wire_schema_version,canonical_schema_version,enrichment_version,'pending','pending','PENDING',NULL,due_at,priority,0,NULL,NULL,0,NULL,arrival_origin_at,origin_kind,'{}',created_at,updated_at FROM jobs",
+          "INSERT INTO jobs(job_id,owner_id,item_id,source_id,task_type,input_revision,profile_revision,prompt_snapshot_id,routing_policy_version,wire_schema_version,canonical_schema_version,enrichment_version,explicit_run_nonce,dedup_key,state,reason_code,due_at,priority,attempt_count,lease_owner,lease_until,fencing_token,result_candidate_id,arrival_origin_at,origin_kind,payload_json,created_at,updated_at) SELECT 'pending',owner_id,item_id,source_id,task_type,input_revision,profile_revision,prompt_snapshot_id,routing_policy_version,wire_schema_version,canonical_schema_version,enrichment_version,'pending','pending','PENDING',NULL,due_at,priority,0,NULL,NULL,0,NULL,arrival_origin_at,origin_kind,'{}',created_at,updated_at FROM jobs",
         );
       if (kind === 'hold') await f.cleanup.hold(f.item, 'RECOVERY_HOLD', due);
       if (kind === 'dirty')

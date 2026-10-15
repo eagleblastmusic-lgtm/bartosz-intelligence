@@ -18,6 +18,9 @@ export function statusLabel(state: string) {
 }
 const reasons: Record<string, string> = {
   NO_CAPTIONS: 'Źródło nie udostępnia napisów.',
+  LOCAL_YTDLP_NO_CAPTIONS_FINAL: 'Brak dostępnych napisów',
+  LOCAL_YTDLP_NO_CAPTIONS:
+    'Napisy jeszcze niedostępne; oczekiwanie na kolejną próbę.',
   QUOTA: 'Przetwarzanie czeka na odnowienie limitu dostawcy.',
   QUOTA_UNKNOWN_OR_STALE: 'Bieżący limit nie został potwierdzony.',
   MODEL_NOT_ELIGIBLE: 'Profil AI wymaga aktualnej weryfikacji dostępności.',
@@ -33,6 +36,8 @@ const reasons: Record<string, string> = {
   AI_SOURCE_ISSUES: 'Źródło ma ograniczenia wymagające przeglądu.',
   PROVIDER_UNAVAILABLE: 'Dostawca jest chwilowo niedostępny.',
   ANALYSIS_PENDING: 'Analiza oczekuje na przetworzenie.',
+  TRANSCRIPT_ARCHIVE_PENDING:
+    'Transkrypcja pobrana; oczekuje na zapis na Google Drive.',
 };
 export function reasonLabel(reason: string | null) {
   return reason === null

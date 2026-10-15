@@ -1,0 +1,1090 @@
+{
+  "generated_at": "2026-10-14T22:33:17.379Z",
+  "scope": "LOCAL_ONLY",
+  "node": "v24.21.0",
+  "tests": [
+    {
+      "name": "unit_contracts",
+      "raw_result_sha256": "136d7bf6b67eca1637af866c5217d95af209305d4eba10f09631f1c8f784aa32",
+      "passed": 627,
+      "failed": 0,
+      "started_at": "2026-10-14T22:23:04.792Z",
+      "files": [
+        {
+          "path": "tests/contracts/ai-provider.spec.ts",
+          "passed": 16,
+          "failed": 0,
+          "duration_ms": 95.76025390625
+        },
+        {
+          "path": "tests/contracts/analysis-runner.spec.ts",
+          "passed": 9,
+          "failed": 0,
+          "duration_ms": 227.209716796875
+        },
+        {
+          "path": "tests/contracts/analysis-transport.spec.ts",
+          "passed": 7,
+          "failed": 0,
+          "duration_ms": 47.349853515625
+        },
+        {
+          "path": "tests/contracts/analysis-worker.spec.ts",
+          "passed": 6,
+          "failed": 0,
+          "duration_ms": 52.787109375
+        },
+        {
+          "path": "tests/contracts/deployment-db.spec.ts",
+          "passed": 1,
+          "failed": 0,
+          "duration_ms": 5.40283203125
+        },
+        {
+          "path": "tests/contracts/drive-create-recovery.spec.ts",
+          "passed": 2,
+          "failed": 0,
+          "duration_ms": 46.445068359375
+        },
+        {
+          "path": "tests/contracts/gate-c-report.spec.ts",
+          "passed": 7,
+          "failed": 0,
+          "duration_ms": 1596.7548828125
+        },
+        {
+          "path": "tests/contracts/gate0-criteria-amendment.spec.ts",
+          "passed": 9,
+          "failed": 0,
+          "duration_ms": 5.22802734375
+        },
+        {
+          "path": "tests/contracts/gate0-direct-captions.spec.ts",
+          "passed": 10,
+          "failed": 0,
+          "duration_ms": 48.60986328125
+        },
+        {
+          "path": "tests/contracts/gate0-functional-evaluation.spec.ts",
+          "passed": 5,
+          "failed": 0,
+          "duration_ms": 9.563232421875
+        },
+        {
+          "path": "tests/contracts/gate0-live-runner.spec.ts",
+          "passed": 8,
+          "failed": 0,
+          "duration_ms": 216.7080078125
+        },
+        {
+          "path": "tests/contracts/gate0-manifest.spec.ts",
+          "passed": 6,
+          "failed": 0,
+          "duration_ms": 17.25537109375
+        },
+        {
+          "path": "tests/contracts/migrations.spec.ts",
+          "passed": 4,
+          "failed": 0,
+          "duration_ms": 5.80810546875
+        },
+        {
+          "path": "tests/contracts/oracle-source-qualification.spec.ts",
+          "passed": 2,
+          "failed": 0,
+          "duration_ms": 13.033447265625
+        },
+        {
+          "path": "tests/contracts/oracle-worker.spec.ts",
+          "passed": 3,
+          "failed": 0,
+          "duration_ms": 45.70751953125
+        },
+        {
+          "path": "tests/contracts/prompt-bundle.spec.ts",
+          "passed": 2,
+          "failed": 0,
+          "duration_ms": 337.431640625
+        },
+        {
+          "path": "tests/contracts/transcript-providers.spec.ts",
+          "passed": 5,
+          "failed": 0,
+          "duration_ms": 46.305419921875
+        },
+        {
+          "path": "tests/unit/ai-pilot-annotation.spec.ts",
+          "passed": 1,
+          "failed": 0,
+          "duration_ms": 37.243408203125
+        },
+        {
+          "path": "tests/unit/ai-pilot-inputs.spec.ts",
+          "passed": 7,
+          "failed": 0,
+          "duration_ms": 246.873291015625
+        },
+        {
+          "path": "tests/unit/ai-pilot.spec.ts",
+          "passed": 4,
+          "failed": 0,
+          "duration_ms": 13.856689453125
+        },
+        {
+          "path": "tests/unit/ai-selector.spec.ts",
+          "passed": 2,
+          "failed": 0,
+          "duration_ms": 6.572509765625
+        },
+        {
+          "path": "tests/unit/analysis-quality.spec.ts",
+          "passed": 23,
+          "failed": 0,
+          "duration_ms": 141.337890625
+        },
+        {
+          "path": "tests/unit/analysis-worker-selection.spec.ts",
+          "passed": 5,
+          "failed": 0,
+          "duration_ms": 60.915283203125
+        },
+        {
+          "path": "tests/unit/artifact-client-retry.spec.ts",
+          "passed": 9,
+          "failed": 0,
+          "duration_ms": 73.631591796875
+        },
+        {
+          "path": "tests/unit/backup-cadence.spec.ts",
+          "passed": 6,
+          "failed": 0,
+          "duration_ms": 11.462890625
+        },
+        {
+          "path": "tests/unit/backup-encryption.spec.ts",
+          "passed": 4,
+          "failed": 0,
+          "duration_ms": 372.8134765625
+        },
+        {
+          "path": "tests/unit/backup-recovery.spec.ts",
+          "passed": 15,
+          "failed": 0,
+          "duration_ms": 10.347412109375
+        },
+        {
+          "path": "tests/unit/backup-restore.spec.ts",
+          "passed": 3,
+          "failed": 0,
+          "duration_ms": 3224.4248046875
+        },
+        {
+          "path": "tests/unit/bounded-text.spec.ts",
+          "passed": 5,
+          "failed": 0,
+          "duration_ms": 57.641845703125
+        },
+        {
+          "path": "tests/unit/capacity-collector-process.spec.ts",
+          "passed": 1,
+          "failed": 0,
+          "duration_ms": 319.845947265625
+        },
+        {
+          "path": "tests/unit/capacity-evidence.spec.ts",
+          "passed": 3,
+          "failed": 0,
+          "duration_ms": 83.93701171875
+        },
+        {
+          "path": "tests/unit/capacity-metrics.spec.ts",
+          "passed": 8,
+          "failed": 0,
+          "duration_ms": 33.884521484375
+        },
+        {
+          "path": "tests/unit/capacity-page.spec.ts",
+          "passed": 3,
+          "failed": 0,
+          "duration_ms": 45.720703125
+        },
+        {
+          "path": "tests/unit/caption-process.spec.ts",
+          "passed": 2,
+          "failed": 0,
+          "duration_ms": 35.462646484375
+        },
+        {
+          "path": "tests/unit/cloudflare-request.spec.ts",
+          "passed": 10,
+          "failed": 0,
+          "duration_ms": 54.760986328125
+        },
+        {
+          "path": "tests/unit/config.spec.ts",
+          "passed": 22,
+          "failed": 0,
+          "duration_ms": 56.30029296875
+        },
+        {
+          "path": "tests/unit/corrected-source.spec.ts",
+          "passed": 2,
+          "failed": 0,
+          "duration_ms": 49.728271484375
+        },
+        {
+          "path": "tests/unit/custom-compiler.spec.ts",
+          "passed": 4,
+          "failed": 0,
+          "duration_ms": 40587.20703125
+        },
+        {
+          "path": "tests/unit/d1-resume.spec.ts",
+          "passed": 10,
+          "failed": 0,
+          "duration_ms": 11.485595703125
+        },
+        {
+          "path": "tests/unit/d1-test-budget.spec.ts",
+          "passed": 2,
+          "failed": 0,
+          "duration_ms": 7.2392578125
+        },
+        {
+          "path": "tests/unit/d1-usage-policy.spec.ts",
+          "passed": 8,
+          "failed": 0,
+          "duration_ms": 8.167236328125
+        },
+        {
+          "path": "tests/unit/daily-dates.spec.ts",
+          "passed": 1,
+          "failed": 0,
+          "duration_ms": 18.7705078125
+        },
+        {
+          "path": "tests/unit/daily-renderer.spec.ts",
+          "passed": 16,
+          "failed": 0,
+          "duration_ms": 310.6943359375
+        },
+        {
+          "path": "tests/unit/daily-report-format.spec.ts",
+          "passed": 5,
+          "failed": 0,
+          "duration_ms": 26.08349609375
+        },
+        {
+          "path": "tests/unit/daily-status.spec.ts",
+          "passed": 2,
+          "failed": 0,
+          "duration_ms": 7.78515625
+        },
+        {
+          "path": "tests/unit/discovery-window.spec.ts",
+          "passed": 1,
+          "failed": 0,
+          "duration_ms": 3.79736328125
+        },
+        {
+          "path": "tests/unit/drive-client.spec.ts",
+          "passed": 4,
+          "failed": 0,
+          "duration_ms": 59.090087890625
+        },
+        {
+          "path": "tests/unit/drive-credentials.spec.ts",
+          "passed": 4,
+          "failed": 0,
+          "duration_ms": 31.0234375
+        },
+        {
+          "path": "tests/unit/drive-evidence.spec.ts",
+          "passed": 15,
+          "failed": 0,
+          "duration_ms": 25.28173828125
+        },
+        {
+          "path": "tests/unit/drive-guard-probe.spec.ts",
+          "passed": 7,
+          "failed": 0,
+          "duration_ms": 77.920166015625
+        },
+        {
+          "path": "tests/unit/drive-limited-access.spec.ts",
+          "passed": 8,
+          "failed": 0,
+          "duration_ms": 58.235595703125
+        },
+        {
+          "path": "tests/unit/drive-scorecard-input.spec.ts",
+          "passed": 2,
+          "failed": 0,
+          "duration_ms": 8.15478515625
+        },
+        {
+          "path": "tests/unit/eligibility.spec.ts",
+          "passed": 9,
+          "failed": 0,
+          "duration_ms": 41.802490234375
+        },
+        {
+          "path": "tests/unit/enrichment.spec.ts",
+          "passed": 6,
+          "failed": 0,
+          "duration_ms": 78.9755859375
+        },
+        {
+          "path": "tests/unit/executor-arguments.spec.ts",
+          "passed": 11,
+          "failed": 0,
+          "duration_ms": 12.468017578125
+        },
+        {
+          "path": "tests/unit/executor-cycle-loop.spec.ts",
+          "passed": 8,
+          "failed": 0,
+          "duration_ms": 11.61376953125
+        },
+        {
+          "path": "tests/unit/executor-services.spec.ts",
+          "passed": 4,
+          "failed": 0,
+          "duration_ms": 828.215087890625
+        },
+        {
+          "path": "tests/unit/full-mapper.spec.ts",
+          "passed": 7,
+          "failed": 0,
+          "duration_ms": 181.837890625
+        },
+        {
+          "path": "tests/unit/gemini-response.spec.ts",
+          "passed": 4,
+          "failed": 0,
+          "duration_ms": 7.849853515625
+        },
+        {
+          "path": "tests/unit/hash-checkpoint.spec.ts",
+          "passed": 1,
+          "failed": 0,
+          "duration_ms": 43.447998046875
+        },
+        {
+          "path": "tests/unit/history-translation.spec.ts",
+          "passed": 9,
+          "failed": 0,
+          "duration_ms": 237.589111328125
+        },
+        {
+          "path": "tests/unit/jobs-policy.spec.ts",
+          "passed": 3,
+          "failed": 0,
+          "duration_ms": 41.53662109375
+        },
+        {
+          "path": "tests/unit/knowledge-ux-fixture.spec.ts",
+          "passed": 1,
+          "failed": 0,
+          "duration_ms": 1175.7880859375
+        },
+        {
+          "path": "tests/unit/lab-controls.spec.ts",
+          "passed": 10,
+          "failed": 0,
+          "duration_ms": 10.84521484375
+        },
+        {
+          "path": "tests/unit/language-routing.spec.ts",
+          "passed": 4,
+          "failed": 0,
+          "duration_ms": 7.460205078125
+        },
+        {
+          "path": "tests/unit/local-worker-config.spec.ts",
+          "passed": 10,
+          "failed": 0,
+          "duration_ms": 6.379638671875
+        },
+        {
+          "path": "tests/unit/long-input.spec.ts",
+          "passed": 7,
+          "failed": 0,
+          "duration_ms": 231.01025390625
+        },
+        {
+          "path": "tests/unit/metadata-admission.spec.ts",
+          "passed": 13,
+          "failed": 0,
+          "duration_ms": 14.19091796875
+        },
+        {
+          "path": "tests/unit/monitoring-slots.spec.ts",
+          "passed": 7,
+          "failed": 0,
+          "duration_ms": 6.437744140625
+        },
+        {
+          "path": "tests/unit/oidc.spec.ts",
+          "passed": 11,
+          "failed": 0,
+          "duration_ms": 35.94091796875
+        },
+        {
+          "path": "tests/unit/optional-worker.spec.ts",
+          "passed": 3,
+          "failed": 0,
+          "duration_ms": 40.686767578125
+        },
+        {
+          "path": "tests/unit/oracle-captions.spec.ts",
+          "passed": 6,
+          "failed": 0,
+          "duration_ms": 50.799560546875
+        },
+        {
+          "path": "tests/unit/oracle-deployment.spec.ts",
+          "passed": 3,
+          "failed": 0,
+          "duration_ms": 1200.036376953125
+        },
+        {
+          "path": "tests/unit/oracle-runtime.spec.ts",
+          "passed": 6,
+          "failed": 0,
+          "duration_ms": 1649.79248046875
+        },
+        {
+          "path": "tests/unit/private-recovery-directory.spec.ts",
+          "passed": 2,
+          "failed": 0,
+          "duration_ms": 8.22998046875
+        },
+        {
+          "path": "tests/unit/qualified-config.spec.ts",
+          "passed": 2,
+          "failed": 0,
+          "duration_ms": 8.451171875
+        },
+        {
+          "path": "tests/unit/radio-summary.spec.ts",
+          "passed": 30,
+          "failed": 0,
+          "duration_ms": 142.293701171875
+        },
+        {
+          "path": "tests/unit/recovery-evidence.spec.ts",
+          "passed": 16,
+          "failed": 0,
+          "duration_ms": 26.580322265625
+        },
+        {
+          "path": "tests/unit/release-evidence.spec.ts",
+          "passed": 7,
+          "failed": 0,
+          "duration_ms": 27.134033203125
+        },
+        {
+          "path": "tests/unit/release-secrets.spec.ts",
+          "passed": 5,
+          "failed": 0,
+          "duration_ms": 50.272705078125
+        },
+        {
+          "path": "tests/unit/repair.spec.ts",
+          "passed": 3,
+          "failed": 0,
+          "duration_ms": 22.980224609375
+        },
+        {
+          "path": "tests/unit/retention-cleanup.spec.ts",
+          "passed": 22,
+          "failed": 0,
+          "duration_ms": 7451.388427734375
+        },
+        {
+          "path": "tests/unit/reviewed-publication.spec.ts",
+          "passed": 6,
+          "failed": 0,
+          "duration_ms": 79.9453125
+        },
+        {
+          "path": "tests/unit/rss.spec.ts",
+          "passed": 2,
+          "failed": 0,
+          "duration_ms": 59.57958984375
+        },
+        {
+          "path": "tests/unit/search-corpus.spec.ts",
+          "passed": 1,
+          "failed": 0,
+          "duration_ms": 24576.0546875
+        },
+        {
+          "path": "tests/unit/search-query.spec.ts",
+          "passed": 1,
+          "failed": 0,
+          "duration_ms": 6.781982421875
+        },
+        {
+          "path": "tests/unit/search-worker.spec.ts",
+          "passed": 3,
+          "failed": 0,
+          "duration_ms": 48.485595703125
+        },
+        {
+          "path": "tests/unit/source-probe.spec.ts",
+          "passed": 11,
+          "failed": 0,
+          "duration_ms": 122.05078125
+        },
+        {
+          "path": "tests/unit/source-resolver.spec.ts",
+          "passed": 4,
+          "failed": 0,
+          "duration_ms": 56.844482421875
+        },
+        {
+          "path": "tests/unit/stage01-decision.spec.ts",
+          "passed": 2,
+          "failed": 0,
+          "duration_ms": 2.180908203125
+        },
+        {
+          "path": "tests/unit/stage01-handoff.spec.ts",
+          "passed": 1,
+          "failed": 0,
+          "duration_ms": 7.900390625
+        },
+        {
+          "path": "tests/unit/telemetry-worker-setup.spec.ts",
+          "passed": 5,
+          "failed": 0,
+          "duration_ms": 65.922119140625
+        },
+        {
+          "path": "tests/unit/token-accounting.spec.ts",
+          "passed": 1,
+          "failed": 0,
+          "duration_ms": 8.89208984375
+        },
+        {
+          "path": "tests/unit/transcript-archive-renderer.spec.ts",
+          "passed": 2,
+          "failed": 0,
+          "duration_ms": 95.7587890625
+        },
+        {
+          "path": "tests/unit/transcript-archive-scheduling.spec.ts",
+          "passed": 2,
+          "failed": 0,
+          "duration_ms": 4.429931640625
+        },
+        {
+          "path": "tests/unit/transcript-cloud-providers.spec.ts",
+          "passed": 12,
+          "failed": 0,
+          "duration_ms": 64.236083984375
+        },
+        {
+          "path": "tests/unit/transcript-normalize.spec.ts",
+          "passed": 6,
+          "failed": 0,
+          "duration_ms": 461.510986328125
+        },
+        {
+          "path": "tests/unit/transcript-recovery.spec.ts",
+          "passed": 2,
+          "failed": 0,
+          "duration_ms": 8.558349609375
+        },
+        {
+          "path": "tests/unit/translation-chunks.spec.ts",
+          "passed": 2,
+          "failed": 0,
+          "duration_ms": 22.642822265625
+        },
+        {
+          "path": "tests/unit/translation-evaluation.spec.ts",
+          "passed": 4,
+          "failed": 0,
+          "duration_ms": 13.923095703125
+        },
+        {
+          "path": "tests/unit/translation-inputs.spec.ts",
+          "passed": 3,
+          "failed": 0,
+          "duration_ms": 124.143310546875
+        },
+        {
+          "path": "tests/unit/web-dates.spec.ts",
+          "passed": 1,
+          "failed": 0,
+          "duration_ms": 5.01904296875
+        }
+      ]
+    },
+    {
+      "name": "workers_d1_failure_security",
+      "raw_result_sha256": "bfd3a3a912b633ecfccc4b596dd8c11929f8f898a8c76a1555241ee8c20705d7",
+      "passed": 290,
+      "failed": 0,
+      "started_at": "2026-10-14T22:25:06.274Z",
+      "files": [
+        {
+          "path": "tests/failure/job-recovery.spec.ts",
+          "passed": 1,
+          "failed": 0,
+          "duration_ms": 674
+        },
+        {
+          "path": "tests/workers/artifacts.spec.ts",
+          "passed": 31,
+          "failed": 0,
+          "duration_ms": 89269
+        },
+        {
+          "path": "tests/workers/auth-api.spec.ts",
+          "passed": 3,
+          "failed": 0,
+          "duration_ms": 1414
+        },
+        {
+          "path": "tests/workers/backfill-intent.spec.ts",
+          "passed": 2,
+          "failed": 0,
+          "duration_ms": 1418
+        },
+        {
+          "path": "tests/workers/backup-core.spec.ts",
+          "passed": 6,
+          "failed": 0,
+          "duration_ms": 4771
+        },
+        {
+          "path": "tests/workers/bootstrap.spec.ts",
+          "passed": 5,
+          "failed": 0,
+          "duration_ms": 107
+        },
+        {
+          "path": "tests/workers/capacity-collection.spec.ts",
+          "passed": 2,
+          "failed": 0,
+          "duration_ms": 893
+        },
+        {
+          "path": "tests/workers/caption-retry-policy.spec.ts",
+          "passed": 1,
+          "failed": 0,
+          "duration_ms": 883
+        },
+        {
+          "path": "tests/workers/control-queue.spec.ts",
+          "passed": 2,
+          "failed": 0,
+          "duration_ms": 1716
+        },
+        {
+          "path": "tests/workers/core-api.spec.ts",
+          "passed": 18,
+          "failed": 0,
+          "duration_ms": 9188
+        },
+        {
+          "path": "tests/workers/core-migrations.spec.ts",
+          "passed": 4,
+          "failed": 0,
+          "duration_ms": 1913
+        },
+        {
+          "path": "tests/workers/core-recovery-acceptance.spec.ts",
+          "passed": 1,
+          "failed": 0,
+          "duration_ms": 2524
+        },
+        {
+          "path": "tests/workers/corrections.spec.ts",
+          "passed": 2,
+          "failed": 0,
+          "duration_ms": 980
+        },
+        {
+          "path": "tests/workers/d1-quota-api.spec.ts",
+          "passed": 1,
+          "failed": 0,
+          "duration_ms": 9
+        },
+        {
+          "path": "tests/workers/daily-projection.spec.ts",
+          "passed": 8,
+          "failed": 0,
+          "duration_ms": 5800
+        },
+        {
+          "path": "tests/workers/daily-tasks-workflow.spec.ts",
+          "passed": 14,
+          "failed": 0,
+          "duration_ms": 12474
+        },
+        {
+          "path": "tests/workers/discovery-recovery-drill.spec.ts",
+          "passed": 2,
+          "failed": 0,
+          "duration_ms": 1210
+        },
+        {
+          "path": "tests/workers/discovery.spec.ts",
+          "passed": 6,
+          "failed": 0,
+          "duration_ms": 4136
+        },
+        {
+          "path": "tests/workers/drive-api.spec.ts",
+          "passed": 9,
+          "failed": 0,
+          "duration_ms": 4551
+        },
+        {
+          "path": "tests/workers/drive-conflict.spec.ts",
+          "passed": 6,
+          "failed": 0,
+          "duration_ms": 3068
+        },
+        {
+          "path": "tests/workers/drive-disconnect.spec.ts",
+          "passed": 3,
+          "failed": 0,
+          "duration_ms": 1465
+        },
+        {
+          "path": "tests/workers/drive-oauth.spec.ts",
+          "passed": 11,
+          "failed": 0,
+          "duration_ms": 10317
+        },
+        {
+          "path": "tests/workers/drive-probe-budget.spec.ts",
+          "passed": 1,
+          "failed": 0,
+          "duration_ms": 479
+        },
+        {
+          "path": "tests/workers/drive-qualification.spec.ts",
+          "passed": 1,
+          "failed": 0,
+          "duration_ms": 666
+        },
+        {
+          "path": "tests/workers/drive-recovery-drill.spec.ts",
+          "passed": 1,
+          "failed": 0,
+          "duration_ms": 1001
+        },
+        {
+          "path": "tests/workers/drive-root-create.spec.ts",
+          "passed": 4,
+          "failed": 0,
+          "duration_ms": 1968
+        },
+        {
+          "path": "tests/workers/drive-root.spec.ts",
+          "passed": 3,
+          "failed": 0,
+          "duration_ms": 1384
+        },
+        {
+          "path": "tests/workers/entity-aliases.spec.ts",
+          "passed": 2,
+          "failed": 0,
+          "duration_ms": 1071
+        },
+        {
+          "path": "tests/workers/entity-identity.spec.ts",
+          "passed": 2,
+          "failed": 0,
+          "duration_ms": 1412
+        },
+        {
+          "path": "tests/workers/export-artifacts.spec.ts",
+          "passed": 4,
+          "failed": 0,
+          "duration_ms": 5668
+        },
+        {
+          "path": "tests/workers/export-dirty.spec.ts",
+          "passed": 6,
+          "failed": 0,
+          "duration_ms": 3462
+        },
+        {
+          "path": "tests/workers/export-executor.spec.ts",
+          "passed": 9,
+          "failed": 0,
+          "duration_ms": 5260
+        },
+        {
+          "path": "tests/workers/export-identity.spec.ts",
+          "passed": 4,
+          "failed": 0,
+          "duration_ms": 2002
+        },
+        {
+          "path": "tests/workers/export-runtime.spec.ts",
+          "passed": 3,
+          "failed": 0,
+          "duration_ms": 2083
+        },
+        {
+          "path": "tests/workers/export-scope.spec.ts",
+          "passed": 2,
+          "failed": 0,
+          "duration_ms": 1060
+        },
+        {
+          "path": "tests/workers/fencing.spec.ts",
+          "passed": 5,
+          "failed": 0,
+          "duration_ms": 2574
+        },
+        {
+          "path": "tests/workers/isolation.spec.ts",
+          "passed": 1,
+          "failed": 0,
+          "duration_ms": 18
+        },
+        {
+          "path": "tests/workers/jobstore.spec.ts",
+          "passed": 2,
+          "failed": 0,
+          "duration_ms": 925
+        },
+        {
+          "path": "tests/workers/knowledge-ledger.spec.ts",
+          "passed": 1,
+          "failed": 0,
+          "duration_ms": 977
+        },
+        {
+          "path": "tests/workers/knowledge-restore.spec.ts",
+          "passed": 1,
+          "failed": 0,
+          "duration_ms": 3489
+        },
+        {
+          "path": "tests/workers/lab-quota.spec.ts",
+          "passed": 5,
+          "failed": 0,
+          "duration_ms": 2743
+        },
+        {
+          "path": "tests/workers/lab-reviews.spec.ts",
+          "passed": 4,
+          "failed": 0,
+          "duration_ms": 2035
+        },
+        {
+          "path": "tests/workers/monitoring-cycles.spec.ts",
+          "passed": 1,
+          "failed": 0,
+          "duration_ms": 1984
+        },
+        {
+          "path": "tests/workers/offline-recovery-drill.spec.ts",
+          "passed": 1,
+          "failed": 0,
+          "duration_ms": 780
+        },
+        {
+          "path": "tests/workers/oidc-flow.spec.ts",
+          "passed": 7,
+          "failed": 0,
+          "duration_ms": 3068
+        },
+        {
+          "path": "tests/workers/organization.spec.ts",
+          "passed": 3,
+          "failed": 0,
+          "duration_ms": 1812
+        },
+        {
+          "path": "tests/workers/outbox.spec.ts",
+          "passed": 4,
+          "failed": 0,
+          "duration_ms": 2066
+        },
+        {
+          "path": "tests/workers/owner-bootstrap.spec.ts",
+          "passed": 2,
+          "failed": 0,
+          "duration_ms": 951
+        },
+        {
+          "path": "tests/workers/pipeline-performance.spec.ts",
+          "passed": 8,
+          "failed": 0,
+          "duration_ms": 38742
+        },
+        {
+          "path": "tests/workers/projection-jobs.spec.ts",
+          "passed": 5,
+          "failed": 0,
+          "duration_ms": 3046
+        },
+        {
+          "path": "tests/workers/prompt-drafts.spec.ts",
+          "passed": 1,
+          "failed": 0,
+          "duration_ms": 834
+        },
+        {
+          "path": "tests/workers/prompt-history.spec.ts",
+          "passed": 1,
+          "failed": 0,
+          "duration_ms": 881
+        },
+        {
+          "path": "tests/workers/prompt-lab.spec.ts",
+          "passed": 2,
+          "failed": 0,
+          "duration_ms": 1048
+        },
+        {
+          "path": "tests/workers/prompt-registry.spec.ts",
+          "passed": 1,
+          "failed": 0,
+          "duration_ms": 978
+        },
+        {
+          "path": "tests/workers/prompt-usage.spec.ts",
+          "passed": 1,
+          "failed": 0,
+          "duration_ms": 973
+        },
+        {
+          "path": "tests/workers/public-pages.spec.ts",
+          "passed": 1,
+          "failed": 0,
+          "duration_ms": 9
+        },
+        {
+          "path": "tests/workers/quota-observations.spec.ts",
+          "passed": 2,
+          "failed": 0,
+          "duration_ms": 1353
+        },
+        {
+          "path": "tests/workers/retention-export.spec.ts",
+          "passed": 3,
+          "failed": 0,
+          "duration_ms": 2142
+        },
+        {
+          "path": "tests/workers/rollback-recovery-drill.spec.ts",
+          "passed": 1,
+          "failed": 0,
+          "duration_ms": 743
+        },
+        {
+          "path": "tests/workers/runtime-admission.spec.ts",
+          "passed": 5,
+          "failed": 0,
+          "duration_ms": 2788
+        },
+        {
+          "path": "tests/workers/runtime-http.spec.ts",
+          "passed": 2,
+          "failed": 0,
+          "duration_ms": 53
+        },
+        {
+          "path": "tests/workers/scheduler.spec.ts",
+          "passed": 4,
+          "failed": 0,
+          "duration_ms": 2735
+        },
+        {
+          "path": "tests/workers/search.spec.ts",
+          "passed": 4,
+          "failed": 0,
+          "duration_ms": 3772
+        },
+        {
+          "path": "tests/workers/semantic-profiles.spec.ts",
+          "passed": 4,
+          "failed": 0,
+          "duration_ms": 2614
+        },
+        {
+          "path": "tests/workers/sources-items.spec.ts",
+          "passed": 3,
+          "failed": 0,
+          "duration_ms": 1584
+        },
+        {
+          "path": "tests/workers/transcript-api.spec.ts",
+          "passed": 4,
+          "failed": 0,
+          "duration_ms": 2208
+        },
+        {
+          "path": "tests/workers/transcript-archive.spec.ts",
+          "passed": 20,
+          "failed": 0,
+          "duration_ms": 15604
+        },
+        {
+          "path": "tests/workers/transcript-recovery-drill.spec.ts",
+          "passed": 1,
+          "failed": 0,
+          "duration_ms": 762
+        }
+      ]
+    }
+  ],
+  "total_passed": 917,
+  "lint": {
+    "files": 611,
+    "errors": 0,
+    "warnings": 0
+  },
+  "migrations": {
+    "result": "PASS",
+    "count": 43,
+    "next_number": 44,
+    "fresh_install": "PASS",
+    "independent_empty_restore": "PASS",
+    "integrity_check": "PASS",
+    "foreign_key_check": "PASS"
+  },
+  "configuration": {
+    "result": "PASS",
+    "paid_services_enabled": false,
+    "public": {
+      "config_version": "1",
+      "timezone": "Europe/Warsaw"
+    },
+    "active_routes": []
+  },
+  "final_metadata_smoke": {
+    "passed": 2,
+    "failed": 0,
+    "focused": "payload-only dry-run/readback/rollback and consumer race after channel metadata correction",
+    "raw_result_sha256": "4b7db0b1a3f9323934516074907662922221094f6af1508be15b55256512fb96"
+  },
+  "build": {
+    "result": "PASS",
+    "root_build": "BUILD.log",
+    "production_configuration_dry_run": "PRODUCTION_CONFIG_DRY_RUN.log",
+    "production_deployed": false
+  },
+  "typecheck": {
+    "result": "PASS",
+    "log": "TYPECHECK.log",
+    "final_metadata_api_typecheck": "PASS"
+  },
+  "deletion": {
+    "production_enabled": false,
+    "production_deletes": 0
+  }
+}

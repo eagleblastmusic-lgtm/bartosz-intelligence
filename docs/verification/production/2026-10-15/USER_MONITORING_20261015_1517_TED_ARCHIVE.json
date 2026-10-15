@@ -1,0 +1,17 @@
+{
+  "observed_at": "2026-10-15T13:16:57.914Z",
+  "production_rows_written": 0,
+  "production_rows_read": 67,
+  "drive_receipt": [
+    {
+      "video_id": "PpEUTpzWt2M",
+      "title": "How the Wealth Gap Is Reshaping Politics | Xochitl Gonzalez | TED",
+      "state": "VERIFIED",
+      "verified_at": "2026-10-13T15:40:35.208Z",
+      "reserved_file_id": "1mwrBLgNhvCGxaeLTuhfXuRTkowzd2t-A",
+      "remote_version": "1",
+      "verified_hash": "c54d009e555f59a4dc0925dd16465d88107e5d9255d0cc4573e848c02c9e7a67"
+    }
+  ],
+  "fresh_drive_readback_performed": false
+}

@@ -1,0 +1,31 @@
+{
+  "prepared_at": "2026-10-15T02:20:14.731236+00:00",
+  "candidate_worker_sha256": "6f3c59aa89677b741497ee58b77c9f3e5788377fc81d7d994ae0f3d5bbe2ae92",
+  "worker_bytes": 1758018,
+  "oracle_deployment_required": false,
+  "migrations": [],
+  "files": [
+    {
+      "path": "packages/core/src/transcript/payload-archive.ts",
+      "sha256": "bc29835a792b7175902a1b3d558f2c6ca69b2a7f7c843c8f76fbba7866292da0"
+    },
+    {
+      "path": "apps/api/src/artifact-repository.ts",
+      "sha256": "cfc0d031bef512e584b724e5ff8c3a59c93a0f449dad20eb48eb3882a24c8470"
+    },
+    {
+      "path": "tests/workers/transcript-payload-version.spec.ts",
+      "sha256": "6d9bcba6038b63f94448a4c3f8cb6ddb8d5d2ea48e40be053efee1d171c9a5af"
+    }
+  ],
+  "targeted_workers": 8,
+  "typecheck": "PASS",
+  "lint": "PASS",
+  "build": "PASS",
+  "production_dry_run": "PASS",
+  "production_deployed": false,
+  "full_workers_passed": 315,
+  "full_workers_failed": 0,
+  "full_workers_result_sha256": "13b9267b7073e7425901f64d9eced162858fe60339ae651346e98ac5a2932b99",
+  "independent_review": "PASS_CAPTION_AUTHORITY_FIX_AGENT_READ_ONLY"
+}

@@ -1,0 +1,36 @@
+{
+  "observed_at": "2026-10-15T01:18:28.267Z",
+  "backup_receipt": "2026-10-15T01-14-12.632Z-pre-upgrade.json",
+  "protected_metadata": {
+    "accepted": {
+      "count": 45,
+      "sha256": "ca6c565004c62a3ce2e75d6fa85d2af4de0f478ca167f1a98ee0fbd9094407df"
+    },
+    "artifacts": {
+      "count": 244,
+      "sha256": "028a4f4f1de1679861533f984af0c52370ae1f74b876501f273be791319bcf48"
+    },
+    "chunks": {
+      "count": 616,
+      "sha256": "0416a1237a7560167cb747148c5ef0f66557acb131f1901db54a5d08bf7abc0e"
+    },
+    "archive_receipts": {
+      "count": 45,
+      "sha256": "6de67d6aa8756b4954c48789adbb17f9d9d9793f922c69bc4493fcc98161cff3"
+    },
+    "jobs": {
+      "count": 556,
+      "sha256": "551e7dcf6f4b3b1969bd3e2b32acf2e7d8dd3a381deb27f602019bff0fce59a1"
+    },
+    "items": {
+      "count": 65,
+      "sha256": "6eb6b8499509762915e5aa44b8a7e7653142d4be25b471e7bf624629ea2d7d3a"
+    },
+    "retention": {
+      "count": 1,
+      "sha256": "1e5579bf465c6c5c9f6d55e8008211819fb98e7dc2eab8d74c312db586638255"
+    }
+  },
+  "rows_read": 2246,
+  "rows_written": 0
+}

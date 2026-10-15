@@ -1,0 +1,533 @@
+{
+  "generated_at": "2026-10-14T23:53:37.046Z",
+  "scope": "LOCAL_READINESS_DELTA",
+  "tests": [
+    {
+      "name": "targeted-tests.json",
+      "sha256": "024abc843aa89fcdf10b6715af9136ecfacfd46d41b7df6e521274de719cc315",
+      "passed": 7,
+      "failed": 0,
+      "success": true,
+      "files": [
+        {
+          "path": "tests/unit/oracle-deployment.spec.ts",
+          "status": "passed",
+          "passed": 4,
+          "failed": 0
+        },
+        {
+          "path": "tests/workers/jobstore.spec.ts",
+          "status": "passed",
+          "passed": 3,
+          "failed": 0
+        }
+      ]
+    },
+    {
+      "name": "workers-tests.json",
+      "sha256": "dd613b46258babed988f154034f011d9bf2a3e992ec60001f92a08c04036530e",
+      "passed": 291,
+      "failed": 0,
+      "success": true,
+      "files": [
+        {
+          "path": "tests/failure/job-recovery.spec.ts",
+          "status": "passed",
+          "passed": 1,
+          "failed": 0
+        },
+        {
+          "path": "tests/workers/artifacts.spec.ts",
+          "status": "passed",
+          "passed": 31,
+          "failed": 0
+        },
+        {
+          "path": "tests/workers/auth-api.spec.ts",
+          "status": "passed",
+          "passed": 3,
+          "failed": 0
+        },
+        {
+          "path": "tests/workers/backfill-intent.spec.ts",
+          "status": "passed",
+          "passed": 2,
+          "failed": 0
+        },
+        {
+          "path": "tests/workers/backup-core.spec.ts",
+          "status": "passed",
+          "passed": 6,
+          "failed": 0
+        },
+        {
+          "path": "tests/workers/bootstrap.spec.ts",
+          "status": "passed",
+          "passed": 5,
+          "failed": 0
+        },
+        {
+          "path": "tests/workers/capacity-collection.spec.ts",
+          "status": "passed",
+          "passed": 2,
+          "failed": 0
+        },
+        {
+          "path": "tests/workers/caption-retry-policy.spec.ts",
+          "status": "passed",
+          "passed": 1,
+          "failed": 0
+        },
+        {
+          "path": "tests/workers/control-queue.spec.ts",
+          "status": "passed",
+          "passed": 2,
+          "failed": 0
+        },
+        {
+          "path": "tests/workers/core-api.spec.ts",
+          "status": "passed",
+          "passed": 18,
+          "failed": 0
+        },
+        {
+          "path": "tests/workers/core-migrations.spec.ts",
+          "status": "passed",
+          "passed": 4,
+          "failed": 0
+        },
+        {
+          "path": "tests/workers/core-recovery-acceptance.spec.ts",
+          "status": "passed",
+          "passed": 1,
+          "failed": 0
+        },
+        {
+          "path": "tests/workers/corrections.spec.ts",
+          "status": "passed",
+          "passed": 2,
+          "failed": 0
+        },
+        {
+          "path": "tests/workers/d1-quota-api.spec.ts",
+          "status": "passed",
+          "passed": 1,
+          "failed": 0
+        },
+        {
+          "path": "tests/workers/daily-projection.spec.ts",
+          "status": "passed",
+          "passed": 8,
+          "failed": 0
+        },
+        {
+          "path": "tests/workers/daily-tasks-workflow.spec.ts",
+          "status": "passed",
+          "passed": 14,
+          "failed": 0
+        },
+        {
+          "path": "tests/workers/discovery-recovery-drill.spec.ts",
+          "status": "passed",
+          "passed": 2,
+          "failed": 0
+        },
+        {
+          "path": "tests/workers/discovery.spec.ts",
+          "status": "passed",
+          "passed": 6,
+          "failed": 0
+        },
+        {
+          "path": "tests/workers/drive-api.spec.ts",
+          "status": "passed",
+          "passed": 9,
+          "failed": 0
+        },
+        {
+          "path": "tests/workers/drive-conflict.spec.ts",
+          "status": "passed",
+          "passed": 6,
+          "failed": 0
+        },
+        {
+          "path": "tests/workers/drive-disconnect.spec.ts",
+          "status": "passed",
+          "passed": 3,
+          "failed": 0
+        },
+        {
+          "path": "tests/workers/drive-oauth.spec.ts",
+          "status": "passed",
+          "passed": 11,
+          "failed": 0
+        },
+        {
+          "path": "tests/workers/drive-probe-budget.spec.ts",
+          "status": "passed",
+          "passed": 1,
+          "failed": 0
+        },
+        {
+          "path": "tests/workers/drive-qualification.spec.ts",
+          "status": "passed",
+          "passed": 1,
+          "failed": 0
+        },
+        {
+          "path": "tests/workers/drive-recovery-drill.spec.ts",
+          "status": "passed",
+          "passed": 1,
+          "failed": 0
+        },
+        {
+          "path": "tests/workers/drive-root-create.spec.ts",
+          "status": "passed",
+          "passed": 4,
+          "failed": 0
+        },
+        {
+          "path": "tests/workers/drive-root.spec.ts",
+          "status": "passed",
+          "passed": 3,
+          "failed": 0
+        },
+        {
+          "path": "tests/workers/entity-aliases.spec.ts",
+          "status": "passed",
+          "passed": 2,
+          "failed": 0
+        },
+        {
+          "path": "tests/workers/entity-identity.spec.ts",
+          "status": "passed",
+          "passed": 2,
+          "failed": 0
+        },
+        {
+          "path": "tests/workers/export-artifacts.spec.ts",
+          "status": "passed",
+          "passed": 4,
+          "failed": 0
+        },
+        {
+          "path": "tests/workers/export-dirty.spec.ts",
+          "status": "passed",
+          "passed": 6,
+          "failed": 0
+        },
+        {
+          "path": "tests/workers/export-executor.spec.ts",
+          "status": "passed",
+          "passed": 9,
+          "failed": 0
+        },
+        {
+          "path": "tests/workers/export-identity.spec.ts",
+          "status": "passed",
+          "passed": 4,
+          "failed": 0
+        },
+        {
+          "path": "tests/workers/export-runtime.spec.ts",
+          "status": "passed",
+          "passed": 3,
+          "failed": 0
+        },
+        {
+          "path": "tests/workers/export-scope.spec.ts",
+          "status": "passed",
+          "passed": 2,
+          "failed": 0
+        },
+        {
+          "path": "tests/workers/fencing.spec.ts",
+          "status": "passed",
+          "passed": 5,
+          "failed": 0
+        },
+        {
+          "path": "tests/workers/isolation.spec.ts",
+          "status": "passed",
+          "passed": 1,
+          "failed": 0
+        },
+        {
+          "path": "tests/workers/jobstore.spec.ts",
+          "status": "passed",
+          "passed": 3,
+          "failed": 0
+        },
+        {
+          "path": "tests/workers/knowledge-ledger.spec.ts",
+          "status": "passed",
+          "passed": 1,
+          "failed": 0
+        },
+        {
+          "path": "tests/workers/knowledge-restore.spec.ts",
+          "status": "passed",
+          "passed": 1,
+          "failed": 0
+        },
+        {
+          "path": "tests/workers/lab-quota.spec.ts",
+          "status": "passed",
+          "passed": 5,
+          "failed": 0
+        },
+        {
+          "path": "tests/workers/lab-reviews.spec.ts",
+          "status": "passed",
+          "passed": 4,
+          "failed": 0
+        },
+        {
+          "path": "tests/workers/monitoring-cycles.spec.ts",
+          "status": "passed",
+          "passed": 1,
+          "failed": 0
+        },
+        {
+          "path": "tests/workers/offline-recovery-drill.spec.ts",
+          "status": "passed",
+          "passed": 1,
+          "failed": 0
+        },
+        {
+          "path": "tests/workers/oidc-flow.spec.ts",
+          "status": "passed",
+          "passed": 7,
+          "failed": 0
+        },
+        {
+          "path": "tests/workers/organization.spec.ts",
+          "status": "passed",
+          "passed": 3,
+          "failed": 0
+        },
+        {
+          "path": "tests/workers/outbox.spec.ts",
+          "status": "passed",
+          "passed": 4,
+          "failed": 0
+        },
+        {
+          "path": "tests/workers/owner-bootstrap.spec.ts",
+          "status": "passed",
+          "passed": 2,
+          "failed": 0
+        },
+        {
+          "path": "tests/workers/pipeline-performance.spec.ts",
+          "status": "passed",
+          "passed": 8,
+          "failed": 0
+        },
+        {
+          "path": "tests/workers/projection-jobs.spec.ts",
+          "status": "passed",
+          "passed": 5,
+          "failed": 0
+        },
+        {
+          "path": "tests/workers/prompt-drafts.spec.ts",
+          "status": "passed",
+          "passed": 1,
+          "failed": 0
+        },
+        {
+          "path": "tests/workers/prompt-history.spec.ts",
+          "status": "passed",
+          "passed": 1,
+          "failed": 0
+        },
+        {
+          "path": "tests/workers/prompt-lab.spec.ts",
+          "status": "passed",
+          "passed": 2,
+          "failed": 0
+        },
+        {
+          "path": "tests/workers/prompt-registry.spec.ts",
+          "status": "passed",
+          "passed": 1,
+          "failed": 0
+        },
+        {
+          "path": "tests/workers/prompt-usage.spec.ts",
+          "status": "passed",
+          "passed": 1,
+          "failed": 0
+        },
+        {
+          "path": "tests/workers/public-pages.spec.ts",
+          "status": "passed",
+          "passed": 1,
+          "failed": 0
+        },
+        {
+          "path": "tests/workers/quota-observations.spec.ts",
+          "status": "passed",
+          "passed": 2,
+          "failed": 0
+        },
+        {
+          "path": "tests/workers/retention-export.spec.ts",
+          "status": "passed",
+          "passed": 3,
+          "failed": 0
+        },
+        {
+          "path": "tests/workers/rollback-recovery-drill.spec.ts",
+          "status": "passed",
+          "passed": 1,
+          "failed": 0
+        },
+        {
+          "path": "tests/workers/runtime-admission.spec.ts",
+          "status": "passed",
+          "passed": 5,
+          "failed": 0
+        },
+        {
+          "path": "tests/workers/runtime-http.spec.ts",
+          "status": "passed",
+          "passed": 2,
+          "failed": 0
+        },
+        {
+          "path": "tests/workers/scheduler.spec.ts",
+          "status": "passed",
+          "passed": 4,
+          "failed": 0
+        },
+        {
+          "path": "tests/workers/search.spec.ts",
+          "status": "passed",
+          "passed": 4,
+          "failed": 0
+        },
+        {
+          "path": "tests/workers/semantic-profiles.spec.ts",
+          "status": "passed",
+          "passed": 4,
+          "failed": 0
+        },
+        {
+          "path": "tests/workers/sources-items.spec.ts",
+          "status": "passed",
+          "passed": 3,
+          "failed": 0
+        },
+        {
+          "path": "tests/workers/transcript-api.spec.ts",
+          "status": "passed",
+          "passed": 4,
+          "failed": 0
+        },
+        {
+          "path": "tests/workers/transcript-archive.spec.ts",
+          "status": "passed",
+          "passed": 20,
+          "failed": 0
+        },
+        {
+          "path": "tests/workers/transcript-recovery-drill.spec.ts",
+          "status": "passed",
+          "passed": 1,
+          "failed": 0
+        }
+      ]
+    },
+    {
+      "name": "scheduler-unit.json",
+      "sha256": "12db4862bc68f9d42e0ad0124bce19c959fc6d8283c34e79ef24d518183060e4",
+      "passed": 2,
+      "failed": 0,
+      "success": true,
+      "files": [
+        {
+          "path": "tests/unit/transcript-archive-scheduling.spec.ts",
+          "status": "passed",
+          "passed": 2,
+          "failed": 0
+        }
+      ]
+    },
+    {
+      "name": "manual-and-package-tests.json",
+      "sha256": "ec1a68f5bb375792f61e5ff2f4fd9021da9106f68c025e6bd9b1e8297961cc41",
+      "passed": 6,
+      "failed": 0,
+      "success": true,
+      "files": [
+        {
+          "path": "tests/unit/oracle-deployment.spec.ts",
+          "status": "passed",
+          "tests": [
+            {
+              "name": "release archive contains the new compact modules and migrations with exact bytes, excludes private files and is reproducible",
+              "status": "passed"
+            },
+            {
+              "name": "installer parses, validates pins offline and leaves plan without installation",
+              "status": "passed"
+            },
+            {
+              "name": "service matches stop/restart and unprivileged resource contracts without activation",
+              "status": "passed"
+            },
+            {
+              "name": "offline test invocation leaves an out-of-sync release untouched and installation still rejects its lockfile",
+              "status": "passed"
+            }
+          ]
+        },
+        {
+          "path": "tests/workers/monitoring-cycles.spec.ts",
+          "status": "passed",
+          "tests": [
+            {
+              "name": "SCHEDULED cycle finishes 30 channels through immediate Queue invocations, including replay and lost hints",
+              "status": "passed"
+            },
+            {
+              "name": "MANUAL cycle finishes 20 channels through immediate Queue invocations, including replay and lost hints",
+              "status": "passed"
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "lint": {
+    "files": 6,
+    "errors": 0,
+    "warnings": 0
+  },
+  "typecheck": "PASS_ALL_WORKSPACES_AND_TOOLS",
+  "build": "PASS_ROOT_BUILD_AND_PRODUCTION_CONFIG_DRY_RUN",
+  "migrations": {
+    "result": "PASS",
+    "count": 43,
+    "next_number": 44,
+    "fresh_install": "PASS",
+    "independent_empty_restore": "PASS",
+    "integrity_check": "PASS",
+    "foreign_key_check": "PASS"
+  },
+  "config": {
+    "result": "PASS",
+    "paid_services_enabled": false,
+    "public": {
+      "config_version": "1",
+      "timezone": "Europe/Warsaw"
+    },
+    "active_routes": []
+  },
+  "production_regression_tests": "NOT_RUN_PRE_GO",
+  "previous_917_results": "Retained as earlier local evidence, not relabeled as a fresh full-suite run",
+  "final_manual_verification": "PASS_20_COMPLETED_MANUAL_OUTSIDE_SCHEDULE_AND_30_COMPLETED_SCHEDULED_LOCAL_ONLY",
+  "arm64_archive_pack_test": "Checkout-only packing test intentionally not applicable to immutable release without Git; received manifest verification remains mandatory"
+}

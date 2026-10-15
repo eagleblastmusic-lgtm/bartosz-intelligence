@@ -1,0 +1,80 @@
+{
+  "prepared_at": "2026-10-15T11:19:59.440259+00:00",
+  "status": "LOCAL_VERIFIED_NOT_DEPLOYED_AWAITING_EXPLICIT_GO",
+  "previous_worker_version": "6b6a7844-e1f9-48a3-b70e-299b6d98cd90",
+  "candidate_worker_sha256": "0057d2cd14b00e693cac5cf379de01ac1064940d8bd6d73c70a102ce5d5ffaff",
+  "worker_bytes": 1759078,
+  "files": [
+    {
+      "path": "apps/api/src/index.ts",
+      "bytes": 4296,
+      "sha256": "1ceefdf4d29ee37f3fc8dd5771d5fdd838db60702b6184fe98fef4aebeb41772"
+    },
+    {
+      "path": "apps/api/src/queue.ts",
+      "bytes": 6199,
+      "sha256": "3639d30545db496a15433524b1dc657c86ad4233656935f5ca128f8ce9caf746"
+    },
+    {
+      "path": "apps/api/src/scheduled.ts",
+      "bytes": 2177,
+      "sha256": "e5dc9ebbb47ce62f63fcf18c3c0b74ba2f99db9327333b600a5fa1d60d02315c"
+    },
+    {
+      "path": "tests/workers/cron-maintenance-queue.spec.ts",
+      "bytes": 12507,
+      "sha256": "fe54a625a8e9b4048c835c3d29b311fd3c65d25ea04c71d5f048db82e583c449"
+    }
+  ],
+  "source_inventory": "FREE_CPU_SOURCE_INVENTORY.json",
+  "source_inventory_sha256": "e9133c1b687e48838f0a8576eb329c934aebad7735b87f73261d92759d49a63d",
+  "scope": "Existing Cron maintenance to existing Queue with separate occurrence/operational clocks; equivalent explicit TrieRouter only",
+  "typecheck": "PASS_FULL",
+  "lint": "PASS_CHANGED_FILES",
+  "format": "PASS_CHANGED_FILES",
+  "build": "PASS_FULL",
+  "production_dry_run": "PASS_FINAL_AFTER_CLOCK_FIX",
+  "tests": {
+    "full_workers_before_final_clock_fix": 331,
+    "focused_workers_after_final_clock_fix": 25,
+    "unique_workers_verified": 332,
+    "warsaw_dst_unit": 7,
+    "failed": 0,
+    "skipped": 0,
+    "note": "Overlapping runs, not a single 332-test command. The 25 final focused tests cover all changed maintenance/monitoring paths; unchanged full-suite evidence reused.",
+    "evidence": [
+      {
+        "path": ".local/production-readiness-20261015/free-cpu-workers-full.json",
+        "bytes": 114618,
+        "sha256": "4270a9d82027dd59bc9802eb3ce8089488c0ce93e05e04a9ae4d88dd9498bc27"
+      },
+      {
+        "path": ".local/production-readiness-20261015/cron-cpu-vitest.json",
+        "bytes": 8922,
+        "sha256": "02c98ccf26a75a83a92f5a8c24f939f186f7f19fd5b01524933de443309e103f"
+      },
+      {
+        "path": ".local/production-readiness-20261015/cron-cpu-slots-vitest.json",
+        "bytes": 2172,
+        "sha256": "13b80914a492324148d23bc47270a43a8259966194f2b1f8bc5b9a9e3112fbf3"
+      }
+    ]
+  },
+  "route_parity": {
+    "cases": 3689,
+    "differences": 0,
+    "evidence": {
+      "path": ".local/production-readiness-20261015/http-router-local-profile.json",
+      "bytes": 3376,
+      "sha256": "f033d0bd516fdd6fe040a27a63160264f51aac3af04176de9b44803097c2b09c"
+    },
+    "environment": "LOCAL_NODE_NOT_EDGE_CPU"
+  },
+  "oracle_deployment_required": false,
+  "migrations": [],
+  "production_deployed": false,
+  "production_cpu_measured": false,
+  "automatic_ai_enabled": false,
+  "retention_deletion_enabled": false,
+  "estimated_extra_queue_operations_per_day_without_retry": 864
+}

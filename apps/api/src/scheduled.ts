@@ -2,19 +2,28 @@ import {
   sweep,
   dispatchOutbox,
 } from '../../../packages/core/src/jobs/recovery.js';
+import { repairMissingIntents } from '../../../packages/core/src/sources/youtube/reconcile.js';
 import {
-  scheduleSources,
-  repairMissingIntents,
-} from '../../../packages/core/src/sources/youtube/reconcile.js';
+  startMonitoringCycles,
+  refreshMonitoringProgress,
+  wakeMonitoring,
+  wakeSourceRecovery,
+} from '../../../packages/core/src/sources/youtube/cycles.js';
 import { scheduleMetadataRefresh } from '../../../packages/core/src/sources/youtube/refresh.js';
 import { observeRetention } from '../../../packages/core/src/retention/cleanup.js';
-export async function recoverJobs(db: D1Database, queue: Queue, now: Date) {
+export async function recoverJobs(
+  db: D1Database,
+  queue: Queue,
+  now: Date,
+  automaticAiEnabled = false,
+) {
   // Five jobs/events per invocation; continuation remains durable for next tick.
   const recovery = await sweep(
     db,
     now,
     (job) => job.reason_code !== 'WORKER_OFFLINE',
     5,
+    automaticAiEnabled,
   );
   const transport = await dispatchOutbox(
     db,
@@ -23,6 +32,7 @@ export async function recoverJobs(db: D1Database, queue: Queue, now: Date) {
     },
     now,
     5,
+    automaticAiEnabled,
   );
   return { recovery, transport };
 }
@@ -30,8 +40,13 @@ export async function scheduleControlPlane(
   db: D1Database,
   queue: Queue,
   now: Date,
+  slots?: string,
+  automaticAiEnabled = false,
+  occurrenceAt = now,
 ) {
-  const sources = await scheduleSources(db, now, 1);
+  // A delayed Cron occurrence selects its original Warsaw slots. Operational
+  // maintenance and completion receipts must use the actual execution time.
+  const sources = await startMonitoringCycles(db, occurrenceAt, slots);
   const reconciliation = await repairMissingIntents(db, now, 1);
   const metadata_refresh = await scheduleMetadataRefresh(db, now);
   const retention = await observeRetention(db, now);
@@ -40,6 +55,7 @@ export async function scheduleControlPlane(
     now,
     (job) => job.reason_code !== 'WORKER_OFFLINE',
     1,
+    automaticAiEnabled,
   );
   const transport = await dispatchOutbox(
     db,
@@ -48,25 +64,11 @@ export async function scheduleControlPlane(
     },
     now,
     1,
+    automaticAiEnabled,
   );
-  // Queue transport can expire or a continuation send can fail. Rebuild one
-  // bounded wake-up hint from durable state independently of delivery markers.
-  const ready = await db
-    .prepare(
-      `SELECT job_id,task_type,fencing_token FROM jobs WHERE task_type IN ('DISCOVER','RECONCILE') AND ((state='PENDING' AND due_at<=?) OR (state='DEFERRED' AND reason_code='CONTINUATION' AND due_at<=?) OR (state='RUNNING' AND lease_until>?)) ORDER BY priority DESC,arrival_origin_at,job_id LIMIT 1`,
-    )
-    .bind(now.toISOString(), now.toISOString(), now.toISOString())
-    .first<{
-      job_id: string;
-      task_type: 'DISCOVER' | 'RECONCILE';
-      fencing_token: number;
-    }>();
-  if (ready)
-    await queue.send({
-      job_id: ready.job_id,
-      task_type: ready.task_type,
-      fencing_hint: ready.fencing_token,
-    });
+  await refreshMonitoringProgress(db, now);
+  await wakeMonitoring(db, queue, now);
+  await wakeSourceRecovery(db, queue, now);
   return {
     sources,
     reconciliation,

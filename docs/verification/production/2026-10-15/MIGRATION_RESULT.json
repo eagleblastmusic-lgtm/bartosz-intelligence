@@ -1,0 +1,321 @@
+{
+  "started_at": "2026-10-15T01:18:28.267Z",
+  "finished_at": "2026-10-15T01:18:33.306Z",
+  "result": "PASS",
+  "backup_receipt": "2026-10-15T01-14-12.632Z-pre-upgrade.json",
+  "completed_steps": [
+    {
+      "migration": "041_monitoring_cycles.sql",
+      "result": "APPLIED"
+    },
+    {
+      "migration": "042_caption_retry.sql",
+      "result": "APPLIED"
+    },
+    {
+      "migration": "043_transcript_payload_archive.sql",
+      "result": "APPLIED"
+    },
+    {
+      "migrations": 43,
+      "quick_check": "PASS",
+      "foreign_key_check": "PASS"
+    }
+  ],
+  "ledger": [
+    {
+      "name": "001_identity_config.sql",
+      "sha256": "a1ab3359cb116ad0ffd5f23cd58a87070d404e34d21affb120905b0061f5dbcc",
+      "applied_at": "2026-10-05T19:44:08.819Z"
+    },
+    {
+      "name": "002_sources_items.sql",
+      "sha256": "af4ac6b2ea63b3f50a426751af3ded723541366a5268abfa1d317e4d6b685484",
+      "applied_at": "2026-10-05T19:44:08.963Z"
+    },
+    {
+      "name": "003_jobs_outbox.sql",
+      "sha256": "b101d30017b99f5283cb631c567ce47acbe84052693a5591c85d18e531e22dc4",
+      "applied_at": "2026-10-05T19:44:09.107Z"
+    },
+    {
+      "name": "004_runs_registry_exports.sql",
+      "sha256": "f2eb46d0319cd3fced2d05e94bd5cd36b122957f96c84845c10e15a5398f280f",
+      "applied_at": "2026-10-05T19:44:09.235Z"
+    },
+    {
+      "name": "005_operations_snapshots_backup.sql",
+      "sha256": "6d74c835112740f5e856047665c711f48e969d45dd6b23e25138f3b358b90247",
+      "applied_at": "2026-10-05T19:44:09.605Z"
+    },
+    {
+      "name": "006_discovery_scan_members.sql",
+      "sha256": "90bf2c4358b104087c5ba051363f1957b0ffc0d8befd8508d07c4d6c7c971d40",
+      "applied_at": "2026-10-05T19:44:09.763Z"
+    },
+    {
+      "name": "007_owner_bootstrap.sql",
+      "sha256": "3760b1ab8aa7f69a8dfb60def421d68c4ba94a59472c13ce584277cbea1c1d97",
+      "applied_at": "2026-10-05T19:44:09.905Z"
+    },
+    {
+      "name": "008_backup_barrier.sql",
+      "sha256": "3c6d2fd8fdab3ae4ac1bd792cd5724665dbfb323032b5de32f04c96b51a14a0c",
+      "applied_at": "2026-10-05T21:32:06.622Z"
+    },
+    {
+      "name": "009_transcript_artifacts.sql",
+      "sha256": "99c04cfd0181aca64824858f82b4dd9f3cc316a97da056899c2deca0f364468e",
+      "applied_at": "2026-10-05T23:59:28.527Z"
+    },
+    {
+      "name": "010_registry_integrity.sql",
+      "sha256": "4d3bcdafc53d0db2a536f493b47734d9ef859c0139061b61dc8d4934cfccb9e0",
+      "applied_at": "2026-10-05T23:59:28.647Z"
+    },
+    {
+      "name": "011_ai_admission.sql",
+      "sha256": "8e5c42803cd7a39db8b87a5e39c9be18964dbc2e50f6b96c32fe6351c64bf78a",
+      "applied_at": "2026-10-05T23:59:28.756Z"
+    },
+    {
+      "name": "012_candidate_repair.sql",
+      "sha256": "ab50e5c8b60243d4a07959ab2319ba3ffe07ca06cb052ae3d958a38b44934224",
+      "applied_at": "2026-10-05T23:59:28.878Z"
+    },
+    {
+      "name": "013_intelligence_ledger.sql",
+      "sha256": "c98edd7e8d7caec291d8f9ab6da1ab8e41579feb6d6ece38e85b2e48a1f6a786",
+      "applied_at": "2026-10-05T23:59:28.990Z"
+    },
+    {
+      "name": "014_daily_projection_indexes.sql",
+      "sha256": "a7a60d081591fb75b10dd9f2264778079e3ed2b6ab0d735cf2922c5e30b02111",
+      "applied_at": "2026-10-07T18:15:41.452Z"
+    },
+    {
+      "name": "015_projection_invalidation.sql",
+      "sha256": "71c5d2b21b309896dc4df27ce486e0031da8c096978cda63f9feff91f34949be",
+      "applied_at": "2026-10-07T18:15:41.651Z"
+    },
+    {
+      "name": "016_alias_decisions.sql",
+      "sha256": "4f0a1872e7ba2b2e6fabdb017be535cdd98b51c05ff949e783f166f8f6b0cf92",
+      "applied_at": "2026-10-07T18:15:41.838Z"
+    },
+    {
+      "name": "017_entity_identity_events.sql",
+      "sha256": "e9a66c4afafc17275c33aefa10f37d19a523b435589c5e74b58aa80e2382b6f0",
+      "applied_at": "2026-10-07T18:15:42.010Z"
+    },
+    {
+      "name": "018_correction_overlays.sql",
+      "sha256": "8377dab05b1555485a927fb5aabf2bbb79932756345a0368d159e72b5853abbf",
+      "applied_at": "2026-10-07T18:15:42.203Z"
+    },
+    {
+      "name": "019_source_correction_idempotency.sql",
+      "sha256": "d64fc3d615c88c7741e19ca13fef963f1f3b25a26990fb9fa2e7d6d877b08729",
+      "applied_at": "2026-10-07T18:15:42.378Z"
+    },
+    {
+      "name": "020_spaces_review_insights.sql",
+      "sha256": "81fe6695dd7bbb7714c7cf98f0095c5d460b073a74e47750c1410914e23a0a54",
+      "applied_at": "2026-10-07T18:15:42.579Z"
+    },
+    {
+      "name": "021_knowledge_search.sql",
+      "sha256": "e3e8a10448c9c1d28df9ae157627956cf2a8964662a66f21896370222901ba87",
+      "applied_at": "2026-10-07T18:15:42.846Z"
+    },
+    {
+      "name": "022_semantic_profiles.sql",
+      "sha256": "553e752ce60ebe58e9b5776eb2ef2f228cc8983d21ddd46422660b5027b54eb1",
+      "applied_at": "2026-10-07T18:15:43.064Z"
+    },
+    {
+      "name": "023_optional_ai_results.sql",
+      "sha256": "79912ecb42176f3165ed8362df51f71f52d7be2cae6203dc4f8e40d905f46fa9",
+      "applied_at": "2026-10-07T18:15:43.280Z"
+    },
+    {
+      "name": "024_pending_analysis_replacement.sql",
+      "sha256": "94a4d74915e645f89d3e67f9df995b151f03ef388fda5a469c5c8ce90ff9501d",
+      "applied_at": "2026-10-07T18:15:43.462Z"
+    },
+    {
+      "name": "025_drive_offline_auth.sql",
+      "sha256": "1c87807b52813439ac520743342e807d1faf485c1f205bd791a601b14912b065",
+      "applied_at": "2026-10-07T18:15:43.655Z"
+    },
+    {
+      "name": "026_drive_export_identity.sql",
+      "sha256": "4d479dc360e1ed166118f65754d074b96bf99b41585efad362b2bbfb756170ea",
+      "applied_at": "2026-10-07T18:15:43.835Z"
+    },
+    {
+      "name": "027_daily_export_artifacts.sql",
+      "sha256": "02840a7eb3a1d57ca8650bca23cf3457815cecc16dfb4cdee481068151fe2d4c",
+      "applied_at": "2026-10-07T18:15:44.031Z"
+    },
+    {
+      "name": "028_drive_export_attempts.sql",
+      "sha256": "be1498634b0406fb30eb1fc44cd9fd77a79a7963a8cc3f62b76b88eb312ac9d4",
+      "applied_at": "2026-10-07T18:15:44.234Z"
+    },
+    {
+      "name": "029_drive_root_candidates.sql",
+      "sha256": "45bedbe118bc8ba07d9fc258f36e5e67e5c9d34afdd5ab7d5fc7f1891c43f85b",
+      "applied_at": "2026-10-07T18:41:23.973Z"
+    },
+    {
+      "name": "030_export_dirty_cursor.sql",
+      "sha256": "b0a57b1225ffd07cea10ac41b48382bb30f5cd05768c5c4f6bbf31560acad6bf",
+      "applied_at": "2026-10-07T19:03:47.176Z"
+    },
+    {
+      "name": "031_export_desired_mode.sql",
+      "sha256": "ad372edefcbb58b5b02bce9e7ae115484277e62155cf9c026f008ac60ccae285",
+      "applied_at": "2026-10-07T19:03:47.334Z"
+    },
+    {
+      "name": "032_export_receipt_lookup.sql",
+      "sha256": "fe6b1b96836e82397d8b8262852fafc766b4e0449e2d4a2d2da58c3ca89753bf",
+      "applied_at": "2026-10-07T19:14:29.086Z"
+    },
+    {
+      "name": "033_backup_format_version.sql",
+      "sha256": "2844e881ae967f723684228dc138ad1aa50118cd65ef3ef47549dfb45175df8d",
+      "applied_at": "2026-10-08T11:40:30.954Z"
+    },
+    {
+      "name": "034_export_retry_policy.sql",
+      "sha256": "a847e076a4142dcfa93b9e076cde33f1508670d451a21413e44a06fee7065c4a",
+      "applied_at": "2026-10-08T13:41:14.307Z"
+    },
+    {
+      "name": "035_automatic_analysis_scan.sql",
+      "sha256": "60e0a4378cbbc1428bf5dd45e0bd649db2086c5f8090e385059e328d924f52dd",
+      "applied_at": "2026-10-08T15:01:50.637Z"
+    },
+    {
+      "name": "036_d1_read_indexes.sql",
+      "sha256": "a1f38ded1d29ff3ca5203f4d632d0c0eec04d4a6a48713a0c7226fb61de2e88a",
+      "applied_at": "2026-10-10T20:30:46.499Z"
+    },
+    {
+      "name": "037_drive_only_retention.sql",
+      "sha256": "01ec4e58493d74ac7ef11d93153299c018daff88532004be0d4b6af861caf03a",
+      "applied_at": "2026-10-10T20:30:47.139Z"
+    },
+    {
+      "name": "038_verified_archive_append.sql",
+      "sha256": "f01107cac90b5970938a72d9d58b188c3674856a9ea7d6686230b18598cdbb2d",
+      "applied_at": "2026-10-10T20:30:47.996Z"
+    },
+    {
+      "name": "039_transcript_drive_archive.sql",
+      "sha256": "31a74aa0cf39c8f2a0b248daf38206834ed6cd9774b3faa4646a8a7c2ebad3e7",
+      "applied_at": "2026-10-10T20:30:48.429Z"
+    },
+    {
+      "name": "040_daily_tasks_workflow.sql",
+      "sha256": "40604831a70238bd90923af505efabaa502a91816a702e9ae77eb75ba72bce80",
+      "applied_at": "2026-10-14T17:54:23.330Z"
+    },
+    {
+      "name": "041_monitoring_cycles.sql",
+      "sha256": "032f6625e722f593797c31b2fbc5974019c484db4253e5f24268a4f728c69d5d",
+      "applied_at": "2026-10-15T01:18:32.050Z"
+    },
+    {
+      "name": "042_caption_retry.sql",
+      "sha256": "b4190d00351946c88d7c4a20a519a21651fe060cc092709c6e52d43a21f87a10",
+      "applied_at": "2026-10-15T01:18:32.200Z"
+    },
+    {
+      "name": "043_transcript_payload_archive.sql",
+      "sha256": "0f2dce9cefaef1cb1b0acde72d73fa22e09fa9620b767d14048079f73b090220",
+      "applied_at": "2026-10-15T01:18:32.341Z"
+    }
+  ],
+  "ledger_count": 43,
+  "ledger_all_checksums_match": true,
+  "protected_rows": {
+    "accepted": {
+      "before": 45,
+      "after": 45,
+      "preserved": true
+    },
+    "artifacts": {
+      "before": 244,
+      "after": 244,
+      "preserved": true
+    },
+    "chunks": {
+      "before": 616,
+      "after": 616,
+      "preserved": true
+    },
+    "archive_receipts": {
+      "before": 45,
+      "after": 45,
+      "preserved": true
+    },
+    "jobs": {
+      "before": 556,
+      "after": 556,
+      "preserved": true
+    },
+    "items": {
+      "before": 65,
+      "after": 65,
+      "preserved": true
+    },
+    "retention": {
+      "before": 1,
+      "after": 1,
+      "preserved": true
+    }
+  },
+  "schema_objects": [
+    {
+      "type": "trigger",
+      "name": "artifact_chunks_no_delete"
+    },
+    {
+      "type": "index",
+      "name": "monitoring_cycle_active"
+    },
+    {
+      "type": "index",
+      "name": "monitoring_cycle_scans"
+    },
+    {
+      "type": "table",
+      "name": "monitoring_cycles"
+    },
+    {
+      "type": "table",
+      "name": "transcript_payload_archives"
+    },
+    {
+      "type": "trigger",
+      "name": "transcript_payload_archives_backup_delete"
+    },
+    {
+      "type": "trigger",
+      "name": "transcript_payload_archives_backup_insert"
+    },
+    {
+      "type": "trigger",
+      "name": "transcript_payload_archives_backup_update"
+    },
+    {
+      "type": "trigger",
+      "name": "transcript_payload_identity"
+    }
+  ],
+  "retention_deletion_enabled": false,
+  "destructive_rollback_performed": false
+}

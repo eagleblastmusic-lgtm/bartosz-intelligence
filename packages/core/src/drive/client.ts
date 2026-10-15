@@ -392,6 +392,15 @@ export class DriveClient {
   }) {
     return this.createTextMarkdown(input, 32 * 1024 * 1024);
   }
+  async createTranscriptPackage(input: {
+    reserved_id: string;
+    root_id: string;
+    name: string;
+    markdown: string;
+    app_properties: Record<string, string>;
+  }) {
+    return this.createTextMarkdown(input, 32 * 1024 * 1024, 'application/json');
+  }
   private async createTextMarkdown(
     input: {
       reserved_id: string;
@@ -401,11 +410,16 @@ export class DriveClient {
       app_properties: Record<string, string>;
     },
     maximumBytes: number,
+    mimeType = 'text/markdown',
   ) {
     requireDriveId(input.reserved_id);
     requireDriveId(input.root_id);
     if (
-      !/^[A-Za-z0-9_. -]{1,200}\.md$/.test(input.name) ||
+      !(
+        mimeType === 'application/json'
+          ? /^[A-Za-z0-9_. -]{1,200}\.json$/
+          : /^[A-Za-z0-9_. -]{1,200}\.md$/
+      ).test(input.name) ||
       new TextEncoder().encode(input.markdown).length > maximumBytes ||
       Object.keys(input.app_properties).length > 6 ||
       Object.entries(input.app_properties).some(
@@ -422,14 +436,14 @@ export class DriveClient {
       id: input.reserved_id,
       name: input.name,
       parents: [input.root_id],
-      mimeType: 'text/markdown',
+      mimeType,
       appProperties: input.app_properties,
     });
     let boundary: string;
     do {
       boundary = 'bi_' + crypto.randomUUID();
     } while (input.markdown.includes(boundary) || metadata.includes(boundary));
-    const body = `--${boundary}\r\nContent-Type: application/json; charset=UTF-8\r\n\r\n${metadata}\r\n--${boundary}\r\nContent-Type: text/markdown; charset=UTF-8\r\n\r\n${input.markdown}\r\n--${boundary}--\r\n`;
+    const body = `--${boundary}\r\nContent-Type: application/json; charset=UTF-8\r\n\r\n${metadata}\r\n--${boundary}\r\nContent-Type: ${mimeType}; charset=UTF-8\r\n\r\n${input.markdown}\r\n--${boundary}--\r\n`;
     const result = file(
       await this.json(
         await this.request(
@@ -447,7 +461,7 @@ export class DriveClient {
     );
     if (
       result.id !== input.reserved_id ||
-      result.mimeType !== 'text/markdown' ||
+      result.mimeType !== mimeType ||
       !result.parents?.includes(input.root_id)
     )
       throw new DriveFailure('FORMAT');

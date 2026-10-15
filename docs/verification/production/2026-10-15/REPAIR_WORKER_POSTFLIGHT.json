@@ -1,0 +1,168 @@
+{
+  "observed_at": "2026-10-15T02:00:50.564Z",
+  "result": "PASS",
+  "version_id": "622b952d-81e2-45f6-b6f5-e0d1f9478899",
+  "deployment": {
+    "id": "1a8b6af6-82cd-4a4f-b236-a3f623fdf71c",
+    "source": "wrangler",
+    "strategy": "percentage",
+    "author_email": "eagleblastmusic@gmail.com",
+    "annotations": {
+      "workers/triggered_by": "deployment"
+    },
+    "versions": [
+      {
+        "version_id": "622b952d-81e2-45f6-b6f5-e0d1f9478899",
+        "percentage": 100
+      }
+    ],
+    "created_on": "2026-10-15T02:00:18.273607Z"
+  },
+  "bindings": [
+    {
+      "name": "APP_ORIGIN",
+      "type": "plain_text",
+      "text": "https://bartosz-intelligence.eagleblastmusic.workers.dev"
+    },
+    {
+      "name": "ASSETS",
+      "type": "assets"
+    },
+    {
+      "name": "AUTOMATIC_AI_ENABLED",
+      "type": "plain_text",
+      "text": "false"
+    },
+    {
+      "name": "BARTOSZ_QUEUE",
+      "type": "queue",
+      "queue_name": "bartosz-intelligence-signals"
+    },
+    {
+      "name": "CONTROL_WORKER_CREDENTIAL",
+      "type": "secret_text"
+    },
+    {
+      "name": "DB",
+      "type": "d1",
+      "id": "6f7a7527-610b-4e56-ad80-682ea7acd567"
+    },
+    {
+      "name": "DRIVE_EXPORT_WORKER_CREDENTIAL",
+      "type": "secret_text"
+    },
+    {
+      "name": "DRIVE_KEY_RECOVERY_READY",
+      "type": "secret_text"
+    },
+    {
+      "name": "DRIVE_WRAPPING_KEY",
+      "type": "secret_text"
+    },
+    {
+      "name": "DRIVE_WRAPPING_KEY_ID",
+      "type": "secret_text"
+    },
+    {
+      "name": "GOOGLE_DRIVE_CLIENT_ID",
+      "type": "secret_text"
+    },
+    {
+      "name": "GOOGLE_DRIVE_CLIENT_SECRET",
+      "type": "secret_text"
+    },
+    {
+      "name": "GOOGLE_DRIVE_OAUTH_PUBLISHING_STATUS",
+      "type": "secret_text"
+    },
+    {
+      "name": "GOOGLE_OIDC_CLIENT_ID",
+      "type": "secret_text"
+    },
+    {
+      "name": "GOOGLE_OIDC_CLIENT_SECRET",
+      "type": "secret_text"
+    },
+    {
+      "name": "GOOGLE_OIDC_OWNER_SUBJECT",
+      "type": "secret_text"
+    },
+    {
+      "name": "LOCAL_WORKER_CREDENTIAL",
+      "type": "secret_text"
+    },
+    {
+      "name": "MONITORING_SLOTS",
+      "type": "plain_text",
+      "text": "15:00,23:00"
+    },
+    {
+      "name": "RETENTION_DELETION_ENABLED",
+      "type": "plain_text",
+      "text": "false"
+    },
+    {
+      "name": "SESSION_SIGNING_SECRET",
+      "type": "secret_text"
+    },
+    {
+      "name": "TRANSCRIPT_ARCHIVE_ENABLED",
+      "type": "plain_text",
+      "text": "true"
+    },
+    {
+      "name": "YOUTUBE_API_KEY",
+      "type": "secret_text"
+    }
+  ],
+  "queue": {
+    "producers": [
+      {
+        "script": "bartosz-intelligence",
+        "type": "worker"
+      }
+    ],
+    "consumers": [
+      {
+        "script": "bartosz-intelligence",
+        "settings": {
+          "batch_size": 1,
+          "max_retries": 0,
+          "max_wait_time_ms": 5000,
+          "max_concurrency": 1,
+          "retry_delay": 0
+        },
+        "consumer_id": "5243fd04b710487a8685897e42b95b10",
+        "type": "worker"
+      }
+    ]
+  },
+  "cron": {
+    "schedules": [
+      {
+        "cron": "*/5 * * * *",
+        "created_on": "2026-10-05T19:45:48.995659Z",
+        "modified_on": "2026-10-14T17:55:08.209426Z"
+      }
+    ]
+  },
+  "modules": [
+    {
+      "name": "index.js",
+      "bytes": 1756415,
+      "sha256": "f4ead6c97e9a5ff125ad35a8b821174cff36179fe236cd2ac115f93b50231d41"
+    }
+  ],
+  "exact_compiled_module_bytes_match": true,
+  "health_http_status": 200,
+  "health": {
+    "build": "0.0.1",
+    "status": "LOCAL_READY",
+    "bindings": {
+      "DB": true,
+      "BARTOSZ_QUEUE": true,
+      "ASSETS": true
+    }
+  },
+  "production_writes": 0
+}

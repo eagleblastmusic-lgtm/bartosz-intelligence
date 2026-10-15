@@ -16,6 +16,13 @@ is preparation only, AWAITING_OWNER_APPROVAL; no consent or generation is
 implied by build/tests. Current deployed code and new repository-only patches
 are distinguished in [release readiness](RELEASE_READINESS_REPORT.md).
 
+The local [2026-10-15 pipeline implementation](docs/verification/performance/2026-10-15/IMPLEMENTATION_REPORT_PL.md)
+introduces durable Warsaw monitoring cycles (15:00/23:00), immediate serial
+Oracle draining, Queue archive continuations and three-artifact transcript
+sources. Automatic per-video AI and production deletion remain disabled.
+See [new test evidence](docs/verification/performance/2026-10-15/TEST_RESULTS.md)
+and the report's deployment/rollback instructions before any rollout.
+
 Use Node **24.21.0** and pnpm **12.9.1**. With the local tools downloaded for this run:
 
 ```powershell

@@ -7,11 +7,12 @@ import { sha256 } from '../auth/crypto.js';
 import type { LeaseToken } from '../../../contracts/src/jobs.js';
 import { dailyMaterialEffects } from '../daily/enrollment.js';
 export interface TranscriptSourceCompletion {
+  version?: 'transcript-source:1' | 'transcript-source:2';
   raw_artifact_id: string;
   source_artifact_id: string;
-  normalized_artifact_id: string;
+  normalized_artifact_id?: string;
   segment_map_artifact_id: string;
-  offset_map_artifact_id: string;
+  offset_map_artifact_id?: string;
   selection: LanguageSelection;
   warnings: string[];
 }
@@ -34,6 +35,7 @@ export class TranscriptAcceptance {
     ).requireTask('FETCH_TRANSCRIPT');
     const selection = input.selection,
       track = selection?.source;
+    const compact = input.version === 'transcript-source:2';
     if (
       selection?.status !== 'SELECTED' ||
       selection.policy_version !== 'original-authority:1' ||
@@ -74,7 +76,7 @@ export class TranscriptAcceptance {
         }),
       ));
     const outcome = {
-      version: 'transcript-source:1',
+      version: compact ? 'transcript-source:2' : 'transcript-source:1',
       raw_artifact_id: input.raw_artifact_id,
       source_artifact_id: input.source_artifact_id,
       normalized_artifact_id: input.normalized_artifact_id,
@@ -110,16 +112,23 @@ export class TranscriptAcceptance {
     const entries = [
       ['RAW', input.raw_artifact_id],
       ['SOURCE_ORIGINAL', input.source_artifact_id],
-      ['NORMALIZED', input.normalized_artifact_id],
       ['SEGMENT_MAP', input.segment_map_artifact_id],
-      ['OFFSET_MAP', input.offset_map_artifact_id],
+      ...(!compact
+        ? ([
+            ['NORMALIZED', input.normalized_artifact_id],
+            ['OFFSET_MAP', input.offset_map_artifact_id],
+          ] as const)
+        : []),
     ] as const;
-    if (new Set(entries.map((entry) => entry[1])).size !== 5)
+    if (
+      entries.some((entry) => typeof entry[1] !== 'string') ||
+      new Set(entries.map((entry) => entry[1])).size !== (compact ? 3 : 5)
+    )
       throw new Error('INVALID_SOURCE_ARTIFACT_SET');
     const artifacts = await Promise.all(
       entries.map(async ([kind, id]) => {
         const artifact = await repository.get(
-          id,
+          id!,
           token,
           'FETCH_TRANSCRIPT',
           now,
@@ -182,9 +191,10 @@ export class TranscriptAcceptance {
           provenance.provider_version === providerVersion &&
           typeof provenance.raw_payload_hash === 'string' &&
           /^[a-f0-9]{64}$/.test(provenance.raw_payload_hash) &&
-          provenance.archive_source_status === 'AVAILABLE_FULL' &&
+          (provenance.archive_source_status === 'AVAILABLE_FULL' ||
+            (compact && provenance.archive_source_status === 'PARTIAL')) &&
           Array.isArray(provenance.missing_ranges) &&
-          provenance.missing_ranges.length === 0;
+          (compact || provenance.missing_ranges.length === 0);
         if (provenance.archive_source_status !== undefined && !qualifiedArchive)
           throw new Error('SOURCE_ARTIFACT_NOT_COMPLETE');
         if (
@@ -209,11 +219,18 @@ export class TranscriptAcceptance {
             artifact.producer_version === 'source-normalizer:1' ||
             (qualifiedArchive &&
               artifact.producer_version ===
-                'source-normalizer:1' + archiveIdentity)
+                (compact ? 'caption-coverage:1' : 'source-normalizer:1') +
+                  archiveIdentity)
           ) ||
           provenance.source_revision !== selection.source_revision
         )
           throw new Error('NORMALIZED_SOURCE_MISMATCH');
+        if (
+          compact &&
+          kind === 'SEGMENT_MAP' &&
+          artifact.schema_version !== 'caption-coverage:1'
+        )
+          throw new Error('INVALID_SOURCE_ARTIFACT_SET');
         return artifact;
       }),
     );
@@ -247,6 +264,8 @@ export class TranscriptAcceptance {
           guard,
           bindings,
         ),
+      undefined,
+      false,
     );
     return { ...result, run_id: runId };
   }

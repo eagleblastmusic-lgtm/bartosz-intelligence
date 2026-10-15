@@ -1,0 +1,37 @@
+{
+  "schema": "production-canary-timing:1",
+  "video_id": "9i1LVL3_xpU",
+  "published_at": "2026-10-12T15:00:34Z",
+  "discovered_at": "2026-10-12T15:30:41.121Z",
+  "manual_retry_intent_at": "2026-10-15T02:01:58.076Z",
+  "fetch_started_at": "2026-10-15T02:02:09.907000+00:00",
+  "accepted_at": "2026-10-15T02:02:28.462Z",
+  "technical_initial_verified_at": "2026-10-15T02:02:36.136Z",
+  "markdown_initial_verified_at": "2026-10-15T02:02:41.693Z",
+  "published_to_detected_seconds": 1807.121,
+  "manual_intent_to_initial_drive_verified_seconds": 43.617,
+  "fetch_start_to_initial_drive_verified_seconds": 31.786,
+  "accepted_to_initial_drive_verified_seconds": 13.231,
+  "old_detected_to_canary_fetch_seconds": 210688.786,
+  "execution_metrics": {
+    "detected_at": "2026-10-12T15:30:41.121Z",
+    "fetch_started_at": "2026-10-15T02:02:09.907Z",
+    "normalization_ms": 0,
+    "track_listing_ms": 16744,
+    "caption_fetch_and_parse_ms": 4,
+    "upstream_requests": 8,
+    "upstream_bytes": 30505,
+    "artifact_upload_ms": 1490,
+    "transcript_cycle_ms": 18897,
+    "rpc_count": 18,
+    "rpc_request_bytes": 86050,
+    "worker_cycle_ms": 19673
+  },
+  "limitations": [
+    "Existing historical item and deliberate owner manual retry: old detected-to-fetch interval is NOT a healthy scheduler or caption-policy latency measurement",
+    "Drive initial verification was followed by later metadata-version mismatch; full acceptance requires final fixed-reader verification",
+    "No per-request Drive upload-finished timestamp collected; do not invent split network/upload/verify durations",
+    "No production backlog of10Oraclejobs or100Drivefiles was generated"
+  ],
+  "measured_in": "Production TED capture and persisted production receipts"
+}

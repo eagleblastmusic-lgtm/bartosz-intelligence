@@ -1,0 +1,119 @@
+{
+  "verified_at": "2026-10-15T11:26:58.018Z",
+  "result": "PASS",
+  "failed_gate": null,
+  "production_technical_reader": {
+    "result": "PASS",
+    "error": null,
+    "receipt_version": "2",
+    "observed_version": "2",
+    "content_hash_still_matches": true,
+    "production_reader_used": true,
+    "fully_verified_metadata_reconciliation": true,
+    "verified_at_and_content_hash_unchanged": true
+  },
+  "harness_correction": {
+    "windows_python_default_encoding": "cp1250",
+    "verifier_child_encoding": "utf-8",
+    "production_code_changed": false
+  },
+  "scope": "ONE_REAL_TED_COMPACT_CANARY_AND_ACTUAL_DRIVE_READBACK",
+  "video_id": "9i1LVL3_xpU",
+  "channel_id": "UCAuUUnT6oDeKwE6v1NGQxug",
+  "item_id": "1c613cd1-18b8-4610-b6a2-d334be3ab76a",
+  "job_id": "73c0c75f-ee64-472a-b026-f85c4ef4b82a",
+  "run_id": "transcript_d3584c42d08e2906eb85af32329861bb5f577ebc7010b3048bd333f97d41e592",
+  "accepted_at": "2026-10-15T02:02:28.462Z",
+  "source_version": "transcript-source:2",
+  "language_code": "en",
+  "track_kind": "MANUAL",
+  "is_generated": false,
+  "is_translated": false,
+  "is_original": null,
+  "video_language": "en",
+  "source_status": "AVAILABLE_FULL",
+  "missing_ranges": [],
+  "artifact_count": 3,
+  "cue_count": 226,
+  "all_received_text_and_milliseconds_match_raw": true,
+  "first_start_ms": 3968,
+  "last_end_ms": 775839,
+  "raw_caption_sha256": "0245bf0766477a81cd417acdb8ca797dc2d513cf7372c09365820e2b8e07d323",
+  "source_text_sha256": "a48fb3f57968292af1842462a8b4cc2a15ffb1e3117b5b41585faa5ab250982b",
+  "map_sha256": "5b5c4d2441d89da93408555e7b575735fd2d23f6454082568f048e4f89852238",
+  "artifacts": [
+    {
+      "id": "c2023520-7d44-477f-8944-09df8e258c01",
+      "kind": "RAW",
+      "bytes": 30505,
+      "sha256": "0245bf0766477a81cd417acdb8ca797dc2d513cf7372c09365820e2b8e07d323"
+    },
+    {
+      "id": "3ff8ea1c-9cb5-475a-ac20-03fb7303827b",
+      "kind": "SOURCE_ORIGINAL",
+      "bytes": 8614,
+      "sha256": "a48fb3f57968292af1842462a8b4cc2a15ffb1e3117b5b41585faa5ab250982b"
+    },
+    {
+      "id": "28013212-7ea8-433e-a89e-b4e53b8d1373",
+      "kind": "SEGMENT_MAP",
+      "bytes": 20148,
+      "sha256": "5b5c4d2441d89da93408555e7b575735fd2d23f6454082568f048e4f89852238"
+    }
+  ],
+  "markdown": {
+    "file_id": "1YYZAtgyWmtL1p0Lx7v2bSg09ZQJoJUsD",
+    "folder_id": "1bNqbMUjrU4HEBh45nHV-embobIPuhHtt",
+    "bytes": 23589,
+    "sha256": "32e71ac8acb01ff9ac85b88e203732b7ec5f65b52732f5a2647055f3ecc782f8",
+    "receipt_version": "2",
+    "observed_version": "2",
+    "version_matches_receipt": true,
+    "stable_before_after_version": true,
+    "verified_at": "2026-10-15T02:02:41.693Z",
+    "private_owner_only": true,
+    "exact_render_match": true
+  },
+  "technical": {
+    "file_id": "1DqMErCBhjYlgm96gQfE07rAD7qzfOtbN",
+    "bytes": 84465,
+    "sha256": "9644d830c034342957289957d45b66ed4b885a1c92f2095a8c672836ac4aeddb",
+    "receipt_version": "2",
+    "observed_version": "2",
+    "verified_at": "2026-10-15T02:02:36.136Z",
+    "private_owner_only": true,
+    "all_three_headers_and_chunks_exactly_restored": true
+  },
+  "drive_storage": {
+    "limit": 16106127360,
+    "usage": 440679894,
+    "free": 15665447466
+  },
+  "new_ai_jobs": 0,
+  "deletion_performed": false,
+  "legacy_records_modified": false,
+  "production_drive_file_writes_by_verifier": 0,
+  "private_raw_logged": false,
+  "limitations": [
+    "Exact received cues verified, not an external assertion that YouTube published captions for every second of the full video",
+    "A single accepted material is not a 24-hour observation or evidence for sustained 100 videos/day"
+  ],
+  "upstream_capture": {
+    "receipt_sha256": "35b6a7f8347e5e98350685e0b665e157bc1c270ff0793bc99773f089209f7a43",
+    "raw_transport_hash_matches": true,
+    "cue_count_matches": true,
+    "client": "mweb",
+    "provider_selected": {
+      "language_code": "en",
+      "track_kind": "MANUAL",
+      "is_generated": false,
+      "is_translated": false,
+      "source_language": null,
+      "translation_source_track_id": null,
+      "is_original": null,
+      "extension": "json3"
+    },
+    "video_language_provenance": "youtube.videos.snippet.defaultAudioLanguage"
+  },
+  "activation_allowed": true
+}

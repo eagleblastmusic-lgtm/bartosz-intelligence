@@ -25,7 +25,10 @@
   },
   "vars": {
     "APP_ORIGIN": "https://bartosz-intelligence.eagleblastmusic.workers.dev",
-    "TRANSCRIPT_ARCHIVE_ENABLED": "true"
+    "TRANSCRIPT_ARCHIVE_ENABLED": "true",
+    "MONITORING_SLOTS": "15:00,23:00",
+    "AUTOMATIC_AI_ENABLED": "false",
+    "RETENTION_DELETION_ENABLED": "false"
   },
   "d1_databases": [
     {

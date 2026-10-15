@@ -1,0 +1,1843 @@
+{
+  "observed_at": "2026-10-14T23:15:12.099Z",
+  "period_start_utc": "2026-10-14T00:00:00Z",
+  "production_mutations": 0,
+  "realtime": {
+    "http_status": 200,
+    "success": true,
+    "result": {
+      "backlog_count": 0,
+      "backlog_bytes": 0,
+      "oldest_message_timestamp_ms": 0
+    }
+  },
+  "operations": {
+    "http_status": 200,
+    "success": true,
+    "result": {
+      "viewer": {
+        "accounts": [
+          {
+            "queueMessageOperationsAdaptiveGroups": [
+              {
+                "avg": {
+                  "lagTime": 0,
+                  "retryCount": 0
+                },
+                "count": 148,
+                "dimensions": {
+                  "actionType": "WriteMessage",
+                  "datetimeHour": "2026-10-14T00:00:00Z",
+                  "outcome": ""
+                },
+                "max": {
+                  "messageSize": 89
+                },
+                "sum": {
+                  "billableOperations": 148,
+                  "bytes": 13160
+                }
+              },
+              {
+                "avg": {
+                  "lagTime": 2755,
+                  "retryCount": 0
+                },
+                "count": 143,
+                "dimensions": {
+                  "actionType": "ReadMessage",
+                  "datetimeHour": "2026-10-14T00:00:00Z",
+                  "outcome": ""
+                },
+                "max": {
+                  "messageSize": 89
+                },
+                "sum": {
+                  "billableOperations": 143,
+                  "bytes": 12714
+                }
+              },
+              {
+                "avg": {
+                  "lagTime": 3105,
+                  "retryCount": 0
+                },
+                "count": 117,
+                "dimensions": {
+                  "actionType": "DeleteMessage",
+                  "datetimeHour": "2026-10-14T00:00:00Z",
+                  "outcome": "success"
+                },
+                "max": {
+                  "messageSize": 89
+                },
+                "sum": {
+                  "billableOperations": 117,
+                  "bytes": 10413
+                }
+              },
+              {
+                "avg": {
+                  "lagTime": 2522,
+                  "retryCount": 0
+                },
+                "count": 16,
+                "dimensions": {
+                  "actionType": "DeleteMessage",
+                  "datetimeHour": "2026-10-14T00:00:00Z",
+                  "outcome": "fail"
+                },
+                "max": {
+                  "messageSize": 89
+                },
+                "sum": {
+                  "billableOperations": 16,
+                  "bytes": 1412
+                }
+              },
+              {
+                "avg": {
+                  "lagTime": 0,
+                  "retryCount": 0
+                },
+                "count": 16,
+                "dimensions": {
+                  "actionType": "WriteMessage",
+                  "datetimeHour": "2026-10-14T01:00:00Z",
+                  "outcome": ""
+                },
+                "max": {
+                  "messageSize": 98
+                },
+                "sum": {
+                  "billableOperations": 16,
+                  "bytes": 1441
+                }
+              },
+              {
+                "avg": {
+                  "lagTime": 1567,
+                  "retryCount": 0
+                },
+                "count": 2,
+                "dimensions": {
+                  "actionType": "DeleteMessage",
+                  "datetimeHour": "2026-10-14T01:00:00Z",
+                  "outcome": "success"
+                },
+                "max": {
+                  "messageSize": 89
+                },
+                "sum": {
+                  "billableOperations": 2,
+                  "bytes": 178
+                }
+              },
+              {
+                "avg": {
+                  "lagTime": 1473,
+                  "retryCount": 0
+                },
+                "count": 16,
+                "dimensions": {
+                  "actionType": "ReadMessage",
+                  "datetimeHour": "2026-10-14T01:00:00Z",
+                  "outcome": ""
+                },
+                "max": {
+                  "messageSize": 98
+                },
+                "sum": {
+                  "billableOperations": 16,
+                  "bytes": 1441
+                }
+              },
+              {
+                "avg": {
+                  "lagTime": 2201,
+                  "retryCount": 0
+                },
+                "count": 14,
+                "dimensions": {
+                  "actionType": "DeleteMessage",
+                  "datetimeHour": "2026-10-14T01:00:00Z",
+                  "outcome": "fail"
+                },
+                "max": {
+                  "messageSize": 98
+                },
+                "sum": {
+                  "billableOperations": 14,
+                  "bytes": 1263
+                }
+              },
+              {
+                "avg": {
+                  "lagTime": 2445,
+                  "retryCount": 0
+                },
+                "count": 20,
+                "dimensions": {
+                  "actionType": "DeleteMessage",
+                  "datetimeHour": "2026-10-14T02:00:00Z",
+                  "outcome": "fail"
+                },
+                "max": {
+                  "messageSize": 89
+                },
+                "sum": {
+                  "billableOperations": 20,
+                  "bytes": 1768
+                }
+              },
+              {
+                "avg": {
+                  "lagTime": 1769,
+                  "retryCount": 0
+                },
+                "count": 25,
+                "dimensions": {
+                  "actionType": "ReadMessage",
+                  "datetimeHour": "2026-10-14T02:00:00Z",
+                  "outcome": ""
+                },
+                "max": {
+                  "messageSize": 89
+                },
+                "sum": {
+                  "billableOperations": 25,
+                  "bytes": 2213
+                }
+              },
+              {
+                "avg": {
+                  "lagTime": 0,
+                  "retryCount": 0
+                },
+                "count": 25,
+                "dimensions": {
+                  "actionType": "WriteMessage",
+                  "datetimeHour": "2026-10-14T02:00:00Z",
+                  "outcome": ""
+                },
+                "max": {
+                  "messageSize": 89
+                },
+                "sum": {
+                  "billableOperations": 25,
+                  "bytes": 2213
+                }
+              },
+              {
+                "avg": {
+                  "lagTime": 2421,
+                  "retryCount": 0
+                },
+                "count": 5,
+                "dimensions": {
+                  "actionType": "DeleteMessage",
+                  "datetimeHour": "2026-10-14T02:00:00Z",
+                  "outcome": "success"
+                },
+                "max": {
+                  "messageSize": 89
+                },
+                "sum": {
+                  "billableOperations": 5,
+                  "bytes": 445
+                }
+              },
+              {
+                "avg": {
+                  "lagTime": 3135,
+                  "retryCount": 0
+                },
+                "count": 20,
+                "dimensions": {
+                  "actionType": "DeleteMessage",
+                  "datetimeHour": "2026-10-14T03:00:00Z",
+                  "outcome": "fail"
+                },
+                "max": {
+                  "messageSize": 90
+                },
+                "sum": {
+                  "billableOperations": 20,
+                  "bytes": 1773
+                }
+              },
+              {
+                "avg": {
+                  "lagTime": 2585,
+                  "retryCount": 0
+                },
+                "count": 24,
+                "dimensions": {
+                  "actionType": "ReadMessage",
+                  "datetimeHour": "2026-10-14T03:00:00Z",
+                  "outcome": ""
+                },
+                "max": {
+                  "messageSize": 90
+                },
+                "sum": {
+                  "billableOperations": 24,
+                  "bytes": 2134
+                }
+              },
+              {
+                "avg": {
+                  "lagTime": 0,
+                  "retryCount": 0
+                },
+                "count": 22,
+                "dimensions": {
+                  "actionType": "WriteMessage",
+                  "datetimeHour": "2026-10-14T03:00:00Z",
+                  "outcome": ""
+                },
+                "max": {
+                  "messageSize": 90
+                },
+                "sum": {
+                  "billableOperations": 22,
+                  "bytes": 1957
+                }
+              },
+              {
+                "avg": {
+                  "lagTime": 3129,
+                  "retryCount": 0
+                },
+                "count": 6,
+                "dimensions": {
+                  "actionType": "DeleteMessage",
+                  "datetimeHour": "2026-10-14T03:00:00Z",
+                  "outcome": "success"
+                },
+                "max": {
+                  "messageSize": 90
+                },
+                "sum": {
+                  "billableOperations": 6,
+                  "bytes": 538
+                }
+              },
+              {
+                "avg": {
+                  "lagTime": 1676,
+                  "retryCount": 0
+                },
+                "count": 25,
+                "dimensions": {
+                  "actionType": "ReadMessage",
+                  "datetimeHour": "2026-10-14T04:00:00Z",
+                  "outcome": ""
+                },
+                "max": {
+                  "messageSize": 90
+                },
+                "sum": {
+                  "billableOperations": 25,
+                  "bytes": 2226
+                }
+              },
+              {
+                "avg": {
+                  "lagTime": 2120,
+                  "retryCount": 0
+                },
+                "count": 7,
+                "dimensions": {
+                  "actionType": "DeleteMessage",
+                  "datetimeHour": "2026-10-14T04:00:00Z",
+                  "outcome": "success"
+                },
+                "max": {
+                  "messageSize": 90
+                },
+                "sum": {
+                  "billableOperations": 7,
+                  "bytes": 630
+                }
+              },
+              {
+                "avg": {
+                  "lagTime": 2165,
+                  "retryCount": 0
+                },
+                "count": 18,
+                "dimensions": {
+                  "actionType": "DeleteMessage",
+                  "datetimeHour": "2026-10-14T04:00:00Z",
+                  "outcome": "fail"
+                },
+                "max": {
+                  "messageSize": 90
+                },
+                "sum": {
+                  "billableOperations": 18,
+                  "bytes": 1596
+                }
+              },
+              {
+                "avg": {
+                  "lagTime": 0,
+                  "retryCount": 0
+                },
+                "count": 25,
+                "dimensions": {
+                  "actionType": "WriteMessage",
+                  "datetimeHour": "2026-10-14T04:00:00Z",
+                  "outcome": ""
+                },
+                "max": {
+                  "messageSize": 90
+                },
+                "sum": {
+                  "billableOperations": 25,
+                  "bytes": 2226
+                }
+              },
+              {
+                "avg": {
+                  "lagTime": 1258,
+                  "retryCount": 0
+                },
+                "count": 3,
+                "dimensions": {
+                  "actionType": "DeleteMessage",
+                  "datetimeHour": "2026-10-14T05:00:00Z",
+                  "outcome": "success"
+                },
+                "max": {
+                  "messageSize": 90
+                },
+                "sum": {
+                  "billableOperations": 3,
+                  "bytes": 270
+                }
+              },
+              {
+                "avg": {
+                  "lagTime": 2148,
+                  "retryCount": 0
+                },
+                "count": 21,
+                "dimensions": {
+                  "actionType": "DeleteMessage",
+                  "datetimeHour": "2026-10-14T05:00:00Z",
+                  "outcome": "fail"
+                },
+                "max": {
+                  "messageSize": 90
+                },
+                "sum": {
+                  "billableOperations": 21,
+                  "bytes": 1864
+                }
+              },
+              {
+                "avg": {
+                  "lagTime": 1490,
+                  "retryCount": 0
+                },
+                "count": 24,
+                "dimensions": {
+                  "actionType": "ReadMessage",
+                  "datetimeHour": "2026-10-14T05:00:00Z",
+                  "outcome": ""
+                },
+                "max": {
+                  "messageSize": 90
+                },
+                "sum": {
+                  "billableOperations": 24,
+                  "bytes": 2136
+                }
+              },
+              {
+                "avg": {
+                  "lagTime": 0,
+                  "retryCount": 0
+                },
+                "count": 24,
+                "dimensions": {
+                  "actionType": "WriteMessage",
+                  "datetimeHour": "2026-10-14T05:00:00Z",
+                  "outcome": ""
+                },
+                "max": {
+                  "messageSize": 90
+                },
+                "sum": {
+                  "billableOperations": 24,
+                  "bytes": 2134
+                }
+              },
+              {
+                "avg": {
+                  "lagTime": 0,
+                  "retryCount": 0
+                },
+                "count": 22,
+                "dimensions": {
+                  "actionType": "WriteMessage",
+                  "datetimeHour": "2026-10-14T06:00:00Z",
+                  "outcome": ""
+                },
+                "max": {
+                  "messageSize": 90
+                },
+                "sum": {
+                  "billableOperations": 22,
+                  "bytes": 1956
+                }
+              },
+              {
+                "avg": {
+                  "lagTime": 2270,
+                  "retryCount": 0
+                },
+                "count": 17,
+                "dimensions": {
+                  "actionType": "DeleteMessage",
+                  "datetimeHour": "2026-10-14T06:00:00Z",
+                  "outcome": "fail"
+                },
+                "max": {
+                  "messageSize": 90
+                },
+                "sum": {
+                  "billableOperations": 17,
+                  "bytes": 1506
+                }
+              },
+              {
+                "avg": {
+                  "lagTime": 1560,
+                  "retryCount": 0
+                },
+                "count": 22,
+                "dimensions": {
+                  "actionType": "ReadMessage",
+                  "datetimeHour": "2026-10-14T06:00:00Z",
+                  "outcome": ""
+                },
+                "max": {
+                  "messageSize": 90
+                },
+                "sum": {
+                  "billableOperations": 22,
+                  "bytes": 1956
+                }
+              },
+              {
+                "avg": {
+                  "lagTime": 2161,
+                  "retryCount": 0
+                },
+                "count": 5,
+                "dimensions": {
+                  "actionType": "DeleteMessage",
+                  "datetimeHour": "2026-10-14T06:00:00Z",
+                  "outcome": "success"
+                },
+                "max": {
+                  "messageSize": 90
+                },
+                "sum": {
+                  "billableOperations": 5,
+                  "bytes": 450
+                }
+              },
+              {
+                "avg": {
+                  "lagTime": 3371,
+                  "retryCount": 0
+                },
+                "count": 7,
+                "dimensions": {
+                  "actionType": "DeleteMessage",
+                  "datetimeHour": "2026-10-14T07:00:00Z",
+                  "outcome": "success"
+                },
+                "max": {
+                  "messageSize": 90
+                },
+                "sum": {
+                  "billableOperations": 7,
+                  "bytes": 626
+                }
+              },
+              {
+                "avg": {
+                  "lagTime": 1793,
+                  "retryCount": 0
+                },
+                "count": 12,
+                "dimensions": {
+                  "actionType": "DeleteMessage",
+                  "datetimeHour": "2026-10-14T07:00:00Z",
+                  "outcome": "fail"
+                },
+                "max": {
+                  "messageSize": 98
+                },
+                "sum": {
+                  "billableOperations": 12,
+                  "bytes": 1086
+                }
+              },
+              {
+                "avg": {
+                  "lagTime": 1838,
+                  "retryCount": 0
+                },
+                "count": 19,
+                "dimensions": {
+                  "actionType": "ReadMessage",
+                  "datetimeHour": "2026-10-14T07:00:00Z",
+                  "outcome": ""
+                },
+                "max": {
+                  "messageSize": 98
+                },
+                "sum": {
+                  "billableOperations": 19,
+                  "bytes": 1712
+                }
+              },
+              {
+                "avg": {
+                  "lagTime": 0,
+                  "retryCount": 0
+                },
+                "count": 19,
+                "dimensions": {
+                  "actionType": "WriteMessage",
+                  "datetimeHour": "2026-10-14T07:00:00Z",
+                  "outcome": ""
+                },
+                "max": {
+                  "messageSize": 98
+                },
+                "sum": {
+                  "billableOperations": 19,
+                  "bytes": 1712
+                }
+              },
+              {
+                "avg": {
+                  "lagTime": 1725,
+                  "retryCount": 0
+                },
+                "count": 16,
+                "dimensions": {
+                  "actionType": "ReadMessage",
+                  "datetimeHour": "2026-10-14T08:00:00Z",
+                  "outcome": ""
+                },
+                "max": {
+                  "messageSize": 98
+                },
+                "sum": {
+                  "billableOperations": 16,
+                  "bytes": 1532
+                }
+              },
+              {
+                "avg": {
+                  "lagTime": 1541,
+                  "retryCount": 0
+                },
+                "count": 12,
+                "dimensions": {
+                  "actionType": "DeleteMessage",
+                  "datetimeHour": "2026-10-14T08:00:00Z",
+                  "outcome": "fail"
+                },
+                "max": {
+                  "messageSize": 98
+                },
+                "sum": {
+                  "billableOperations": 12,
+                  "bytes": 1176
+                }
+              },
+              {
+                "avg": {
+                  "lagTime": 4092,
+                  "retryCount": 0
+                },
+                "count": 4,
+                "dimensions": {
+                  "actionType": "DeleteMessage",
+                  "datetimeHour": "2026-10-14T08:00:00Z",
+                  "outcome": "success"
+                },
+                "max": {
+                  "messageSize": 89
+                },
+                "sum": {
+                  "billableOperations": 4,
+                  "bytes": 356
+                }
+              },
+              {
+                "avg": {
+                  "lagTime": 0,
+                  "retryCount": 0
+                },
+                "count": 16,
+                "dimensions": {
+                  "actionType": "WriteMessage",
+                  "datetimeHour": "2026-10-14T08:00:00Z",
+                  "outcome": ""
+                },
+                "max": {
+                  "messageSize": 98
+                },
+                "sum": {
+                  "billableOperations": 16,
+                  "bytes": 1532
+                }
+              },
+              {
+                "avg": {
+                  "lagTime": 3819,
+                  "retryCount": 0
+                },
+                "count": 4,
+                "dimensions": {
+                  "actionType": "DeleteMessage",
+                  "datetimeHour": "2026-10-14T09:00:00Z",
+                  "outcome": "success"
+                },
+                "max": {
+                  "messageSize": 89
+                },
+                "sum": {
+                  "billableOperations": 4,
+                  "bytes": 356
+                }
+              },
+              {
+                "avg": {
+                  "lagTime": 0,
+                  "retryCount": 0
+                },
+                "count": 16,
+                "dimensions": {
+                  "actionType": "WriteMessage",
+                  "datetimeHour": "2026-10-14T09:00:00Z",
+                  "outcome": ""
+                },
+                "max": {
+                  "messageSize": 98
+                },
+                "sum": {
+                  "billableOperations": 16,
+                  "bytes": 1532
+                }
+              },
+              {
+                "avg": {
+                  "lagTime": 1872,
+                  "retryCount": 0
+                },
+                "count": 12,
+                "dimensions": {
+                  "actionType": "DeleteMessage",
+                  "datetimeHour": "2026-10-14T09:00:00Z",
+                  "outcome": "fail"
+                },
+                "max": {
+                  "messageSize": 98
+                },
+                "sum": {
+                  "billableOperations": 12,
+                  "bytes": 1176
+                }
+              },
+              {
+                "avg": {
+                  "lagTime": 1683,
+                  "retryCount": 0
+                },
+                "count": 16,
+                "dimensions": {
+                  "actionType": "ReadMessage",
+                  "datetimeHour": "2026-10-14T09:00:00Z",
+                  "outcome": ""
+                },
+                "max": {
+                  "messageSize": 98
+                },
+                "sum": {
+                  "billableOperations": 16,
+                  "bytes": 1532
+                }
+              },
+              {
+                "avg": {
+                  "lagTime": 1624,
+                  "retryCount": 0
+                },
+                "count": 12,
+                "dimensions": {
+                  "actionType": "DeleteMessage",
+                  "datetimeHour": "2026-10-14T10:00:00Z",
+                  "outcome": "fail"
+                },
+                "max": {
+                  "messageSize": 98
+                },
+                "sum": {
+                  "billableOperations": 12,
+                  "bytes": 1176
+                }
+              },
+              {
+                "avg": {
+                  "lagTime": 1899,
+                  "retryCount": 0
+                },
+                "count": 18,
+                "dimensions": {
+                  "actionType": "ReadMessage",
+                  "datetimeHour": "2026-10-14T10:00:00Z",
+                  "outcome": ""
+                },
+                "max": {
+                  "messageSize": 98
+                },
+                "sum": {
+                  "billableOperations": 18,
+                  "bytes": 1710
+                }
+              },
+              {
+                "avg": {
+                  "lagTime": 0,
+                  "retryCount": 0
+                },
+                "count": 18,
+                "dimensions": {
+                  "actionType": "WriteMessage",
+                  "datetimeHour": "2026-10-14T10:00:00Z",
+                  "outcome": ""
+                },
+                "max": {
+                  "messageSize": 98
+                },
+                "sum": {
+                  "billableOperations": 18,
+                  "bytes": 1710
+                }
+              },
+              {
+                "avg": {
+                  "lagTime": 3795,
+                  "retryCount": 0
+                },
+                "count": 6,
+                "dimensions": {
+                  "actionType": "DeleteMessage",
+                  "datetimeHour": "2026-10-14T10:00:00Z",
+                  "outcome": "success"
+                },
+                "max": {
+                  "messageSize": 89
+                },
+                "sum": {
+                  "billableOperations": 6,
+                  "bytes": 534
+                }
+              },
+              {
+                "avg": {
+                  "lagTime": 0,
+                  "retryCount": 0
+                },
+                "count": 14,
+                "dimensions": {
+                  "actionType": "WriteMessage",
+                  "datetimeHour": "2026-10-14T11:00:00Z",
+                  "outcome": ""
+                },
+                "max": {
+                  "messageSize": 98
+                },
+                "sum": {
+                  "billableOperations": 14,
+                  "bytes": 1354
+                }
+              },
+              {
+                "avg": {
+                  "lagTime": 1959,
+                  "retryCount": 0
+                },
+                "count": 12,
+                "dimensions": {
+                  "actionType": "DeleteMessage",
+                  "datetimeHour": "2026-10-14T11:00:00Z",
+                  "outcome": "fail"
+                },
+                "max": {
+                  "messageSize": 98
+                },
+                "sum": {
+                  "billableOperations": 12,
+                  "bytes": 1176
+                }
+              },
+              {
+                "avg": {
+                  "lagTime": 3912,
+                  "retryCount": 0
+                },
+                "count": 2,
+                "dimensions": {
+                  "actionType": "DeleteMessage",
+                  "datetimeHour": "2026-10-14T11:00:00Z",
+                  "outcome": "success"
+                },
+                "max": {
+                  "messageSize": 89
+                },
+                "sum": {
+                  "billableOperations": 2,
+                  "bytes": 178
+                }
+              },
+              {
+                "avg": {
+                  "lagTime": 1477,
+                  "retryCount": 0
+                },
+                "count": 14,
+                "dimensions": {
+                  "actionType": "ReadMessage",
+                  "datetimeHour": "2026-10-14T11:00:00Z",
+                  "outcome": ""
+                },
+                "max": {
+                  "messageSize": 98
+                },
+                "sum": {
+                  "billableOperations": 14,
+                  "bytes": 1354
+                }
+              },
+              {
+                "avg": {
+                  "lagTime": 0,
+                  "retryCount": 0
+                },
+                "count": 18,
+                "dimensions": {
+                  "actionType": "WriteMessage",
+                  "datetimeHour": "2026-10-14T12:00:00Z",
+                  "outcome": ""
+                },
+                "max": {
+                  "messageSize": 98
+                },
+                "sum": {
+                  "billableOperations": 18,
+                  "bytes": 1660
+                }
+              },
+              {
+                "avg": {
+                  "lagTime": 1624,
+                  "retryCount": 0
+                },
+                "count": 12,
+                "dimensions": {
+                  "actionType": "DeleteMessage",
+                  "datetimeHour": "2026-10-14T12:00:00Z",
+                  "outcome": "fail"
+                },
+                "max": {
+                  "messageSize": 98
+                },
+                "sum": {
+                  "billableOperations": 12,
+                  "bytes": 1126
+                }
+              },
+              {
+                "avg": {
+                  "lagTime": 3609,
+                  "retryCount": 0
+                },
+                "count": 6,
+                "dimensions": {
+                  "actionType": "DeleteMessage",
+                  "datetimeHour": "2026-10-14T12:00:00Z",
+                  "outcome": "success"
+                },
+                "max": {
+                  "messageSize": 89
+                },
+                "sum": {
+                  "billableOperations": 6,
+                  "bytes": 534
+                }
+              },
+              {
+                "avg": {
+                  "lagTime": 1845,
+                  "retryCount": 0
+                },
+                "count": 18,
+                "dimensions": {
+                  "actionType": "ReadMessage",
+                  "datetimeHour": "2026-10-14T12:00:00Z",
+                  "outcome": ""
+                },
+                "max": {
+                  "messageSize": 98
+                },
+                "sum": {
+                  "billableOperations": 18,
+                  "bytes": 1660
+                }
+              },
+              {
+                "avg": {
+                  "lagTime": 1791,
+                  "retryCount": 0
+                },
+                "count": 12,
+                "dimensions": {
+                  "actionType": "DeleteMessage",
+                  "datetimeHour": "2026-10-14T13:00:00Z",
+                  "outcome": "fail"
+                },
+                "max": {
+                  "messageSize": 88
+                },
+                "sum": {
+                  "billableOperations": 12,
+                  "bytes": 1056
+                }
+              },
+              {
+                "avg": {
+                  "lagTime": 5133,
+                  "retryCount": 0
+                },
+                "count": 4,
+                "dimensions": {
+                  "actionType": "DeleteMessage",
+                  "datetimeHour": "2026-10-14T13:00:00Z",
+                  "outcome": "success"
+                },
+                "max": {
+                  "messageSize": 89
+                },
+                "sum": {
+                  "billableOperations": 4,
+                  "bytes": 356
+                }
+              },
+              {
+                "avg": {
+                  "lagTime": 0,
+                  "retryCount": 0
+                },
+                "count": 16,
+                "dimensions": {
+                  "actionType": "WriteMessage",
+                  "datetimeHour": "2026-10-14T13:00:00Z",
+                  "outcome": ""
+                },
+                "max": {
+                  "messageSize": 89
+                },
+                "sum": {
+                  "billableOperations": 16,
+                  "bytes": 1412
+                }
+              },
+              {
+                "avg": {
+                  "lagTime": 2081,
+                  "retryCount": 0
+                },
+                "count": 16,
+                "dimensions": {
+                  "actionType": "ReadMessage",
+                  "datetimeHour": "2026-10-14T13:00:00Z",
+                  "outcome": ""
+                },
+                "max": {
+                  "messageSize": 89
+                },
+                "sum": {
+                  "billableOperations": 16,
+                  "bytes": 1412
+                }
+              },
+              {
+                "avg": {
+                  "lagTime": 0,
+                  "retryCount": 0
+                },
+                "count": 18,
+                "dimensions": {
+                  "actionType": "WriteMessage",
+                  "datetimeHour": "2026-10-14T14:00:00Z",
+                  "outcome": ""
+                },
+                "max": {
+                  "messageSize": 89
+                },
+                "sum": {
+                  "billableOperations": 18,
+                  "bytes": 1590
+                }
+              },
+              {
+                "avg": {
+                  "lagTime": 1959,
+                  "retryCount": 0
+                },
+                "count": 12,
+                "dimensions": {
+                  "actionType": "DeleteMessage",
+                  "datetimeHour": "2026-10-14T14:00:00Z",
+                  "outcome": "fail"
+                },
+                "max": {
+                  "messageSize": 88
+                },
+                "sum": {
+                  "billableOperations": 12,
+                  "bytes": 1056
+                }
+              },
+              {
+                "avg": {
+                  "lagTime": 1993,
+                  "retryCount": 0
+                },
+                "count": 18,
+                "dimensions": {
+                  "actionType": "ReadMessage",
+                  "datetimeHour": "2026-10-14T14:00:00Z",
+                  "outcome": ""
+                },
+                "max": {
+                  "messageSize": 89
+                },
+                "sum": {
+                  "billableOperations": 18,
+                  "bytes": 1590
+                }
+              },
+              {
+                "avg": {
+                  "lagTime": 3871,
+                  "retryCount": 0
+                },
+                "count": 6,
+                "dimensions": {
+                  "actionType": "DeleteMessage",
+                  "datetimeHour": "2026-10-14T14:00:00Z",
+                  "outcome": "success"
+                },
+                "max": {
+                  "messageSize": 89
+                },
+                "sum": {
+                  "billableOperations": 6,
+                  "bytes": 534
+                }
+              },
+              {
+                "avg": {
+                  "lagTime": 3687,
+                  "retryCount": 0
+                },
+                "count": 2,
+                "dimensions": {
+                  "actionType": "DeleteMessage",
+                  "datetimeHour": "2026-10-14T15:00:00Z",
+                  "outcome": "success"
+                },
+                "max": {
+                  "messageSize": 89
+                },
+                "sum": {
+                  "billableOperations": 2,
+                  "bytes": 178
+                }
+              },
+              {
+                "avg": {
+                  "lagTime": 0,
+                  "retryCount": 0
+                },
+                "count": 14,
+                "dimensions": {
+                  "actionType": "WriteMessage",
+                  "datetimeHour": "2026-10-14T15:00:00Z",
+                  "outcome": ""
+                },
+                "max": {
+                  "messageSize": 89
+                },
+                "sum": {
+                  "billableOperations": 14,
+                  "bytes": 1234
+                }
+              },
+              {
+                "avg": {
+                  "lagTime": 1461,
+                  "retryCount": 0
+                },
+                "count": 14,
+                "dimensions": {
+                  "actionType": "ReadMessage",
+                  "datetimeHour": "2026-10-14T15:00:00Z",
+                  "outcome": ""
+                },
+                "max": {
+                  "messageSize": 89
+                },
+                "sum": {
+                  "billableOperations": 14,
+                  "bytes": 1234
+                }
+              },
+              {
+                "avg": {
+                  "lagTime": 1791,
+                  "retryCount": 0
+                },
+                "count": 12,
+                "dimensions": {
+                  "actionType": "DeleteMessage",
+                  "datetimeHour": "2026-10-14T15:00:00Z",
+                  "outcome": "fail"
+                },
+                "max": {
+                  "messageSize": 88
+                },
+                "sum": {
+                  "billableOperations": 12,
+                  "bytes": 1056
+                }
+              },
+              {
+                "avg": {
+                  "lagTime": 1790,
+                  "retryCount": 0
+                },
+                "count": 13,
+                "dimensions": {
+                  "actionType": "DeleteMessage",
+                  "datetimeHour": "2026-10-14T16:00:00Z",
+                  "outcome": "fail"
+                },
+                "max": {
+                  "messageSize": 88
+                },
+                "sum": {
+                  "billableOperations": 13,
+                  "bytes": 1144
+                }
+              },
+              {
+                "avg": {
+                  "lagTime": 0,
+                  "retryCount": 0
+                },
+                "count": 18,
+                "dimensions": {
+                  "actionType": "WriteMessage",
+                  "datetimeHour": "2026-10-14T16:00:00Z",
+                  "outcome": ""
+                },
+                "max": {
+                  "messageSize": 89
+                },
+                "sum": {
+                  "billableOperations": 18,
+                  "bytes": 1591
+                }
+              },
+              {
+                "avg": {
+                  "lagTime": 3779,
+                  "retryCount": 0
+                },
+                "count": 5,
+                "dimensions": {
+                  "actionType": "DeleteMessage",
+                  "datetimeHour": "2026-10-14T16:00:00Z",
+                  "outcome": "success"
+                },
+                "max": {
+                  "messageSize": 89
+                },
+                "sum": {
+                  "billableOperations": 5,
+                  "bytes": 445
+                }
+              },
+              {
+                "avg": {
+                  "lagTime": 1954,
+                  "retryCount": 0
+                },
+                "count": 18,
+                "dimensions": {
+                  "actionType": "ReadMessage",
+                  "datetimeHour": "2026-10-14T16:00:00Z",
+                  "outcome": ""
+                },
+                "max": {
+                  "messageSize": 89
+                },
+                "sum": {
+                  "billableOperations": 18,
+                  "bytes": 1590
+                }
+              },
+              {
+                "avg": {
+                  "lagTime": 3879,
+                  "retryCount": 0
+                },
+                "count": 4,
+                "dimensions": {
+                  "actionType": "DeleteMessage",
+                  "datetimeHour": "2026-10-14T17:00:00Z",
+                  "outcome": "success"
+                },
+                "max": {
+                  "messageSize": 89
+                },
+                "sum": {
+                  "billableOperations": 4,
+                  "bytes": 356
+                }
+              },
+              {
+                "avg": {
+                  "lagTime": 0,
+                  "retryCount": 0
+                },
+                "count": 16,
+                "dimensions": {
+                  "actionType": "WriteMessage",
+                  "datetimeHour": "2026-10-14T17:00:00Z",
+                  "outcome": ""
+                },
+                "max": {
+                  "messageSize": 89
+                },
+                "sum": {
+                  "billableOperations": 16,
+                  "bytes": 1412
+                }
+              },
+              {
+                "avg": {
+                  "lagTime": 1996,
+                  "retryCount": 0
+                },
+                "count": 16,
+                "dimensions": {
+                  "actionType": "ReadMessage",
+                  "datetimeHour": "2026-10-14T17:00:00Z",
+                  "outcome": ""
+                },
+                "max": {
+                  "messageSize": 89
+                },
+                "sum": {
+                  "billableOperations": 16,
+                  "bytes": 1412
+                }
+              },
+              {
+                "avg": {
+                  "lagTime": 2288,
+                  "retryCount": 0
+                },
+                "count": 12,
+                "dimensions": {
+                  "actionType": "DeleteMessage",
+                  "datetimeHour": "2026-10-14T17:00:00Z",
+                  "outcome": "fail"
+                },
+                "max": {
+                  "messageSize": 88
+                },
+                "sum": {
+                  "billableOperations": 12,
+                  "bytes": 1056
+                }
+              },
+              {
+                "avg": {
+                  "lagTime": 1960,
+                  "retryCount": 0
+                },
+                "count": 15,
+                "dimensions": {
+                  "actionType": "ReadMessage",
+                  "datetimeHour": "2026-10-14T18:00:00Z",
+                  "outcome": ""
+                },
+                "max": {
+                  "messageSize": 89
+                },
+                "sum": {
+                  "billableOperations": 15,
+                  "bytes": 1324
+                }
+              },
+              {
+                "avg": {
+                  "lagTime": 3678,
+                  "retryCount": 0
+                },
+                "count": 4,
+                "dimensions": {
+                  "actionType": "DeleteMessage",
+                  "datetimeHour": "2026-10-14T18:00:00Z",
+                  "outcome": "success"
+                },
+                "max": {
+                  "messageSize": 89
+                },
+                "sum": {
+                  "billableOperations": 4,
+                  "bytes": 356
+                }
+              },
+              {
+                "avg": {
+                  "lagTime": 0,
+                  "retryCount": 0
+                },
+                "count": 15,
+                "dimensions": {
+                  "actionType": "WriteMessage",
+                  "datetimeHour": "2026-10-14T18:00:00Z",
+                  "outcome": ""
+                },
+                "max": {
+                  "messageSize": 89
+                },
+                "sum": {
+                  "billableOperations": 15,
+                  "bytes": 1324
+                }
+              },
+              {
+                "avg": {
+                  "lagTime": 2130,
+                  "retryCount": 0
+                },
+                "count": 11,
+                "dimensions": {
+                  "actionType": "DeleteMessage",
+                  "datetimeHour": "2026-10-14T18:00:00Z",
+                  "outcome": "fail"
+                },
+                "max": {
+                  "messageSize": 88
+                },
+                "sum": {
+                  "billableOperations": 11,
+                  "bytes": 968
+                }
+              },
+              {
+                "avg": {
+                  "lagTime": 2401,
+                  "retryCount": 0
+                },
+                "count": 11,
+                "dimensions": {
+                  "actionType": "DeleteMessage",
+                  "datetimeHour": "2026-10-14T19:00:00Z",
+                  "outcome": "fail"
+                },
+                "max": {
+                  "messageSize": 98
+                },
+                "sum": {
+                  "billableOperations": 11,
+                  "bytes": 997
+                }
+              },
+              {
+                "avg": {
+                  "lagTime": 6152,
+                  "retryCount": 0
+                },
+                "count": 4,
+                "dimensions": {
+                  "actionType": "DeleteMessage",
+                  "datetimeHour": "2026-10-14T19:00:00Z",
+                  "outcome": "success"
+                },
+                "max": {
+                  "messageSize": 89
+                },
+                "sum": {
+                  "billableOperations": 4,
+                  "bytes": 356
+                }
+              },
+              {
+                "avg": {
+                  "lagTime": 2932,
+                  "retryCount": 0
+                },
+                "count": 15,
+                "dimensions": {
+                  "actionType": "ReadMessage",
+                  "datetimeHour": "2026-10-14T19:00:00Z",
+                  "outcome": ""
+                },
+                "max": {
+                  "messageSize": 98
+                },
+                "sum": {
+                  "billableOperations": 15,
+                  "bytes": 1353
+                }
+              },
+              {
+                "avg": {
+                  "lagTime": 0,
+                  "retryCount": 0
+                },
+                "count": 15,
+                "dimensions": {
+                  "actionType": "WriteMessage",
+                  "datetimeHour": "2026-10-14T19:00:00Z",
+                  "outcome": ""
+                },
+                "max": {
+                  "messageSize": 98
+                },
+                "sum": {
+                  "billableOperations": 15,
+                  "bytes": 1353
+                }
+              },
+              {
+                "avg": {
+                  "lagTime": 3971,
+                  "retryCount": 0
+                },
+                "count": 6,
+                "dimensions": {
+                  "actionType": "DeleteMessage",
+                  "datetimeHour": "2026-10-14T20:00:00Z",
+                  "outcome": "success"
+                },
+                "max": {
+                  "messageSize": 89
+                },
+                "sum": {
+                  "billableOperations": 6,
+                  "bytes": 534
+                }
+              },
+              {
+                "avg": {
+                  "lagTime": 2059,
+                  "retryCount": 0
+                },
+                "count": 18,
+                "dimensions": {
+                  "actionType": "ReadMessage",
+                  "datetimeHour": "2026-10-14T20:00:00Z",
+                  "outcome": ""
+                },
+                "max": {
+                  "messageSize": 89
+                },
+                "sum": {
+                  "billableOperations": 18,
+                  "bytes": 1590
+                }
+              },
+              {
+                "avg": {
+                  "lagTime": 0,
+                  "retryCount": 0
+                },
+                "count": 18,
+                "dimensions": {
+                  "actionType": "WriteMessage",
+                  "datetimeHour": "2026-10-14T20:00:00Z",
+                  "outcome": ""
+                },
+                "max": {
+                  "messageSize": 89
+                },
+                "sum": {
+                  "billableOperations": 18,
+                  "bytes": 1590
+                }
+              },
+              {
+                "avg": {
+                  "lagTime": 2037,
+                  "retryCount": 0
+                },
+                "count": 12,
+                "dimensions": {
+                  "actionType": "DeleteMessage",
+                  "datetimeHour": "2026-10-14T20:00:00Z",
+                  "outcome": "fail"
+                },
+                "max": {
+                  "messageSize": 88
+                },
+                "sum": {
+                  "billableOperations": 12,
+                  "bytes": 1056
+                }
+              },
+              {
+                "avg": {
+                  "lagTime": 3760,
+                  "retryCount": 0
+                },
+                "count": 2,
+                "dimensions": {
+                  "actionType": "DeleteMessage",
+                  "datetimeHour": "2026-10-14T21:00:00Z",
+                  "outcome": "success"
+                },
+                "max": {
+                  "messageSize": 89
+                },
+                "sum": {
+                  "billableOperations": 2,
+                  "bytes": 178
+                }
+              },
+              {
+                "avg": {
+                  "lagTime": 3208,
+                  "retryCount": 0
+                },
+                "count": 12,
+                "dimensions": {
+                  "actionType": "DeleteMessage",
+                  "datetimeHour": "2026-10-14T21:00:00Z",
+                  "outcome": "fail"
+                },
+                "max": {
+                  "messageSize": 88
+                },
+                "sum": {
+                  "billableOperations": 12,
+                  "bytes": 1056
+                }
+              },
+              {
+                "avg": {
+                  "lagTime": 0,
+                  "retryCount": 0
+                },
+                "count": 14,
+                "dimensions": {
+                  "actionType": "WriteMessage",
+                  "datetimeHour": "2026-10-14T21:00:00Z",
+                  "outcome": ""
+                },
+                "max": {
+                  "messageSize": 89
+                },
+                "sum": {
+                  "billableOperations": 14,
+                  "bytes": 1234
+                }
+              },
+              {
+                "avg": {
+                  "lagTime": 2628,
+                  "retryCount": 0
+                },
+                "count": 14,
+                "dimensions": {
+                  "actionType": "ReadMessage",
+                  "datetimeHour": "2026-10-14T21:00:00Z",
+                  "outcome": ""
+                },
+                "max": {
+                  "messageSize": 89
+                },
+                "sum": {
+                  "billableOperations": 14,
+                  "bytes": 1234
+                }
+              },
+              {
+                "avg": {
+                  "lagTime": 3979,
+                  "retryCount": 0
+                },
+                "count": 7,
+                "dimensions": {
+                  "actionType": "DeleteMessage",
+                  "datetimeHour": "2026-10-14T22:00:00Z",
+                  "outcome": "success"
+                },
+                "max": {
+                  "messageSize": 89
+                },
+                "sum": {
+                  "billableOperations": 7,
+                  "bytes": 623
+                }
+              },
+              {
+                "avg": {
+                  "lagTime": 0,
+                  "retryCount": 0
+                },
+                "count": 22,
+                "dimensions": {
+                  "actionType": "WriteMessage",
+                  "datetimeHour": "2026-10-14T22:00:00Z",
+                  "outcome": ""
+                },
+                "max": {
+                  "messageSize": 89
+                },
+                "sum": {
+                  "billableOperations": 22,
+                  "bytes": 1946
+                }
+              },
+              {
+                "avg": {
+                  "lagTime": 3329,
+                  "retryCount": 0
+                },
+                "count": 15,
+                "dimensions": {
+                  "actionType": "DeleteMessage",
+                  "datetimeHour": "2026-10-14T22:00:00Z",
+                  "outcome": "fail"
+                },
+                "max": {
+                  "messageSize": 89
+                },
+                "sum": {
+                  "billableOperations": 15,
+                  "bytes": 1323
+                }
+              },
+              {
+                "avg": {
+                  "lagTime": 2972,
+                  "retryCount": 0
+                },
+                "count": 22,
+                "dimensions": {
+                  "actionType": "ReadMessage",
+                  "datetimeHour": "2026-10-14T22:00:00Z",
+                  "outcome": ""
+                },
+                "max": {
+                  "messageSize": 89
+                },
+                "sum": {
+                  "billableOperations": 22,
+                  "bytes": 1946
+                }
+              },
+              {
+                "avg": {
+                  "lagTime": 0,
+                  "retryCount": 0
+                },
+                "count": 4,
+                "dimensions": {
+                  "actionType": "WriteMessage",
+                  "datetimeHour": "2026-10-14T23:00:00Z",
+                  "outcome": ""
+                },
+                "max": {
+                  "messageSize": 89
+                },
+                "sum": {
+                  "billableOperations": 4,
+                  "bytes": 353
+                }
+              },
+              {
+                "avg": {
+                  "lagTime": 1324,
+                  "retryCount": 0
+                },
+                "count": 4,
+                "dimensions": {
+                  "actionType": "ReadMessage",
+                  "datetimeHour": "2026-10-14T23:00:00Z",
+                  "outcome": ""
+                },
+                "max": {
+                  "messageSize": 89
+                },
+                "sum": {
+                  "billableOperations": 4,
+                  "bytes": 353
+                }
+              },
+              {
+                "avg": {
+                  "lagTime": 1905,
+                  "retryCount": 0
+                },
+                "count": 4,
+                "dimensions": {
+                  "actionType": "DeleteMessage",
+                  "datetimeHour": "2026-10-14T23:00:00Z",
+                  "outcome": "fail"
+                },
+                "max": {
+                  "messageSize": 89
+                },
+                "sum": {
+                  "billableOperations": 4,
+                  "bytes": 353
+                }
+              }
+            ]
+          }
+        ]
+      }
+    }
+  },
+  "totals": {
+    "group_count": 95,
+    "billable_operations": 1645,
+    "bytes": 147627,
+    "delete_outcomes": {
+      "success": 218,
+      "dlq": 0,
+      "fail": 324
+    }
+  }
+}

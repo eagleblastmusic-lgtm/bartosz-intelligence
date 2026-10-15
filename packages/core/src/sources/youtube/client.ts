@@ -32,6 +32,24 @@ export class YoutubeClient {
       remaining_account_quota: null,
     };
   }
+  async defaultAudioLanguage(videoId: string): Promise<string | null> {
+    if (!/^[A-Za-z0-9_-]{11}$/.test(videoId)) throw new YoutubeError('PARSER');
+    const response = await this.get('videos', { part: 'snippet', id: videoId });
+    const items = response.items as unknown[];
+    if (!items.length) return null;
+    if (items.length !== 1) throw new YoutubeError('PARSER');
+    const video = record(items[0]);
+    if (video.id !== videoId) throw new YoutubeError('PARSER');
+    const language = record(video.snippet).defaultAudioLanguage;
+    if (language === undefined) return null;
+    if (
+      typeof language !== 'string' ||
+      language.length > 64 ||
+      !/^[A-Za-z]{2,8}(?:-[A-Za-z0-9]{1,8})*$/.test(language)
+    )
+      throw new YoutubeError('PARSER');
+    return language;
+  }
   async get(
     resource: 'channels' | 'videos' | 'playlistItems',
     params: Record<string, string>,

@@ -1,0 +1,9 @@
+{
+  "observed_at": "2026-10-15T00:17:34.109Z",
+  "source": "OCI_CLI_GET_ON_EXACT_ID_OBSERVED_IN_AUTHENTICATED_RESOURCE_SEARCH",
+  "production_mutations": 0,
+  "boot_volume_id": "ocid1.bootvolume.oc1.eu-frankfurt-1.abtheljrpjagic7y6oifz6f2jhbrrilycixhbzhtrmtnntwsq73urduncjyq",
+  "exit_code": 1,
+  "http_status": 404,
+  "provider_code": "NotAuthorizedOrNotFound"
+}

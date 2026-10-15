@@ -39,7 +39,11 @@ export async function dailyDriveClient(
   );
   return new DriveClient(grant.access_token, fetch, 35);
 }
-export async function scheduleDailyReports(environment: Env, now: Date) {
+export async function scheduleDailyReports(
+  environment: Env,
+  now: Date,
+  mode: 'ALL' | 'TRANSCRIPT' | 'REPORTS' = 'ALL',
+) {
   if (environment.DAILY_REPORTS_ENABLED !== 'true')
     return { state: 'DISABLED' };
   if (!environment.DRIVE_EXPORT_WORKER_CREDENTIAL)
@@ -51,8 +55,21 @@ export async function scheduleDailyReports(environment: Env, now: Date) {
   const workflow = new DailyTasksWorkflow(environment.DB, access),
     settings = await workflow.settings();
   if (!settings?.enabled) return { state: 'DISABLED' };
-  return workflow.tick(
+  const result = await workflow.tick(
     await dailyDriveClient(environment, access, settings.connection_id, now),
     now,
+    mode,
   );
+  if (
+    mode !== 'REPORTS' &&
+    ('transcript' in result ||
+      result.state === 'WAIT_NEXT_TICK' ||
+      result.state === 'TRANSCRIPT_PREPARED')
+  ) {
+    if (await workflow.hasReadyTranscript(new Date()))
+      await environment.BARTOSZ_QUEUE.send({ kind: 'DAILY_TRANSCRIPTS' });
+    else if ('transcript' in result)
+      await environment.BARTOSZ_QUEUE.send({ kind: 'DAILY_WORKFLOW' });
+  }
+  return result;
 }

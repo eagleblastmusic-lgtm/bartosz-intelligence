@@ -1,0 +1,14 @@
+{
+  "schema": "owner-archive-repair-authorization:1",
+  "recorded_at": "2026-10-15T02:16:38.430874+00:00",
+  "source": "Direct human messages after archive-version mismatch was reported: napraw; kontynuuj aż będzie wszystko działać",
+  "scope": "Repair observed technical Drive metadata-version reconciliation, verify existing canary without new YouTube acquisition or duplicate archive; then resume earlier conditional activation19 NEW_ONLY/manual20 only after full acceptance",
+  "original_restrictions_preserved": [
+    "AI OFF",
+    "DELETE OFF",
+    "No paid resources",
+    "No historical backfill",
+    "No session or mweb/PoT/yt-dlp changes",
+    "No commit/push/merge"
+  ]
+}

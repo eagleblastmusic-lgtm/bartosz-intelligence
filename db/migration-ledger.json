@@ -199,6 +199,21 @@
       "name": "040_daily_tasks_workflow.sql",
       "depends_on": ["039_transcript_drive_archive.sql"],
       "sha256": "40604831a70238bd90923af505efabaa502a91816a702e9ae77eb75ba72bce80"
+    },
+    {
+      "name": "041_monitoring_cycles.sql",
+      "depends_on": ["040_daily_tasks_workflow.sql"],
+      "sha256": "032f6625e722f593797c31b2fbc5974019c484db4253e5f24268a4f728c69d5d"
+    },
+    {
+      "name": "042_caption_retry.sql",
+      "depends_on": ["041_monitoring_cycles.sql"],
+      "sha256": "b4190d00351946c88d7c4a20a519a21651fe060cc092709c6e52d43a21f87a10"
+    },
+    {
+      "name": "043_transcript_payload_archive.sql",
+      "depends_on": ["042_caption_retry.sql"],
+      "sha256": "0f2dce9cefaef1cb1b0acde72d73fa22e09fa9620b767d14048079f73b090220"
     }
   ],
   "version": 1

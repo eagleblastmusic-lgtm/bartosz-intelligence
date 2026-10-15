@@ -1,0 +1,16 @@
+{
+  "nonce": "ae953691-bef7-4bbe-8e18-b5f35c0501d3",
+  "created_at": "2026-10-15T02:01:58.076Z",
+  "video_id": "9i1LVL3_xpU",
+  "item_id": "1c613cd1-18b8-4610-b6a2-d334be3ab76a",
+  "source_id": "37122a11-d19e-4b0e-8a36-cc4f191bdc97",
+  "previous_job_id": "966f9cb0-7188-45ce-95d0-fed94a7c9bc3",
+  "previous_state": "BLOCKED",
+  "previous_reason": "LOCAL_YTDLP_UNAVAILABLE",
+  "published_at": "2026-10-12T15:00:34Z",
+  "discovered_at": "2026-10-12T15:30:41.121Z",
+  "channel_id": "UCAuUUnT6oDeKwE6v1NGQxug",
+  "manual_canary": true,
+  "accepted_material_reused": false,
+  "source_requests_allowed": 1
+}

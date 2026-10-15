@@ -22,12 +22,12 @@ export function dailyMaterialEffects(
     provider_id: provenance.provider_id,
     provider_version:
       provenance.provider_version ?? 'yt-dlp@2026.08.19+yt-dlp-ejs@0.8.0',
-    source_status: 'AVAILABLE_FULL',
+    source_status: provenance.archive_source_status ?? 'AVAILABLE_FULL',
     original_language_confirmed:
       input.selection.authority_confidence === 'CONFIRMED',
     retrieved_at: now.toISOString(),
     timestamp_precision: provenance.timestamp_precision ?? 'UNKNOWN',
-    missing_ranges: [],
+    missing_ranges: provenance.missing_ranges ?? [],
     warnings: input.warnings,
   });
   return [
@@ -59,6 +59,28 @@ export function dailyMaterialEffects(
         context.ownerId,
         track.item_id,
         date,
+        ...bindings,
+      ),
+    // Register standalone archive intent in the same fenced acceptance batch.
+    // A ready backlog no longer requires rescanning all historical sources per file.
+    db
+      .prepare(
+        `INSERT INTO transcript_archives(owner_id,item_id,source_artifact_id,segment_map_artifact_id,source_hash,descriptor_json,folder_id,due_at,updated_at)
+      SELECT i.owner_id,i.item_id,?,COALESCE((SELECT a.artifact_id FROM artifacts a WHERE a.owner_id=i.owner_id AND a.item_id=i.item_id AND a.original_ref=? AND a.kind='SEGMENT_MAP' AND a.schema_version='caption-coverage:1' AND a.state='VERIFIED' LIMIT 1),?),?,json_set(?,'$.video_id',i.external_id,'$.title',COALESCE(json_extract(m.metadata_json,'$.title'),''),'$.channel',COALESCE(c.title,''),'$.url',i.canonical_url,'$.published_at',i.published_at,'$.discovered_at',i.discovered_at),f.folder_id,?,?
+      FROM items i JOIN item_revisions m ON m.owner_id=i.owner_id AND m.item_id=i.item_id AND m.revision_id=i.current_revision_id LEFT JOIN channels c ON c.owner_id=i.owner_id AND c.source_id=i.source_id JOIN transcript_archive_folders f ON f.owner_id=i.owner_id AND f.private_verified_at IS NOT NULL
+      WHERE i.owner_id=? AND i.item_id=? AND ?='local_ytdlp' AND NOT EXISTS(SELECT 1 FROM daily_materials d WHERE d.owner_id=i.owner_id AND d.item_id=i.item_id) AND ${guard} ON CONFLICT DO NOTHING`,
+      )
+      .bind(
+        input.source_artifact_id,
+        input.source_artifact_id,
+        input.segment_map_artifact_id,
+        input.selection.source_revision,
+        descriptor,
+        now.toISOString(),
+        now.toISOString(),
+        context.ownerId,
+        track.item_id,
+        String(provenance.provider_id),
         ...bindings,
       ),
   ];

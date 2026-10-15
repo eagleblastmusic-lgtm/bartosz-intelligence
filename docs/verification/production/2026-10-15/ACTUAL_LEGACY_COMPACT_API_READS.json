@@ -1,0 +1,38 @@
+{
+  "result": "PASS",
+  "observed_at": "2026-10-15T10:46:44.826Z",
+  "observations": [
+    {
+      "item_id": "d6db5cb7-cc2d-449b-8cdd-cbad8fc3feaf",
+      "kind": "source",
+      "legacy": true,
+      "http_status": 200,
+      "bytes": 1720,
+      "sha256": "527608a668244e809f8d1c07be400e498056d54dd866c95ba300e70dbfc31e01",
+      "run_id": "transcript_f9d65c8201c92f4e9c4cf80da285a9dd3ff5091a0ea5b257676676355946dbd7",
+      "private_text_logged": false
+    },
+    {
+      "item_id": "1c613cd1-18b8-4610-b6a2-d334be3ab76a",
+      "kind": "source",
+      "legacy": false,
+      "http_status": 200,
+      "bytes": 8614,
+      "sha256": "a48fb3f57968292af1842462a8b4cc2a15ffb1e3117b5b41585faa5ab250982b",
+      "run_id": "transcript_d3584c42d08e2906eb85af32329861bb5f577ebc7010b3048bd333f97d41e592",
+      "private_text_logged": false
+    },
+    {
+      "item_id": "1c613cd1-18b8-4610-b6a2-d334be3ab76a",
+      "kind": "segments",
+      "legacy": false,
+      "http_status": 200,
+      "bytes": 20148,
+      "sha256": "5b5c4d2441d89da93408555e7b575735fd2d23f6454082568f048e4f89852238",
+      "run_id": "transcript_d3584c42d08e2906eb85af32329861bb5f577ebc7010b3048bd333f97d41e592",
+      "private_text_logged": false
+    }
+  ],
+  "production_writes": 0,
+  "source_acquisitions": 0
+}

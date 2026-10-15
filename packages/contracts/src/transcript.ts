@@ -17,6 +17,9 @@ export type TrackKind =
   'MANUAL' | 'GENERATED' | 'TRANSLATED' | 'STT' | 'UNKNOWN';
 export type TimestampPrecision = 'CUE' | 'WORD' | 'ESTIMATED' | 'NONE';
 export interface SourceItemRef {
+  detected_at?: string;
+  /** Verified YouTube videos.snippet.defaultAudioLanguage, never title/defaultLanguage. */
+  default_audio_language?: string | null;
   item_id: string;
   namespace: 'youtube';
   external_id: string;

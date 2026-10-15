@@ -1,0 +1,143 @@
+{
+  "schema": "production-repair-candidate:1",
+  "prepared_at": "2026-10-15T01:53:46.775810+00:00",
+  "deployed_oracle_sha256": "99585d9259044d4b72003a58861f077c94dcc2bb49207227cd3ffb1eb2309b89",
+  "candidate_oracle_sha256": "116f52d8aa18aceae2d9c5d8aea763ff022c2123c2167ac2d8bd9c9688f3210e",
+  "candidate_oracle_bytes": 1384642,
+  "candidate_oracle_files": 817,
+  "candidate_worker_sha256": "f4ead6c97e9a5ff125ad35a8b821174cff36179fe236cd2ac115f93b50231d41",
+  "candidate_worker_bytes": 1756415,
+  "all_archive_bytes_match_working_tree": true,
+  "patch_sha256": "abbea20fb61ec1b42a2af3a6bb6279f71fff66635946062f45b2f22f6680218d",
+  "delta": [
+    {
+      "path": "apps/api/src/routes/workers.ts",
+      "before_sha256": "69cf7da73c2377650390094961616cfa1793bacec260c634a582c4eca1d19971",
+      "after_sha256": "d945c0aadeb4a087a3f07f03d580568a484de5117b2dfaf5d1a6b73b69d7b5fa",
+      "status": "MODIFIED"
+    },
+    {
+      "path": "apps/executor/python/transcript_ytdlp.py",
+      "before_sha256": "8bbd3c96cdbd33b1f3045a9b6f209125b2ac7b6f68a8cefbe759e3e7042abee8",
+      "after_sha256": "0990593e1856bcdfc2d7d52eb15df3261cd0cfb4064e6263fb3b96eb14b1cafd",
+      "status": "MODIFIED"
+    },
+    {
+      "path": "apps/executor/src/providers/ytdlp.ts",
+      "before_sha256": "0cc9f5e4f9b5f6acaab9abfa0b5e0803bb60f03b851f8d5912eeb029b6421ecf",
+      "after_sha256": "244206f7bf3d5a3aa7cde7375b765bb3a153a05890ec11368f0e0dbf13bee216",
+      "status": "MODIFIED"
+    },
+    {
+      "path": "packages/contracts/src/transcript.ts",
+      "before_sha256": "96a640d0b56f40c80967d66774288fbcb05b20a7c41430d09df681fef232a631",
+      "after_sha256": "e47edc7da9eca5ef47db5fe8d8f1a4bb6eeb785528715de9782e640367a1ba0d",
+      "status": "MODIFIED"
+    },
+    {
+      "path": "packages/core/src/sources/youtube/client.ts",
+      "before_sha256": "73bd038e0fcafd3d7a2afea54b3a3c3cf8041cf61bbdbf82578887cbf9e80a99",
+      "after_sha256": "bd26b77b86f2f6291c109b41329239e4379f509f2b80a4c6c4921553e547ba3a",
+      "status": "MODIFIED"
+    },
+    {
+      "path": "packages/core/src/sources/youtube/discovery.ts",
+      "before_sha256": "18ff88107eba95a607b8bcf59ee696d3177626a2399c750d53285073bf92ea80",
+      "after_sha256": "39d3575fb79c4a24d352be7f03cf1b4bd4b215d95d0033b0c1160b13bdff462c",
+      "status": "MODIFIED"
+    },
+    {
+      "path": "packages/core/src/sources/youtube/executor.ts",
+      "before_sha256": "80fdcdc8983267027e4e9bc9ff7d30bedd8ddf97022f261fc2df14e27ea08e6b",
+      "after_sha256": "6a704e4ddb24e27b9457f865f90ea28ce67be2a131e8a96cd7f47fc0bdd92c1c",
+      "status": "MODIFIED"
+    },
+    {
+      "path": "packages/core/src/sources/youtube/rss.ts",
+      "before_sha256": "3cdbf436f040eda93ca29e484f229a54a36e38867d6fcfa980b842d100984099",
+      "after_sha256": "a9cd0b96b6f1e41c62dbf4a23dc0184d323c611edc10293fab9e15d3c323445d",
+      "status": "MODIFIED"
+    },
+    {
+      "path": "tests/unit/oracle-captions.spec.ts",
+      "before_sha256": "3fa48ac438306a1efdac091bb03c1d23cfdf4f017cfbc418f1b3580aca2888f5",
+      "after_sha256": "29670b08d8070426140bc83b70512ad57713a13ce7ae243953fc06a3d50b4399",
+      "status": "MODIFIED"
+    },
+    {
+      "path": "tests/unit/rss.spec.ts",
+      "before_sha256": "3215800563aabfbf28cf92266bdb1068878df97833f1ad54ec30777241810e0b",
+      "after_sha256": "ac8040a3e57dfaf2a06d419981574a855740fd3017c77ce1bdf6b448d571c737",
+      "status": "MODIFIED"
+    },
+    {
+      "path": "tests/unit/test_caption_broker.py",
+      "before_sha256": "6f88a9488c9d0c0bff645ba4692f83d3d6e19cf52c64a0bc04f8fcbf03f974cb",
+      "after_sha256": "6a651507f2d26162ea6bd8d186e00fd9b45e59ec267f212778a08050b0ff908d",
+      "status": "MODIFIED"
+    },
+    {
+      "path": "tests/unit/test_oracle_caption_selection.py",
+      "before_sha256": "38e60dc3ef98b50eefbc1b6ce569206ed31ffa22641768119cd61433f0f1105c",
+      "after_sha256": "d7ae41004088660ecf69b73e4d90cab3203ebfcc50fdf799e7b295eb2f43f3d6",
+      "status": "MODIFIED"
+    },
+    {
+      "path": "tests/workers/rss-fallback.spec.ts",
+      "before_sha256": null,
+      "after_sha256": "ec96d81708c642d5e8d34ae2b44e03751d68265d5a13d718c2293938daed2e52",
+      "status": "ADDED"
+    },
+    {
+      "path": "tests/workers/transcript-audio-authority.spec.ts",
+      "before_sha256": null,
+      "after_sha256": "cdcfb1b56c28a45f875e2f759a8a07dc0ccec1ecd69ac651dd0da9206070a18a",
+      "status": "ADDED"
+    },
+    {
+      "path": "tools/deployment/oracle/release.py",
+      "before_sha256": "99f0403a52274d423f5376c3568dff4e3cc7a5d38bad628fea6c9c5f3b241c21",
+      "after_sha256": "866b8f6ea2193cdd0a48a84f146803f2afb2d8a51e81c65e6a4ad943b444253b",
+      "status": "MODIFIED"
+    },
+    {
+      "path": "tools/transcript-engine/caption-broker.py",
+      "before_sha256": "d1be098d78cc1c0d0b4d17aaa3c08afdb8a2a7b0af2a17dd1c35ab90eec55a5b",
+      "after_sha256": "59ad482b8641a5871dea7e075d7a2b7f9d956cf97397b3a2d847320ffef69a6e",
+      "status": "MODIFIED"
+    },
+    {
+      "path": "tools/transcript-engine/login-diagnostic-oracle.py",
+      "before_sha256": "9e9d1bb7d4758a86a3b3ad2fe48d4be3ce1bbdb235875ee6eddbe058fbb08317",
+      "after_sha256": "697e65d677e364c1a838e7a15a43dd51d16205193759584810ab5441b0c94784",
+      "status": "MODIFIED"
+    },
+    {
+      "path": "tools/transcript-engine/login-diagnostic.py",
+      "before_sha256": "c6c48de3ba62a3f5e9daaaad85e938a33ee9dea2a013aab6ea4c174f1342fda0",
+      "after_sha256": "f195a9c63cc64ba171e03c46c104fa89418fd2294cdeb52127abf0ca6c555f1c",
+      "status": "MODIFIED"
+    }
+  ],
+  "unchanged_components": [
+    "tools/transcript-engine/pot-transport-trace.mjs",
+    "tools/gates/adapters/gate0_python_adapters.py",
+    "apps/executor/src/providers/oracle-captions.ts",
+    "apps/executor/src/oracle-runtime.ts",
+    "tools/deployment/oracle/bartosz-caption-broker.service",
+    "tools/deployment/oracle/bartosz-executor.service",
+    "package.json",
+    "pnpm-lock.yaml",
+    "pnpm-workspace.yaml",
+    "tools/deployment/oracle/runtime-lock.json",
+    "tools/deployment/oracle/requirements-arm64.lock.txt"
+  ],
+  "production_deployed": false,
+  "requires_narrow_owner_exception": [
+    "metadata bridge in existing caption broker and protected public parser files",
+    "accept observed RSS404/410 fallback as completed check while RSS itself remains unavailable"
+  ],
+  "new_migrations": [],
+  "new_dependencies": [],
+  "source_requests_by_packager": 0
+}

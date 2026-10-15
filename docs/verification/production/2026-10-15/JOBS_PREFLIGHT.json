@@ -1,0 +1,449 @@
+{
+  "observed_at": "2026-10-14T23:17:03.825Z",
+  "production_mutations": 0,
+  "results": {
+    "outbox_summary": {
+      "results": [
+        {
+          "task_type": "ANALYZE",
+          "n": 11,
+          "send_attempts": 1298,
+          "undelivered": 3,
+          "last_due": "2026-10-14T23:15:44.000Z"
+        },
+        {
+          "task_type": "DISCOVER",
+          "n": 1,
+          "send_attempts": 1,
+          "undelivered": 0,
+          "last_due": "2026-10-05T21:05:20.271Z"
+        },
+        {
+          "task_type": "FETCH_TRANSCRIPT",
+          "n": 108,
+          "send_attempts": 546,
+          "undelivered": 10,
+          "last_due": "2026-10-14T19:50:44.000Z"
+        },
+        {
+          "task_type": "PROJECT",
+          "n": 48,
+          "send_attempts": 677,
+          "undelivered": 44,
+          "last_due": "2026-10-14T18:17:35.557Z"
+        }
+      ],
+      "success": true,
+      "meta": {
+        "served_by": "v3-prod",
+        "served_by_region": "WEUR",
+        "served_by_colo": "AMS",
+        "served_by_primary": true,
+        "timings": {
+          "sql_duration_ms": 0.5493
+        },
+        "duration": 0.5493,
+        "changes": 0,
+        "last_row_id": 0,
+        "changed_db": false,
+        "size_after": 29962240,
+        "rows_read": 672,
+        "rows_written": 0,
+        "total_attempts": 1
+      }
+    },
+    "attempt_errors": {
+      "results": [
+        {
+          "task_type": "DISCOVER",
+          "error_code": null,
+          "n": 83,
+          "last_at": "2026-10-14T23:11:00.604Z"
+        },
+        {
+          "task_type": "DISCOVER",
+          "error_code": "LEASE_EXPIRED",
+          "n": 28,
+          "last_at": "2026-10-14T22:35:54.680Z"
+        },
+        {
+          "task_type": "FETCH_TRANSCRIPT",
+          "error_code": null,
+          "n": 3,
+          "last_at": "2026-10-14T18:17:06.563Z"
+        },
+        {
+          "task_type": "FETCH_TRANSCRIPT",
+          "error_code": "INVALID_INPUT",
+          "n": 1,
+          "last_at": "2026-10-14T18:05:21.235Z"
+        },
+        {
+          "task_type": "FETCH_TRANSCRIPT",
+          "error_code": "LOCAL_YTDLP_UNAVAILABLE",
+          "n": 18,
+          "last_at": "2026-10-14T19:51:00.589Z"
+        },
+        {
+          "task_type": "FETCH_TRANSCRIPT",
+          "error_code": "PROVIDER_UNAVAILABLE",
+          "n": 36,
+          "last_at": "2026-10-14T12:32:32.125Z"
+        },
+        {
+          "task_type": "PROJECT",
+          "error_code": null,
+          "n": 3,
+          "last_at": "2026-10-14T18:17:50.738Z"
+        },
+        {
+          "task_type": "RECONCILE",
+          "error_code": null,
+          "n": 119,
+          "last_at": "2026-10-14T00:06:16.761Z"
+        }
+      ],
+      "success": true,
+      "meta": {
+        "served_by": "v3-prod",
+        "served_by_region": "WEUR",
+        "served_by_colo": "AMS",
+        "served_by_primary": true,
+        "timings": {
+          "sql_duration_ms": 0.753
+        },
+        "duration": 0.753,
+        "changes": 0,
+        "last_row_id": 0,
+        "changed_db": false,
+        "size_after": 29962240,
+        "rows_read": 4266,
+        "rows_written": 0,
+        "total_attempts": 1
+      }
+    },
+    "sessions": {
+      "results": [
+        {
+          "worker_id": "local-transcript",
+          "runtime": "local",
+          "heartbeat_at": "2026-10-14T18:03:19.406Z",
+          "online_until": "2026-10-14T18:06:19.406Z",
+          "capabilities_json": "[\"FETCH_TRANSCRIPT\"]"
+        },
+        {
+          "worker_id": "local-analysis",
+          "runtime": "local",
+          "heartbeat_at": "2026-10-11T20:11:05.202Z",
+          "online_until": "2026-10-11T20:14:05.202Z",
+          "capabilities_json": "[\"ANALYZE\"]"
+        },
+        {
+          "worker_id": "local-source-corrections",
+          "runtime": "local",
+          "heartbeat_at": "2026-10-14T23:16:32.980Z",
+          "online_until": "2026-10-14T23:19:32.980Z",
+          "capabilities_json": "[\"NORMALIZE\"]"
+        },
+        {
+          "worker_id": "local-search",
+          "runtime": "local",
+          "heartbeat_at": "2026-10-14T23:16:15.177Z",
+          "online_until": "2026-10-14T23:19:15.177Z",
+          "capabilities_json": "[\"PROJECT\"]"
+        },
+        {
+          "worker_id": "oracle-frankfurt-transcript-1",
+          "runtime": "local",
+          "heartbeat_at": "2026-10-14T23:16:33.925Z",
+          "online_until": "2026-10-14T23:19:33.925Z",
+          "capabilities_json": "[\"FETCH_TRANSCRIPT\"]"
+        }
+      ],
+      "success": true,
+      "meta": {
+        "served_by": "v3-prod",
+        "served_by_region": "WEUR",
+        "served_by_colo": "AMS",
+        "served_by_primary": true,
+        "timings": {
+          "sql_duration_ms": 0.0676
+        },
+        "duration": 0.0676,
+        "changes": 0,
+        "last_row_id": 0,
+        "changed_db": false,
+        "size_after": 29962240,
+        "rows_read": 5,
+        "rows_written": 0,
+        "total_attempts": 1
+      }
+    },
+    "recent_oracle": {
+      "results": [
+        {
+          "job_id": "64680936-906e-44a1-a7e6-c3a7addb2a4e",
+          "executor_id": "oracle-frankfurt-transcript-1",
+          "fencing_token": 7,
+          "started_at": "2026-10-14T19:51:00.589Z",
+          "finished_at": "2026-10-14T19:51:19.257Z",
+          "error_code": "LOCAL_YTDLP_UNAVAILABLE",
+          "state": "BLOCKED",
+          "reason_code": "LOCAL_YTDLP_UNAVAILABLE"
+        },
+        {
+          "job_id": "0f725324-5843-4809-8062-666dad6a90a3",
+          "executor_id": "oracle-frankfurt-transcript-1",
+          "fencing_token": 10,
+          "started_at": "2026-10-14T19:46:07.503Z",
+          "finished_at": "2026-10-14T19:46:26.118Z",
+          "error_code": "LOCAL_YTDLP_UNAVAILABLE",
+          "state": "BLOCKED",
+          "reason_code": "LOCAL_YTDLP_UNAVAILABLE"
+        },
+        {
+          "job_id": "0408c711-ccfa-42c1-9442-c2703ccf4dda",
+          "executor_id": "oracle-frankfurt-transcript-1",
+          "fencing_token": 17,
+          "started_at": "2026-10-14T19:41:14.946Z",
+          "finished_at": "2026-10-14T19:41:33.337Z",
+          "error_code": "LOCAL_YTDLP_UNAVAILABLE",
+          "state": "BLOCKED",
+          "reason_code": "LOCAL_YTDLP_UNAVAILABLE"
+        },
+        {
+          "job_id": "a47d06c4-e879-42e3-a8c3-37457cd52e0f",
+          "executor_id": "oracle-frankfurt-transcript-1",
+          "fencing_token": 22,
+          "started_at": "2026-10-14T19:36:22.006Z",
+          "finished_at": "2026-10-14T19:36:40.538Z",
+          "error_code": "LOCAL_YTDLP_UNAVAILABLE",
+          "state": "BLOCKED",
+          "reason_code": "LOCAL_YTDLP_UNAVAILABLE"
+        },
+        {
+          "job_id": "5682cb8d-ac4a-47b1-a708-77b0df83a6b9",
+          "executor_id": "oracle-frankfurt-transcript-1",
+          "fencing_token": 21,
+          "started_at": "2026-10-14T19:30:59.021Z",
+          "finished_at": "2026-10-14T19:31:17.427Z",
+          "error_code": "LOCAL_YTDLP_UNAVAILABLE",
+          "state": "BLOCKED",
+          "reason_code": "LOCAL_YTDLP_UNAVAILABLE"
+        }
+      ],
+      "success": true,
+      "meta": {
+        "served_by": "v3-prod",
+        "served_by_region": "WEUR",
+        "served_by_colo": "AMS",
+        "served_by_primary": true,
+        "timings": {
+          "sql_duration_ms": 0.4832
+        },
+        "duration": 0.4832,
+        "changes": 0,
+        "last_row_id": 0,
+        "changed_db": false,
+        "size_after": 29962240,
+        "rows_read": 3456,
+        "rows_written": 0,
+        "total_attempts": 1
+      }
+    },
+    "legacy_runs": {
+      "results": [
+        {
+          "state": "ACCEPTED",
+          "n": 45,
+          "accepted": 45
+        },
+        {
+          "state": "CANDIDATE",
+          "n": 13,
+          "accepted": 0
+        }
+      ],
+      "success": true,
+      "meta": {
+        "served_by": "v3-prod",
+        "served_by_region": "WEUR",
+        "served_by_colo": "AMS",
+        "served_by_primary": true,
+        "timings": {
+          "sql_duration_ms": 0.1033
+        },
+        "duration": 0.1033,
+        "changes": 0,
+        "last_row_id": 0,
+        "changed_db": false,
+        "size_after": 29962240,
+        "rows_read": 116,
+        "rows_written": 0,
+        "total_attempts": 1
+      }
+    },
+    "daily_workflow": {
+      "results": [],
+      "success": true,
+      "meta": {
+        "served_by": "v3-prod",
+        "served_by_region": "WEUR",
+        "served_by_colo": "AMS",
+        "served_by_primary": true,
+        "timings": {
+          "sql_duration_ms": 0.0486
+        },
+        "duration": 0.0486,
+        "changes": 0,
+        "last_row_id": 0,
+        "changed_db": false,
+        "size_after": 29962240,
+        "rows_read": 1,
+        "rows_written": 0,
+        "total_attempts": 1
+      }
+    },
+    "recent_scans": {
+      "results": [
+        {
+          "state": "RUNNING",
+          "coverage": "PENDING",
+          "pages_committed": 0,
+          "started_at": "2026-10-14T23:10:44.000Z",
+          "completed_at": null
+        },
+        {
+          "state": "SUCCEEDED",
+          "coverage": "PARTIAL",
+          "pages_committed": 1,
+          "started_at": "2026-10-14T22:35:44.000Z",
+          "completed_at": null
+        },
+        {
+          "state": "SUCCEEDED",
+          "coverage": "PARTIAL",
+          "pages_committed": 1,
+          "started_at": "2026-10-14T22:10:44.000Z",
+          "completed_at": null
+        },
+        {
+          "state": "SUCCEEDED",
+          "coverage": "PARTIAL",
+          "pages_committed": 1,
+          "started_at": "2026-10-14T22:00:44.000Z",
+          "completed_at": null
+        },
+        {
+          "state": "SUCCEEDED",
+          "coverage": "PARTIAL",
+          "pages_committed": 1,
+          "started_at": "2026-10-14T21:25:44.000Z",
+          "completed_at": null
+        }
+      ],
+      "success": true,
+      "meta": {
+        "served_by": "v3-prod",
+        "served_by_region": "WEUR",
+        "served_by_colo": "AMS",
+        "served_by_primary": true,
+        "timings": {
+          "sql_duration_ms": 0.7605
+        },
+        "duration": 0.7605,
+        "changes": 0,
+        "last_row_id": 0,
+        "changed_db": false,
+        "size_after": 29962240,
+        "rows_read": 1416,
+        "rows_written": 0,
+        "total_attempts": 1
+      }
+    },
+    "control-plane": {
+      "results": [
+        {
+          "worker_id": "control-plane",
+          "scopes_json": "[\"DISCOVER\",\"RECONCILE\"]",
+          "revoked_at": null,
+          "local_credential_matches": 1
+        }
+      ],
+      "success": true,
+      "meta": {
+        "served_by": "v3-prod",
+        "served_by_region": "WEUR",
+        "served_by_colo": "AMS",
+        "served_by_primary": true,
+        "timings": {
+          "sql_duration_ms": 0.0704
+        },
+        "duration": 0.0704,
+        "changes": 0,
+        "last_row_id": 0,
+        "changed_db": false,
+        "size_after": 29962240,
+        "rows_read": 1,
+        "rows_written": 0,
+        "total_attempts": 1
+      }
+    },
+    "daily-exporter": {
+      "results": [
+        {
+          "worker_id": "daily-exporter",
+          "scopes_json": "[\"DRIVE_EXPORT\"]",
+          "revoked_at": null,
+          "local_credential_matches": 1
+        }
+      ],
+      "success": true,
+      "meta": {
+        "served_by": "v3-prod",
+        "served_by_region": "WEUR",
+        "served_by_colo": "AMS",
+        "served_by_primary": true,
+        "timings": {
+          "sql_duration_ms": 0.0446
+        },
+        "duration": 0.0446,
+        "changes": 0,
+        "last_row_id": 0,
+        "changed_db": false,
+        "size_after": 29962240,
+        "rows_read": 1,
+        "rows_written": 0,
+        "total_attempts": 1
+      }
+    },
+    "oracle-frankfurt-transcript-1": {
+      "results": [
+        {
+          "worker_id": "oracle-frankfurt-transcript-1",
+          "scopes_json": "[\"FETCH_TRANSCRIPT\"]",
+          "revoked_at": null,
+          "local_credential_matches": 1
+        }
+      ],
+      "success": true,
+      "meta": {
+        "served_by": "v3-prod",
+        "served_by_region": "WEUR",
+        "served_by_colo": "AMS",
+        "served_by_primary": true,
+        "timings": {
+          "sql_duration_ms": 0.0457
+        },
+        "duration": 0.0457,
+        "changes": 0,
+        "last_row_id": 0,
+        "changed_db": false,
+        "size_after": 29962240,
+        "rows_read": 1,
+        "rows_written": 0,
+        "total_attempts": 1
+      }
+    }
+  }
+}

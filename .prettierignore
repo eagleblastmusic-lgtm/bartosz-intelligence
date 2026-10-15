@@ -64,3 +64,15 @@ docs/verification/gate-ai/tier-radio-quality-test-2026-10-11.json
 docs/verification/oracle/2026-10-13/executor-readiness/unit-contracts.json
 docs/verification/oracle/2026-10-13/executor-readiness/workers.json
 docs/verification/oracle/2026-10-13/executor-readiness/start-regression.json
+
+# Frozen performance and production receipts are referenced by byte hashes.
+docs/verification/performance/**/*.json
+docs/verification/performance/**/*.log
+docs/verification/performance/**/*.txt
+docs/verification/production/**/*.json
+docs/decisions/TRANSCRIPT_STORAGE_TRANSPORT_ARCHITECTURE_2026.md
+
+docs/verification/daily-workflow/production-readonly-2026-10-15T01-16-04-433Z.json
+tools/firefox-transcript-v0.4.2/candidate-v0.4.2/panel-reader.js
+tools/firefox-transcript-v0.4.2/evidence/*.json
+tools/firefox-transcript-diagnostic-2026-10-12/evidence/*.reference.json

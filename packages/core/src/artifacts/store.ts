@@ -115,8 +115,19 @@ export class ArtifactRepository {
     private db: Database,
     private context: AccessContext,
     private diagnosticReservationId: string | null = null,
+    private remoteReader?: (header: ArtifactRow) => Promise<ArtifactChunk[]>,
   ) {
     assertContext(context);
+  }
+  private remoteCache = new Map<string, Promise<ArtifactChunk[]>>();
+  private async remoteChunks(header: ArtifactRow) {
+    if (!this.remoteReader) throw new Error('ARTIFACT_CHUNK_MISSING');
+    let value = this.remoteCache.get(header.artifact_id);
+    if (!value) {
+      value = this.remoteReader(header);
+      this.remoteCache.set(header.artifact_id, value);
+    }
+    return value;
   }
   private guard(token: LeaseToken, task: TaskType, now: Date) {
     if (this.diagnosticReservationId !== null) {
@@ -323,7 +334,7 @@ export class ArtifactRepository {
     const artifact = await this.get(id);
     if (artifact.state !== 'VERIFIED' || start >= artifact.chunk_count)
       throw new Error('VERIFIED_ARTIFACT_REQUIRED');
-    const chunks = (
+    let chunks = (
       await this.db
         .prepare(
           'SELECT * FROM artifact_chunks WHERE owner_id=? AND artifact_id=? AND chunk_index>=? AND chunk_index<? ORDER BY chunk_index',
@@ -337,7 +348,7 @@ export class ArtifactRepository {
         .all<ArtifactChunk>()
     ).results;
     if (chunks.length !== Math.min(limit, artifact.chunk_count - start))
-      throw new Error('ARTIFACT_CHUNK_MISSING');
+      chunks = (await this.remoteChunks(artifact)).slice(start, start + limit);
     let offset = chunks[0]!.byte_start;
     if (offset < 0 || (start === 0 && offset !== 0))
       throw new Error('ARTIFACT_CHUNK_ORDER_INVALID');
@@ -499,12 +510,13 @@ export class ArtifactRepository {
     now = new Date(),
   ) {
     const header = await this.get(id, token, task, now);
-    const row = await this.db
+    let row = await this.db
       .prepare(
         'SELECT * FROM artifact_chunks WHERE owner_id=? AND artifact_id=? AND chunk_index=?',
       )
       .bind(this.context.ownerId, header.artifact_id, index)
       .first<ArtifactChunk>();
+    if (!row) row = (await this.remoteChunks(header))[index] ?? null;
     if (!row) throw new Error('ARTIFACT_CHUNK_MISSING');
     const bytes = row.body_base64
       ? decode64(row.body_base64)

@@ -1,0 +1,244 @@
+{
+  "observed_at": "2026-10-15T11:27:05.383373+00:00",
+  "collector": "Official Wrangler bounded tail",
+  "retained_headers": false,
+  "retained_logs": false,
+  "stderr_bytes": 0,
+  "events": [
+    {
+      "outcome": "ok",
+      "event_type": "HTTP",
+      "path": "/internal/workers/heartbeat",
+      "cpuTime": 1,
+      "wallTime": 85,
+      "scriptVersion": {
+        "id": "901e9506-5924-4e96-9735-19f43ee9a1d3"
+      },
+      "top_level_fields": [
+        "cpuTime",
+        "diagnosticsChannelEvents",
+        "event",
+        "eventTimestamp",
+        "exceptions",
+        "executionModel",
+        "logs",
+        "outcome",
+        "scriptName",
+        "scriptVersion",
+        "truncated",
+        "wallTime"
+      ],
+      "exception_count": 0,
+      "log_count": 0
+    },
+    {
+      "outcome": "ok",
+      "event_type": "HTTP",
+      "path": "/internal/workers/search/step",
+      "cpuTime": 3,
+      "wallTime": 194,
+      "scriptVersion": {
+        "id": "901e9506-5924-4e96-9735-19f43ee9a1d3"
+      },
+      "top_level_fields": [
+        "cpuTime",
+        "diagnosticsChannelEvents",
+        "event",
+        "eventTimestamp",
+        "exceptions",
+        "executionModel",
+        "logs",
+        "outcome",
+        "scriptName",
+        "scriptVersion",
+        "truncated",
+        "wallTime"
+      ],
+      "exception_count": 0,
+      "log_count": 0
+    },
+    {
+      "outcome": "ok",
+      "event_type": "HTTP",
+      "path": "/internal/workers/heartbeat",
+      "cpuTime": 5,
+      "wallTime": 63,
+      "scriptVersion": {
+        "id": "901e9506-5924-4e96-9735-19f43ee9a1d3"
+      },
+      "top_level_fields": [
+        "cpuTime",
+        "diagnosticsChannelEvents",
+        "event",
+        "eventTimestamp",
+        "exceptions",
+        "executionModel",
+        "logs",
+        "outcome",
+        "scriptName",
+        "scriptVersion",
+        "truncated",
+        "wallTime"
+      ],
+      "exception_count": 0,
+      "log_count": 0
+    },
+    {
+      "outcome": "ok",
+      "event_type": "HTTP",
+      "path": "/internal/workers/transcript/admission",
+      "cpuTime": 2,
+      "wallTime": 77,
+      "scriptVersion": {
+        "id": "901e9506-5924-4e96-9735-19f43ee9a1d3"
+      },
+      "top_level_fields": [
+        "cpuTime",
+        "diagnosticsChannelEvents",
+        "event",
+        "eventTimestamp",
+        "exceptions",
+        "executionModel",
+        "logs",
+        "outcome",
+        "scriptName",
+        "scriptVersion",
+        "truncated",
+        "wallTime"
+      ],
+      "exception_count": 0,
+      "log_count": 0
+    },
+    {
+      "outcome": "ok",
+      "event_type": "HTTP",
+      "path": "/internal/workers/lease",
+      "cpuTime": 4,
+      "wallTime": 75,
+      "scriptVersion": {
+        "id": "901e9506-5924-4e96-9735-19f43ee9a1d3"
+      },
+      "top_level_fields": [
+        "cpuTime",
+        "diagnosticsChannelEvents",
+        "event",
+        "eventTimestamp",
+        "exceptions",
+        "executionModel",
+        "logs",
+        "outcome",
+        "scriptName",
+        "scriptVersion",
+        "truncated",
+        "wallTime"
+      ],
+      "exception_count": 0,
+      "log_count": 0
+    },
+    {
+      "outcome": "ok",
+      "event_type": "HTTP",
+      "path": "/internal/workers/heartbeat",
+      "cpuTime": 5,
+      "wallTime": 73,
+      "scriptVersion": {
+        "id": "901e9506-5924-4e96-9735-19f43ee9a1d3"
+      },
+      "top_level_fields": [
+        "cpuTime",
+        "diagnosticsChannelEvents",
+        "event",
+        "eventTimestamp",
+        "exceptions",
+        "executionModel",
+        "logs",
+        "outcome",
+        "scriptName",
+        "scriptVersion",
+        "truncated",
+        "wallTime"
+      ],
+      "exception_count": 0,
+      "log_count": 0
+    },
+    {
+      "outcome": "ok",
+      "event_type": "HTTP",
+      "path": "/internal/workers/lease",
+      "cpuTime": 3,
+      "wallTime": 68,
+      "scriptVersion": {
+        "id": "901e9506-5924-4e96-9735-19f43ee9a1d3"
+      },
+      "top_level_fields": [
+        "cpuTime",
+        "diagnosticsChannelEvents",
+        "event",
+        "eventTimestamp",
+        "exceptions",
+        "executionModel",
+        "logs",
+        "outcome",
+        "scriptName",
+        "scriptVersion",
+        "truncated",
+        "wallTime"
+      ],
+      "exception_count": 0,
+      "log_count": 0
+    },
+    {
+      "outcome": "ok",
+      "event_type": "HTTP",
+      "path": "/api/v1/system/retention/payload-dry-run",
+      "cpuTime": 26,
+      "wallTime": 5497,
+      "scriptVersion": {
+        "id": "901e9506-5924-4e96-9735-19f43ee9a1d3"
+      },
+      "top_level_fields": [
+        "cpuTime",
+        "diagnosticsChannelEvents",
+        "event",
+        "eventTimestamp",
+        "exceptions",
+        "executionModel",
+        "logs",
+        "outcome",
+        "scriptName",
+        "scriptVersion",
+        "truncated",
+        "wallTime"
+      ],
+      "exception_count": 0,
+      "log_count": 0
+    },
+    {
+      "outcome": "ok",
+      "event_type": "HTTP",
+      "path": "/internal/workers/search/step",
+      "cpuTime": 5,
+      "wallTime": 174,
+      "scriptVersion": {
+        "id": "901e9506-5924-4e96-9735-19f43ee9a1d3"
+      },
+      "top_level_fields": [
+        "cpuTime",
+        "diagnosticsChannelEvents",
+        "event",
+        "eventTimestamp",
+        "exceptions",
+        "executionModel",
+        "logs",
+        "outcome",
+        "scriptName",
+        "scriptVersion",
+        "truncated",
+        "wallTime"
+      ],
+      "exception_count": 0,
+      "log_count": 0
+    }
+  ],
+  "per_invocation_cpu_available": true
+}

@@ -20,6 +20,18 @@ function time(value: string | null | undefined) {
     : 'Nieodczytano';
 }
 export function System() {
+  const [cycles, setCycles] = useState<
+    {
+      cycle_id: string;
+      local_date: string;
+      slot: string;
+      state: string;
+      total: number;
+      cursor: number;
+      completed: number;
+      failed: number;
+    }[]
+  >([]);
   const [retention, setRetention] = useState<{
     settings: null | { deletion_enabled: number };
     items: {
@@ -37,6 +49,16 @@ export function System() {
   useEffect(() => {
     const controller = new AbortController();
     setError('');
+    void api<typeof cycles>(
+      '/sources/monitoring-cycles',
+      undefined,
+      undefined,
+      controller.signal,
+    )
+      .then((value) => {
+        if (!controller.signal.aborted) setCycles(value);
+      })
+      .catch(() => {});
     api<Summary>('/system/summary', undefined, undefined, controller.signal)
       .then((data) => {
         if (!controller.signal.aborted) setData(data);
@@ -321,6 +343,20 @@ export function System() {
           </section>
           <section className="panel">
             <h2>Zbieranie i transkrypty</h2>
+            {cycles.slice(0, 4).map((cycle) => (
+              <p key={cycle.cycle_id}>
+                {cycle.local_date} · {cycle.slot} Warsaw —{' '}
+                {cycle.state === 'COMPLETE'
+                  ? 'Ukończony'
+                  : cycle.state === 'FAILED'
+                    ? 'Zakończony z błędami'
+                    : cycle.state === 'ENROLLING'
+                      ? 'Planowanie kontroli'
+                      : 'Kontrole w toku'}{' '}
+                · sprawdzono {cycle.completed}/{cycle.total}
+                {cycle.failed ? ` · błędy: ${cycle.failed}` : ''}
+              </p>
+            ))}
             {data.source_coverage?.length ? (
               <ul>
                 {data.source_coverage.map((source) => (

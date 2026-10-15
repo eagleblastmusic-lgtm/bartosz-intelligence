@@ -1,0 +1,49 @@
+{
+  "observed_at": "2026-10-15T01:18:19.710Z",
+  "status": "PASS",
+  "connection_id": "516468a4-e59c-4754-a9d6-09b63adf6603",
+  "scopes": [
+    "https://www.googleapis.com/auth/drive.file",
+    "openid"
+  ],
+  "fresh_grant_received": true,
+  "storage_quota_bytes": {
+    "limit": 16106127360,
+    "usage": 440571840,
+    "usage_in_drive": 327416707,
+    "free": 15665555520
+  },
+  "folders": [
+    {
+      "id": "1bNqbMUjrU4HEBh45nHV-embobIPuhHtt",
+      "mime_type": "application/vnd.google-apps.folder",
+      "version": "3",
+      "parents": [
+        "1aFYzO7kMVebvP-Y-V6oIWAAkf21MR7mN"
+      ],
+      "can_add_children": true,
+      "private_owner_only": true
+    },
+    {
+      "id": "1aFYzO7kMVebvP-Y-V6oIWAAkf21MR7mN",
+      "mime_type": "application/vnd.google-apps.folder",
+      "version": "8",
+      "parents": [
+        "1vfEz_U9Y0mEFMw8j7Amp6UbJQrQYtfA6"
+      ],
+      "can_add_children": true,
+      "private_owner_only": true
+    }
+  ],
+  "legacy": {
+    "item_id": "01128a83-4cbc-47ff-9b4d-bed845634e56",
+    "file_id": "1XCVa7u2mr_vqKwbh2YHvthFGDzKnfZC-",
+    "sha256": "d73bfcf81e409bd93ec63d1f4b4cf782ac8b5ae6f5b26108f35879c255ea969a",
+    "bytes": 6176,
+    "private_owner_only": true,
+    "stable_read_version": "2"
+  },
+  "drive_file_writes": 0,
+  "production_sql_writes": 0,
+  "optional_daily_canonical_folders": "Existing drive.file grant returns NOT_FOUND; inactive Daily configuration is preserved, no scope or permission change"
+}

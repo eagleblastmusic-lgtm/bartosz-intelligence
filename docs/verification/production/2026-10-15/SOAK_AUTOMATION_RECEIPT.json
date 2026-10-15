@@ -1,0 +1,30 @@
+{
+  "automation_id": "bartosz-odbi-r-produkcji-24-72-h",
+  "kind": "heartbeat",
+  "destination": "current_thread",
+  "status": "ACTIVE",
+  "cadence": "Hourly, bounded to73occurrences",
+  "scope": "Read-only production verification, append evidence/report; no deployment/config/session/acquisition/upload/deletion/paid/git mutations",
+  "notification_intent": "Meaningful failure, required user action or evidence-backed24h/72h acceptance only",
+  "local_app_required": true,
+  "production_pipeline_depends_on_this_monitor": false,
+  "first_run_verified": false,
+  "tool_result": {
+    "content": [
+      {
+        "type": "text",
+        "text": "Created automation in the app."
+      },
+      {
+        "type": "text",
+        "text": "{\"automationId\":\"bartosz-odbi-r-produkcji-24-72-h\",\"mode\":\"create\",\"status\":\"ACTIVE\"}"
+      }
+    ],
+    "isError": false
+  },
+  "recorded_at": "2026-10-15T11:57:42.643760+00:00",
+  "exact_server_created_at_available": true,
+  "created_at": "2026-10-15T11:55:30.495000+00:00",
+  "created_at_source": "App-managed automation.toml created_at Unix milliseconds",
+  "app_configuration_verified": true
+}

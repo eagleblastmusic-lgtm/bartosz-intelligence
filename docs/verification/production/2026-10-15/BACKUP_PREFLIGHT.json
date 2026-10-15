@@ -1,0 +1,12 @@
+{
+  "observed_at": "2026-10-14T23:34:35.547Z",
+  "backup_id": "46e0d938-ef02-4d55-8e5c-beca1d043ca8",
+  "captured_at": "2026-10-14T18:05:48.399Z",
+  "age_hours": 5.479763611111111,
+  "bytes": 24412529,
+  "sha256": "c5619988a9b9594ab1aaf1b67e7acf9f1f083f7a2241682c0fa31686e6387b45",
+  "hash_matches_receipt": true,
+  "isolated_restore": "PASS_12175_CANONICAL_ROWS_AND_READBACK",
+  "fresh_backup_deferred_until_GO": true,
+  "reason": "Existing portable procedure acquires a production write barrier and records receipts"
+}

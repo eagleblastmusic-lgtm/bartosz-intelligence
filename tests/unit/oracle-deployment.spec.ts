@@ -1,6 +1,7 @@
 import { execFile } from 'node:child_process';
 import { createHash } from 'node:crypto';
 import {
+  existsSync,
   lstatSync,
   mkdirSync,
   mkdtempSync,
@@ -12,6 +13,66 @@ import {
 import { tmpdir } from 'node:os';
 import { join, resolve } from 'node:path';
 import { expect, it } from 'vitest';
+
+// Packing is a checkout operation. Immutable Oracle releases have no Git
+// metadata; their received bytes are validated by release.py verify instead.
+it.skipIf(existsSync('release-manifest.json'))(
+  'release archive contains the new compact modules and migrations with exact bytes, excludes private files and is reproducible',
+  async () => {
+    const python =
+      process.env.BARTOSZ_TEST_PYTHON ??
+      (process.platform === 'win32'
+        ? 'C:/Python314/python.exe'
+        : '/usr/bin/python3');
+    const temporary = mkdtempSync(join(tmpdir(), 'bartosz-release-check-'));
+    const script = `import runpy,sys,pathlib,tarfile,json,hashlib
+r=runpy.run_path(sys.argv[1]); out=pathlib.Path(sys.argv[2]); r['pack'](out)
+archive=out/'executor.tar.gz'; first=archive.read_bytes(); r['pack'](out)
+assert archive.read_bytes()==first
+with tarfile.open(archive) as t:
+ m=json.load(t.extractfile('release-manifest.json'))
+ required=['apps/api/src/artifact-repository.ts','packages/core/src/sources/youtube/cycles.ts','packages/core/src/transcript/payload-archive.ts','packages/core/src/retention/payload-eviction.ts','db/migrations/041_monitoring_cycles.sql','db/migrations/042_caption_retry.sql','db/migrations/043_transcript_payload_archive.sql','tests/workers/pipeline-performance.spec.ts']
+ assert all(p in m['files'] for p in required)
+ for p,h in m['files'].items():
+  data=t.extractfile(p).read()
+  assert hashlib.sha256(data).hexdigest()==h
+  assert data==(r['ROOT']/p).read_bytes()
+  assert pathlib.Path(p).name not in ['.env','.dev.vars','executor.env']
+  assert not any(x in pathlib.Path(p).parts for x in ['.local','.tools','node_modules'])
+print('REPRODUCIBLE_COMPACT_PACKAGE_PASS')`;
+    try {
+      const result = await new Promise<{ code: number; out: string }>((done) =>
+        execFile(
+          python,
+          [
+            '-B',
+            '-c',
+            script,
+            resolve('tools/deployment/oracle/release.py'),
+            temporary,
+          ],
+          { timeout: 30000, windowsHide: true },
+          (error, stdout, stderr) =>
+            done({
+              code: error ? Number(error.code) || 1 : 0,
+              out: stdout + stderr,
+            }),
+        ),
+      );
+      expect(result.code).toBe(0);
+      expect(result.out).toContain('REPRODUCIBLE_COMPACT_PACKAGE_PASS');
+    } finally {
+      const allowedPrefix = resolve(join(tmpdir(), 'bartosz-release-check-'));
+      if (
+        !resolve(temporary).startsWith(allowedPrefix) ||
+        lstatSync(temporary).isSymbolicLink()
+      )
+        throw new Error('UNEXPECTED_RELEASE_TEST_DIRECTORY');
+      rmSync(temporary, { recursive: true, force: true });
+    }
+  },
+  40000,
+);
 
 it('installer parses, validates pins offline and leaves plan without installation', async () => {
   const bash =

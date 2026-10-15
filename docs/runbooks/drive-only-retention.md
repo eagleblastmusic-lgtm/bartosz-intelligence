@@ -1,5 +1,34 @@
 # Drive-only retention, cleanup i recovery
 
+## Nowa lokalna ścieżka payload-only — 2026-10-15
+
+Nowe źródła `transcript-source:2` mają RAW, SOURCE_ORIGINAL oraz
+`caption-coverage:1`. Ich immutable plik JSON na Drive zachowuje dokładne
+nagłówki, bajty i granice chunków. Czytelny Markdown pozostaje wejściem ChatGPT.
+Historyczne artefakty i dawne wyniki nie są kandydatami nowego eviction.
+
+**Produkcja: deletion OFF.** `RETENTION_DELETION_ENABLED=false`; nowy
+`PayloadEviction` nie jest automatycznie wywoływany. Nie używać szerokiego
+legacy cleanupu do usuwania payloadów. Nowa ścieżka nie ma okresu siedmiu dni.
+Jedyny nowy endpoint to owner/CSRF POST
+`/api/v1/system/retention/payload-dry-run` z
+`{"source_artifact_id":"..."}`. Wykonuje świeży, prywatny readback technicznego
+pliku oraz Markdown i pokazuje kandydatów bez kasowania.
+
+W lokalnych testach `PayloadEviction.step(...,{dry_run:false})` nadal wymaga
+`retention_settings.deletion_enabled=1` i `approval_reference`. Kasuje maksymalnie
+25 chunków na transakcję, tylko trzy dokładnie zarchiwizowane IDs. Aktywne
+zadanie, backup barrier, brak Drive, zmiana wersji/hash lub niezapisany Markdown
+blokują kasowanie. Zostają artefakty, accepted runs, zadania, reprezentacje,
+hashe, indeksy deduplikacji i cała historia. Resolver zwraca oryginalne chunki
+po prywatnym, świeżym odczycie Drive. `PayloadEviction.restore` odtwarza lokalne
+chunki z tej samej kopii; nie wymaga ponownej normalizacji.
+
+Pakiet wdrożenia i ograniczenia:
+[raport implementacji](../verification/performance/2026-10-15/IMPLEMENTATION_REPORT_PL.md).
+Poniższe starsze procedury opisują legacy; nie stanowią zgody na produkcyjne
+DELETE ani nowych reguł dla `transcript-source:2`.
+
 ## Aktualne rozszerzenie: Transkrypcje
 
 Autorytatywna rewizja V1.1.3 wymaga osobnego prywatnego pliku oryginalnych

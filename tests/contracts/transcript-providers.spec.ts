@@ -68,7 +68,7 @@ const successful = {
   upstream_requests: 3,
   bytes_received: raw.length,
 };
-it('local transcript orchestration retains raw/source/maps separately, preserves overrun and rejects incomplete or stale acceptance', async () => {
+it('compact orchestration retains raw/source/coverage, preserves partial sources and rejects stale acceptance', async () => {
   const provider = new YtdlpTranscriptProvider(
     async () => successful,
     () => now,
@@ -134,15 +134,12 @@ it('local transcript orchestration retains raw/source/maps separately, preserves
     'RAW',
     'SOURCE_ORIGINAL',
     'SEGMENT_MAP',
-    'NORMALIZED',
-    'SEGMENT_MAP',
-    'OFFSET_MAP',
   ]);
   expect(uploads[0]!.text).toBe(raw.toString());
   expect(uploads[1]!.text).toBe(successful.segments[0]!.text);
-  const manifest = JSON.parse(uploads[4]!.text);
-  expect(manifest.anchors[0]).toMatchObject({ start_ms: 250, end_ms: 3500 });
-  expect(uploads[4]!.descriptor.original_ref).toBe('SOURCE_ORIGINAL');
+  const manifest = JSON.parse(uploads[2]!.text);
+  expect(manifest.coverage[0]).toMatchObject({ start_ms: 250, end_ms: 3500 });
+  expect(uploads[2]!.descriptor.original_ref).toBe('SOURCE_ORIGINAL');
   expect(uploads[2]!.descriptor.schema_version).toBe('caption-coverage:1');
   expect(events).toEqual(['accepted']);
   uploads.length = 0;
@@ -172,13 +169,13 @@ it('local transcript orchestration retains raw/source/maps separately, preserves
   };
   expect(
     await executeTranscript(item, context, partial, uploader, lifecycle),
-  ).toEqual({ accepted: false, reason: 'INCOMPLETE_SOURCE' });
+  ).toEqual({ accepted: true, reason: null });
   expect(uploads).toHaveLength(3);
   expect(uploads[1]!.text).toBe(successful.segments[0]!.text);
   expect(uploads[1]!.descriptor.provenance.archive_source_status).toBe(
     'PARTIAL',
   );
-  expect(events).toEqual(['INCOMPLETE_SOURCE']);
+  expect(events).toEqual(['accepted']);
   const partialIdentity = uploads[1]!.descriptor.producer_version;
   uploads.length = 0;
   events.length = 0;
@@ -252,6 +249,9 @@ it('local transcript orchestration retains raw/source/maps separately, preserves
         },
       },
       lifecycle,
+      60000,
+      null,
+      'LEGACY',
     ),
   ).rejects.toThrow('NORMALIZED_STORAGE_UNAVAILABLE');
   expect(uploads.map((row) => row.descriptor.kind)).toEqual([

@@ -1,0 +1,296 @@
+{
+  "generated_at": "2026-10-14T22:02:36.548Z",
+  "environment": {
+    "node": "v24.21.0",
+    "platform": "win32",
+    "arch": "x64"
+  },
+  "note": "Local Node replay and explicit models. No production CPU, Oracle timing, real Drive capacity or whole-account quota acceptance.",
+  "profiles": [
+    {
+      "profile": "ted",
+      "input": "CAPTURE_REPLAY",
+      "cues": 241,
+      "raw_sha256": "c592e87b08b86db7af5a04e5140badc2250b273654e79356017a6b5cf61c5577",
+      "source_sha256": "8b967ac776aba9ef41010c3c9703aa18b943736f772aba9e35de8e7b6b03041a",
+      "before": {
+        "artifacts": 6,
+        "bytes": 269294,
+        "chunks": 12
+      },
+      "after": {
+        "artifacts": 3,
+        "bytes": 64595,
+        "chunks": 4
+      },
+      "measured_local": {
+        "legacy_preparation_wall_ms": 113.26729999999998,
+        "legacy_cpu_ms": 156,
+        "compact_preparation_wall_ms": 0.19029999999997926,
+        "compact_cpu_ms": 0,
+        "readable_archive_bytes": 25615,
+        "node_rss_bytes": 117485568
+      },
+      "artifact_rpc": {
+        "before": 30,
+        "after": 11
+      },
+      "scenarios": [
+        {
+          "films_per_day": 3,
+          "artifact_rpc_per_day": 33,
+          "archive_queue_messages": 3,
+          "queue_operations_estimate": 9,
+          "d1_chunk_rows_inserted": 12,
+          "d1_chunk_rows_write_estimate": 36,
+          "d1_buffer_peak_base64_bytes": 258381,
+          "drive_growth_per_30_days_estimate": 10540620,
+          "oracle_avoidable_pause_before_ms": 60000,
+          "oracle_avoidable_pause_after_ms": 0,
+          "archive_first_to_last_avoidable_pause_before_ms": 600000,
+          "archive_avoidable_pause_after_ms": 0,
+          "oracle_drain_seconds_estimate": 87,
+          "workers_requests_minimum_estimate": 423
+        },
+        {
+          "films_per_day": 9,
+          "artifact_rpc_per_day": 99,
+          "archive_queue_messages": 9,
+          "queue_operations_estimate": 27,
+          "d1_chunk_rows_inserted": 36,
+          "d1_chunk_rows_write_estimate": 108,
+          "d1_buffer_peak_base64_bytes": 775143,
+          "drive_growth_per_30_days_estimate": 31621860,
+          "oracle_avoidable_pause_before_ms": 240000,
+          "oracle_avoidable_pause_after_ms": 0,
+          "archive_first_to_last_avoidable_pause_before_ms": 2400000,
+          "archive_avoidable_pause_after_ms": 0,
+          "oracle_drain_seconds_estimate": 261,
+          "workers_requests_minimum_estimate": 549
+        },
+        {
+          "films_per_day": 30,
+          "artifact_rpc_per_day": 330,
+          "archive_queue_messages": 30,
+          "queue_operations_estimate": 90,
+          "d1_chunk_rows_inserted": 120,
+          "d1_chunk_rows_write_estimate": 360,
+          "d1_buffer_peak_base64_bytes": 2583810,
+          "drive_growth_per_30_days_estimate": 105406200,
+          "oracle_avoidable_pause_before_ms": 870000,
+          "oracle_avoidable_pause_after_ms": 0,
+          "archive_first_to_last_avoidable_pause_before_ms": 8700000,
+          "archive_avoidable_pause_after_ms": 0,
+          "oracle_drain_seconds_estimate": 870,
+          "workers_requests_minimum_estimate": 990
+        },
+        {
+          "films_per_day": 100,
+          "artifact_rpc_per_day": 1100,
+          "archive_queue_messages": 100,
+          "queue_operations_estimate": 300,
+          "d1_chunk_rows_inserted": 400,
+          "d1_chunk_rows_write_estimate": 1200,
+          "d1_buffer_peak_base64_bytes": 8612700,
+          "drive_growth_per_30_days_estimate": 351354000,
+          "oracle_avoidable_pause_before_ms": 2970000,
+          "oracle_avoidable_pause_after_ms": 0,
+          "archive_first_to_last_avoidable_pause_before_ms": 29700000,
+          "archive_avoidable_pause_after_ms": 0,
+          "oracle_drain_seconds_estimate": 2900,
+          "workers_requests_minimum_estimate": 2460
+        }
+      ]
+    },
+    {
+      "profile": "first",
+      "input": "CAPTURE_REPLAY",
+      "cues": 286,
+      "raw_sha256": "89f76b536f28cdd87372b4502463e941f10cf523aa823d9b2a29d6ed7ca003a9",
+      "source_sha256": "7c8d84caf112368a56b80bedb8fa5dbb48928973ad7f6628bd7b16a3356cf03a",
+      "before": {
+        "artifacts": 6,
+        "bytes": 347702,
+        "chunks": 13
+      },
+      "after": {
+        "artifacts": 3,
+        "bytes": 90268,
+        "chunks": 4
+      },
+      "measured_local": {
+        "legacy_preparation_wall_ms": 360.7687999999998,
+        "legacy_cpu_ms": 157,
+        "compact_preparation_wall_ms": 0.1634999999998854,
+        "compact_cpu_ms": 0,
+        "readable_archive_bytes": 36959,
+        "node_rss_bytes": 120688640
+      },
+      "artifact_rpc": {
+        "before": 32,
+        "after": 11
+      },
+      "scenarios": [
+        {
+          "films_per_day": 3,
+          "artifact_rpc_per_day": 33,
+          "archive_queue_messages": 3,
+          "queue_operations_estimate": 9,
+          "d1_chunk_rows_inserted": 12,
+          "d1_chunk_rows_write_estimate": 36,
+          "d1_buffer_peak_base64_bytes": 361074,
+          "drive_growth_per_30_days_estimate": 14642370,
+          "oracle_avoidable_pause_before_ms": 60000,
+          "oracle_avoidable_pause_after_ms": 0,
+          "archive_first_to_last_avoidable_pause_before_ms": 600000,
+          "archive_avoidable_pause_after_ms": 0,
+          "oracle_drain_seconds_estimate": 87,
+          "workers_requests_minimum_estimate": 423
+        },
+        {
+          "films_per_day": 9,
+          "artifact_rpc_per_day": 99,
+          "archive_queue_messages": 9,
+          "queue_operations_estimate": 27,
+          "d1_chunk_rows_inserted": 36,
+          "d1_chunk_rows_write_estimate": 108,
+          "d1_buffer_peak_base64_bytes": 1083222,
+          "drive_growth_per_30_days_estimate": 43927110,
+          "oracle_avoidable_pause_before_ms": 240000,
+          "oracle_avoidable_pause_after_ms": 0,
+          "archive_first_to_last_avoidable_pause_before_ms": 2400000,
+          "archive_avoidable_pause_after_ms": 0,
+          "oracle_drain_seconds_estimate": 261,
+          "workers_requests_minimum_estimate": 549
+        },
+        {
+          "films_per_day": 30,
+          "artifact_rpc_per_day": 330,
+          "archive_queue_messages": 30,
+          "queue_operations_estimate": 90,
+          "d1_chunk_rows_inserted": 120,
+          "d1_chunk_rows_write_estimate": 360,
+          "d1_buffer_peak_base64_bytes": 3610740,
+          "drive_growth_per_30_days_estimate": 146423700,
+          "oracle_avoidable_pause_before_ms": 870000,
+          "oracle_avoidable_pause_after_ms": 0,
+          "archive_first_to_last_avoidable_pause_before_ms": 8700000,
+          "archive_avoidable_pause_after_ms": 0,
+          "oracle_drain_seconds_estimate": 870,
+          "workers_requests_minimum_estimate": 990
+        },
+        {
+          "films_per_day": 100,
+          "artifact_rpc_per_day": 1100,
+          "archive_queue_messages": 100,
+          "queue_operations_estimate": 300,
+          "d1_chunk_rows_inserted": 400,
+          "d1_chunk_rows_write_estimate": 1200,
+          "d1_buffer_peak_base64_bytes": 12035800,
+          "drive_growth_per_30_days_estimate": 488079000,
+          "oracle_avoidable_pause_before_ms": 2970000,
+          "oracle_avoidable_pause_after_ms": 0,
+          "archive_first_to_last_avoidable_pause_before_ms": 29700000,
+          "archive_avoidable_pause_after_ms": 0,
+          "oracle_drain_seconds_estimate": 2900,
+          "workers_requests_minimum_estimate": 2460
+        }
+      ]
+    },
+    {
+      "profile": "180min",
+      "input": "SYNTHETIC",
+      "cues": 10800,
+      "raw_sha256": "fcc63fc6111706f03da5ab98d69c1c229052c6639b22a77bf4bcaac800404a66",
+      "source_sha256": "e7079281f271dd18e7d8ff20fbd3e7a39c17450fddbb34ca98e3b0492cfa008c",
+      "before": {
+        "artifacts": 6,
+        "bytes": 19895044,
+        "chunks": 610
+      },
+      "after": {
+        "artifacts": 3,
+        "bytes": 3363706,
+        "chunks": 104
+      },
+      "measured_local": {
+        "legacy_preparation_wall_ms": 2681.3838000000005,
+        "legacy_cpu_ms": 3172,
+        "compact_preparation_wall_ms": 5.367099999999482,
+        "compact_cpu_ms": 15,
+        "readable_archive_bytes": 1361086,
+        "node_rss_bytes": 356270080
+      },
+      "artifact_rpc": {
+        "before": 1226,
+        "after": 211
+      },
+      "scenarios": [
+        {
+          "films_per_day": 3,
+          "artifact_rpc_per_day": 633,
+          "archive_queue_messages": 3,
+          "queue_operations_estimate": 9,
+          "d1_chunk_rows_inserted": 312,
+          "d1_chunk_rows_write_estimate": 936,
+          "d1_buffer_peak_base64_bytes": 13454826,
+          "drive_growth_per_30_days_estimate": 529506360,
+          "oracle_avoidable_pause_before_ms": 60000,
+          "oracle_avoidable_pause_after_ms": 0,
+          "archive_first_to_last_avoidable_pause_before_ms": 600000,
+          "archive_avoidable_pause_after_ms": 0,
+          "oracle_drain_seconds_estimate": 87,
+          "workers_requests_minimum_estimate": 1023
+        },
+        {
+          "films_per_day": 9,
+          "artifact_rpc_per_day": 1899,
+          "archive_queue_messages": 9,
+          "queue_operations_estimate": 27,
+          "d1_chunk_rows_inserted": 936,
+          "d1_chunk_rows_write_estimate": 2808,
+          "d1_buffer_peak_base64_bytes": 40364478,
+          "drive_growth_per_30_days_estimate": 1588519080,
+          "oracle_avoidable_pause_before_ms": 240000,
+          "oracle_avoidable_pause_after_ms": 0,
+          "archive_first_to_last_avoidable_pause_before_ms": 2400000,
+          "archive_avoidable_pause_after_ms": 0,
+          "oracle_drain_seconds_estimate": 261,
+          "workers_requests_minimum_estimate": 2349
+        },
+        {
+          "films_per_day": 30,
+          "artifact_rpc_per_day": 6330,
+          "archive_queue_messages": 30,
+          "queue_operations_estimate": 90,
+          "d1_chunk_rows_inserted": 3120,
+          "d1_chunk_rows_write_estimate": 9360,
+          "d1_buffer_peak_base64_bytes": 134548260,
+          "drive_growth_per_30_days_estimate": 5295063600,
+          "oracle_avoidable_pause_before_ms": 870000,
+          "oracle_avoidable_pause_after_ms": 0,
+          "archive_first_to_last_avoidable_pause_before_ms": 8700000,
+          "archive_avoidable_pause_after_ms": 0,
+          "oracle_drain_seconds_estimate": 870,
+          "workers_requests_minimum_estimate": 6990
+        },
+        {
+          "films_per_day": 100,
+          "artifact_rpc_per_day": 21100,
+          "archive_queue_messages": 100,
+          "queue_operations_estimate": 300,
+          "d1_chunk_rows_inserted": 10400,
+          "d1_chunk_rows_write_estimate": 31200,
+          "d1_buffer_peak_base64_bytes": 448494200,
+          "drive_growth_per_30_days_estimate": 17650212000,
+          "oracle_avoidable_pause_before_ms": 2970000,
+          "oracle_avoidable_pause_after_ms": 0,
+          "archive_first_to_last_avoidable_pause_before_ms": 29700000,
+          "archive_avoidable_pause_after_ms": 0,
+          "oracle_drain_seconds_estimate": 2900,
+          "workers_requests_minimum_estimate": 22460
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,27 @@
+{
+  "observed_at": "2026-10-14T23:22:38.096Z",
+  "production_mutations": 0,
+  "reads": {
+    "cost": {
+      "exit_code": 1,
+      "process_error_code": null,
+      "provider_code": "NotAuthorizedOrNotFound",
+      "http_status": 404,
+      "category": "AUTHORIZATION_DENIED"
+    },
+    "cores": {
+      "exit_code": 1,
+      "process_error_code": null,
+      "provider_code": "NotAuthorizedOrNotFound",
+      "http_status": 404,
+      "category": "AUTHORIZATION_DENIED"
+    },
+    "memory": {
+      "exit_code": 1,
+      "process_error_code": null,
+      "provider_code": "NotAuthorizedOrNotFound",
+      "http_status": 404,
+      "category": "AUTHORIZATION_DENIED"
+    }
+  }
+}

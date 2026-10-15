@@ -26,6 +26,11 @@ const env = {
 };
 it('requires scoped credential, a production origin, explicit paths and exactly one worker', () => {
   expect(oracleConfiguration(env).sourceQualified).toBe(false);
+  expect(oracleConfiguration(env).representation).toBe('COMPACT');
+  expect(
+    oracleConfiguration({ ...env, BARTOSZ_TRANSCRIPT_REPRESENTATION: 'LEGACY' })
+      .representation,
+  ).toBe('LEGACY');
   for (const change of [
     { LOCAL_WORKER_CREDENTIAL: '' },
     { LOCAL_WORKER_CREDENTIAL: 'private bad secret' },
@@ -35,6 +40,7 @@ it('requires scoped credential, a production origin, explicit paths and exactly 
     { BARTOSZ_WORKER_ID: '' },
     { BARTOSZ_PYTHON: 'python' },
     { BARTOSZ_SOURCE_QUALIFIED: '' },
+    { BARTOSZ_TRANSCRIPT_REPRESENTATION: 'OTHER' },
   ])
     expect(() => oracleConfiguration({ ...env, ...change })).toThrow(
       /^ORACLE_/,

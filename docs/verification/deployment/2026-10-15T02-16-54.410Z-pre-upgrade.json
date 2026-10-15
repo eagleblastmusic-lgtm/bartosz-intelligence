@@ -1,0 +1,41 @@
+{
+  "created_at": "2026-10-15T02:19:36.377Z",
+  "backup_sha256": "20be15ccf743b42d4814d6ae6c9737740125b735d6b89a57d8c0d4eef383d96a",
+  "backup_bytes": 27539694,
+  "private_backup_present": true,
+  "old_migration_count": 43,
+  "target_migration_count": 43,
+  "independent_restore": "PASS",
+  "upgrade_rehearsal": "PASS",
+  "canonical_counts_preserved": true,
+  "counts_before": {
+    "owner_users": 1,
+    "sources": 5,
+    "channels": 1,
+    "items": 65,
+    "jobs": 560,
+    "analysis_runs": 59,
+    "artifacts": 247,
+    "artifact_chunks": 619,
+    "evidence": 0,
+    "observations": 0
+  },
+  "counts_after": {
+    "owner_users": 1,
+    "sources": 5,
+    "channels": 1,
+    "items": 65,
+    "jobs": 560,
+    "analysis_runs": 59,
+    "artifacts": 247,
+    "artifact_chunks": 619,
+    "evidence": 0,
+    "observations": 0
+  },
+  "integrity_check": "PASS",
+  "foreign_key_check": "PASS",
+  "signed_url_recorded": false,
+  "credential_values_recorded": false,
+  "derived_fts_rebuilt": true,
+  "source": "https://developers.cloudflare.com/api/resources/d1/subresources/database/methods/export/"
+}

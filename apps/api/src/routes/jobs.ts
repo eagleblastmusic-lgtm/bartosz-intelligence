@@ -16,6 +16,23 @@ import {
   pageLimit,
 } from '../../../../packages/core/src/db/cursor.js';
 export const jobsApp = ownerRouter();
+jobsApp.post('/transcript/:item/recheck', async (c) => {
+  await body(c, []);
+  const access = c.get('access'),
+    item = text(c.req.param('item'), 128);
+  const job = await c.env.DB.prepare(
+    "SELECT job_id FROM jobs WHERE owner_id=? AND item_id=? AND task_type='FETCH_TRANSCRIPT' AND state='FAILED' AND reason_code='LOCAL_YTDLP_NO_CAPTIONS_FINAL' ORDER BY created_at DESC,job_id DESC LIMIT 1",
+  )
+    .bind(access.ownerId, item)
+    .first<{ job_id: string }>();
+  if (!job) throw new Error('REPLAY_DENIED');
+  await new JobStore(c.env.DB, access).replay(
+    job.job_id,
+    new Date().toISOString(),
+    c.get('correlation'),
+  );
+  return c.json({ state: 'PENDING' });
+});
 jobsApp.post('/transcript', async (c) => {
   const input = await body(c, ['locator']);
   return c.json(

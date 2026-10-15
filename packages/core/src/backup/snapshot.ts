@@ -74,7 +74,7 @@ export const transcriptBackupTables = [
   'transcript_archive_folders',
   'transcript_archives',
 ] as const;
-export const backupTables = [
+export const dailyBackupTables = [
   ...transcriptBackupTables,
   'daily_workflow_settings',
   'daily_materials',
@@ -83,6 +83,15 @@ export const backupTables = [
   'daily_drive_files',
   'daily_reports',
   'daily_report_inbox',
+] as const;
+export const monitoringBackupTables = [
+  ...dailyBackupTables.slice(0, dailyBackupTables.indexOf('discovery_scans')),
+  'monitoring_cycles',
+  ...dailyBackupTables.slice(dailyBackupTables.indexOf('discovery_scans')),
+] as const;
+export const backupTables = [
+  ...monitoringBackupTables,
+  'transcript_payload_archives',
 ] as const;
 export type BackupTable = (typeof backupTables)[number];
 type Row = Record<string, string | number | null>;

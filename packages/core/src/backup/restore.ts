@@ -4,6 +4,8 @@ import {
   legacyBackupTables,
   retentionBackupTables,
   transcriptBackupTables,
+  dailyBackupTables,
+  monitoringBackupTables,
   assertSecretFree,
 } from './snapshot.js';
 import type { BackupManifest, BackupChunk } from './snapshot.js';
@@ -44,7 +46,11 @@ export async function verifyPortableBackup(input: PortableCoreBackup) {
           ? retentionBackupTables
           : body.migrations.length < 40
             ? transcriptBackupTables
-            : backupTables),
+            : body.migrations.length < 41
+              ? dailyBackupTables
+              : body.migrations.length < 43
+                ? monitoringBackupTables
+                : backupTables),
     ]
       .sort()
       .join(',')
@@ -58,7 +64,11 @@ export async function verifyPortableBackup(input: PortableCoreBackup) {
       ? retentionBackupTables
       : body.migrations.length < 40
         ? transcriptBackupTables
-        : backupTables) {
+        : body.migrations.length < 41
+          ? dailyBackupTables
+          : body.migrations.length < 43
+            ? monitoringBackupTables
+            : backupTables) {
     const specification = body.tables[table]!;
     if (
       !specification ||
@@ -143,8 +153,7 @@ function compatibleBackupMigrations(migrations: typeof ledger.migrations) {
   return (
     JSON.stringify(migrations) === JSON.stringify(ledger.migrations) ||
     (Array.isArray(migrations) &&
-      [35, 36, 37, 38, 39].includes(migrations.length) &&
-      ledger.migrations.at(-1)?.name === '040_daily_tasks_workflow.sql' &&
+      [35, 36, 37, 38, 39, 40, 41, 42].includes(migrations.length) &&
       ledger.migrations[38]?.name === '039_transcript_drive_archive.sql' &&
       ledger.migrations[37]?.name === '038_verified_archive_append.sql' &&
       ledger.migrations[36]?.name === '037_drive_only_retention.sql' &&
@@ -196,6 +205,19 @@ export async function restoreCanonical(
       .sort((a, b) => a.index - b.index))
       for (const original of chunk.rows) {
         const row = { ...original };
+        if (table === 'jobs' && input.manifest.migrations.length < 42) {
+          row.caption_retry_after_fence = 0;
+          row.caption_retry_origin_at = null;
+        }
+        if (
+          table === 'discovery_scans' &&
+          input.manifest.migrations.length < 41
+        )
+          row.monitoring_cycle_id = null;
+        if (table === 'transcript_payload_archives') {
+          row.permit_token = null;
+          row.permit_until = null;
+        }
         if (table === 'owner_users') {
           if (
             !ownerSubject ||

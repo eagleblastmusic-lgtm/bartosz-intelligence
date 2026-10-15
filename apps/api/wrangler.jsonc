@@ -4,6 +4,11 @@
   "main": "src/index.ts",
   "compatibility_date": "2026-10-01",
   "workers_dev": false,
+  "vars": {
+    "MONITORING_SLOTS": "15:00,23:00",
+    "AUTOMATIC_AI_ENABLED": "false",
+    "RETENTION_DELETION_ENABLED": "false",
+  },
   "triggers": { "crons": ["*/5 * * * *"] },
   "assets": {
     "directory": "../web/dist",
@@ -30,7 +35,14 @@
     "producers": [
       { "binding": "BARTOSZ_QUEUE", "queue": "stage01-local-fixture" },
     ],
-    "consumers": [{ "queue": "stage01-local-fixture", "max_retries": 0 }],
+    "consumers": [
+      {
+        "queue": "stage01-local-fixture",
+        "max_retries": 0,
+        "max_batch_size": 1,
+        "max_concurrency": 1,
+      },
+    ],
   },
   "dev": { "ip": "127.0.0.1", "port": 8787 },
 }

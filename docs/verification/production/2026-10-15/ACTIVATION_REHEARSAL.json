@@ -1,0 +1,43 @@
+{
+  "schema": "approved-channel-activation-rehearsal:1",
+  "result": "PASS",
+  "observed_at": "2026-10-15T11:34:12.236Z",
+  "production_mutations": 0,
+  "source_backup": ".local/pre-deployment-backups/2026-10-15T11-27-41.135Z.restore.sqlite",
+  "source_backup_sha256": "f3f93c8f658c3f81d1eb2b27ca323e8acc743dfa77a08d0bd741db4038218688",
+  "isolated_copy": ".local/production-readiness-20261015/activation-rehearsal-1792064050842.sqlite",
+  "migration_count": 43,
+  "activation_channel_count": 19,
+  "enabled_channel_count": 20,
+  "no_initial_backfill_jobs": true,
+  "original_data_hashes_preserved": true,
+  "original_ted_unchanged": true,
+  "real_activation_boundary": true,
+  "full_due_after_hours": 24,
+  "weekly_due_after_days": 7,
+  "idempotent_replay": true,
+  "injected_failure_atomic_rollback": true,
+  "manual_cycle": {
+    "state": "RUNNING",
+    "total": 20,
+    "cursor": 20,
+    "completed": 0,
+    "slot": "MANUAL:APPROVED20:f1d7d74a-245c-42b9-b40d-c72069382a05",
+    "scan_count": 20,
+    "sources_new_only_boundary_enforced": true,
+    "completed_before_real_scans": 0
+  },
+  "isolated_fixture_scans": {
+    "state": "COMPLETE",
+    "total": 20,
+    "completed": 20,
+    "failed": 0,
+    "historical_candidates_skipped": 950,
+    "historical_items_imported": 0,
+    "backfill_jobs_created": 0,
+    "production_scans_claimed": 0
+  },
+  "foreign_key_violations": 0,
+  "integrity_check": "ok",
+  "rows_created_only_in_isolated_copy": true
+}

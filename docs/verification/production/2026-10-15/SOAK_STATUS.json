@@ -1,0 +1,33 @@
+{
+  "schema": "production-soak:1",
+  "status": "IN_PROGRESS_NOT_PASSED",
+  "started_at": "2026-10-15T11:39:58.824000+00:00",
+  "earliest_24h_acceptance_at": "2026-10-16T11:39:58.824000+00:00",
+  "earliest_72h_acceptance_at": "2026-10-18T11:39:58.824000+00:00",
+  "runbook": "SOAK_RUNBOOK_PL.md",
+  "standalone_observer_running": false,
+  "codex_automation_created": true,
+  "production_autonomous_mechanisms": [
+    "Cloudflare Cron and existingQueue/D1",
+    "Oracle executor and captionbroker systemd services",
+    "Provider metrics and existing receipts"
+  ],
+  "note": "First hourly read-only heartbeat completed. Current observations are healthy, with no production writes or new sessions.24h and72h acceptance remain pending elapsed time and evidence; first scheduled15:00 cycle has not occurred at this snapshot. Local app required for monitor, not the production pipeline.",
+  "automation_id": "bartosz-odbi-r-produkcji-24-72-h",
+  "automation_cadence": "Hourly read-only heartbeat,73occurrences",
+  "automation_status": "ACTIVE_FIRST_READ_ONLY_RUN_VERIFIED",
+  "local_app_required_for_optional_monitor": true,
+  "first_scheduled_run_verified": true,
+  "first_run_triggered_at": "2026-10-15T12:52:55.093Z",
+  "last_observed_at": "2026-10-15T12:55:20.121Z",
+  "last_observation": "SOAK_20261015_1253_STATE.json",
+  "last_observation_status": "HEALTHY_OBSERVED_WINDOW_ONLY",
+  "last_observation_risks": [],
+  "elapsed_observed_seconds": 4521.298,
+  "last_owner_read_at": "2026-10-15T13:15:18.283Z",
+  "first_scheduled_1500_verified": true,
+  "first_scheduled_1500_cycle_id": "monitor:fca35012-aaeb-428d-8836-14398ace7412:2026-10-15:15:00",
+  "first_scheduled_1500_completed_at": "2026-10-15T13:01:46.984Z",
+  "first_scheduled_1500_channels": 20,
+  "first_scheduled_1500_errors": 0
+}

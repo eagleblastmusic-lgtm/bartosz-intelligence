@@ -115,6 +115,14 @@ export class MockDailyDrive extends DriveClient {
   ) {
     return this.createMarkdown(input);
   }
+  override async createTranscriptPackage(
+    input: Parameters<DriveClient['createTranscriptPackage']>[0],
+  ) {
+    const result = await this.createMarkdown(input);
+    result.mimeType = 'application/json';
+    this.files.set(result.id, result);
+    return result;
+  }
   override async readMarkdown(id: string) {
     const text = this.texts.get(id);
     if (text === undefined) throw new DriveFailure('NOT_FOUND');

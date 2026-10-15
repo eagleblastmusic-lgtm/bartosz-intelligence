@@ -1,0 +1,310 @@
+{
+  "observed_at": "2026-10-14T23:54:16.993Z",
+  "credential_refresh_performed": false,
+  "stored_oauth_expires_at": "2026-10-15T00:09:40.275Z",
+  "production_mutations": 0,
+  "results": {
+    "workers/account-settings": {
+      "http_status": 200,
+      "success": true,
+      "result": {
+        "default_usage_model": "standard",
+        "green_compute": false
+      }
+    },
+    "subscriptions": {
+      "http_status": 403,
+      "success": false,
+      "result": null,
+      "errors": [
+        {
+          "code": 10000,
+          "schema_error": null
+        }
+      ]
+    },
+    "workers/scripts/bartosz-intelligence/deployments": {
+      "http_status": 200,
+      "success": true,
+      "result": {
+        "deployments": [
+          {
+            "id": "db7fca38-df83-4cab-842c-897d1c74ebaa",
+            "created_on": "2026-10-14T17:55:02.423476Z",
+            "strategy": "percentage",
+            "versions": [
+              {
+                "version_id": "39edd639-eba3-40bb-93c7-022f1aec31d6",
+                "percentage": 100
+              }
+            ]
+          },
+          {
+            "id": "bd3cbb53-e8e0-438f-9d32-8bc45b3f8d23",
+            "created_on": "2026-10-11T16:53:23.204885Z",
+            "strategy": "percentage",
+            "versions": [
+              {
+                "version_id": "224ba7ff-a4ab-47ff-8cc1-70aadb2d91b1",
+                "percentage": 100
+              }
+            ]
+          },
+          {
+            "id": "bf303284-aacd-4d75-9e4d-bff5fb1c58d4",
+            "created_on": "2026-10-11T15:24:20.961789Z",
+            "strategy": "percentage",
+            "versions": [
+              {
+                "version_id": "59fb3c34-eddd-4930-adf7-3ac129d5f29e",
+                "percentage": 100
+              }
+            ]
+          },
+          {
+            "id": "95f8b67f-1f77-4b5c-a852-4cad668e1e8f",
+            "created_on": "2026-10-11T01:41:59.466117Z",
+            "strategy": "percentage",
+            "versions": [
+              {
+                "version_id": "9d3b376e-990d-48c7-a97e-a0877f918aa0",
+                "percentage": 100
+              }
+            ]
+          },
+          {
+            "id": "efbf8ede-f923-49b9-9e05-f7cb31421560",
+            "created_on": "2026-10-11T01:36:04.649026Z",
+            "strategy": "percentage",
+            "versions": [
+              {
+                "version_id": "3b99b029-8f77-45b7-a02e-0dc4df4e5600",
+                "percentage": 100
+              }
+            ]
+          },
+          {
+            "id": "c2972114-5224-4189-8b72-464bb35441c8",
+            "created_on": "2026-10-10T20:31:32.191264Z",
+            "strategy": "percentage",
+            "versions": [
+              {
+                "version_id": "2e3f69d6-43d8-4f30-9a98-10e7a56b69bd",
+                "percentage": 100
+              }
+            ]
+          },
+          {
+            "id": "afd81601-5773-4dfa-a960-0f1ccfb535cf",
+            "created_on": "2026-10-09T16:08:04.058698Z",
+            "strategy": "percentage",
+            "versions": [
+              {
+                "version_id": "93995293-fd49-4f25-b843-63f326c30a32",
+                "percentage": 100
+              }
+            ]
+          },
+          {
+            "id": "837009dc-b530-4eb2-b9f2-b0fb40e6bdcf",
+            "created_on": "2026-10-09T14:15:49.308815Z",
+            "strategy": "percentage",
+            "versions": [
+              {
+                "version_id": "639ca7d1-2264-48e1-ad0e-5daca72f870b",
+                "percentage": 100
+              }
+            ]
+          },
+          {
+            "id": "bb7cdc18-2f2c-45e1-9fd2-dc1fbf37a514",
+            "created_on": "2026-10-08T22:04:44.497267Z",
+            "strategy": "percentage",
+            "versions": [
+              {
+                "version_id": "e82308a7-dced-4562-b876-82fb89007072",
+                "percentage": 100
+              }
+            ]
+          },
+          {
+            "id": "3fb79716-8ee0-4f47-bab4-1563f1841890",
+            "created_on": "2026-10-08T19:29:31.546709Z",
+            "strategy": "percentage",
+            "versions": [
+              {
+                "version_id": "a7878172-209b-4565-866b-4ca433d2aa08",
+                "percentage": 100
+              }
+            ]
+          }
+        ]
+      }
+    },
+    "workers/scripts/bartosz-intelligence/settings": {
+      "http_status": 200,
+      "success": true,
+      "result": {
+        "usage_model": "standard",
+        "compatibility_date": "2026-10-01",
+        "compatibility_flags": [],
+        "logpush": false,
+        "bindings": [
+          {
+            "name": "APP_ORIGIN",
+            "type": "plain_text",
+            "text": "https://bartosz-intelligence.eagleblastmusic.workers.dev"
+          },
+          {
+            "name": "ASSETS",
+            "type": "assets"
+          },
+          {
+            "name": "BARTOSZ_QUEUE",
+            "type": "queue",
+            "queue_name": "bartosz-intelligence-signals"
+          },
+          {
+            "name": "CONTROL_WORKER_CREDENTIAL",
+            "type": "secret_text"
+          },
+          {
+            "name": "DB",
+            "type": "d1",
+            "id": "6f7a7527-610b-4e56-ad80-682ea7acd567"
+          },
+          {
+            "name": "DRIVE_EXPORT_WORKER_CREDENTIAL",
+            "type": "secret_text"
+          },
+          {
+            "name": "DRIVE_KEY_RECOVERY_READY",
+            "type": "secret_text"
+          },
+          {
+            "name": "DRIVE_WRAPPING_KEY",
+            "type": "secret_text"
+          },
+          {
+            "name": "DRIVE_WRAPPING_KEY_ID",
+            "type": "secret_text"
+          },
+          {
+            "name": "GOOGLE_DRIVE_CLIENT_ID",
+            "type": "secret_text"
+          },
+          {
+            "name": "GOOGLE_DRIVE_CLIENT_SECRET",
+            "type": "secret_text"
+          },
+          {
+            "name": "GOOGLE_DRIVE_OAUTH_PUBLISHING_STATUS",
+            "type": "secret_text"
+          },
+          {
+            "name": "GOOGLE_OIDC_CLIENT_ID",
+            "type": "secret_text"
+          },
+          {
+            "name": "GOOGLE_OIDC_CLIENT_SECRET",
+            "type": "secret_text"
+          },
+          {
+            "name": "GOOGLE_OIDC_OWNER_SUBJECT",
+            "type": "secret_text"
+          },
+          {
+            "name": "LOCAL_WORKER_CREDENTIAL",
+            "type": "secret_text"
+          },
+          {
+            "name": "SESSION_SIGNING_SECRET",
+            "type": "secret_text"
+          },
+          {
+            "name": "TRANSCRIPT_ARCHIVE_ENABLED",
+            "type": "plain_text",
+            "text": "true"
+          },
+          {
+            "name": "YOUTUBE_API_KEY",
+            "type": "secret_text"
+          }
+        ]
+      }
+    },
+    "workers/scripts/bartosz-intelligence/schedules": {
+      "http_status": 200,
+      "success": true,
+      "result": {
+        "schedules": [
+          {
+            "cron": "*/5 * * * *",
+            "created_on": "2026-10-05T19:45:48.995659Z",
+            "modified_on": "2026-10-14T17:55:08.209426Z"
+          }
+        ]
+      }
+    },
+    "queues/48550659182b4795a7be57551abd8311": {
+      "http_status": 200,
+      "success": true,
+      "result": {
+        "queue_id": "48550659182b4795a7be57551abd8311",
+        "queue_name": "bartosz-intelligence-signals",
+        "settings": {
+          "delivery_delay": 0,
+          "message_retention_period": 86400
+        },
+        "created_on": "2026-10-05T19:42:02.582789Z",
+        "modified_on": "2026-10-05T19:42:02.582789Z",
+        "producers_total_count": 1,
+        "producers": [
+          {
+            "script": "bartosz-intelligence",
+            "type": "worker"
+          }
+        ],
+        "consumers_total_count": 1,
+        "consumers": [
+          {
+            "script": "bartosz-intelligence",
+            "settings": {
+              "batch_size": 1,
+              "max_retries": 0,
+              "max_wait_time_ms": 5000,
+              "max_concurrency": 1,
+              "retry_delay": 0
+            },
+            "consumer_id": "5243fd04b710487a8685897e42b95b10",
+            "type": "worker"
+          }
+        ]
+      }
+    },
+    "d1/database?per_page=100": {
+      "http_status": 200,
+      "success": true,
+      "result": [
+        {
+          "uuid": "6f7a7527-610b-4e56-ad80-682ea7acd567",
+          "name": "bartosz-intelligence-core",
+          "created_at": "2026-10-05T19:42:01.543Z",
+          "version": "production",
+          "num_tables": 0,
+          "file_size": 27791360,
+          "jurisdiction": null
+        },
+        {
+          "uuid": "7f7ceffa-74bd-4066-bf33-6b4523d85165",
+          "name": "giclee-analytics",
+          "created_at": "2026-06-15T18:12:16.491Z",
+          "version": "production",
+          "num_tables": 0,
+          "file_size": 2899968,
+          "jurisdiction": null
+        }
+      ]
+    }
+  }
+}

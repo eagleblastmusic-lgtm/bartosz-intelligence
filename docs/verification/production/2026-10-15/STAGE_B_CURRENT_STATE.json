@@ -1,0 +1,46 @@
+{
+  "observed_at": "2026-10-15T01:57:31.109Z",
+  "production_writes_by_this_read": 0,
+  "checks": {
+    "canary": [
+      {
+        "job_id": "966f9cb0-7188-45ce-95d0-fed94a7c9bc3",
+        "state": "BLOCKED",
+        "reason_code": "LOCAL_YTDLP_UNAVAILABLE",
+        "attempt_count": 1,
+        "fencing_token": 1,
+        "updated_at": "2026-10-15T01:29:50.128Z"
+      }
+    ],
+    "cycle": [
+      {
+        "cycle_id": "manual:4a7be4a7-2a5f-473d-a833-22bffab69577",
+        "state": "RUNNING",
+        "total": 1,
+        "completed": 0,
+        "failed": 0,
+        "job_state": "RETRY_WAIT",
+        "reason_code": "TRANSIENT",
+        "due_at": "2026-10-15T02:03:22.962Z",
+        "attempt_count": 4,
+        "pages_committed": 0
+      }
+    ],
+    "guards": [
+      {
+        "active_channels": 1,
+        "deletion_enabled": 0,
+        "payload_archives": 0,
+        "accepted": 45
+      }
+    ],
+    "new_ai": []
+  },
+  "rows_read": 610,
+  "rows_written": 0,
+  "queue": {
+    "backlog_count": 0,
+    "backlog_bytes": 0,
+    "oldest_message_timestamp_ms": 0
+  }
+}

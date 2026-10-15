@@ -1,0 +1,41 @@
+{
+  "recorded_at": "2026-10-14T23:37:10.995Z",
+  "source": "EXISTING_AUTHENTICATED_CHROME_READ_ONLY_DOM",
+  "cloudflare": {
+    "account_matches_config": true,
+    "subscription": "Workers Free",
+    "subscription_state": "Active",
+    "other_subscription": "R2 Paid (existing, unrelated to this Worker bindings)",
+    "requests_today_display": 12342,
+    "requests_daily_limit_display": 100000,
+    "billable_usage_month_display_usd": 0,
+    "billable_usage_period": "2026-10-01/2026-11-01",
+    "account_cpu_p90_display_ms": 5,
+    "worker_list_cpu_display_ms": 4.4,
+    "metrics_exact_time_window": "Dashboard view; distinct from UTC GraphQL sample"
+  },
+  "google_drive": {
+    "account_matches_owner": true,
+    "quota_total_display": "15 GB",
+    "quota_used_display": "420.2 MB",
+    "quota_free_display": "14.59 GB",
+    "drive_only_used_display": "312.2 MB",
+    "gmail_used_display": "107.9 MB",
+    "numbers_are_rounded_ui_displays": true,
+    "archive_folder": "1bNqbMUjrU4HEBh45nHV-embobIPuhHtt",
+    "markdown_files_observed": 45,
+    "daily_transcript_root": "12dfjXGqDL7hFKsGvTxp_3CVi78V8YdSP",
+    "daily_transcript_folder_accessible": true,
+    "daily_transcript_folder_empty": true,
+    "report_root": "1dpd-8GV-S675Jhv4zWdlldaIiJOy5XDt",
+    "report_folder_accessible": true,
+    "app_oauth_refreshed": false,
+    "new_uploads": 0,
+    "chatgpt_basic_read_test_repeated": false
+  },
+  "oracle": {
+    "browser_state": "SIGN_IN_REQUIRED",
+    "credentials_entered": false
+  },
+  "production_mutations": 0
+}

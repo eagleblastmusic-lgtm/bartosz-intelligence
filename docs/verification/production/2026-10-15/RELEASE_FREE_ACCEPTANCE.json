@@ -1,0 +1,123 @@
+{
+  "schema": "controlled-release-free-admission:1",
+  "observed_at": "2026-10-15T11:37:14.246518+00:00",
+  "status": "ADMITTED_CONTROLLED_20_CHANNEL_RELEASE",
+  "worker_version": "901e9506-5924-4e96-9735-19f43ee9a1d3",
+  "activation_count": 20,
+  "production_e2e_verified": true,
+  "scope": "Controlled activation of exact approved19 NEW_ONLY plus existing TED and immediate MANUAL20; not full-day/100-video/soak certification",
+  "cpu": {
+    "cron_ms": [
+      0,
+      1
+    ],
+    "queue_ms": [
+      7,
+      6,
+      5,
+      7
+    ],
+    "normal_rpc_count": 47,
+    "normal_rpc_median_ms": 3,
+    "normal_rpc_max_ms": 11,
+    "normal_rpc_over_nominal": [
+      {
+        "path": "/internal/workers/heartbeat",
+        "cpuTime": 11,
+        "evidence": "FREE_CPU_1130_CRON_CPU.json"
+      }
+    ],
+    "assessment": "Recurring Cron overrun removed. 46/47 normal RPC within nominal10ms; one isolated11ms heartbeat, no failures and no repetition in later windows. Documented infrequent isolate flexibility supports bounded release, not a guarantee of burst capacity. Admin dry-run26ms remains a separate manual-only risk and is not part of normal archive scheduling."
+  },
+  "actual_partial_day_usage": {
+    "workers": 6155,
+    "d1_reads": 1097077,
+    "d1_writes": 7107,
+    "queue_ops": 845
+  },
+  "free_daily_limits": {
+    "workers": 100000,
+    "d1_reads": 5000000,
+    "d1_writes": 100000,
+    "queue_ops": 10000
+  },
+  "headroom": {
+    "workers": 93845,
+    "d1_reads": 3902923,
+    "d1_writes": 92893,
+    "queue_ops": 9155
+  },
+  "database_bytes": 30232576,
+  "drive_quota": {
+    "limit": 16106127360,
+    "usage": 440679894,
+    "free": 15665447466
+  },
+  "oracle": "POST_FREE_CPU_ORACLE_HEALTH.json active/running,NRestarts0,existingAlwaysFree1OCPU6GB47GB",
+  "estimates": {
+    "extra_maintenance_queue_operations_per_day": 864,
+    "manual20_queue_operations_reservation": 240,
+    "note": "Model reserve for20 scans and bounded continuation/enrollment hints; not a measured production20 cost. Account has ample headroom; post-cycle actual deltas required."
+  },
+  "safeguards": [
+    "AI OFF",
+    "DELETE OFF",
+    "Queuebatch/concurrency1",
+    "exact19 approved identities only",
+    "NEW_ONLY at real activation time",
+    "no initial FULL/BACKFILL jobs",
+    "fresh isolated43restore",
+    "stop on actual error/limit/dedup/integrity failure"
+  ],
+  "full_day_free_verified": false,
+  "sustained_100_videos_per_day_verified": false,
+  "soak_passed": false,
+  "remaining": [
+    "ActualMANUAL20 receipts and post-cycleusage",
+    "24–72h elapsed observation and full-dayaccountdata",
+    "AdminreadbackCPUrisk26ms; never schedule it routinely",
+    "RareRPCburst11ms retained as residualrisk, monitor exceededCpu"
+  ],
+  "evidence": [
+    {
+      "path": "FREE_CPU_FIRST_HTTP.json",
+      "sha256": "9756229179d88020549feff5e1ccffc8ea542e597dab9b986477e3f3308953d7"
+    },
+    {
+      "path": "FREE_CPU_1130_CRON_CPU.json",
+      "sha256": "811a88387e642ab5fa01f54499b1c52f38b7de9363b5e217a7cc916967ed92f1"
+    },
+    {
+      "path": "FREE_CPU_1131_NORMAL_RPC.json",
+      "sha256": "78304bb17cad823660074701577db503b0825d71986611d3c188e6f535b772ee"
+    },
+    {
+      "path": "FREE_CPU_1135_CRON_CPU.json",
+      "sha256": "63fe72f7e7d798cd85d2451193a57bb9b2c592a83183521aea8deeaf15f7f0cb"
+    },
+    {
+      "path": "PRE_ACTIVATION_FREE_METRICS.json",
+      "sha256": "e10665164722f87b9f6a6e7573eddb362a615f7bedd53422aeea25ff7699b864"
+    },
+    {
+      "path": "FREE_CPU_CANARY_INTEGRITY.json",
+      "sha256": "2299e5fd86407a739103f903027d6269dd2d0765d87fe7c9b587cce771a123d4"
+    },
+    {
+      "path": "FREE_CPU_LIVE_WORKER_DRY_RUN.json",
+      "sha256": "fa2e1b32e05c0ced909257bc55cf9842181d53d1e0a007e59a144f1950a3b916"
+    },
+    {
+      "path": "FREE_CPU_WORKER_POSTFLIGHT.json",
+      "sha256": "5c3784e1cab79087cc3e0e6fa05cf28ab8e87b2a6300e58c09440a69ea41c3e1"
+    },
+    {
+      "path": "POST_FREE_CPU_ORACLE_HEALTH.json",
+      "sha256": "f05849b8c5390101244c08150b715de36920b06e67c286044b610d0a9f700c9d"
+    }
+  ],
+  "references": [
+    "https://developers.cloudflare.com/workers/platform/limits/#cpu-time",
+    "https://developers.cloudflare.com/queues/platform/limits/"
+  ]
+}

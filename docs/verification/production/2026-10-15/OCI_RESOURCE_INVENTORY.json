@@ -1,0 +1,49 @@
+{
+  "observed_at": "2026-10-14T23:30:31.526Z",
+  "production_mutations": 0,
+  "scope": "CURRENT_PROFILE_ROOT_COMPARTMENT_FRA_AD1",
+  "reads": {
+    "regions": {
+      "exit_code": 0,
+      "data": [
+        {
+          "is-home-region": true,
+          "region-key": "FRA",
+          "region-name": "eu-frankfurt-1",
+          "status": "READY"
+        }
+      ]
+    },
+    "instances": {
+      "exit_code": 0,
+      "data": [
+        {
+          "id": "ocid1.instance.oc1.eu-frankfurt-1.antheljr36gjwkacbyy6myelidyhmcdewoe5repydl4ddicvgronn6javgtq",
+          "state": "RUNNING",
+          "shape": "VM.Standard.A1.Flex",
+          "shape_config": {
+            "baseline-ocpu-utilization": null,
+            "gpu-description": null,
+            "gpus": 0,
+            "local-disk-description": null,
+            "local-disks": 0,
+            "local-disks-total-size-in-gbs": null,
+            "local-volume-size-in-gbs": null,
+            "max-vnic-attachments": 2,
+            "memory-in-gbs": 6,
+            "networking-bandwidth-in-gbps": 1,
+            "ocpus": 1,
+            "processor-description": "3.0 GHz Ampere® Altra™",
+            "resource-management": null,
+            "vcpus": 1
+          }
+        }
+      ]
+    },
+    "boot_volumes": {
+      "exit_code": 1,
+      "http_status": 404,
+      "provider_code": "NotAuthorizedOrNotFound"
+    }
+  }
+}

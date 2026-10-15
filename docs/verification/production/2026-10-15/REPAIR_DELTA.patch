@@ -1,0 +1,1228 @@
+--- deployed/apps/api/src/routes/workers.ts
++++ candidate/apps/api/src/routes/workers.ts
+@@ -772,6 +772,11 @@
+   return c.json({
+     item_id: row.item_id,
+     detected_at: row.discovered_at,
++    default_audio_language: c.env.YOUTUBE_API_KEY
++      ? await new YoutubeClient(c.env.YOUTUBE_API_KEY, 1).defaultAudioLanguage(
++          row.external_id,
++        )
++      : null,
+     namespace: 'youtube',
+     external_id: row.external_id,
+     duration_ms:
+--- deployed/apps/executor/python/transcript_ytdlp.py
++++ candidate/apps/executor/python/transcript_ytdlp.py
+@@ -131,6 +131,11 @@
+     if not isinstance(maximum,int) or maximum<1 or maximum>qualified.MAX_RESPONSE_BYTES:
+         result["failure_code"]="INVALID_LOCAL_INPUT"
+         return result
++    audio_language=request.get('default_audio_language')
++    if audio_language is not None and (not isinstance(audio_language,str) or len(audio_language)>64 \
++            or not re.fullmatch(r'[A-Za-z]{2,8}(?:-[A-Za-z0-9]{1,8})*',audio_language)):
++        result['failure_code']='INVALID_LOCAL_INPUT'
++        return result
+     observations=[]
+     options={"ignoreconfig":True,"quiet":True,"no_warnings":True,"noplaylist":True,"skip_download":True,"socket_timeout":10,"retries":0,"fragment_retries":0,"extractor_retries":0,"file_access_retries":0,"writesubtitles":False,"writeautomaticsubtitles":False,"logger":qualified.QuietLogger(),"cachedir":False,"extractor_args":{"youtube":{"player_client":["default"]}}}
+     if os.environ.get('BARTOSZ_DENO'):
+@@ -145,7 +150,7 @@
+             if not isinstance(info,dict): raise ValueError("no metadata")
+             tracks=tracks_from_info(info)
+             result["tracks"]=[{key:value for key,value in track.items() if not key.startswith("_")} for track in tracks]
+-            result["video_language"]=info.get("language") if isinstance(info.get("language"),str) else None
++            result["video_language"]=(info.get("language") if isinstance(info.get("language"),str) else None) or audio_language
+             if request["operation"]=="list":
+                 result.update(status="OK" if tracks else "NO_CAPTIONS",failure_code=None if tracks else "EMPTY_PUBLIC_TRACKLIST")
+             else:
+--- deployed/apps/executor/src/providers/ytdlp.ts
++++ candidate/apps/executor/src/providers/ytdlp.ts
+@@ -21,6 +21,7 @@
+   item_id: string;
+   video_id: string;
+   max_bytes: number;
++  default_audio_language?: string;
+   language_code?: string;
+   track_kind?: TrackKind;
+   extension?: string;
+@@ -283,6 +284,12 @@
+       item.namespace !== 'youtube' ||
+       !/^[\w-]{11}$/.test(item.external_id) ||
+       context.provider_version !== ytdlpProviderVersion ||
++      (item.default_audio_language != null &&
++        (typeof item.default_audio_language !== 'string' ||
++          item.default_audio_language.length > 64 ||
++          !/^[A-Za-z]{2,8}(?:-[A-Za-z0-9]{1,8})*$/.test(
++            item.default_audio_language,
++          ))) ||
+       !Number.isSafeInteger(context.max_bytes) ||
+       context.max_bytes < 1 ||
+       context.max_bytes > this.capabilities('local').max_input_bytes
+@@ -309,6 +316,9 @@
+             video_id: item.external_id,
+             item_id: item.item_id,
+             max_bytes: context.max_bytes,
++            ...(input.operation === 'list' && item.default_audio_language
++              ? { default_audio_language: item.default_audio_language }
++              : {}),
+           },
+           Math.min(remaining, this.processLimitMs),
+           context.signal,
+--- deployed/packages/contracts/src/transcript.ts
++++ candidate/packages/contracts/src/transcript.ts
+@@ -18,6 +18,8 @@
+ export type TimestampPrecision = 'CUE' | 'WORD' | 'ESTIMATED' | 'NONE';
+ export interface SourceItemRef {
+   detected_at?: string;
++  /** Verified YouTube videos.snippet.defaultAudioLanguage, never title/defaultLanguage. */
++  default_audio_language?: string | null;
+   item_id: string;
+   namespace: 'youtube';
+   external_id: string;
+--- deployed/packages/core/src/sources/youtube/client.ts
++++ candidate/packages/core/src/sources/youtube/client.ts
+@@ -31,6 +31,24 @@
+       estimated_quota_units: this.used,
+       remaining_account_quota: null,
+     };
++  }
++  async defaultAudioLanguage(videoId: string): Promise<string | null> {
++    if (!/^[A-Za-z0-9_-]{11}$/.test(videoId)) throw new YoutubeError('PARSER');
++    const response = await this.get('videos', { part: 'snippet', id: videoId });
++    const items = response.items as unknown[];
++    if (!items.length) return null;
++    if (items.length !== 1) throw new YoutubeError('PARSER');
++    const video = record(items[0]);
++    if (video.id !== videoId) throw new YoutubeError('PARSER');
++    const language = record(video.snippet).defaultAudioLanguage;
++    if (language === undefined) return null;
++    if (
++      typeof language !== 'string' ||
++      language.length > 64 ||
++      !/^[A-Za-z]{2,8}(?:-[A-Za-z0-9]{1,8})*$/.test(language)
++    )
++      throw new YoutubeError('PARSER');
++    return language;
+   }
+   async get(
+     resource: 'channels' | 'videos' | 'playlistItems',
+--- deployed/packages/core/src/sources/youtube/discovery.ts
++++ candidate/packages/core/src/sources/youtube/discovery.ts
+@@ -68,6 +68,7 @@
+   now: Date,
+   task: TaskType = 'DISCOVER',
+   chunkSize = 5,
++  transport?: 'RSS' | 'RSS_FALLBACK_UPLOADS',
+ ) {
+   if (
+     !Number.isInteger(chunkSize) ||
+@@ -309,9 +310,13 @@
+       .bind(
+         scanComplete
+           ? 'WINDOW_COMPLETED'
+-          : pageFinished
+-            ? 'PAGE_COMMITTED'
+-            : 'PAGE_CHUNK_COMMITTED',
++          : transport === 'RSS_FALLBACK_UPLOADS'
++            ? pageFinished
++              ? 'RSS_FALLBACK_PAGE_COMMITTED'
++              : 'RSS_FALLBACK_PAGE_CHUNK_COMMITTED'
++            : pageFinished
++              ? 'PAGE_COMMITTED'
++              : 'PAGE_CHUNK_COMMITTED',
+         at,
+         context.ownerId,
+         scan.scan_id,
+@@ -353,5 +358,6 @@
+     coverage: scanComplete ? 'COMPLETE' : 'PARTIAL',
+     continuation: !jobDone,
+     pages: scan.page_revision + 1,
++    ...(transport ? { discovery_transport: transport } : {}),
+   };
+ }
+--- deployed/packages/core/src/sources/youtube/executor.ts
++++ candidate/packages/core/src/sources/youtube/executor.ts
+@@ -8,8 +8,9 @@
+   restartExpiredCursor,
+ } from './discovery.js';
+ import { enumeratePage, fetchVideoMetadata } from './preview.js';
+-import { pollRss } from './rss.js';
++import { pollRss, RssUnavailableError } from './rss.js';
+ import { YoutubeClient, YoutubeError } from './client.js';
++import { leasePredicate } from '../../jobs/lease-guard.js';
+ export async function executeDiscoveryChunk(
+   db: Database,
+   context: AccessContext,
+@@ -19,12 +20,23 @@
+   task: TaskType = 'DISCOVER',
+   clock: () => Date = () => now,
+   chunkSize = 5,
++  rssFetcher: typeof fetch = fetch,
+ ) {
+   context.requireTask(task);
+   let scan = await getScan(db, context, token.job_id);
+   if (!scan || !['PENDING', 'PARTIAL'].includes(scan.coverage))
+     throw new Error('SCAN_NOT_PENDING');
+-  if (scan.staged_page_json !== null)
++  const mode = JSON.parse(scan.job_payload_json).mode ?? 'FULL';
++  if (scan.staged_page_json !== null) {
++    const acquisition =
++      mode === 'RSS'
++        ? await db
++            .prepare(
++              "SELECT event_type FROM change_log WHERE owner_id=? AND component='discovery' AND target_id=? AND event_type IN ('RSS_PAGE_ACQUIRED','RSS_FALLBACK_PAGE_ACQUIRED') ORDER BY seq DESC LIMIT 1",
++            )
++            .bind(context.ownerId, scan.scan_id)
++            .first<{ event_type: string }>()
++        : null;
+     return commitDiscoveryPage(
+       db,
+       context,
+@@ -35,7 +47,13 @@
+       clock(),
+       task,
+       chunkSize,
+-    );
++      acquisition?.event_type === 'RSS_FALLBACK_PAGE_ACQUIRED'
++        ? 'RSS_FALLBACK_UPLOADS'
++        : acquisition
++          ? 'RSS'
++          : undefined,
++    );
++  }
+   const source = await db
+     .prepare(
+       `SELECT s.namespace,s.external_id,s.canonical_locator,c.title,c.uploads_playlist_id,c.handle_snapshot FROM sources s JOIN channels c USING(owner_id,source_id) WHERE s.owner_id=? AND s.source_id=? AND s.enabled=1`,
+@@ -43,7 +61,6 @@
+     .bind(context.ownerId, scan.source_id)
+     .first<SourceIdentity & { handle_snapshot: string | null }>();
+   if (!source) throw new Error('SOURCE_DISABLED');
+-  const mode = JSON.parse(scan.job_payload_json).mode ?? 'FULL';
+   if (mode === 'REFRESH') {
+     const payload = JSON.parse(scan.job_payload_json) as {
+       ids: string[];
+@@ -82,12 +99,65 @@
+       )
+       .bind(context.ownerId, scan.source_id)
+       .first<{ rss_etag: string | null; rss_modified: string | null }>();
+-    const rss = await pollRss(
+-      source.external_id,
+-      state?.rss_etag ?? null,
+-      state?.rss_modified ?? null,
+-    );
++    const acquisitionScanId = scan.scan_id;
++    const recordAcquisition = async (event: string) => {
++      const at = clock().toISOString(),
++        guard = leasePredicate(context, token, at, task);
++      const receipt = await db
++        .prepare(
++          `INSERT INTO change_log(owner_id,component,target_id,event_type,created_at)
++         SELECT owner_id,'discovery',scan_id,?,? FROM discovery_scans WHERE owner_id=? AND scan_id=? AND job_id=? AND ${guard.predicate}`,
++        )
++        .bind(
++          event,
++          at,
++          context.ownerId,
++          acquisitionScanId,
++          token.job_id,
++          ...guard.bindings,
++        )
++        .run();
++      if (receipt.meta.changes !== 1) throw new Error('STALE_FENCE');
++    };
++    let rss;
++    try {
++      rss = await pollRss(
++        source.external_id,
++        state?.rss_etag ?? null,
++        state?.rss_modified ?? null,
++        rssFetcher,
++      );
++    } catch (error) {
++      if (!(error instanceof RssUnavailableError)) throw error;
++      await recordAcquisition(`RSS_UNAVAILABLE_${error.status}`);
++      // Reuse one bounded uploads HEAD, never a historical/paginated backfill.
++      const page = await enumeratePage(
++        client,
++        { ...source, handle: source.handle_snapshot },
++        null,
++      );
++      // NEW_ONLY must fail closed when no authoritative publication date exists.
++      if (
++        scan.window_start >= scan.source_activated_at &&
++        page.candidates.some((item) => item.published_at === null)
++      )
++        throw new YoutubeError('PARSER');
++      await recordAcquisition('RSS_FALLBACK_PAGE_ACQUIRED');
++      return commitDiscoveryPage(
++        db,
++        context,
++        token,
++        scan,
++        page.candidates,
++        null,
++        clock(),
++        task,
++        chunkSize,
++        'RSS_FALLBACK_UPLOADS',
++      );
++    }
+     const candidates = await fetchVideoMetadata(client, source, rss.hint_ids);
++    await recordAcquisition('RSS_PAGE_ACQUIRED');
+     const result = await commitDiscoveryPage(
+       db,
+       context,
+@@ -98,6 +168,7 @@
+       clock(),
+       task,
+       chunkSize,
++      'RSS',
+     );
+     await db
+       .prepare(
+--- deployed/packages/core/src/sources/youtube/rss.ts
++++ candidate/packages/core/src/sources/youtube/rss.ts
+@@ -1,6 +1,11 @@
+ import { fetchWithoutRedirect } from '../../http/no-redirect.js';
+ import { boundedText } from '../../http/bounded-text.js';
+ import { YoutubeError } from './client.js';
++export class RssUnavailableError extends YoutubeError {
++  constructor(readonly status: 404 | 410) {
++    super('NOT_FOUND');
++  }
++}
+ export function parseAtomHints(xml: string) {
+   if (
+     new TextEncoder().encode(xml).byteLength > 64000 ||
+@@ -75,6 +80,9 @@
+       modified,
+     };
+   if (!response.ok) {
++    await response.body?.cancel();
++    if (response.status === 404 || response.status === 410)
++      throw new RssUnavailableError(response.status);
+     const retry = response.headers.get('retry-after');
+     const next =
+       retry && /^\d+$/.test(retry)
+--- deployed/tests/unit/oracle-captions.spec.ts
++++ candidate/tests/unit/oracle-captions.spec.ts
+@@ -6,6 +6,7 @@
+ import {
+   YtdlpTranscriptProvider,
+   ytdlpProviderVersion,
++  type CaptionProcessRunner,
+ } from '../../apps/executor/src/providers/ytdlp.js';
+ import { selectTranscriptLanguage } from '../../packages/core/src/transcript/language.js';
+ 
+@@ -172,3 +173,62 @@
+       '4a2a720787b44c6451c01675d5c734c813730997bb7e0ca75bfd23895f2daf28',
+   });
+ });
++
++it('forwards verified audio language only to listing and rejects malformed authority', async () => {
++  const at = new Date('2026-10-14T00:00:00.000Z');
++  const run = vi.fn<CaptionProcessRunner>(async () => ({
++    status: 'UNAVAILABLE',
++    failure_code: 'FIXTURE_NO_CAPTURE',
++  }));
++  const provider = new YtdlpTranscriptProvider(run, () => at);
++  const item = {
++    item_id: input.item_id,
++    namespace: 'youtube' as const,
++    external_id: input.video_id,
++    duration_ms: null,
++    default_audio_language: 'de-DE',
++  };
++  const context = {
++    job_id: 'fixture-job',
++    item_id: input.item_id,
++    runtime_id: 'local' as const,
++    deadline: new Date(at.getTime() + 60000).toISOString(),
++    max_bytes: input.max_bytes,
++    quota_reservation_id: null,
++    provider_version: ytdlpProviderVersion,
++    request_id: 'fixture-request',
++  };
++  await provider.list_tracks(item, context);
++  expect(run).toHaveBeenCalledWith(
++    { ...input, default_audio_language: 'de-DE' },
++    60000,
++    undefined,
++  );
++  await provider.fetch(
++    item,
++    {
++      track_id: 'fixture',
++      item_id: input.item_id,
++      language_code: 'de',
++      track_kind: 'MANUAL',
++      is_generated: false,
++      is_translated: false,
++      source_language: null,
++      translation_source_track_id: null,
++      is_translatable: null,
++      translation_languages: [],
++      is_original: null,
++      extension: 'json3',
++      expires_at: context.deadline,
++    },
++    context,
++  );
++  expect(run.mock.calls[1]![0]).not.toHaveProperty('default_audio_language');
++  run.mockClear();
++  const invalid = await provider.list_tracks(
++    { ...item, default_audio_language: 'en;id' },
++    context,
++  );
++  expect(invalid.failure_code).toBe('INVALID_LOCAL_INPUT');
++  expect(run).not.toHaveBeenCalled();
++});
+--- deployed/tests/unit/rss.spec.ts
++++ candidate/tests/unit/rss.spec.ts
+@@ -2,7 +2,9 @@
+ import {
+   parseAtomHints,
+   pollRss,
++  RssUnavailableError,
+ } from '../../packages/core/src/sources/youtube/rss.js';
++import { YoutubeError } from '../../packages/core/src/sources/youtube/client.js';
+ const xml =
+   '<feed xmlns:yt="http://www.youtube.com/xml/schemas/2015"><entry><yt:videoId>abcdefghijk</yt:videoId></entry></feed>';
+ it('RSS gives hints only, rejects DTD/entity/depth and malformed XML', () => {
+@@ -18,6 +20,35 @@
+   expect(() =>
+     parseAtomHints(xml.replace('<entry>', '<entry>' + '<x>'.repeat(33))),
+   ).toThrow('RSS_LIMIT');
++});
++it.each([404, 410] as const)(
++  'only unavailable feed HTTP %i permits the uploads fallback',
++  async (status) => {
++    const failure = await pollRss(
++      'UC' + 'a'.repeat(22),
++      null,
++      null,
++      async () => new Response(null, { status }),
++    ).catch((error: unknown) => error);
++    expect(failure).toBeInstanceOf(RssUnavailableError);
++    expect(failure).toMatchObject({ code: 'NOT_FOUND', status });
++  },
++);
++it('RSS 429 preserves a provider Retry-After date and is never unavailable-feed fallback', async () => {
++  const retry = 'Thu, 15 Oct 2026 06:00:00 GMT';
++  const failure = await pollRss(
++    'UC' + 'a'.repeat(22),
++    null,
++    null,
++    async () =>
++      new Response(null, { status: 429, headers: { 'Retry-After': retry } }),
++  ).catch((error: unknown) => error);
++  expect(failure).toBeInstanceOf(YoutubeError);
++  expect(failure).not.toBeInstanceOf(RssUnavailableError);
++  expect(failure).toMatchObject({
++    code: 'QUOTA',
++    retryAt: '2026-10-15T06:00:00.000Z',
++  });
+ });
+ it('304 preserves validators and never claims window completeness', async () => {
+   const fake: typeof fetch = async (_input, init) => {
+--- deployed/tests/unit/test_caption_broker.py
++++ candidate/tests/unit/test_caption_broker.py
+@@ -71,10 +71,25 @@
+             {**self.listing, 'max_bytes': True}, {**self.listing, 'max_bytes': 4194305},
+             {**self.listing, 'item_id': '../../evil'},
+             {**self.listing, 'operation': 'login'}, {**self.fetch, 'extension': '/tmp/x'},
+-            {**self.fetch, 'track_kind': 'TRANSLATED'}]:
++            {**self.fetch, 'track_kind': 'TRANSLATED'},
++            {**self.listing, 'default_audio_language': 'en;id'},
++            {**self.listing, 'default_audio_language': None},
++            {**self.listing, 'default_audio_language': 'e' * 65},
++            {**self.fetch, 'default_audio_language': 'en'}]:
+             with self.subTest(value=value):
+                 with self.assertRaises(ValueError): self.service.execute(value, None)
+         self.assertEqual(self.calls, [])
++
++    def test_verified_audio_language_is_a_list_only_scalar_and_capture_is_still_reused(self):
++        def capture(video, maximum, connection, item_id, default_audio_language=None):
++            self.calls.append((video, maximum, item_id, default_audio_language))
++            return self.response
++        self.service.capture = capture
++        listing = {**self.listing, 'default_audio_language': 'en-US'}
++        self.service.execute(listing, None)
++        self.assertEqual(self.calls, [(self.listing['video_id'], 4096, self.listing['item_id'], 'en-US')])
++        self.assertEqual(self.service.execute(self.fetch, None), self.response)
++        self.assertEqual(len(self.calls), 1)
+ 
+     def test_public_track_projection_omits_url_cookie_token(self):
+         value = broker.public_track({**self.selected, '_url': 'https://signed.invalid/?token=secret',
+--- deployed/tests/unit/test_oracle_caption_selection.py
++++ candidate/tests/unit/test_oracle_caption_selection.py
+@@ -27,7 +27,7 @@
+ 
+ 
+ class OracleCaptionSelectionTests(unittest.TestCase):
+-    def run_adapter(self, info, item_id='00000000-0000-4000-8000-000000000001'):
++    def run_adapter(self, info, item_id='00000000-0000-4000-8000-000000000001', default_audio_language=None):
+         opened = []
+         payload = json.dumps({'events': [
+             {'tStartMs': 250, 'dDurationMs': 3250, 'segs': [{'utf8': '  Exact source.  '}]},
+@@ -76,6 +76,7 @@
+             adapter=True, max_requests=8, output=ROOT / 'offline-selection-fixture',
+             parser=ROOT / 'apps/executor/python/transcript_ytdlp.py',
+             item_id=item_id,
++            default_audio_language=default_audio_language,
+         )
+         result = {'players': [], 'requests': []}
+         artifacts = {}
+@@ -149,6 +150,61 @@
+                 self.assertEqual(opened, [])
+                 self.assertNotIn('provider_selected', result)
+ 
++    def test_verified_audio_language_selects_manual_source_when_provider_language_is_missing(self):
++        result, opened = self.run_adapter({
++            'language': None,
++            'subtitles': {'en': formats('en'), 'fr': formats('fr')},
++            'automatic_captions': {'en': formats('en', generated=True)},
++        }, default_audio_language='en')
++        self.assertEqual(result['status'], 'CAPTIONS_RECEIVED')
++        self.assertEqual(result['video_language'], 'en')
++        self.assertEqual(result['video_language_provenance'], 'youtube.videos.snippet.defaultAudioLanguage')
++        self.assertEqual(result['provider_selected']['track_kind'], 'MANUAL')
++        self.assertEqual(result['provider_selected']['language_code'], 'en')
++        self.assertEqual(len(opened), 1)
++        self.assertEqual(result['saved_cues'][0], {
++            'upstream_index': 0, 'start_ms': 250, 'end_ms': 3500,
++            'text': '  Exact source.  ', 'speaker_label': None,
++        })
++
++    def test_verified_audio_language_can_select_original_generated_without_alias(self):
++        result, opened = self.run_adapter({
++            'subtitles': {'fr': formats('fr')},
++            'automatic_captions': {'de': formats('de', generated=True)},
++        }, default_audio_language='de-DE')
++        self.assertEqual(result['status'], 'CAPTIONS_RECEIVED')
++        self.assertEqual(result['provider_selected']['track_kind'], 'GENERATED')
++        self.assertEqual(result['provider_selected']['language_code'], 'de')
++        self.assertFalse(result['provider_selected']['is_translated'])
++        self.assertEqual(len(opened), 1)
++
++    def test_verified_audio_language_never_overrides_provider_language_or_explicit_original(self):
++        for info in [
++            {'language': 'fr', 'subtitles': {'en': formats('en'), 'fr': formats('fr')}},
++            {'language': None, 'subtitles': {'en': formats('en'), 'fr': formats('fr')},
++             'automatic_captions': {'fr-orig': formats('fr', generated=True)}},
++        ]:
++            result, opened = self.run_adapter(info, default_audio_language='en')
++            self.assertEqual(result['status'], 'CAPTIONS_RECEIVED')
++            self.assertEqual(result['provider_selected']['language_code'], 'fr')
++            self.assertEqual(len(opened), 1)
++
++    def test_verified_audio_language_does_not_resolve_conflicting_originals_or_translations(self):
++        for info in [
++            {'automatic_captions': {'en-orig': formats('en', generated=True),
++                                     'fr-orig': formats('fr', generated=True)}},
++            {'automatic_captions': {'en': formats('fr', generated=True, translated='en')}},
++        ]:
++            result, opened = self.run_adapter(info, default_audio_language='en')
++            self.assertEqual(result['status'], 'UNKNOWN_SOURCE_AUTHORITY')
++            self.assertEqual(opened, [])
++
++    def test_absent_audio_authority_never_guesses_from_english_tracks_or_title(self):
++        result, opened = self.run_adapter({'title': 'English original TED talk',
++            'defaultLanguage': 'en', 'subtitles': {'en': formats('en')}})
++        self.assertEqual(result['status'], 'UNKNOWN_SOURCE_AUTHORITY')
++        self.assertEqual(opened, [])
++
+ 
+ if __name__ == '__main__':
+     unittest.main()
+--- deployed/tests/workers/rss-fallback.spec.ts
++++ candidate/tests/workers/rss-fallback.spec.ts
+@@ -0,0 +1,340 @@
++import { env } from 'cloudflare:workers';
++import { beforeEach, expect, it } from 'vitest';
++import { fixtureNow, fixtureOwner, resetCore } from './core-fixture.js';
++import { SourceRepository } from '../../packages/core/src/db/sources.js';
++import { AccessContext } from '../../packages/core/src/db/boundary.js';
++import { sha256 } from '../../packages/core/src/auth/crypto.js';
++import { JobStore } from '../../packages/core/src/jobs/store.js';
++import { sweep } from '../../packages/core/src/jobs/recovery.js';
++import {
++  startMonitoringCycles,
++  enrollMonitoringBatch,
++  refreshMonitoringProgress,
++} from '../../packages/core/src/sources/youtube/cycles.js';
++import { executeDiscoveryChunk } from '../../packages/core/src/sources/youtube/executor.js';
++import { YoutubeClient } from '../../packages/core/src/sources/youtube/client.js';
++
++beforeEach(resetCore);
++const channel = 'UC' + 'r'.repeat(22);
++const now = new Date(fixtureNow.getTime() + 10 * 60000);
++async function setup() {
++  const source = (await new SourceRepository(
++    env.DB,
++    await fixtureOwner(),
++  ).upsert(
++    {
++      namespace: 'youtube',
++      external_id: channel,
++      canonical_locator: `https://www.youtube.com/channel/${channel}`,
++      title: 'Fixture',
++      uploads_playlist_id: 'UU' + 'r'.repeat(22),
++      handle: null,
++    },
++    fixtureNow.toISOString(),
++  ))!;
++  await startMonitoringCycles(env.DB, now);
++  await enrollMonitoringBatch(env.DB, now);
++  const job = (await env.DB.prepare(
++    "SELECT job_id,payload_json FROM jobs WHERE task_type='DISCOVER'",
++  ).first<{ job_id: string; payload_json: string }>())!;
++  await env.DB.prepare('INSERT INTO worker_identities VALUES(?,?,?,?,?,NULL)')
++    .bind(
++      'discovery',
++      'a',
++      await sha256('rss-fixture'),
++      '["DISCOVER"]',
++      fixtureNow.toISOString(),
++    )
++    .run();
++  const context = await AccessContext.worker(
++    env.DB,
++    await sha256('rss-fixture'),
++  );
++  const store = new JobStore(env.DB, context);
++  return {
++    source,
++    job,
++    context,
++    async lease() {
++      await sweep(env.DB, now, () => true);
++      const lease = (await store.lease(job.job_id, 'DISCOVER', now, 'cloud'))!;
++      await store.start(lease, 'DISCOVER', now);
++      return lease;
++    },
++  };
++}
++function uploads(
++  entries: { id: string; published: string | null }[],
++  observed: string[],
++) {
++  const fetcher: typeof fetch = async (input) => {
++    const url = new URL(input as string);
++    observed.push(url.pathname);
++    expect(url.searchParams.has('pageToken')).toBe(false);
++    if (url.pathname.endsWith('playlistItems')) {
++      expect(url.searchParams.get('maxResults')).toBe('50');
++      return Response.json({
++        items: entries.map(({ id, published }) => ({
++          contentDetails: {
++            videoId: id,
++            ...(published ? { videoPublishedAt: published } : {}),
++          },
++        })),
++        nextPageToken: 'must-not-page',
++      });
++    }
++    return Response.json({
++      items: [
++        ...new Map(entries.map((entry) => [entry.id, entry])).values(),
++      ].map(({ id, published }) => ({
++        id,
++        snippet: {
++          channelId: channel,
++          title: 'Fixture',
++          ...(published ? { publishedAt: published } : {}),
++          liveBroadcastContent: 'none',
++        },
++        contentDetails: { duration: 'PT1M' },
++        status: { privacyStatus: 'public' },
++      })),
++    });
++  };
++  return fetcher;
++}
++it.each([404, 410] as const)(
++  'HTTP %i fallback performs exactly one HEAD and NEW_ONLY imports no history',
++  async (status) => {
++    const { source, job, context, lease } = await setup();
++    await env.DB.prepare(
++      'UPDATE sources SET rss_etag=?,rss_modified=? WHERE source_id=?',
++    )
++      .bind('existing-etag', 'existing-modified', source.source_id)
++      .run();
++    const observed: string[] = [],
++      client = new YoutubeClient(
++        'fixture-key',
++        3,
++        uploads(
++          Array.from({ length: 50 }, (_, i) => ({
++            id: String(i).padStart(11, '0'),
++            published: '2026-10-01T00:00:00.000Z',
++          })),
++          observed,
++        ),
++      );
++    const result = await executeDiscoveryChunk(
++      env.DB,
++      context,
++      await lease(),
++      client,
++      now,
++      'DISCOVER',
++      () => now,
++      5,
++      async () => new Response(null, { status }),
++    );
++    expect(result).toMatchObject({
++      continuation: false,
++      coverage: 'PARTIAL',
++      discovery_transport: 'RSS_FALLBACK_UPLOADS',
++    });
++    expect(observed).toEqual([
++      '/youtube/v3/playlistItems',
++      '/youtube/v3/videos',
++    ]);
++    expect(client.usage.requests).toBe(2);
++    expect(
++      await env.DB.prepare('SELECT COUNT(*) n FROM items').first('n'),
++    ).toBe(0);
++    expect(
++      await env.DB.prepare(
++        "SELECT COUNT(*) n FROM jobs WHERE task_type='FETCH_TRANSCRIPT'",
++      ).first('n'),
++    ).toBe(0);
++    expect(
++      await env.DB.prepare(
++        'SELECT rss_etag,rss_modified,last_rss_at FROM sources WHERE source_id=?',
++      )
++        .bind(source.source_id)
++        .first(),
++    ).toEqual({
++      rss_etag: 'existing-etag',
++      rss_modified: 'existing-modified',
++      last_rss_at: null,
++    });
++    expect(
++      await env.DB.prepare('SELECT payload_json FROM jobs WHERE job_id=?')
++        .bind(job.job_id)
++        .first('payload_json'),
++    ).toBe(job.payload_json);
++    const events = (
++      await env.DB.prepare(
++        "SELECT event_type FROM change_log WHERE component='discovery' AND event_type LIKE 'RSS_%' ORDER BY seq",
++      ).all<{ event_type: string }>()
++    ).results.map((e) => e.event_type);
++    expect(events).toEqual([
++      `RSS_UNAVAILABLE_${status}`,
++      'RSS_FALLBACK_PAGE_ACQUIRED',
++      'RSS_FALLBACK_PAGE_COMMITTED',
++    ]);
++    await refreshMonitoringProgress(env.DB, now);
++    expect(
++      await env.DB.prepare(
++        'SELECT state,completed,failed FROM monitoring_cycles',
++      ).first(),
++    ).toEqual({ state: 'COMPLETE', completed: 1, failed: 0 });
++    expect(
++      await env.DB.prepare('SELECT pages_committed FROM discovery_scans').first(
++        'pages_committed',
++      ),
++    ).toBe(1);
++  },
++);
++it('staged fallback resumes without a second RSS/HEAD request and duplicates cannot create repeated FETCH jobs', async () => {
++  const { context, lease } = await setup();
++  const published = new Date(fixtureNow.getTime() + 5 * 60000).toISOString(),
++    observed: string[] = [];
++  const entries = [
++    'newaaaaaaaa',
++    'newbbbbbbbb',
++    'newcccccccc',
++    'newaaaaaaaa',
++  ].map((id) => ({ id, published }));
++  const client = new YoutubeClient(
++    'fixture-key',
++    3,
++    uploads(entries, observed),
++  );
++  const first = await executeDiscoveryChunk(
++    env.DB,
++    context,
++    await lease(),
++    client,
++    now,
++    'DISCOVER',
++    () => now,
++    2,
++    async () => new Response(null, { status: 404 }),
++  );
++  expect(first).toMatchObject({
++    continuation: true,
++    discovery_transport: 'RSS_FALLBACK_UPLOADS',
++  });
++  await refreshMonitoringProgress(env.DB, now);
++  expect(
++    await env.DB.prepare(
++      'SELECT state,completed FROM monitoring_cycles',
++    ).first(),
++  ).toEqual({ state: 'RUNNING', completed: 0 });
++  const noFetch: typeof fetch = async () => {
++    throw new Error('unexpected additional network call');
++  };
++  const resumed = await executeDiscoveryChunk(
++    env.DB,
++    context,
++    await lease(),
++    new YoutubeClient('fixture-key', 3, noFetch),
++    now,
++    'DISCOVER',
++    () => now,
++    2,
++    noFetch,
++  );
++  expect(resumed).toMatchObject({
++    continuation: false,
++    discovery_transport: 'RSS_FALLBACK_UPLOADS',
++  });
++  expect(observed).toHaveLength(2);
++  expect(await env.DB.prepare('SELECT COUNT(*) n FROM items').first('n')).toBe(
++    3,
++  );
++  expect(
++    await env.DB.prepare(
++      "SELECT COUNT(*) n FROM jobs WHERE task_type='FETCH_TRANSCRIPT'",
++    ).first('n'),
++  ).toBe(3);
++  expect(
++    await env.DB.prepare(
++      "SELECT COUNT(*) n FROM change_log WHERE event_type='RSS_FALLBACK_PAGE_COMMITTED'",
++    ).first('n'),
++  ).toBe(1);
++  await refreshMonitoringProgress(env.DB, now);
++  expect(
++    await env.DB.prepare(
++      'SELECT state,completed FROM monitoring_cycles',
++    ).first(),
++  ).toEqual({ state: 'COMPLETE', completed: 1 });
++});
++it.each([429, 403, 500, 200])(
++  'RSS technical failure %i never starts fallback or commits a scan',
++  async (status) => {
++    const { context, lease } = await setup();
++    const noFetch: typeof fetch = async () => {
++      throw new Error('unexpected uploads request');
++    };
++    const client = new YoutubeClient('fixture-key', 3, noFetch);
++    await expect(
++      executeDiscoveryChunk(
++        env.DB,
++        context,
++        await lease(),
++        client,
++        now,
++        'DISCOVER',
++        () => now,
++        5,
++        async () =>
++          new Response('invalid XML', {
++            status,
++            headers: { 'Retry-After': '120' },
++          }),
++      ),
++    ).rejects.toThrow();
++    expect(client.usage.requests).toBe(0);
++    expect(
++      await env.DB.prepare('SELECT pages_committed FROM discovery_scans').first(
++        'pages_committed',
++      ),
++    ).toBe(0);
++    expect(
++      await env.DB.prepare(
++        "SELECT COUNT(*) n FROM change_log WHERE event_type LIKE 'RSS_FALLBACK%'",
++      ).first('n'),
++    ).toBe(0);
++    await refreshMonitoringProgress(env.DB, now);
++    expect(
++      await env.DB.prepare(
++        'SELECT state,completed FROM monitoring_cycles',
++      ).first(),
++    ).toEqual({ state: 'RUNNING', completed: 0 });
++  },
++);
++it('unknown publication in a NEW_ONLY fallback fails closed instead of importing a potentially historical video', async () => {
++  const { context, lease } = await setup(),
++    observed: string[] = [];
++  await expect(
++    executeDiscoveryChunk(
++      env.DB,
++      context,
++      await lease(),
++      new YoutubeClient(
++        'fixture-key',
++        3,
++        uploads([{ id: 'unknownxxxx', published: null }], observed),
++      ),
++      now,
++      'DISCOVER',
++      () => now,
++      5,
++      async () => new Response(null, { status: 404 }),
++    ),
++  ).rejects.toThrow('PARSER');
++  expect(await env.DB.prepare('SELECT COUNT(*) n FROM items').first('n')).toBe(
++    0,
++  );
++  expect(
++    await env.DB.prepare('SELECT pages_committed FROM discovery_scans').first(
++      'pages_committed',
++    ),
++  ).toBe(0);
++});
+--- deployed/tests/workers/transcript-audio-authority.spec.ts
++++ candidate/tests/workers/transcript-audio-authority.spec.ts
+@@ -0,0 +1,214 @@
++import { env } from 'cloudflare:workers';
++import { createExecutionContext } from 'cloudflare:test';
++import { afterEach, beforeEach, expect, it, vi } from 'vitest';
++import worker from '../../apps/api/src/index.js';
++import { resetCore, fixtureOwner, fixtureSecret } from './core-fixture.js';
++import { SourceRepository } from '../../packages/core/src/db/sources.js';
++import { ItemRepository } from '../../packages/core/src/db/items.js';
++import { JobStore } from '../../packages/core/src/jobs/store.js';
++import { AccessContext } from '../../packages/core/src/db/boundary.js';
++import { sha256 } from '../../packages/core/src/auth/crypto.js';
++import application from '../../config/application.json';
++
++beforeEach(resetCore);
++afterEach(() => vi.restoreAllMocks());
++
++async function inputRequest() {
++  const now = new Date(),
++    owner = await fixtureOwner();
++  const source = (await new SourceRepository(env.DB, owner).upsert(
++    {
++      namespace: 'youtube',
++      external_id: 'UC-fixture',
++      canonical_locator: 'https://www.youtube.com/channel/UC-fixture',
++      title: 'Fixture',
++      uploads_playlist_id: 'UU-fixture',
++      handle: null,
++    },
++    now.toISOString(),
++  ))!;
++  const item = (await new ItemRepository(env.DB, owner).upsert(
++    source.source_id,
++    {
++      namespace: 'youtube',
++      external_id: 'fixture0001',
++      item_type: 'video',
++      canonical_url: 'https://www.youtube.com/watch?v=fixture0001',
++      title: 'English original title is not language authority',
++      published_at: null,
++      publication_provenance: 'UNKNOWN',
++      availability: 'PUBLIC',
++      duration_seconds: 60,
++    },
++    now.toISOString(),
++  ))!;
++  const secret = 'z'.repeat(43),
++    hash = await sha256(secret);
++  await env.DB.prepare('INSERT INTO worker_identities VALUES(?,?,?,?,?,NULL)')
++    .bind(
++      'authority-worker',
++      'a',
++      hash,
++      '["FETCH_TRANSCRIPT"]',
++      now.toISOString(),
++    )
++    .run();
++  const job = (await new JobStore(env.DB, owner).enqueue(
++    {
++      item_id: item.item_id,
++      source_id: source.source_id,
++      task_type: 'FETCH_TRANSCRIPT',
++      input_revision: 'fixture',
++      profile_revision: 'fixture',
++      prompt_snapshot_id: null,
++      routing_policy_version: 'local-1',
++      wire_schema_version: null,
++      canonical_schema_version: null,
++      enrichment_version: null,
++      explicit_run_nonce: '',
++      arrival_origin_at: now.toISOString(),
++      origin_kind: 'NEW',
++      payload: {},
++      priority: 80,
++      due_at: now.toISOString(),
++    },
++    now.toISOString(),
++  ))!;
++  const access = await AccessContext.worker(env.DB, hash),
++    store = new JobStore(env.DB, access);
++  const token = (await store.lease(
++    job.job_id,
++    'FETCH_TRANSCRIPT',
++    now,
++    'local',
++  ))!;
++  await store.start(token, 'FETCH_TRANSCRIPT', now);
++  return {
++    item,
++    token,
++    request: () =>
++      worker.fetch(
++        new Request(
++          application.app_origin + '/internal/workers/transcript/input',
++          {
++            method: 'POST',
++            headers: {
++              Authorization: 'Bearer ' + secret,
++              'Content-Type': 'application/json',
++            },
++            body: JSON.stringify({ token }),
++          },
++        ),
++        {
++          ...env,
++          SESSION_SIGNING_SECRET: fixtureSecret,
++          YOUTUBE_API_KEY: 'fixture-key',
++        },
++        createExecutionContext(),
++      ),
++  };
++}
++
++it('returns only the exact videos.snippet.defaultAudioLanguage declaration without altering historical metadata', async () => {
++  const setup = await inputRequest();
++  const before = await env.DB.prepare(
++    'SELECT metadata_json FROM item_revisions WHERE item_id=?',
++  )
++    .bind(setup.item.item_id)
++    .first('metadata_json');
++  const fetcher = vi.spyOn(globalThis, 'fetch').mockResolvedValue(
++    Response.json({
++      items: [
++        {
++          id: 'fixture0001',
++          snippet: { defaultAudioLanguage: 'de-DE', defaultLanguage: 'en' },
++        },
++      ],
++    }),
++  );
++  const response = await setup.request();
++  expect(response.status).toBe(200);
++  expect(await response.json()).toMatchObject({
++    external_id: 'fixture0001',
++    default_audio_language: 'de-DE',
++    duration_ms: 60000,
++  });
++  expect(fetcher).toHaveBeenCalledTimes(1);
++  const url = new URL(String(fetcher.mock.calls[0]![0]));
++  expect(url.origin + url.pathname).toBe(
++    'https://www.googleapis.com/youtube/v3/videos',
++  );
++  expect(url.searchParams.get('id')).toBe('fixture0001');
++  expect(url.searchParams.get('part')).toBe('snippet');
++  expect(
++    await env.DB.prepare(
++      'SELECT metadata_json FROM item_revisions WHERE item_id=?',
++    )
++      .bind(setup.item.item_id)
++      .first('metadata_json'),
++  ).toBe(before);
++});
++
++it('does not infer audio language from defaultLanguage or title', async () => {
++  const setup = await inputRequest();
++  vi.spyOn(globalThis, 'fetch').mockResolvedValue(
++    Response.json({
++      items: [
++        {
++          id: 'fixture0001',
++          snippet: { defaultLanguage: 'en', title: 'English original' },
++        },
++      ],
++    }),
++  );
++  const response = await setup.request();
++  expect(response.status).toBe(200);
++  expect(await response.json()).toMatchObject({ default_audio_language: null });
++});
++
++it.each([
++  { items: [{ id: 'another0001', snippet: { defaultAudioLanguage: 'en' } }] },
++  {
++    items: [
++      { id: 'fixture0001', snippet: { defaultAudioLanguage: 'en;command' } },
++    ],
++  },
++  { items: [{ id: 'fixture0001', snippet: { defaultAudioLanguage: null } }] },
++  {
++    items: [
++      { id: 'fixture0001', snippet: { defaultAudioLanguage: 'en' } },
++      { id: 'fixture0001', snippet: { defaultAudioLanguage: 'en' } },
++    ],
++  },
++])(
++  'rejects mismatched, ambiguous or malformed official metadata before returning source input',
++  async (body) => {
++    const setup = await inputRequest();
++    vi.spyOn(globalThis, 'fetch').mockResolvedValue(Response.json(body));
++    const response = await setup.request();
++    expect(response.status).toBe(503);
++    expect(await response.json()).toMatchObject({ code: 'PARSER' });
++  },
++);
++
++it('propagates technical metadata failures without converting them into absent captions', async () => {
++  const setup = await inputRequest();
++  vi.spyOn(globalThis, 'fetch').mockRejectedValue(
++    new Error('fixture network failure'),
++  );
++  const response = await setup.request();
++  expect(response.status).toBe(503);
++  expect(await response.json()).toMatchObject({ code: 'TRANSIENT' });
++  expect(
++    await env.DB.prepare('SELECT state FROM jobs WHERE job_id=?')
++      .bind(setup.token.job_id)
++      .first('state'),
++  ).toBe('RUNNING');
++  expect(
++    await env.DB.prepare(
++      "SELECT COUNT(*) n FROM job_attempts WHERE job_id=? AND error_code IN ('LOCAL_YTDLP_NO_CAPTIONS','LOCAL_YTDLP_NO_CAPTIONS_FINAL')",
++    )
++      .bind(setup.token.job_id)
++      .first('n'),
++  ).toBe(0);
++});
+--- deployed/tools/deployment/oracle/release.py
++++ candidate/tools/deployment/oracle/release.py
+@@ -26,6 +26,7 @@
+     'tests/unit/monitoring-slots.spec.ts', 'tests/workers/caption-retry-policy.spec.ts',
+     'tests/workers/monitoring-cycles.spec.ts', 'tests/workers/performance-fixture.ts',
+     'tests/workers/pipeline-performance.spec.ts', 'tools/performance/benchmark-pipeline.ts']
++NEW_FILES += ['tests/workers/rss-fallback.spec.ts', 'tests/workers/transcript-audio-authority.spec.ts']
+ 
+ def sha(body):
+     return hashlib.sha256(body).hexdigest()
+--- deployed/tools/transcript-engine/caption-broker.py
++++ candidate/tools/transcript-engine/caption-broker.py
+@@ -47,7 +47,7 @@
+ 
+ def validate_input(value):
+     if not isinstance(value, dict) or set(value) - {'operation', 'video_id', 'item_id',
+-            'max_bytes', 'language_code', 'track_kind', 'extension'}:
++            'max_bytes', 'language_code', 'track_kind', 'extension', 'default_audio_language'}:
+         raise ValueError('INVALID_LOCAL_INPUT')
+     if value.get('operation') not in {'list', 'fetch'} or not isinstance(value.get('video_id'), str) \
+             or not re.fullmatch(r'[A-Za-z0-9_-]{11}', value['video_id']):
+@@ -58,7 +58,11 @@
+             r'[0-9a-fA-F]{8}(?:-[0-9a-fA-F]{4}){3}-[0-9a-fA-F]{12}', value['item_id']):
+         raise ValueError('INVALID_LOCAL_INPUT')
+     if value['operation'] == 'list':
+-        if set(value) != {'operation', 'video_id', 'item_id', 'max_bytes'}:
++        if set(value) - {'operation', 'video_id', 'item_id', 'max_bytes', 'default_audio_language'}:
++            raise ValueError('INVALID_LOCAL_INPUT')
++        if 'default_audio_language' in value and (not isinstance(value['default_audio_language'], str) \
++                or len(value['default_audio_language']) > 64 \
++                or not re.fullmatch(r'[A-Za-z]{2,8}(?:-[A-Za-z0-9]{1,8})*', value['default_audio_language'])):
+             raise ValueError('INVALID_LOCAL_INPUT')
+     else:
+         if set(value) != {'operation', 'video_id', 'item_id', 'max_bytes', 'language_code', 'track_kind', 'extension'}:
+@@ -208,16 +212,19 @@
+             if temporary.exists(): temporary.unlink()
+ 
+ 
+-def read_caption_capture(video, maximum, connection, item_id):
++def read_caption_capture(video, maximum, connection, item_id, default_audio_language=None):
+     runner = RUNTIME/'tools/transcript-engine/login-diagnostic-oracle.py'
+     diagnostic = RUNTIME/'tools/transcript-engine/login-diagnostic.py'
+     check_root_file(runner)
+     check_root_file(diagnostic)
+     previous_runs = set(EVIDENCE.glob('login-caption-broker-*'))
+-    child = subprocess.Popen(['/usr/bin/python3', '-I', '-B', str(runner),
++    arguments = ['/usr/bin/python3', '-I', '-B', str(runner),
+         '--on-oracle', '--script', str(diagnostic), '--label', 'caption-broker',
+         '--mode', 'ytdlp', '--client', 'mweb', '--persistent-session', '--adapter',
+-        '--pot-server', str(RUNTIME/'provider/server'), '--video', video, '--item-id', item_id],
++        '--pot-server', str(RUNTIME/'provider/server'), '--video', video, '--item-id', item_id]
++    if default_audio_language:
++        arguments += ['--default-audio-language', default_audio_language]
++    child = subprocess.Popen(arguments,
+         env={'PATH': '/usr/bin:/bin', 'LANG': 'C.UTF-8'},
+         stdout=subprocess.PIPE, stderr=subprocess.PIPE, start_new_session=True)
+     selector = selectors.DefaultSelector()
+@@ -342,7 +349,8 @@
+             self.cached = None
+         if value['operation'] == 'list':
+             self.cached = None
+-            response = self.capture(value['video_id'], value['max_bytes'], connection, value['item_id'])
++            response = self.capture(value['video_id'], value['max_bytes'], connection, value['item_id'],
++                **({'default_audio_language': value['default_audio_language']} if 'default_audio_language' in value else {}))
+             if response.get('status') == 'OK':
+                 self.cached = {'video_id': value['video_id'], 'item_id': value['item_id'], 'expires': self.clock() + 120,
+                     'maximum': value['max_bytes'], 'response': response}
+--- deployed/tools/transcript-engine/login-diagnostic-oracle.py
++++ candidate/tools/transcript-engine/login-diagnostic-oracle.py
+@@ -249,6 +249,7 @@
+     if SESSION_ACTIVE: diagnostic += ['--cookies',str(secret)]
+     if PERSISTENT_SESSION: diagnostic += ['--persistent-session']
+     if ADAPTER: diagnostic += ['--adapter', '--item-id', ITEM_ID]
++    if DEFAULT_AUDIO_LANGUAGE: diagnostic += ['--default-audio-language', DEFAULT_AUDIO_LANGUAGE]
+     if MODE == 'ytdlp': diagnostic += ['--parser',str(asset_root/'apps/executor/python/transcript_ytdlp.py')]
+     if MODE == 'native': diagnostic += ['--engine',str(asset_root/'transcript-engine.mjs')]
+     if POT_SERVER:
+@@ -395,6 +396,7 @@
+     parser.add_argument('--replace-session', action='store_true')
+     parser.add_argument('--adapter', action='store_true')
+     parser.add_argument('--item-id')
++    parser.add_argument('--default-audio-language')
+     parser.add_argument('--max-requests', type=int, choices=range(1, 9), default=8)
+     parser.add_argument('--timeout-seconds', type=int, choices=range(1, 101), default=100)
+     args = parser.parse_args()
+@@ -406,6 +408,9 @@
+         parser.error('executor adapter requires protected persistent session')
+     if args.adapter and not (args.item_id and re.fullmatch(r'[0-9a-fA-F]{8}(?:-[0-9a-fA-F]{4}){3}-[0-9a-fA-F]{12}', args.item_id)):
+         parser.error('executor adapter requires a valid item ID')
++    if args.default_audio_language is not None and (not args.adapter or len(args.default_audio_language) > 64 \
++            or not re.fullmatch(r'[A-Za-z]{2,8}(?:-[A-Za-z0-9]{1,8})*', args.default_audio_language)):
++        parser.error('verified default audio language must be a language tag for the executor adapter')
+     if args.replace_session and not (args.persistent_session and args.cookies):
+         parser.error('replacement requires a new explicit persistent session export')
+     if not re.fullmatch(r'[a-z0-9][a-z0-9-]{0,48}', args.label):
+@@ -469,6 +474,7 @@
+         'REPLACE_SESSION':args.replace_session,
+         'ADAPTER':args.adapter,
+         'ITEM_ID':args.item_id,
++        'DEFAULT_AUDIO_LANGUAGE':args.default_audio_language,
+         'MAX_REQUESTS':args.max_requests, 'TIMEOUT_SECONDS':args.timeout_seconds,
+     }.items())+'\nfrom http.cookiejar import HTTPONLY_ATTR, LoadError, MozillaCookieJar\nimport io,warnings\n'+inspect.getsource(validate_cookie_export)+'\n'+REMOTE
+     if args.on_oracle:
+--- deployed/tools/transcript-engine/login-diagnostic.py
++++ candidate/tools/transcript-engine/login-diagnostic.py
+@@ -411,7 +411,10 @@
+                     provider_tracks = adapter_parser.tracks_from_info(info)
+                     public = lambda track: {key: value for key, value in track.items() if not key.startswith('_')}
+                     result['provider_tracks'] = [public(track) for track in provider_tracks]
+-                    result['video_language'] = info.get('language') if isinstance(info.get('language'), str) else None
++                    provider_language = info.get('language') if isinstance(info.get('language'), str) else None
++                    result['video_language'] = provider_language or getattr(args, 'default_audio_language', None)
++                    result['video_language_provenance'] = 'yt_dlp.info.language' if provider_language else \
++                        'youtube.videos.snippet.defaultAudioLanguage' if result['video_language'] else None
+                     primary = lambda value: value.lower().split('-')[0]
+                     usable = [track for track in provider_tracks if track['is_translated'] is False and track['is_generated'] is not None and track['track_kind'] in {'MANUAL','GENERATED'}]
+                     explicit = {primary(track['language_code']) for track in usable if track['is_original'] is True}
+@@ -500,10 +503,13 @@
+     parser.add_argument('--persistent-session', action='store_true')
+     parser.add_argument('--adapter', action='store_true')
+     parser.add_argument('--item-id')
++    parser.add_argument('--default-audio-language')
+     parser.add_argument('--max-requests', type=int, choices=range(1, 9), default=8)
+     args = parser.parse_args()
+     assert re.fullmatch(r'[\w-]{11}', args.video)
+     assert not args.adapter or (args.item_id and re.fullmatch(r'[0-9a-fA-F]{8}(?:-[0-9a-fA-F]{4}){3}-[0-9a-fA-F]{12}', args.item_id))
++    assert args.default_audio_language is None or (args.adapter and len(args.default_audio_language) <= 64 \
++        and re.fullmatch(r'[A-Za-z]{2,8}(?:-[A-Za-z0-9]{1,8})*', args.default_audio_language))
+     if args.mode == 'pot' or args.pot_server:
+         assert args.mode in {'pot', 'ytdlp'} and args.pot_server and args.pot_trace
+         assert (args.video == 'aircAruvnKk' or args.persistent_session) and not (args.mode == 'pot' and args.cookies)

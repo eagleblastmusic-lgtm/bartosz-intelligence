@@ -47,7 +47,7 @@ def failure(code, status='TEMPORARY_FAILURE'):
 
 def validate_input(value):
     if not isinstance(value, dict) or set(value) - {'operation', 'video_id', 'item_id',
-            'max_bytes', 'language_code', 'track_kind', 'extension'}:
+            'max_bytes', 'language_code', 'track_kind', 'extension', 'default_audio_language'}:
         raise ValueError('INVALID_LOCAL_INPUT')
     if value.get('operation') not in {'list', 'fetch'} or not isinstance(value.get('video_id'), str) \
             or not re.fullmatch(r'[A-Za-z0-9_-]{11}', value['video_id']):
@@ -58,7 +58,11 @@ def validate_input(value):
             r'[0-9a-fA-F]{8}(?:-[0-9a-fA-F]{4}){3}-[0-9a-fA-F]{12}', value['item_id']):
         raise ValueError('INVALID_LOCAL_INPUT')
     if value['operation'] == 'list':
-        if set(value) != {'operation', 'video_id', 'item_id', 'max_bytes'}:
+        if set(value) - {'operation', 'video_id', 'item_id', 'max_bytes', 'default_audio_language'}:
+            raise ValueError('INVALID_LOCAL_INPUT')
+        if 'default_audio_language' in value and (not isinstance(value['default_audio_language'], str) \
+                or len(value['default_audio_language']) > 64 \
+                or not re.fullmatch(r'[A-Za-z]{2,8}(?:-[A-Za-z0-9]{1,8})*', value['default_audio_language'])):
             raise ValueError('INVALID_LOCAL_INPUT')
     else:
         if set(value) != {'operation', 'video_id', 'item_id', 'max_bytes', 'language_code', 'track_kind', 'extension'}:
@@ -208,16 +212,19 @@ def cleanup_run(path):
             if temporary.exists(): temporary.unlink()
 
 
-def read_caption_capture(video, maximum, connection, item_id):
+def read_caption_capture(video, maximum, connection, item_id, default_audio_language=None):
     runner = RUNTIME/'tools/transcript-engine/login-diagnostic-oracle.py'
     diagnostic = RUNTIME/'tools/transcript-engine/login-diagnostic.py'
     check_root_file(runner)
     check_root_file(diagnostic)
     previous_runs = set(EVIDENCE.glob('login-caption-broker-*'))
-    child = subprocess.Popen(['/usr/bin/python3', '-I', '-B', str(runner),
+    arguments = ['/usr/bin/python3', '-I', '-B', str(runner),
         '--on-oracle', '--script', str(diagnostic), '--label', 'caption-broker',
         '--mode', 'ytdlp', '--client', 'mweb', '--persistent-session', '--adapter',
-        '--pot-server', str(RUNTIME/'provider/server'), '--video', video, '--item-id', item_id],
+        '--pot-server', str(RUNTIME/'provider/server'), '--video', video, '--item-id', item_id]
+    if default_audio_language:
+        arguments += ['--default-audio-language', default_audio_language]
+    child = subprocess.Popen(arguments,
         env={'PATH': '/usr/bin:/bin', 'LANG': 'C.UTF-8'},
         stdout=subprocess.PIPE, stderr=subprocess.PIPE, start_new_session=True)
     selector = selectors.DefaultSelector()
@@ -342,7 +349,8 @@ class CaptionBroker:
             self.cached = None
         if value['operation'] == 'list':
             self.cached = None
-            response = self.capture(value['video_id'], value['max_bytes'], connection, value['item_id'])
+            response = self.capture(value['video_id'], value['max_bytes'], connection, value['item_id'],
+                **({'default_audio_language': value['default_audio_language']} if 'default_audio_language' in value else {}))
             if response.get('status') == 'OK':
                 self.cached = {'video_id': value['video_id'], 'item_id': value['item_id'], 'expires': self.clock() + 120,
                     'maximum': value['max_bytes'], 'response': response}

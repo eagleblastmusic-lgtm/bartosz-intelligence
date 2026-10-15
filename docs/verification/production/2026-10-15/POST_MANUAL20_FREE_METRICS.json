@@ -1,0 +1,931 @@
+{
+  "schema": "production-stage-b-metrics-review:1",
+  "observed_at": "2026-10-15T11:40:58.736Z",
+  "period_start_utc": "2026-10-15T00:00:00Z",
+  "period_end_utc": "2026-10-15T11:40:55.384Z",
+  "partial_day": true,
+  "full_day_measured": false,
+  "production_mutations_by_collector": 0,
+  "worker_version": "901e9506-5924-4e96-9735-19f43ee9a1d3",
+  "worker_deployed_at": "2026-10-15T11:25:17.957401Z",
+  "query_errors": {},
+  "sql_statements": 11,
+  "collector_rows_read": 5843,
+  "collector_rows_written": 0,
+  "sql_results": {
+    "retention": [
+      {
+        "deletion_enabled": 0
+      }
+    ],
+    "active_channels": [
+      {
+        "active_channels": 20
+      }
+    ],
+    "legacy_accepted": [
+      {
+        "accepted_count": 46
+      }
+    ],
+    "accepted_total": [
+      {
+        "accepted_count": 46
+      }
+    ],
+    "archives": [
+      {
+        "state": "VERIFIED",
+        "n": 46,
+        "last_verified_at": "2026-10-15T02:02:41.693Z"
+      }
+    ],
+    "payload_archives": [
+      {
+        "n": 1
+      }
+    ],
+    "new_ai_jobs": [],
+    "new_ai_attempts": [],
+    "fetch_jobs": [
+      {
+        "state": "BLOCKED",
+        "n": 20,
+        "earliest_due": "2026-10-14T18:13:20.315Z"
+      },
+      {
+        "state": "DEFERRED",
+        "n": 1,
+        "earliest_due": "2026-10-20T02:15:40.386Z"
+      },
+      {
+        "state": "SUCCEEDED",
+        "n": 46,
+        "earliest_due": "2026-10-05T21:10:24.779Z"
+      }
+    ],
+    "artifact_inventory": [
+      {
+        "artifacts": 247,
+        "chunks": 619
+      }
+    ],
+    "drive_status": [
+      {
+        "auth_state": "CONNECTED",
+        "root_state": "VERIFIED",
+        "last_refresh_at": "2026-10-15T11:26:45.044Z",
+        "last_error": null
+      }
+    ]
+  },
+  "database": {
+    "uuid": "6f7a7527-610b-4e56-ad80-682ea7acd567",
+    "name": "bartosz-intelligence-core",
+    "created_at": "2026-10-05T19:42:01.543Z",
+    "version": "production",
+    "num_tables": 85,
+    "file_size": 30359552,
+    "running_in_region": "WEUR",
+    "read_replication": {
+      "mode": "disabled"
+    },
+    "jurisdiction": null
+  },
+  "queue_backlog": {
+    "backlog_count": 0,
+    "backlog_bytes": 0,
+    "oldest_message_timestamp_ms": 0
+  },
+  "workers_account": {
+    "available": true,
+    "groups": 3072,
+    "requests": 6398,
+    "errors": 0,
+    "subrequests": 388,
+    "status_counts": {
+      "success": 6398
+    },
+    "script_versions": {
+      "39edd639-eba3-40bb-93c7-022f1aec31d6": {
+        "groups": 662,
+        "requests": 1322,
+        "errors": 0,
+        "first_at": "2026-10-15T00:00:11Z",
+        "last_at": "2026-10-15T01:18:59Z",
+        "cpu_group_p99_max_microseconds": 66378,
+        "memory_group_p99_max_bytes": 17158372
+      },
+      "600219c3-114c-4fc0-8dec-c886f229995e": {
+        "groups": 293,
+        "requests": 556,
+        "errors": 0,
+        "first_at": "2026-10-15T01:19:04Z",
+        "last_at": "2026-10-15T02:00:18Z",
+        "cpu_group_p99_max_microseconds": 44421,
+        "memory_group_p99_max_bytes": 7673216
+      },
+      "622b952d-81e2-45f6-b6f5-e0d1f9478899": {
+        "groups": 1611,
+        "requests": 3581,
+        "errors": 0,
+        "first_at": "2026-10-15T02:00:22Z",
+        "last_at": "2026-10-15T10:38:45Z",
+        "cpu_group_p99_max_microseconds": 128680,
+        "memory_group_p99_max_bytes": 10801562
+      },
+      "74232ebc-655d-4d37-957a-8c93eed1fef8": {
+        "groups": 125,
+        "requests": 232,
+        "errors": 0,
+        "first_at": "2026-10-15T10:38:57Z",
+        "last_at": "2026-10-15T10:55:30Z",
+        "cpu_group_p99_max_microseconds": 34479,
+        "memory_group_p99_max_bytes": 9175192
+      },
+      "6b6a7844-e1f9-48a3-b70e-299b6d98cd90": {
+        "groups": 221,
+        "requests": 393,
+        "errors": 0,
+        "first_at": "2026-10-15T10:55:22Z",
+        "last_at": "2026-10-15T11:25:17Z",
+        "cpu_group_p99_max_microseconds": 36321,
+        "memory_group_p99_max_bytes": 10485720
+      },
+      "901e9506-5924-4e96-9735-19f43ee9a1d3": {
+        "groups": 160,
+        "requests": 314,
+        "errors": 0,
+        "first_at": "2026-10-15T11:25:22Z",
+        "last_at": "2026-10-15T11:40:24Z",
+        "cpu_group_p99_max_microseconds": 26612,
+        "memory_group_p99_max_bytes": 9495033
+      }
+    },
+    "cpu_group_p99_max_microseconds": 128680,
+    "memory_group_p99_max_bytes": 17158372,
+    "cpu_group_p99_max_ms": 128.68
+  },
+  "workers_project": {
+    "available": true,
+    "groups": 3072,
+    "requests": 6398,
+    "errors": 0,
+    "subrequests": 388,
+    "status_counts": {
+      "success": 6398
+    },
+    "script_versions": {
+      "39edd639-eba3-40bb-93c7-022f1aec31d6": {
+        "groups": 662,
+        "requests": 1322,
+        "errors": 0,
+        "first_at": "2026-10-15T00:00:11Z",
+        "last_at": "2026-10-15T01:18:59Z",
+        "cpu_group_p99_max_microseconds": 66378,
+        "memory_group_p99_max_bytes": 17158372
+      },
+      "600219c3-114c-4fc0-8dec-c886f229995e": {
+        "groups": 293,
+        "requests": 556,
+        "errors": 0,
+        "first_at": "2026-10-15T01:19:04Z",
+        "last_at": "2026-10-15T02:00:18Z",
+        "cpu_group_p99_max_microseconds": 44421,
+        "memory_group_p99_max_bytes": 7673216
+      },
+      "622b952d-81e2-45f6-b6f5-e0d1f9478899": {
+        "groups": 1611,
+        "requests": 3581,
+        "errors": 0,
+        "first_at": "2026-10-15T02:00:22Z",
+        "last_at": "2026-10-15T10:38:45Z",
+        "cpu_group_p99_max_microseconds": 128680,
+        "memory_group_p99_max_bytes": 10801562
+      },
+      "74232ebc-655d-4d37-957a-8c93eed1fef8": {
+        "groups": 125,
+        "requests": 232,
+        "errors": 0,
+        "first_at": "2026-10-15T10:38:57Z",
+        "last_at": "2026-10-15T10:55:30Z",
+        "cpu_group_p99_max_microseconds": 34479,
+        "memory_group_p99_max_bytes": 9175192
+      },
+      "6b6a7844-e1f9-48a3-b70e-299b6d98cd90": {
+        "groups": 221,
+        "requests": 393,
+        "errors": 0,
+        "first_at": "2026-10-15T10:55:22Z",
+        "last_at": "2026-10-15T11:25:17Z",
+        "cpu_group_p99_max_microseconds": 36321,
+        "memory_group_p99_max_bytes": 10485720
+      },
+      "901e9506-5924-4e96-9735-19f43ee9a1d3": {
+        "groups": 160,
+        "requests": 314,
+        "errors": 0,
+        "first_at": "2026-10-15T11:25:22Z",
+        "last_at": "2026-10-15T11:40:24Z",
+        "cpu_group_p99_max_microseconds": 26612,
+        "memory_group_p99_max_bytes": 9495033
+      }
+    },
+    "cpu_group_p99_max_microseconds": 128680,
+    "memory_group_p99_max_bytes": 17158372,
+    "cpu_group_p99_max_ms": 128.68
+  },
+  "workers_exact_deployed_version": {
+    "available": true,
+    "groups": 160,
+    "requests": 314,
+    "errors": 0,
+    "subrequests": 51,
+    "status_counts": {
+      "success": 314
+    },
+    "script_versions": {
+      "901e9506-5924-4e96-9735-19f43ee9a1d3": {
+        "groups": 160,
+        "requests": 314,
+        "errors": 0,
+        "first_at": "2026-10-15T11:25:22Z",
+        "last_at": "2026-10-15T11:40:24Z",
+        "cpu_group_p99_max_microseconds": 26612,
+        "memory_group_p99_max_bytes": 9495033
+      }
+    },
+    "cpu_group_p99_max_microseconds": 26612,
+    "memory_group_p99_max_bytes": 9495033,
+    "cpu_group_p99_max_ms": 26.612
+  },
+  "d1_project": {
+    "groups": 12,
+    "rows_read": 1230122,
+    "rows_written": 8697,
+    "read_queries": 23160,
+    "write_queries": 4318
+  },
+  "d1_account": {
+    "rows_read": 1230122,
+    "rows_written": 8697,
+    "database_count": 1
+  },
+  "queues_account": {
+    "groups": 38,
+    "billable_operations": 915,
+    "delete_fail_count": 22,
+    "delete_dlq_count": 0,
+    "operation_groups": [
+      {
+        "avg": {
+          "lagTime": 3450,
+          "retryCount": 0
+        },
+        "count": 140,
+        "dimensions": {
+          "actionType": "ReadMessage",
+          "datetimeHour": "2026-10-15T00:00:00Z",
+          "outcome": ""
+        },
+        "sum": {
+          "billableOperations": 140,
+          "bytes": 12449
+        }
+      },
+      {
+        "avg": {
+          "lagTime": 0,
+          "retryCount": 0
+        },
+        "count": 145,
+        "dimensions": {
+          "actionType": "WriteMessage",
+          "datetimeHour": "2026-10-15T00:00:00Z",
+          "outcome": ""
+        },
+        "sum": {
+          "billableOperations": 145,
+          "bytes": 12893
+        }
+      },
+      {
+        "avg": {
+          "lagTime": 3808,
+          "retryCount": 0
+        },
+        "count": 117,
+        "dimensions": {
+          "actionType": "DeleteMessage",
+          "datetimeHour": "2026-10-15T00:00:00Z",
+          "outcome": "success"
+        },
+        "sum": {
+          "billableOperations": 117,
+          "bytes": 10413
+        }
+      },
+      {
+        "avg": {
+          "lagTime": 3525,
+          "retryCount": 0
+        },
+        "count": 17,
+        "dimensions": {
+          "actionType": "DeleteMessage",
+          "datetimeHour": "2026-10-15T00:00:00Z",
+          "outcome": "fail"
+        },
+        "sum": {
+          "billableOperations": 17,
+          "bytes": 1501
+        }
+      },
+      {
+        "avg": {
+          "lagTime": 0,
+          "retryCount": 0
+        },
+        "count": 22,
+        "dimensions": {
+          "actionType": "WriteMessage",
+          "datetimeHour": "2026-10-15T01:00:00Z",
+          "outcome": ""
+        },
+        "sum": {
+          "billableOperations": 22,
+          "bytes": 1705
+        }
+      },
+      {
+        "avg": {
+          "lagTime": 3810,
+          "retryCount": 0
+        },
+        "count": 22,
+        "dimensions": {
+          "actionType": "ReadMessage",
+          "datetimeHour": "2026-10-15T01:00:00Z",
+          "outcome": ""
+        },
+        "sum": {
+          "billableOperations": 22,
+          "bytes": 1609
+        }
+      },
+      {
+        "avg": {
+          "lagTime": 3923,
+          "retryCount": 0
+        },
+        "count": 5,
+        "dimensions": {
+          "actionType": "DeleteMessage",
+          "datetimeHour": "2026-10-15T01:00:00Z",
+          "outcome": "fail"
+        },
+        "sum": {
+          "billableOperations": 5,
+          "bytes": 441
+        }
+      },
+      {
+        "avg": {
+          "lagTime": 4053,
+          "retryCount": 0
+        },
+        "count": 17,
+        "dimensions": {
+          "actionType": "DeleteMessage",
+          "datetimeHour": "2026-10-15T01:00:00Z",
+          "outcome": "success"
+        },
+        "sum": {
+          "billableOperations": 17,
+          "bytes": 1072
+        }
+      },
+      {
+        "avg": {
+          "lagTime": 3892,
+          "retryCount": 0
+        },
+        "count": 17,
+        "dimensions": {
+          "actionType": "DeleteMessage",
+          "datetimeHour": "2026-10-15T02:00:00Z",
+          "outcome": "success"
+        },
+        "sum": {
+          "billableOperations": 17,
+          "bytes": 796
+        }
+      },
+      {
+        "avg": {
+          "lagTime": 3824,
+          "retryCount": 0
+        },
+        "count": 17,
+        "dimensions": {
+          "actionType": "ReadMessage",
+          "datetimeHour": "2026-10-15T02:00:00Z",
+          "outcome": ""
+        },
+        "sum": {
+          "billableOperations": 17,
+          "bytes": 796
+        }
+      },
+      {
+        "avg": {
+          "lagTime": 0,
+          "retryCount": 0
+        },
+        "count": 17,
+        "dimensions": {
+          "actionType": "WriteMessage",
+          "datetimeHour": "2026-10-15T02:00:00Z",
+          "outcome": ""
+        },
+        "sum": {
+          "billableOperations": 17,
+          "bytes": 796
+        }
+      },
+      {
+        "avg": {
+          "lagTime": 2070,
+          "retryCount": 0
+        },
+        "count": 12,
+        "dimensions": {
+          "actionType": "DeleteMessage",
+          "datetimeHour": "2026-10-15T03:00:00Z",
+          "outcome": "success"
+        },
+        "sum": {
+          "billableOperations": 12,
+          "bytes": 348
+        }
+      },
+      {
+        "avg": {
+          "lagTime": 0,
+          "retryCount": 0
+        },
+        "count": 12,
+        "dimensions": {
+          "actionType": "WriteMessage",
+          "datetimeHour": "2026-10-15T03:00:00Z",
+          "outcome": ""
+        },
+        "sum": {
+          "billableOperations": 12,
+          "bytes": 348
+        }
+      },
+      {
+        "avg": {
+          "lagTime": 2021,
+          "retryCount": 0
+        },
+        "count": 12,
+        "dimensions": {
+          "actionType": "ReadMessage",
+          "datetimeHour": "2026-10-15T03:00:00Z",
+          "outcome": ""
+        },
+        "sum": {
+          "billableOperations": 12,
+          "bytes": 348
+        }
+      },
+      {
+        "avg": {
+          "lagTime": 0,
+          "retryCount": 0
+        },
+        "count": 12,
+        "dimensions": {
+          "actionType": "WriteMessage",
+          "datetimeHour": "2026-10-15T04:00:00Z",
+          "outcome": ""
+        },
+        "sum": {
+          "billableOperations": 12,
+          "bytes": 348
+        }
+      },
+      {
+        "avg": {
+          "lagTime": 3125,
+          "retryCount": 0
+        },
+        "count": 12,
+        "dimensions": {
+          "actionType": "DeleteMessage",
+          "datetimeHour": "2026-10-15T04:00:00Z",
+          "outcome": "success"
+        },
+        "sum": {
+          "billableOperations": 12,
+          "bytes": 348
+        }
+      },
+      {
+        "avg": {
+          "lagTime": 3079,
+          "retryCount": 0
+        },
+        "count": 12,
+        "dimensions": {
+          "actionType": "ReadMessage",
+          "datetimeHour": "2026-10-15T04:00:00Z",
+          "outcome": ""
+        },
+        "sum": {
+          "billableOperations": 12,
+          "bytes": 348
+        }
+      },
+      {
+        "avg": {
+          "lagTime": 2796,
+          "retryCount": 0
+        },
+        "count": 12,
+        "dimensions": {
+          "actionType": "ReadMessage",
+          "datetimeHour": "2026-10-15T05:00:00Z",
+          "outcome": ""
+        },
+        "sum": {
+          "billableOperations": 12,
+          "bytes": 348
+        }
+      },
+      {
+        "avg": {
+          "lagTime": 2833,
+          "retryCount": 0
+        },
+        "count": 12,
+        "dimensions": {
+          "actionType": "DeleteMessage",
+          "datetimeHour": "2026-10-15T05:00:00Z",
+          "outcome": "success"
+        },
+        "sum": {
+          "billableOperations": 12,
+          "bytes": 348
+        }
+      },
+      {
+        "avg": {
+          "lagTime": 0,
+          "retryCount": 0
+        },
+        "count": 12,
+        "dimensions": {
+          "actionType": "WriteMessage",
+          "datetimeHour": "2026-10-15T05:00:00Z",
+          "outcome": ""
+        },
+        "sum": {
+          "billableOperations": 12,
+          "bytes": 348
+        }
+      },
+      {
+        "avg": {
+          "lagTime": 0,
+          "retryCount": 0
+        },
+        "count": 12,
+        "dimensions": {
+          "actionType": "WriteMessage",
+          "datetimeHour": "2026-10-15T06:00:00Z",
+          "outcome": ""
+        },
+        "sum": {
+          "billableOperations": 12,
+          "bytes": 348
+        }
+      },
+      {
+        "avg": {
+          "lagTime": 2535,
+          "retryCount": 0
+        },
+        "count": 12,
+        "dimensions": {
+          "actionType": "ReadMessage",
+          "datetimeHour": "2026-10-15T06:00:00Z",
+          "outcome": ""
+        },
+        "sum": {
+          "billableOperations": 12,
+          "bytes": 348
+        }
+      },
+      {
+        "avg": {
+          "lagTime": 2584,
+          "retryCount": 0
+        },
+        "count": 12,
+        "dimensions": {
+          "actionType": "DeleteMessage",
+          "datetimeHour": "2026-10-15T06:00:00Z",
+          "outcome": "success"
+        },
+        "sum": {
+          "billableOperations": 12,
+          "bytes": 348
+        }
+      },
+      {
+        "avg": {
+          "lagTime": 0,
+          "retryCount": 0
+        },
+        "count": 12,
+        "dimensions": {
+          "actionType": "WriteMessage",
+          "datetimeHour": "2026-10-15T07:00:00Z",
+          "outcome": ""
+        },
+        "sum": {
+          "billableOperations": 12,
+          "bytes": 348
+        }
+      },
+      {
+        "avg": {
+          "lagTime": 6496,
+          "retryCount": 0
+        },
+        "count": 12,
+        "dimensions": {
+          "actionType": "ReadMessage",
+          "datetimeHour": "2026-10-15T07:00:00Z",
+          "outcome": ""
+        },
+        "sum": {
+          "billableOperations": 12,
+          "bytes": 348
+        }
+      },
+      {
+        "avg": {
+          "lagTime": 6533,
+          "retryCount": 0
+        },
+        "count": 12,
+        "dimensions": {
+          "actionType": "DeleteMessage",
+          "datetimeHour": "2026-10-15T07:00:00Z",
+          "outcome": "success"
+        },
+        "sum": {
+          "billableOperations": 12,
+          "bytes": 348
+        }
+      },
+      {
+        "avg": {
+          "lagTime": 7493,
+          "retryCount": 0
+        },
+        "count": 12,
+        "dimensions": {
+          "actionType": "ReadMessage",
+          "datetimeHour": "2026-10-15T08:00:00Z",
+          "outcome": ""
+        },
+        "sum": {
+          "billableOperations": 12,
+          "bytes": 348
+        }
+      },
+      {
+        "avg": {
+          "lagTime": 0,
+          "retryCount": 0
+        },
+        "count": 12,
+        "dimensions": {
+          "actionType": "WriteMessage",
+          "datetimeHour": "2026-10-15T08:00:00Z",
+          "outcome": ""
+        },
+        "sum": {
+          "billableOperations": 12,
+          "bytes": 348
+        }
+      },
+      {
+        "avg": {
+          "lagTime": 7527,
+          "retryCount": 0
+        },
+        "count": 12,
+        "dimensions": {
+          "actionType": "DeleteMessage",
+          "datetimeHour": "2026-10-15T08:00:00Z",
+          "outcome": "success"
+        },
+        "sum": {
+          "billableOperations": 12,
+          "bytes": 348
+        }
+      },
+      {
+        "avg": {
+          "lagTime": 5100,
+          "retryCount": 0
+        },
+        "count": 12,
+        "dimensions": {
+          "actionType": "DeleteMessage",
+          "datetimeHour": "2026-10-15T09:00:00Z",
+          "outcome": "success"
+        },
+        "sum": {
+          "billableOperations": 12,
+          "bytes": 348
+        }
+      },
+      {
+        "avg": {
+          "lagTime": 0,
+          "retryCount": 0
+        },
+        "count": 12,
+        "dimensions": {
+          "actionType": "WriteMessage",
+          "datetimeHour": "2026-10-15T09:00:00Z",
+          "outcome": ""
+        },
+        "sum": {
+          "billableOperations": 12,
+          "bytes": 348
+        }
+      },
+      {
+        "avg": {
+          "lagTime": 5065,
+          "retryCount": 0
+        },
+        "count": 12,
+        "dimensions": {
+          "actionType": "ReadMessage",
+          "datetimeHour": "2026-10-15T09:00:00Z",
+          "outcome": ""
+        },
+        "sum": {
+          "billableOperations": 12,
+          "bytes": 348
+        }
+      },
+      {
+        "avg": {
+          "lagTime": 0,
+          "retryCount": 0
+        },
+        "count": 12,
+        "dimensions": {
+          "actionType": "WriteMessage",
+          "datetimeHour": "2026-10-15T10:00:00Z",
+          "outcome": ""
+        },
+        "sum": {
+          "billableOperations": 12,
+          "bytes": 348
+        }
+      },
+      {
+        "avg": {
+          "lagTime": 10288,
+          "retryCount": 0
+        },
+        "count": 12,
+        "dimensions": {
+          "actionType": "ReadMessage",
+          "datetimeHour": "2026-10-15T10:00:00Z",
+          "outcome": ""
+        },
+        "sum": {
+          "billableOperations": 12,
+          "bytes": 348
+        }
+      },
+      {
+        "avg": {
+          "lagTime": 10319,
+          "retryCount": 0
+        },
+        "count": 12,
+        "dimensions": {
+          "actionType": "DeleteMessage",
+          "datetimeHour": "2026-10-15T10:00:00Z",
+          "outcome": "success"
+        },
+        "sum": {
+          "billableOperations": 12,
+          "bytes": 348
+        }
+      },
+      {
+        "avg": {
+          "lagTime": 6627,
+          "retryCount": 0
+        },
+        "count": 26,
+        "dimensions": {
+          "actionType": "ReadMessage",
+          "datetimeHour": "2026-10-15T11:00:00Z",
+          "outcome": ""
+        },
+        "sum": {
+          "billableOperations": 26,
+          "bytes": 2119
+        }
+      },
+      {
+        "avg": {
+          "lagTime": 0,
+          "retryCount": 0
+        },
+        "count": 33,
+        "dimensions": {
+          "actionType": "WriteMessage",
+          "datetimeHour": "2026-10-15T11:00:00Z",
+          "outcome": ""
+        },
+        "sum": {
+          "billableOperations": 33,
+          "bytes": 3028
+        }
+      },
+      {
+        "avg": {
+          "lagTime": 6583,
+          "retryCount": 0
+        },
+        "count": 32,
+        "dimensions": {
+          "actionType": "DeleteMessage",
+          "datetimeHour": "2026-10-15T11:00:00Z",
+          "outcome": "success"
+        },
+        "sum": {
+          "billableOperations": 32,
+          "bytes": 2971
+        }
+      }
+    ]
+  },
+  "analytics_notes": {
+    "lag": "NOT_MEASURED; provider adaptive samples and hourly groups may be delayed or partial",
+    "cpu_source": "Authenticated official Cloudflare GraphQL __type AccountWorkersInvocationsAdaptiveQuantiles fields descriptions, observed 2026-10-15T01:37Z; cpuTimeP99 is microseconds",
+    "memory_source": "Same official schema: memoryUsageBytesP99 is bytes",
+    "cpu_semantics": "Maximum of reported GROUP P99 values; not a global P99 and not a per-invocation maximum. Event types are not available in selected dataset dimensions, so HTTP vs Queue/Cron CPU limit cannot be inferred from this aggregate.",
+    "version_attribution": "Exact scriptVersion when present; temporal overlap alone is not used to assign an invocation to the new release",
+    "d1_and_queue_version_attribution": "No exact Worker version dimension; UTC-day totals include old and new release plus preflight, backup/export, migrations and deployment acceptance operations",
+    "queue_scope": "Account-wide analytics; realtime backlog is the project queue; account action/outcome groups retained for correct interpretation"
+  },
+  "free_limits": {
+    "workers_requests_per_day": 100000,
+    "d1_rows_read_per_day": 5000000,
+    "d1_rows_written_per_day": 100000,
+    "d1_database_bytes": 500000000,
+    "queue_operations_per_day": 10000,
+    "workers_http_cpu_ms": 10,
+    "workers_memory_bytes": 134217728,
+    "queue_cpu_default_ms": 30000
+  },
+  "recent_rate_estimate": {
+    "elapsed_minutes": 644.1569,
+    "compared_to": "METRICS_REVIEW.json d1_queues_later_sample",
+    "rows_read_delta": 1194298,
+    "rows_written_delta": 4745,
+    "queue_operations_delta": 499,
+    "rows_written_per_day_if_delta_rate_continues": 10607.353581091813,
+    "queue_operations_per_day_if_delta_rate_continues": 1115.5046231748818,
+    "note": "ESTIMATE only: period includes rollout/control-plane operations and provider lag; not steady-state rate or measured full-day cost"
+  },
+  "references": [
+    "https://developers.cloudflare.com/workers/platform/pricing/",
+    "https://developers.cloudflare.com/workers/platform/limits/",
+    "https://developers.cloudflare.com/d1/platform/pricing/",
+    "https://developers.cloudflare.com/queues/platform/pricing/",
+    "https://developers.cloudflare.com/queues/platform/limits/",
+    "https://api.cloudflare.com/client/v4/graphql"
+  ],
+  "new_pipeline_free_verified": false,
+  "end_to_end_verified": false,
+  "soak_passed": false,
+  "status": "CURRENT_PARTIAL_USAGE_REVIEW_ONLY_NOT_FULL_PIPELINE_ACCEPTANCE"
+}

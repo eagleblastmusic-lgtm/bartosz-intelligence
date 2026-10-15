@@ -411,7 +411,10 @@ def run(args, result):
                     provider_tracks = adapter_parser.tracks_from_info(info)
                     public = lambda track: {key: value for key, value in track.items() if not key.startswith('_')}
                     result['provider_tracks'] = [public(track) for track in provider_tracks]
-                    result['video_language'] = info.get('language') if isinstance(info.get('language'), str) else None
+                    provider_language = info.get('language') if isinstance(info.get('language'), str) else None
+                    result['video_language'] = provider_language or getattr(args, 'default_audio_language', None)
+                    result['video_language_provenance'] = 'yt_dlp.info.language' if provider_language else \
+                        'youtube.videos.snippet.defaultAudioLanguage' if result['video_language'] else None
                     primary = lambda value: value.lower().split('-')[0]
                     usable = [track for track in provider_tracks if track['is_translated'] is False and track['is_generated'] is not None and track['track_kind'] in {'MANUAL','GENERATED'}]
                     explicit = {primary(track['language_code']) for track in usable if track['is_original'] is True}
@@ -500,10 +503,13 @@ def main():
     parser.add_argument('--persistent-session', action='store_true')
     parser.add_argument('--adapter', action='store_true')
     parser.add_argument('--item-id')
+    parser.add_argument('--default-audio-language')
     parser.add_argument('--max-requests', type=int, choices=range(1, 9), default=8)
     args = parser.parse_args()
     assert re.fullmatch(r'[\w-]{11}', args.video)
     assert not args.adapter or (args.item_id and re.fullmatch(r'[0-9a-fA-F]{8}(?:-[0-9a-fA-F]{4}){3}-[0-9a-fA-F]{12}', args.item_id))
+    assert args.default_audio_language is None or (args.adapter and len(args.default_audio_language) <= 64 \
+        and re.fullmatch(r'[A-Za-z]{2,8}(?:-[A-Za-z0-9]{1,8})*', args.default_audio_language))
     if args.mode == 'pot' or args.pot_server:
         assert args.mode in {'pot', 'ytdlp'} and args.pot_server and args.pot_trace
         assert (args.video == 'aircAruvnKk' or args.persistent_session) and not (args.mode == 'pot' and args.cookies)

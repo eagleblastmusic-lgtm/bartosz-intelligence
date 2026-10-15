@@ -1,0 +1,95 @@
+{
+  "schema": "oracle-approved-metadata-repair:1",
+  "status": "DEPLOYED_RUNTIME_READY",
+  "archive_sha256": "116f52d8aa18aceae2d9c5d8aea763ff022c2123c2167ac2d8bd9c9688f3210e",
+  "file_count": 817,
+  "all_manifest_hashes_match": true,
+  "previous_release": "/opt/bartosz-intelligence/releases/99585d9259044d4b72003a58861f077c94dcc2bb49207227cd3ffb1eb2309b89",
+  "current_release": "/opt/bartosz-intelligence/releases/116f52d8aa18aceae2d9c5d8aea763ff022c2123c2167ac2d8bd9c9688f3210e",
+  "public_metadata_adapter_updates": {
+    "tools/transcript-engine/login-diagnostic.py": {
+      "sha256": "f195a9c63cc64ba171e03c46c104fa89418fd2294cdeb52127abf0ca6c555f1c",
+      "bytes": 32091
+    },
+    "tools/transcript-engine/login-diagnostic-oracle.py": {
+      "sha256": "697e65d677e364c1a838e7a15a43dd51d16205193759584810ab5441b0c94784",
+      "bytes": 29627
+    },
+    "apps/executor/python/transcript_ytdlp.py": {
+      "sha256": "0990593e1856bcdfc2d7d52eb15df3261cd0cfb4064e6263fb3b96eb14b1cafd",
+      "bytes": 11573
+    }
+  },
+  "public_rollback_copies_present": true,
+  "services": {
+    "bartosz-executor": {
+      "MainPID": "68251",
+      "NRestarts": "0",
+      "MemoryCurrent": "23908352",
+      "MemoryPeak": "48087040",
+      "CPUUsageNSec": "592721000",
+      "ActiveState": "active",
+      "SubState": "running",
+      "UnitFileState": "enabled"
+    },
+    "bartosz-caption-broker": {
+      "MainPID": "68249",
+      "NRestarts": "0",
+      "MemoryCurrent": "8892416",
+      "MemoryPeak": "8892416",
+      "CPUUsageNSec": "71422000",
+      "ActiveState": "active",
+      "SubState": "running",
+      "UnitFileState": "enabled"
+    }
+  },
+  "previous_pids": {
+    "bartosz-executor": "67811",
+    "bartosz-caption-broker": "62168"
+  },
+  "runtime_events": [
+    {
+      "event": "ORACLE_RUNTIME_READY",
+      "worker_id": "oracle-frankfurt-transcript-1",
+      "concurrency": 1,
+      "source_qualified": true
+    }
+  ],
+  "offline_arm64_fixtures": {
+    "test_oracle_caption_selection.py": {
+      "result": "PASS",
+      "count": 9
+    },
+    "test_caption_broker.py": {
+      "result": "PASS",
+      "count": 10
+    },
+    "test_transcript_ytdlp.py": {
+      "result": "PASS",
+      "count": 11
+    },
+    "test_oracle_public_assets.py": {
+      "result": "PASS",
+      "count": 1
+    }
+  },
+  "session_modified_by_installer": false,
+  "source_requests_by_installer": 0,
+  "configuration_unchanged": true,
+  "dependencies_and_source_transport_unchanged": [
+    "tools/transcript-engine/pot-transport-trace.mjs",
+    "tools/gates/adapters/gate0_python_adapters.py",
+    "apps/executor/src/providers/oracle-captions.ts",
+    "apps/executor/src/oracle-runtime.ts",
+    "package.json",
+    "pnpm-lock.yaml",
+    "pnpm-workspace.yaml",
+    "tools/deployment/oracle/runtime-lock.json",
+    "tools/deployment/oracle/requirements-arm64.lock.txt",
+    "tools/deployment/oracle/bartosz-caption-broker.service",
+    "tools/deployment/oracle/bartosz-executor.service"
+  ],
+  "completed_at": "2026-10-15T02:01:08.468327+00:00",
+  "started_at": "2026-10-15T02:01:04.866806+00:00",
+  "ssh_exit_code": 0
+}

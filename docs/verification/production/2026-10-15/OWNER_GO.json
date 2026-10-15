@@ -1,0 +1,25 @@
+{
+  "schema": "production-owner-authorization:1",
+  "recorded_at": "2026-10-15T01:13:30Z",
+  "source": "Explicit human GO reply to checkpoint call_f53c6c582bd54b4bb09b2cae95872c30",
+  "authorized": [
+    "fresh private D1 backup and isolated restore",
+    "additive migrations 041-043",
+    "compatible Worker with automatic AI and deletion OFF",
+    "Oracle COMPACT release preserving caption engine and session",
+    "at most two real TED canary materials with exact integrity and Drive readback checks",
+    "conditional activation of exactly 19 approved channels NEW_ONLY after full canary and Free acceptance",
+    "immediate MANUAL monitoring cycle of all 20 channels",
+    "retain scheduled monitoring at 15:00 and 23:00 Europe/Warsaw"
+  ],
+  "forbidden": [
+    "production DELETE or retention eviction",
+    "historical backfill",
+    "paid resources or billing activation",
+    "YouTube session modifications",
+    "commit, push or merge",
+    "destructive schema or data rollback"
+  ],
+  "activation_gate": "Full canary and safe Free utilization must pass; unresolved significant risk stops further rollout",
+  "soak_completion_requires_elapsed_time_and_real_evidence": true
+}

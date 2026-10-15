@@ -1,0 +1,85 @@
+{
+  "recorded_at": "2026-10-15T00:56:47.133Z",
+  "source": "AUTHENTICATED_CLOUDFLARE_CONNECTOR_GRAPHQL",
+  "production_mutations": 0,
+  "scope": "ACCOUNT; components have separate sample end times",
+  "workers": {
+    "observed_at": "2026-10-15T00:37:49.715Z",
+    "period_start_utc": "2026-10-15T00:00:00Z",
+    "period_end_utc": "2026-10-15T00:37:48.963Z",
+    "success": true,
+    "http_status": 200,
+    "production_mutations": 0,
+    "aggregation_before_tool_output": true,
+    "groups": 392,
+    "possibly_truncated": false,
+    "scripts": {
+      "bartosz-intelligence": {
+        "requests": 738,
+        "errors": 0,
+        "subrequests": 260,
+        "groups": 392,
+        "status_counts": {
+          "success": 738
+        },
+        "cpu_group_p99_max_raw": 66378
+      }
+    },
+    "analytics_lag": "NOT_MEASURED",
+    "cpu_note": "Raw group quantiles; unit not validated; no claim of per-invocation maxima or new-version CPU."
+  },
+  "d1_queues_first_sample": {
+    "period_start_utc": "2026-10-15T00:00:00Z",
+    "period_end_utc": "2026-10-15T00:36:13.344Z",
+    "d1": {
+      "rows_read": 27253,
+      "rows_written": 3770
+    },
+    "queue_operations": 401,
+    "queue_delete_fail": 12,
+    "queue_delete_dlq": 0,
+    "worker_detail_pruned_by_tool": true,
+    "worker_total_recovered_by_server_aggregation": true
+  },
+  "d1_queues_later_sample": {
+    "observed_at": "2026-10-15T00:56:47.133Z",
+    "period_start_utc": "2026-10-15T00:00:00Z",
+    "period_end_utc": "2026-10-15T00:56:45.970Z",
+    "success": true,
+    "status": 200,
+    "production_mutations": 0,
+    "d1": {
+      "groups": 1,
+      "rows_read": 35824,
+      "rows_written": 3952
+    },
+    "queues": {
+      "groups": 4,
+      "billable_operations": 416,
+      "delete_fail_count": 16,
+      "delete_dlq_count": 0
+    },
+    "analytics_lag": "NOT_MEASURED"
+  },
+  "trend_estimate": {
+    "elapsed_minutes": 20.543766666666667,
+    "rows_written_delta": 182,
+    "queue_operations_delta": 15,
+    "rows_written_per_day_if_recent_delta_rate_continues": 12757.154238187415,
+    "queue_operations_per_day_if_recent_delta_rate_continues": 1051.413810839622,
+    "note": "ESTIMATION, not measured full-day use; provider lag not measured; observed early burst is not assumed constant"
+  },
+  "limits_checked_on": "2026-10-15",
+  "free_limits": {
+    "workers_requests_per_day": 100000,
+    "d1_rows_read_per_day": 5000000,
+    "d1_rows_written_per_day": 100000,
+    "queue_operations_per_day": 10000
+  },
+  "references": [
+    "https://developers.cloudflare.com/workers/platform/pricing/",
+    "https://developers.cloudflare.com/d1/platform/pricing/",
+    "https://developers.cloudflare.com/queues/platform/pricing/"
+  ],
+  "new_version_free_compliance": "UNVERIFIED_PENDING_CANARY_AND_SOAK"
+}

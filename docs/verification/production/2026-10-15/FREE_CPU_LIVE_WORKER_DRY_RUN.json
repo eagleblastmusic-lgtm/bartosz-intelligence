@@ -1,0 +1,48 @@
+{
+  "result": "PASS",
+  "started_at": "2026-10-15T11:26:38.655Z",
+  "finished_at": "2026-10-15T11:26:44.521Z",
+  "http_status": 200,
+  "endpoint": "/api/v1/system/retention/payload-dry-run",
+  "actual_production_worker": true,
+  "worker_version": "901e9506-5924-4e96-9735-19f43ee9a1d3",
+  "body": {
+    "state": "DRY_RUN",
+    "candidates": [
+      {
+        "artifact_id": "28013212-7ea8-433e-a89e-b4e53b8d1373",
+        "chunks": 1,
+        "bytes": 20148
+      },
+      {
+        "artifact_id": "3ff8ea1c-9cb5-475a-ac20-03fb7303827b",
+        "chunks": 1,
+        "bytes": 8614
+      },
+      {
+        "artifact_id": "c2023520-7d44-477f-8944-09df8e258c01",
+        "chunks": 1,
+        "bytes": 30505
+      }
+    ],
+    "deletion_enabled": false
+  },
+  "technical_receipt": {
+    "before_version": "2",
+    "after_version": "2",
+    "verified_at_unchanged": true,
+    "content_hash_unchanged": true
+  },
+  "markdown": {
+    "before_version": "2",
+    "file_id": "1YYZAtgyWmtL1p0Lx7v2bSg09ZQJoJUsD",
+    "remote_version": "2",
+    "sha256": "32e71ac8acb01ff9ac85b88e203732b7ec5f65b52732f5a2647055f3ecc782f8",
+    "byte_count": 23589
+  },
+  "chunks_before": 619,
+  "chunks_after": 619,
+  "deleted_chunks": 0,
+  "drive_file_writes": 0,
+  "source_acquisitions": 0
+}

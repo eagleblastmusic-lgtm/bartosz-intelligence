@@ -4,10 +4,7 @@ import type {
   TranscriptRequestContext,
   TranscriptStatus,
 } from '../../../packages/contracts/src/transcript.js';
-import {
-  selectTranscriptLanguage,
-  type LanguageSelection,
-} from '../../../packages/core/src/transcript/language.js';
+import { selectTranscriptLanguage } from '../../../packages/core/src/transcript/language.js';
 import { normalizeTranscript } from '../../../packages/core/src/transcript/normalize.js';
 import { sha256 } from '../../../packages/core/src/auth/crypto.js';
 import { captionArchiveCoverage } from '../../../packages/core/src/transcript/archive-renderer.js';
@@ -16,20 +13,14 @@ import {
   type FreeTranscriptObservation,
 } from '../../../packages/core/src/transcript/free-budget.js';
 import type { ArtifactClient } from './artifact-client.js';
+import type { TranscriptSourceCompletion } from '../../../packages/core/src/transcript/acceptance.js';
 export interface TranscriptLifecycle {
   admission(): Promise<{ available: boolean; reason: string | null }>;
   heartbeat(): Promise<void>;
-  outcome(status: TranscriptStatus): Promise<void>;
+  outcome(status: TranscriptStatus, retryAfter?: string): Promise<void>;
   diagnostic(code: string): Promise<void>;
-  accept(source: {
-    raw_artifact_id: string;
-    source_artifact_id: string;
-    normalized_artifact_id: string;
-    segment_map_artifact_id: string;
-    offset_map_artifact_id: string;
-    selection: LanguageSelection;
-    warnings: string[];
-  }): Promise<void>;
+  measure?(metrics: Record<string, number>): void;
+  accept(source: TranscriptSourceCompletion): Promise<void>;
 }
 export async function executeTranscript(
   item: SourceItemRef,
@@ -39,7 +30,10 @@ export async function executeTranscript(
   lifecycle: TranscriptLifecycle,
   heartbeatMs = 60000,
   cloudObservation: FreeTranscriptObservation | null = null,
+  representation: 'COMPACT' | 'LEGACY' = 'COMPACT',
 ) {
+  const measured: Record<string, number> = { normalization_ms: 0 },
+    started = Date.now();
   if (
     !['local', 'cloud'].includes(context.runtime_id) ||
     heartbeatMs < 10 ||
@@ -83,7 +77,9 @@ export async function executeTranscript(
     }
   };
   try {
-    const list = await provider.list_tracks(item, context);
+    const listed = Date.now(),
+      list = await provider.list_tracks(item, context);
+    measured.track_listing_ms = Date.now() - listed;
     if (list.status !== 'OK') {
       await lifecycle.outcome(list.status);
       return { accepted: false, reason: list.failure_code ?? list.status };
@@ -93,13 +89,17 @@ export async function executeTranscript(
       await lifecycle.diagnostic('UNKNOWN_SOURCE_AUTHORITY');
       return { accepted: false, reason: 'UNKNOWN_SOURCE_AUTHORITY' };
     }
-    const fetched = await provider.fetch(item, selected.source!, context),
+    const fetching = Date.now(),
+      fetched = await provider.fetch(item, selected.source!, context),
       result = fetched.result;
+    measured.caption_fetch_and_parse_ms = Date.now() - fetching;
+    measured.upstream_requests = result.usage.upstream_requests ?? 0;
+    measured.upstream_bytes = result.usage.bytes_received ?? 0;
     context.signal?.throwIfAborted();
     const partial =
       result.status === 'PARTIAL' || result.missing_ranges.length > 0;
     if (result.status !== 'OK' && result.status !== 'PARTIAL') {
-      await lifecycle.outcome(result.status);
+      await lifecycle.outcome(result.status, result.retry_after ?? undefined);
       return { accepted: false, reason: result.failure_code ?? result.status };
     }
     if (
@@ -110,8 +110,7 @@ export async function executeTranscript(
       result.is_translated !== false ||
       result.track_kind !== selected.source!.track_kind ||
       result.is_generated !== selected.source!.is_generated ||
-      !result.segments.length ||
-      result.segments.some((cue) => !cue.text.trim())
+      !result.segments.length
     )
       throw new Error('INVALID_TRANSCRIPT_AUTHORITY');
     const rawText = new TextDecoder('utf-8', {
@@ -150,6 +149,7 @@ export async function executeTranscript(
     const archiveIdentity =
       ':archive-source:1:' + (await sha256(JSON.stringify(provenance)));
     await requireLease();
+    const uploading = Date.now();
     const raw = await artifacts.upload(rawText, {
       item_id: item.item_id,
       kind: 'RAW',
@@ -166,7 +166,7 @@ export async function executeTranscript(
       provenance,
       original_ref: null,
     });
-    await artifacts.upload(
+    const coverage = await artifacts.upload(
       JSON.stringify(captionArchiveCoverage(hash, result.segments)),
       {
         item_id: item.item_id,
@@ -178,16 +178,30 @@ export async function executeTranscript(
       },
     );
     await requireLease();
+    measured.artifact_upload_ms = Date.now() - uploading;
+    if (representation === 'COMPACT') {
+      await lifecycle.accept({
+        version: 'transcript-source:2',
+        raw_artifact_id: raw.artifact_id,
+        source_artifact_id: source.artifact_id,
+        segment_map_artifact_id: coverage.artifact_id,
+        selection,
+        warnings: [...result.warnings],
+      });
+      return { accepted: true, reason: null };
+    }
     // Archive captured original cues even when partial or AI normalization fails.
     if (partial) {
       await lifecycle.diagnostic('INCOMPLETE_SOURCE');
       return { accepted: false, reason: 'INCOMPLETE_SOURCE' };
     }
-    const normalized = await normalizeTranscript(
-      hash,
-      result.segments,
-      result.timestamp_precision,
-    );
+    const normalizing = Date.now(),
+      normalized = await normalizeTranscript(
+        hash,
+        result.segments,
+        result.timestamp_precision,
+      );
+    measured.normalization_ms = Date.now() - normalizing;
     const descriptor = {
       item_id: item.item_id,
       producer_version:
@@ -236,6 +250,10 @@ export async function executeTranscript(
     }
     throw error;
   } finally {
+    lifecycle.measure?.({
+      ...measured,
+      transcript_cycle_ms: Date.now() - started,
+    });
     clearInterval(timer);
     await pending;
   }

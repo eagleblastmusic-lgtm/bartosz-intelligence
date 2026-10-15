@@ -1,6 +1,7 @@
 import type { AccessContext, Database } from '../db/boundary.js';
 import { ItemRepository } from '../db/items.js';
 import { JobStore } from '../jobs/store.js';
+import { firstCaptionAttempt } from './recovery.js';
 
 export function youtubeVideoId(locator: string): string {
   if (/^[A-Za-z0-9_-]{11}$/.test(locator)) return locator;
@@ -38,10 +39,10 @@ export async function enqueueYoutubeTranscript(
     at = now.toISOString();
   let item = await db
     .prepare(
-      "SELECT item_id,source_id FROM items WHERE owner_id=? AND namespace='youtube' AND external_id=?",
+      "SELECT item_id,source_id,discovered_at FROM items WHERE owner_id=? AND namespace='youtube' AND external_id=?",
     )
     .bind(context.ownerId, video)
-    .first<{ item_id: string; source_id: string }>();
+    .first<{ item_id: string; source_id: string; discovered_at: string }>();
   if (!item) {
     await db
       .prepare(
@@ -77,7 +78,11 @@ export async function enqueueYoutubeTranscript(
       },
       at,
     );
-    item = { item_id: stored!.item_id, source_id: source!.source_id };
+    item = {
+      item_id: stored!.item_id,
+      source_id: source!.source_id,
+      discovered_at: at,
+    };
   }
   const existing = await db
     .prepare(
@@ -103,7 +108,7 @@ export async function enqueueYoutubeTranscript(
       origin_kind: 'NEW',
       payload: {},
       priority: 80,
-      due_at: at,
+      due_at: firstCaptionAttempt(item.discovered_at),
     },
     at,
   );

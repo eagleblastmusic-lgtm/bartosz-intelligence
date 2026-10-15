@@ -1,0 +1,10 @@
+{
+  "recorded_at": "2026-10-15T10:53:57.477430+00:00",
+  "action": "Deploy native SHA-256 Worker optimization",
+  "executed": false,
+  "rejection": "Production deploy interpreted as outside the two expressly approved repairs; no explicit approval for scope expansion, possible archive integrity impact",
+  "safe_local_candidate_prepared": true,
+  "explicit_owner_approval_pending": false,
+  "resolved_by": "OWNER_NATIVE_CPU_GO.json",
+  "subsequent_authorized_deployment": "NATIVE_HASH_WORKER_DEPLOYMENT.json"
+}

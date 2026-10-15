@@ -1,0 +1,15 @@
+{
+  "recorded_at": "2026-10-15T10:54:52.218801+00:00",
+  "source": "Explicit human GO reply call_40199ff98edf4b258c8f6f951b8d9182",
+  "answer": "GO — zatwierdzam ten wąski zakres",
+  "plan": "NATIVE_CPU_APPROVAL_PLAN_PL.md",
+  "authorized": "Deploy native SHA256 only; actual same-canary HTTP/Cron measurements; original conditional19NEW_ONLY+MANUAL20 only after full canary/FreePASS",
+  "forbidden": [
+    "new migration",
+    "Oracle/session changes",
+    "DELETE",
+    "paid resources",
+    "new YouTube acquisitions",
+    "commit/push/merge"
+  ]
+}

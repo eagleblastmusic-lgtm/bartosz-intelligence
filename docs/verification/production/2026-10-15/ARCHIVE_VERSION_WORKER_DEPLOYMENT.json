@@ -1,0 +1,14 @@
+{
+  "deployed_at": "2026-10-15T10:39:08.237Z",
+  "app_origin": "https://bartosz-intelligence.eagleblastmusic.workers.dev",
+  "version_id": "74232ebc-655d-4d37-957a-8c93eed1fef8",
+  "paid_services_enabled": false,
+  "credential_values_recorded": false,
+  "started_at": "2026-10-15T10:38:44.075Z",
+  "previous_version": "622b952d-81e2-45f6-b6f5-e0d1f9478899",
+  "candidate_bundle_sha256": "6f3c59aa89677b741497ee58b77c9f3e5788377fc81d7d994ae0f3d5bbe2ae92",
+  "backup_receipt": "2026-10-15T10-36-27.256Z-pre-upgrade.json",
+  "new_migrations": [],
+  "automatic_ai_enabled": false,
+  "retention_deletion_enabled": false
+}

@@ -4,10 +4,10 @@ import {
   transcriptRuntime,
 } from '../../packages/core/src/transcript/recovery.js';
 const now = new Date('2026-10-06T00:00:00Z');
-it('delayed captions use an independent 1h/6h/24h/3d/7d/weekly schedule', () => {
+it('confirmed absences use absolute +1h and +10h, then stop after the third', () => {
   expect(
     Array.from(
-      { length: 7 },
+      { length: 3 },
       (_, no_captions) =>
         Date.parse(
           transcriptDisposition(
@@ -17,9 +17,7 @@ it('delayed captions use an independent 1h/6h/24h/3d/7d/weekly schedule', () => 
           ).due_at,
         ) - now.getTime(),
     ),
-  ).toEqual([
-    3600000, 21600000, 86400000, 259200000, 604800000, 604800000, 604800000,
-  ]);
+  ).toEqual([3600000, 36000000, 0]);
   expect(
     transcriptDisposition(
       'NO_CAPTIONS',
@@ -28,6 +26,20 @@ it('delayed captions use an independent 1h/6h/24h/3d/7d/weekly schedule', () => 
       true,
     ).reason,
   ).toBe('LIVE_ACTIVE');
+  expect(
+    transcriptDisposition('NO_CAPTIONS', { no_captions: 2, transient: 99 }, now)
+      .state,
+  ).toBe('FAILED');
+  expect(
+    transcriptDisposition(
+      'NO_CAPTIONS',
+      { no_captions: 0, transient: 99 },
+      new Date(now.getTime() + 20 * 60000),
+      false,
+      Math.random,
+      now,
+    ).due_at,
+  ).toBe(new Date(now.getTime() + 3600000).toISOString());
 });
 it('keeps denied, unavailable, parser and IP outcomes distinct with no unqualified fallback', () => {
   for (const status of [

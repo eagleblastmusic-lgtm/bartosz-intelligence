@@ -8,8 +8,9 @@ import {
   restartExpiredCursor,
 } from './discovery.js';
 import { enumeratePage, fetchVideoMetadata } from './preview.js';
-import { pollRss } from './rss.js';
+import { pollRss, RssUnavailableError } from './rss.js';
 import { YoutubeClient, YoutubeError } from './client.js';
+import { leasePredicate } from '../../jobs/lease-guard.js';
 export async function executeDiscoveryChunk(
   db: Database,
   context: AccessContext,
@@ -19,12 +20,23 @@ export async function executeDiscoveryChunk(
   task: TaskType = 'DISCOVER',
   clock: () => Date = () => now,
   chunkSize = 5,
+  rssFetcher: typeof fetch = fetch,
 ) {
   context.requireTask(task);
   let scan = await getScan(db, context, token.job_id);
   if (!scan || !['PENDING', 'PARTIAL'].includes(scan.coverage))
     throw new Error('SCAN_NOT_PENDING');
-  if (scan.staged_page_json !== null)
+  const mode = JSON.parse(scan.job_payload_json).mode ?? 'FULL';
+  if (scan.staged_page_json !== null) {
+    const acquisition =
+      mode === 'RSS'
+        ? await db
+            .prepare(
+              "SELECT event_type FROM change_log WHERE owner_id=? AND component='discovery' AND target_id=? AND event_type IN ('RSS_PAGE_ACQUIRED','RSS_FALLBACK_PAGE_ACQUIRED') ORDER BY seq DESC LIMIT 1",
+            )
+            .bind(context.ownerId, scan.scan_id)
+            .first<{ event_type: string }>()
+        : null;
     return commitDiscoveryPage(
       db,
       context,
@@ -35,7 +47,13 @@ export async function executeDiscoveryChunk(
       clock(),
       task,
       chunkSize,
+      acquisition?.event_type === 'RSS_FALLBACK_PAGE_ACQUIRED'
+        ? 'RSS_FALLBACK_UPLOADS'
+        : acquisition
+          ? 'RSS'
+          : undefined,
     );
+  }
   const source = await db
     .prepare(
       `SELECT s.namespace,s.external_id,s.canonical_locator,c.title,c.uploads_playlist_id,c.handle_snapshot FROM sources s JOIN channels c USING(owner_id,source_id) WHERE s.owner_id=? AND s.source_id=? AND s.enabled=1`,
@@ -43,7 +61,6 @@ export async function executeDiscoveryChunk(
     .bind(context.ownerId, scan.source_id)
     .first<SourceIdentity & { handle_snapshot: string | null }>();
   if (!source) throw new Error('SOURCE_DISABLED');
-  const mode = JSON.parse(scan.job_payload_json).mode ?? 'FULL';
   if (mode === 'REFRESH') {
     const payload = JSON.parse(scan.job_payload_json) as {
       ids: string[];
@@ -82,12 +99,65 @@ export async function executeDiscoveryChunk(
       )
       .bind(context.ownerId, scan.source_id)
       .first<{ rss_etag: string | null; rss_modified: string | null }>();
-    const rss = await pollRss(
-      source.external_id,
-      state?.rss_etag ?? null,
-      state?.rss_modified ?? null,
-    );
+    const acquisitionScanId = scan.scan_id;
+    const recordAcquisition = async (event: string) => {
+      const at = clock().toISOString(),
+        guard = leasePredicate(context, token, at, task);
+      const receipt = await db
+        .prepare(
+          `INSERT INTO change_log(owner_id,component,target_id,event_type,created_at)
+         SELECT owner_id,'discovery',scan_id,?,? FROM discovery_scans WHERE owner_id=? AND scan_id=? AND job_id=? AND ${guard.predicate}`,
+        )
+        .bind(
+          event,
+          at,
+          context.ownerId,
+          acquisitionScanId,
+          token.job_id,
+          ...guard.bindings,
+        )
+        .run();
+      if (receipt.meta.changes !== 1) throw new Error('STALE_FENCE');
+    };
+    let rss;
+    try {
+      rss = await pollRss(
+        source.external_id,
+        state?.rss_etag ?? null,
+        state?.rss_modified ?? null,
+        rssFetcher,
+      );
+    } catch (error) {
+      if (!(error instanceof RssUnavailableError)) throw error;
+      await recordAcquisition(`RSS_UNAVAILABLE_${error.status}`);
+      // Reuse one bounded uploads HEAD, never a historical/paginated backfill.
+      const page = await enumeratePage(
+        client,
+        { ...source, handle: source.handle_snapshot },
+        null,
+      );
+      // NEW_ONLY must fail closed when no authoritative publication date exists.
+      if (
+        scan.window_start >= scan.source_activated_at &&
+        page.candidates.some((item) => item.published_at === null)
+      )
+        throw new YoutubeError('PARSER');
+      await recordAcquisition('RSS_FALLBACK_PAGE_ACQUIRED');
+      return commitDiscoveryPage(
+        db,
+        context,
+        token,
+        scan,
+        page.candidates,
+        null,
+        clock(),
+        task,
+        chunkSize,
+        'RSS_FALLBACK_UPLOADS',
+      );
+    }
     const candidates = await fetchVideoMetadata(client, source, rss.hint_ids);
+    await recordAcquisition('RSS_PAGE_ACQUIRED');
     const result = await commitDiscoveryPage(
       db,
       context,
@@ -98,6 +168,7 @@ export async function executeDiscoveryChunk(
       clock(),
       task,
       chunkSize,
+      'RSS',
     );
     await db
       .prepare(

@@ -21,6 +21,7 @@ export interface OracleConfiguration {
   stateDirectory: string;
   sourceQualified: boolean;
   captionSocket?: string;
+  representation?: 'COMPACT' | 'LEGACY';
 }
 export function oracleConfiguration(
   env: NodeJS.ProcessEnv,
@@ -60,6 +61,9 @@ export function oracleConfiguration(
   if (!['false', 'true'].includes(env.BARTOSZ_SOURCE_QUALIFIED ?? ''))
     throw new Error('ORACLE_SOURCE_CONFIGURATION_REQUIRED');
   const captionSocket = env.BARTOSZ_CAPTION_SOCKET;
+  const representation = env.BARTOSZ_TRANSCRIPT_REPRESENTATION ?? 'COMPACT';
+  if (representation !== 'COMPACT' && representation !== 'LEGACY')
+    throw new Error('ORACLE_SOURCE_CONFIGURATION_REQUIRED');
   if (
     captionSocket &&
     (!isAbsolute(captionSocket) || /[\r\n\0]/.test(captionSocket))
@@ -74,6 +78,7 @@ export function oracleConfiguration(
     ffmpeg: env.BARTOSZ_FFMPEG!,
     stateDirectory: env.BARTOSZ_STATE_DIRECTORY!,
     sourceQualified: env.BARTOSZ_SOURCE_QUALIFIED === 'true',
+    representation,
     ...(captionSocket ? { captionSocket } : {}),
   };
 }

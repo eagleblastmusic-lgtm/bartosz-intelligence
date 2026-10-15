@@ -1,12 +1,7 @@
 import { Hono } from 'hono';
+import { TrieRouter } from 'hono/router/trie-router';
 import { publicPages } from './public-pages.js';
 import { consumeSignals } from './queue.js';
-import { scheduleControlPlane } from './scheduled.js';
-import {
-  scheduleDriveExport,
-  scheduleRetentionCleanup,
-  scheduleTranscriptArchive,
-} from './drive-export.js';
 import { authApp } from './auth.js';
 import type { Env } from './env.js';
 import { sourcesApp } from './routes/sources.js';
@@ -28,12 +23,11 @@ import { reprocessApp } from './routes/reprocess.js';
 import { promptsApp } from './routes/prompts.js';
 import { driveApp } from './routes/drive.js';
 import { dailyReportsApp } from './routes/daily-reports.js';
-import { scheduleDailyReports } from './daily-workflow.js';
 export type { Env } from './env.js';
 
 const buildVersion = '0.0.1';
 
-const app = new Hono<{ Bindings: Env }>();
+const app = new Hono<{ Bindings: Env }>({ router: new TrieRouter() });
 app.route('/', publicPages);
 app.route('/api/v1/auth', authApp);
 app.route('/api/v1/sources', sourcesApp);
@@ -90,32 +84,25 @@ export default {
     context: ExecutionContext,
   ) {
     context.waitUntil(
-      scheduleControlPlane(
-        environment.DB,
-        environment.BARTOSZ_QUEUE,
-        new Date(controller.scheduledTime),
-      ),
+      environment.BARTOSZ_QUEUE.send({
+        kind: 'CONTROL_MAINTENANCE',
+        scheduled_at: new Date(controller.scheduledTime).toISOString(),
+      }),
     );
     context.waitUntil(
       (async () => {
-        // Finish P0 first. Heavy caption work must not compete with an in-flight
-        // summary for the invocation's CPU/memory budget. Each keeps its retry.
-        await Promise.allSettled([
-          scheduleDriveExport(environment, new Date(controller.scheduledTime)),
-        ]);
-        await Promise.allSettled([
-          scheduleDailyReports(environment, new Date(controller.scheduledTime)),
-        ]);
-        await Promise.allSettled([
-          scheduleTranscriptArchive(
-            environment,
-            new Date(controller.scheduledTime),
-          ),
-        ]);
-        return scheduleRetentionCleanup(
-          environment,
-          new Date(controller.scheduledTime),
-        );
+        // Heavy work receives its own invocation/query budget. D1 receipts,
+        // artifacts and due jobs are authoritative if any hint is lost.
+        if (environment.DRIVE_EXPORT_ENABLED === 'true')
+          await environment.BARTOSZ_QUEUE.send({ kind: 'DRIVE_EXPORT' });
+        if (environment.DAILY_REPORTS_ENABLED === 'true') {
+          await environment.BARTOSZ_QUEUE.send({ kind: 'DAILY_WORKFLOW' });
+          await environment.BARTOSZ_QUEUE.send({ kind: 'DAILY_TRANSCRIPTS' });
+        }
+        if (environment.TRANSCRIPT_ARCHIVE_ENABLED === 'true')
+          await environment.BARTOSZ_QUEUE.send({ kind: 'TRANSCRIPT_ARCHIVE' });
+        if (environment.RETENTION_DELETION_ENABLED === 'true')
+          await environment.BARTOSZ_QUEUE.send({ kind: 'LEGACY_RETENTION' });
       })(),
     );
   },

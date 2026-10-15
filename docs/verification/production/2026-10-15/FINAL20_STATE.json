@@ -1,0 +1,239 @@
+{
+  "observed_at": "2026-10-15T11:40:56.191Z",
+  "production_writes": 0,
+  "history": {
+    "accepted": {
+      "baseline_count": 45,
+      "missing": 0,
+      "changed": 0,
+      "result": "PASS"
+    },
+    "artifacts": {
+      "baseline_count": 244,
+      "missing": 0,
+      "changed": 0,
+      "result": "PASS"
+    },
+    "chunks": {
+      "baseline_count": 616,
+      "missing": 0,
+      "changed": 0,
+      "result": "PASS"
+    },
+    "archives": {
+      "baseline_count": 45,
+      "missing": 0,
+      "changed": 0,
+      "result": "PASS"
+    }
+  },
+  "checks": {
+    "counts": [
+      {
+        "items": 65,
+        "jobs": 580,
+        "accepted": 46,
+        "artifacts": 247,
+        "chunks": 619
+      }
+    ],
+    "active_sources": [
+      {
+        "source_id": "37122a11-d19e-4b0e-8a36-cc4f191bdc97",
+        "external_id": "UCAuUUnT6oDeKwE6v1NGQxug",
+        "activated_at": "2026-10-05T21:05:20.271Z",
+        "window_start": "2026-09-05T21:05:07.309Z",
+        "title": "TED"
+      },
+      {
+        "source_id": "274bf46f-a04b-445a-aca4-8c044d011b84",
+        "external_id": "UC2C_jShtL725hvbm1arSV9w",
+        "activated_at": "2026-10-15T11:37:18.964Z",
+        "window_start": "2026-10-15T11:37:18.964Z",
+        "title": "CGP Grey"
+      },
+      {
+        "source_id": "29df46e7-2912-4fea-a608-d852f9adbd40",
+        "external_id": "UCsXVk37bltHxD1rDPwtNM8Q",
+        "activated_at": "2026-10-15T11:37:18.964Z",
+        "window_start": "2026-10-15T11:37:18.964Z",
+        "title": "Kurzgesagt – In a Nutshell"
+      },
+      {
+        "source_id": "2f469b78-3607-4188-ab32-9714ddcf4834",
+        "external_id": "UCvQECJukTDE2i6aCoMnS-Vg",
+        "activated_at": "2026-10-15T11:37:18.964Z",
+        "window_start": "2026-10-15T11:37:18.964Z",
+        "title": "Big Think"
+      },
+      {
+        "source_id": "3c3077b8-b3dc-41fe-ac0b-25b4ec614462",
+        "external_id": "UCoxcjq-8xIDTYp3uz647V5A",
+        "activated_at": "2026-10-15T11:37:18.964Z",
+        "window_start": "2026-10-15T11:37:18.964Z",
+        "title": "Numberphile"
+      },
+      {
+        "source_id": "49967d59-e1b5-4d2a-ac1c-a3b38cd3c7a8",
+        "external_id": "UCbfYPyITQ-7l4upoX8nvctg",
+        "activated_at": "2026-10-15T11:37:18.964Z",
+        "window_start": "2026-10-15T11:37:18.964Z",
+        "title": "Two Minute Papers"
+      },
+      {
+        "source_id": "72073ab6-2dcc-4758-8568-d97e58de8f87",
+        "external_id": "UCSju5G2aFaWMqn-_0YBtq5A",
+        "activated_at": "2026-10-15T11:37:18.964Z",
+        "window_start": "2026-10-15T11:37:18.964Z",
+        "title": "Stand-up Maths"
+      },
+      {
+        "source_id": "7d8f0dd7-e9b9-43bf-a36f-62f3c225354c",
+        "external_id": "UCy0tKL1T7wFoYcxCe0xjN6Q",
+        "activated_at": "2026-10-15T11:37:18.964Z",
+        "window_start": "2026-10-15T11:37:18.964Z",
+        "title": "Technology Connections"
+      },
+      {
+        "source_id": "8942901e-db68-4ba0-8ca0-c82fbb5c22f2",
+        "external_id": "UC1VLQPn9cYSqx8plbk9RxxQ",
+        "activated_at": "2026-10-15T11:37:18.964Z",
+        "window_start": "2026-10-15T11:37:18.964Z",
+        "title": "The Action Lab"
+      },
+      {
+        "source_id": "9943a530-acfe-4b12-8734-80aed2b44dc4",
+        "external_id": "UCUHW94eEFW7hkUMVaZz4eDg",
+        "activated_at": "2026-10-15T11:37:18.964Z",
+        "window_start": "2026-10-15T11:37:18.964Z",
+        "title": "minutephysics"
+      },
+      {
+        "source_id": "99754711-09e8-43b8-b66b-192fa5d4a78c",
+        "external_id": "UCR1IuLEqb6UEA_zQ81kwXfg",
+        "activated_at": "2026-10-15T11:37:18.964Z",
+        "window_start": "2026-10-15T11:37:18.964Z",
+        "title": "Real Engineering"
+      },
+      {
+        "source_id": "9a4d6605-1691-418e-9b1a-4245b651780c",
+        "external_id": "UCMOqf8ab-42UUQIdVoKwjlQ",
+        "activated_at": "2026-10-15T11:37:18.964Z",
+        "window_start": "2026-10-15T11:37:18.964Z",
+        "title": "Practical Engineering"
+      },
+      {
+        "source_id": "b75d5e32-ba48-41ba-a4c8-173bb71a7dc7",
+        "external_id": "UC6107grRI4m0o2-emgoDnAA",
+        "activated_at": "2026-10-15T11:37:18.964Z",
+        "window_start": "2026-10-15T11:37:18.964Z",
+        "title": "SmarterEveryDay"
+      },
+      {
+        "source_id": "b8d5c1f4-f522-406d-b9cd-59bc19b83fe6",
+        "external_id": "UCHnyfMqiRRG1u-2MsSQLbXA",
+        "activated_at": "2026-10-15T11:37:18.964Z",
+        "window_start": "2026-10-15T11:37:18.964Z",
+        "title": "Veritasium"
+      },
+      {
+        "source_id": "c6311533-d75f-4f08-9575-de6028dc9549",
+        "external_id": "UCYO_jab_esuFRV4b17AJtAw",
+        "activated_at": "2026-10-15T11:37:18.964Z",
+        "window_start": "2026-10-15T11:37:18.964Z",
+        "title": "3Blue1Brown"
+      },
+      {
+        "source_id": "c68f2c05-74ca-4d73-a232-ea0128441bec",
+        "external_id": "UC9-y-6csu5WGm29I7JiwpnA",
+        "activated_at": "2026-10-15T11:37:18.964Z",
+        "window_start": "2026-10-15T11:37:18.964Z",
+        "title": "Computerphile"
+      },
+      {
+        "source_id": "c96e4df0-2236-4e94-a4f6-82c7611abe9b",
+        "external_id": "UCY1kMZp36IQSyNx_9h4mpCg",
+        "activated_at": "2026-10-15T11:37:18.964Z",
+        "window_start": "2026-10-15T11:37:18.964Z",
+        "title": "Mark Rober"
+      },
+      {
+        "source_id": "e585d4b9-bea4-4d47-8ce8-083a9cb6ce54",
+        "external_id": "UCYeF244yNGuFefuFKqxIAXw",
+        "activated_at": "2026-10-15T11:37:18.964Z",
+        "window_start": "2026-10-15T11:37:18.964Z",
+        "title": "The Royal Institution"
+      },
+      {
+        "source_id": "ed702295-a3b9-41cd-ae1d-050a24d7ee80",
+        "external_id": "UCEIwxahdLz7bap-VDs9h35A",
+        "activated_at": "2026-10-15T11:37:18.964Z",
+        "window_start": "2026-10-15T11:37:18.964Z",
+        "title": "Steve Mould"
+      },
+      {
+        "source_id": "fa236184-4681-4322-9df6-aa480eb6f363",
+        "external_id": "UCdp4_l1vPmpN-gDbUwhaRUQ",
+        "activated_at": "2026-10-15T11:37:18.964Z",
+        "window_start": "2026-10-15T11:37:18.964Z",
+        "title": "Branch Education"
+      }
+    ],
+    "discovery_events": [
+      {
+        "event_type": "DISCOVERY_STARTED",
+        "created_at": "2026-10-15T02:01:59.832Z"
+      },
+      {
+        "event_type": "RSS_UNAVAILABLE_404",
+        "created_at": "2026-10-15T02:02:05.927Z"
+      },
+      {
+        "event_type": "RSS_FALLBACK_PAGE_ACQUIRED",
+        "created_at": "2026-10-15T02:02:06.451Z"
+      },
+      {
+        "event_type": "DISCOVERY_COVERAGE_CHANGED",
+        "created_at": "2026-10-15T02:02:07.010Z"
+      },
+      {
+        "event_type": "RSS_FALLBACK_PAGE_COMMITTED",
+        "created_at": "2026-10-15T02:02:06.601Z"
+      }
+    ],
+    "new_items": [],
+    "item_duplicates": [],
+    "source_duplicates": [],
+    "retention": [
+      {
+        "deletion_enabled": 0,
+        "approval_reference": null
+      }
+    ],
+    "eviction": [
+      {
+        "remote_version": "2",
+        "verified_at": "2026-10-15T02:02:36.136Z",
+        "evicted_at": null,
+        "permit_token": null,
+        "permit_until": null
+      }
+    ],
+    "oracle": [
+      {
+        "worker_id": "oracle-frankfurt-transcript-1",
+        "heartbeat_at": "2026-10-15T11:40:50.315Z",
+        "online_until": "2026-10-15T11:43:50.315Z"
+      }
+    ],
+    "foreign_keys": []
+  },
+  "collector_rows_read": 24934,
+  "collector_rows_written": 0,
+  "canary_gate": "PASS_FREE_CPU_CANARY_INTEGRITY",
+  "additional_19_activated": true,
+  "manual20_started": true,
+  "soak_started": false,
+  "rollback_executed": false,
+  "rollback_reason": "No rollback required. Data retained, deletionOFF; compatible6b6a7844 rollback available without schema/data rollback."
+}

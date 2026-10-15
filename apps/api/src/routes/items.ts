@@ -1,6 +1,6 @@
 import { ownerRouter, queryFields, text } from './common.js';
 import { DailyProjection } from '../../../../packages/core/src/projections/daily.js';
-import { ArtifactRepository } from '../../../../packages/core/src/artifacts/store.js';
+import { artifactRepository } from '../artifact-repository.js';
 import { ItemRepository } from '../../../../packages/core/src/db/items.js';
 export const itemsApp = ownerRouter();
 itemsApp.get('/:id/transcript', async (c) => {
@@ -11,7 +11,7 @@ itemsApp.get('/:id/transcript', async (c) => {
   const access = c.get('access');
   const itemId = text(c.req.param('id'), 128);
   const accepted = await c.env.DB.prepare(
-    "SELECT r.run_id,r.outcome_json FROM analysis_runs r JOIN jobs j ON j.owner_id=r.owner_id AND j.job_id=r.job_id WHERE r.owner_id=? AND r.item_id=? AND r.state='ACCEPTED' AND j.task_type='FETCH_TRANSCRIPT' AND j.state='SUCCEEDED' AND json_extract(r.outcome_json,'$.version')='transcript-source:1' ORDER BY r.accepted_at DESC,r.run_id DESC LIMIT 1",
+    "SELECT r.run_id,r.outcome_json FROM analysis_runs r JOIN jobs j ON j.owner_id=r.owner_id AND j.job_id=r.job_id WHERE r.owner_id=? AND r.item_id=? AND r.state='ACCEPTED' AND j.task_type='FETCH_TRANSCRIPT' AND j.state='SUCCEEDED' AND json_extract(r.outcome_json,'$.version') IN ('transcript-source:1','transcript-source:2') ORDER BY r.accepted_at DESC,r.run_id DESC LIMIT 1",
   )
     .bind(access.ownerId, itemId)
     .first<{ run_id: string; outcome_json: string }>();
@@ -23,7 +23,7 @@ itemsApp.get('/:id/transcript', async (c) => {
     authority: Record<string, unknown>;
     warnings: string[];
   };
-  const page = await new ArtifactRepository(c.env.DB, access).readOwnerPage(
+  const page = await artifactRepository(c.env, access).readOwnerPage(
     kind === 'source'
       ? outcome.source_artifact_id
       : outcome.segment_map_artifact_id,
@@ -95,7 +95,7 @@ itemsApp.get('/:id/canonical', async (c) => {
       text(c.req.param('id'), 128),
       text(c.req.query('run_id'), 128),
     );
-  const page = await new ArtifactRepository(c.env.DB, context).readOwnerPage(
+  const page = await artifactRepository(c.env, context).readOwnerPage(
     descriptor.artifact_id,
     Number(c.req.query('start') ?? 0),
   );

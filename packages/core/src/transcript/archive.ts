@@ -1,6 +1,7 @@
 import { assertContext, AccessContext, type Database } from '../db/boundary.js';
 import { ArtifactRepository } from '../artifacts/store.js';
 import { sha256 } from '../auth/crypto.js';
+import { TranscriptPayloadArchive } from './payload-archive.js';
 import { DriveClient, DriveFailure, type DriveFile } from '../drive/client.js';
 import {
   renderTranscriptArchive,
@@ -33,6 +34,26 @@ export class TranscriptDriveArchive {
   ) {
     assertContext(context);
     context.requireOwnerOrTask('DRIVE_EXPORT');
+  }
+  async hasReady(now: Date) {
+    const check = async () =>
+      Boolean(
+        await this.db
+          .prepare(
+            "SELECT 1 FROM transcript_archives WHERE owner_id=? AND state IN ('PENDING','RETRY_WAIT') AND due_at<=? AND (lease_until IS NULL OR lease_until<=?) AND NOT EXISTS(SELECT 1 FROM transcript_archives q WHERE q.owner_id=? AND q.state='RETRY_WAIT' AND q.last_reason='DRIVE_QUOTA' AND q.due_at>?) LIMIT 1",
+          )
+          .bind(
+            this.context.ownerId,
+            now.toISOString(),
+            now.toISOString(),
+            this.context.ownerId,
+            now.toISOString(),
+          )
+          .first(),
+      );
+    if (await check()) return true;
+    await this.reconcile(now);
+    return check();
   }
   async refreshVerifiedReadback(
     itemId: string,
@@ -238,19 +259,33 @@ export class TranscriptDriveArchive {
       .bind(this.context.ownerId)
       .first<{ folder_id: string; parent_id: string; connection_id: string }>();
     if (!folder) return { state: 'CONFIGURATION_HOLD' };
-    await this.reconcile(now, input.item_id);
-    const due = await this.db
-      .prepare(
-        "SELECT item_id FROM transcript_archives WHERE owner_id=? AND (? IS NULL OR item_id=?) AND state IN ('PENDING','RETRY_WAIT') AND due_at<=? AND (lease_until IS NULL OR lease_until<=?) ORDER BY due_at,item_id LIMIT 1",
-      )
-      .bind(
-        this.context.ownerId,
-        input.item_id ?? null,
-        input.item_id ?? null,
-        now.toISOString(),
-        now.toISOString(),
-      )
-      .first<string>('item_id');
+    if (
+      await this.db
+        .prepare(
+          "SELECT 1 FROM transcript_archives WHERE owner_id=? AND state='RETRY_WAIT' AND last_reason='DRIVE_QUOTA' AND due_at>? LIMIT 1",
+        )
+        .bind(this.context.ownerId, now.toISOString())
+        .first()
+    )
+      return { state: 'QUOTA_WAIT' };
+    const ready = () =>
+      this.db
+        .prepare(
+          "SELECT item_id FROM transcript_archives WHERE owner_id=? AND (? IS NULL OR item_id=?) AND state IN ('PENDING','RETRY_WAIT') AND due_at<=? AND (lease_until IS NULL OR lease_until<=?) ORDER BY due_at,item_id LIMIT 1",
+        )
+        .bind(
+          this.context.ownerId,
+          input.item_id ?? null,
+          input.item_id ?? null,
+          now.toISOString(),
+          now.toISOString(),
+        )
+        .first<string>('item_id');
+    let due = await ready();
+    if (!due) {
+      await this.reconcile(now, input.item_id);
+      due = await ready();
+    }
     if (!due) return { state: 'IDLE' };
     const claimed = await this.db
       .prepare(
@@ -358,6 +393,7 @@ export class TranscriptDriveArchive {
         )
           throw new Error('TRANSCRIPT_ARCHIVE_CONFLICT');
       };
+      const uploadStarted = Date.now();
       let file: DriveFile;
       try {
         file = await client.getFile(reserved);
@@ -387,6 +423,7 @@ export class TranscriptDriveArchive {
         }
       }
       identity(file);
+      const verifyStarted = Date.now();
       let text = await client.readTranscriptMarkdown(reserved),
         hash = await sha256(text),
         after = await client.getFile(reserved);
@@ -416,6 +453,14 @@ export class TranscriptDriveArchive {
       }
       await client.verifyPrivateFolder(reserved);
       await current();
+      await new TranscriptPayloadArchive(this.db, this.context).ensure(
+        claimed.source_artifact_id,
+        client,
+        folder.folder_id,
+        folder.connection_id,
+        new Date(currentTime()),
+        current,
+      );
       const at = currentTime();
       const committed = await this.db.batch([
         this.db
@@ -449,11 +494,25 @@ export class TranscriptDriveArchive {
         file_id: reserved,
         content_hash: hash,
         remote_version: after.version,
+        metrics: {
+          drive_upload_ms: verifyStarted - uploadStarted,
+          drive_verify_ms: Date.now() - verifyStarted,
+          archive_total_ms: Date.now() - started,
+          archive_wait_ms: Math.max(
+            0,
+            now.getTime() -
+              Date.parse(source.artifact.verified_at ?? now.toISOString()),
+          ),
+          detected_to_verified_ms: Math.max(
+            0,
+            Date.parse(at) - Date.parse(descriptor.discovered_at),
+          ),
+        },
       };
     } catch (error) {
       const conflict =
         (error instanceof Error &&
-          /^(TRANSCRIPT_ARCHIVE_(?:CONFLICT|SOURCE_MISMATCH|INVALID_COVERAGE|TOO_LARGE)|ARTIFACT_)/.test(
+          /^(TRANSCRIPT_ARCHIVE_(?:CONFLICT|SOURCE_MISMATCH|INVALID_COVERAGE|TOO_LARGE)|ARTIFACT_|PAYLOAD_ARCHIVE_)/.test(
             error.message,
           )) ||
         (error instanceof DriveFailure && error.category === 'CONFLICT');

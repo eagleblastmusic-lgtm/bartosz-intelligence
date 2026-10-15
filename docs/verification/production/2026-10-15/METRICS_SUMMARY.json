@@ -1,0 +1,36 @@
+{
+  "observed_at": "2026-10-14T23:11:41.330Z",
+  "period_start_utc": "2026-10-14T00:00:00Z",
+  "period_end_utc": "2026-10-14T23:11:41.330Z",
+  "d1Totals": {
+    "readQueries": 46318,
+    "writeQueries": 9786,
+    "rowsRead": 556047,
+    "rowsWritten": 19772
+  },
+  "worker_groups": 5883,
+  "possibly_truncated": false,
+  "scripts": {
+    "bartosz-intelligence": {
+      "requests": 12353,
+      "errors": 1,
+      "subrequests": 403,
+      "groups": 5882,
+      "cpu_group_p99_max_raw": 114266,
+      "status_counts": {
+        "success": 12352,
+        "scriptThrewException": 1
+      }
+    },
+    "giclee-mockup-orders": {
+      "requests": 1,
+      "errors": 0,
+      "subrequests": 0,
+      "groups": 1,
+      "cpu_group_p99_max_raw": 4141,
+      "status_counts": {
+        "success": 1
+      }
+    }
+  }
+}

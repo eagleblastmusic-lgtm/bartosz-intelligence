@@ -17,6 +17,16 @@ NEW_FILES += ['apps/executor/src/providers/oracle-captions.ts', 'packages/core/s
     'tests/unit/oracle-captions.spec.ts', 'tests/unit/test_caption_broker.py',
     'tests/unit/test_oracle_caption_selection.py', 'tests/unit/test_oracle_public_assets.py',
     'tests/workers/transcript-api.spec.ts', 'tests/unit/artifact-client-retry.spec.ts']
+NEW_FILES += ['apps/api/src/artifact-repository.ts',
+    'packages/core/src/sources/youtube/cycles.ts',
+    'packages/core/src/transcript/payload-archive.ts',
+    'packages/core/src/retention/payload-eviction.ts',
+    'db/migrations/041_monitoring_cycles.sql', 'db/migrations/042_caption_retry.sql',
+    'db/migrations/043_transcript_payload_archive.sql',
+    'tests/unit/monitoring-slots.spec.ts', 'tests/workers/caption-retry-policy.spec.ts',
+    'tests/workers/monitoring-cycles.spec.ts', 'tests/workers/performance-fixture.ts',
+    'tests/workers/pipeline-performance.spec.ts', 'tools/performance/benchmark-pipeline.ts']
+NEW_FILES += ['tests/workers/rss-fallback.spec.ts', 'tests/workers/transcript-audio-authority.spec.ts']
 
 def sha(body):
     return hashlib.sha256(body).hexdigest()

@@ -1,0 +1,89 @@
+{
+  "recorded_at": "2026-10-15T00:18:36.979Z",
+  "source": "EXISTING_AUTHENTICATED_CHROME_READ_ONLY_UI",
+  "production_mutations": 0,
+  "observations": [
+    {
+      "captured_at": "2026-10-15T00:07:11.835Z",
+      "page": "https://cloud.oracle.com/account-management/cost-analysis?region=eu-frankfurt-1",
+      "account_banner": "Free Tier; active trial; after trial restricted to Always Free resources",
+      "cost": {
+        "period_utc": "2026-10-01 through 2026-10-15",
+        "total_pln": 0,
+        "visible_days": ["2026-10-12", "2026-10-13", "2026-10-14"],
+        "services": [
+          "Block Storage",
+          "Compute",
+          "Telemetry",
+          "Virtual Cloud Network"
+        ],
+        "provider_usage_lag_hours_approx": 24,
+        "billing_estimate_not_invoice": true
+      }
+    },
+    {
+      "captured_at": "2026-10-15T00:08:14.113Z",
+      "page": "https://cloud.oracle.com/limits?region=eu-frankfurt-1",
+      "service": "Compute",
+      "scope": "eu-frankfurt-1",
+      "compartment": "tenancy root",
+      "a1_ocpu": {
+        "regional_service_limit": 16,
+        "used": 1,
+        "available": 15
+      },
+      "a1_memory_gb": {
+        "regional_service_limit": 96,
+        "used": 6,
+        "available": 90
+      },
+      "note": "Service limits during trial are not the Always Free allowance."
+    },
+    {
+      "captured_at": "2026-10-15T00:16:18.336Z",
+      "source": "Global resource search",
+      "instance_name": "bartosz-intelligence-server",
+      "instance_id": "ocid1.instance.oc1.eu-frankfurt-1.antheljr36gjwkacbyy6myelidyhmcdewoe5repydl4ddicvgronn6javgtq",
+      "boot_volume_name": "bartosz-intelligence-server (Boot Volume)",
+      "boot_volume_id": "ocid1.bootvolume.oc1.eu-frankfurt-1.abtheljrpjagic7y6oifz6f2jhbrrilycixhbzhtrmtnntwsq73urduncjyq",
+      "direct_resource_panels": "EMPTY_RENDERED_MAIN",
+      "browser_errors": [
+        "IndexedDB duplo version 34 cannot downgrade to version 2",
+        "IndexedDB duplo version 34 cannot downgrade to version 22"
+      ],
+      "credentials_extracted": false
+    }
+  ],
+  "assessment": {
+    "cost_read": "PASS_WITH_PROVIDER_LAG",
+    "a1_actual_usage_read": "PASS",
+    "boot_volume_id_read": "PASS",
+    "boot_volume_size_and_performance": "PASS_OWNER_VERIFIED",
+    "all_volume_pool_usage": "PASS_IN_OBSERVED_ROOT_HOME_REGION_SCOPE",
+    "readiness": "GO_FOR_CONTROLLED_RELEASE_PENDING_OWNER_GO",
+    "go_received": false
+  },
+  "official_always_free_reference": {
+    "checked_at": "2026-10-15T00:18:36.979Z",
+    "url": "https://docs.oracle.com/en-us/iaas/Content/FreeTier/freetier_topic-Always_Free_Resources.htm",
+    "a1_ocpu_hours_per_month": 1500,
+    "a1_gb_hours_per_month": 9000,
+    "a1_ocpu_equivalent": 2,
+    "a1_ram_gb_equivalent": 12,
+    "combined_boot_block_storage_gb": 200
+  },
+  "cli_fallback_evidence": [
+    "OCI_VOLUME_DIRECT_READ.json",
+    "OCI_VOLUME_GET.json"
+  ],
+  "user_action_pending": null,
+  "updated_at": "2026-10-15T01:01:46.852Z",
+  "resolution": {
+    "owner_evidence": "OWNER_BOOT_VOLUME_CONFIRMATION.json",
+    "other_volume_evidence": "ORACLE_VOLUME_INVENTORY_REVIEW.json",
+    "chrome_cleanup_by_agent": false,
+    "project_boot_parameters_requeried": false,
+    "oci_iam_changes": false,
+    "prior_browser_and_cli_failures_retained_as_history": true
+  }
+}

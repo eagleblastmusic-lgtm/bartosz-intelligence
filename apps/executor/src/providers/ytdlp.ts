@@ -21,6 +21,7 @@ type ProcessInput = {
   item_id: string;
   video_id: string;
   max_bytes: number;
+  default_audio_language?: string;
   language_code?: string;
   track_kind?: TrackKind;
   extension?: string;
@@ -283,6 +284,12 @@ export class YtdlpTranscriptProvider implements TranscriptProvider {
       item.namespace !== 'youtube' ||
       !/^[\w-]{11}$/.test(item.external_id) ||
       context.provider_version !== ytdlpProviderVersion ||
+      (item.default_audio_language != null &&
+        (typeof item.default_audio_language !== 'string' ||
+          item.default_audio_language.length > 64 ||
+          !/^[A-Za-z]{2,8}(?:-[A-Za-z0-9]{1,8})*$/.test(
+            item.default_audio_language,
+          ))) ||
       !Number.isSafeInteger(context.max_bytes) ||
       context.max_bytes < 1 ||
       context.max_bytes > this.capabilities('local').max_input_bytes
@@ -309,6 +316,9 @@ export class YtdlpTranscriptProvider implements TranscriptProvider {
             video_id: item.external_id,
             item_id: item.item_id,
             max_bytes: context.max_bytes,
+            ...(input.operation === 'list' && item.default_audio_language
+              ? { default_audio_language: item.default_audio_language }
+              : {}),
           },
           Math.min(remaining, this.processLimitMs),
           context.signal,

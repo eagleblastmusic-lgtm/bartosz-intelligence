@@ -1,0 +1,65 @@
+{
+  "schema": "oracle-production-immutable-update:1",
+  "status": "ACTIVE_UPDATED_COORDINATOR_READY",
+  "archive_sha256": "99585d9259044d4b72003a58861f077c94dcc2bb49207227cd3ffb1eb2309b89",
+  "release": "/opt/bartosz-intelligence/releases/99585d9259044d4b72003a58861f077c94dcc2bb49207227cd3ffb1eb2309b89",
+  "previous_release": "/opt/bartosz-intelligence/releases/7a6339c1dcafdd1d825c35b8daa609795ff1cb85ea8ca6d614844800f1a41505",
+  "file_count": 815,
+  "all_manifest_hashes_match": true,
+  "root_nonwritable_source": true,
+  "dependencies_reused_unchanged": {
+    "node_modules": "/opt/bartosz-intelligence/releases/7a6339c1dcafdd1d825c35b8daa609795ff1cb85ea8ca6d614844800f1a41505/node_modules",
+    "apps/api/node_modules": "/opt/bartosz-intelligence/releases/7a6339c1dcafdd1d825c35b8daa609795ff1cb85ea8ca6d614844800f1a41505/apps/api/node_modules",
+    "packages/core/node_modules": "/opt/bartosz-intelligence/releases/7a6339c1dcafdd1d825c35b8daa609795ff1cb85ea8ca6d614844800f1a41505/packages/core/node_modules"
+  },
+  "unchanged_source_and_units": [
+    "tools/transcript-engine/caption-broker.py",
+    "tools/transcript-engine/login-diagnostic.py",
+    "tools/transcript-engine/login-diagnostic-oracle.py",
+    "tools/transcript-engine/pot-transport-trace.mjs",
+    "apps/executor/python/transcript_ytdlp.py",
+    "tools/gates/adapters/gate0_python_adapters.py",
+    "tools/deployment/oracle/bartosz-caption-broker.service",
+    "tools/deployment/oracle/bartosz-executor.service"
+  ],
+  "executor_previous_pid": 63718,
+  "executor_new_pid": 67811,
+  "broker_pid_unchanged": 62168,
+  "services": {
+    "bartosz-caption-broker.service": {
+      "MainPID": "62168",
+      "CPUQuotaPerSecUSec": "500ms",
+      "MemoryMax": "201326592",
+      "MemorySwapMax": "0",
+      "ActiveState": "active",
+      "SubState": "running",
+      "UnitFileState": "enabled"
+    },
+    "bartosz-executor.service": {
+      "MainPID": "67811",
+      "CPUQuotaPerSecUSec": "500ms",
+      "MemoryMax": "402653184",
+      "MemorySwapMax": "0",
+      "ActiveState": "active",
+      "SubState": "running",
+      "UnitFileState": "enabled"
+    }
+  },
+  "events": [
+    {
+      "event": "ORACLE_RUNTIME_READY",
+      "worker_id": "oracle-frankfurt-transcript-1",
+      "concurrency": 1,
+      "source_qualified": true
+    }
+  ],
+  "session_touched": false,
+  "source_requests_by_installer": 0,
+  "representation": "COMPACT",
+  "concurrency": 1,
+  "private_config_backup_present": true,
+  "runtime_check_before_activation": "PASS",
+  "completed_at": "2026-10-15T01:22:28.857727+00:00",
+  "ssh_exit_code": 0,
+  "started_at": "2026-10-15T01:22:26.824734+00:00"
+}

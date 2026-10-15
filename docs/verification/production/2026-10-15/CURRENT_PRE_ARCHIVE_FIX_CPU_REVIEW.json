@@ -1,0 +1,37 @@
+{
+  "schema": "production-existing-cpu-telemetry-review:1",
+  "observed_at": "2026-10-15T10:36:21.043Z",
+  "production_mutations": 0,
+  "scope": "EXISTING_PERSISTED_EVENTS_ONLY_NO_LOGGING_ENABLE_NO_LIVE_TAIL",
+  "requested_script": "bartosz-intelligence",
+  "expected_version": "622b952d-81e2-45f6-b6f5-e0d1f9478899",
+  "timeframe": {
+    "from_utc": "2026-10-15T02:00:00.000Z",
+    "to_utc": "2026-10-15T02:15:00.000Z"
+  },
+  "current_observability": null,
+  "active_deployment": {
+    "id": "1a8b6af6-82cd-4a4f-b236-a3f623fdf71c",
+    "created_on": "2026-10-15T02:00:18.273607Z",
+    "versions": [
+      {
+        "version_id": "622b952d-81e2-45f6-b6f5-e0d1f9478899",
+        "percentage": 100
+      }
+    ]
+  },
+  "read_errors": {
+    "telemetry": "CLOUDFLARE_REQUEST_FAILED_403_10000"
+  },
+  "telemetry_query_dry": true,
+  "telemetry_response_success": false,
+  "telemetry_result_shape": null,
+  "samples": 0,
+  "by_event_type": {},
+  "platform_events": [],
+  "conclusion": "TELEMETRY_READ_PERMISSION_DENIED_HTTP_QUEUE_BREAKDOWN_UNVERIFIED",
+  "availability_note": "Telemetry query returned HTTP403/code10000. This is an access failure, not a successful zero-event result. No permissions or logging settings were changed. Settings GET did not return an observability field; the checked-in production configuration has observability.enabled=false, which alone is not proof of live persistence state.",
+  "required_permission_documented_by_provider": "Workers Observability Write (even for this dry query endpoint)",
+  "privacy": "Credentials, headers, request bodies, transcript text and custom log messages are neither written nor printed.",
+  "reference": "https://developers.cloudflare.com/api/resources/workers/subresources/observability/subresources/telemetry/methods/query/"
+}

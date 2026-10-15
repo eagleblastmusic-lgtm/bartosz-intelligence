@@ -8,6 +8,30 @@ import { DriveClient } from '../../../packages/core/src/drive/client.js';
 import { applicationOrigin } from './auth.js';
 import { RetentionCleanup } from '../../../packages/core/src/retention/cleanup.js';
 import { TranscriptDriveArchive } from '../../../packages/core/src/transcript/archive.js';
+export async function runTranscriptArchiveTick(
+  archive: TranscriptDriveArchive,
+  input: Parameters<TranscriptDriveArchive['tick']>[0],
+  now: Date,
+  queue: Pick<Queue, 'send'>,
+) {
+  const result = await archive.tick(input, now);
+  if ('metrics' in result)
+    console.log(
+      JSON.stringify({
+        event: 'TRANSCRIPT_ARCHIVE_VERIFIED',
+        item_id: result.item_id,
+        ...result.metrics,
+      }),
+    );
+  if (
+    !['CONFIGURATION_HOLD', 'QUOTA_WAIT', 'LEASE_BUSY', 'IDLE'].includes(
+      result.state,
+    ) &&
+    (await archive.hasReady(now))
+  )
+    await queue.send({ kind: 'TRANSCRIPT_ARCHIVE' });
+  return result;
+}
 
 export async function scheduleTranscriptArchive(environment: Env, now: Date) {
   if (environment.TRANSCRIPT_ARCHIVE_ENABLED !== 'true')
@@ -29,7 +53,9 @@ export async function scheduleTranscriptArchive(environment: Env, now: Date) {
     environment.DRIVE_WRAPPING_KEY_ID,
     environment.DRIVE_WRAPPING_KEY,
   );
-  return new TranscriptDriveArchive(environment.DB, context).tick(
+  const archive = new TranscriptDriveArchive(environment.DB, context);
+  const result = await runTranscriptArchiveTick(
+    archive,
     {
       client: async (connectionId) => {
         const grant = await refreshDriveAccess(
@@ -48,10 +74,15 @@ export async function scheduleTranscriptArchive(environment: Env, now: Date) {
       },
     },
     now,
+    environment.BARTOSZ_QUEUE,
   );
+  return result;
 }
 
 export async function scheduleRetentionCleanup(environment: Env, now: Date) {
+  // The broad legacy cleanup is never enabled by a previous DB approval alone.
+  if (environment.RETENTION_DELETION_ENABLED !== 'true')
+    return { state: 'DELETION_DISABLED' };
   const approved = await environment.DB.prepare(
     'SELECT owner_id FROM retention_settings WHERE deletion_enabled=1 AND approval_reference IS NOT NULL LIMIT 1',
   ).first<{ owner_id: string }>();

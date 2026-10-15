@@ -1,0 +1,823 @@
+{
+  "schema": "manual20-production-verification:1",
+  "verified_at": "2026-10-15T11:43:34.990Z",
+  "result": "PASS",
+  "cycle": {
+    "cycle_id": "manual:approved20:281cc826-7024-48c6-9f4a-71762c520bbf",
+    "local_date": "2026-10-15",
+    "slot": "MANUAL:APPROVED20:17b8fcae-f8b6-4ac8-b19a-708d3fb40703",
+    "state": "COMPLETE",
+    "total": 20,
+    "cursor": 20,
+    "completed": 20,
+    "failed": 0,
+    "started_at": "2026-10-15T11:38:32.051Z",
+    "finished_at": "2026-10-15T11:39:58.824Z"
+  },
+  "wall_time_ms": 86773,
+  "actual_channels": 20,
+  "exact_approved_set": true,
+  "all_scans_succeeded": true,
+  "all_scan_attempts": 1,
+  "fencing_token": 1,
+  "rss_events": [
+    {
+      "event_type": "DISCOVERY_COVERAGE_CHANGED",
+      "n": 20
+    },
+    {
+      "event_type": "DISCOVERY_STARTED",
+      "n": 20
+    },
+    {
+      "event_type": "PAGE_COMMITTED",
+      "n": 20
+    },
+    {
+      "event_type": "RSS_PAGE_ACQUIRED",
+      "n": 20
+    }
+  ],
+  "attempts": [
+    {
+      "title": "CGP Grey",
+      "external_id": "UC2C_jShtL725hvbm1arSV9w",
+      "job_id": "monitor_3c0361d65e99441f5828ecc24c4b4bb2d61d9b6a2e4751d1ffadde82f604bd44",
+      "attempt_id": "f2f2e90f-f917-4710-9983-ae7f3b9feafc",
+      "fencing_token": 1,
+      "executor_id": "control-plane",
+      "started_at": "2026-10-15T11:39:02.382Z",
+      "finished_at": "2026-10-15T11:39:03.867Z",
+      "error_code": null,
+      "completed_at": null,
+      "pages_committed": 1,
+      "enumerated_count": 0,
+      "coverage": "PARTIAL"
+    },
+    {
+      "title": "Numberphile",
+      "external_id": "UCoxcjq-8xIDTYp3uz647V5A",
+      "job_id": "monitor_459060a468a339e9e6a13c1171c400406885daa578d08e3c8783b9032a0d8165",
+      "attempt_id": "6f4a8923-c08c-4b7d-bf61-813cbc049971",
+      "fencing_token": 1,
+      "executor_id": "control-plane",
+      "started_at": "2026-10-15T11:39:05.318Z",
+      "finished_at": "2026-10-15T11:39:06.709Z",
+      "error_code": null,
+      "completed_at": null,
+      "pages_committed": 1,
+      "enumerated_count": 0,
+      "coverage": "PARTIAL"
+    },
+    {
+      "title": "Kurzgesagt – In a Nutshell",
+      "external_id": "UCsXVk37bltHxD1rDPwtNM8Q",
+      "job_id": "monitor_b0d996a49223d448c9c30c6785fdbcebbb4899292a75783c31848697ca7dc7b7",
+      "attempt_id": "24cbc8e7-ba34-40a7-8c5c-00255062692b",
+      "fencing_token": 1,
+      "executor_id": "control-plane",
+      "started_at": "2026-10-15T11:39:08.175Z",
+      "finished_at": "2026-10-15T11:39:09.529Z",
+      "error_code": null,
+      "completed_at": null,
+      "pages_committed": 1,
+      "enumerated_count": 0,
+      "coverage": "PARTIAL"
+    },
+    {
+      "title": "Big Think",
+      "external_id": "UCvQECJukTDE2i6aCoMnS-Vg",
+      "job_id": "monitor_b4a347e848a3c67680b11e8d63503192f570178e302dc1248cc3ff593b7cf68c",
+      "attempt_id": "f3c34434-6a37-4fa1-81f6-7217cdba07ee",
+      "fencing_token": 1,
+      "executor_id": "control-plane",
+      "started_at": "2026-10-15T11:39:10.922Z",
+      "finished_at": "2026-10-15T11:39:12.381Z",
+      "error_code": null,
+      "completed_at": null,
+      "pages_committed": 1,
+      "enumerated_count": 0,
+      "coverage": "PARTIAL"
+    },
+    {
+      "title": "TED",
+      "external_id": "UCAuUUnT6oDeKwE6v1NGQxug",
+      "job_id": "monitor_cee8fbcf83928cad6722229aff44e32d01dfd5d07dd93b75f115bd4f1893d306",
+      "attempt_id": "ce7360fe-812f-46ff-9052-6f1b2f80be1d",
+      "fencing_token": 1,
+      "executor_id": "control-plane",
+      "started_at": "2026-10-15T11:39:14.316Z",
+      "finished_at": "2026-10-15T11:39:15.731Z",
+      "error_code": null,
+      "completed_at": null,
+      "pages_committed": 1,
+      "enumerated_count": 1,
+      "coverage": "PARTIAL"
+    },
+    {
+      "title": "Technology Connections",
+      "external_id": "UCy0tKL1T7wFoYcxCe0xjN6Q",
+      "job_id": "monitor_0ab6162571f5542ba51dc3083dc8f964ff1782d0b5b33498bd5f4369dbe3e878",
+      "attempt_id": "d609d28b-82d4-4d37-ad06-6411b2decda1",
+      "fencing_token": 1,
+      "executor_id": "control-plane",
+      "started_at": "2026-10-15T11:39:17.120Z",
+      "finished_at": "2026-10-15T11:39:18.528Z",
+      "error_code": null,
+      "completed_at": null,
+      "pages_committed": 1,
+      "enumerated_count": 0,
+      "coverage": "PARTIAL"
+    },
+    {
+      "title": "minutephysics",
+      "external_id": "UCUHW94eEFW7hkUMVaZz4eDg",
+      "job_id": "monitor_5c27eb511b2dfffa614ce7cd7caff534d105f5def9859698dc9ec4605eb0c31a",
+      "attempt_id": "a8df89ee-a737-400e-b980-7aa3be9c81f3",
+      "fencing_token": 1,
+      "executor_id": "control-plane",
+      "started_at": "2026-10-15T11:39:19.917Z",
+      "finished_at": "2026-10-15T11:39:21.284Z",
+      "error_code": null,
+      "completed_at": null,
+      "pages_committed": 1,
+      "enumerated_count": 0,
+      "coverage": "PARTIAL"
+    },
+    {
+      "title": "Stand-up Maths",
+      "external_id": "UCSju5G2aFaWMqn-_0YBtq5A",
+      "job_id": "monitor_8b1bb27aec85db022d968245256020d6370a48a74508ebcb947861da14c09260",
+      "attempt_id": "dc7a5be7-c563-4ffb-930e-53e9e0e3d13e",
+      "fencing_token": 1,
+      "executor_id": "control-plane",
+      "started_at": "2026-10-15T11:39:22.668Z",
+      "finished_at": "2026-10-15T11:39:24.175Z",
+      "error_code": null,
+      "completed_at": null,
+      "pages_committed": 1,
+      "enumerated_count": 0,
+      "coverage": "PARTIAL"
+    },
+    {
+      "title": "Two Minute Papers",
+      "external_id": "UCbfYPyITQ-7l4upoX8nvctg",
+      "job_id": "monitor_dea0b92f9b1db3c26e223ffb6941a2d309e9120b908377f2c93534bb7595a7fb",
+      "attempt_id": "fb02f231-803e-4e17-8d09-64f607d1cb57",
+      "fencing_token": 1,
+      "executor_id": "control-plane",
+      "started_at": "2026-10-15T11:39:25.548Z",
+      "finished_at": "2026-10-15T11:39:26.884Z",
+      "error_code": null,
+      "completed_at": null,
+      "pages_committed": 1,
+      "enumerated_count": 0,
+      "coverage": "PARTIAL"
+    },
+    {
+      "title": "The Action Lab",
+      "external_id": "UC1VLQPn9cYSqx8plbk9RxxQ",
+      "job_id": "monitor_e244937a18e54db60260655d452aab9f0729abf7f2e3d7f5bc5c32baa64ab948",
+      "attempt_id": "b0d73986-a5fc-49b1-a501-0ad323644702",
+      "fencing_token": 1,
+      "executor_id": "control-plane",
+      "started_at": "2026-10-15T11:39:28.273Z",
+      "finished_at": "2026-10-15T11:39:29.620Z",
+      "error_code": null,
+      "completed_at": null,
+      "pages_committed": 1,
+      "enumerated_count": 0,
+      "coverage": "PARTIAL"
+    },
+    {
+      "title": "Veritasium",
+      "external_id": "UCHnyfMqiRRG1u-2MsSQLbXA",
+      "job_id": "monitor_16909b7ad8218f38d7ed9a8b5965a8c23c7d3ee9bd9b5d21c5861d6df4876c9f",
+      "attempt_id": "a97b27c9-cafc-4c66-a038-f3fe2373f297",
+      "fencing_token": 1,
+      "executor_id": "control-plane",
+      "started_at": "2026-10-15T11:39:31.010Z",
+      "finished_at": "2026-10-15T11:39:32.505Z",
+      "error_code": null,
+      "completed_at": null,
+      "pages_committed": 1,
+      "enumerated_count": 0,
+      "coverage": "PARTIAL"
+    },
+    {
+      "title": "Practical Engineering",
+      "external_id": "UCMOqf8ab-42UUQIdVoKwjlQ",
+      "job_id": "monitor_3d8df10504947b7f89f60bf8ef99a7a0eb37f339119a4e6f8e5e3c5d78f0d622",
+      "attempt_id": "ef30f103-c8a6-4cc4-a791-429ce85e454f",
+      "fencing_token": 1,
+      "executor_id": "control-plane",
+      "started_at": "2026-10-15T11:39:34.000Z",
+      "finished_at": "2026-10-15T11:39:35.367Z",
+      "error_code": null,
+      "completed_at": null,
+      "pages_committed": 1,
+      "enumerated_count": 0,
+      "coverage": "PARTIAL"
+    },
+    {
+      "title": "SmarterEveryDay",
+      "external_id": "UC6107grRI4m0o2-emgoDnAA",
+      "job_id": "monitor_440f81f01e00d21ed6436a6219a8e1f96b66b9ade65f1524694df015da7c2e46",
+      "attempt_id": "ee67f458-2e01-479e-a214-cfa616b33ae6",
+      "fencing_token": 1,
+      "executor_id": "control-plane",
+      "started_at": "2026-10-15T11:39:36.713Z",
+      "finished_at": "2026-10-15T11:39:38.059Z",
+      "error_code": null,
+      "completed_at": null,
+      "pages_committed": 1,
+      "enumerated_count": 0,
+      "coverage": "PARTIAL"
+    },
+    {
+      "title": "Real Engineering",
+      "external_id": "UCR1IuLEqb6UEA_zQ81kwXfg",
+      "job_id": "monitor_ad54c623304a0302ab4887a7ba960270c27bf2715b1d4de21976553c6c4221e2",
+      "attempt_id": "5344b9b7-ddce-4ed1-8136-acf5ccfdf689",
+      "fencing_token": 1,
+      "executor_id": "control-plane",
+      "started_at": "2026-10-15T11:39:39.452Z",
+      "finished_at": "2026-10-15T11:39:40.820Z",
+      "error_code": null,
+      "completed_at": null,
+      "pages_committed": 1,
+      "enumerated_count": 0,
+      "coverage": "PARTIAL"
+    },
+    {
+      "title": "3Blue1Brown",
+      "external_id": "UCYO_jab_esuFRV4b17AJtAw",
+      "job_id": "monitor_cac54bb21f163f0797a5e690478ceec11e5e01ba3d4ff19d8a2b88a131f0354e",
+      "attempt_id": "ef17f740-52fe-4591-8e7e-8131d4ab863d",
+      "fencing_token": 1,
+      "executor_id": "control-plane",
+      "started_at": "2026-10-15T11:39:42.337Z",
+      "finished_at": "2026-10-15T11:39:43.692Z",
+      "error_code": null,
+      "completed_at": null,
+      "pages_committed": 1,
+      "enumerated_count": 0,
+      "coverage": "PARTIAL"
+    },
+    {
+      "title": "The Royal Institution",
+      "external_id": "UCYeF244yNGuFefuFKqxIAXw",
+      "job_id": "monitor_0a0978292a79848329945291e301285d55abc8bfe85f3f2cbdd0223004d19d1a",
+      "attempt_id": "ac7d0265-6dca-45fe-9471-f364c38127c3",
+      "fencing_token": 1,
+      "executor_id": "control-plane",
+      "started_at": "2026-10-15T11:39:45.068Z",
+      "finished_at": "2026-10-15T11:39:46.533Z",
+      "error_code": null,
+      "completed_at": null,
+      "pages_committed": 1,
+      "enumerated_count": 0,
+      "coverage": "PARTIAL"
+    },
+    {
+      "title": "Computerphile",
+      "external_id": "UC9-y-6csu5WGm29I7JiwpnA",
+      "job_id": "monitor_4ae1fc69771c2244ebe01b089a428941a235d4e22d49e2c4786be4a8a62f1d73",
+      "attempt_id": "b9f7255e-bd87-4762-8c06-b1ce784d9bf4",
+      "fencing_token": 1,
+      "executor_id": "control-plane",
+      "started_at": "2026-10-15T11:39:47.903Z",
+      "finished_at": "2026-10-15T11:39:49.252Z",
+      "error_code": null,
+      "completed_at": null,
+      "pages_committed": 1,
+      "enumerated_count": 0,
+      "coverage": "PARTIAL"
+    },
+    {
+      "title": "Steve Mould",
+      "external_id": "UCEIwxahdLz7bap-VDs9h35A",
+      "job_id": "monitor_5102df84a820c723ce1d8d33157d97594f5af6012c6d73077c1224ad272549dc",
+      "attempt_id": "d1484a45-00e1-4369-a4e4-63010ccf90d9",
+      "fencing_token": 1,
+      "executor_id": "control-plane",
+      "started_at": "2026-10-15T11:39:50.646Z",
+      "finished_at": "2026-10-15T11:39:52.022Z",
+      "error_code": null,
+      "completed_at": null,
+      "pages_committed": 1,
+      "enumerated_count": 0,
+      "coverage": "PARTIAL"
+    },
+    {
+      "title": "Mark Rober",
+      "external_id": "UCY1kMZp36IQSyNx_9h4mpCg",
+      "job_id": "monitor_a3ffdd5a714262a99107dfdd3737728fe87fd58716b99217fd6e0d502e61c6ee",
+      "attempt_id": "2d54d0c9-0b95-4f38-9ba8-404c3bbfbc0c",
+      "fencing_token": 1,
+      "executor_id": "control-plane",
+      "started_at": "2026-10-15T11:39:53.834Z",
+      "finished_at": "2026-10-15T11:39:55.246Z",
+      "error_code": null,
+      "completed_at": null,
+      "pages_committed": 1,
+      "enumerated_count": 0,
+      "coverage": "PARTIAL"
+    },
+    {
+      "title": "Branch Education",
+      "external_id": "UCdp4_l1vPmpN-gDbUwhaRUQ",
+      "job_id": "monitor_fef9cfc3adc68e337bfbf2993fd6690494e192672003f401d224dc7ccd9a1178",
+      "attempt_id": "646eb49a-8392-4d7c-8390-1239b28d0ff2",
+      "fencing_token": 1,
+      "executor_id": "control-plane",
+      "started_at": "2026-10-15T11:39:56.619Z",
+      "finished_at": "2026-10-15T11:39:58.198Z",
+      "error_code": null,
+      "completed_at": null,
+      "pages_committed": 1,
+      "enumerated_count": 0,
+      "coverage": "PARTIAL"
+    }
+  ],
+  "inter_attempt_gaps": [
+    {
+      "after_channel": "UC2C_jShtL725hvbm1arSV9w",
+      "before_channel": "UCoxcjq-8xIDTYp3uz647V5A",
+      "gap_ms": 1451
+    },
+    {
+      "after_channel": "UCoxcjq-8xIDTYp3uz647V5A",
+      "before_channel": "UCsXVk37bltHxD1rDPwtNM8Q",
+      "gap_ms": 1466
+    },
+    {
+      "after_channel": "UCsXVk37bltHxD1rDPwtNM8Q",
+      "before_channel": "UCvQECJukTDE2i6aCoMnS-Vg",
+      "gap_ms": 1393
+    },
+    {
+      "after_channel": "UCvQECJukTDE2i6aCoMnS-Vg",
+      "before_channel": "UCAuUUnT6oDeKwE6v1NGQxug",
+      "gap_ms": 1935
+    },
+    {
+      "after_channel": "UCAuUUnT6oDeKwE6v1NGQxug",
+      "before_channel": "UCy0tKL1T7wFoYcxCe0xjN6Q",
+      "gap_ms": 1389
+    },
+    {
+      "after_channel": "UCy0tKL1T7wFoYcxCe0xjN6Q",
+      "before_channel": "UCUHW94eEFW7hkUMVaZz4eDg",
+      "gap_ms": 1389
+    },
+    {
+      "after_channel": "UCUHW94eEFW7hkUMVaZz4eDg",
+      "before_channel": "UCSju5G2aFaWMqn-_0YBtq5A",
+      "gap_ms": 1384
+    },
+    {
+      "after_channel": "UCSju5G2aFaWMqn-_0YBtq5A",
+      "before_channel": "UCbfYPyITQ-7l4upoX8nvctg",
+      "gap_ms": 1373
+    },
+    {
+      "after_channel": "UCbfYPyITQ-7l4upoX8nvctg",
+      "before_channel": "UC1VLQPn9cYSqx8plbk9RxxQ",
+      "gap_ms": 1389
+    },
+    {
+      "after_channel": "UC1VLQPn9cYSqx8plbk9RxxQ",
+      "before_channel": "UCHnyfMqiRRG1u-2MsSQLbXA",
+      "gap_ms": 1390
+    },
+    {
+      "after_channel": "UCHnyfMqiRRG1u-2MsSQLbXA",
+      "before_channel": "UCMOqf8ab-42UUQIdVoKwjlQ",
+      "gap_ms": 1495
+    },
+    {
+      "after_channel": "UCMOqf8ab-42UUQIdVoKwjlQ",
+      "before_channel": "UC6107grRI4m0o2-emgoDnAA",
+      "gap_ms": 1346
+    },
+    {
+      "after_channel": "UC6107grRI4m0o2-emgoDnAA",
+      "before_channel": "UCR1IuLEqb6UEA_zQ81kwXfg",
+      "gap_ms": 1393
+    },
+    {
+      "after_channel": "UCR1IuLEqb6UEA_zQ81kwXfg",
+      "before_channel": "UCYO_jab_esuFRV4b17AJtAw",
+      "gap_ms": 1517
+    },
+    {
+      "after_channel": "UCYO_jab_esuFRV4b17AJtAw",
+      "before_channel": "UCYeF244yNGuFefuFKqxIAXw",
+      "gap_ms": 1376
+    },
+    {
+      "after_channel": "UCYeF244yNGuFefuFKqxIAXw",
+      "before_channel": "UC9-y-6csu5WGm29I7JiwpnA",
+      "gap_ms": 1370
+    },
+    {
+      "after_channel": "UC9-y-6csu5WGm29I7JiwpnA",
+      "before_channel": "UCEIwxahdLz7bap-VDs9h35A",
+      "gap_ms": 1394
+    },
+    {
+      "after_channel": "UCEIwxahdLz7bap-VDs9h35A",
+      "before_channel": "UCY1kMZp36IQSyNx_9h4mpCg",
+      "gap_ms": 1812
+    },
+    {
+      "after_channel": "UCY1kMZp36IQSyNx_9h4mpCg",
+      "before_channel": "UCdp4_l1vPmpN-gDbUwhaRUQ",
+      "gap_ms": 1373
+    }
+  ],
+  "max_inter_attempt_gap_ms": 1935,
+  "new_channel_jobs": [
+    {
+      "task_type": "DISCOVER",
+      "origin_kind": "INTEGRITY",
+      "n": 19
+    }
+  ],
+  "unexpected_historical_items": [],
+  "delete_performed": false,
+  "normal_schedule": "15:00,23:00 Europe/Warsaw",
+  "manual_not_scheduled": true,
+  "coverage_note": "All20 bounded RSS checks completed and committed pages; coveragePARTIAL truthfully means no complete historical-playlist enumeration. Harness corrected to use committed pages, SUCCEEDED job and finished fenced attempt, instead of the unrelated full-window completed_at marker. No production change.",
+  "free": {
+    "measured_partial_day": {
+      "workers_requests": 6398,
+      "d1_rows_read": 1230122,
+      "d1_rows_written": 8697,
+      "queue_operations": 915,
+      "d1_database_bytes": 30359552
+    },
+    "observed_delta_including_operator_and_background_activity": {
+      "workers_requests": 243,
+      "d1_rows_read": 133045,
+      "d1_rows_written": 1590,
+      "queue_operations": 70,
+      "d1_database_bytes": 126976
+    },
+    "backlog": {
+      "backlog_count": 0,
+      "backlog_bytes": 0,
+      "oldest_message_timestamp_ms": 0
+    },
+    "workers_errors": 0,
+    "version_requests": 314,
+    "version_errors": 0,
+    "cpu_during_observation": [
+      {
+        "type": "HTTP",
+        "path": "/internal/workers/search/step",
+        "cpu_ms": 2,
+        "wall_ms": 154,
+        "outcome": "ok"
+      },
+      {
+        "type": "HTTP",
+        "path": "/internal/workers/search/step",
+        "cpu_ms": 2,
+        "wall_ms": 163,
+        "outcome": "ok"
+      },
+      {
+        "type": "HTTP",
+        "path": "/internal/workers/search/step",
+        "cpu_ms": 2,
+        "wall_ms": 149,
+        "outcome": "ok"
+      },
+      {
+        "type": "HTTP",
+        "path": "/internal/workers/search/step",
+        "cpu_ms": 4,
+        "wall_ms": 205,
+        "outcome": "ok"
+      },
+      {
+        "type": "HTTP",
+        "path": "/internal/workers/heartbeat",
+        "cpu_ms": 1,
+        "wall_ms": 70,
+        "outcome": "ok"
+      },
+      {
+        "type": "HTTP",
+        "path": "/internal/workers/heartbeat",
+        "cpu_ms": 1,
+        "wall_ms": 68,
+        "outcome": "ok"
+      },
+      {
+        "type": "HTTP",
+        "path": "/internal/workers/lease",
+        "cpu_ms": 2,
+        "wall_ms": 75,
+        "outcome": "ok"
+      },
+      {
+        "type": "HTTP",
+        "path": "/internal/workers/heartbeat",
+        "cpu_ms": 8,
+        "wall_ms": 70,
+        "outcome": "ok"
+      },
+      {
+        "type": "HTTP",
+        "path": "/internal/workers/transcript/admission",
+        "cpu_ms": 3,
+        "wall_ms": 64,
+        "outcome": "ok"
+      },
+      {
+        "type": "HTTP",
+        "path": "/internal/workers/lease",
+        "cpu_ms": 4,
+        "wall_ms": 69,
+        "outcome": "ok"
+      },
+      {
+        "type": "QUEUE",
+        "path": "",
+        "cpu_ms": 8,
+        "wall_ms": 1115,
+        "outcome": "ok"
+      },
+      {
+        "type": "HTTP",
+        "path": "/internal/workers/search/step",
+        "cpu_ms": 4,
+        "wall_ms": 231,
+        "outcome": "ok"
+      },
+      {
+        "type": "HTTP",
+        "path": "/internal/workers/search/step",
+        "cpu_ms": 3,
+        "wall_ms": 184,
+        "outcome": "ok"
+      },
+      {
+        "type": "QUEUE",
+        "path": "",
+        "cpu_ms": 4,
+        "wall_ms": 1011,
+        "outcome": "ok"
+      },
+      {
+        "type": "QUEUE",
+        "path": "",
+        "cpu_ms": 4,
+        "wall_ms": 932,
+        "outcome": "ok"
+      },
+      {
+        "type": "QUEUE",
+        "path": "",
+        "cpu_ms": 4,
+        "wall_ms": 1048,
+        "outcome": "ok"
+      },
+      {
+        "type": "QUEUE",
+        "path": "",
+        "cpu_ms": 18,
+        "wall_ms": 2809,
+        "outcome": "ok"
+      },
+      {
+        "type": "QUEUE",
+        "path": "",
+        "cpu_ms": 12,
+        "wall_ms": 2732,
+        "outcome": "ok"
+      },
+      {
+        "type": "QUEUE",
+        "path": "",
+        "cpu_ms": 16,
+        "wall_ms": 2620,
+        "outcome": "ok"
+      },
+      {
+        "type": "QUEUE",
+        "path": "",
+        "cpu_ms": 12,
+        "wall_ms": 3268,
+        "outcome": "ok"
+      },
+      {
+        "type": "HTTP",
+        "path": "/internal/workers/heartbeat",
+        "cpu_ms": 2,
+        "wall_ms": 70,
+        "outcome": "ok"
+      },
+      {
+        "type": "HTTP",
+        "path": "/internal/workers/lease",
+        "cpu_ms": 2,
+        "wall_ms": 77,
+        "outcome": "ok"
+      },
+      {
+        "type": "QUEUE",
+        "path": "",
+        "cpu_ms": 14,
+        "wall_ms": 2682,
+        "outcome": "ok"
+      },
+      {
+        "type": "HTTP",
+        "path": "/internal/workers/heartbeat",
+        "cpu_ms": 1,
+        "wall_ms": 67,
+        "outcome": "ok"
+      },
+      {
+        "type": "HTTP",
+        "path": "/internal/workers/lease",
+        "cpu_ms": 1,
+        "wall_ms": 66,
+        "outcome": "ok"
+      },
+      {
+        "type": "QUEUE",
+        "path": "",
+        "cpu_ms": 13,
+        "wall_ms": 2724,
+        "outcome": "ok"
+      },
+      {
+        "type": "HTTP",
+        "path": "/internal/workers/heartbeat",
+        "cpu_ms": 4,
+        "wall_ms": 67,
+        "outcome": "ok"
+      },
+      {
+        "type": "HTTP",
+        "path": "/internal/workers/transcript/admission",
+        "cpu_ms": 6,
+        "wall_ms": 76,
+        "outcome": "ok"
+      },
+      {
+        "type": "HTTP",
+        "path": "/internal/workers/lease",
+        "cpu_ms": 4,
+        "wall_ms": 81,
+        "outcome": "ok"
+      },
+      {
+        "type": "QUEUE",
+        "path": "",
+        "cpu_ms": 11,
+        "wall_ms": 2611,
+        "outcome": "ok"
+      },
+      {
+        "type": "QUEUE",
+        "path": "",
+        "cpu_ms": 11,
+        "wall_ms": 2682,
+        "outcome": "ok"
+      },
+      {
+        "type": "QUEUE",
+        "path": "",
+        "cpu_ms": 11,
+        "wall_ms": 2658,
+        "outcome": "ok"
+      },
+      {
+        "type": "HTTP",
+        "path": "/internal/workers/search/step",
+        "cpu_ms": 9,
+        "wall_ms": 257,
+        "outcome": "ok"
+      },
+      {
+        "type": "HTTP",
+        "path": "/internal/workers/search/step",
+        "cpu_ms": 4,
+        "wall_ms": 246,
+        "outcome": "ok"
+      },
+      {
+        "type": "QUEUE",
+        "path": "",
+        "cpu_ms": 11,
+        "wall_ms": 2799,
+        "outcome": "ok"
+      },
+      {
+        "type": "HTTP",
+        "path": "/internal/workers/search/step",
+        "cpu_ms": 4,
+        "wall_ms": 192,
+        "outcome": "ok"
+      },
+      {
+        "type": "HTTP",
+        "path": "/internal/workers/heartbeat",
+        "cpu_ms": 1,
+        "wall_ms": 80,
+        "outcome": "ok"
+      },
+      {
+        "type": "HTTP",
+        "path": "/internal/workers/lease",
+        "cpu_ms": 2,
+        "wall_ms": 71,
+        "outcome": "ok"
+      },
+      {
+        "type": "HTTP",
+        "path": "/internal/workers/heartbeat",
+        "cpu_ms": 5,
+        "wall_ms": 64,
+        "outcome": "ok"
+      },
+      {
+        "type": "HTTP",
+        "path": "/internal/workers/transcript/admission",
+        "cpu_ms": 3,
+        "wall_ms": 80,
+        "outcome": "ok"
+      },
+      {
+        "type": "HTTP",
+        "path": "/internal/workers/lease",
+        "cpu_ms": 4,
+        "wall_ms": 86,
+        "outcome": "ok"
+      },
+      {
+        "type": "SCHEDULED",
+        "path": "",
+        "cpu_ms": 0,
+        "wall_ms": 145,
+        "outcome": "ok"
+      },
+      {
+        "type": "QUEUE",
+        "path": "",
+        "cpu_ms": 7,
+        "wall_ms": 1745,
+        "outcome": "ok"
+      },
+      {
+        "type": "QUEUE",
+        "path": "",
+        "cpu_ms": 3,
+        "wall_ms": 952,
+        "outcome": "ok"
+      },
+      {
+        "type": "HTTP",
+        "path": "/internal/workers/heartbeat",
+        "cpu_ms": 1,
+        "wall_ms": 82,
+        "outcome": "ok"
+      },
+      {
+        "type": "HTTP",
+        "path": "/internal/workers/search/step",
+        "cpu_ms": 4,
+        "wall_ms": 203,
+        "outcome": "ok"
+      }
+    ],
+    "note": "Provider analytics lag and hourly aggregation mean these deltas include activation, normal traffic, operator reads and maintenance; not an exact isolated cost per scan or a full-day measurement.",
+    "full_day_verified": false,
+    "sustained_100_video_free_verified": false
+  },
+  "worker_version": "901e9506-5924-4e96-9735-19f43ee9a1d3",
+  "evidence": [
+    {
+      "path": "MANUAL20_FIRST_CPU.json",
+      "sha256": "c5d1d7530ee4c54132f2a2abed3cfebdfd8f605a1723eecd263388b8d3b233ef"
+    },
+    {
+      "path": "MANUAL20_CONTINUATION_CPU.json",
+      "sha256": "bbb3a7e08dc47da2949a65c08ef544ad9b61281fbac08b75c1e6bb749ec40b73"
+    },
+    {
+      "path": "POST_MANUAL20_FREE_METRICS.json",
+      "sha256": "719dbf181373cb89a62c0974d1266935d3f48df41dd947fcc8b77de8f810f529"
+    },
+    {
+      "path": "FINAL20_STATE.json",
+      "sha256": "5a3e6fdf7c5dcc265b27a851a8f6c948d0192a12abc04c35af0724714a67bca6"
+    }
+  ]
+}

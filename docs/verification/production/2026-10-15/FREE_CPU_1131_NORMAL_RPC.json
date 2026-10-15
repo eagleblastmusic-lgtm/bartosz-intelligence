@@ -1,0 +1,348 @@
+{
+  "observed_at": "2026-10-15T11:32:45.196950+00:00",
+  "collector": "Official Wrangler bounded tail",
+  "retained_headers": false,
+  "retained_logs": false,
+  "stderr_bytes": 0,
+  "events": [
+    {
+      "outcome": "ok",
+      "event_type": "HTTP",
+      "path": "/internal/workers/search/step",
+      "cpuTime": 3,
+      "wallTime": 184,
+      "scriptVersion": {
+        "id": "901e9506-5924-4e96-9735-19f43ee9a1d3"
+      },
+      "top_level_fields": [
+        "cpuTime",
+        "diagnosticsChannelEvents",
+        "event",
+        "eventTimestamp",
+        "exceptions",
+        "executionModel",
+        "logs",
+        "outcome",
+        "scriptName",
+        "scriptVersion",
+        "truncated",
+        "wallTime"
+      ],
+      "exception_count": 0,
+      "log_count": 0
+    },
+    {
+      "outcome": "ok",
+      "event_type": "HTTP",
+      "path": "/internal/workers/heartbeat",
+      "cpuTime": 2,
+      "wallTime": 87,
+      "scriptVersion": {
+        "id": "901e9506-5924-4e96-9735-19f43ee9a1d3"
+      },
+      "top_level_fields": [
+        "cpuTime",
+        "diagnosticsChannelEvents",
+        "event",
+        "eventTimestamp",
+        "exceptions",
+        "executionModel",
+        "logs",
+        "outcome",
+        "scriptName",
+        "scriptVersion",
+        "truncated",
+        "wallTime"
+      ],
+      "exception_count": 0,
+      "log_count": 0
+    },
+    {
+      "outcome": "ok",
+      "event_type": "HTTP",
+      "path": "/internal/workers/lease",
+      "cpuTime": 2,
+      "wallTime": 75,
+      "scriptVersion": {
+        "id": "901e9506-5924-4e96-9735-19f43ee9a1d3"
+      },
+      "top_level_fields": [
+        "cpuTime",
+        "diagnosticsChannelEvents",
+        "event",
+        "eventTimestamp",
+        "exceptions",
+        "executionModel",
+        "logs",
+        "outcome",
+        "scriptName",
+        "scriptVersion",
+        "truncated",
+        "wallTime"
+      ],
+      "exception_count": 0,
+      "log_count": 0
+    },
+    {
+      "outcome": "ok",
+      "event_type": "HTTP",
+      "path": "/internal/workers/heartbeat",
+      "cpuTime": 4,
+      "wallTime": 64,
+      "scriptVersion": {
+        "id": "901e9506-5924-4e96-9735-19f43ee9a1d3"
+      },
+      "top_level_fields": [
+        "cpuTime",
+        "diagnosticsChannelEvents",
+        "event",
+        "eventTimestamp",
+        "exceptions",
+        "executionModel",
+        "logs",
+        "outcome",
+        "scriptName",
+        "scriptVersion",
+        "truncated",
+        "wallTime"
+      ],
+      "exception_count": 0,
+      "log_count": 0
+    },
+    {
+      "outcome": "ok",
+      "event_type": "HTTP",
+      "path": "/internal/workers/transcript/admission",
+      "cpuTime": 7,
+      "wallTime": 72,
+      "scriptVersion": {
+        "id": "901e9506-5924-4e96-9735-19f43ee9a1d3"
+      },
+      "top_level_fields": [
+        "cpuTime",
+        "diagnosticsChannelEvents",
+        "event",
+        "eventTimestamp",
+        "exceptions",
+        "executionModel",
+        "logs",
+        "outcome",
+        "scriptName",
+        "scriptVersion",
+        "truncated",
+        "wallTime"
+      ],
+      "exception_count": 0,
+      "log_count": 0
+    },
+    {
+      "outcome": "ok",
+      "event_type": "HTTP",
+      "path": "/internal/workers/lease",
+      "cpuTime": 7,
+      "wallTime": 88,
+      "scriptVersion": {
+        "id": "901e9506-5924-4e96-9735-19f43ee9a1d3"
+      },
+      "top_level_fields": [
+        "cpuTime",
+        "diagnosticsChannelEvents",
+        "event",
+        "eventTimestamp",
+        "exceptions",
+        "executionModel",
+        "logs",
+        "outcome",
+        "scriptName",
+        "scriptVersion",
+        "truncated",
+        "wallTime"
+      ],
+      "exception_count": 0,
+      "log_count": 0
+    },
+    {
+      "outcome": "ok",
+      "event_type": "HTTP",
+      "path": "/internal/workers/heartbeat",
+      "cpuTime": 1,
+      "wallTime": 78,
+      "scriptVersion": {
+        "id": "901e9506-5924-4e96-9735-19f43ee9a1d3"
+      },
+      "top_level_fields": [
+        "cpuTime",
+        "diagnosticsChannelEvents",
+        "event",
+        "eventTimestamp",
+        "exceptions",
+        "executionModel",
+        "logs",
+        "outcome",
+        "scriptName",
+        "scriptVersion",
+        "truncated",
+        "wallTime"
+      ],
+      "exception_count": 0,
+      "log_count": 0
+    },
+    {
+      "outcome": "ok",
+      "event_type": "HTTP",
+      "path": "/internal/workers/search/step",
+      "cpuTime": 3,
+      "wallTime": 209,
+      "scriptVersion": {
+        "id": "901e9506-5924-4e96-9735-19f43ee9a1d3"
+      },
+      "top_level_fields": [
+        "cpuTime",
+        "diagnosticsChannelEvents",
+        "event",
+        "eventTimestamp",
+        "exceptions",
+        "executionModel",
+        "logs",
+        "outcome",
+        "scriptName",
+        "scriptVersion",
+        "truncated",
+        "wallTime"
+      ],
+      "exception_count": 0,
+      "log_count": 0
+    },
+    {
+      "outcome": "ok",
+      "event_type": "HTTP",
+      "path": "/internal/workers/heartbeat",
+      "cpuTime": 1,
+      "wallTime": 84,
+      "scriptVersion": {
+        "id": "901e9506-5924-4e96-9735-19f43ee9a1d3"
+      },
+      "top_level_fields": [
+        "cpuTime",
+        "diagnosticsChannelEvents",
+        "event",
+        "eventTimestamp",
+        "exceptions",
+        "executionModel",
+        "logs",
+        "outcome",
+        "scriptName",
+        "scriptVersion",
+        "truncated",
+        "wallTime"
+      ],
+      "exception_count": 0,
+      "log_count": 0
+    },
+    {
+      "outcome": "ok",
+      "event_type": "HTTP",
+      "path": "/internal/workers/lease",
+      "cpuTime": 2,
+      "wallTime": 79,
+      "scriptVersion": {
+        "id": "901e9506-5924-4e96-9735-19f43ee9a1d3"
+      },
+      "top_level_fields": [
+        "cpuTime",
+        "diagnosticsChannelEvents",
+        "event",
+        "eventTimestamp",
+        "exceptions",
+        "executionModel",
+        "logs",
+        "outcome",
+        "scriptName",
+        "scriptVersion",
+        "truncated",
+        "wallTime"
+      ],
+      "exception_count": 0,
+      "log_count": 0
+    },
+    {
+      "outcome": "ok",
+      "event_type": "HTTP",
+      "path": "/internal/workers/heartbeat",
+      "cpuTime": 6,
+      "wallTime": 76,
+      "scriptVersion": {
+        "id": "901e9506-5924-4e96-9735-19f43ee9a1d3"
+      },
+      "top_level_fields": [
+        "cpuTime",
+        "diagnosticsChannelEvents",
+        "event",
+        "eventTimestamp",
+        "exceptions",
+        "executionModel",
+        "logs",
+        "outcome",
+        "scriptName",
+        "scriptVersion",
+        "truncated",
+        "wallTime"
+      ],
+      "exception_count": 0,
+      "log_count": 0
+    },
+    {
+      "outcome": "ok",
+      "event_type": "HTTP",
+      "path": "/internal/workers/transcript/admission",
+      "cpuTime": 4,
+      "wallTime": 90,
+      "scriptVersion": {
+        "id": "901e9506-5924-4e96-9735-19f43ee9a1d3"
+      },
+      "top_level_fields": [
+        "cpuTime",
+        "diagnosticsChannelEvents",
+        "event",
+        "eventTimestamp",
+        "exceptions",
+        "executionModel",
+        "logs",
+        "outcome",
+        "scriptName",
+        "scriptVersion",
+        "truncated",
+        "wallTime"
+      ],
+      "exception_count": 0,
+      "log_count": 0
+    },
+    {
+      "outcome": "ok",
+      "event_type": "HTTP",
+      "path": "/internal/workers/lease",
+      "cpuTime": 6,
+      "wallTime": 111,
+      "scriptVersion": {
+        "id": "901e9506-5924-4e96-9735-19f43ee9a1d3"
+      },
+      "top_level_fields": [
+        "cpuTime",
+        "diagnosticsChannelEvents",
+        "event",
+        "eventTimestamp",
+        "exceptions",
+        "executionModel",
+        "logs",
+        "outcome",
+        "scriptName",
+        "scriptVersion",
+        "truncated",
+        "wallTime"
+      ],
+      "exception_count": 0,
+      "log_count": 0
+    }
+  ],
+  "per_invocation_cpu_available": true
+}

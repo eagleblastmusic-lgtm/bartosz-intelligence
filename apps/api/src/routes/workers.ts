@@ -26,6 +26,7 @@ import { retryDisposition } from '../../../../packages/core/src/jobs/policy.js';
 import { executeDiscoveryChunk } from '../../../../packages/core/src/sources/youtube/executor.js';
 import { YoutubeClient } from '../../../../packages/core/src/sources/youtube/client.js';
 import { TranscriptRecovery } from '../../../../packages/core/src/transcript/recovery.js';
+import { artifactRepository } from '../artifact-repository.js';
 import { transcriptStatuses } from '../../../../packages/contracts/src/transcript.js';
 import {
   ArtifactRepository,
@@ -65,6 +66,14 @@ function optionalTask(value: unknown): OptionalTask {
 }
 workersApp.post('/analysis/schedule', async (c) => {
   const input = await body(c, ['after']);
+  if (c.env.AUTOMATIC_AI_ENABLED !== 'true')
+    return c.json({
+      created: 0,
+      deferred: [],
+      next_cursor: null,
+      provider_requests: 0,
+      state: 'DISABLED',
+    });
   let after: { accepted_at: string; run_id: string } | null = null;
   if (input.after !== undefined && input.after !== null) {
     if (
@@ -548,8 +557,8 @@ workersApp.post('/artifacts/read', async (c) => {
       'reservation_id',
     ]),
     access = c.get('access'),
-    repository = new ArtifactRepository(
-      c.env.DB,
+    repository = artifactRepository(
+      c.env,
       access,
       diagnosticReservation(input),
     ),
@@ -649,6 +658,14 @@ workersApp.post('/lease', async (c) => {
     if (input.analysis_mode !== undefined) throw new Error('INVALID_TASK');
     const type = task(input.task_type);
     access.requireTask(type);
+    if (c.env.AUTOMATIC_AI_ENABLED !== 'true') {
+      const automatic = await c.env.DB.prepare(
+        "SELECT 1 FROM jobs j WHERE j.owner_id=? AND j.job_id=? AND j.task_type='ANALYZE' AND j.explicit_run_nonce='' AND EXISTS(SELECT 1 FROM config_versions c WHERE c.owner_id=j.owner_id AND c.config_id='automatic-analysis:'||json_extract(j.payload_json,'$.snapshot.source.run_id'))",
+      )
+        .bind(access.ownerId, text(input.job_id, 128))
+        .first();
+      if (automatic) return c.json({ leases: [] });
+    }
     const lease = await store.lease(
       text(input.job_id, 128),
       type,
@@ -671,6 +688,7 @@ workersApp.post('/lease', async (c) => {
       1,
       types,
       input.analysis_mode as 'PRODUCTION' | undefined,
+      c.env.AUTOMATIC_AI_ENABLED === 'true',
     ),
   });
 });
@@ -726,7 +744,7 @@ workersApp.post('/transcript/input', async (c) => {
     lease = token(input.token, access.actorId);
   access.requireTask('FETCH_TRANSCRIPT');
   const row = await c.env.DB.prepare(
-    `SELECT i.item_id,i.namespace,i.external_id,r.metadata_json FROM jobs j JOIN items i ON i.owner_id=j.owner_id AND i.item_id=j.item_id JOIN item_revisions r ON r.owner_id=i.owner_id AND r.item_id=i.item_id AND r.revision_id=i.current_revision_id WHERE j.owner_id=? AND j.job_id=? AND j.task_type='FETCH_TRANSCRIPT' AND j.state='RUNNING' AND j.lease_owner=? AND j.fencing_token=? AND j.lease_until>?`,
+    `SELECT i.item_id,i.namespace,i.external_id,i.discovered_at,r.metadata_json FROM jobs j JOIN items i ON i.owner_id=j.owner_id AND i.item_id=j.item_id JOIN item_revisions r ON r.owner_id=i.owner_id AND r.item_id=i.item_id AND r.revision_id=i.current_revision_id WHERE j.owner_id=? AND j.job_id=? AND j.task_type='FETCH_TRANSCRIPT' AND j.state='RUNNING' AND j.lease_owner=? AND j.fencing_token=? AND j.lease_until>?`,
   )
     .bind(
       access.ownerId,
@@ -740,6 +758,7 @@ workersApp.post('/transcript/input', async (c) => {
       namespace: string;
       external_id: string;
       metadata_json: string;
+      discovered_at: string;
     }>();
   if (!row) throw new Error('STALE_FENCE');
   const metadata = JSON.parse(row.metadata_json) as {
@@ -752,6 +771,12 @@ workersApp.post('/transcript/input', async (c) => {
     throw new Error('INVALID_TRANSCRIPT_ITEM');
   return c.json({
     item_id: row.item_id,
+    detected_at: row.discovered_at,
+    default_audio_language: c.env.YOUTUBE_API_KEY
+      ? await new YoutubeClient(c.env.YOUTUBE_API_KEY, 1).defaultAudioLanguage(
+          row.external_id,
+        )
+      : null,
     namespace: 'youtube',
     external_id: row.external_id,
     duration_ms:
@@ -761,7 +786,12 @@ workersApp.post('/transcript/input', async (c) => {
   });
 });
 workersApp.post('/transcript/outcome', async (c) => {
-  const input = await body(c, ['token', 'status', 'active_live']),
+  const input = await body(c, [
+      'token',
+      'status',
+      'active_live',
+      'retry_after',
+    ]),
     access = c.get('access');
   if (
     !transcriptStatuses.some((status) => status === input.status) ||
@@ -775,6 +805,8 @@ workersApp.post('/transcript/outcome', async (c) => {
       status,
       new Date(),
       input.active_live === true,
+      Math.random,
+      typeof input.retry_after === 'string' ? input.retry_after : undefined,
     ),
   );
 });
@@ -793,6 +825,7 @@ workersApp.post('/transcript/accept', async (c) => {
       (key) =>
         ![
           'raw_artifact_id',
+          'version',
           'source_artifact_id',
           'normalized_artifact_id',
           'segment_map_artifact_id',
@@ -806,22 +839,36 @@ workersApp.post('/transcript/accept', async (c) => {
   for (const key of [
     'raw_artifact_id',
     'source_artifact_id',
-    'normalized_artifact_id',
     'segment_map_artifact_id',
-    'offset_map_artifact_id',
   ])
     text(source[key], 128);
-  return c.json(
-    await new TranscriptAcceptance(
-      c.env.DB,
-      access,
-      c.env.REMOTE_CAPTIONS_ENABLED === 'true',
-    ).accept(
-      source as unknown as TranscriptSourceCompletion,
-      token(input.token, access.actorId),
-      new Date(),
-    ),
+  if (
+    source.version !== undefined &&
+    !['transcript-source:1', 'transcript-source:2'].includes(
+      String(source.version),
+    )
+  )
+    throw new Error('INVALID_SOURCE_COMPLETION');
+  if (source.version !== 'transcript-source:2') {
+    text(source.normalized_artifact_id, 128);
+    text(source.offset_map_artifact_id, 128);
+  }
+  const result = await new TranscriptAcceptance(
+    c.env.DB,
+    access,
+    c.env.REMOTE_CAPTIONS_ENABLED === 'true',
+  ).accept(
+    source as unknown as TranscriptSourceCompletion,
+    token(input.token, access.actorId),
+    new Date(),
   );
+  if (result.accepted) {
+    if (c.env.TRANSCRIPT_ARCHIVE_ENABLED === 'true')
+      await c.env.BARTOSZ_QUEUE.send({ kind: 'TRANSCRIPT_ARCHIVE' });
+    if (c.env.DAILY_REPORTS_ENABLED === 'true')
+      await c.env.BARTOSZ_QUEUE.send({ kind: 'DAILY_TRANSCRIPTS' });
+  }
+  return c.json(result);
 });
 workersApp.post('/retry', async (c) => {
   const input = await body(c, ['task_type', 'token', 'code', 'reset_at']),

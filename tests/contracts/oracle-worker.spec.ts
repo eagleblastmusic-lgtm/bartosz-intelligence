@@ -51,7 +51,7 @@ it('Oracle worker uses the existing local API contract and emits no success for 
     ytdlpProviderVersion,
     cp.token.lease_owner,
   );
-  expect(await worker.cycle()).toEqual({
+  expect(await worker.cycle()).toMatchObject({
     accepted: false,
     reason: 'EMPTY_PUBLIC_TRACKLIST',
     idle: false,

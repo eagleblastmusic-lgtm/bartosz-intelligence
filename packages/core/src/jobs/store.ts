@@ -119,10 +119,10 @@ export class JobStore {
         ),
       this.db
         .prepare(
-          `UPDATE jobs SET state='PENDING',reason_code=NULL,due_at=?,updated_at=?,lease_owner=NULL,lease_until=NULL
+          `UPDATE jobs SET caption_retry_after_fence=CASE WHEN task_type='FETCH_TRANSCRIPT' THEN fencing_token ELSE caption_retry_after_fence END,caption_retry_origin_at=CASE WHEN task_type='FETCH_TRANSCRIPT' THEN ? ELSE caption_retry_origin_at END,state='PENDING',reason_code=NULL,due_at=?,updated_at=?,lease_owner=NULL,lease_until=NULL
         WHERE owner_id=? AND job_id=? AND ${replayable} AND EXISTS(SELECT 1 FROM audit_events WHERE event_id=?) RETURNING job_id`,
         )
-        .bind(now, now, this.context.ownerId, jobId, nonce),
+        .bind(now, now, now, this.context.ownerId, jobId, nonce),
     ]);
     if (results[1]?.results?.length !== 1) throw new Error('REPLAY_DENIED');
   }

@@ -1,0 +1,1542 @@
+{
+  "observed_at": "2026-10-15T11:35:28.378441+00:00",
+  "production_changes": 0,
+  "source_requests": 0,
+  "current_release": "/opt/bartosz-intelligence/releases/116f52d8aa18aceae2d9c5d8aea763ff022c2123c2167ac2d8bd9c9688f3210e",
+  "services": {
+    "bartosz-executor": {
+      "MainPID": "68251",
+      "NRestarts": "0",
+      "MemoryCurrent": "60551168",
+      "MemoryPeak": "60817408",
+      "CPUUsageNSec": "15444840000",
+      "ActiveState": "active",
+      "SubState": "running"
+    },
+    "bartosz-caption-broker": {
+      "MainPID": "68249",
+      "NRestarts": "0",
+      "MemoryCurrent": "9715712",
+      "MemoryPeak": "25141248",
+      "CPUUsageNSec": "2120832000",
+      "ActiveState": "active",
+      "SubState": "running"
+    }
+  },
+  "events": [
+    {
+      "timestamp_us": "1792059580985076",
+      "event": "LOCAL_EXECUTOR_CYCLE",
+      "accepted": false,
+      "idle": true,
+      "worker_id": "oracle-frankfurt-transcript-1"
+    },
+    {
+      "timestamp_us": "1792059611425348",
+      "event": "LOCAL_EXECUTOR_CYCLE",
+      "accepted": false,
+      "idle": true,
+      "worker_id": "oracle-frankfurt-transcript-1"
+    },
+    {
+      "timestamp_us": "1792059641773651",
+      "event": "LOCAL_EXECUTOR_CYCLE",
+      "accepted": false,
+      "idle": true,
+      "worker_id": "oracle-frankfurt-transcript-1"
+    },
+    {
+      "timestamp_us": "1792059672158878",
+      "event": "LOCAL_EXECUTOR_CYCLE",
+      "accepted": false,
+      "idle": true,
+      "worker_id": "oracle-frankfurt-transcript-1"
+    },
+    {
+      "timestamp_us": "1792059702739627",
+      "event": "LOCAL_EXECUTOR_CYCLE",
+      "accepted": false,
+      "idle": true,
+      "worker_id": "oracle-frankfurt-transcript-1"
+    },
+    {
+      "timestamp_us": "1792059733120904",
+      "event": "LOCAL_EXECUTOR_CYCLE",
+      "accepted": false,
+      "idle": true,
+      "worker_id": "oracle-frankfurt-transcript-1"
+    },
+    {
+      "timestamp_us": "1792059763576025",
+      "event": "LOCAL_EXECUTOR_CYCLE",
+      "accepted": false,
+      "idle": true,
+      "worker_id": "oracle-frankfurt-transcript-1"
+    },
+    {
+      "timestamp_us": "1792059794090621",
+      "event": "LOCAL_EXECUTOR_CYCLE",
+      "accepted": false,
+      "idle": true,
+      "worker_id": "oracle-frankfurt-transcript-1"
+    },
+    {
+      "timestamp_us": "1792059824562679",
+      "event": "LOCAL_EXECUTOR_CYCLE",
+      "accepted": false,
+      "idle": true,
+      "worker_id": "oracle-frankfurt-transcript-1"
+    },
+    {
+      "timestamp_us": "1792059855068741",
+      "event": "LOCAL_EXECUTOR_CYCLE",
+      "accepted": false,
+      "idle": true,
+      "worker_id": "oracle-frankfurt-transcript-1"
+    },
+    {
+      "timestamp_us": "1792059885727856",
+      "event": "LOCAL_EXECUTOR_CYCLE",
+      "accepted": false,
+      "idle": true,
+      "worker_id": "oracle-frankfurt-transcript-1"
+    },
+    {
+      "timestamp_us": "1792059916239574",
+      "event": "LOCAL_EXECUTOR_CYCLE",
+      "accepted": false,
+      "idle": true,
+      "worker_id": "oracle-frankfurt-transcript-1"
+    },
+    {
+      "timestamp_us": "1792059946697776",
+      "event": "LOCAL_EXECUTOR_CYCLE",
+      "accepted": false,
+      "idle": true,
+      "worker_id": "oracle-frankfurt-transcript-1"
+    },
+    {
+      "timestamp_us": "1792059977133119",
+      "event": "LOCAL_EXECUTOR_CYCLE",
+      "accepted": false,
+      "idle": true,
+      "worker_id": "oracle-frankfurt-transcript-1"
+    },
+    {
+      "timestamp_us": "1792060007667840",
+      "event": "LOCAL_EXECUTOR_CYCLE",
+      "accepted": false,
+      "idle": true,
+      "worker_id": "oracle-frankfurt-transcript-1"
+    },
+    {
+      "timestamp_us": "1792060038134687",
+      "event": "LOCAL_EXECUTOR_CYCLE",
+      "accepted": false,
+      "idle": true,
+      "worker_id": "oracle-frankfurt-transcript-1"
+    },
+    {
+      "timestamp_us": "1792060068493103",
+      "event": "LOCAL_EXECUTOR_CYCLE",
+      "accepted": false,
+      "idle": true,
+      "worker_id": "oracle-frankfurt-transcript-1"
+    },
+    {
+      "timestamp_us": "1792060098930179",
+      "event": "LOCAL_EXECUTOR_CYCLE",
+      "accepted": false,
+      "idle": true,
+      "worker_id": "oracle-frankfurt-transcript-1"
+    },
+    {
+      "timestamp_us": "1792060129385685",
+      "event": "LOCAL_EXECUTOR_CYCLE",
+      "accepted": false,
+      "idle": true,
+      "worker_id": "oracle-frankfurt-transcript-1"
+    },
+    {
+      "timestamp_us": "1792060159858558",
+      "event": "LOCAL_EXECUTOR_CYCLE",
+      "accepted": false,
+      "idle": true,
+      "worker_id": "oracle-frankfurt-transcript-1"
+    },
+    {
+      "timestamp_us": "1792060190273946",
+      "event": "LOCAL_EXECUTOR_CYCLE",
+      "accepted": false,
+      "idle": true,
+      "worker_id": "oracle-frankfurt-transcript-1"
+    },
+    {
+      "timestamp_us": "1792060220695480",
+      "event": "LOCAL_EXECUTOR_CYCLE",
+      "accepted": false,
+      "idle": true,
+      "worker_id": "oracle-frankfurt-transcript-1"
+    },
+    {
+      "timestamp_us": "1792060251163524",
+      "event": "LOCAL_EXECUTOR_CYCLE",
+      "accepted": false,
+      "idle": true,
+      "worker_id": "oracle-frankfurt-transcript-1"
+    },
+    {
+      "timestamp_us": "1792060281611462",
+      "event": "LOCAL_EXECUTOR_CYCLE",
+      "accepted": false,
+      "idle": true,
+      "worker_id": "oracle-frankfurt-transcript-1"
+    },
+    {
+      "timestamp_us": "1792060312074784",
+      "event": "LOCAL_EXECUTOR_CYCLE",
+      "accepted": false,
+      "idle": true,
+      "worker_id": "oracle-frankfurt-transcript-1"
+    },
+    {
+      "timestamp_us": "1792060342711901",
+      "event": "LOCAL_EXECUTOR_CYCLE",
+      "accepted": false,
+      "idle": true,
+      "worker_id": "oracle-frankfurt-transcript-1"
+    },
+    {
+      "timestamp_us": "1792060373181316",
+      "event": "LOCAL_EXECUTOR_CYCLE",
+      "accepted": false,
+      "idle": true,
+      "worker_id": "oracle-frankfurt-transcript-1"
+    },
+    {
+      "timestamp_us": "1792060403593772",
+      "event": "LOCAL_EXECUTOR_CYCLE",
+      "accepted": false,
+      "idle": true,
+      "worker_id": "oracle-frankfurt-transcript-1"
+    },
+    {
+      "timestamp_us": "1792060433952110",
+      "event": "LOCAL_EXECUTOR_CYCLE",
+      "accepted": false,
+      "idle": true,
+      "worker_id": "oracle-frankfurt-transcript-1"
+    },
+    {
+      "timestamp_us": "1792060464484619",
+      "event": "LOCAL_EXECUTOR_CYCLE",
+      "accepted": false,
+      "idle": true,
+      "worker_id": "oracle-frankfurt-transcript-1"
+    },
+    {
+      "timestamp_us": "1792060494890132",
+      "event": "LOCAL_EXECUTOR_CYCLE",
+      "accepted": false,
+      "idle": true,
+      "worker_id": "oracle-frankfurt-transcript-1"
+    },
+    {
+      "timestamp_us": "1792060525241773",
+      "event": "LOCAL_EXECUTOR_CYCLE",
+      "accepted": false,
+      "idle": true,
+      "worker_id": "oracle-frankfurt-transcript-1"
+    },
+    {
+      "timestamp_us": "1792060555638851",
+      "event": "LOCAL_EXECUTOR_CYCLE",
+      "accepted": false,
+      "idle": true,
+      "worker_id": "oracle-frankfurt-transcript-1"
+    },
+    {
+      "timestamp_us": "1792060586014409",
+      "event": "LOCAL_EXECUTOR_CYCLE",
+      "accepted": false,
+      "idle": true,
+      "worker_id": "oracle-frankfurt-transcript-1"
+    },
+    {
+      "timestamp_us": "1792060616312952",
+      "event": "LOCAL_EXECUTOR_CYCLE",
+      "accepted": false,
+      "idle": true,
+      "worker_id": "oracle-frankfurt-transcript-1"
+    },
+    {
+      "timestamp_us": "1792060646710492",
+      "event": "LOCAL_EXECUTOR_CYCLE",
+      "accepted": false,
+      "idle": true,
+      "worker_id": "oracle-frankfurt-transcript-1"
+    },
+    {
+      "timestamp_us": "1792060677001345",
+      "event": "LOCAL_EXECUTOR_CYCLE",
+      "accepted": false,
+      "idle": true,
+      "worker_id": "oracle-frankfurt-transcript-1"
+    },
+    {
+      "timestamp_us": "1792060707356934",
+      "event": "LOCAL_EXECUTOR_CYCLE",
+      "accepted": false,
+      "idle": true,
+      "worker_id": "oracle-frankfurt-transcript-1"
+    },
+    {
+      "timestamp_us": "1792060737756012",
+      "event": "LOCAL_EXECUTOR_CYCLE",
+      "accepted": false,
+      "idle": true,
+      "worker_id": "oracle-frankfurt-transcript-1"
+    },
+    {
+      "timestamp_us": "1792060768325782",
+      "event": "LOCAL_EXECUTOR_CYCLE",
+      "accepted": false,
+      "idle": true,
+      "worker_id": "oracle-frankfurt-transcript-1"
+    },
+    {
+      "timestamp_us": "1792060798705680",
+      "event": "LOCAL_EXECUTOR_CYCLE",
+      "accepted": false,
+      "idle": true,
+      "worker_id": "oracle-frankfurt-transcript-1"
+    },
+    {
+      "timestamp_us": "1792060829000528",
+      "event": "LOCAL_EXECUTOR_CYCLE",
+      "accepted": false,
+      "idle": true,
+      "worker_id": "oracle-frankfurt-transcript-1"
+    },
+    {
+      "timestamp_us": "1792060859526092",
+      "event": "LOCAL_EXECUTOR_CYCLE",
+      "accepted": false,
+      "idle": true,
+      "worker_id": "oracle-frankfurt-transcript-1"
+    },
+    {
+      "timestamp_us": "1792060889905923",
+      "event": "LOCAL_EXECUTOR_CYCLE",
+      "accepted": false,
+      "idle": true,
+      "worker_id": "oracle-frankfurt-transcript-1"
+    },
+    {
+      "timestamp_us": "1792060920261019",
+      "event": "LOCAL_EXECUTOR_CYCLE",
+      "accepted": false,
+      "idle": true,
+      "worker_id": "oracle-frankfurt-transcript-1"
+    },
+    {
+      "timestamp_us": "1792060950552517",
+      "event": "LOCAL_EXECUTOR_CYCLE",
+      "accepted": false,
+      "idle": true,
+      "worker_id": "oracle-frankfurt-transcript-1"
+    },
+    {
+      "timestamp_us": "1792060981162244",
+      "event": "LOCAL_EXECUTOR_CYCLE",
+      "accepted": false,
+      "idle": true,
+      "worker_id": "oracle-frankfurt-transcript-1"
+    },
+    {
+      "timestamp_us": "1792061011669890",
+      "event": "LOCAL_EXECUTOR_CYCLE",
+      "accepted": false,
+      "idle": true,
+      "worker_id": "oracle-frankfurt-transcript-1"
+    },
+    {
+      "timestamp_us": "1792061042272221",
+      "event": "LOCAL_EXECUTOR_CYCLE",
+      "accepted": false,
+      "idle": true,
+      "worker_id": "oracle-frankfurt-transcript-1"
+    },
+    {
+      "timestamp_us": "1792061072731211",
+      "event": "LOCAL_EXECUTOR_CYCLE",
+      "accepted": false,
+      "idle": true,
+      "worker_id": "oracle-frankfurt-transcript-1"
+    },
+    {
+      "timestamp_us": "1792061103080898",
+      "event": "LOCAL_EXECUTOR_CYCLE",
+      "accepted": false,
+      "idle": true,
+      "worker_id": "oracle-frankfurt-transcript-1"
+    },
+    {
+      "timestamp_us": "1792061133528614",
+      "event": "LOCAL_EXECUTOR_CYCLE",
+      "accepted": false,
+      "idle": true,
+      "worker_id": "oracle-frankfurt-transcript-1"
+    },
+    {
+      "timestamp_us": "1792061163898288",
+      "event": "LOCAL_EXECUTOR_CYCLE",
+      "accepted": false,
+      "idle": true,
+      "worker_id": "oracle-frankfurt-transcript-1"
+    },
+    {
+      "timestamp_us": "1792061194335195",
+      "event": "LOCAL_EXECUTOR_CYCLE",
+      "accepted": false,
+      "idle": true,
+      "worker_id": "oracle-frankfurt-transcript-1"
+    },
+    {
+      "timestamp_us": "1792061224738894",
+      "event": "LOCAL_EXECUTOR_CYCLE",
+      "accepted": false,
+      "idle": true,
+      "worker_id": "oracle-frankfurt-transcript-1"
+    },
+    {
+      "timestamp_us": "1792061255386251",
+      "event": "LOCAL_EXECUTOR_CYCLE",
+      "accepted": false,
+      "idle": true,
+      "worker_id": "oracle-frankfurt-transcript-1"
+    },
+    {
+      "timestamp_us": "1792061285751158",
+      "event": "LOCAL_EXECUTOR_CYCLE",
+      "accepted": false,
+      "idle": true,
+      "worker_id": "oracle-frankfurt-transcript-1"
+    },
+    {
+      "timestamp_us": "1792061316236838",
+      "event": "LOCAL_EXECUTOR_CYCLE",
+      "accepted": false,
+      "idle": true,
+      "worker_id": "oracle-frankfurt-transcript-1"
+    },
+    {
+      "timestamp_us": "1792061346744283",
+      "event": "LOCAL_EXECUTOR_CYCLE",
+      "accepted": false,
+      "idle": true,
+      "worker_id": "oracle-frankfurt-transcript-1"
+    },
+    {
+      "timestamp_us": "1792061377247581",
+      "event": "LOCAL_EXECUTOR_CYCLE",
+      "accepted": false,
+      "idle": true,
+      "worker_id": "oracle-frankfurt-transcript-1"
+    },
+    {
+      "timestamp_us": "1792061407655007",
+      "event": "LOCAL_EXECUTOR_CYCLE",
+      "accepted": false,
+      "idle": true,
+      "worker_id": "oracle-frankfurt-transcript-1"
+    },
+    {
+      "timestamp_us": "1792061438230234",
+      "event": "LOCAL_EXECUTOR_CYCLE",
+      "accepted": false,
+      "idle": true,
+      "worker_id": "oracle-frankfurt-transcript-1"
+    },
+    {
+      "timestamp_us": "1792061468583893",
+      "event": "LOCAL_EXECUTOR_CYCLE",
+      "accepted": false,
+      "idle": true,
+      "worker_id": "oracle-frankfurt-transcript-1"
+    },
+    {
+      "timestamp_us": "1792061499044766",
+      "event": "LOCAL_EXECUTOR_CYCLE",
+      "accepted": false,
+      "idle": true,
+      "worker_id": "oracle-frankfurt-transcript-1"
+    },
+    {
+      "timestamp_us": "1792061529442947",
+      "event": "LOCAL_EXECUTOR_CYCLE",
+      "accepted": false,
+      "idle": true,
+      "worker_id": "oracle-frankfurt-transcript-1"
+    },
+    {
+      "timestamp_us": "1792061559805075",
+      "event": "LOCAL_EXECUTOR_CYCLE",
+      "accepted": false,
+      "idle": true,
+      "worker_id": "oracle-frankfurt-transcript-1"
+    },
+    {
+      "timestamp_us": "1792061590208985",
+      "event": "LOCAL_EXECUTOR_CYCLE",
+      "accepted": false,
+      "idle": true,
+      "worker_id": "oracle-frankfurt-transcript-1"
+    },
+    {
+      "timestamp_us": "1792061620554313",
+      "event": "LOCAL_EXECUTOR_CYCLE",
+      "accepted": false,
+      "idle": true,
+      "worker_id": "oracle-frankfurt-transcript-1"
+    },
+    {
+      "timestamp_us": "1792061650919674",
+      "event": "LOCAL_EXECUTOR_CYCLE",
+      "accepted": false,
+      "idle": true,
+      "worker_id": "oracle-frankfurt-transcript-1"
+    },
+    {
+      "timestamp_us": "1792061681386363",
+      "event": "LOCAL_EXECUTOR_CYCLE",
+      "accepted": false,
+      "idle": true,
+      "worker_id": "oracle-frankfurt-transcript-1"
+    },
+    {
+      "timestamp_us": "1792061711728289",
+      "event": "LOCAL_EXECUTOR_CYCLE",
+      "accepted": false,
+      "idle": true,
+      "worker_id": "oracle-frankfurt-transcript-1"
+    },
+    {
+      "timestamp_us": "1792061742090124",
+      "event": "LOCAL_EXECUTOR_CYCLE",
+      "accepted": false,
+      "idle": true,
+      "worker_id": "oracle-frankfurt-transcript-1"
+    },
+    {
+      "timestamp_us": "1792061772583984",
+      "event": "LOCAL_EXECUTOR_CYCLE",
+      "accepted": false,
+      "idle": true,
+      "worker_id": "oracle-frankfurt-transcript-1"
+    },
+    {
+      "timestamp_us": "1792061803087842",
+      "event": "LOCAL_EXECUTOR_CYCLE",
+      "accepted": false,
+      "idle": true,
+      "worker_id": "oracle-frankfurt-transcript-1"
+    },
+    {
+      "timestamp_us": "1792061833834841",
+      "event": "LOCAL_EXECUTOR_CYCLE",
+      "accepted": false,
+      "idle": true,
+      "worker_id": "oracle-frankfurt-transcript-1"
+    },
+    {
+      "timestamp_us": "1792061864195965",
+      "event": "LOCAL_EXECUTOR_CYCLE",
+      "accepted": false,
+      "idle": true,
+      "worker_id": "oracle-frankfurt-transcript-1"
+    },
+    {
+      "timestamp_us": "1792061894580713",
+      "event": "LOCAL_EXECUTOR_CYCLE",
+      "accepted": false,
+      "idle": true,
+      "worker_id": "oracle-frankfurt-transcript-1"
+    },
+    {
+      "timestamp_us": "1792061924955579",
+      "event": "LOCAL_EXECUTOR_CYCLE",
+      "accepted": false,
+      "idle": true,
+      "worker_id": "oracle-frankfurt-transcript-1"
+    },
+    {
+      "timestamp_us": "1792061955543552",
+      "event": "LOCAL_EXECUTOR_CYCLE",
+      "accepted": false,
+      "idle": true,
+      "worker_id": "oracle-frankfurt-transcript-1"
+    },
+    {
+      "timestamp_us": "1792061985861930",
+      "event": "LOCAL_EXECUTOR_CYCLE",
+      "accepted": false,
+      "idle": true,
+      "worker_id": "oracle-frankfurt-transcript-1"
+    },
+    {
+      "timestamp_us": "1792062016324396",
+      "event": "LOCAL_EXECUTOR_CYCLE",
+      "accepted": false,
+      "idle": true,
+      "worker_id": "oracle-frankfurt-transcript-1"
+    },
+    {
+      "timestamp_us": "1792062046673191",
+      "event": "LOCAL_EXECUTOR_CYCLE",
+      "accepted": false,
+      "idle": true,
+      "worker_id": "oracle-frankfurt-transcript-1"
+    },
+    {
+      "timestamp_us": "1792062077196917",
+      "event": "LOCAL_EXECUTOR_CYCLE",
+      "accepted": false,
+      "idle": true,
+      "worker_id": "oracle-frankfurt-transcript-1"
+    },
+    {
+      "timestamp_us": "1792062107619256",
+      "event": "LOCAL_EXECUTOR_CYCLE",
+      "accepted": false,
+      "idle": true,
+      "worker_id": "oracle-frankfurt-transcript-1"
+    },
+    {
+      "timestamp_us": "1792062138393749",
+      "event": "LOCAL_EXECUTOR_CYCLE",
+      "accepted": false,
+      "idle": true,
+      "worker_id": "oracle-frankfurt-transcript-1"
+    },
+    {
+      "timestamp_us": "1792062168761816",
+      "event": "LOCAL_EXECUTOR_CYCLE",
+      "accepted": false,
+      "idle": true,
+      "worker_id": "oracle-frankfurt-transcript-1"
+    },
+    {
+      "timestamp_us": "1792062199126378",
+      "event": "LOCAL_EXECUTOR_CYCLE",
+      "accepted": false,
+      "idle": true,
+      "worker_id": "oracle-frankfurt-transcript-1"
+    },
+    {
+      "timestamp_us": "1792062229417090",
+      "event": "LOCAL_EXECUTOR_CYCLE",
+      "accepted": false,
+      "idle": true,
+      "worker_id": "oracle-frankfurt-transcript-1"
+    },
+    {
+      "timestamp_us": "1792062259758286",
+      "event": "LOCAL_EXECUTOR_CYCLE",
+      "accepted": false,
+      "idle": true,
+      "worker_id": "oracle-frankfurt-transcript-1"
+    },
+    {
+      "timestamp_us": "1792062290265538",
+      "event": "LOCAL_EXECUTOR_CYCLE",
+      "accepted": false,
+      "idle": true,
+      "worker_id": "oracle-frankfurt-transcript-1"
+    },
+    {
+      "timestamp_us": "1792062320695124",
+      "event": "LOCAL_EXECUTOR_CYCLE",
+      "accepted": false,
+      "idle": true,
+      "worker_id": "oracle-frankfurt-transcript-1"
+    },
+    {
+      "timestamp_us": "1792062351101781",
+      "event": "LOCAL_EXECUTOR_CYCLE",
+      "accepted": false,
+      "idle": true,
+      "worker_id": "oracle-frankfurt-transcript-1"
+    },
+    {
+      "timestamp_us": "1792062381812366",
+      "event": "LOCAL_EXECUTOR_CYCLE",
+      "accepted": false,
+      "idle": true,
+      "worker_id": "oracle-frankfurt-transcript-1"
+    },
+    {
+      "timestamp_us": "1792062412178704",
+      "event": "LOCAL_EXECUTOR_CYCLE",
+      "accepted": false,
+      "idle": true,
+      "worker_id": "oracle-frankfurt-transcript-1"
+    },
+    {
+      "timestamp_us": "1792062442618939",
+      "event": "LOCAL_EXECUTOR_CYCLE",
+      "accepted": false,
+      "idle": true,
+      "worker_id": "oracle-frankfurt-transcript-1"
+    },
+    {
+      "timestamp_us": "1792062472961929",
+      "event": "LOCAL_EXECUTOR_CYCLE",
+      "accepted": false,
+      "idle": true,
+      "worker_id": "oracle-frankfurt-transcript-1"
+    },
+    {
+      "timestamp_us": "1792062503334593",
+      "event": "LOCAL_EXECUTOR_CYCLE",
+      "accepted": false,
+      "idle": true,
+      "worker_id": "oracle-frankfurt-transcript-1"
+    },
+    {
+      "timestamp_us": "1792062533712396",
+      "event": "LOCAL_EXECUTOR_CYCLE",
+      "accepted": false,
+      "idle": true,
+      "worker_id": "oracle-frankfurt-transcript-1"
+    },
+    {
+      "timestamp_us": "1792062564194393",
+      "event": "LOCAL_EXECUTOR_CYCLE",
+      "accepted": false,
+      "idle": true,
+      "worker_id": "oracle-frankfurt-transcript-1"
+    },
+    {
+      "timestamp_us": "1792062594703899",
+      "event": "LOCAL_EXECUTOR_CYCLE",
+      "accepted": false,
+      "idle": true,
+      "worker_id": "oracle-frankfurt-transcript-1"
+    },
+    {
+      "timestamp_us": "1792062625085315",
+      "event": "LOCAL_EXECUTOR_CYCLE",
+      "accepted": false,
+      "idle": true,
+      "worker_id": "oracle-frankfurt-transcript-1"
+    },
+    {
+      "timestamp_us": "1792062655446845",
+      "event": "LOCAL_EXECUTOR_CYCLE",
+      "accepted": false,
+      "idle": true,
+      "worker_id": "oracle-frankfurt-transcript-1"
+    },
+    {
+      "timestamp_us": "1792062685900278",
+      "event": "LOCAL_EXECUTOR_CYCLE",
+      "accepted": false,
+      "idle": true,
+      "worker_id": "oracle-frankfurt-transcript-1"
+    },
+    {
+      "timestamp_us": "1792062716273685",
+      "event": "LOCAL_EXECUTOR_CYCLE",
+      "accepted": false,
+      "idle": true,
+      "worker_id": "oracle-frankfurt-transcript-1"
+    },
+    {
+      "timestamp_us": "1792062746594375",
+      "event": "LOCAL_EXECUTOR_CYCLE",
+      "accepted": false,
+      "idle": true,
+      "worker_id": "oracle-frankfurt-transcript-1"
+    },
+    {
+      "timestamp_us": "1792062777016612",
+      "event": "LOCAL_EXECUTOR_CYCLE",
+      "accepted": false,
+      "idle": true,
+      "worker_id": "oracle-frankfurt-transcript-1"
+    },
+    {
+      "timestamp_us": "1792062807491507",
+      "event": "LOCAL_EXECUTOR_CYCLE",
+      "accepted": false,
+      "idle": true,
+      "worker_id": "oracle-frankfurt-transcript-1"
+    },
+    {
+      "timestamp_us": "1792062837928577",
+      "event": "LOCAL_EXECUTOR_CYCLE",
+      "accepted": false,
+      "idle": true,
+      "worker_id": "oracle-frankfurt-transcript-1"
+    },
+    {
+      "timestamp_us": "1792062868309324",
+      "event": "LOCAL_EXECUTOR_CYCLE",
+      "accepted": false,
+      "idle": true,
+      "worker_id": "oracle-frankfurt-transcript-1"
+    },
+    {
+      "timestamp_us": "1792062898738085",
+      "event": "LOCAL_EXECUTOR_CYCLE",
+      "accepted": false,
+      "idle": true,
+      "worker_id": "oracle-frankfurt-transcript-1"
+    },
+    {
+      "timestamp_us": "1792062929094599",
+      "event": "LOCAL_EXECUTOR_CYCLE",
+      "accepted": false,
+      "idle": true,
+      "worker_id": "oracle-frankfurt-transcript-1"
+    },
+    {
+      "timestamp_us": "1792062959472550",
+      "event": "LOCAL_EXECUTOR_CYCLE",
+      "accepted": false,
+      "idle": true,
+      "worker_id": "oracle-frankfurt-transcript-1"
+    },
+    {
+      "timestamp_us": "1792062989852270",
+      "event": "LOCAL_EXECUTOR_CYCLE",
+      "accepted": false,
+      "idle": true,
+      "worker_id": "oracle-frankfurt-transcript-1"
+    },
+    {
+      "timestamp_us": "1792063020332395",
+      "event": "LOCAL_EXECUTOR_CYCLE",
+      "accepted": false,
+      "idle": true,
+      "worker_id": "oracle-frankfurt-transcript-1"
+    },
+    {
+      "timestamp_us": "1792063050741060",
+      "event": "LOCAL_EXECUTOR_CYCLE",
+      "accepted": false,
+      "idle": true,
+      "worker_id": "oracle-frankfurt-transcript-1"
+    },
+    {
+      "timestamp_us": "1792063081261283",
+      "event": "LOCAL_EXECUTOR_CYCLE",
+      "accepted": false,
+      "idle": true,
+      "worker_id": "oracle-frankfurt-transcript-1"
+    },
+    {
+      "timestamp_us": "1792063111696322",
+      "event": "LOCAL_EXECUTOR_CYCLE",
+      "accepted": false,
+      "idle": true,
+      "worker_id": "oracle-frankfurt-transcript-1"
+    },
+    {
+      "timestamp_us": "1792063142149108",
+      "event": "LOCAL_EXECUTOR_CYCLE",
+      "accepted": false,
+      "idle": true,
+      "worker_id": "oracle-frankfurt-transcript-1"
+    },
+    {
+      "timestamp_us": "1792063172575275",
+      "event": "LOCAL_EXECUTOR_CYCLE",
+      "accepted": false,
+      "idle": true,
+      "worker_id": "oracle-frankfurt-transcript-1"
+    },
+    {
+      "timestamp_us": "1792063203103384",
+      "event": "LOCAL_EXECUTOR_CYCLE",
+      "accepted": false,
+      "idle": true,
+      "worker_id": "oracle-frankfurt-transcript-1"
+    },
+    {
+      "timestamp_us": "1792063233555520",
+      "event": "LOCAL_EXECUTOR_CYCLE",
+      "accepted": false,
+      "idle": true,
+      "worker_id": "oracle-frankfurt-transcript-1"
+    },
+    {
+      "timestamp_us": "1792063263982433",
+      "event": "LOCAL_EXECUTOR_CYCLE",
+      "accepted": false,
+      "idle": true,
+      "worker_id": "oracle-frankfurt-transcript-1"
+    },
+    {
+      "timestamp_us": "1792063294315572",
+      "event": "LOCAL_EXECUTOR_CYCLE",
+      "accepted": false,
+      "idle": true,
+      "worker_id": "oracle-frankfurt-transcript-1"
+    },
+    {
+      "timestamp_us": "1792063324769028",
+      "event": "LOCAL_EXECUTOR_CYCLE",
+      "accepted": false,
+      "idle": true,
+      "worker_id": "oracle-frankfurt-transcript-1"
+    },
+    {
+      "timestamp_us": "1792063355206206",
+      "event": "LOCAL_EXECUTOR_CYCLE",
+      "accepted": false,
+      "idle": true,
+      "worker_id": "oracle-frankfurt-transcript-1"
+    },
+    {
+      "timestamp_us": "1792063385628110",
+      "event": "LOCAL_EXECUTOR_CYCLE",
+      "accepted": false,
+      "idle": true,
+      "worker_id": "oracle-frankfurt-transcript-1"
+    },
+    {
+      "timestamp_us": "1792063416084507",
+      "event": "LOCAL_EXECUTOR_CYCLE",
+      "accepted": false,
+      "idle": true,
+      "worker_id": "oracle-frankfurt-transcript-1"
+    },
+    {
+      "timestamp_us": "1792063446572219",
+      "event": "LOCAL_EXECUTOR_CYCLE",
+      "accepted": false,
+      "idle": true,
+      "worker_id": "oracle-frankfurt-transcript-1"
+    },
+    {
+      "timestamp_us": "1792063476949994",
+      "event": "LOCAL_EXECUTOR_CYCLE",
+      "accepted": false,
+      "idle": true,
+      "worker_id": "oracle-frankfurt-transcript-1"
+    },
+    {
+      "timestamp_us": "1792063507446893",
+      "event": "LOCAL_EXECUTOR_CYCLE",
+      "accepted": false,
+      "idle": true,
+      "worker_id": "oracle-frankfurt-transcript-1"
+    },
+    {
+      "timestamp_us": "1792063537818164",
+      "event": "LOCAL_EXECUTOR_CYCLE",
+      "accepted": false,
+      "idle": true,
+      "worker_id": "oracle-frankfurt-transcript-1"
+    },
+    {
+      "timestamp_us": "1792063568293623",
+      "event": "LOCAL_EXECUTOR_CYCLE",
+      "accepted": false,
+      "idle": true,
+      "worker_id": "oracle-frankfurt-transcript-1"
+    },
+    {
+      "timestamp_us": "1792063598673771",
+      "event": "LOCAL_EXECUTOR_CYCLE",
+      "accepted": false,
+      "idle": true,
+      "worker_id": "oracle-frankfurt-transcript-1"
+    },
+    {
+      "timestamp_us": "1792063629184863",
+      "event": "LOCAL_EXECUTOR_CYCLE",
+      "accepted": false,
+      "idle": true,
+      "worker_id": "oracle-frankfurt-transcript-1"
+    },
+    {
+      "timestamp_us": "1792063659505557",
+      "event": "LOCAL_EXECUTOR_CYCLE",
+      "accepted": false,
+      "idle": true,
+      "worker_id": "oracle-frankfurt-transcript-1"
+    },
+    {
+      "timestamp_us": "1792063689846847",
+      "event": "LOCAL_EXECUTOR_CYCLE",
+      "accepted": false,
+      "idle": true,
+      "worker_id": "oracle-frankfurt-transcript-1"
+    },
+    {
+      "timestamp_us": "1792063720371585",
+      "event": "LOCAL_EXECUTOR_CYCLE",
+      "accepted": false,
+      "idle": true,
+      "worker_id": "oracle-frankfurt-transcript-1"
+    },
+    {
+      "timestamp_us": "1792063750799948",
+      "event": "LOCAL_EXECUTOR_CYCLE",
+      "accepted": false,
+      "idle": true,
+      "worker_id": "oracle-frankfurt-transcript-1"
+    },
+    {
+      "timestamp_us": "1792063781354757",
+      "event": "LOCAL_EXECUTOR_CYCLE",
+      "accepted": false,
+      "idle": true,
+      "worker_id": "oracle-frankfurt-transcript-1"
+    },
+    {
+      "timestamp_us": "1792063812018652",
+      "event": "LOCAL_EXECUTOR_CYCLE",
+      "accepted": false,
+      "idle": true,
+      "worker_id": "oracle-frankfurt-transcript-1"
+    },
+    {
+      "timestamp_us": "1792063842575152",
+      "event": "LOCAL_EXECUTOR_CYCLE",
+      "accepted": false,
+      "idle": true,
+      "worker_id": "oracle-frankfurt-transcript-1"
+    },
+    {
+      "timestamp_us": "1792063872974507",
+      "event": "LOCAL_EXECUTOR_CYCLE",
+      "accepted": false,
+      "idle": true,
+      "worker_id": "oracle-frankfurt-transcript-1"
+    },
+    {
+      "timestamp_us": "1792063903402223",
+      "event": "LOCAL_EXECUTOR_CYCLE",
+      "accepted": false,
+      "idle": true,
+      "worker_id": "oracle-frankfurt-transcript-1"
+    },
+    {
+      "timestamp_us": "1792063933891256",
+      "event": "LOCAL_EXECUTOR_CYCLE",
+      "accepted": false,
+      "idle": true,
+      "worker_id": "oracle-frankfurt-transcript-1"
+    },
+    {
+      "timestamp_us": "1792063964237116",
+      "event": "LOCAL_EXECUTOR_CYCLE",
+      "accepted": false,
+      "idle": true,
+      "worker_id": "oracle-frankfurt-transcript-1"
+    },
+    {
+      "timestamp_us": "1792063994535469",
+      "event": "LOCAL_EXECUTOR_CYCLE",
+      "accepted": false,
+      "idle": true,
+      "worker_id": "oracle-frankfurt-transcript-1"
+    },
+    {
+      "timestamp_us": "1792064024905055",
+      "event": "LOCAL_EXECUTOR_CYCLE",
+      "accepted": false,
+      "idle": true,
+      "worker_id": "oracle-frankfurt-transcript-1"
+    },
+    {
+      "timestamp_us": "1792064055353270",
+      "event": "LOCAL_EXECUTOR_CYCLE",
+      "accepted": false,
+      "idle": true,
+      "worker_id": "oracle-frankfurt-transcript-1"
+    },
+    {
+      "timestamp_us": "1792064085732309",
+      "event": "LOCAL_EXECUTOR_CYCLE",
+      "accepted": false,
+      "idle": true,
+      "worker_id": "oracle-frankfurt-transcript-1"
+    },
+    {
+      "timestamp_us": "1792064116208946",
+      "event": "LOCAL_EXECUTOR_CYCLE",
+      "accepted": false,
+      "idle": true,
+      "worker_id": "oracle-frankfurt-transcript-1"
+    }
+  ],
+  "recent_caption_receipts": [
+    {
+      "status": "COMPLETED",
+      "run_name": "login-caption-broker-202f23e1",
+      "video_id": "9i1LVL3_xpU",
+      "mode": "ytdlp",
+      "client": "mweb",
+      "authentication_status": "AUTHENTICATED",
+      "session_imported": false,
+      "session_updated": true,
+      "persistent_session_retained": true,
+      "receipt_path": "/root/bartosz-ote-chromium-deployment-20261014/login-caption-broker-202f23e1/receipt.json",
+      "receipt_sha256": "35b6a7f8347e5e98350685e0b665e157bc1c270ff0793bc99773f089209f7a43",
+      "result_keys": [
+        "anonymous",
+        "architecture",
+        "caption_advertised_header_count",
+        "caption_bytes",
+        "caption_format",
+        "caption_socket_timeout_seconds",
+        "client",
+        "cue_count",
+        "elapsed_ms",
+        "extractor_messages",
+        "first_start_ms",
+        "last_end_ms",
+        "mode",
+        "observed_utc",
+        "package_version",
+        "players",
+        "provider_selected",
+        "provider_tracks",
+        "python_version",
+        "requests",
+        "schema",
+        "segments_sha256",
+        "selected",
+        "status",
+        "subs_provider",
+        "tracks",
+        "video_id",
+        "video_language",
+        "video_language_provenance",
+        "watch_logged_in"
+      ],
+      "result": {
+        "status": "CAPTIONS_RECEIVED",
+        "observed_utc": "2026-10-15T02:02:10.713524+00:00",
+        "architecture": "aarch64",
+        "watch_logged_in": true,
+        "cue_count": 226,
+        "caption_bytes": 30505,
+        "caption_format": "json3",
+        "elapsed_ms": 15316,
+        "selected": {
+          "language_code": "en",
+          "kind": "MANUAL",
+          "client": "MWEB",
+          "po_token_present": true
+        },
+        "video_language": "en",
+        "video_language_provenance": "youtube.videos.snippet.defaultAudioLanguage"
+      },
+      "provider_selected": {
+        "language_code": "en",
+        "track_kind": "MANUAL",
+        "is_generated": false,
+        "is_translated": false,
+        "source_language": null,
+        "translation_source_track_id": null,
+        "is_original": null,
+        "extension": "json3"
+      },
+      "players": [
+        {
+          "status": "OK"
+        },
+        {
+          "status": "OK"
+        }
+      ],
+      "http_requests": [
+        {
+          "host": "www.youtube.com",
+          "path": "/watch",
+          "http_status": 200,
+          "bytes": 1812986,
+          "sha256": "7130c7c1f3158b60046fcf4c91e96e2ed30a473fa8e9ada98416d2447033d73c"
+        },
+        {
+          "host": "m.youtube.com",
+          "path": "/",
+          "http_status": 200,
+          "bytes": 880582,
+          "sha256": "434be0fdd049181a4092596c151b0d608b8c124badc93b1d157adb7ee352ed91"
+        },
+        {
+          "host": "www.youtube.com",
+          "path": "/youtubei/v1/player",
+          "http_status": 200,
+          "bytes": 407003,
+          "sha256": "7490e102633b55c7f83e162fb6d4d41b2b6f20838935aa2ff4c715855b6ad58e"
+        },
+        {
+          "host": "www.youtube.com",
+          "path": "/s/player/21090930/player_ias.vflset/en_US/base.js",
+          "http_status": 200,
+          "bytes": 2960053,
+          "sha256": "036911b028785c604d80ce6154e446899e331faa0962d7ec535cbb9c53cdb8a5"
+        },
+        {
+          "host": "www.youtube.com",
+          "path": "/api/timedtext",
+          "http_status": 200,
+          "bytes": 30505,
+          "sha256": "0245bf0766477a81cd417acdb8ca797dc2d513cf7372c09365820e2b8e07d323"
+        }
+      ],
+      "resources": {
+        "category": "NONE",
+        "exit_code": 0,
+        "elapsed_ms": 15671,
+        "peak_tree_rss_bytes": 414461952,
+        "tree_cpu_ms": 4800.0,
+        "descendants_remaining": 0
+      },
+      "files": {
+        "caption.raw": {
+          "sha256": "0245bf0766477a81cd417acdb8ca797dc2d513cf7372c09365820e2b8e07d323",
+          "bytes": 30505
+        },
+        "provider-transport.json": {
+          "sha256": "d1bf0317467270ae8a6d3b730f7bf7021bccd7c8f3eb72df07bcc80eedcf2c22",
+          "bytes": 652
+        },
+        "resources.json": {
+          "sha256": "6532053627c8d50ec1f359291f8775893e6712c0b27e80772ba3e3d2f3825407",
+          "bytes": 2930
+        },
+        "result.json": {
+          "sha256": "e91dde9a7b2f574472833351bfd70431b5e54c41373a15cc976c3d78e1ce2481",
+          "bytes": 6857
+        },
+        "segments.json": {
+          "sha256": "e68e0c5a288afc977bca8a9648653dadeccf2ea41d72194f43143bb1ec119cde",
+          "bytes": 36340
+        },
+        "transcript.txt": {
+          "sha256": "e5cbc0bfc7beae9eb2c602f8d2b74a19fe6686bcdb6c6fce597719866ce14bb6",
+          "bytes": 8615
+        }
+      }
+    },
+    {
+      "status": "COMPLETED",
+      "run_name": "login-caption-broker-3639ee3b",
+      "video_id": "9i1LVL3_xpU",
+      "mode": "ytdlp",
+      "client": "mweb",
+      "authentication_status": "AUTHENTICATED",
+      "session_imported": false,
+      "session_updated": false,
+      "persistent_session_retained": true,
+      "receipt_path": "/root/bartosz-ote-chromium-deployment-20261014/login-caption-broker-3639ee3b/receipt.json",
+      "receipt_sha256": "0738dbda29f0d2abe7a008ae9a6b6da4f91270e67ef81c0c57065ee37e5fd853",
+      "result_keys": [
+        "anonymous",
+        "architecture",
+        "client",
+        "elapsed_ms",
+        "extractor_messages",
+        "mode",
+        "observed_utc",
+        "package_version",
+        "players",
+        "provider_tracks",
+        "python_version",
+        "requests",
+        "schema",
+        "status",
+        "subs_provider",
+        "tracks",
+        "video_id",
+        "video_language",
+        "watch_logged_in"
+      ],
+      "result": {
+        "status": "UNKNOWN_SOURCE_AUTHORITY",
+        "observed_utc": "2026-10-15T01:29:34.295530+00:00",
+        "architecture": "aarch64",
+        "watch_logged_in": true,
+        "elapsed_ms": 15036,
+        "video_language": null
+      },
+      "provider_selected": {},
+      "players": [
+        {
+          "status": "OK"
+        },
+        {
+          "status": "OK"
+        }
+      ],
+      "http_requests": [
+        {
+          "host": "www.youtube.com",
+          "path": "/watch",
+          "http_status": 200,
+          "bytes": 1816819,
+          "sha256": "18de3fd5b291ce7bd439eebd05d0aacf655d4002f6ea6a9426b95eb04e6083af"
+        },
+        {
+          "host": "m.youtube.com",
+          "path": "/",
+          "http_status": 200,
+          "bytes": 846071,
+          "sha256": "73b987fac1aaf0e6d7c0edc4ca08d167008323d3a56a86096f8670b74196f1bc"
+        },
+        {
+          "host": "www.youtube.com",
+          "path": "/youtubei/v1/player",
+          "http_status": 200,
+          "bytes": 406629,
+          "sha256": "2bb6fbcbf1055eb8f909dd8c4b9643b24e2202db7dd02fb8bcc8f3614b4f5e9c"
+        },
+        {
+          "host": "www.youtube.com",
+          "path": "/s/player/21090930/player_ias.vflset/en_US/base.js",
+          "http_status": 200,
+          "bytes": 2960053,
+          "sha256": "036911b028785c604d80ce6154e446899e331faa0962d7ec535cbb9c53cdb8a5"
+        }
+      ],
+      "resources": {
+        "category": "NONE",
+        "exit_code": 0,
+        "elapsed_ms": 15452,
+        "peak_tree_rss_bytes": 389083136,
+        "tree_cpu_ms": 4810.0,
+        "descendants_remaining": 0
+      },
+      "files": {
+        "provider-transport.json": {
+          "sha256": "e8bdc6b8ee4465c722fca950a86c9f3771bf8b9855e755e84f52e225e3ba5f5e",
+          "bytes": 652
+        },
+        "resources.json": {
+          "sha256": "b9de2fc523826b77267edfb41e4cdfc5abdc25dfa1daa8af9b0e6a455f49de4c",
+          "bytes": 2935
+        },
+        "result.json": {
+          "sha256": "27d1081e694b17097b13b37204435dc9113fccc156ec4b6c755e1598cc941311",
+          "bytes": 5839
+        }
+      }
+    },
+    {
+      "status": "COMPLETED",
+      "run_name": "login-caption-broker-4c17d485",
+      "video_id": "9i1LVL3_xpU",
+      "mode": "ytdlp",
+      "client": "mweb",
+      "authentication_status": "AUTHENTICATED",
+      "session_imported": false,
+      "session_updated": false,
+      "persistent_session_retained": true,
+      "receipt_path": "/root/bartosz-ote-chromium-deployment-20261014/login-caption-broker-4c17d485/receipt.json",
+      "receipt_sha256": "0586d54e8cb0a0def1f5799c83e53d4997365b776b5f7185077f7955bb925124",
+      "result_keys": [
+        "anonymous",
+        "architecture",
+        "client",
+        "elapsed_ms",
+        "extractor_messages",
+        "mode",
+        "observed_utc",
+        "package_version",
+        "players",
+        "provider_tracks",
+        "python_version",
+        "requests",
+        "schema",
+        "status",
+        "subs_provider",
+        "tracks",
+        "video_id",
+        "video_language",
+        "watch_logged_in"
+      ],
+      "result": {
+        "status": "UNKNOWN_SOURCE_AUTHORITY",
+        "observed_utc": "2026-10-14T19:51:01.789036+00:00",
+        "architecture": "aarch64",
+        "watch_logged_in": true,
+        "elapsed_ms": 16800,
+        "video_language": null
+      },
+      "provider_selected": {},
+      "players": [
+        {
+          "status": "OK"
+        },
+        {
+          "status": "OK"
+        }
+      ],
+      "http_requests": [
+        {
+          "host": "www.youtube.com",
+          "path": "/watch",
+          "http_status": 200,
+          "bytes": 2232187,
+          "sha256": "ccfa6d0ca8cdceeba6d21c18e8a571fed1dbf87d4b12043a00568dd24ac1dcdd"
+        },
+        {
+          "host": "m.youtube.com",
+          "path": "/",
+          "http_status": 200,
+          "bytes": 933805,
+          "sha256": "9f1007eb9ff8b08760cb4ccbfa1bde06f57200f02ee92b0c59ea04499ebae4f1"
+        },
+        {
+          "host": "www.youtube.com",
+          "path": "/youtubei/v1/player",
+          "http_status": 200,
+          "bytes": 405296,
+          "sha256": "f61d79726d7bd836103b3afc5e4ede0bec475356d5ccb83f381fdb5bcaab50c0"
+        },
+        {
+          "host": "www.youtube.com",
+          "path": "/s/player/21090930/player_ias.vflset/en_US/base.js",
+          "http_status": 200,
+          "bytes": 2960053,
+          "sha256": "036911b028785c604d80ce6154e446899e331faa0962d7ec535cbb9c53cdb8a5"
+        }
+      ],
+      "resources": {
+        "category": "NONE",
+        "exit_code": 0,
+        "elapsed_ms": 17164,
+        "peak_tree_rss_bytes": 384589824,
+        "tree_cpu_ms": 4750.0,
+        "descendants_remaining": 0
+      },
+      "files": {
+        "provider-transport.json": {
+          "sha256": "baafaeb9d4109935a6dafc6ae7d0260009475c6f0cc2e12c1c5555f0b6ec464c",
+          "bytes": 652
+        },
+        "resources.json": {
+          "sha256": "56085b1d6a92551e6fb004410daddd7b4e65d573d8e74e8c37b6f67693e1cfe2",
+          "bytes": 2935
+        },
+        "result.json": {
+          "sha256": "f505879b2a80d058d94f87d0f34c61e5708cbee31c39472f61b9c6a4dbc849e6",
+          "bytes": 5839
+        }
+      }
+    },
+    {
+      "status": "COMPLETED",
+      "run_name": "login-caption-broker-c82bceaa",
+      "video_id": "CKAyfGItpgg",
+      "mode": "ytdlp",
+      "client": "mweb",
+      "authentication_status": "AUTHENTICATED",
+      "session_imported": false,
+      "session_updated": false,
+      "persistent_session_retained": true,
+      "receipt_path": "/root/bartosz-ote-chromium-deployment-20261014/login-caption-broker-c82bceaa/receipt.json",
+      "receipt_sha256": "90874d05a087e044e25b0703e377a37288054482124d63eccc076871c3a76ab4",
+      "result_keys": [
+        "anonymous",
+        "architecture",
+        "client",
+        "elapsed_ms",
+        "extractor_messages",
+        "mode",
+        "observed_utc",
+        "package_version",
+        "players",
+        "provider_tracks",
+        "python_version",
+        "requests",
+        "schema",
+        "status",
+        "subs_provider",
+        "tracks",
+        "video_id",
+        "video_language",
+        "watch_logged_in"
+      ],
+      "result": {
+        "status": "UNKNOWN_SOURCE_AUTHORITY",
+        "observed_utc": "2026-10-14T19:46:08.711865+00:00",
+        "architecture": "aarch64",
+        "watch_logged_in": true,
+        "elapsed_ms": 16691,
+        "video_language": null
+      },
+      "provider_selected": {},
+      "players": [
+        {
+          "status": "OK"
+        },
+        {
+          "status": "OK"
+        }
+      ],
+      "http_requests": [
+        {
+          "host": "www.youtube.com",
+          "path": "/watch",
+          "http_status": 200,
+          "bytes": 1794147,
+          "sha256": "487b6a7516328dc07b8a93a178418393304845f41ea78a09c291dedd671b5ab8"
+        },
+        {
+          "host": "m.youtube.com",
+          "path": "/",
+          "http_status": 200,
+          "bytes": 957331,
+          "sha256": "78d38e893373838e69b82d205ff870c36760a0cffc0bbc9ce79c27a792a2dd13"
+        },
+        {
+          "host": "www.youtube.com",
+          "path": "/youtubei/v1/player",
+          "http_status": 200,
+          "bytes": 251156,
+          "sha256": "40fe482aa610d570a2d6a8e67f244a93bd526a4bea9cfab7ebb2928c6a396d5f"
+        },
+        {
+          "host": "www.youtube.com",
+          "path": "/s/player/21090930/player_ias.vflset/en_US/base.js",
+          "http_status": 200,
+          "bytes": 2960053,
+          "sha256": "036911b028785c604d80ce6154e446899e331faa0962d7ec535cbb9c53cdb8a5"
+        }
+      ],
+      "resources": {
+        "category": "NONE",
+        "exit_code": 0,
+        "elapsed_ms": 17054,
+        "peak_tree_rss_bytes": 382234624,
+        "tree_cpu_ms": 4820.0,
+        "descendants_remaining": 0
+      },
+      "files": {
+        "provider-transport.json": {
+          "sha256": "5912bc63cc9a582acd27628e6ae4f63a26fd6b31ee7ab4e3e0a38be3ee6311f2",
+          "bytes": 652
+        },
+        "resources.json": {
+          "sha256": "8c2f6ff6a75f688f3149f7e952c86d37179c6d06caf47b54e3998aa84ccf4635",
+          "bytes": 3196
+        },
+        "result.json": {
+          "sha256": "62e752c2e67d733a3d066bff7b82c3222c9bee3e67d057baf9018e464aea1dd0",
+          "bytes": 6481
+        }
+      }
+    }
+  ],
+  "session_values_read": false
+}

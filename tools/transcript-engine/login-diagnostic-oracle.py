@@ -249,6 +249,7 @@ try:
     if SESSION_ACTIVE: diagnostic += ['--cookies',str(secret)]
     if PERSISTENT_SESSION: diagnostic += ['--persistent-session']
     if ADAPTER: diagnostic += ['--adapter', '--item-id', ITEM_ID]
+    if DEFAULT_AUDIO_LANGUAGE: diagnostic += ['--default-audio-language', DEFAULT_AUDIO_LANGUAGE]
     if MODE == 'ytdlp': diagnostic += ['--parser',str(asset_root/'apps/executor/python/transcript_ytdlp.py')]
     if MODE == 'native': diagnostic += ['--engine',str(asset_root/'transcript-engine.mjs')]
     if POT_SERVER:
@@ -395,6 +396,7 @@ def main():
     parser.add_argument('--replace-session', action='store_true')
     parser.add_argument('--adapter', action='store_true')
     parser.add_argument('--item-id')
+    parser.add_argument('--default-audio-language')
     parser.add_argument('--max-requests', type=int, choices=range(1, 9), default=8)
     parser.add_argument('--timeout-seconds', type=int, choices=range(1, 101), default=100)
     args = parser.parse_args()
@@ -406,6 +408,9 @@ def main():
         parser.error('executor adapter requires protected persistent session')
     if args.adapter and not (args.item_id and re.fullmatch(r'[0-9a-fA-F]{8}(?:-[0-9a-fA-F]{4}){3}-[0-9a-fA-F]{12}', args.item_id)):
         parser.error('executor adapter requires a valid item ID')
+    if args.default_audio_language is not None and (not args.adapter or len(args.default_audio_language) > 64 \
+            or not re.fullmatch(r'[A-Za-z]{2,8}(?:-[A-Za-z0-9]{1,8})*', args.default_audio_language)):
+        parser.error('verified default audio language must be a language tag for the executor adapter')
     if args.replace_session and not (args.persistent_session and args.cookies):
         parser.error('replacement requires a new explicit persistent session export')
     if not re.fullmatch(r'[a-z0-9][a-z0-9-]{0,48}', args.label):
@@ -469,6 +474,7 @@ def main():
         'REPLACE_SESSION':args.replace_session,
         'ADAPTER':args.adapter,
         'ITEM_ID':args.item_id,
+        'DEFAULT_AUDIO_LANGUAGE':args.default_audio_language,
         'MAX_REQUESTS':args.max_requests, 'TIMEOUT_SECONDS':args.timeout_seconds,
     }.items())+'\nfrom http.cookiejar import HTTPONLY_ATTR, LoadError, MozillaCookieJar\nimport io,warnings\n'+inspect.getsource(validate_cookie_export)+'\n'+REMOTE
     if args.on_oracle:

@@ -1,0 +1,362 @@
+{
+  "result": "ACTIVATED",
+  "observed_at": "2026-10-15T11:37:28.954Z",
+  "intent": {
+    "schema": "approved-channel-activation:1",
+    "owner_id": "fca35012-aaeb-428d-8836-14398ace7412",
+    "config_id": "activation:approved19:20261015",
+    "created_at": "2026-10-15T11:37:18.964Z",
+    "mode": "NEW_ONLY",
+    "plan_sha256": "cb7899d5f5a9e782f6dc12c3ba3f9fc4979e2be9b5fe212b3d7b569e4e02e31e",
+    "approval_sha256": "2938fcda090cd743c375922e6ea4bcb9fc9143dd788ef4a1aa0a63bc962dac62",
+    "existing": {
+      "source_id": "37122a11-d19e-4b0e-8a36-cc4f191bdc97",
+      "external_id": "UCAuUUnT6oDeKwE6v1NGQxug",
+      "canonical_locator": "https://www.youtube.com/channel/UCAuUUnT6oDeKwE6v1NGQxug",
+      "title": "TED",
+      "uploads_playlist_id": "UUAuUUnT6oDeKwE6v1NGQxug",
+      "handle": "@ted",
+      "activation": "ALREADY_ACTIVE"
+    },
+    "channels": [
+      {
+        "namespace": "youtube",
+        "external_id": "UCHnyfMqiRRG1u-2MsSQLbXA",
+        "canonical_locator": "https://www.youtube.com/channel/UCHnyfMqiRRG1u-2MsSQLbXA",
+        "title": "Veritasium",
+        "uploads_playlist_id": "UUHnyfMqiRRG1u-2MsSQLbXA",
+        "handle": "@veritasium",
+        "source_id": "b8d5c1f4-f522-406d-b9cd-59bc19b83fe6"
+      },
+      {
+        "namespace": "youtube",
+        "external_id": "UCYO_jab_esuFRV4b17AJtAw",
+        "canonical_locator": "https://www.youtube.com/channel/UCYO_jab_esuFRV4b17AJtAw",
+        "title": "3Blue1Brown",
+        "uploads_playlist_id": "UUYO_jab_esuFRV4b17AJtAw",
+        "handle": "@3blue1brown",
+        "source_id": "c6311533-d75f-4f08-9575-de6028dc9549"
+      },
+      {
+        "namespace": "youtube",
+        "external_id": "UCoxcjq-8xIDTYp3uz647V5A",
+        "canonical_locator": "https://www.youtube.com/channel/UCoxcjq-8xIDTYp3uz647V5A",
+        "title": "Numberphile",
+        "uploads_playlist_id": "UUoxcjq-8xIDTYp3uz647V5A",
+        "handle": "@numberphile",
+        "source_id": "3c3077b8-b3dc-41fe-ac0b-25b4ec614462"
+      },
+      {
+        "namespace": "youtube",
+        "external_id": "UC9-y-6csu5WGm29I7JiwpnA",
+        "canonical_locator": "https://www.youtube.com/channel/UC9-y-6csu5WGm29I7JiwpnA",
+        "title": "Computerphile",
+        "uploads_playlist_id": "UU9-y-6csu5WGm29I7JiwpnA",
+        "handle": "@computerphile",
+        "source_id": "c68f2c05-74ca-4d73-a232-ea0128441bec"
+      },
+      {
+        "namespace": "youtube",
+        "external_id": "UC6107grRI4m0o2-emgoDnAA",
+        "canonical_locator": "https://www.youtube.com/channel/UC6107grRI4m0o2-emgoDnAA",
+        "title": "SmarterEveryDay",
+        "uploads_playlist_id": "UU6107grRI4m0o2-emgoDnAA",
+        "handle": "@smartereveryday",
+        "source_id": "b75d5e32-ba48-41ba-a4c8-173bb71a7dc7"
+      },
+      {
+        "namespace": "youtube",
+        "external_id": "UCUHW94eEFW7hkUMVaZz4eDg",
+        "canonical_locator": "https://www.youtube.com/channel/UCUHW94eEFW7hkUMVaZz4eDg",
+        "title": "minutephysics",
+        "uploads_playlist_id": "UUUHW94eEFW7hkUMVaZz4eDg",
+        "handle": "@minutephysics",
+        "source_id": "9943a530-acfe-4b12-8734-80aed2b44dc4"
+      },
+      {
+        "namespace": "youtube",
+        "external_id": "UC2C_jShtL725hvbm1arSV9w",
+        "canonical_locator": "https://www.youtube.com/channel/UC2C_jShtL725hvbm1arSV9w",
+        "title": "CGP Grey",
+        "uploads_playlist_id": "UU2C_jShtL725hvbm1arSV9w",
+        "handle": "@cgpgrey",
+        "source_id": "274bf46f-a04b-445a-aca4-8c044d011b84"
+      },
+      {
+        "namespace": "youtube",
+        "external_id": "UCsXVk37bltHxD1rDPwtNM8Q",
+        "canonical_locator": "https://www.youtube.com/channel/UCsXVk37bltHxD1rDPwtNM8Q",
+        "title": "Kurzgesagt – In a Nutshell",
+        "uploads_playlist_id": "UUsXVk37bltHxD1rDPwtNM8Q",
+        "handle": "@kurzgesagt",
+        "source_id": "29df46e7-2912-4fea-a608-d852f9adbd40"
+      },
+      {
+        "namespace": "youtube",
+        "external_id": "UCR1IuLEqb6UEA_zQ81kwXfg",
+        "canonical_locator": "https://www.youtube.com/channel/UCR1IuLEqb6UEA_zQ81kwXfg",
+        "title": "Real Engineering",
+        "uploads_playlist_id": "UUR1IuLEqb6UEA_zQ81kwXfg",
+        "handle": "@realengineering",
+        "source_id": "99754711-09e8-43b8-b66b-192fa5d4a78c"
+      },
+      {
+        "namespace": "youtube",
+        "external_id": "UCy0tKL1T7wFoYcxCe0xjN6Q",
+        "canonical_locator": "https://www.youtube.com/channel/UCy0tKL1T7wFoYcxCe0xjN6Q",
+        "title": "Technology Connections",
+        "uploads_playlist_id": "UUy0tKL1T7wFoYcxCe0xjN6Q",
+        "handle": "@technologyconnections",
+        "source_id": "7d8f0dd7-e9b9-43bf-a36f-62f3c225354c"
+      },
+      {
+        "namespace": "youtube",
+        "external_id": "UCMOqf8ab-42UUQIdVoKwjlQ",
+        "canonical_locator": "https://www.youtube.com/channel/UCMOqf8ab-42UUQIdVoKwjlQ",
+        "title": "Practical Engineering",
+        "uploads_playlist_id": "UUMOqf8ab-42UUQIdVoKwjlQ",
+        "handle": "@practicalengineeringchannel",
+        "source_id": "9a4d6605-1691-418e-9b1a-4245b651780c"
+      },
+      {
+        "namespace": "youtube",
+        "external_id": "UCbfYPyITQ-7l4upoX8nvctg",
+        "canonical_locator": "https://www.youtube.com/channel/UCbfYPyITQ-7l4upoX8nvctg",
+        "title": "Two Minute Papers",
+        "uploads_playlist_id": "UUbfYPyITQ-7l4upoX8nvctg",
+        "handle": "@twominutepapers",
+        "source_id": "49967d59-e1b5-4d2a-ac1c-a3b38cd3c7a8"
+      },
+      {
+        "namespace": "youtube",
+        "external_id": "UCYeF244yNGuFefuFKqxIAXw",
+        "canonical_locator": "https://www.youtube.com/channel/UCYeF244yNGuFefuFKqxIAXw",
+        "title": "The Royal Institution",
+        "uploads_playlist_id": "UUYeF244yNGuFefuFKqxIAXw",
+        "handle": "@theroyalinstitution",
+        "source_id": "e585d4b9-bea4-4d47-8ce8-083a9cb6ce54"
+      },
+      {
+        "namespace": "youtube",
+        "external_id": "UCvQECJukTDE2i6aCoMnS-Vg",
+        "canonical_locator": "https://www.youtube.com/channel/UCvQECJukTDE2i6aCoMnS-Vg",
+        "title": "Big Think",
+        "uploads_playlist_id": "UUvQECJukTDE2i6aCoMnS-Vg",
+        "handle": "@bigthink",
+        "source_id": "2f469b78-3607-4188-ab32-9714ddcf4834"
+      },
+      {
+        "namespace": "youtube",
+        "external_id": "UCSju5G2aFaWMqn-_0YBtq5A",
+        "canonical_locator": "https://www.youtube.com/channel/UCSju5G2aFaWMqn-_0YBtq5A",
+        "title": "Stand-up Maths",
+        "uploads_playlist_id": "UUSju5G2aFaWMqn-_0YBtq5A",
+        "handle": "@standupmaths",
+        "source_id": "72073ab6-2dcc-4758-8568-d97e58de8f87"
+      },
+      {
+        "namespace": "youtube",
+        "external_id": "UCEIwxahdLz7bap-VDs9h35A",
+        "canonical_locator": "https://www.youtube.com/channel/UCEIwxahdLz7bap-VDs9h35A",
+        "title": "Steve Mould",
+        "uploads_playlist_id": "UUEIwxahdLz7bap-VDs9h35A",
+        "handle": "@stevemould",
+        "source_id": "ed702295-a3b9-41cd-ae1d-050a24d7ee80"
+      },
+      {
+        "namespace": "youtube",
+        "external_id": "UCY1kMZp36IQSyNx_9h4mpCg",
+        "canonical_locator": "https://www.youtube.com/channel/UCY1kMZp36IQSyNx_9h4mpCg",
+        "title": "Mark Rober",
+        "uploads_playlist_id": "UUY1kMZp36IQSyNx_9h4mpCg",
+        "handle": "@markrober",
+        "source_id": "c96e4df0-2236-4e94-a4f6-82c7611abe9b"
+      },
+      {
+        "namespace": "youtube",
+        "external_id": "UCdp4_l1vPmpN-gDbUwhaRUQ",
+        "canonical_locator": "https://www.youtube.com/channel/UCdp4_l1vPmpN-gDbUwhaRUQ",
+        "title": "Branch Education",
+        "uploads_playlist_id": "UUdp4_l1vPmpN-gDbUwhaRUQ",
+        "handle": "@brancheducation",
+        "source_id": "fa236184-4681-4322-9df6-aa480eb6f363"
+      },
+      {
+        "namespace": "youtube",
+        "external_id": "UC1VLQPn9cYSqx8plbk9RxxQ",
+        "canonical_locator": "https://www.youtube.com/channel/UC1VLQPn9cYSqx8plbk9RxxQ",
+        "title": "The Action Lab",
+        "uploads_playlist_id": "UU1VLQPn9cYSqx8plbk9RxxQ",
+        "handle": "@theactionlab",
+        "source_id": "8942901e-db68-4ba0-8ca0-c82fbb5c22f2"
+      }
+    ],
+    "no_initial_jobs": true
+  },
+  "enabled": [
+    {
+      "source_id": "274bf46f-a04b-445a-aca4-8c044d011b84",
+      "external_id": "UC2C_jShtL725hvbm1arSV9w",
+      "activated_at": "2026-10-15T11:37:18.964Z",
+      "window_start": "2026-10-15T11:37:18.964Z",
+      "full_due_at": "2026-10-16T11:37:18.964Z",
+      "weekly_due_at": "2026-10-22T11:37:18.964Z"
+    },
+    {
+      "source_id": "29df46e7-2912-4fea-a608-d852f9adbd40",
+      "external_id": "UCsXVk37bltHxD1rDPwtNM8Q",
+      "activated_at": "2026-10-15T11:37:18.964Z",
+      "window_start": "2026-10-15T11:37:18.964Z",
+      "full_due_at": "2026-10-16T11:37:18.964Z",
+      "weekly_due_at": "2026-10-22T11:37:18.964Z"
+    },
+    {
+      "source_id": "2f469b78-3607-4188-ab32-9714ddcf4834",
+      "external_id": "UCvQECJukTDE2i6aCoMnS-Vg",
+      "activated_at": "2026-10-15T11:37:18.964Z",
+      "window_start": "2026-10-15T11:37:18.964Z",
+      "full_due_at": "2026-10-16T11:37:18.964Z",
+      "weekly_due_at": "2026-10-22T11:37:18.964Z"
+    },
+    {
+      "source_id": "37122a11-d19e-4b0e-8a36-cc4f191bdc97",
+      "external_id": "UCAuUUnT6oDeKwE6v1NGQxug",
+      "activated_at": "2026-10-05T21:05:20.271Z",
+      "window_start": "2026-09-05T21:05:07.309Z",
+      "full_due_at": "2026-10-16T00:00:44.000Z",
+      "weekly_due_at": "2026-10-19T21:50:27.000Z"
+    },
+    {
+      "source_id": "3c3077b8-b3dc-41fe-ac0b-25b4ec614462",
+      "external_id": "UCoxcjq-8xIDTYp3uz647V5A",
+      "activated_at": "2026-10-15T11:37:18.964Z",
+      "window_start": "2026-10-15T11:37:18.964Z",
+      "full_due_at": "2026-10-16T11:37:18.964Z",
+      "weekly_due_at": "2026-10-22T11:37:18.964Z"
+    },
+    {
+      "source_id": "49967d59-e1b5-4d2a-ac1c-a3b38cd3c7a8",
+      "external_id": "UCbfYPyITQ-7l4upoX8nvctg",
+      "activated_at": "2026-10-15T11:37:18.964Z",
+      "window_start": "2026-10-15T11:37:18.964Z",
+      "full_due_at": "2026-10-16T11:37:18.964Z",
+      "weekly_due_at": "2026-10-22T11:37:18.964Z"
+    },
+    {
+      "source_id": "72073ab6-2dcc-4758-8568-d97e58de8f87",
+      "external_id": "UCSju5G2aFaWMqn-_0YBtq5A",
+      "activated_at": "2026-10-15T11:37:18.964Z",
+      "window_start": "2026-10-15T11:37:18.964Z",
+      "full_due_at": "2026-10-16T11:37:18.964Z",
+      "weekly_due_at": "2026-10-22T11:37:18.964Z"
+    },
+    {
+      "source_id": "7d8f0dd7-e9b9-43bf-a36f-62f3c225354c",
+      "external_id": "UCy0tKL1T7wFoYcxCe0xjN6Q",
+      "activated_at": "2026-10-15T11:37:18.964Z",
+      "window_start": "2026-10-15T11:37:18.964Z",
+      "full_due_at": "2026-10-16T11:37:18.964Z",
+      "weekly_due_at": "2026-10-22T11:37:18.964Z"
+    },
+    {
+      "source_id": "8942901e-db68-4ba0-8ca0-c82fbb5c22f2",
+      "external_id": "UC1VLQPn9cYSqx8plbk9RxxQ",
+      "activated_at": "2026-10-15T11:37:18.964Z",
+      "window_start": "2026-10-15T11:37:18.964Z",
+      "full_due_at": "2026-10-16T11:37:18.964Z",
+      "weekly_due_at": "2026-10-22T11:37:18.964Z"
+    },
+    {
+      "source_id": "9943a530-acfe-4b12-8734-80aed2b44dc4",
+      "external_id": "UCUHW94eEFW7hkUMVaZz4eDg",
+      "activated_at": "2026-10-15T11:37:18.964Z",
+      "window_start": "2026-10-15T11:37:18.964Z",
+      "full_due_at": "2026-10-16T11:37:18.964Z",
+      "weekly_due_at": "2026-10-22T11:37:18.964Z"
+    },
+    {
+      "source_id": "99754711-09e8-43b8-b66b-192fa5d4a78c",
+      "external_id": "UCR1IuLEqb6UEA_zQ81kwXfg",
+      "activated_at": "2026-10-15T11:37:18.964Z",
+      "window_start": "2026-10-15T11:37:18.964Z",
+      "full_due_at": "2026-10-16T11:37:18.964Z",
+      "weekly_due_at": "2026-10-22T11:37:18.964Z"
+    },
+    {
+      "source_id": "9a4d6605-1691-418e-9b1a-4245b651780c",
+      "external_id": "UCMOqf8ab-42UUQIdVoKwjlQ",
+      "activated_at": "2026-10-15T11:37:18.964Z",
+      "window_start": "2026-10-15T11:37:18.964Z",
+      "full_due_at": "2026-10-16T11:37:18.964Z",
+      "weekly_due_at": "2026-10-22T11:37:18.964Z"
+    },
+    {
+      "source_id": "b75d5e32-ba48-41ba-a4c8-173bb71a7dc7",
+      "external_id": "UC6107grRI4m0o2-emgoDnAA",
+      "activated_at": "2026-10-15T11:37:18.964Z",
+      "window_start": "2026-10-15T11:37:18.964Z",
+      "full_due_at": "2026-10-16T11:37:18.964Z",
+      "weekly_due_at": "2026-10-22T11:37:18.964Z"
+    },
+    {
+      "source_id": "b8d5c1f4-f522-406d-b9cd-59bc19b83fe6",
+      "external_id": "UCHnyfMqiRRG1u-2MsSQLbXA",
+      "activated_at": "2026-10-15T11:37:18.964Z",
+      "window_start": "2026-10-15T11:37:18.964Z",
+      "full_due_at": "2026-10-16T11:37:18.964Z",
+      "weekly_due_at": "2026-10-22T11:37:18.964Z"
+    },
+    {
+      "source_id": "c6311533-d75f-4f08-9575-de6028dc9549",
+      "external_id": "UCYO_jab_esuFRV4b17AJtAw",
+      "activated_at": "2026-10-15T11:37:18.964Z",
+      "window_start": "2026-10-15T11:37:18.964Z",
+      "full_due_at": "2026-10-16T11:37:18.964Z",
+      "weekly_due_at": "2026-10-22T11:37:18.964Z"
+    },
+    {
+      "source_id": "c68f2c05-74ca-4d73-a232-ea0128441bec",
+      "external_id": "UC9-y-6csu5WGm29I7JiwpnA",
+      "activated_at": "2026-10-15T11:37:18.964Z",
+      "window_start": "2026-10-15T11:37:18.964Z",
+      "full_due_at": "2026-10-16T11:37:18.964Z",
+      "weekly_due_at": "2026-10-22T11:37:18.964Z"
+    },
+    {
+      "source_id": "c96e4df0-2236-4e94-a4f6-82c7611abe9b",
+      "external_id": "UCY1kMZp36IQSyNx_9h4mpCg",
+      "activated_at": "2026-10-15T11:37:18.964Z",
+      "window_start": "2026-10-15T11:37:18.964Z",
+      "full_due_at": "2026-10-16T11:37:18.964Z",
+      "weekly_due_at": "2026-10-22T11:37:18.964Z"
+    },
+    {
+      "source_id": "e585d4b9-bea4-4d47-8ce8-083a9cb6ce54",
+      "external_id": "UCYeF244yNGuFefuFKqxIAXw",
+      "activated_at": "2026-10-15T11:37:18.964Z",
+      "window_start": "2026-10-15T11:37:18.964Z",
+      "full_due_at": "2026-10-16T11:37:18.964Z",
+      "weekly_due_at": "2026-10-22T11:37:18.964Z"
+    },
+    {
+      "source_id": "ed702295-a3b9-41cd-ae1d-050a24d7ee80",
+      "external_id": "UCEIwxahdLz7bap-VDs9h35A",
+      "activated_at": "2026-10-15T11:37:18.964Z",
+      "window_start": "2026-10-15T11:37:18.964Z",
+      "full_due_at": "2026-10-16T11:37:18.964Z",
+      "weekly_due_at": "2026-10-22T11:37:18.964Z"
+    },
+    {
+      "source_id": "fa236184-4681-4322-9df6-aa480eb6f363",
+      "external_id": "UCdp4_l1vPmpN-gDbUwhaRUQ",
+      "activated_at": "2026-10-15T11:37:18.964Z",
+      "window_start": "2026-10-15T11:37:18.964Z",
+      "full_due_at": "2026-10-16T11:37:18.964Z",
+      "weekly_due_at": "2026-10-22T11:37:18.964Z"
+    }
+  ],
+  "initial_jobs_created": 0,
+  "rows_read": 339,
+  "rows_written": 307,
+  "delete_performed": false
+}

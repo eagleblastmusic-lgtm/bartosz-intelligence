@@ -5,6 +5,7 @@ import { jobDedup } from '../../jobs/policy.js';
 import { leasePredicate } from '../../jobs/lease-guard.js';
 import type { LeaseToken, TaskType } from '../../../../contracts/src/jobs.js';
 import type { ItemMetadata } from '../../../../contracts/src/discovery.js';
+import { firstCaptionAttempt } from '../../transcript/recovery.js';
 export interface ScanState {
   scan_id: string;
   source_id: string;
@@ -67,6 +68,7 @@ export async function commitDiscoveryPage(
   now: Date,
   task: TaskType = 'DISCOVER',
   chunkSize = 5,
+  transport?: 'RSS' | 'RSS_FALLBACK_UPLOADS',
 ) {
   if (
     !Number.isInteger(chunkSize) ||
@@ -205,7 +207,7 @@ export async function commitDiscoveryPage(
     const due =
       state === 'DEFERRED'
         ? new Date(now.getTime() + 3600000).toISOString()
-        : at;
+        : firstCaptionAttempt(at);
     statements.push(
       db
         .prepare(
@@ -224,7 +226,7 @@ export async function commitDiscoveryPage(
       db
         .prepare(
           `INSERT INTO jobs(job_id,owner_id,item_id,source_id,task_type,input_revision,profile_revision,routing_policy_version,explicit_run_nonce,dedup_key,state,reason_code,due_at,priority,arrival_origin_at,origin_kind,payload_json,created_at,updated_at)
-        SELECT ?,owner_id,item_id,source_id,'FETCH_TRANSCRIPT','source-intake-1','economy-1','local-primary-1','',?,?,?,?,?,?,?,'{}',?,? FROM items WHERE owner_id=? AND source_id=? AND namespace=? AND external_id=? AND NOT EXISTS(SELECT 1 FROM retention_items t WHERE t.owner_id=items.owner_id AND t.item_id=items.item_id AND t.phase IN ('PRUNING','COMPLETE')) AND ${permit.predicate}
+        SELECT ?,owner_id,item_id,source_id,'FETCH_TRANSCRIPT','source-intake-1','economy-1','local-primary-1','',?,?,?,CASE WHEN ?='PENDING' THEN strftime('%Y-%m-%dT%H:%M:%fZ',discovered_at,'+10 minutes') ELSE ? END,?,?,?,'{}',?,? FROM items WHERE owner_id=? AND source_id=? AND namespace=? AND external_id=? AND NOT EXISTS(SELECT 1 FROM retention_items t WHERE t.owner_id=items.owner_id AND t.item_id=items.item_id AND t.phase IN ('PRUNING','COMPLETE')) AND ${permit.predicate}
         ON CONFLICT(owner_id,dedup_key) DO NOTHING`,
         )
         .bind(
@@ -232,6 +234,7 @@ export async function commitDiscoveryPage(
           dedup,
           state,
           reason,
+          state,
           due,
           origin === 'BACKFILL' ? 20 : 80,
           item.published_at ?? at,
@@ -246,7 +249,7 @@ export async function commitDiscoveryPage(
         ),
       db
         .prepare(
-          `UPDATE jobs SET state='PENDING',reason_code=NULL,due_at=?,updated_at=? WHERE owner_id=? AND dedup_key=? AND state IN ('BLOCKED','DEFERRED') AND reason_code IN ('SOURCE_ACCESS','LIVE_ACTIVE') AND ?='PUBLIC' AND ${permit.predicate}`,
+          `UPDATE jobs SET state='PENDING',reason_code=NULL,due_at=MAX(?,(SELECT strftime('%Y-%m-%dT%H:%M:%fZ',i.discovered_at,'+10 minutes') FROM items i WHERE i.owner_id=jobs.owner_id AND i.item_id=jobs.item_id)),updated_at=? WHERE owner_id=? AND dedup_key=? AND state IN ('BLOCKED','DEFERRED') AND reason_code IN ('SOURCE_ACCESS','LIVE_ACTIVE') AND ?='PUBLIC' AND ${permit.predicate}`,
         )
         .bind(
           at,
@@ -307,9 +310,13 @@ export async function commitDiscoveryPage(
       .bind(
         scanComplete
           ? 'WINDOW_COMPLETED'
-          : pageFinished
-            ? 'PAGE_COMMITTED'
-            : 'PAGE_CHUNK_COMMITTED',
+          : transport === 'RSS_FALLBACK_UPLOADS'
+            ? pageFinished
+              ? 'RSS_FALLBACK_PAGE_COMMITTED'
+              : 'RSS_FALLBACK_PAGE_CHUNK_COMMITTED'
+            : pageFinished
+              ? 'PAGE_COMMITTED'
+              : 'PAGE_CHUNK_COMMITTED',
         at,
         context.ownerId,
         scan.scan_id,
@@ -351,5 +358,6 @@ export async function commitDiscoveryPage(
     coverage: scanComplete ? 'COMPLETE' : 'PARTIAL',
     continuation: !jobDone,
     pages: scan.page_revision + 1,
+    ...(transport ? { discovery_transport: transport } : {}),
   };
 }

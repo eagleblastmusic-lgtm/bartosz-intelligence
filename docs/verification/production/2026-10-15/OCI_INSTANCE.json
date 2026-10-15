@@ -1,0 +1,23 @@
+{
+  "compartment": "ocid1.tenancy.oc1..aaaaaaaaf2i2oxj3qubikb3uwwawhjnzxs5ki44pm5dcettdaty26wpadpra",
+  "id": "ocid1.instance.oc1.eu-frankfurt-1.antheljr36gjwkacbyy6myelidyhmcdewoe5repydl4ddicvgronn6javgtq",
+  "region": "eu-frankfurt-1",
+  "resources": {
+    "baseline-ocpu-utilization": null,
+    "gpu-description": null,
+    "gpus": 0,
+    "local-disk-description": null,
+    "local-disks": 0,
+    "local-disks-total-size-in-gbs": null,
+    "local-volume-size-in-gbs": null,
+    "max-vnic-attachments": 2,
+    "memory-in-gbs": 6.0,
+    "networking-bandwidth-in-gbps": 1.0,
+    "ocpus": 1.0,
+    "processor-description": "3.0 GHz Ampere® Altra™",
+    "resource-management": null,
+    "vcpus": 1
+  },
+  "shape": "VM.Standard.A1.Flex",
+  "state": "RUNNING"
+}

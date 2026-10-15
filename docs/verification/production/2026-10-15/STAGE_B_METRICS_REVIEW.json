@@ -1,0 +1,404 @@
+{
+  "schema": "production-stage-b-metrics-review:1",
+  "observed_at": "2026-10-15T01:39:27.294Z",
+  "period_start_utc": "2026-10-15T00:00:00Z",
+  "period_end_utc": "2026-10-15T01:39:23.268Z",
+  "partial_day": true,
+  "full_day_measured": false,
+  "production_mutations_by_collector": 0,
+  "worker_version": "600219c3-114c-4fc0-8dec-c886f229995e",
+  "worker_deployed_at": "2026-10-15T01:19:00.036364Z",
+  "query_errors": {},
+  "sql_statements": 11,
+  "collector_rows_read": 5714,
+  "collector_rows_written": 0,
+  "sql_results": {
+    "retention": [
+      {
+        "deletion_enabled": 0
+      }
+    ],
+    "active_channels": [
+      {
+        "active_channels": 1
+      }
+    ],
+    "legacy_accepted": [
+      {
+        "accepted_count": 45
+      }
+    ],
+    "accepted_total": [
+      {
+        "accepted_count": 45
+      }
+    ],
+    "archives": [
+      {
+        "state": "VERIFIED",
+        "n": 45,
+        "last_verified_at": "2026-10-14T18:20:50.760Z"
+      }
+    ],
+    "payload_archives": [
+      {
+        "n": 0
+      }
+    ],
+    "new_ai_jobs": [],
+    "new_ai_attempts": [],
+    "fetch_jobs": [
+      {
+        "state": "BLOCKED",
+        "n": 20,
+        "earliest_due": "2026-10-14T18:13:20.315Z"
+      },
+      {
+        "state": "DEFERRED",
+        "n": 1,
+        "earliest_due": "2026-10-20T02:15:40.386Z"
+      },
+      {
+        "state": "SUCCEEDED",
+        "n": 45,
+        "earliest_due": "2026-10-05T21:10:24.779Z"
+      }
+    ],
+    "artifact_inventory": [
+      {
+        "artifacts": 244,
+        "chunks": 616
+      }
+    ],
+    "drive_status": [
+      {
+        "auth_state": "CONNECTED",
+        "root_state": "VERIFIED",
+        "last_refresh_at": "2026-10-14T19:05:55.253Z",
+        "last_error": null
+      }
+    ]
+  },
+  "database": {
+    "uuid": "6f7a7527-610b-4e56-ad80-682ea7acd567",
+    "name": "bartosz-intelligence-core",
+    "created_at": "2026-10-05T19:42:01.543Z",
+    "version": "production",
+    "num_tables": 85,
+    "file_size": 30101504,
+    "running_in_region": "WEUR",
+    "read_replication": {
+      "mode": "disabled"
+    },
+    "jurisdiction": null
+  },
+  "queue_backlog": {
+    "backlog_count": 0,
+    "backlog_bytes": 0,
+    "oldest_message_timestamp_ms": 0
+  },
+  "workers_account": {
+    "available": true,
+    "groups": 807,
+    "requests": 1598,
+    "errors": 0,
+    "subrequests": 266,
+    "status_counts": {
+      "success": 1598
+    },
+    "script_versions": {
+      "39edd639-eba3-40bb-93c7-022f1aec31d6": {
+        "groups": 662,
+        "requests": 1322,
+        "errors": 0,
+        "first_at": "2026-10-15T00:00:11Z",
+        "last_at": "2026-10-15T01:18:59Z",
+        "cpu_group_p99_max_microseconds": 66378,
+        "memory_group_p99_max_bytes": 17158372
+      },
+      "600219c3-114c-4fc0-8dec-c886f229995e": {
+        "groups": 145,
+        "requests": 276,
+        "errors": 0,
+        "first_at": "2026-10-15T01:19:04Z",
+        "last_at": "2026-10-15T01:38:55Z",
+        "cpu_group_p99_max_microseconds": 44421,
+        "memory_group_p99_max_bytes": 7394476
+      }
+    },
+    "cpu_group_p99_max_microseconds": 66378,
+    "memory_group_p99_max_bytes": 17158372,
+    "cpu_group_p99_max_ms": 66.378
+  },
+  "workers_project": {
+    "available": true,
+    "groups": 807,
+    "requests": 1598,
+    "errors": 0,
+    "subrequests": 266,
+    "status_counts": {
+      "success": 1598
+    },
+    "script_versions": {
+      "39edd639-eba3-40bb-93c7-022f1aec31d6": {
+        "groups": 662,
+        "requests": 1322,
+        "errors": 0,
+        "first_at": "2026-10-15T00:00:11Z",
+        "last_at": "2026-10-15T01:18:59Z",
+        "cpu_group_p99_max_microseconds": 66378,
+        "memory_group_p99_max_bytes": 17158372
+      },
+      "600219c3-114c-4fc0-8dec-c886f229995e": {
+        "groups": 145,
+        "requests": 276,
+        "errors": 0,
+        "first_at": "2026-10-15T01:19:04Z",
+        "last_at": "2026-10-15T01:38:55Z",
+        "cpu_group_p99_max_microseconds": 44421,
+        "memory_group_p99_max_bytes": 7394476
+      }
+    },
+    "cpu_group_p99_max_microseconds": 66378,
+    "memory_group_p99_max_bytes": 17158372,
+    "cpu_group_p99_max_ms": 66.378
+  },
+  "workers_exact_deployed_version": {
+    "available": true,
+    "groups": 145,
+    "requests": 276,
+    "errors": 0,
+    "subrequests": 5,
+    "status_counts": {
+      "success": 276
+    },
+    "script_versions": {
+      "600219c3-114c-4fc0-8dec-c886f229995e": {
+        "groups": 145,
+        "requests": 276,
+        "errors": 0,
+        "first_at": "2026-10-15T01:19:04Z",
+        "last_at": "2026-10-15T01:38:55Z",
+        "cpu_group_p99_max_microseconds": 44421,
+        "memory_group_p99_max_bytes": 7394476
+      }
+    },
+    "cpu_group_p99_max_microseconds": 44421,
+    "memory_group_p99_max_bytes": 7394476,
+    "cpu_group_p99_max_ms": 44.421
+  },
+  "d1_project": {
+    "groups": 2,
+    "rows_read": 140977,
+    "rows_written": 4828,
+    "read_queries": 5959,
+    "write_queries": 2159
+  },
+  "queues_account": {
+    "groups": 8,
+    "billable_operations": 467,
+    "delete_fail_count": 22,
+    "delete_dlq_count": 0,
+    "operation_groups": [
+      {
+        "avg": {
+          "lagTime": 3525,
+          "retryCount": 0
+        },
+        "count": 17,
+        "dimensions": {
+          "actionType": "DeleteMessage",
+          "datetimeHour": "2026-10-15T00:00:00Z",
+          "outcome": "fail"
+        },
+        "sum": {
+          "billableOperations": 17,
+          "bytes": 1501
+        }
+      },
+      {
+        "avg": {
+          "lagTime": 3450,
+          "retryCount": 0
+        },
+        "count": 140,
+        "dimensions": {
+          "actionType": "ReadMessage",
+          "datetimeHour": "2026-10-15T00:00:00Z",
+          "outcome": ""
+        },
+        "sum": {
+          "billableOperations": 140,
+          "bytes": 12449
+        }
+      },
+      {
+        "avg": {
+          "lagTime": 3808,
+          "retryCount": 0
+        },
+        "count": 117,
+        "dimensions": {
+          "actionType": "DeleteMessage",
+          "datetimeHour": "2026-10-15T00:00:00Z",
+          "outcome": "success"
+        },
+        "sum": {
+          "billableOperations": 117,
+          "bytes": 10413
+        }
+      },
+      {
+        "avg": {
+          "lagTime": 0,
+          "retryCount": 0
+        },
+        "count": 145,
+        "dimensions": {
+          "actionType": "WriteMessage",
+          "datetimeHour": "2026-10-15T00:00:00Z",
+          "outcome": ""
+        },
+        "sum": {
+          "billableOperations": 145,
+          "bytes": 12893
+        }
+      },
+      {
+        "avg": {
+          "lagTime": 4391,
+          "retryCount": 0
+        },
+        "count": 11,
+        "dimensions": {
+          "actionType": "DeleteMessage",
+          "datetimeHour": "2026-10-15T01:00:00Z",
+          "outcome": "success"
+        },
+        "sum": {
+          "billableOperations": 11,
+          "bytes": 706
+        }
+      },
+      {
+        "avg": {
+          "lagTime": 3923,
+          "retryCount": 0
+        },
+        "count": 5,
+        "dimensions": {
+          "actionType": "DeleteMessage",
+          "datetimeHour": "2026-10-15T01:00:00Z",
+          "outcome": "fail"
+        },
+        "sum": {
+          "billableOperations": 5,
+          "bytes": 441
+        }
+      },
+      {
+        "avg": {
+          "lagTime": 3963,
+          "retryCount": 0
+        },
+        "count": 16,
+        "dimensions": {
+          "actionType": "ReadMessage",
+          "datetimeHour": "2026-10-15T01:00:00Z",
+          "outcome": ""
+        },
+        "sum": {
+          "billableOperations": 16,
+          "bytes": 1243
+        }
+      },
+      {
+        "avg": {
+          "lagTime": 0,
+          "retryCount": 0
+        },
+        "count": 16,
+        "dimensions": {
+          "actionType": "WriteMessage",
+          "datetimeHour": "2026-10-15T01:00:00Z",
+          "outcome": ""
+        },
+        "sum": {
+          "billableOperations": 16,
+          "bytes": 1339
+        }
+      }
+    ]
+  },
+  "analytics_notes": {
+    "lag": "NOT_MEASURED; provider adaptive samples and hourly groups may be delayed or partial",
+    "cpu_source": "Authenticated official Cloudflare GraphQL __type AccountWorkersInvocationsAdaptiveQuantiles fields descriptions, observed 2026-10-15T01:37Z; cpuTimeP99 is microseconds",
+    "memory_source": "Same official schema: memoryUsageBytesP99 is bytes",
+    "cpu_semantics": "Maximum of reported GROUP P99 values; not a global P99 and not a per-invocation maximum. Event types are not available in selected dataset dimensions, so HTTP vs Queue/Cron CPU limit cannot be inferred from this aggregate.",
+    "version_attribution": "Exact scriptVersion when present; temporal overlap alone is not used to assign an invocation to the new release",
+    "d1_and_queue_version_attribution": "No exact Worker version dimension; UTC-day totals include old and new release plus preflight, backup/export, migrations and deployment acceptance operations",
+    "queue_scope": "Account-wide analytics; realtime backlog is the project queue; account action/outcome groups retained for correct interpretation"
+  },
+  "official_graphql_schema_evidence": {
+    "endpoint": "https://api.cloudflare.com/client/v4/graphql",
+    "response_status": 200,
+    "response_success": true,
+    "type": "AccountWorkersInvocationsAdaptiveQuantiles",
+    "fields": {
+      "cpuTimeP99": "CPU time 99th percentile - microseconds",
+      "memoryUsageBytesP99": "V8 isolate memory usage 99th percentile across Worker invocations - bytes",
+      "durationP99": "Duration 99th percentile - GB*s",
+      "wallTimeP99": "Wall time 99th percentile - microseconds"
+    },
+    "dimensions_type": "AccountWorkersInvocationsAdaptiveDimensions",
+    "dimensions_schema_contains_scriptVersion": true,
+    "dimensions_schema_contains_eventType": false
+  },
+  "partial_usage_of_daily_free_percent": {
+    "workers_requests": 1.598,
+    "d1_rows_read": 2.81954,
+    "d1_rows_written": 4.828,
+    "queue_operations": 4.67,
+    "interpretation": "Observed account/project totals at the sample endpoint only. This does not approve future 20-channel throughput, represent full-day consumption or demonstrate a successful new transcript upload."
+  },
+  "free_limits": {
+    "workers_requests_per_day": 100000,
+    "d1_rows_read_per_day": 5000000,
+    "d1_rows_written_per_day": 100000,
+    "d1_database_bytes": 500000000,
+    "queue_operations_per_day": 10000,
+    "workers_http_cpu_ms": 10,
+    "workers_memory_bytes": 134217728,
+    "queue_cpu_default_ms": 30000
+  },
+  "recent_rate_estimate": {
+    "elapsed_minutes": 42.621633333333335,
+    "compared_to": "METRICS_REVIEW.json d1_queues_later_sample",
+    "rows_read_delta": 105153,
+    "rows_written_delta": 876,
+    "queue_operations_delta": 51,
+    "rows_written_per_day_if_delta_rate_continues": 29596.237904225472,
+    "queue_operations_per_day_if_delta_rate_continues": 1723.0686451090173,
+    "note": "ESTIMATE only: period includes rollout/control-plane operations and provider lag; not steady-state rate or measured full-day cost"
+  },
+  "references": [
+    "https://developers.cloudflare.com/workers/platform/pricing/",
+    "https://developers.cloudflare.com/workers/platform/limits/",
+    "https://developers.cloudflare.com/d1/platform/pricing/",
+    "https://developers.cloudflare.com/queues/platform/pricing/",
+    "https://developers.cloudflare.com/queues/platform/limits/",
+    "https://api.cloudflare.com/client/v4/graphql"
+  ],
+  "new_pipeline_free_verified": false,
+  "end_to_end_verified": false,
+  "soak_passed": false,
+  "acceptance_limits": {
+    "sql_statements_per_worker_invocation": "UNAVAILABLE_FROM_THIS_AGGREGATE; readQueries/writeQueries are period totals, not a per-invocation trace",
+    "runtime_memory": "GROUP_P99_ONLY; no per-invocation maximum or full canary peak available",
+    "provider_429_or_authorization_failures": "Not inferred from runtime errors=0; handled application errors may still exist",
+    "queue_failures": "22 DeleteMessage fail samples: 17 in UTC hour00 and 5 in hour01. Hour01 spans old and new releases; these counts are not attributed to the new release. DLQ=0 is not proof that all durable jobs succeeded.",
+    "drive_new_upload_and_growth": "NOT_MEASURED: 45 archives remain legacy VERIFIED, technical payload archive count0; OAuth metadata last refreshed on14October",
+    "activation_gate": "Do not activate19 additional channels using this metrics sample alone. Complete controlled TED canary, exact archive verification and a fresh quota review after the fix/canary."
+  },
+  "status": "CURRENT_PARTIAL_USAGE_REVIEW_ONLY_NOT_FULL_PIPELINE_ACCEPTANCE"
+}

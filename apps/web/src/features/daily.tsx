@@ -387,13 +387,48 @@ function PublicationsDaily({ route }: { route: string }) {
                         </a>
                       </p>
                     )}
-                    {!item.view && !item.archive && (
-                      <p className="metadata">
-                        {item.analysis_status === 'READY'
-                          ? 'Wynik przyjęty; podgląd jest dostępny w szczegółach.'
-                          : (reasonLabel(item.reason) ??
-                            'Analiza oczekuje na przetworzenie.')}
+                    {item.transcript_archive?.file_id && (
+                      <p>
+                        <a
+                          href={
+                            'https://drive.google.com/file/d/' +
+                            encodeURIComponent(
+                              item.transcript_archive.file_id,
+                            ) +
+                            '/view'
+                          }
+                          target="_blank"
+                          rel="noreferrer"
+                        >
+                          Oryginalna transkrypcja na Google Drive
+                        </a>
                       </p>
+                    )}
+                    {!item.view &&
+                      !item.archive &&
+                      item.transcript_archive?.state !== 'VERIFIED' && (
+                        <p className="metadata">
+                          {item.analysis_status === 'READY'
+                            ? 'Wynik przyjęty; podgląd jest dostępny w szczegółach.'
+                            : (reasonLabel(item.reason) ??
+                              'Analiza oczekuje na przetworzenie.')}
+                        </p>
+                      )}
+                    {item.reason === 'LOCAL_YTDLP_NO_CAPTIONS_FINAL' && (
+                      <button
+                        onClick={() => {
+                          void api(
+                            '/jobs/transcript/' +
+                              encodeURIComponent(item.item_id) +
+                              '/recheck',
+                            {},
+                          )
+                            .then(() => setRevision((v) => v + 1))
+                            .catch((e) => setError(errorMessage(e)));
+                        }}
+                      >
+                        Sprawdź ponownie
+                      </button>
                     )}
                   </div>
                   <span
@@ -401,11 +436,16 @@ function PublicationsDaily({ route }: { route: string }) {
                     data-state={item.analysis_status}
                   >
                     <span aria-hidden="true">{item.delivery ? '✓' : '◷'}</span>
-                    {item.delivery
-                      ? 'Dostarczone na Drive'
-                      : item.analysis_status === 'READY'
-                        ? 'Oczekuje na Drive'
-                        : statusLabels[item.analysis_status]}
+                    {item.reason === 'LOCAL_YTDLP_NO_CAPTIONS_FINAL'
+                      ? 'Brak dostępnych napisów'
+                      : item.transcript_archive?.state === 'VERIFIED' &&
+                          !item.delivery
+                        ? 'Transkrypcja na Drive'
+                        : item.delivery
+                          ? 'Dostarczone na Drive'
+                          : item.analysis_status === 'READY'
+                            ? 'Oczekuje na Drive'
+                            : statusLabels[item.analysis_status]}
                   </span>
                 </li>
               ))}

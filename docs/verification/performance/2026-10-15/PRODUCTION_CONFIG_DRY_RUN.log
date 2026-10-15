@@ -1,0 +1,17 @@
+
+ ⛅️ wrangler 4.147.0
+────────────────────
+✨ Read 5 files from the assets directory C:\Projekty\Aplikacje\Bartosz Intelligence\apps\web\dist
+Total Upload: 1711.49 KiB / gzip: 292.36 KiB
+Your Worker has access to the following bindings:
+Binding                                                                          Resource                  
+env.BARTOSZ_QUEUE (bartosz-intelligence-signals)                                 Queue                     
+env.DB (bartosz-intelligence-core)                                               D1 Database               
+env.ASSETS                                                                       Assets                    
+env.APP_ORIGIN ("https://bartosz-intelligence.eaglebla...")                      Environment Variable      
+env.TRANSCRIPT_ARCHIVE_ENABLED ("true")                                          Environment Variable      
+env.MONITORING_SLOTS ("15:00,23:00")                                             Environment Variable      
+env.AUTOMATIC_AI_ENABLED ("false")                                               Environment Variable      
+env.RETENTION_DELETION_ENABLED ("false")                                         Environment Variable      
+
+--dry-run: exiting now.

@@ -1,0 +1,1125 @@
+{
+  "videoId": "aircAruvnKk",
+  "language": "pl - widoczny tekst, typ ścieżki nieustalony",
+  "capturedAt": "2026-10-12T22:56:56.938Z",
+  "totalSegments": 223,
+  "missingText": 0,
+  "missingTimestamps": 0,
+  "segments": [
+    {
+      "index": 0,
+      "timestamp": "0:04",
+      "text": "To jest trójka. Jest niedbale napisana i renderowana w wyjątkowo niskiej rozdzielczości 28 na 28 pikseli."
+    },
+    {
+      "index": 1,
+      "timestamp": "0:10",
+      "text": "Ale twój mózg nie ma problemu z rozpoznaniem jej jako trójki i chce, żebyś poświęcił chwilę, by to docenić"
+    },
+    {
+      "index": 2,
+      "timestamp": "0:15",
+      "text": "Jak szalone jest to, że mózg może robić to bez wysiłku?"
+    },
+    {
+      "index": 3,
+      "timestamp": "0:18",
+      "text": "Mam na myśli to, że to i to są tak samo rozpoznawalne jako trójka,"
+    },
+    {
+      "index": 4,
+      "timestamp": "0:23",
+      "text": "nawet jeśli konkretne wartości każdego piksela różnią się bardzo, jeden obraz od drugiego."
+    },
+    {
+      "index": 5,
+      "timestamp": "0:28",
+      "text": "Szczególne wrażliwe na światło komórki w twoim oku, które strzelają, kiedy widzisz tę trójkę"
+    },
+    {
+      "index": 6,
+      "timestamp": "0:33",
+      "text": "bardzo różnią się od tych strzelających, gdy widzisz tę trójkę."
+    },
+    {
+      "index": 7,
+      "timestamp": "0:37",
+      "text": "Ale coś w tej szalonej, inteligentnej kory wzrokowej"
+    },
+    {
+      "index": 8,
+      "timestamp": "0:41",
+      "text": "rozpatruje je jako reprezentujące ten sam pomysł, a jednocześnie rozpoznaje inne obrazy jako własne odrębne pomysły"
+    },
+    {
+      "index": 9,
+      "timestamp": "0:48",
+      "text": "Ale gdybym ci powiedział, hej usiądź i napisz mi program, który ma siatkę 28 na 28"
+    },
+    {
+      "index": 10,
+      "timestamp": "0:55",
+      "text": "takie piksele i wyprowadza pojedynczą liczbę z przedziału od 0 do 10, informującą o tym, co uważa za cyfrę"
+    },
+    {
+      "index": 11,
+      "timestamp": "1:02",
+      "text": "Cóż, zadanie staje się od komedii trywialnej do zniechęcająco trudnej"
+    },
+    {
+      "index": 12,
+      "timestamp": "1:06",
+      "text": "Chyba, że ​​żyjesz pod kamieniem"
+    },
+    {
+      "index": 13,
+      "timestamp": "1:08",
+      "text": "Myślę, że nie muszę motywować znaczenia uczenia maszynowego i sieci neuronowych do teraźniejszości w przyszłości"
+    },
+    {
+      "index": 14,
+      "timestamp": "1:14",
+      "text": "Ale to, co chcę tutaj zrobić, to pokazać, czym właściwie jest sieć neuronowa"
+    },
+    {
+      "index": 15,
+      "timestamp": "1:18",
+      "text": "Zakładając, że nie ma tła i nie wyobrażamy sobie, co robi, nie jako modne słowo, ale jako element matematyki"
+    },
+    {
+      "index": 16,
+      "timestamp": "1:24",
+      "text": "Mam nadzieję, że po prostu odejdziesz, czując, że ta struktura sama w sobie jest"
+    },
+    {
+      "index": 17,
+      "timestamp": "1:28",
+      "text": "Zmotywowani i czujący, jakbyś wiedział, co to znaczy, kiedy czytasz lub słyszysz o sieci neuronowej - nie licz na naukę"
+    },
+    {
+      "index": 18,
+      "timestamp": "1:34",
+      "text": "Ten film będzie poświęcony komponentowi struktury tego, a następny będzie dotyczył uczenia się"
+    },
+    {
+      "index": 19,
+      "timestamp": "1:40",
+      "text": "Zamierzamy stworzyć sieć neuronową, która nauczy się rozpoznawać ręcznie pisane cyfry"
+    },
+    {
+      "index": 20,
+      "timestamp": "1:49",
+      "text": "Jest to dość klasyczny przykład dla"
+    },
+    {
+      "index": 21,
+      "timestamp": "1:51",
+      "text": "Przedstawiam temat i cieszę się, że trzymam tutaj status quo, ponieważ na końcu tych dwóch filmów chcę wskazać"
+    },
+    {
+      "index": 22,
+      "timestamp": "1:56",
+      "text": "Jesteś parą dobrych zasobów, gdzie możesz dowiedzieć się więcej i gdzie możesz pobrać kod, który to robi i grać z nim?"
+    },
+    {
+      "index": 23,
+      "timestamp": "2:02",
+      "text": "na własnym komputerze"
+    },
+    {
+      "index": 24,
+      "timestamp": "2:04",
+      "text": "Istnieje wiele różnych wariantów sieci neuronowych iw ostatnich latach"
+    },
+    {
+      "index": 25,
+      "timestamp": "2:08",
+      "text": "Nastąpił pewien boom w badaniach nad tymi wariantami"
+    },
+    {
+      "index": 26,
+      "timestamp": "2:12",
+      "text": "Ale w tych dwóch filmach wprowadzających, ty i ja będziemy patrzeć na najprostszą formę czysto-waniliową bez dodanych dodatków"
+    },
+    {
+      "index": 27,
+      "timestamp": "2:19",
+      "text": "Jest to konieczne"
+    },
+    {
+      "index": 28,
+      "timestamp": "2:21",
+      "text": "warunkiem wstępnym zrozumienia któregokolwiek z potężniejszych nowoczesnych wariantów i"
+    },
+    {
+      "index": 29,
+      "timestamp": "2:24",
+      "text": "Uwierzcie mi, że wciąż ma on wiele komplikacji, abyśmy mogli otoczyć nasze umysły"
+    },
+    {
+      "index": 30,
+      "timestamp": "2:28",
+      "text": "Ale nawet w tej najprostszej formie może nauczyć się rozpoznawać ręcznie pisane cyfry"
+    },
+    {
+      "index": 31,
+      "timestamp": "2:32",
+      "text": "Co jest całkiem fajnym rozwiązaniem dla komputera."
+    },
+    {
+      "index": 32,
+      "timestamp": "2:37",
+      "text": "A jednocześnie zobaczysz, jak to się nie udaje, że mamy parę nadziei na to"
+    },
+    {
+      "index": 33,
+      "timestamp": "2:43",
+      "text": "Jak sama nazwa wskazuje sieci neuronowe są inspirowane przez mózg, ale załóżmy to"
+    },
+    {
+      "index": 34,
+      "timestamp": "2:48",
+      "text": "Jakie są neurony iw jakim sensie są ze sobą powiązane?"
+    },
+    {
+      "index": 35,
+      "timestamp": "2:52",
+      "text": "Teraz, kiedy mówię neuron, wszystko, co chcę, żebyś pomyślał, to rzecz, która ma numer"
+    },
+    {
+      "index": 36,
+      "timestamp": "2:58",
+      "text": "W szczególności liczba między 0 a 1 to naprawdę nie więcej"
+    },
+    {
+      "index": 37,
+      "timestamp": "3:03",
+      "text": "Na przykład sieć zaczyna się od garści neuronów odpowiadających każdemu z 28 razy 28 pikseli obrazu wejściowego"
+    },
+    {
+      "index": 38,
+      "timestamp": "3:11",
+      "text": "który jest"
+    },
+    {
+      "index": 39,
+      "timestamp": "3:12",
+      "text": "Wszystkich 784 neuronów w każdym z nich znajduje się liczba reprezentująca wartość skali szarości odpowiedniego piksela"
+    },
+    {
+      "index": 40,
+      "timestamp": "3:20",
+      "text": "od 0 dla czarnych pikseli do 1 dla białych pikseli"
+    },
+    {
+      "index": 41,
+      "timestamp": "3:24",
+      "text": "Ta liczba wewnątrz neuronu jest nazywana jego aktywacją i obrazem, który możesz mieć tutaj na myśli"
+    },
+    {
+      "index": 42,
+      "timestamp": "3:30",
+      "text": "Czy każdy neuron jest oświetlony, gdy jego aktywacja jest duża?"
+    },
+    {
+      "index": 43,
+      "timestamp": "3:36",
+      "text": "Zatem wszystkie te 784 neurony tworzą pierwszą warstwę naszej sieci"
+    },
+    {
+      "index": 44,
+      "timestamp": "3:45",
+      "text": "Teraz przeskakując do ostatniej warstwy, ma dziesięć neuronów, z których każdy reprezentuje jedną z cyfr"
+    },
+    {
+      "index": 45,
+      "timestamp": "3:51",
+      "text": "aktywacja w tych neuronach znowu kilka liczb, które są między zero i jeden"
+    },
+    {
+      "index": 46,
+      "timestamp": "3:56",
+      "text": "Reprezentuje, jak bardzo system myśli, że dany obraz?"
+    },
+    {
+      "index": 47,
+      "timestamp": "4:00",
+      "text": "Odpowiada danej cyfrze. Istnieje również kilka warstw pomiędzy warstwami"
+    },
+    {
+      "index": 48,
+      "timestamp": "4:06",
+      "text": "Który na razie?"
+    },
+    {
+      "index": 49,
+      "timestamp": "4:07",
+      "text": "Powinien być po prostu olbrzymim znakiem zapytania, jak na Ziemi zostanie potraktowany proces rozpoznawania cyfr"
+    },
+    {
+      "index": 50,
+      "timestamp": "4:13",
+      "text": "W tej sieci wybrałem dwie ukryte warstwy, każda z 16 neuronami i oczywiście jest to rodzaj arbitralnego wyboru"
+    },
+    {
+      "index": 51,
+      "timestamp": "4:20",
+      "text": "szczerze mówiąc wybrałem dwie warstwy w oparciu o to, jak chcę zmotywować strukturę w jednej chwili i"
+    },
+    {
+      "index": 52,
+      "timestamp": "4:25",
+      "text": "16-studzienkowe to była po prostu fajna liczba, którą można dopasować na ekranie w praktyce"
+    },
+    {
+      "index": 53,
+      "timestamp": "4:29",
+      "text": "Jest tu dużo miejsca na eksperymentowanie z określoną strukturą"
+    },
+    {
+      "index": 54,
+      "timestamp": "4:32",
+      "text": "Sposób, w jaki sieć działa aktywacje w jednej warstwie, determinuje aktywacje następnej warstwy"
+    },
+    {
+      "index": 55,
+      "timestamp": "4:38",
+      "text": "I oczywiście serce sieci jako mechanizm przetwarzania informacji sprowadza się do dokładnie tego, jak te"
+    },
+    {
+      "index": 56,
+      "timestamp": "4:45",
+      "text": "Aktywacje z jednej warstwy powodują aktywacje w następnej warstwie"
+    },
+    {
+      "index": 57,
+      "timestamp": "4:48",
+      "text": "To ma być luźno analogiczne do tego, jak w sieciach biologicznych neuronów strzelają niektóre grupy neuronów"
+    },
+    {
+      "index": 58,
+      "timestamp": "4:55",
+      "text": "spowodować, że inni wystrzelą"
+    },
+    {
+      "index": 59,
+      "timestamp": "4:57",
+      "text": "Teraz sieć"
+    },
+    {
+      "index": 60,
+      "timestamp": "4:58",
+      "text": "Pokazuję tutaj został już przeszkolony do rozpoznawania cyfr i pozwól mi pokazać, co mam na myśli przez to"
+    },
+    {
+      "index": 61,
+      "timestamp": "5:03",
+      "text": "Oznacza to, że jeśli dodasz obraz, rozświetlisz wszystko"
+    },
+    {
+      "index": 62,
+      "timestamp": "5:06",
+      "text": "784 neuronów warstwy wejściowej zgodnie z jasnością każdego piksela na obrazie"
+    },
+    {
+      "index": 63,
+      "timestamp": "5:12",
+      "text": "Ten wzorzec aktywacji powoduje bardzo specyficzny wzór w następnej warstwie"
+    },
+    {
+      "index": 64,
+      "timestamp": "5:17",
+      "text": "Co powoduje pewien wzorzec w następnym?"
+    },
+    {
+      "index": 65,
+      "timestamp": "5:19",
+      "text": "Który ostatecznie daje pewien wzór w warstwie wyjściowej i?"
+    },
+    {
+      "index": 66,
+      "timestamp": "5:22",
+      "text": "Najjaśniejszym neuronem tej warstwy wyjściowej jest wybór sieci, a więc jaka cyfra reprezentuje ten obraz?"
+    },
+    {
+      "index": 67,
+      "timestamp": "5:32",
+      "text": "A przed wskoczeniem do matematyki, jak jedna warstwa wpływa na następną lub jak działa trening?"
+    },
+    {
+      "index": 68,
+      "timestamp": "5:37",
+      "text": "Porozmawiajmy tylko o tym, dlaczego rozsądnie jest oczekiwać inteligentnego zachowania się w warstwowej strukturze"
+    },
+    {
+      "index": 69,
+      "timestamp": "5:43",
+      "text": "Czego spodziewamy się tutaj? Jaka jest najlepsza nadzieja na to, co robią te środkowe warstwy?"
+    },
+    {
+      "index": 70,
+      "timestamp": "5:48",
+      "text": "Cóż, kiedy rozpoznajemy cyfry, łączymy różne komponenty, a dziewięć ma pętlę na górze i linię po prawej"
+    },
+    {
+      "index": 71,
+      "timestamp": "5:57",
+      "text": "8 ma również pętlę do góry, ale jest sparowana z kolejną niską pętlą"
+    },
+    {
+      "index": 72,
+      "timestamp": "6:02",
+      "text": "A 4 zasadniczo dzieli się na trzy konkretne linie i takie rzeczy"
+    },
+    {
+      "index": 73,
+      "timestamp": "6:07",
+      "text": "Teraz w idealnym świecie możemy mieć nadzieję, że każdy neuron w drugiej i ostatniej warstwie"
+    },
+    {
+      "index": 74,
+      "timestamp": "6:12",
+      "text": "odpowiada jednemu z tych podelementów"
+    },
+    {
+      "index": 75,
+      "timestamp": "6:14",
+      "text": "To zawsze, gdy karmisz obraz, powiedzmy, że pętla jest na górze jak 9 lub 8"
+    },
+    {
+      "index": 76,
+      "timestamp": "6:19",
+      "text": "Jest jakiś konkretny"
+    },
+    {
+      "index": 77,
+      "timestamp": "6:21",
+      "text": "Neuron, którego aktywacja będzie zbliżona do jednej i nie mam na myśli tej konkretnej pętli pikseli, która byłaby nadzieją, że jakakolwiek"
+    },
+    {
+      "index": 78,
+      "timestamp": "6:28",
+      "text": "Zasadniczo, pętla w kierunku góry powoduje, że neuron przechodzi z trzeciej warstwy na ostatnią"
+    },
+    {
+      "index": 79,
+      "timestamp": "6:35",
+      "text": "wymaga jedynie nauki, która kombinacja pod-elementów odpowiada której cyfrze"
+    },
+    {
+      "index": 80,
+      "timestamp": "6:40",
+      "text": "Oczywiście, że po prostu kopie problem w dół drogi"
+    },
+    {
+      "index": 81,
+      "timestamp": "6:42",
+      "text": "Bo jak rozpoznałbyś te podskładniki, a nawet dowiedziałbyś się, jakie powinny być właściwe pod-komponenty, a ja wciąż jeszcze o tym nie rozmawiałem"
+    },
+    {
+      "index": 82,
+      "timestamp": "6:49",
+      "text": "Jak jedna warstwa wpływa na następną, ale działa ze mną przez chwilę"
+    },
+    {
+      "index": 83,
+      "timestamp": "6:53",
+      "text": "rozpoznanie pętli może również rozbić się na podproblemy"
+    },
+    {
+      "index": 84,
+      "timestamp": "6:56",
+      "text": "Jednym rozsądnym sposobem na to byłoby najpierw rozpoznać różne małe krawędzie, które go tworzą"
+    },
+    {
+      "index": 85,
+      "timestamp": "7:03",
+      "text": "Podobnie długa linia, taka jak ta, którą możesz zobaczyć w cyfrach 1, 4 lub 7"
+    },
+    {
+      "index": 86,
+      "timestamp": "7:08",
+      "text": "Cóż, to naprawdę długa krawędź, a może uważasz ją za pewien wzór kilku mniejszych krawędzi"
+    },
+    {
+      "index": 87,
+      "timestamp": "7:14",
+      "text": "Więc może naszą nadzieją jest to, że każdy neuron w drugiej warstwie sieci"
+    },
+    {
+      "index": 88,
+      "timestamp": "7:20",
+      "text": "odpowiada różnym odpowiednim małym krawędziom"
+    },
+    {
+      "index": 89,
+      "timestamp": "7:23",
+      "text": "Może kiedy taki obraz pojawi się w środku, zapali wszystkie neurony"
+    },
+    {
+      "index": 90,
+      "timestamp": "7:28",
+      "text": "związane z około ośmiu do dziesięciu określonych małych krawędzi"
+    },
+    {
+      "index": 91,
+      "timestamp": "7:31",
+      "text": "co z kolei włącza neurony powiązane z górną pętlą i długą pionową linią i"
+    },
+    {
+      "index": 92,
+      "timestamp": "7:37",
+      "text": "Te rozświetlają neuron związany z dziewięcioma"
+    },
+    {
+      "index": 93,
+      "timestamp": "7:40",
+      "text": "niezależnie od tego, czy"
+    },
+    {
+      "index": 94,
+      "timestamp": "7:41",
+      "text": "Tak właśnie działa nasza ostatnia sieć, to kolejne pytanie, do którego wrócę, gdy zobaczymy, jak szkolić sieć"
+    },
+    {
+      "index": 95,
+      "timestamp": "7:47",
+      "text": "Ale to jest nadzieja, którą możemy mieć. Rodzaj celu z warstwową strukturą w ten sposób"
+    },
+    {
+      "index": 96,
+      "timestamp": "7:53",
+      "text": "Co więcej, możesz sobie wyobrazić, że rozpoznawanie krawędzi i wzorów może być przydatne w innych zadaniach związanych z rozpoznawaniem obrazów"
+    },
+    {
+      "index": 97,
+      "timestamp": "7:59",
+      "text": "A nawet poza rozpoznawaniem obrazów istnieją różne inteligentne rzeczy, które możesz chcieć zrobić, które rozpadają się na warstwy abstrakcji"
+    },
+    {
+      "index": 98,
+      "timestamp": "8:07",
+      "text": "Parsowanie mowy wymaga na przykład robienia surowego dźwięku i wybierania odrębnych dźwięków, które łączą się, tworząc pewne sylaby"
+    },
+    {
+      "index": 99,
+      "timestamp": "8:15",
+      "text": "Które łączą się, tworząc słowa, które łączą się w frazę i bardziej abstrakcyjne myśli itp"
+    },
+    {
+      "index": 100,
+      "timestamp": "8:20",
+      "text": "Ale wracając do tego, jak to wszystko działa, wyobraź sobie teraz projektowanie"
+    },
+    {
+      "index": 101,
+      "timestamp": "8:25",
+      "text": "Jak dokładnie aktywacje w jednej warstwie mogą decydować o aktywacjach w następnej?"
+    },
+    {
+      "index": 102,
+      "timestamp": "8:30",
+      "text": "Celem jest posiadanie mechanizmu, który mógłby łączyć piksele w krawędzie"
+    },
+    {
+      "index": 103,
+      "timestamp": "8:35",
+      "text": "Lub krawędzie we wzorce lub wzory na cyfry i powiększenie jednego bardzo konkretnego przykładu"
+    },
+    {
+      "index": 104,
+      "timestamp": "8:41",
+      "text": "Powiedzmy, że nadzieja dotyczy jednego konkretnego"
+    },
+    {
+      "index": 105,
+      "timestamp": "8:44",
+      "text": "Neuron w drugiej warstwie, aby sprawdzić, czy obraz ma tu krawędź w tym regionie"
+    },
+    {
+      "index": 106,
+      "timestamp": "8:50",
+      "text": "Pytanie, jakie parametry powinna mieć sieć"
+    },
+    {
+      "index": 107,
+      "timestamp": "8:55",
+      "text": "jakie pokrętła i pokrętła powinny być w stanie dostroić, tak aby był wystarczająco ekspresyjny, aby potencjalnie uchwycić ten wzór lub"
+    },
+    {
+      "index": 108,
+      "timestamp": "9:02",
+      "text": "Każdy inny wzór pikseli lub wzór, który kilka krawędzi może zrobić pętlę i inne podobne rzeczy?"
+    },
+    {
+      "index": 109,
+      "timestamp": "9:08",
+      "text": "Cóż, to co zrobimy, to przypisać wagę do każdego połączenia między naszym neuronem a neuronami z pierwszej warstwy"
+    },
+    {
+      "index": 110,
+      "timestamp": "9:15",
+      "text": "Te ciężary to tylko liczby"
+    },
+    {
+      "index": 111,
+      "timestamp": "9:18",
+      "text": "następnie weź wszystkie te aktywacje z pierwszej warstwy i obliczaj ich ważoną sumę zgodnie z tymi wagami I"
+    },
+    {
+      "index": 112,
+      "timestamp": "9:27",
+      "text": "Pomyśl o tym, że te wagi są zorganizowane w małą siatkę"
+    },
+    {
+      "index": 113,
+      "timestamp": "9:31",
+      "text": "I zamierzam użyć zielonych pikseli, aby wskazać pozytywne ciężary i czerwone piksele wskazujące ujemne wagi"
+    },
+    {
+      "index": 114,
+      "timestamp": "9:37",
+      "text": "Gdzie jasność tego piksela stanowi jakiś luźny obraz wartości ciężaru?"
+    },
+    {
+      "index": 115,
+      "timestamp": "9:42",
+      "text": "Teraz, jeśli zrobimy wagi powiązane z prawie wszystkimi pikselami zero"
+    },
+    {
+      "index": 116,
+      "timestamp": "9:46",
+      "text": "z wyjątkiem niektórych pozytywnych wag w tym regionie, na których nam zależy"
+    },
+    {
+      "index": 117,
+      "timestamp": "9:49",
+      "text": "następnie biorąc ważoną sumę"
+    },
+    {
+      "index": 118,
+      "timestamp": "9:51",
+      "text": "wszystkie wartości pikseli są po prostu sumujące wartości pikseli w regionie, który nas interesuje"
+    },
+    {
+      "index": 119,
+      "timestamp": "9:58",
+      "text": "A jeśli naprawdę chcesz, żeby się dowiedział, czy jest tu coś, co możesz zrobić, to masz ujemne wagi"
+    },
+    {
+      "index": 120,
+      "timestamp": "10:04",
+      "text": "związane z otaczającymi pikselami"
+    },
+    {
+      "index": 121,
+      "timestamp": "10:07",
+      "text": "Wtedy suma jest największa, gdy te środkowe piksele są jasne, ale otaczające piksele są ciemniejsze"
+    },
+    {
+      "index": 122,
+      "timestamp": "10:14",
+      "text": "Kiedy obliczysz ważoną sumę w ten sposób, możesz wyjść z dowolnym numerem"
+    },
+    {
+      "index": 123,
+      "timestamp": "10:18",
+      "text": "ale dla tej sieci potrzebujemy, aby aktywacje miały pewną wartość między 0 a 1"
+    },
+    {
+      "index": 124,
+      "timestamp": "10:23",
+      "text": "więc powszechną rzeczą jest pompowanie tej ważonej sumy"
+    },
+    {
+      "index": 125,
+      "timestamp": "10:26",
+      "text": "Do funkcji, która redukuje rzeczywistą linię liczbową do zakresu pomiędzy 0 a 1 i"
+    },
+    {
+      "index": 126,
+      "timestamp": "10:32",
+      "text": "Typową funkcją, która to robi, jest funkcja sigmoidowa, znana również jako krzywa logistyczna"
+    },
+    {
+      "index": 127,
+      "timestamp": "10:37",
+      "text": "zasadniczo bardzo ujemne dane wejściowe kończą się blisko zera bardzo pozytywne wejścia kończą się blisko 1"
+    },
+    {
+      "index": 128,
+      "timestamp": "10:43",
+      "text": "i stale wzrasta wokół wejścia 0"
+    },
+    {
+      "index": 129,
+      "timestamp": "10:49",
+      "text": "Tak więc aktywacja neuronu jest zasadniczo miarą tego, jak pozytywna jest odpowiednia ważona suma"
+    },
+    {
+      "index": 130,
+      "timestamp": "10:57",
+      "text": "Ale może to nie jest tak, że chcesz, aby neuron zapalił się, gdy ważona suma jest większa niż 0"
+    },
+    {
+      "index": 131,
+      "timestamp": "11:02",
+      "text": "Może chcesz, aby była aktywna tylko wtedy, gdy suma jest większa niż 10"
+    },
+    {
+      "index": 132,
+      "timestamp": "11:06",
+      "text": "To jest coś, co chcesz, żeby było nieaktywne"
+    },
+    {
+      "index": 133,
+      "timestamp": "11:10",
+      "text": "to, co zrobimy, to po prostu dodaj inną liczbę, na przykład ujemną 10, do tej ważonej sumy"
+    },
+    {
+      "index": 134,
+      "timestamp": "11:16",
+      "text": "Przed podłączeniem go przez funkcję esmozy"
+    },
+    {
+      "index": 135,
+      "timestamp": "11:20",
+      "text": "Ta dodatkowa liczba nazywa się uprzedzeniem"
+    },
+    {
+      "index": 136,
+      "timestamp": "11:23",
+      "text": "Ciężary mówią ci, jaki wzorzec pikseli ten neuron w drugiej warstwie odbiera i jest nastawiony"
+    },
+    {
+      "index": 137,
+      "timestamp": "11:29",
+      "text": "mówi, jak wysoka musi być ważona suma, zanim neuron zacznie być znacząco aktywny"
+    },
+    {
+      "index": 138,
+      "timestamp": "11:35",
+      "text": "A to tylko jeden neuron"
+    },
+    {
+      "index": 139,
+      "timestamp": "11:38",
+      "text": "Każdy inny neuron w tej warstwie zostanie połączony ze wszystkimi"
+    },
+    {
+      "index": 140,
+      "timestamp": "11:42",
+      "text": "784 piksele neuronów z pierwszej warstwy i każde z tych 784 połączeń ma przypisaną własną wagę"
+    },
+    {
+      "index": 141,
+      "timestamp": "11:51",
+      "text": "również każdy ma jakieś odchylenie, jakąś inną liczbę, którą dodajesz do sumy ważonej, przed zgniataniem jej sigmoidą i"
+    },
+    {
+      "index": 142,
+      "timestamp": "11:58",
+      "text": "O tym ukrytym warstwie 16 neuronów trzeba się dużo zastanowić"
+    },
+    {
+      "index": 143,
+      "timestamp": "12:02",
+      "text": "to łącznie 784 razy 16 ciężarów wraz z 16 uprzedzeniami"
+    },
+    {
+      "index": 144,
+      "timestamp": "12:08",
+      "text": "A wszystko to tylko połączenia od pierwszej warstwy do drugiej połączenia między innymi warstwami"
+    },
+    {
+      "index": 145,
+      "timestamp": "12:14",
+      "text": "Ponadto, wiąże się z nimi wiązka wag i błędów"
+    },
+    {
+      "index": 146,
+      "timestamp": "12:17",
+      "text": "Wszystkie powiedziane i zrobione ta sieć ma prawie dokładnie"
+    },
+    {
+      "index": 147,
+      "timestamp": "12:21",
+      "text": "13 000 całkowitych wag i błędów"
+    },
+    {
+      "index": 148,
+      "timestamp": "12:24",
+      "text": "13 000 pokręteł i pokręteł, które można modyfikować i obracać, aby ta sieć działała na różne sposoby"
+    },
+    {
+      "index": 149,
+      "timestamp": "12:30",
+      "text": "Więc kiedy mówimy o nauce?"
+    },
+    {
+      "index": 150,
+      "timestamp": "12:32",
+      "text": "Chodzi o to, aby komputer znalazł prawidłowe ustawienie dla wszystkich tych wielu liczb, tak aby to faktycznie rozwiązało"
+    },
+    {
+      "index": 151,
+      "timestamp": "12:40",
+      "text": "problem w zasięgu ręki"
+    },
+    {
+      "index": 152,
+      "timestamp": "12:42",
+      "text": "jedna myśl"
+    },
+    {
+      "index": 153,
+      "timestamp": "12:43",
+      "text": "Eksperyment, który jest jednocześnie zabawny i przerażający, polega na wyobrażaniu sobie siedzenia i ustawiania wszystkich tych wag i odchyleń ręcznie."
+    },
+    {
+      "index": 154,
+      "timestamp": "12:50",
+      "text": "Celowo szykując liczby tak, aby druga warstwa znajdowała się na krawędziach, trzecia warstwa zbiera się na wzorach itp"
+    },
+    {
+      "index": 155,
+      "timestamp": "12:56",
+      "text": "Osobiście uważam to za satysfakcjonujące, a nie tylko czytanie sieci jako całkowitej czarnej skrzynki"
+    },
+    {
+      "index": 156,
+      "timestamp": "13:01",
+      "text": "Ponieważ, gdy sieć nie działa tak, jak ty"
+    },
+    {
+      "index": 157,
+      "timestamp": "13:04",
+      "text": "spodziewaj się, że zbudowałeś trochę związku z tym, co te wagi i uprzedzenia oznaczają, że masz do czego zacząć"
+    },
+    {
+      "index": 158,
+      "timestamp": "13:11",
+      "text": "Eksperymentowanie z tym, jak zmienić strukturę, by poprawić lub kiedy sieć działa?"
+    },
+    {
+      "index": 159,
+      "timestamp": "13:16",
+      "text": "Ale nie z powodów, których możesz się spodziewać"
+    },
+    {
+      "index": 160,
+      "timestamp": "13:18",
+      "text": "Wbijanie się w to, co robią wagi i uprzedzenia, jest dobrym sposobem na zakwestionowanie twoich przypuszczeń i naprawdę odsłonięcie całej przestrzeni możliwej."
+    },
+    {
+      "index": 161,
+      "timestamp": "13:25",
+      "text": "rozwiązania"
+    },
+    {
+      "index": 162,
+      "timestamp": "13:26",
+      "text": "Przy okazji faktyczna funkcja tutaj jest trochę kłopotliwa do zapisania. Nie sądzisz?"
+    },
+    {
+      "index": 163,
+      "timestamp": "13:32",
+      "text": "Pozwól, że pokażę ci bardziej kompaktowy sposób, w jaki reprezentowane są te połączenia. Tak to zobaczysz"
+    },
+    {
+      "index": 164,
+      "timestamp": "13:38",
+      "text": "Jeśli zdecydujesz się przeczytać więcej o sieciach neuronowych"
+    },
+    {
+      "index": 165,
+      "timestamp": "13:41",
+      "text": "Zorganizuj wszystkie aktywacje z jednej warstwy w kolumnę jako wektor"
+    },
+    {
+      "index": 166,
+      "timestamp": "13:47",
+      "text": "Następnie uporządkuj wszystkie wagi jako macierz, gdzie każdy rząd tej macierzy"
+    },
+    {
+      "index": 167,
+      "timestamp": "13:52",
+      "text": "odpowiada połączeniom między warstwą a określonym neuronem w następnej warstwie"
+    },
+    {
+      "index": 168,
+      "timestamp": "13:58",
+      "text": "Co to oznacza, że ​​biorąc ważoną sumę aktywacji w pierwszej warstwie według tych wag?"
+    },
+    {
+      "index": 169,
+      "timestamp": "14:04",
+      "text": "Odpowiada jednemu z warunków w macierzowym produkcie wektorowym wszystkiego, co mamy po lewej stronie"
+    },
+    {
+      "index": 170,
+      "timestamp": "14:13",
+      "text": "Tak przy okazji, uczenie maszynowe sprowadza się do dobrego zrozumienia algebry liniowej"
+    },
+    {
+      "index": 171,
+      "timestamp": "14:18",
+      "text": "Tak więc dla każdego z was, kto chce miłego wizualnego zrozumienia matryc i jakie mnożenie wektora macierzy należy spojrzeć na serię, którą zrobiłem w algebrze liniowej"
+    },
+    {
+      "index": 172,
+      "timestamp": "14:27",
+      "text": "szczególnie rozdział trzeci"
+    },
+    {
+      "index": 173,
+      "timestamp": "14:28",
+      "text": "Wracając do naszej ekspresji, zamiast mówić o dodawaniu uprzedzeń do każdej z tych wartości niezależnie, reprezentujemy ją"
+    },
+    {
+      "index": 174,
+      "timestamp": "14:36",
+      "text": "Porządkowanie wszystkich tych odchyleń w wektor i dodanie całego wektora do poprzedniego produktu wektorowego macierzy"
+    },
+    {
+      "index": 175,
+      "timestamp": "14:42",
+      "text": "Następnie jako ostatni krok"
+    },
+    {
+      "index": 176,
+      "timestamp": "14:44",
+      "text": "Wymienię sigmoidę na zewnątrz"
+    },
+    {
+      "index": 177,
+      "timestamp": "14:47",
+      "text": "A to, co ma reprezentować, polega na tym, że zastosujesz funkcję sigmoid do każdej konkretnej"
+    },
+    {
+      "index": 178,
+      "timestamp": "14:52",
+      "text": "element wektora wynikowego w środku"
+    },
+    {
+      "index": 179,
+      "timestamp": "14:55",
+      "text": "Kiedy więc zapiszesz macierz wagi i te wektory jako swoje własne symbole, możesz"
+    },
+    {
+      "index": 180,
+      "timestamp": "15:01",
+      "text": "przekazać pełne przejście aktywacji z jednej warstwy na drugą w niezwykle ciasnym i schludnym wyrazie i"
+    },
+    {
+      "index": 181,
+      "timestamp": "15:07",
+      "text": "Dzięki temu odpowiedni kod jest znacznie prostszy i szybszy, ponieważ wiele bibliotek optymalizuje mnożenie macierzy poza macierz"
+    },
+    {
+      "index": 182,
+      "timestamp": "15:17",
+      "text": "Pamiętasz, jak wcześniej mówiłem, że te neurony to po prostu rzeczy, które trzymają liczby"
+    },
+    {
+      "index": 183,
+      "timestamp": "15:21",
+      "text": "No cóż, poszczególne numery, które trzymają, zależą od obrazu, który wysyłasz"
+    },
+    {
+      "index": 184,
+      "timestamp": "15:27",
+      "text": "Tak więc dokładniej jest myśleć o każdym neuronie jako funkcji, która bierze w sobie"
+    },
+    {
+      "index": 185,
+      "timestamp": "15:33",
+      "text": "wyniki wszystkich neuronów w poprzedniej warstwie i wypluwa liczbę między zero a jeden"
+    },
+    {
+      "index": 186,
+      "timestamp": "15:38",
+      "text": "Naprawdę cała sieć jest tylko funkcją, która się przyjmuje"
+    },
+    {
+      "index": 187,
+      "timestamp": "15:42",
+      "text": "784 liczby jako dane wejściowe i wyprowadza dziesięć liczb jako wynik"
+    },
+    {
+      "index": 188,
+      "timestamp": "15:47",
+      "text": "To absurd"
+    },
+    {
+      "index": 189,
+      "timestamp": "15:48",
+      "text": "Skomplikowana funkcja, która obejmuje trzynaście tysięcy parametrów w postaci tych wag i odchyleń, które wychwytują określone wzorce i które obejmują"
+    },
+    {
+      "index": 190,
+      "timestamp": "15:56",
+      "text": "iterowanie wielu produktów wektorów macierzy i funkcji esmozy squmo esmozy"
+    },
+    {
+      "index": 191,
+      "timestamp": "16:00",
+      "text": "Ale to tylko funkcja, ale w pewnym sensie jest to trochę uspokajające, że wygląda na skomplikowaną"
+    },
+    {
+      "index": 192,
+      "timestamp": "16:06",
+      "text": "Chodzi mi o to, że gdyby było prostsze, jaką nadzieję mielibyśmy, moglibyśmy podjąć wyzwanie rozpoznawania cyfr?"
+    },
+    {
+      "index": 193,
+      "timestamp": "16:12",
+      "text": "A w jaki sposób podejmuje to wyzwanie? W jaki sposób ta sieć poznaje odpowiednie wagi i błędy, patrząc na dane? O?"
+    },
+    {
+      "index": 194,
+      "timestamp": "16:20",
+      "text": "Właśnie to pokażę w następnym filmie, a także jeszcze bardziej zagłębię się w to, co ta konkretna sieć, którą oglądamy, naprawdę robi"
+    },
+    {
+      "index": 195,
+      "timestamp": "16:27",
+      "text": "Chyba powinienem powiedzieć, że subskrybuj, aby otrzymywać powiadomienia o tym, kiedy pojawi się ten film lub nowe filmy"
+    },
+    {
+      "index": 196,
+      "timestamp": "16:32",
+      "text": "Ale realistycznie większość z was nie otrzymuje powiadomień z YouTube, prawda?"
+    },
+    {
+      "index": 197,
+      "timestamp": "16:37",
+      "text": "Może bardziej uczciwie powinienem powiedzieć, że subskrybuj, żeby sieci neuronowe leżały u podstaw YouTube"
+    },
+    {
+      "index": 198,
+      "timestamp": "16:42",
+      "text": "Algorytm rekomendacji jest przygotowany, aby sądzić, że chcesz, aby treści z tego kanału były Ci polecane"
+    },
+    {
+      "index": 199,
+      "timestamp": "16:48",
+      "text": "w każdym razie zostań wysłany po więcej"
+    },
+    {
+      "index": 200,
+      "timestamp": "16:50",
+      "text": "Dziękuję wszystkim, którzy wspierają te filmy na patreonie"
+    },
+    {
+      "index": 201,
+      "timestamp": "16:53",
+      "text": "Byłem trochę powolny, aby osiągnąć postępy w serii prawdopodobieństwa tego lata"
+    },
+    {
+      "index": 202,
+      "timestamp": "16:56",
+      "text": "Ale po tym projekcie wskakuję z powrotem w to, więc patronami możecie tam szukać aktualizacji"
+    },
+    {
+      "index": 203,
+      "timestamp": "17:03",
+      "text": "Aby zamknąć tutaj, mam ze sobą Lisha Li"
+    },
+    {
+      "index": 204,
+      "timestamp": "17:05",
+      "text": "Lee, która wykonała swoją pracę doktorską na teoretycznej stronie głębokiego uczenia się i która obecnie pracuje w firmie typu venture capital, wzmacnia partnerów"
+    },
+    {
+      "index": 205,
+      "timestamp": "17:12",
+      "text": "Kto łaskawie zapewnił część funduszy na ten film, więc Lisha jedno"
+    },
+    {
+      "index": 206,
+      "timestamp": "17:16",
+      "text": "Myślę, że powinniśmy szybko poruszyć tę funkcję sigmoidalną"
+    },
+    {
+      "index": 207,
+      "timestamp": "17:19",
+      "text": "Jak rozumiem, wczesne sieci wykorzystały to, aby zgnieść odpowiednią sumę ważoną w tym przedziale między zero a jeden"
+    },
+    {
+      "index": 208,
+      "timestamp": "17:24",
+      "text": "Wiesz, że jesteś zmotywowany tą biologiczną analogią neuronów, które są nieaktywne lub aktywne\n(Lisha) - Dokładnie"
+    },
+    {
+      "index": 209,
+      "timestamp": "17:30",
+      "text": "(3B1B) - Ale stosunkowo niewiele nowoczesnych sieci faktycznie używa sigmoidów. To trochę stara szkoła, prawda?\n(Lisha) - Tak, a raczej"
+    },
+    {
+      "index": 210,
+      "timestamp": "17:36",
+      "text": "ReLU wydaje się być znacznie łatwiejsze do wyszkolenia\n(3B1B) - A ReLU naprawdę oznacza prostowaną jednostkę liniową"
+    },
+    {
+      "index": 211,
+      "timestamp": "17:42",
+      "text": "(Lisha) - Tak, to jest funkcja, w której bierzesz maksymalnie 0 i gdzie jest podane"
+    },
+    {
+      "index": 212,
+      "timestamp": "17:49",
+      "text": "to, co tłumaczyłeś w filmie i jakie to było motywowanie, z mojego punktu widzenia było"
+    },
+    {
+      "index": 213,
+      "timestamp": "17:54",
+      "text": "częściowo przez biologię"
+    },
+    {
+      "index": 214,
+      "timestamp": "17:56",
+      "text": "Analogia z tym, jak"
+    },
+    {
+      "index": 215,
+      "timestamp": "17:58",
+      "text": "Neurony będą aktywowane lub nie, a więc jeśli przekroczą pewien próg"
+    },
+    {
+      "index": 216,
+      "timestamp": "18:03",
+      "text": "Byłaby to funkcja tożsamości"
+    },
+    {
+      "index": 217,
+      "timestamp": "18:05",
+      "text": "Ale jeśli nie, to po prostu nie zostanie aktywowany, więc zero, więc jest to swego rodzaju uproszczenie"
+    },
+    {
+      "index": 218,
+      "timestamp": "18:10",
+      "text": "Używanie sigmoidów nie pomagało w treningu lub było bardzo ciężko trenować"
+    },
+    {
+      "index": 219,
+      "timestamp": "18:14",
+      "text": "W pewnym momencie ludzie próbowali relu i to się udało"
+    },
+    {
+      "index": 220,
+      "timestamp": "18:20",
+      "text": "Bardzo dobrze dla nich niesamowicie"
+    },
+    {
+      "index": 221,
+      "timestamp": "18:22",
+      "text": "Głębokie sieci neuronowe.\n(3B1B) - W porządku"
+    },
+    {
+      "index": 222,
+      "timestamp": "18:25",
+      "text": "Dziękuję Lisha"
+    }
+  ]
+}

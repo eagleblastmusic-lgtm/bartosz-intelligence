@@ -16,6 +16,7 @@ export class WorkerRpcError extends Error {
       | 'TRANSIENT'
       | 'BACKUP_BUSY'
       | null = null,
+    readonly retry_after_ms: number | null = null,
   ) {
     super(message);
   }
@@ -135,6 +136,7 @@ export class WorkerRpc {
         path,
         response.status,
         code,
+        retryAfterMilliseconds(response.headers.get('retry-after')),
       );
     }
     const length = Number(response.headers.get('content-length') ?? 0);
@@ -166,4 +168,14 @@ export class WorkerRpc {
       new TextDecoder('utf-8', { fatal: true, ignoreBOM: false }).decode(data),
     ) as unknown;
   }
+}
+
+export function retryAfterMilliseconds(value: string | null, now = Date.now()) {
+  if (!value) return null;
+  const milliseconds = /^\d+$/.test(value)
+    ? Number(value) * 1000
+    : Date.parse(value) - now;
+  return Number.isFinite(milliseconds) && milliseconds >= 0
+    ? milliseconds
+    : null;
 }

@@ -1,0 +1,357 @@
+{
+  "schema": "production-soak-observation:1",
+  "observed_at": "2026-10-15T12:55:20.121Z",
+  "automation_id": "bartosz-odbi-r-produkcji-24-72-h",
+  "status": "HEALTHY_OBSERVED_WINDOW_ONLY",
+  "production_writes": 0,
+  "source_requests": 0,
+  "new_sessions": 0,
+  "checks": {
+    "cycles": [
+      {
+        "cycle_id": "manual:1440:cc9c9a12-a3b6-4062-a454-22b61efbe931",
+        "local_date": "2026-10-15",
+        "slot": "MANUAL:1440:d8c606b1-e720-4f2f-9acb-9010b59fd3ce",
+        "state": "COMPLETE",
+        "total": 20,
+        "cursor": 20,
+        "completed": 20,
+        "failed": 0,
+        "started_at": "2026-10-15T12:40:00.014Z",
+        "finished_at": "2026-10-15T12:41:47.430Z"
+      },
+      {
+        "cycle_id": "manual:approved20:281cc826-7024-48c6-9f4a-71762c520bbf",
+        "local_date": "2026-10-15",
+        "slot": "MANUAL:APPROVED20:17b8fcae-f8b6-4ac8-b19a-708d3fb40703",
+        "state": "COMPLETE",
+        "total": 20,
+        "cursor": 20,
+        "completed": 20,
+        "failed": 0,
+        "started_at": "2026-10-15T11:38:32.051Z",
+        "finished_at": "2026-10-15T11:39:58.824Z"
+      },
+      {
+        "cycle_id": "manual:9560cbd1-0b76-4e51-afbd-120161967726",
+        "local_date": "2026-10-15",
+        "slot": "MANUAL:TED_CANARY:6f903a34-88d1-4c20-93df-4eb7407f527e",
+        "state": "COMPLETE",
+        "total": 1,
+        "cursor": 1,
+        "completed": 1,
+        "failed": 0,
+        "started_at": "2026-10-15T02:01:55.781Z",
+        "finished_at": "2026-10-15T02:02:07.111Z"
+      },
+      {
+        "cycle_id": "manual:4a7be4a7-2a5f-473d-a833-22bffab69577",
+        "local_date": "2026-10-15",
+        "slot": "MANUAL:TED_CANARY:635475a4-006a-4036-9309-768dc1658048",
+        "state": "COMPLETE",
+        "total": 1,
+        "cursor": 1,
+        "completed": 1,
+        "failed": 0,
+        "started_at": "2026-10-15T01:26:08.230Z",
+        "finished_at": "2026-10-15T02:05:30.189Z"
+      }
+    ],
+    "cycle_actual_scans": [
+      {
+        "monitoring_cycle_id": "manual:1440:cc9c9a12-a3b6-4062-a454-22b61efbe931",
+        "scans": 20,
+        "actual_completed": 20,
+        "failed": 0,
+        "min_attempt": 1,
+        "max_attempt": 1
+      },
+      {
+        "monitoring_cycle_id": "manual:4a7be4a7-2a5f-473d-a833-22bffab69577",
+        "scans": 1,
+        "actual_completed": 1,
+        "failed": 0,
+        "min_attempt": 5,
+        "max_attempt": 5
+      },
+      {
+        "monitoring_cycle_id": "manual:9560cbd1-0b76-4e51-afbd-120161967726",
+        "scans": 1,
+        "actual_completed": 1,
+        "failed": 0,
+        "min_attempt": 1,
+        "max_attempt": 1
+      },
+      {
+        "monitoring_cycle_id": "manual:approved20:281cc826-7024-48c6-9f4a-71762c520bbf",
+        "scans": 20,
+        "actual_completed": 20,
+        "failed": 0,
+        "min_attempt": 1,
+        "max_attempt": 1
+      }
+    ],
+    "manual1440_ted_scan": [
+      {
+        "scan_id": "scan_9500e209c47e5174b9f1cf46499e425c9325b8f86a8c511f0c7e216611e3d398",
+        "job_id": "monitor_9500e209c47e5174b9f1cf46499e425c9325b8f86a8c511f0c7e216611e3d398",
+        "pages_committed": 1,
+        "enumerated_count": 1,
+        "coverage": "PARTIAL",
+        "state": "SUCCEEDED",
+        "attempt_count": 1,
+        "fencing_token": 1,
+        "started_at": "2026-10-15T12:40:41.330Z",
+        "finished_at": "2026-10-15T12:40:42.938Z",
+        "error_code": null
+      }
+    ],
+    "manual1440_ted_members": [
+      {
+        "item_id": "e5d025d4-43d5-4dbe-a824-dbf853682474",
+        "external_id": "PpEUTpzWt2M",
+        "published_at": "2026-10-13T15:00:17.000Z",
+        "discovered_at": "2026-10-13T15:35:40.990Z"
+      }
+    ],
+    "manual1440_new_ted_fetch_jobs": [],
+    "manual1440_events": [
+      {
+        "event_type": "DISCOVERY_COVERAGE_CHANGED",
+        "n": 20
+      },
+      {
+        "event_type": "DISCOVERY_STARTED",
+        "n": 20
+      },
+      {
+        "event_type": "PAGE_COMMITTED",
+        "n": 20
+      },
+      {
+        "event_type": "RSS_PAGE_ACQUIRED",
+        "n": 20
+      }
+    ],
+    "ledger": [
+      {
+        "n": 43
+      }
+    ],
+    "retention": [
+      {
+        "deletion_enabled": 0,
+        "approval_reference": null
+      }
+    ],
+    "payload_archives": [
+      {
+        "source_artifact_id": "3ff8ea1c-9cb5-475a-ac20-03fb7303827b",
+        "state": "VERIFIED",
+        "remote_version": "2",
+        "verified_at": "2026-10-15T02:02:36.136Z",
+        "evicted_at": null,
+        "permit_token": null
+      }
+    ],
+    "counts": [
+      {
+        "items": 65,
+        "jobs": 600,
+        "artifacts": 247,
+        "chunks": 619,
+        "accepted": 46
+      }
+    ],
+    "enabled_youtube_sources": [
+      {
+        "source_id": "274bf46f-a04b-445a-aca4-8c044d011b84",
+        "external_id": "UC2C_jShtL725hvbm1arSV9w",
+        "activated_at": "2026-10-15T11:37:18.964Z",
+        "window_start": "2026-10-15T11:37:18.964Z"
+      },
+      {
+        "source_id": "29df46e7-2912-4fea-a608-d852f9adbd40",
+        "external_id": "UCsXVk37bltHxD1rDPwtNM8Q",
+        "activated_at": "2026-10-15T11:37:18.964Z",
+        "window_start": "2026-10-15T11:37:18.964Z"
+      },
+      {
+        "source_id": "2f469b78-3607-4188-ab32-9714ddcf4834",
+        "external_id": "UCvQECJukTDE2i6aCoMnS-Vg",
+        "activated_at": "2026-10-15T11:37:18.964Z",
+        "window_start": "2026-10-15T11:37:18.964Z"
+      },
+      {
+        "source_id": "37122a11-d19e-4b0e-8a36-cc4f191bdc97",
+        "external_id": "UCAuUUnT6oDeKwE6v1NGQxug",
+        "activated_at": "2026-10-05T21:05:20.271Z",
+        "window_start": "2026-09-05T21:05:07.309Z"
+      },
+      {
+        "source_id": "3c3077b8-b3dc-41fe-ac0b-25b4ec614462",
+        "external_id": "UCoxcjq-8xIDTYp3uz647V5A",
+        "activated_at": "2026-10-15T11:37:18.964Z",
+        "window_start": "2026-10-15T11:37:18.964Z"
+      },
+      {
+        "source_id": "49967d59-e1b5-4d2a-ac1c-a3b38cd3c7a8",
+        "external_id": "UCbfYPyITQ-7l4upoX8nvctg",
+        "activated_at": "2026-10-15T11:37:18.964Z",
+        "window_start": "2026-10-15T11:37:18.964Z"
+      },
+      {
+        "source_id": "72073ab6-2dcc-4758-8568-d97e58de8f87",
+        "external_id": "UCSju5G2aFaWMqn-_0YBtq5A",
+        "activated_at": "2026-10-15T11:37:18.964Z",
+        "window_start": "2026-10-15T11:37:18.964Z"
+      },
+      {
+        "source_id": "7d8f0dd7-e9b9-43bf-a36f-62f3c225354c",
+        "external_id": "UCy0tKL1T7wFoYcxCe0xjN6Q",
+        "activated_at": "2026-10-15T11:37:18.964Z",
+        "window_start": "2026-10-15T11:37:18.964Z"
+      },
+      {
+        "source_id": "8942901e-db68-4ba0-8ca0-c82fbb5c22f2",
+        "external_id": "UC1VLQPn9cYSqx8plbk9RxxQ",
+        "activated_at": "2026-10-15T11:37:18.964Z",
+        "window_start": "2026-10-15T11:37:18.964Z"
+      },
+      {
+        "source_id": "9943a530-acfe-4b12-8734-80aed2b44dc4",
+        "external_id": "UCUHW94eEFW7hkUMVaZz4eDg",
+        "activated_at": "2026-10-15T11:37:18.964Z",
+        "window_start": "2026-10-15T11:37:18.964Z"
+      },
+      {
+        "source_id": "99754711-09e8-43b8-b66b-192fa5d4a78c",
+        "external_id": "UCR1IuLEqb6UEA_zQ81kwXfg",
+        "activated_at": "2026-10-15T11:37:18.964Z",
+        "window_start": "2026-10-15T11:37:18.964Z"
+      },
+      {
+        "source_id": "9a4d6605-1691-418e-9b1a-4245b651780c",
+        "external_id": "UCMOqf8ab-42UUQIdVoKwjlQ",
+        "activated_at": "2026-10-15T11:37:18.964Z",
+        "window_start": "2026-10-15T11:37:18.964Z"
+      },
+      {
+        "source_id": "b75d5e32-ba48-41ba-a4c8-173bb71a7dc7",
+        "external_id": "UC6107grRI4m0o2-emgoDnAA",
+        "activated_at": "2026-10-15T11:37:18.964Z",
+        "window_start": "2026-10-15T11:37:18.964Z"
+      },
+      {
+        "source_id": "b8d5c1f4-f522-406d-b9cd-59bc19b83fe6",
+        "external_id": "UCHnyfMqiRRG1u-2MsSQLbXA",
+        "activated_at": "2026-10-15T11:37:18.964Z",
+        "window_start": "2026-10-15T11:37:18.964Z"
+      },
+      {
+        "source_id": "c6311533-d75f-4f08-9575-de6028dc9549",
+        "external_id": "UCYO_jab_esuFRV4b17AJtAw",
+        "activated_at": "2026-10-15T11:37:18.964Z",
+        "window_start": "2026-10-15T11:37:18.964Z"
+      },
+      {
+        "source_id": "c68f2c05-74ca-4d73-a232-ea0128441bec",
+        "external_id": "UC9-y-6csu5WGm29I7JiwpnA",
+        "activated_at": "2026-10-15T11:37:18.964Z",
+        "window_start": "2026-10-15T11:37:18.964Z"
+      },
+      {
+        "source_id": "c96e4df0-2236-4e94-a4f6-82c7611abe9b",
+        "external_id": "UCY1kMZp36IQSyNx_9h4mpCg",
+        "activated_at": "2026-10-15T11:37:18.964Z",
+        "window_start": "2026-10-15T11:37:18.964Z"
+      },
+      {
+        "source_id": "e585d4b9-bea4-4d47-8ce8-083a9cb6ce54",
+        "external_id": "UCYeF244yNGuFefuFKqxIAXw",
+        "activated_at": "2026-10-15T11:37:18.964Z",
+        "window_start": "2026-10-15T11:37:18.964Z"
+      },
+      {
+        "source_id": "ed702295-a3b9-41cd-ae1d-050a24d7ee80",
+        "external_id": "UCEIwxahdLz7bap-VDs9h35A",
+        "activated_at": "2026-10-15T11:37:18.964Z",
+        "window_start": "2026-10-15T11:37:18.964Z"
+      },
+      {
+        "source_id": "fa236184-4681-4322-9df6-aa480eb6f363",
+        "external_id": "UCdp4_l1vPmpN-gDbUwhaRUQ",
+        "activated_at": "2026-10-15T11:37:18.964Z",
+        "window_start": "2026-10-15T11:37:18.964Z"
+      }
+    ]
+  },
+  "active_worker": {
+    "id": "822eb3ad-4ba0-4da3-96b3-35245251c478",
+    "source": "wrangler",
+    "strategy": "percentage",
+    "author_email": "eagleblastmusic@gmail.com",
+    "annotations": {
+      "workers/triggered_by": "deployment"
+    },
+    "versions": [
+      {
+        "version_id": "901e9506-5924-4e96-9735-19f43ee9a1d3",
+        "percentage": 100
+      }
+    ],
+    "created_on": "2026-10-15T11:25:17.957401Z"
+  },
+  "flags": {
+    "APP_ORIGIN": "https://bartosz-intelligence.eagleblastmusic.workers.dev",
+    "AUTOMATIC_AI_ENABLED": "false",
+    "MONITORING_SLOTS": "15:00,23:00",
+    "RETENTION_DELETION_ENABLED": "false",
+    "TRANSCRIPT_ARCHIVE_ENABLED": "true"
+  },
+  "cron": {
+    "schedules": [
+      {
+        "cron": "*/5 * * * *",
+        "created_on": "2026-10-05T19:45:48.995659Z",
+        "modified_on": "2026-10-14T17:55:08.209426Z"
+      }
+    ]
+  },
+  "queue": {
+    "settings": {
+      "delivery_delay": 0,
+      "message_retention_period": 86400
+    },
+    "consumers": [
+      {
+        "type": "worker",
+        "settings": {
+          "batch_size": 1,
+          "max_retries": 0,
+          "max_wait_time_ms": 5000,
+          "max_concurrency": 1,
+          "retry_delay": 0
+        }
+      }
+    ]
+  },
+  "manual1440_ted_summary": {
+    "scope": "Received RSS candidates admitted to the existing discovery window; not total historical videos or unretained raw feed entries",
+    "eligible_members": 1,
+    "already_known": 1,
+    "newly_detected": 0,
+    "new_fetch_jobs": 0
+  },
+  "risks": [],
+  "elapsed_since_soak_start_seconds": 4521.298,
+  "full_day_free_verified": false,
+  "soak24_passed": false,
+  "soak72_passed": false,
+  "limitations": [
+    "First scheduled15:00 slot has not occurred at this observation",
+    "No new accepted transcript since canary; no additional acquisition or Drive readback requested",
+    "Grouped CPU P99 cannot separate HTTP/Cron/Queue; known26ms admin sample retained, not newfailure",
+    "Drive grant state read fromD1 only; no token refresh/quota API call"
+  ]
+}

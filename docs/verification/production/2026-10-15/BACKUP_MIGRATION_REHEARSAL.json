@@ -1,0 +1,57 @@
+{
+  "observed_at": "2026-10-14T23:23:23.495Z",
+  "production_mutations": 0,
+  "source_backup_id": "46e0d938-ef02-4d55-8e5c-beca1d043ca8",
+  "old_count": 40,
+  "new_count": 43,
+  "migrations": [
+    {
+      "name": "041_monitoring_cycles.sql",
+      "depends_on": [
+        "040_daily_tasks_workflow.sql"
+      ],
+      "sha256": "032f6625e722f593797c31b2fbc5974019c484db4253e5f24268a4f728c69d5d"
+    },
+    {
+      "name": "042_caption_retry.sql",
+      "depends_on": [
+        "041_monitoring_cycles.sql"
+      ],
+      "sha256": "b4190d00351946c88d7c4a20a519a21651fe060cc092709c6e52d43a21f87a10"
+    },
+    {
+      "name": "043_transcript_payload_archive.sql",
+      "depends_on": [
+        "042_caption_retry.sql"
+      ],
+      "sha256": "0f2dce9cefaef1cb1b0acde72d73fa22e09fa9620b767d14048079f73b090220"
+    }
+  ],
+  "integrity_check": "ok",
+  "foreign_key_violations": 0,
+  "canonical_counts_preserved": true,
+  "legacy_hashes_before": {
+    "items": "ce84bd7851088d0d586d5827621446ced20dbfe8a1ab6d90498c77d5bf3caae9",
+    "jobs": "1414203451aae8ce327c07a872b8c705e46039de12fe2bfd684bbf7377fb048d",
+    "analysis_runs": "5df7f6114d5f2c135e92df3ec86eb0b82378a7f1398b6924ee06f543b3f6a578",
+    "artifacts": "061a571a2c539a1c8db7ba4773c4e518c83c261ef27ac11327248e38bbb79b4f",
+    "artifact_chunks": "21347e5ea16b1f3eb3bc5706b649077c63c311e14d9a50cbe669a90b7700aa5d",
+    "transcript_archives": "6d2496a90ef75feceddbe4fb2e52f153be961c927d2916d7c78e1fe151aaa5f2"
+  },
+  "legacy_hashes_after": {
+    "items": "ce84bd7851088d0d586d5827621446ced20dbfe8a1ab6d90498c77d5bf3caae9",
+    "jobs": "1414203451aae8ce327c07a872b8c705e46039de12fe2bfd684bbf7377fb048d",
+    "analysis_runs": "5df7f6114d5f2c135e92df3ec86eb0b82378a7f1398b6924ee06f543b3f6a578",
+    "artifacts": "061a571a2c539a1c8db7ba4773c4e518c83c261ef27ac11327248e38bbb79b4f",
+    "artifact_chunks": "21347e5ea16b1f3eb3bc5706b649077c63c311e14d9a50cbe669a90b7700aa5d",
+    "transcript_archives": "6d2496a90ef75feceddbe4fb2e52f153be961c927d2916d7c78e1fe151aaa5f2"
+  },
+  "legacy_content_unchanged": true,
+  "deletion_settings": [
+    {
+      "deletion_enabled": 0,
+      "approval_present": 0
+    }
+  ],
+  "trigger_present": true
+}

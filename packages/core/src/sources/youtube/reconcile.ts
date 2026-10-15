@@ -1,5 +1,6 @@
 import type { Database } from '../../db/boundary.js';
 import { jobDedup } from '../../jobs/policy.js';
+import { firstCaptionAttempt } from '../../transcript/recovery.js';
 export function discoveryWindow(
   now: Date,
   sourceStart: string,
@@ -41,6 +42,8 @@ export async function scheduleSources(
   now: Date,
   limit = 5,
   random = Math.random,
+  gapsOnly = false,
+  ownerId: string | null = null,
 ) {
   if (!Number.isInteger(limit) || limit < 1 || limit > 20)
     throw new Error('INVALID_LIMIT');
@@ -49,13 +52,13 @@ export async function scheduleSources(
   const sources = (
     await db
       .prepare(
-        `SELECT s.* FROM sources s WHERE enabled=1 AND due_at<=?1 AND (
+        `SELECT s.* FROM sources s WHERE enabled=1 AND due_at<=?1 AND (?3 IS NULL OR s.owner_id=?3) AND (
            ((weekly_due_at IS NULL OR weekly_due_at<=?1 OR full_due_at IS NULL OR full_due_at<=?1) AND NOT EXISTS(SELECT 1 FROM jobs j WHERE j.owner_id=s.owner_id AND j.source_id=s.source_id AND j.task_type IN ('DISCOVER','RECONCILE') AND COALESCE(json_extract(j.payload_json,'$.mode'),'FULL')='FULL' AND j.state IN ('PENDING','LEASED','RUNNING','DEFERRED','RETRY_WAIT'))) OR
-           ((head_due_at IS NULL OR head_due_at<=?1) AND NOT EXISTS(SELECT 1 FROM jobs j WHERE j.owner_id=s.owner_id AND j.source_id=s.source_id AND json_extract(j.payload_json,'$.mode')='HEAD' AND j.state IN ('PENDING','LEASED','RUNNING','DEFERRED','RETRY_WAIT'))) OR
-           ((rss_due_at IS NULL OR rss_due_at<=?1) AND NOT EXISTS(SELECT 1 FROM jobs j WHERE j.owner_id=s.owner_id AND j.source_id=s.source_id AND json_extract(j.payload_json,'$.mode')='RSS' AND j.state IN ('PENDING','LEASED','RUNNING','DEFERRED','RETRY_WAIT')))
+           (${gapsOnly ? '0' : '1'} AND (head_due_at IS NULL OR head_due_at<=?1) AND NOT EXISTS(SELECT 1 FROM jobs j WHERE j.owner_id=s.owner_id AND j.source_id=s.source_id AND json_extract(j.payload_json,'$.mode')='HEAD' AND j.state IN ('PENDING','LEASED','RUNNING','DEFERRED','RETRY_WAIT'))) OR
+           (${gapsOnly ? '0' : '1'} AND (rss_due_at IS NULL OR rss_due_at<=?1) AND NOT EXISTS(SELECT 1 FROM jobs j WHERE j.owner_id=s.owner_id AND j.source_id=s.source_id AND json_extract(j.payload_json,'$.mode')='RSS' AND j.state IN ('PENDING','LEASED','RUNNING','DEFERRED','RETRY_WAIT')))
            ) ORDER BY due_at,source_id LIMIT ?2`,
       )
-      .bind(at, Math.min(limit, 5))
+      .bind(at, Math.min(limit, 5), ownerId)
       .all<DueSource>()
   ).results;
   let scheduled = 0;
@@ -70,6 +73,7 @@ export async function scheduleSources(
     ).results;
     const activeModes = new Set(active.map((row) => row.mode));
     const kind = (['WEEKLY', 'FULL', 'HEAD', 'RSS'] as const).find((kind) => {
+      if (gapsOnly && kind !== 'WEEKLY' && kind !== 'FULL') return false;
       const due =
         kind === 'WEEKLY'
           ? source.weekly_due_at
@@ -203,7 +207,7 @@ export async function repairMissingIntents(db: Database, now: Date, limit = 5) {
   const rows = (
     await db
       .prepare(
-        `SELECT i.owner_id,i.item_id,i.source_id,i.namespace,i.external_id,i.published_at,i.availability FROM items i JOIN sources s ON s.owner_id=i.owner_id AND s.source_id=i.source_id WHERE s.enabled=1 AND i.current_revision_id IS NOT NULL AND NOT EXISTS(SELECT 1 FROM retention_items t WHERE t.owner_id=i.owner_id AND t.item_id=i.item_id AND t.phase IN ('PRUNING','COMPLETE')) AND NOT EXISTS(SELECT 1 FROM jobs j WHERE j.owner_id=i.owner_id AND j.item_id=i.item_id AND j.task_type='FETCH_TRANSCRIPT' AND j.input_revision='source-intake-1') ORDER BY i.discovered_at,i.item_id LIMIT ?`,
+        `SELECT i.owner_id,i.item_id,i.source_id,i.namespace,i.external_id,i.published_at,i.discovered_at,i.availability FROM items i JOIN sources s ON s.owner_id=i.owner_id AND s.source_id=i.source_id WHERE s.enabled=1 AND i.current_revision_id IS NOT NULL AND NOT EXISTS(SELECT 1 FROM retention_items t WHERE t.owner_id=i.owner_id AND t.item_id=i.item_id AND t.phase IN ('PRUNING','COMPLETE')) AND NOT EXISTS(SELECT 1 FROM jobs j WHERE j.owner_id=i.owner_id AND j.item_id=i.item_id AND j.task_type='FETCH_TRANSCRIPT' AND j.input_revision='source-intake-1') ORDER BY i.discovered_at,i.item_id LIMIT ?`,
       )
       .bind(limit)
       .all<{
@@ -214,6 +218,7 @@ export async function repairMissingIntents(db: Database, now: Date, limit = 5) {
         external_id: string;
         published_at: string | null;
         availability: string;
+        discovered_at: string;
       }>()
   ).results;
   for (const item of rows) {
@@ -250,7 +255,7 @@ export async function repairMissingIntents(db: Database, now: Date, limit = 5) {
           dedup,
           item.availability === 'PUBLIC' ? 'PENDING' : 'BLOCKED',
           item.availability === 'PUBLIC' ? null : 'SOURCE_ACCESS',
-          at,
+          firstCaptionAttempt(item.discovered_at),
           item.published_at ?? at,
           at,
           at,

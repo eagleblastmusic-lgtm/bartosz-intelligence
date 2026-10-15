@@ -1,0 +1,11 @@
+{
+  "cycle_id": "manual:9560cbd1-0b76-4e51-afbd-120161967726",
+  "owner_id": "fca35012-aaeb-428d-8836-14398ace7412",
+  "source_ids": [
+    "37122a11-d19e-4b0e-8a36-cc4f191bdc97"
+  ],
+  "slot": "MANUAL:TED_CANARY:6f903a34-88d1-4c20-93df-4eb7407f527e",
+  "local_date": "2026-10-15",
+  "created_at": "2026-10-15T02:01:55.781Z",
+  "scheduled_trigger": false
+}

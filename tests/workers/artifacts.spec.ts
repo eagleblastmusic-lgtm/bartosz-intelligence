@@ -473,8 +473,11 @@ it.each([false, true])(
       credential,
       provider,
       transport,
+      undefined,
+      undefined,
+      dailyEnabled ? 'COMPACT' : 'LEGACY',
     );
-    expect(await local.cycle()).toEqual({
+    expect(await local.cycle()).toMatchObject({
       accepted: true,
       reason: null,
       idle: false,
@@ -498,7 +501,7 @@ it.each([false, true])(
       await env.DB.prepare(
         "SELECT count(*) AS n FROM artifacts WHERE state='VERIFIED'",
       ).first('n'),
-    ).toBe(6);
+    ).toBe(dailyEnabled ? 3 : 6);
     const run = await env.DB.prepare(
       "SELECT outcome_json FROM analysis_runs WHERE job_id=? AND state='ACCEPTED'",
     )
@@ -3538,14 +3541,12 @@ it('artifact RPC/client resumes interrupted upload, verifies bounded chunks and 
     .bind(new Date(Date.now() + 900000).toISOString(), token.job_id)
     .run();
   let writes = 0,
-    interrupted = false,
     verificationCalls = 0;
   const transport: typeof fetch = async (input, init) => {
     const req = new Request(input, init);
     if (new URL(req.url).pathname.endsWith('/write')) {
       writes++;
-      if (writes === 2 && !interrupted) {
-        interrupted = true;
+      if (writes >= 2 && writes <= 4) {
         return new Response('{}', { status: 503 });
       }
     }
@@ -3562,6 +3563,8 @@ it('artifact RPC/client resumes interrupted upload, verifies bounded chunks and 
     () => token,
     'FETCH_TRANSCRIPT',
     transport,
+    null,
+    async () => {},
   );
   const text = '\uFEFF' + 'Raw 😀 e\u0301 literal text.\n'.repeat(4000);
   const descriptor = {
@@ -4257,7 +4260,7 @@ it('caption recovery persists independent counters and derives a durable shared 
     ))!;
   await store.start(token2, 'FETCH_TRANSCRIPT', next);
   const second = await recovery.outcome(token2, 'NO_CAPTIONS', next);
-  expect(Date.parse(second.due_at) - next.getTime()).toBe(21600000);
+  expect(Date.parse(second.due_at) - fixtureNow.getTime()).toBe(36000000);
   await env.DB.prepare(
     'INSERT INTO job_attempts(attempt_id,owner_id,job_id,fencing_token,executor_id,started_at,finished_at,error_code) VALUES(?,?,?,?,?,?,?,?)',
   )

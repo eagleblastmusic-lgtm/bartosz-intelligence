@@ -1,0 +1,92 @@
+{
+  "version": 1,
+  "reviewed_at": "2026-10-15T11:20:53.958Z",
+  "reviewer": "independent subagent /root/http_cpu_candidate_review",
+  "status": "PASS",
+  "scope": "LOCAL_CODE_REVIEW_ONLY: Cron-to-existing-Queue, preserved occurrence plus actual operational clocks, equivalent explicit root TrieRouter. No production deploy or mutation by this reviewer.",
+  "previous_worker_version": "6b6a7844-e1f9-48a3-b70e-299b6d98cd90",
+  "candidate_worker_sha256": "0057d2cd14b00e693cac5cf379de01ac1064940d8bd6d73c70a102ce5d5ffaff",
+  "reviewed_files": [
+    {
+      "path": "apps/api/src/index.ts",
+      "bytes": 4296,
+      "sha256": "1ceefdf4d29ee37f3fc8dd5771d5fdd838db60702b6184fe98fef4aebeb41772"
+    },
+    {
+      "path": "apps/api/src/queue.ts",
+      "bytes": 6199,
+      "sha256": "3639d30545db496a15433524b1dc657c86ad4233656935f5ca128f8ce9caf746"
+    },
+    {
+      "path": "apps/api/src/scheduled.ts",
+      "bytes": 2177,
+      "sha256": "e5dc9ebbb47ce62f63fcf18c3c0b74ba2f99db9327333b600a5fa1d60d02315c"
+    },
+    {
+      "path": "tests/workers/cron-maintenance-queue.spec.ts",
+      "bytes": 12507,
+      "sha256": "fe54a625a8e9b4048c835c3d29b311fd3c65d25ea04c71d5f048db82e583c449"
+    }
+  ],
+  "findings": [
+    {
+      "property": "Occurrence and execution clocks",
+      "status": "PASS",
+      "evidence": "Only startMonitoringCycles uses preserved occurrenceAt. Recovery, leases, metadata, retention observation and cycle completion use actual now. Existing callers retain occurrenceAt=now default. Delayed-clock regression exercises a real fenced, committed newer scan and checks its completion falls within actual invocation before/after while preserving original old Warsaw slot."
+    },
+    {
+      "property": "Authentication and capability checks",
+      "status": "PASS",
+      "evidence": "Strict canonical hint validation before SQL; fresh current credential lookup and both DISCOVER/RECONCILE scopes. No revoked-credential cache, removed auth checks or hint-controlled flags."
+    },
+    {
+      "property": "Durability, deduplication and bounded work",
+      "status": "PASS",
+      "evidence": "Original Cron occurrence stored in existing Queue envelope; D1 cycle identity deduplicates replay. Continuation failure leaves durable state for later maintenance. Existing bounded scheduleControlPlane reused, no maintenance self-enqueue/busy loop. Code requests delaySeconds=60 on failure."
+    },
+    {
+      "property": "Existing optional hints and safety flags",
+      "status": "PASS",
+      "evidence": "Drive/Daily/archive/retention guards and order within their existing promise unchanged from frozen native-SHA source. No strict cross-promise delivery order is claimed. AI/DELETE remain environment-controlled. No new migrations, payload deletion, backfill, sessions, dependencies or paid resources."
+    },
+    {
+      "property": "Root HTTP matching compatibility",
+      "status": "PASS",
+      "evidence": "Actual default SmartRouter already selects TrieRouter. Explicit Trie has0 handler/order/parameter differences across3689 local method/path cases, including middleware, errors and wildcards. LinearRouter rejected due181 differences."
+    }
+  ],
+  "tests": {
+    "full_before_final_clock_fix": {
+      "path": ".local/production-readiness-20261015/free-cpu-workers-full.json",
+      "passed": 331,
+      "failed": 0
+    },
+    "focused_after_final_clock_fix": {
+      "path": ".local/production-readiness-20261015/cron-cpu-vitest.json",
+      "passed": 25,
+      "failed": 0,
+      "new_maintenance_cases": 17,
+      "existing_control_monitoring_scheduler_cases": 8
+    },
+    "overlap": 24,
+    "unique_test_instances_across_runs": 332,
+    "identity_method": "File + fullName + occurrence ordinal for duplicate parameterized names. The full suite has4 different parameterized metadata cases sharing one title; they are separate instances, not four unique names.",
+    "interpretation": "331 full-suite PASS before clock fix plus25 focused PASS after it,24 overlapping instances, equals332 test instances across runs. This does not claim one332-test final-code run."
+  },
+  "router_profile": {
+    "path": ".local/production-readiness-20261015/http-router-local-profile.json",
+    "cases": 3689,
+    "trie_mismatches": 0,
+    "local_cold_p95_default_ms": 1.3981999999999744,
+    "local_cold_p95_trie_ms": 0.6593000000000302
+  },
+  "production_cpu_verified": false,
+  "free_verified": false,
+  "remaining_limits": [
+    "New candidate requires separate explicit owner GO before production deployment; earlier narrow approval covered native SHA only.",
+    "No production CPU improvement or Free PASS is established here. Actual normal HTTP and natural Cron/Queue CPU plus account usage must be measured after authorized deploy before19-channel activation.",
+    "Existing max_retries=0 means requested60-second retry does not guarantee platform redelivery. Durable D1 plus later Cron maintenance remains the recovery path.",
+    "Estimated added288 maintenance messages/day, nominal864 Queue send/read/delete operations before retries; model, not account measurement.",
+    "Local router timing measures synchronous Node wall time, not Cloudflare CPU/invocation. The measured typical gain is modest and cannot be claimed to solve all observed12-36ms production bursts."
+  ]
+}

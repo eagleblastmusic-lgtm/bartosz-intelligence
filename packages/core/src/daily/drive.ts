@@ -25,6 +25,7 @@ export type DailyFileRow = {
 /** One workflow lease serializes publication and folder creation. Persist IDs
  * before POST so timeout/restart always reconciles the same remote object. */
 export class DailyDriveStorage {
+  createdFolders = 0;
   constructor(
     private db: Database,
     private context: AccessContext,
@@ -34,6 +35,7 @@ export class DailyDriveStorage {
     context.requireOwnerOrTask('DRIVE_EXPORT');
   }
   async folder(root: string, date: string, now: Date) {
+    this.createdFolders = 0;
     let parent = root;
     await this.client.verifyPrivateFolder(parent);
     for (const name of dailyFolderNames(date)) {
@@ -45,6 +47,7 @@ export class DailyDriveStorage {
         .bind(this.context.ownerId, parent, name)
         .first<{ folder_id: string; verified_at: string | null }>();
       if (!row) {
+        this.createdFolders++;
         const matches = await this.client.findNamedChildren(parent, name);
         if (
           matches.length > 1 ||

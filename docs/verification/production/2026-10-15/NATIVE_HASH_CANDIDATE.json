@@ -1,0 +1,35 @@
+{
+  "prepared_at": "2026-10-15T10:53:57.469969+00:00",
+  "candidate_worker_sha256": "172838d332e0bb83f63c0b143d3d0f1df91df8300758eec5941375167802bf79",
+  "worker_bytes": 1758125,
+  "oracle_deployment_required": false,
+  "migrations": [],
+  "files": [
+    {
+      "path": "packages/core/src/transcript/payload-archive.ts",
+      "sha256": "c7caaed8a370c644288f32d7690308fd751a43a843d6d92f24a7fdc300e6f133"
+    },
+    {
+      "path": "apps/api/src/artifact-repository.ts",
+      "sha256": "cfc0d031bef512e584b724e5ff8c3a59c93a0f449dad20eb48eb3882a24c8470"
+    },
+    {
+      "path": "tests/workers/transcript-payload-version.spec.ts",
+      "sha256": "6d9bcba6038b63f94448a4c3f8cb6ddb8d5d2ea48e40be053efee1d171c9a5af"
+    }
+  ],
+  "targeted_workers": 8,
+  "typecheck": "PASS",
+  "lint": "PASS",
+  "build": "PASS",
+  "production_dry_run": "PASS",
+  "production_deployed": false,
+  "full_workers_passed": 315,
+  "full_workers_failed": 0,
+  "full_workers_result_sha256": "13b9267b7073e7425901f64d9eced162858fe60339ae651346e98ac5a2932b99",
+  "independent_review": "PASS_CAPTION_AUTHORITY_FIX_AGENT_READ_ONLY",
+  "native_targeted_passed": 16,
+  "scope": "Native SHA-256 only after stable metadata reconciliation fix",
+  "previous_worker_version": "74232ebc-655d-4d37-957a-8c93eed1fef8",
+  "approval_status": "AUTOMATIC_REVIEW_REQUIRES_EXPLICIT_NATIVE_CPU_DEPLOY_GO"
+}

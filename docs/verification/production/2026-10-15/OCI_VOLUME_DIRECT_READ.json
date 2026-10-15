@@ -1,0 +1,11 @@
+{
+  "observed_at": "2026-10-15T00:13:29.744Z",
+  "production_mutations": 0,
+  "reads": {
+    "attachments": {
+      "exit_code": 1,
+      "http_status": 404,
+      "provider_code": "NotAuthorizedOrNotFound"
+    }
+  }
+}

@@ -1,0 +1,99 @@
+{
+  "observed_at": "2026-10-15T00:31:24.628Z",
+  "production_mutations": 0,
+  "requests": [
+    {
+      "label": "subscriptions",
+      "success": false,
+      "category": "TOOL_READ_FAILED"
+    },
+    {
+      "label": "deployments",
+      "success": true,
+      "http_status": 200,
+      "result": {
+        "deployments": [
+          {
+            "id": "db7fca38-df83-4cab-842c-897d1c74ebaa",
+            "created_on": "2026-10-14T17:55:02.423476Z",
+            "strategy": "percentage",
+            "versions": [
+              {
+                "version_id": "39edd639-eba3-40bb-93c7-022f1aec31d6",
+                "percentage": 100
+              }
+            ]
+          },
+          {
+            "id": "bd3cbb53-e8e0-438f-9d32-8bc45b3f8d23",
+            "created_on": "2026-10-11T16:53:23.204885Z",
+            "strategy": "percentage",
+            "versions": [
+              {
+                "version_id": "224ba7ff-a4ab-47ff-8cc1-70aadb2d91b1",
+                "percentage": 100
+              }
+            ]
+          },
+          {
+            "id": "bf303284-aacd-4d75-9e4d-bff5fb1c58d4",
+            "created_on": "2026-10-11T15:24:20.961789Z",
+            "strategy": "percentage",
+            "versions": [
+              {
+                "version_id": "59fb3c34-eddd-4930-adf7-3ac129d5f29e",
+                "percentage": 100
+              }
+            ]
+          }
+        ]
+      },
+      "error_codes": []
+    },
+    {
+      "label": "queue",
+      "success": true,
+      "http_status": 200,
+      "result": {
+        "queue_id": "48550659182b4795a7be57551abd8311",
+        "queue_name": "bartosz-intelligence-signals",
+        "settings": {
+          "delivery_delay": 0,
+          "message_retention_period": 86400
+        },
+        "consumers": [
+          {
+            "type": "worker",
+            "settings": {
+              "batch_size": 1,
+              "max_retries": 0,
+              "max_wait_time_ms": 5000,
+              "max_concurrency": 1,
+              "retry_delay": 0
+            }
+          }
+        ],
+        "producers": [
+          {
+            "type": "worker"
+          }
+        ]
+      },
+      "error_codes": []
+    },
+    {
+      "label": "d1",
+      "success": true,
+      "http_status": 200,
+      "result": {
+        "uuid": "6f7a7527-610b-4e56-ad80-682ea7acd567",
+        "name": "bartosz-intelligence-core",
+        "version": "production",
+        "num_tables": 83,
+        "file_size": 30040064,
+        "running_in_region": "WEUR"
+      },
+      "error_codes": []
+    }
+  ]
+}

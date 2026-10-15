@@ -1,4 +1,6 @@
-import { ownerRouter, body, queryFields } from './common.js';
+import { ownerRouter, body, queryFields, text } from './common.js';
+import { PayloadEviction } from '../../../../packages/core/src/retention/payload-eviction.js';
+import { dailyDriveClient } from '../daily-workflow.js';
 import { RetentionCleanup } from '../../../../packages/core/src/retention/cleanup.js';
 import { unobservedCapacity } from '../../../../packages/core/src/projections/capacity.js';
 import { exportStatus } from '../../../../packages/core/src/export/status.js';
@@ -9,6 +11,24 @@ import {
   type GeminiQuotaObservation,
 } from '../../../../packages/core/src/ai/quota-snapshots.js';
 export const systemApp = ownerRouter();
+systemApp.post('/retention/payload-dry-run', async (c) => {
+  const input = await body(c, ['source_artifact_id']),
+    access = c.get('access'),
+    sourceId = text(input.source_artifact_id, 128);
+  const receipt = await c.env.DB.prepare(
+    "SELECT connection_id FROM transcript_payload_archives WHERE owner_id=? AND source_artifact_id=? AND state='VERIFIED'",
+  )
+    .bind(access.ownerId, sourceId)
+    .first<{ connection_id: string }>();
+  if (!receipt) throw new Error('NOT_FOUND');
+  return c.json(
+    await new PayloadEviction(c.env.DB, access).step(
+      sourceId,
+      await dailyDriveClient(c.env, access, receipt.connection_id, new Date()),
+      new Date(),
+    ),
+  );
+});
 systemApp.get('/transcript-archives', async (c) => {
   queryFields(c, []);
   return c.json({
@@ -152,7 +172,7 @@ systemApp.get('/summary', async (c) => {
       .bind(owner)
       .all(),
     c.env.DB.prepare(
-      "SELECT COUNT(*) denominator,COALESCE(SUM(EXISTS(SELECT 1 FROM analysis_runs r JOIN jobs j ON j.owner_id=r.owner_id AND j.job_id=r.job_id WHERE r.owner_id=i.owner_id AND r.item_id=i.item_id AND r.state='ACCEPTED' AND j.task_type='FETCH_TRANSCRIPT' AND json_extract(r.outcome_json,'$.version')='transcript-source:1') OR EXISTS(SELECT 1 FROM retention_items t WHERE t.owner_id=i.owner_id AND t.item_id=i.item_id AND json_extract(t.operational_json,'$.source_run_id') IS NOT NULL)),0) usable_source FROM items i WHERE i.owner_id=? AND i.availability='PUBLIC' AND EXISTS(SELECT 1 FROM jobs j WHERE j.owner_id=i.owner_id AND j.item_id=i.item_id AND j.task_type='FETCH_TRANSCRIPT')",
+      "SELECT COUNT(*) denominator,COALESCE(SUM(EXISTS(SELECT 1 FROM analysis_runs r JOIN jobs j ON j.owner_id=r.owner_id AND j.job_id=r.job_id WHERE r.owner_id=i.owner_id AND r.item_id=i.item_id AND r.state='ACCEPTED' AND j.task_type='FETCH_TRANSCRIPT' AND json_extract(r.outcome_json,'$.version') IN ('transcript-source:1','transcript-source:2')) OR EXISTS(SELECT 1 FROM retention_items t WHERE t.owner_id=i.owner_id AND t.item_id=i.item_id AND json_extract(t.operational_json,'$.source_run_id') IS NOT NULL)),0) usable_source FROM items i WHERE i.owner_id=? AND i.availability='PUBLIC' AND EXISTS(SELECT 1 FROM jobs j WHERE j.owner_id=i.owner_id AND j.item_id=i.item_id AND j.task_type='FETCH_TRANSCRIPT')",
     )
       .bind(owner)
       .first(),

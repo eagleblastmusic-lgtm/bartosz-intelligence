@@ -1,0 +1,19 @@
+{
+  "observed_at": "2026-10-15T12:41:17.744Z",
+  "user_cancelled": true,
+  "local_wait_process_found": false,
+  "dispatch_already_occurred": true,
+  "schedule_unchanged": "15:00,23:00",
+  "cycle": {
+    "cycle_id": "manual:1440:cc9c9a12-a3b6-4062-a454-22b61efbe931",
+    "slot": "MANUAL:1440:d8c606b1-e720-4f2f-9acb-9010b59fd3ce",
+    "state": "RUNNING",
+    "total": 20,
+    "cursor": 20,
+    "completed": 11,
+    "failed": 0,
+    "started_at": "2026-10-15T12:40:00.014Z",
+    "finished_at": null
+  },
+  "production_writes_by_cancellation": 0
+}

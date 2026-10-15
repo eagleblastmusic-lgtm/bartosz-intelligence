@@ -1,0 +1,17 @@
+{
+  "schema": "production-repair-owner-authorization:1",
+  "recorded_at": "2026-10-15T01:56:55Z",
+  "source": "Explicit human GO reply to checkpoint call_c10536d803ea49b6944d524b2ac9dd48",
+  "authorized": [
+    "verified videos.snippet.defaultAudioLanguage metadata bridge in existing broker/adapter; do not substitute actual selected track metadata or fabricate originality",
+    "bounded quota-aware uploads fallback for RSS404/410 with explicit RSS failure and fallback receipts",
+    "necessary tested repair deployment after current version, backup and rollback checks",
+    "controlled TED canary on at most two materials with exact captions, cue, timestamp and Drive integrity verification",
+    "only after full canary and Free PASS: exactly19 approved NEW_ONLY sources and immediate MANUAL20"
+  ],
+  "forbidden": ["mweb,PoT,yt-dlp or YouTube session changes", "paid resources", "historical backfill", "D1 deletion or retention", "changes beyond two observed problems", "commit,push,merge"],
+  "on_repeat_canary_failure": "Stop19-channel activation, record actual cause, do not expand repair without another owner consent",
+  "monitoring_slots": "15:00,23:00 Europe/Warsaw",
+  "automatic_ai_enabled": false,
+  "retention_deletion_enabled": false
+}

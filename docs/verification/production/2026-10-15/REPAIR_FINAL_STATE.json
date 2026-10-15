@@ -1,0 +1,106 @@
+{
+  "observed_at": "2026-10-15T02:12:02.568Z",
+  "production_writes": 0,
+  "history": {
+    "accepted": {
+      "baseline_count": 45,
+      "missing": 0,
+      "changed": 0,
+      "result": "PASS"
+    },
+    "artifacts": {
+      "baseline_count": 244,
+      "missing": 0,
+      "changed": 0,
+      "result": "PASS"
+    },
+    "chunks": {
+      "baseline_count": 616,
+      "missing": 0,
+      "changed": 0,
+      "result": "PASS"
+    },
+    "archives": {
+      "baseline_count": 45,
+      "missing": 0,
+      "changed": 0,
+      "result": "PASS"
+    }
+  },
+  "checks": {
+    "counts": [
+      {
+        "items": 65,
+        "jobs": 560,
+        "accepted": 46,
+        "artifacts": 247,
+        "chunks": 619
+      }
+    ],
+    "active_sources": [
+      {
+        "source_id": "37122a11-d19e-4b0e-8a36-cc4f191bdc97",
+        "external_id": "UCAuUUnT6oDeKwE6v1NGQxug",
+        "activated_at": "2026-10-05T21:05:20.271Z",
+        "window_start": "2026-09-05T21:05:07.309Z",
+        "title": "TED"
+      }
+    ],
+    "discovery_events": [
+      {
+        "event_type": "DISCOVERY_STARTED",
+        "created_at": "2026-10-15T02:01:59.832Z"
+      },
+      {
+        "event_type": "RSS_UNAVAILABLE_404",
+        "created_at": "2026-10-15T02:02:05.927Z"
+      },
+      {
+        "event_type": "RSS_FALLBACK_PAGE_ACQUIRED",
+        "created_at": "2026-10-15T02:02:06.451Z"
+      },
+      {
+        "event_type": "DISCOVERY_COVERAGE_CHANGED",
+        "created_at": "2026-10-15T02:02:07.010Z"
+      },
+      {
+        "event_type": "RSS_FALLBACK_PAGE_COMMITTED",
+        "created_at": "2026-10-15T02:02:06.601Z"
+      }
+    ],
+    "new_items": [],
+    "item_duplicates": [],
+    "source_duplicates": [],
+    "retention": [
+      {
+        "deletion_enabled": 0,
+        "approval_reference": null
+      }
+    ],
+    "eviction": [
+      {
+        "remote_version": "1",
+        "verified_at": "2026-10-15T02:02:36.136Z",
+        "evicted_at": null,
+        "permit_token": null,
+        "permit_until": null
+      }
+    ],
+    "oracle": [
+      {
+        "worker_id": "oracle-frankfurt-transcript-1",
+        "heartbeat_at": "2026-10-15T02:11:34.385Z",
+        "online_until": "2026-10-15T02:14:34.385Z"
+      }
+    ],
+    "foreign_keys": []
+  },
+  "collector_rows_read": 24506,
+  "collector_rows_written": 0,
+  "canary_gate": "FAIL_TECHNICAL_DRIVE_METADATA_VERSION",
+  "additional_19_activated": false,
+  "manual20_started": false,
+  "soak_started": false,
+  "rollback_executed": false,
+  "rollback_reason": "Rollout halted; previous compatible Worker has the same technical-reader implementation. D1 payloads retained, deletion OFF; no accepted data overwrite or destructive rollback."
+}

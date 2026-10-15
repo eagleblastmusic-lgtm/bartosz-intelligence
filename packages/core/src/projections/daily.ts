@@ -103,11 +103,13 @@ LEFT JOIN retention_items p ON p.owner_id=i.owner_id AND p.item_id=i.item_id
 LEFT JOIN retention_items v ON v.owner_id=i.owner_id AND v.item_id=i.item_id AND v.accepted_run_id=s.accepted_run_id
 LEFT JOIN retention_items t ON t.owner_id=i.owner_id AND t.item_id=i.item_id AND t.phase IN ('PRUNING','COMPLETE')
 LEFT JOIN transcript_archives x ON x.owner_id=i.owner_id AND x.item_id=i.item_id
+LEFT JOIN daily_materials dm ON dm.owner_id=i.owner_id AND dm.item_id=i.item_id
+LEFT JOIN daily_drive_files df ON df.owner_id=dm.owner_id AND df.object_key='transcript:'||dm.video_id
 LEFT JOIN analysis_runs r ON r.owner_id=i.owner_id AND r.item_id=i.item_id AND r.run_id=s.accepted_run_id AND r.state='ACCEPTED' AND json_extract(r.outcome_json,'$.version')='intelligence-accepted:1'
 LEFT JOIN jobs j ON j.owner_id=i.owner_id AND j.job_id=(SELECT q.job_id FROM jobs q WHERE q.owner_id=i.owner_id AND q.item_id=i.item_id AND COALESCE(q.reason_code,'')<>'PROFILE_SUPERSEDED' AND q.task_type IN ('ANALYZE','FETCH_TRANSCRIPT','NORMALIZE') AND (q.task_type!='ANALYZE' OR json_extract(q.payload_json,'$.snapshot.settings.mode')='PRODUCTION') AND json_type(q.payload_json,'$.snapshot.chunk') IS NULL ORDER BY q.created_at DESC,q.job_id DESC LIMIT 1)`;
 const archiveJson = `CASE WHEN t.item_id IS NOT NULL THEN json_object('file_id',t.file_id,'remote_version',t.remote_version,'verified_at',t.verified_at,'phase',t.phase) ELSE NULL END`;
 const deliveryJson = `CASE WHEN v.item_id IS NOT NULL THEN json_object('state','VERIFIED','file_id',v.file_id,'remote_version',v.remote_version,'verified_at',v.verified_at) ELSE NULL END`;
-const transcriptArchiveJson = `CASE WHEN x.item_id IS NOT NULL THEN json_object('state',x.state,'file_id',CASE WHEN x.state='VERIFIED' THEN x.reserved_file_id ELSE NULL END,'verified_at',x.verified_at,'source_status',json_extract(x.descriptor_json,'$.source_status'),'language_code',json_extract(x.descriptor_json,'$.language_code'),'track_kind',json_extract(x.descriptor_json,'$.track_kind'),'reason',x.last_reason) ELSE NULL END`;
+const transcriptArchiveJson = `CASE WHEN x.item_id IS NOT NULL THEN json_object('state',x.state,'file_id',CASE WHEN x.state='VERIFIED' THEN x.reserved_file_id ELSE NULL END,'verified_at',x.verified_at,'source_status',json_extract(x.descriptor_json,'$.source_status'),'language_code',json_extract(x.descriptor_json,'$.language_code'),'track_kind',json_extract(x.descriptor_json,'$.track_kind'),'reason',x.last_reason) WHEN df.object_key IS NOT NULL THEN json_object('state',df.state,'file_id',CASE WHEN df.state='VERIFIED' THEN df.reserved_file_id ELSE NULL END,'verified_at',df.verified_at,'source_status',json_extract(dm.descriptor_json,'$.source_status'),'language_code',json_extract(dm.descriptor_json,'$.language_code'),'track_kind',json_extract(dm.descriptor_json,'$.track_kind'),'reason',df.reason) ELSE NULL END`;
 const readiness = `CASE WHEN t.item_id IS NOT NULL THEN 'READY' WHEN r.run_id IS NOT NULL THEN CASE WHEN json_extract(r.outcome_json,'$.view.coverage_complete')=0 OR json_extract(r.outcome_json,'$.view.status')='INSUFFICIENT_SOURCE' THEN 'PARTIAL' ELSE 'READY' END
 WHEN i.availability IN ('PRIVATE','DELETED') OR j.state='BLOCKED' THEN 'BLOCKED'
 WHEN j.state='FAILED' THEN 'FAILED'
@@ -458,9 +460,14 @@ FROM sources s LEFT JOIN channels c ON c.owner_id=s.owner_id AND c.source_id=s.s
               ? 'PARTIAL_COVERAGE'
               : null
             : (row.reason_code ??
-              (row.readiness === 'BLOCKED'
-                ? 'SOURCE_UNAVAILABLE'
-                : 'ANALYSIS_PENDING')),
+              (row.state === 'SUCCEEDED'
+                ? row.transcript_archive_json &&
+                  JSON.parse(row.transcript_archive_json).state === 'VERIFIED'
+                  ? null
+                  : 'TRANSCRIPT_ARCHIVE_PENDING'
+                : row.readiness === 'BLOCKED'
+                  ? 'SOURCE_UNAVAILABLE'
+                  : 'ANALYSIS_PENDING')),
           retry_at: ['PENDING', 'DEFERRED', 'RETRY_WAIT'].includes(
             row.state ?? '',
           )

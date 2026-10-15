@@ -1,0 +1,9 @@
+{
+  "schema": "production-oracle-owner-session-receipt:1",
+  "status": "NORMAL_EXISTING_OWNER_SESSION_ISSUED",
+  "expires_at": "2026-10-15T13:07:58.925Z",
+  "existing_allowlisted_owner": true,
+  "synthetic_owner_created": false,
+  "signing_secret_transferred": false,
+  "source_jobs_submitted": 0
+}

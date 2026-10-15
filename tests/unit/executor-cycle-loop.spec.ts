@@ -29,6 +29,60 @@ it.each(['D1_DAILY_READ_LIMIT', 'D1_DAILY_WRITE_LIMIT'] as const)(
 );
 
 describe('serial executor recovery loop', () => {
+  it('drains ten ready jobs without calling sleep, then polls idle every 30 seconds', async () => {
+    const controller = new AbortController(),
+      waits: number[] = [];
+    let jobs = 0,
+      cycles = 0;
+    await runExecutorLoop({
+      signal: controller.signal,
+      once: false,
+      search: false,
+      cycle: async () => {
+        cycles++;
+        if (jobs < 10) {
+          jobs++;
+          return { idle: false, accepted: true };
+        }
+        return { idle: true, accepted: false };
+      },
+      emit: () => {},
+      wait: async (ms) => {
+        waits.push(ms);
+        if (waits.length === 2) controller.abort();
+      },
+    });
+    expect(jobs).toBe(10);
+    expect(cycles).toBe(12);
+    expect(waits).toEqual([30000, 30000]);
+  });
+  it('honors Retry-After on 429 and technical provider cooldown without calling it idle', async () => {
+    const controller = new AbortController(),
+      waits: number[] = [];
+    let cycles = 0;
+    await runExecutorLoop({
+      signal: controller.signal,
+      once: false,
+      search: false,
+      cycle: async () => {
+        if (++cycles === 1)
+          throw new WorkerRpcError(
+            'WORKER_RPC_FAILED',
+            'lease',
+            429,
+            null,
+            240000,
+          );
+        return { idle: false, accepted: false, retry_after_ms: 3600000 };
+      },
+      emit: () => {},
+      wait: async (ms) => {
+        waits.push(ms);
+        if (cycles === 2) controller.abort();
+      },
+    });
+    expect(waits).toEqual([240000, 3600000]);
+  });
   it('bounds outage backoff and resets after recovery without exposing errors', async () => {
     const controller = new AbortController();
     const waits: number[] = [],
@@ -53,7 +107,7 @@ describe('serial executor recovery loop', () => {
       },
     });
     expect(result).toBe(0);
-    expect(waits).toEqual([30000, 60000, 120000, 120000, 30000, 30000]);
+    expect(waits).toEqual([30000, 60000, 120000, 120000, 30000]);
     expect(JSON.stringify(events)).not.toContain('private');
     expect(events[4]).toEqual({
       event: 'LOCAL_EXECUTOR_CYCLE',

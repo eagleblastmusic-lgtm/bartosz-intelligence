@@ -125,3 +125,17 @@ requests (zero). Initial restart failed closed before stopping anything because
 Windows created a system conhost and used backslash separators. The corrected
 launcher completed restart and check; read-only production heartbeats confirmed
 all three non-AI services refreshed together after restart.
+
+# Uzupełnienie lokalnej implementacji — 2026-10-15
+
+Oracle opróżnia gotowy backlog sekwencyjnie z dodatkowym delay **0 ms**;
+`concurrency=1` pozostaje obowiązkowe. Pusta kolejka jest odpytywana co 30 s.
+Quota D1 czeka do resetu UTC; Retry-After, IP/parser cooldown i HTTP 429 nadal
+obowiązują. Nie zmieniono mweb, trwałej sesji, Subs Proof-of-Origin ani yt-dlp.
+
+`BARTOSZ_TRANSCRIPT_REPRESENTATION` domyślnie ma wartość `COMPACT` (3 artefakty).
+Opcjonalne `LEGACY` zachowuje produkcję starej reprezentacji dla przywrócenia
+zaawansowanych funkcji. Nie włącza samoistnie automatycznej analizy AI.
+Cloudflare przyjmuje obie wersje; wdrażać kompatybilny API przed nowym Oracle.
+Produkcji nie zmieniono w tym zadaniu. Pełne instrukcje i dowody:
+[raport](../verification/performance/2026-10-15/IMPLEMENTATION_REPORT_PL.md).

@@ -30,6 +30,7 @@ export async function sweep(
   now: Date,
   availability: (job: JobRecord) => boolean,
   limit = 50,
+  automaticAiEnabled = true,
 ) {
   if (!Number.isInteger(limit) || limit < 1 || limit > 50)
     throw new Error('INVALID_LIMIT');
@@ -74,9 +75,9 @@ export async function sweep(
   const due = (
     await db
       .prepare(
-        "SELECT * FROM jobs WHERE state IN ('RETRY_WAIT','DEFERRED') AND due_at<=? ORDER BY due_at,job_id LIMIT ?",
+        "SELECT * FROM jobs WHERE state IN ('RETRY_WAIT','DEFERRED') AND due_at<=? AND (? OR task_type<>'ANALYZE') ORDER BY due_at,job_id LIMIT ?",
       )
-      .bind(now.toISOString(), limit)
+      .bind(now.toISOString(), automaticAiEnabled ? 1 : 0, limit)
       .all<JobRecord>()
   ).results;
   for (const job of due)
@@ -90,9 +91,9 @@ export async function sweep(
   const pending = (
     await db
       .prepare(
-        "SELECT owner_id,job_id,fencing_token,task_type FROM jobs WHERE state='PENDING' AND due_at<=? AND task_type NOT IN ('DISCOVER','RECONCILE') ORDER BY priority DESC,due_at,job_id LIMIT ?",
+        "SELECT owner_id,job_id,fencing_token,task_type FROM jobs WHERE state='PENDING' AND due_at<=? AND (? OR task_type<>'ANALYZE') AND task_type NOT IN ('DISCOVER','RECONCILE') ORDER BY priority DESC,due_at,job_id LIMIT ?",
       )
-      .bind(now.toISOString(), limit)
+      .bind(now.toISOString(), automaticAiEnabled ? 1 : 0, limit)
       .all<{
         owner_id: string;
         job_id: string;
@@ -130,15 +131,16 @@ export async function dispatchOutbox(
   send: (signal: QueueSignal) => Promise<void>,
   now: Date,
   limit = 50,
+  automaticAiEnabled = true,
 ) {
   if (!Number.isInteger(limit) || limit < 1 || limit > 50)
     throw new Error('INVALID_LIMIT');
   const events = (
     await db
       .prepare(
-        `SELECT o.event_id,o.owner_id,o.payload_json FROM outbox o JOIN jobs j ON j.owner_id=o.owner_id AND j.job_id=o.job_id WHERE o.delivered_at IS NULL AND o.due_at<=? AND j.state='PENDING' ORDER BY o.due_at,o.event_id LIMIT ?`,
+        `SELECT o.event_id,o.owner_id,o.payload_json FROM outbox o JOIN jobs j ON j.owner_id=o.owner_id AND j.job_id=o.job_id WHERE o.delivered_at IS NULL AND o.due_at<=? AND j.state='PENDING' AND (? OR j.task_type<>'ANALYZE') ORDER BY o.due_at,o.event_id LIMIT ?`,
       )
-      .bind(now.toISOString(), limit)
+      .bind(now.toISOString(), automaticAiEnabled ? 1 : 0, limit)
       .all<{ event_id: string; owner_id: string; payload_json: string }>()
   ).results;
   let delivered = 0;
@@ -198,6 +200,7 @@ export async function pull(
   slots = 1,
   tasks?: readonly TaskType[],
   analysisMode?: 'PRODUCTION',
+  automaticAiEnabled = true,
 ) {
   if (
     analysisMode !== undefined &&
@@ -214,7 +217,20 @@ export async function pull(
       store.context.scopes.includes(task) && (!tasks || tasks.includes(task)),
   );
   if (admittedTasks.length === 0) return [];
-  const taskPredicate = `task_type IN (${admittedTasks.map(() => '?').join(',')})`;
+  if (admittedTasks.includes('FETCH_TRANSCRIPT'))
+    await store.db
+      .prepare(
+        "UPDATE jobs SET state='PENDING',reason_code=NULL,updated_at=? WHERE owner_id=? AND task_type='FETCH_TRANSCRIPT' AND state IN ('DEFERRED','RETRY_WAIT') AND COALESCE(reason_code,'')<>'WORKER_OFFLINE' AND due_at<=? AND EXISTS(SELECT 1 FROM worker_identities w WHERE w.owner_id=jobs.owner_id AND w.worker_id=? AND w.credential_hash=? AND w.revoked_at IS NULL)",
+      )
+      .bind(
+        now.toISOString(),
+        store.context.ownerId,
+        now.toISOString(),
+        store.context.actorId,
+        store.context.credentialHash!,
+      )
+      .run();
+  const taskPredicate = `task_type IN (${admittedTasks.map(() => '?').join(',')})${automaticAiEnabled ? '' : " AND NOT (task_type='ANALYZE' AND explicit_run_nonce='' AND EXISTS(SELECT 1 FROM config_versions c WHERE c.owner_id=jobs.owner_id AND c.config_id='automatic-analysis:'||json_extract(jobs.payload_json,'$.snapshot.source.run_id')))"}`;
   const groups = await Promise.all(
     [
       "task_type IN ('DISCOVER','RECONCILE','BACKUP')",

@@ -1,0 +1,58 @@
+{
+  "observed_at": "2026-10-15T00:34:32.794Z",
+  "period_start_utc": "2026-10-15T00:00:00Z",
+  "period_end_utc": "2026-10-15T00:34:32.135Z",
+  "scope": "ACCOUNT_METRICS_AND_SELECTED_DATABASE_METADATA",
+  "production_mutations": 0,
+  "sql_statements": 5,
+  "rows_read": null,
+  "rows_written": null,
+  "ledger_matches_local_prefix": null,
+  "sql_results": null,
+  "sql_error": {
+    "http_status": 401,
+    "success": false,
+    "result": null,
+    "errors": [
+      {
+        "code": 10000,
+        "schema_error": null
+      }
+    ]
+  },
+  "queue": {
+    "http_status": 401,
+    "success": false,
+    "result": null,
+    "errors": [
+      {
+        "code": 10000,
+        "schema_error": null
+      }
+    ]
+  },
+  "analytics": {
+    "http_status": 401,
+    "success": false,
+    "errors": [
+      {
+        "code": 10000,
+        "schema_error": null
+      }
+    ]
+  },
+  "summary": {
+    "d1": {
+      "rows_read": null,
+      "rows_written": null
+    },
+    "workers": {
+      "requests": null,
+      "errors": null
+    },
+    "queues": {
+      "billable_operations": null
+    }
+  },
+  "analytics_lag": "NOT_MEASURED; early UTC day and hourly aggregates may be partial; empty/unavailable/truncated groups are null, not zero"
+}

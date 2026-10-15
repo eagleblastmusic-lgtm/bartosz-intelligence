@@ -1,5 +1,11 @@
 import { fetchWithoutRedirect } from '../../http/no-redirect.js';
 import { boundedText } from '../../http/bounded-text.js';
+import { YoutubeError } from './client.js';
+export class RssUnavailableError extends YoutubeError {
+  constructor(readonly status: 404 | 410) {
+    super('NOT_FOUND');
+  }
+}
 export function parseAtomHints(xml: string) {
   if (
     new TextEncoder().encode(xml).byteLength > 64000 ||
@@ -73,8 +79,24 @@ export async function pollRss(
       etag,
       modified,
     };
-  if (!response.ok)
-    throw new Error(response.status === 429 ? 'RSS_QUOTA' : 'RSS_TRANSIENT');
+  if (!response.ok) {
+    await response.body?.cancel();
+    if (response.status === 404 || response.status === 410)
+      throw new RssUnavailableError(response.status);
+    const retry = response.headers.get('retry-after');
+    const next =
+      retry && /^\d+$/.test(retry)
+        ? Date.now() + Number(retry) * 1000
+        : Date.parse(retry ?? '');
+    throw new YoutubeError(
+      response.status === 429 ? 'QUOTA' : 'TRANSIENT',
+      Number.isFinite(next)
+        ? new Date(next).toISOString()
+        : response.status === 429
+          ? new Date(Date.now() + 60000).toISOString()
+          : null,
+    );
+  }
   return {
     hint_ids: parseAtomHints(await boundedText(response, 64000)),
     not_modified: false,

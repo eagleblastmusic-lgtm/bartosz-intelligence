@@ -131,6 +131,11 @@ def execute(request):
     if not isinstance(maximum,int) or maximum<1 or maximum>qualified.MAX_RESPONSE_BYTES:
         result["failure_code"]="INVALID_LOCAL_INPUT"
         return result
+    audio_language=request.get('default_audio_language')
+    if audio_language is not None and (not isinstance(audio_language,str) or len(audio_language)>64 \
+            or not re.fullmatch(r'[A-Za-z]{2,8}(?:-[A-Za-z0-9]{1,8})*',audio_language)):
+        result['failure_code']='INVALID_LOCAL_INPUT'
+        return result
     observations=[]
     options={"ignoreconfig":True,"quiet":True,"no_warnings":True,"noplaylist":True,"skip_download":True,"socket_timeout":10,"retries":0,"fragment_retries":0,"extractor_retries":0,"file_access_retries":0,"writesubtitles":False,"writeautomaticsubtitles":False,"logger":qualified.QuietLogger(),"cachedir":False,"extractor_args":{"youtube":{"player_client":["default"]}}}
     if os.environ.get('BARTOSZ_DENO'):
@@ -145,7 +150,7 @@ def execute(request):
             if not isinstance(info,dict): raise ValueError("no metadata")
             tracks=tracks_from_info(info)
             result["tracks"]=[{key:value for key,value in track.items() if not key.startswith("_")} for track in tracks]
-            result["video_language"]=info.get("language") if isinstance(info.get("language"),str) else None
+            result["video_language"]=(info.get("language") if isinstance(info.get("language"),str) else None) or audio_language
             if request["operation"]=="list":
                 result.update(status="OK" if tracks else "NO_CAPTIONS",failure_code=None if tracks else "EMPTY_PUBLIC_TRACKLIST")
             else:

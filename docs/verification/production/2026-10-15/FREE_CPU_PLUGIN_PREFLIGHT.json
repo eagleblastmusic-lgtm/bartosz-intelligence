@@ -1,0 +1,87 @@
+{
+  "observed_at": "2026-10-15T11:24:36.989Z",
+  "production_writes": 0,
+  "results": [
+    {
+      "path": "/accounts/0db26be1cc4c4f7f196d5ac401e232f3/workers/scripts/bartosz-intelligence/deployments",
+      "success": true,
+      "status": 200,
+      "errors": [],
+      "result": [
+        {
+          "id": "a8b270f3-917c-4bf5-a1b6-6623c8c9a630",
+          "source": "wrangler",
+          "strategy": "percentage",
+          "author_email": "eagleblastmusic@gmail.com",
+          "annotations": {
+            "workers/triggered_by": "deployment"
+          },
+          "versions": [
+            {
+              "version_id": "6b6a7844-e1f9-48a3-b70e-299b6d98cd90",
+              "percentage": 100
+            }
+          ],
+          "created_on": "2026-10-15T10:55:12.589815Z"
+        }
+      ]
+    },
+    {
+      "path": "/accounts/0db26be1cc4c4f7f196d5ac401e232f3/queues/48550659182b4795a7be57551abd8311",
+      "success": true,
+      "status": 200,
+      "errors": [],
+      "result": {
+        "queue_id": "48550659182b4795a7be57551abd8311",
+        "queue_name": "bartosz-intelligence-signals",
+        "settings": {
+          "delivery_delay": 0,
+          "message_retention_period": 86400
+        },
+        "created_on": "2026-10-05T19:42:02.582789Z",
+        "modified_on": "2026-10-05T19:42:02.582789Z",
+        "producers_total_count": 1,
+        "producers": [
+          {
+            "script": "bartosz-intelligence",
+            "type": "worker"
+          }
+        ],
+        "consumers_total_count": 1,
+        "consumers": [
+          {
+            "script": "bartosz-intelligence",
+            "settings": {
+              "batch_size": 1,
+              "max_retries": 0,
+              "max_wait_time_ms": 5000,
+              "max_concurrency": 1,
+              "retry_delay": 0
+            },
+            "consumer_id": "5243fd04b710487a8685897e42b95b10",
+            "type": "worker"
+          }
+        ]
+      }
+    },
+    {
+      "path": "/accounts/0db26be1cc4c4f7f196d5ac401e232f3/d1/database/6f7a7527-610b-4e56-ad80-682ea7acd567",
+      "success": true,
+      "status": 200,
+      "errors": [],
+      "result": {
+        "uuid": "6f7a7527-610b-4e56-ad80-682ea7acd567",
+        "name": "bartosz-intelligence-core",
+        "created_at": "2026-10-05T19:42:01.543Z",
+        "version": "production",
+        "num_tables": 85,
+        "file_size": 30232576,
+        "running_in_region": "WEUR",
+        "read_replication": {
+          "mode": "disabled"
+        },
+        "jurisdiction": null
+      }
+    }
+  ]
+}

@@ -1,0 +1,22 @@
+{
+  "recorded_on": "2026-10-15",
+  "source": "OWNER_EXPLICIT_CONFIRMATION_IN_CURRENT_CHAT",
+  "owner_observed_at": null,
+  "owner_instruction": "Uznaj weryfikację boot volume za PASS; nie trzeba czyścić Chrome ani ponownie odczytywać tego samego dysku",
+  "resource_name": "bartosz-intelligence-server (Boot Volume)",
+  "boot_volume_id": "ocid1.bootvolume.oc1.eu-frankfurt-1.abtheljrpjagic7y6oifz6f2jhbrrilycixhbzhtrmtnntwsq73urduncjyq",
+  "size_display_gb": 47,
+  "performance": "Balanced",
+  "vpus_per_gb": 10,
+  "status_label": "Dostępne",
+  "always_free_label": "Zawsze bezpłatne",
+  "iops": 2820,
+  "throughput_mb_per_second": 22.56,
+  "cross_region_replication_enabled": false,
+  "automatic_performance_tuning_enabled": false,
+  "result": "PASS_OWNER_VERIFIED",
+  "independent_parameter_read_repeated": false,
+  "chrome_data_cleared_by_agent": false,
+  "production_mutations": 0,
+  "deployment_go_received": false
+}

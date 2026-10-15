@@ -1,0 +1,23 @@
+{
+  "nonce": "740739bb-a9af-4a52-992e-86e815288514",
+  "created_at": "2026-10-15T01:29:26.283Z",
+  "video_id": "9i1LVL3_xpU",
+  "item_id": "1c613cd1-18b8-4610-b6a2-d334be3ab76a",
+  "source_id": "37122a11-d19e-4b0e-8a36-cc4f191bdc97",
+  "previous_job_id": "64680936-906e-44a1-a7e6-c3a7addb2a4e",
+  "previous_state": "BLOCKED",
+  "previous_reason": "LOCAL_YTDLP_UNAVAILABLE",
+  "published_at": "2026-10-12T15:00:34Z",
+  "discovered_at": "2026-10-12T15:30:41.121Z",
+  "channel_id": "UCAuUUnT6oDeKwE6v1NGQxug",
+  "manual_canary": true,
+  "accepted_material_reused": false,
+  "source_requests_allowed": 1,
+  "job_id": "966f9cb0-7188-45ce-95d0-fed94a7c9bc3",
+  "state": "PENDING",
+  "dedup_key": "e07ae668a8817e16c95e3d3faf2e8404f3abfe2f12d02d14dbe871a4476a6a05",
+  "availability_epoch": "2026-10-15T01:29:26.283Z",
+  "old_job_unchanged": true,
+  "historical_backfill": false,
+  "trigger": "Existing owner JobStore with bounded explicit manual nonce; no replay of access denial and no accepted duplicate"
+}

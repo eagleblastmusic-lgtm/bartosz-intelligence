@@ -50,6 +50,7 @@ try {
       fetch,
       ytdlpProviderVersion,
       config.workerId,
+      config.representation,
     );
     started = true;
     const code = await runExecutorLoop({

@@ -4,7 +4,12 @@ import { nextD1Reset } from '../../../packages/core/src/db/d1-quota.js';
 
 /** One serial cycle at a time; durable jobs remain on the control plane. */
 export async function runExecutorLoop(input: {
-  cycle: () => Promise<{ idle: boolean; accepted: boolean }>;
+  cycle: () => Promise<{
+    idle: boolean;
+    accepted: boolean;
+    retry_after_ms?: number;
+    metrics?: Record<string, number | string | null>;
+  }>;
   once: boolean;
   search: boolean;
   signal: AbortSignal;
@@ -21,12 +26,14 @@ export async function runExecutorLoop(input: {
     try {
       const result = await input.cycle();
       failures = 0;
-      if (input.search && !result.idle) interval = 250;
+      if (!result.idle) interval = input.search ? 250 : 0;
+      interval = Math.max(interval, result.retry_after_ms ?? 0);
       input.emit(
         {
           event: 'LOCAL_EXECUTOR_CYCLE',
           accepted: result.accepted,
           idle: result.idle,
+          ...(result.metrics ? { metrics: result.metrics } : {}),
         },
         false,
       );
@@ -51,6 +58,8 @@ export async function runExecutorLoop(input: {
       if (denied || input.once) return 1;
       failures = Math.min(failures + 1, 3);
       interval = Math.min(120000, 30000 * 2 ** (failures - 1));
+      if (error instanceof WorkerRpcError)
+        interval = Math.max(interval, error.retry_after_ms ?? 0);
       if (
         error instanceof WorkerRpcError &&
         (error.code === 'D1_DAILY_READ_LIMIT' ||
@@ -65,7 +74,7 @@ export async function runExecutorLoop(input: {
     }
     if (input.once || input.signal.aborted) return 0;
     try {
-      await wait(interval, input.signal);
+      if (interval > 0) await wait(interval, input.signal);
     } catch (error) {
       if (input.signal.aborted) return 0;
       throw error;

@@ -51,6 +51,7 @@ export class RunRepository {
       predicate: string;
       bindings: readonly (string | number | null)[];
     },
+    project = true,
   ) {
     this.context.requireTask(task);
     if (
@@ -150,7 +151,7 @@ export class RunRepository {
       this.db
         .prepare(
           `INSERT INTO jobs(job_id,owner_id,item_id,source_id,task_type,input_revision,profile_revision,prompt_snapshot_id,routing_policy_version,explicit_run_nonce,dedup_key,state,due_at,priority,arrival_origin_at,origin_kind,payload_json,created_at,updated_at)
-        SELECT ?,owner_id,NULL,NULL,'PROJECT',?,'projection-1',NULL,'control-plane-1','',?,'PENDING',?,100,?,'INTEGRITY',?,?,? FROM jobs WHERE owner_id=? AND job_id=? AND ${guard}
+        SELECT ?,owner_id,NULL,NULL,'PROJECT',?,'projection-1',NULL,'control-plane-1','',?,'PENDING',?,100,?,'INTEGRITY',?,?,? FROM jobs WHERE owner_id=? AND job_id=? ${project ? '' : 'AND 0'} AND ${guard}
         ON CONFLICT(owner_id,dedup_key) DO NOTHING`,
         )
         .bind(

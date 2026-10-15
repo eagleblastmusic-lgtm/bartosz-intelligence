@@ -71,10 +71,25 @@ class CaptionBrokerContract(unittest.TestCase):
             {**self.listing, 'max_bytes': True}, {**self.listing, 'max_bytes': 4194305},
             {**self.listing, 'item_id': '../../evil'},
             {**self.listing, 'operation': 'login'}, {**self.fetch, 'extension': '/tmp/x'},
-            {**self.fetch, 'track_kind': 'TRANSLATED'}]:
+            {**self.fetch, 'track_kind': 'TRANSLATED'},
+            {**self.listing, 'default_audio_language': 'en;id'},
+            {**self.listing, 'default_audio_language': None},
+            {**self.listing, 'default_audio_language': 'e' * 65},
+            {**self.fetch, 'default_audio_language': 'en'}]:
             with self.subTest(value=value):
                 with self.assertRaises(ValueError): self.service.execute(value, None)
         self.assertEqual(self.calls, [])
+
+    def test_verified_audio_language_is_a_list_only_scalar_and_capture_is_still_reused(self):
+        def capture(video, maximum, connection, item_id, default_audio_language=None):
+            self.calls.append((video, maximum, item_id, default_audio_language))
+            return self.response
+        self.service.capture = capture
+        listing = {**self.listing, 'default_audio_language': 'en-US'}
+        self.service.execute(listing, None)
+        self.assertEqual(self.calls, [(self.listing['video_id'], 4096, self.listing['item_id'], 'en-US')])
+        self.assertEqual(self.service.execute(self.fetch, None), self.response)
+        self.assertEqual(len(self.calls), 1)
 
     def test_public_track_projection_omits_url_cookie_token(self):
         value = broker.public_track({**self.selected, '_url': 'https://signed.invalid/?token=secret',
